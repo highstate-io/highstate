@@ -21,33 +21,12 @@
         "{projectRoot}/bin"
       ]
     },
-    "test": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/coverage"]
-    },
-    "build-image": {
-      "cache": true,
-      "dependsOn": ["build"],
-      "outputs": []
-    },
-    "push-image": {
-      "cache": true,
-      "dependsOn": ["build-image"],
-      "outputs": []
-    },
-    "deploy-image": {
-      "cache": true,
-      "dependsOn": ["push-image"],
-      "outputs": []
-    },
-    "biome": {
-      "cache": true,
-      "outputs": []
-    },
-    "biome:check": {
-      "cache": true,
-      "outputs": []
-    }
-  }
+    "test": { "cache": true, "dependsOn": ["^build"], "outputs": ["{projectRoot}/coverage"] },
+    "build-image": { "cache": true, "dependsOn": ["build"], "outputs": [] },
+    "push-image": { "cache": true, "dependsOn": ["build-image"], "outputs": [] },
+    "deploy-image": { "cache": true, "dependsOn": ["push-image"], "outputs": [] },
+    "biome": { "cache": true, "outputs": [] },
+    "biome:check": { "cache": true, "outputs": [] }
+  },
+  "nxCloudId": "68ec0fb6bfeabbab18190388"
 }
