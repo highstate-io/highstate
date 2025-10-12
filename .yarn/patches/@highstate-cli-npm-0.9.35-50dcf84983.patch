@@ -1,0 +1,22 @@
+diff --git a/dist/main.js b/dist/main.js
+index 3058622f7bae31acded599e59e5ec5e3d0b5658f..71b813d7976ae539667e9b09b757281566fa6953 100755
+--- a/dist/main.js
++++ b/dist/main.js
+@@ -17,7 +17,7 @@ import { crc32 } from '@aws-crypto/crc32';
+ import { resolve as resolve$1 } from 'import-meta-resolve';
+ import { readPackageJSON, resolvePackageJSON } from 'pkg-types';
+ import { existsSync } from 'node:fs';
+-import { disposeServices } from '@highstate/backend';
++// import { disposeServices } from '@highstate/backend';
+ import { input, confirm } from '@inquirer/prompts';
+ import { Table } from 'console-table-printer';
+ import { encode } from '@msgpack/msgpack';
+@@ -27,6 +27,8 @@ import { colorize } from 'consola/utils';
+ import { getPort } from 'get-port-please';
+ import { addDevDependency } from 'nypm';
+ 
++const disposeServices = () => Promise.resolve()
++
+ // package.json
+ var version = "0.9.34";
+ var logger = pino(

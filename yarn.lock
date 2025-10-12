@@ -2510,7 +2510,7 @@ __metadata:
     dotenv: "npm:^16.4.7"
     execa: "npm:^9.6.0"
     glob: "npm:^11.0.1"
-    highstate-cli-bootstrap: "npm:@highstate/cli@0.9.35"
+    highstate-cli-bootstrap: "patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch"
     import-meta-resolve: "npm:^4.1.0"
     lru-cache: "npm:^11.1.0"
     nano-spawn: "npm:^0.2.0"
@@ -2602,6 +2602,44 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@highstate/cli@npm:0.9.35":
+  version: 0.9.35
+  resolution: "@highstate/cli@npm:0.9.35"
+  dependencies:
+    "@aws-crypto/crc32": "npm:^5.2.0"
+    "@highstate/backend": "npm:^0.9.35"
+    "@highstate/contract": "npm:^0.9.35"
+    "@inquirer/prompts": "npm:^7.8.6"
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@pulumi/pulumi": "npm:^3.198.0"
+    age-encryption: "npm:^0.2.4"
+    ajv: "npm:^8.17.1"
+    clipanion: "npm:^4.0.0-rc.4"
+    consola: "npm:^3.4.0"
+    console-table-printer: "npm:^2.12.1"
+    crypto-hash: "npm:^3.1.0"
+    get-port-please: "npm:^3.1.2"
+    import-meta-resolve: "npm:^4.1.0"
+    magic-string: "npm:^0.30.17"
+    nypm: "npm:^0.6.1"
+    oxc-parser: "npm:^0.63.0"
+    oxc-walker: "npm:^0.2.4"
+    pino: "npm:^9.6.0"
+    pkg-types: "npm:^1.2.1"
+    remeda: "npm:^2.21.2"
+    tsup: "npm:^8.4.0"
+    zod: "npm:^4.0.5"
+  peerDependenciesMeta:
+    "@pulumi/pulumi":
+      optional: true
+    classic-level:
+      optional: true
+  bin:
+    highstate: ./dist/main.js
+  checksum: 10c0/d8d5bbd12a68adc1656d4958e58b6e231dccc6595eabb8960f1b9e6378f41d546c09fef176758a7d5ea63514cfa60de1e7a18c16aed30270b4970960e9a7e942
+  languageName: node
+  linkType: hard
+
 "@highstate/cli@workspace:^0.9.36, @highstate/cli@workspace:packages/platform/cli":
   version: 0.0.0-use.local
   resolution: "@highstate/cli@workspace:packages/platform/cli"
@@ -2621,7 +2659,7 @@ __metadata:
     console-table-printer: "npm:^2.12.1"
     crypto-hash: "npm:^3.1.0"
     get-port-please: "npm:^3.1.2"
-    highstate-cli-bootstrap: "npm:@highstate/cli@0.9.35"
+    highstate-cli-bootstrap: "patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch"
     import-meta-resolve: "npm:^4.1.0"
     magic-string: "npm:^0.30.17"
     nypm: "npm:^0.6.1"
@@ -2696,7 +2734,7 @@ __metadata:
     "@paralleldrive/cuid2": "npm:^2.2.2"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     "@vitest/coverage-v8": "npm:2.1.8"
-    highstate-cli-bootstrap: "npm:@highstate/cli@0.9.35"
+    highstate-cli-bootstrap: "patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch"
     remeda: "npm:^2.21.0"
     type-fest: "npm:^4.41.0"
     vitest: "npm:^3.2.4"
@@ -18286,9 +18324,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"highstate-cli-bootstrap@npm:@highstate/cli@0.9.35":
+"highstate-cli-bootstrap@patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch":
   version: 0.9.35
-  resolution: "@highstate/cli@npm:0.9.35"
+  resolution: "highstate-cli-bootstrap@patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch::version=0.9.35&hash=5a0238"
   dependencies:
     "@aws-crypto/crc32": "npm:^5.2.0"
     "@highstate/backend": "npm:^0.9.35"
@@ -18320,7 +18358,7 @@ __metadata:
       optional: true
   bin:
     highstate: ./dist/main.js
-  checksum: 10c0/d8d5bbd12a68adc1656d4958e58b6e231dccc6595eabb8960f1b9e6378f41d546c09fef176758a7d5ea63514cfa60de1e7a18c16aed30270b4970960e9a7e942
+  checksum: 10c0/081c0008fd5083eb39ec4b8551fe7d9c041ea91c4a2c25d0abd4761a721b5e0a26442be9b115e42cad01778df6964861344b664720a047de8c810cc7183d2b58
   languageName: node
   linkType: hard
 

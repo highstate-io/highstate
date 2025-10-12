@@ -57,7 +57,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
-    "highstate-cli-bootstrap": "npm:@highstate/cli@0.9.35",
+    "highstate-cli-bootstrap": "patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch",
     "vitest": "^3.2.4"
   }
 }
