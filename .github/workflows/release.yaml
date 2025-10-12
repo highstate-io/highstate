@@ -1,6 +1,8 @@
-name: Auto
+name: Release
 
-on: [push]
+on:
+  push:
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -59,5 +61,5 @@ jobs:
           DOCS_KUBECONFIG: ${{ secrets.DOCS_KUBECONFIG }}
         run: |
           npx nx-cloud start-ci-run --no-distribution
-          yarn ci
+          yarn ci:release
           npx nx-cloud stop-all-agents

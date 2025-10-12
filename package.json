@@ -12,7 +12,8 @@
   "scripts": {
     "build": "lerna run build,build-image",
     "verify": "lerna run test,biome",
-    "ci": "lerna run test,build,build-image,biome:check,push-image,deploy-image && auto shipit",
+    "ci:release": "lerna run test,build,build-image,biome:check,push-image,deploy-image && auto shipit",
+    "ci:verify": "lerna run test,biome:check",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
   "packageManager": "yarn@4.8.1",
