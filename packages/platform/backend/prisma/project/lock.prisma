@@ -1,0 +1,18 @@
+model InstanceLock {
+    /// The ID of the instance state being locked.
+    stateId String @id
+
+    /// The metadata of the lock managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The CUIDv2 token to ensure ownership of the lock.
+    token String
+
+    /// The time when the lock was acquired.
+    acquiredAt DateTime @default(now())
+
+    /// The instance being locked.
+    state InstanceState @relation(fields: [stateId], references: [id])
+}

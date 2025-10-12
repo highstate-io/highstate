@@ -1,0 +1,97 @@
+---
+title: Introduction
+description: What is Highstate and what are the problems it solves.
+navigation:
+  icon: i-lucide-home
+---
+
+## What is Highstate?
+
+Highstate is a visual infrastructure orchestration platform built on top of Pulumi.
+Think of it as a way to design your infrastructure visually while keeping all the power of code underneath.
+
+::warning
+
+The project is in early alpha and aimed at enthusiasts and self-hosters who want a better way to manage their homelab or personal infrastructure.
+It's not production-ready for businesses yet, but it's perfect if you're tired of managing scattered scripts and YAML files.
+See [Project State](/getting-started/project-state) for more details on what to expect.
+::
+
+## The Problem
+
+Let's be honest about how most of us manage infrastructure today.
+You start with a simple script here, a Docker Compose file there.
+Then you add some Terraform for cloud resources, maybe some Ansible playbooks for configuration.
+Before you know it, you have a mess of different tools, each with its own syntax and quirks.
+
+Even worse, these tools don't talk to each other well.
+Your Terraform doesn't know about your Ansible inventory.
+Your Docker Compose has hardcoded IPs that should come from your cloud provider.
+You end up writing glue scripts that break every time something changes.
+
+And documentation?
+Good luck remembering why you configured that firewall rule six months ago or how those three services are supposed to connect.
+
+## The Solution
+
+Highstate takes a different approach.
+Instead of scattered files and scripts, you get a visual canvas where infrastructure becomes tangible.
+You see what you have, how it connects, and why it matters.
+
+The infrastructure is not just resources - it's also the relationships between them.
+Highstate makes these relationships visible and manageable.
+No more guessing how things connect or why that dependency exists.
+
+Under the hood, all Highstate components are powered by Pulumi.
+This means real programming languages, real version control, and real testing capabilities.
+But you don't have to deal with that complexity unless you need to implement custom components.
+
+## Who Should Use Highstate?
+
+Right now, Highstate is perfect for:
+
+- Homelab enthusiasts who want to manage their infrastructure visually
+- Self-hosters running services on their own hardware
+- Developers learning infrastructure concepts without drowning in YAML
+- Teams prototyping infrastructure designs before implementing them
+
+## Who Shouldn't Use Highstate?
+
+If you're running production workloads for a business, you might want to wait until Highstate matures.
+In some cases Highstate might not be the right tool at all, because infrastructure is inherently complex.
+There is no silver bullet that will solve all problems, and Highstate is not an exception.
+
+The Highstate is probably not for you if:
+
+- You need enterprise-grade features like advanced RBAC, auditing, or compliance out of the box
+- You manage multiple environments with strict separation and the concept of single configuration point is something impossible in your organization
+- You require long-term support and stability guarantees (we are in early alpha)
+
+## The planned features that are not implemented yet
+
+- Self-Hosted/Cloud version (you can only use it as local tool right now)
+- Multi-user support and access control 
+- Collaboration features
+- Something else that is absolutely critical for production use
+
+## Ready to Get Started?
+
+If you are interested in trying out Highstate, you can read more about its concepts and how to install it locally.
+
+::card
+---
+title: Concepts
+icon: i-lucide-lightbulb
+to: /getting-started/concepts
+---
+Understanding the fundamental concepts that power Highstate.
+::
+
+::card
+---
+title: Installation
+icon: i-lucide-download
+to: /getting-started/installation
+---
+How to install and use Highstate locally.
+::

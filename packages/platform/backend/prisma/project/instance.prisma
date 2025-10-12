@@ -1,0 +1,157 @@
+enum InstanceStatus {
+    /// The instance is exists in the model (resident or virtual), but not yet deployed or was completely destroyed.
+    ///
+    /// "attempted", "deployed" and "failed" instances can be transitioned back to "undeployed" after
+    /// successful "destroy" operation.
+    undeployed
+
+    /// The instance is attempted, but not yet fully deployed.
+    ///
+    /// Normally, this status is very short-lived, and here to indicate that the instance
+    /// cannot be safely deleted from the the model until it will be completely destroyed.
+    attempted
+
+    /// The initial deployment of the instance was successful.
+    ///
+    /// The transition of "deployed -> failed" is not possible, so consequent failed operations
+    /// will not affect this status.
+    ///
+    /// Like "attempted", that instance cannot be safely deleted from the model until it will be completely destroyed.
+    deployed
+
+    /// The initial deployment of the instance failed.
+    /// It can still be transitioned to "deployed" by a successful operation
+    ///
+    /// Like "attempted", that instance cannot be safely deleted from the model until it will be completely destroyed.
+    failed
+}
+
+enum InstanceSource {
+    /// The instance is defined in the project model.
+    resident
+
+    /// The instance is produced by evaluation of composite instance.
+    virtual
+}
+
+model InstanceState {
+    /// The surrogate CUIDv2 primary key of the instance to allow renaming instances.
+    id String @id @default(cuid(2))
+
+    /// The ID of the instance managed by the system.
+    ///
+    /// [InstanceId]
+    instanceId String @unique
+
+    /// The status of the instance.
+    status InstanceStatus
+
+    /// The source of the instance.
+    source InstanceSource
+
+    /// The kind of the instance.
+    ///
+    /// [InstanceKind]
+    kind String
+
+    /// The ID of the parent instance state, if this instance is a child of another composite instance.
+    parentId String?
+
+    /// The 32-bit nonce used to invalidate the input hash when secrets are updated.
+    inputHashNonce Int?
+
+    /// The calculated instance CRC32 input hash at the moment of last operation completion.
+    ///
+    /// This hash covers:
+    /// - the instance's configuration (name, args, secret hashes);
+    /// - component definition hash;
+    /// - the unit's source hash (if applicable);
+    /// - the input hashes and output hashes of all input instances.
+    inputHash Int?
+
+    /// The CRC32 of the SHA256 of the output produced by the instance at the moment of last operation completion.
+    ///
+    /// Does not depend on anything except the instance's output.
+    outputHash Int?
+
+    /// The calculated CRC32 dependency output hash at the moment of last operation completion.
+    ///
+    /// This hash is calculated as combination of output hashes of all input instances and nothing else.
+    ///
+    /// The primary use case of this hash is to "short-circuit" execution:
+    /// if the outputs of input instances have not changed, dependent instances can skip execution,
+    /// even if their input hashes changed due to upstream config changes.
+    /// This prevents unnecessary re-execution of the entire dependency graph when only non-output-affecting inputs are modified.
+    dependencyOutputHash Int?
+
+    /// The mapping of instance output names to artifact IDs passed via them.
+    ///
+    /// Used to authorize access to artifacts for other instances connected to these outputs.
+    ///
+    /// [InstanceArtifactIds]
+    exportedArtifactIds Json?
+
+    /// The snapshot of the instance model at the moment of last non-preview operation start.
+    ///
+    /// Null if the instance was never operated on.
+    ///
+    /// [InstanceModel]
+    model Json?
+
+    /// The snapshot of the resolved inputs at the moment of last non-preview operation start.
+    ///
+    /// Null if the instance was never operated on.
+    ///
+    /// [InstanceResolvedInputs]
+    resolvedInputs Json?
+
+    /// The count of Pulumi resources currently managed by this instance.
+    currentResourceCount Int?
+
+    /// The status fields produced by the last operation.
+    ///
+    /// [InstanceStatusFields]
+    statusFields Json?
+
+    /// The parent instance.
+    parent InstanceState? @relation("InstanceHierarchy", fields: [parentId], references: [id])
+
+    /// The child instances, if any.
+    children InstanceState[] @relation("InstanceHierarchy")
+
+    /// The evaluation state of this instance.
+    evaluationState InstanceEvaluationState?
+
+    /// The operation states associated with this instance.
+    operationStates InstanceOperationState[]
+
+    /// The secrets associated with this instance.
+    secrets Secret[]
+
+    /// The terminals associated with this instance.
+    terminals Terminal[]
+
+    /// The pages associated with this instance.
+    pages Page[]
+
+    /// The triggers associated with this instance.
+    triggers Trigger[]
+
+    /// Custom statuses for this instance.
+    customStatuses InstanceCustomStatus[]
+
+    /// The lock that is currently held on this instance.
+    lock InstanceLock?
+
+    /// Worker registrations associated with this instance.
+    workerRegistrations WorkerUnitRegistration[]
+
+    /// The artifacts produced or used by this instance.
+    artifacts Artifact[]
+
+    /// The operation logs associated with this instance.
+    operationLogs OperationLog[]
+
+    /// The user viewports associated with this instance.
+    userViewports UserCompositeViewport[]
+}

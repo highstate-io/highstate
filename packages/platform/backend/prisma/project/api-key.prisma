@@ -1,0 +1,34 @@
+/// The API key provides authentication tokens for accessing the platform API.
+///
+/// Each API key impersonates a service account, inheriting its permissions and access scope.
+/// Keys are automatically created for worker versions and can be manually created for
+/// external integrations. The token is a 32-byte random hex string that can be regenerated.
+model ApiKey {
+    /// The CUIDv2 of the API key.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the API key managed by the backend.
+    ///
+    /// [ApiKeyMeta]
+    meta Json
+
+    /// The ID of the service account impersonated by this API key.
+    serviceAccountId String
+
+    /// The API token for authentication.
+    ///
+    /// Should be treated as a secret and only shown once at creation/regeneration.
+    token String @unique
+
+    /// The time when the API key was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the API key was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The worker version that owns this API key.
+    worker WorkerVersion?
+
+    /// The service account which this API key impersonates.
+    serviceAccount ServiceAccount @relation(fields: [serviceAccountId], references: [id])
+}

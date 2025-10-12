@@ -1,0 +1,51 @@
+syntax = "proto3";
+package io.highstate.worker.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
+
+message ConnectRequest {
+  // The ID of the worker version connecting to the service.
+  string worker_version_id = 1;
+}
+
+message UpdateWorkerVersionMetaRequest {
+  // The ID of the worker version to update.
+  string worker_version_id = 1;
+
+  // The new metadata of the worker version.
+  google.protobuf.Struct meta = 2;
+}
+
+// The event sent by the unit requests the worker and registers itself.
+// When the worker establishes a connection to the service, it will
+// receive all existing unit registrations and then continue to receive
+// new registrations as they occur.
+message UnitRegistration {
+  // The ID of the unit state being registered.
+  string state_id = 1;
+
+  // The parameters provided by the unit.
+  google.protobuf.Struct params = 2;
+}
+
+message UnitDeregistration {
+  // The ID of the unit state being unregistered.
+  string state_id = 1;
+}
+
+message WorkerEvent {
+  oneof event {
+    UnitRegistration unit_registration = 1;
+    UnitDeregistration unit_deregistration = 2;
+  }
+}
+
+service WorkerService {
+  // Connects to the worker service and streams events.
+  rpc connect(ConnectRequest) returns (stream WorkerEvent);
+
+  // Update the metadata of the worker version.
+  rpc updateWorkerVersionMeta(UpdateWorkerVersionMetaRequest)
+      returns (google.protobuf.Empty);
+}

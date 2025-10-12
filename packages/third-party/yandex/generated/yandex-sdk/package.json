@@ -1,0 +1,32 @@
+{
+  "name": "@highstate/yandex-sdk",
+  "version": "0.9.36",
+  "description": "A Pulumi provider dynamically bridged from yandex.",
+  "repository": "https://github.com/yandex-cloud/terraform-provider-yandex",
+  "main": "bin/index.js",
+  "scripts": {
+    "build": "tsc && cp package.json bin/package.json"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.198.0",
+    "@types/node": "^18",
+    "async-mutex": "^0.5.0",
+    "typescript": "^4.3.5"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "terraform-provider",
+    "version": "0.7.0",
+    "parameterization": {
+      "name": "yandex",
+      "version": "0.127.0",
+      "value": "eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkub3BlbnRvZnUub3JnL3lhbmRleC1jbG91ZC95YW5kZXgiLCJ2ZXJzaW9uIjoiMC4xMjcuMCJ9fQ=="
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

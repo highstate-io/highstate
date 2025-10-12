@@ -1,0 +1,37 @@
+/// The trigger defines automated actions that execute in response to specific events.
+///
+/// Triggers are created by units to perform actions at defined points in the instance lifecycle
+/// or on schedule. The spec field determines the trigger type and behavior - currently supporting
+/// before-destroy triggers, with planned support for additional types like cron scheduling.
+/// Triggers are deleted along with their instance.
+model Trigger {
+    /// The CUIDv2 of the trigger.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the trigger managed by the backend.
+    ///
+    /// [GlobalCommonObjectMeta]
+    meta Json
+
+    /// The ID of the instance state this trigger belongs to.
+    stateId String
+
+    /// The name of the trigger within the instance.
+    name String
+
+    /// The specification of the trigger describing its type and behavior.
+    ///
+    /// [TriggerSpec]
+    spec Json
+
+    /// The time when the trigger was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the trigger was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The instance this trigger belongs to.
+    state InstanceState @relation(fields: [stateId], references: [id])
+
+    @@unique([stateId, name]) // the name is unique within the instance
+}

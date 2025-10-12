@@ -1,0 +1,112 @@
+---
+title: Project State
+description: Honest snapshot of where Highstate is today, what works, and what still needs love.
+navigation:
+  icon: i-lucide-shield-alert
+---
+
+## The Sad Truth
+
+Highstate is an open source project that still behaves more like an experiment than a polished product.
+Some days it feels ready for real workloads, and on other days it reminds you that we are stretching new patterns to see how far they can go.
+In any case, do not expect a smooth ride just yet.
+If you want to find production-ready replacement for Terraform or Pulumi, you are in the wrong place.
+At least for now.
+
+## The Right Audience
+
+Highstate shines for curious homelab owners, self-hosters, and developers who want to learn infrastructure patterns without drowning in YAML.
+It also suits small teams prototyping new topologies together so they can see connections, 
+switch components, and experiment quickly before committing to a production approach.
+
+## What Already Works
+
+The core component of the Highstate experience is the visual designer.
+It gives you a drag-and-drop canvas where you can assemble components and connect them with data flows.
+
+Under the hood everything runs locally today: the designer launches the backend beside it and keeps each project in its own encrypted SQLite database.
+
+All components are powered by Pulumi, so you can use any Pulumi or even Terraform provider to manage infrastructure.
+TypeScript provide full end-to-end type safety from the designer to the Pulumi program.
+
+The standard library already ships reusable patterns for servers, Kubernetes, networking, and databases while staying completely optional.
+You can swap every entity and component for your own design.
+
+There are also some advanced feature like live terminals and long-running workers that let you build interactive workflows and custom automation.
+The last one is very unstable, though.
+
+## What Still Hurts
+
+We ship no enterprise support, no audit trail, and no SLA beyond what you build yourself.
+Just like any MIT licensed project, you use it at your own risk.
+
+For now, there is no hosted backend, and even no authentication or access control.
+
+The bugs are real: some of them are small annoyances, but others can corrupt your project state or even lock you out of it.
+The tests are poor, and the documentation is not complete.
+
+## The Road To 1.0.0
+
+Expect features to land rough, change shape, or disappear entirely as we iterate.
+Every release before 1.0.0 can include breaking changes unless we spell out otherwise in the notes.
+If you enjoy testing fresh ideas and giving feedback, you are in the perfect place.
+
+### The Persistence Promise
+
+Even when we break surface features, we will not strand your project history.
+We promise to keep the persistence layer forward compatible so your state can ride with you from version to version.
+If we ever need to change the storage format, we will ship migrations that run automatically on upgrade.
+Backwards migrations are out of scope, so you cannot downgrade to an older build once you move forward.
+Despite the automation, make a manual backup of your `.highstate` folder before every upgrade to cover for human mistakes.
+
+### The silly thing we call Standard Library
+
+Component and entity versions are versioned using numbered variants in the type string, like `something.cool.v1`.
+We will try (but cannot promise) to only introduce breaking changes by publishing a new major variant,
+so `something.cool.v2` would appear beside the original.
+Smaller quality of life fixes can still land without bumping the version number.
+In the future, we will introduce deprecation warnings and automatic migrations to help you move to newer versions.
+
+Anything labeled with `v0` is experimental and may change or disappear without warning.
+Do not use them or expect that they will survive the next release.
+
+## Survival Tips
+
+- Make frequent backups, especially before upgrades, because migrations can go sideways.
+- Try not to rename instances after creation: this flow is legal but still fragile and can corrupt state.
+- Do not rely that everything you input will be validated: in some places there is no validation at all. We still don't now what will happen if you connect instances in a cycle, for example (you can try and tell us what you find out).
+- Keep every unlock method safe and use multiple of them: if you lose your password or passkey, assume we cannot recover it for you (unless you have a planet-scale computing cluster, in this case we can try).
+- Restart the designer if the frontend glitches. Although most bugs are probably already known, you can help us by reporting new ones.
+- Bounce the backend when operations hang. It resets locks, cleans partial state, and usually recovers.
+- Never run the same project against two backends at once, or you will create conflicts and corrupt state.
+
+## The Future
+
+There is a long list of features we want to build, including but not limited to:
+
+- Hosted backend with authentication and access control
+- Team collaboration with shared projects and realtime editing
+- Multiple backends to isolate control domains
+- Entity inheritance to simplify abstract data workflows
+- Component extensions to add inputs, outputs, and runtime code in stackable layers
+- Virtual Pulumi state to make Highstate completely self-contained
+- Easier sharing of custom components and entities without publishing NPM packages
+
+And of course, we want to fix bugs, extend the standard library, and improve the overall experience.
+
+## We Need Your Help
+
+The project is still young, and we are figuring out the best way to implement some of the core ideas.
+If you see something that could be better, please suggest your vision.
+You have the real power to shape the future of the project.
+
+There are multiple open design issues, especially related to designing the standad library.
+If you are an experienced infrastructure engineer, your input would be invaluable.
+
+There are also a lot of bugs to fix and features to build.
+If you are a TypeScript developer, you can help by picking something from the issue tracker.
+
+If you are not a developer, you can still help by testing the project, reporting bugs, and suggesting features.
+The documentation is also something that will not build itself.
+
+The best way to reach us is the [Discord server](https://discord.gg/Yv48xCTAPh), where you can chat with the maintainers and other users.

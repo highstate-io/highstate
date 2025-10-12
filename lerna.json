@@ -1,0 +1,11 @@
+{
+  "version": "0.9.36",
+  "npmClient": "yarn",
+  "packages": [
+    "packages/platform/*",
+    "packages/standard/*",
+    "packages/third-party/*",
+    "packages/standard/*/generated/*",
+    "packages/third-party/*/generated/*"
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "name": "@highstate/common",
+  "version": "0.9.36",
+  "type": "module",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "highstate": {
+    "sourceHash": {
+      ".": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/access-point": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/dns/record-set": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/network/l3-endpoint": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/network/l4-endpoint": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/existing-server": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/ssh/key-pair": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/script": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/server-dns": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/server-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/existing-mariadb": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/existing-postgresql": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/existing-mongodb": {
+        "mode": "manual",
+        "version": "1"
+      }
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./units/access-point": "./dist/units/access-point/index.js",
+    "./units/dns/record-set": "./dist/units/dns/record-set/index.js",
+    "./units/network/l3-endpoint": "./dist/units/network/l3-endpoint/index.js",
+    "./units/network/l4-endpoint": "./dist/units/network/l4-endpoint/index.js",
+    "./units/existing-server": "./dist/units/existing-server/index.js",
+    "./units/ssh/key-pair": "./dist/units/ssh/key-pair/index.js",
+    "./units/script": "./dist/units/script/index.js",
+    "./units/server-dns": "./dist/units/server-dns/index.js",
+    "./units/server-patch": "./dist/units/server-patch/index.js",
+    "./units/databases/existing-mariadb": "./dist/units/databases/existing-mariadb/index.js",
+    "./units/databases/existing-postgresql": "./dist/units/databases/existing-postgresql/index.js",
+    "./units/databases/existing-mongodb": "./dist/units/databases/existing-mongodb/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "update-images": "../../scripts/update-images.sh ./assets/images.json",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@highstate/contract": "workspace:^0.9.36",
+    "@highstate/library": "workspace:^0.9.36",
+    "@highstate/pulumi": "workspace:^0.9.36",
+    "@noble/hashes": "^1.7.1",
+    "@pulumi/command": "^1.0.2",
+    "micro-key-producer": "^0.7.3",
+    "minimatch": "^10.0.3",
+    "remeda": "^2.21.0",
+    "tar": "^7.4.3",
+    "unzipper": "^0.12.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:^0.9.36",
+    "@types/tar": "^6.1.13",
+    "@types/unzipper": "^0.10.11",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "type-fest": "^4.41.0"
+  }
+}

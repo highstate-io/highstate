@@ -1,0 +1,116 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/platform/api/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/backend/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/backend-api/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/cli/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/contract/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/create-highstate/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/designer/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/docs/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/pulumi/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/sharing-frontend/tsconfig.json"
+    },
+    {
+      "path": "./packages/platform/worker-sdk/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/cilium/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/cilium/generated/cilium-crds/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/common/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/distributions/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/example/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/example.library/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/example.units/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/git/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k3s/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k8s/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k8s.apps/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k8s.monitor-worker/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k8s.obfuscators/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k8s/generated/cert-manager/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/k8s/generated/gateway-api/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/library/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/nixos/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/proxmox/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/restic/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/sops/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/talos/tsconfig.json"
+    },
+    {
+      "path": "./packages/standard/wireguard/tsconfig.json"
+    },
+    {
+      "path": "./packages/third-party/cloudflare/tsconfig.json"
+    },
+    {
+      "path": "./packages/third-party/mullvad/tsconfig.json"
+    },
+    {
+      "path": "./packages/third-party/timeweb/tsconfig.json"
+    },
+    {
+      "path": "./packages/third-party/timeweb/generated/timeweb-sdk/tsconfig.json"
+    }
+  ]
+}

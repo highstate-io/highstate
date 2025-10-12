@@ -1,0 +1,45 @@
+enum InstanceEvaluationStatus {
+    /// transient statuses (not persisted in the database)
+    evaluating
+
+    /// stable statuses
+    evaluated
+    error
+}
+
+/// The evaluation state tracks the result of evaluating composite instances to produce virtual instances.
+///
+/// Composite instances are template components that generate other instances (virtual instances) when evaluated.
+/// The evaluation process executes the composite's create function with resolved inputs to produce a tree
+/// of child instances. These virtual instances exist in the source "virtual" state and can be units
+/// (mapping to Pulumi resources) or other composites (producing more virtual instances recursively).
+///
+/// Evaluation happens automatically after project unlock and library reloads to keep virtual instances
+/// synchronized with their composite definitions. Evaluation state persists the produced instance model
+/// and tracks success/error status with descriptive messages showing the instance tree or error details.
+model InstanceEvaluationState {
+    /// The ID of the state of the instance.
+    stateId String @id
+
+    /// The status of the instance evaluation.
+    status InstanceEvaluationStatus
+
+    /// The message describing the evaluation status.
+    /// If the evaluation is failed, this message will contain the error description.
+    message String?
+
+    /// The model produced by the evaluation.
+    ///
+    /// Will be `null` if the evaluation is failed.
+    ///
+    /// Can be set for both: real composite instances and virtual instances produced by the evaluation.
+    ///
+    /// [InstanceModel]
+    model Json?
+
+    /// The time when the last evaluation was finished.
+    evaluatedAt DateTime @updatedAt
+
+    /// The instance this state belongs to.
+    state InstanceState @relation(fields: [stateId], references: [id])
+}

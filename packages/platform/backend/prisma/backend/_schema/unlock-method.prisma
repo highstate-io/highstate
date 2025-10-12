@@ -1,0 +1,19 @@
+/// Unlock methods describe trusted identities that can decrypt the backend master key.
+model BackendUnlockMethod {
+    /// The CUIDv2 of the unlock method.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the unlock method managed by the backend.
+    /// 
+    /// [BackendUnlockMethodMeta]
+    meta Json
+
+    /// The AGE recipient for this unlock method.
+    recipient String @unique
+
+    /// The time when the unlock method was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the unlock method was last updated.
+    updatedAt DateTime @updatedAt
+}

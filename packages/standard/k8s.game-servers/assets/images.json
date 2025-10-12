@@ -1,0 +1,12 @@
+{
+  "busybox": {
+    "name": "busybox",
+    "tag": "latest",
+    "image": "busybox:latest@sha256:d82f458899c9696cb26a7c02d5568f81c8c8223f8661bb2a7988b269c8b9051e"
+  },
+  "satisfactory": {
+    "name": "wolveix/satisfactory-server",
+    "tag": "latest",
+    "image": "wolveix/satisfactory-server:latest@sha256:e103700ae6ae4c50f19dac80eadb2a805c5b885e179ae2a40850e967bf189efd"
+  }
+}

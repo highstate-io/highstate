@@ -1,0 +1,475 @@
+---
+title: Units
+description: The atomic building blocks that create and manage cloud resources.
+navigation:
+  icon: i-mdi-cube-outline
+---
+
+## What Are Units?
+
+As we already known, the Highstate is buit on top of Pulumi.
+Every Highstate components ends up by creating some Pulumi resources.
+The components that runs Pulumi code are called **units**.
+Each unit has a single Pulumi program written in TypeScript and uses various Pulumi providers to create and manage cloud resources.
+
+### Defining Units
+
+In previous section, we learned how to use `defineUnit` function in our library packages to produce unit definitions.
+
+For example, here's a simple unit that creates a PostgreSQL database:
+
+```typescript
+// packages/library/src/database.ts
+import { defineUnit, z } from "@highstate/contract"
+
+export const postgresUnit = defineUnit({
+  type: "mycompany.postgres.v1",
+  
+  args: {
+    size: z.number().default(10),
+  },
+  
+  secrets: {
+    password: z.string().optional(),
+  },
+  
+  inputs: {
+    network: networkEntity,
+  },
+  
+  outputs: {
+    database: databaseEntity,
+  },
+  
+  source: {
+    package: "@acme/units",
+    path: "postgres",
+  },
+})
+```
+
+You already know what all these properties mean except the one at the bottom - `source`.
+This field tells Highstate in which package the Pulumi program lives and which path to use as the entry point.
+Every unit must have this field, it is not automatically inferred.
+
+### Writing the Implementation
+
+Now for the fun part - the actual Pulumi code.
+Every Pulumi program must have a separate directory in some package with `index.ts` file as the entry point.
+You can also place other files there if you want to split your code.
+
+For example, for our `postgresUnit`, the implementation lives in `@acme/units` package under `postgres` directory:
+
+```typescript
+// packages/my-units/src/postgres/index.ts
+import { forUnit } from "@highstate/pulumi"
+import { postgresUnit } from "@mycompany/library"
+
+const { name, args, inputs, getSecret, outputs } = forUnit(postgresUnit)
+
+// create resources with pulumi
+const database = new SomeProvider.Database(name, {
+  storage: args.size,
+  password: getSecret("password", () => generatePassword()),
+})
+
+// return outputs
+export default outputs({
+  database: {
+    id: database.id,
+    host: database.hostname,
+    port: 5432,
+  },
+})
+```
+
+But just placing the code there is not enough.
+Highstate locates the implementation by performing import lookup like `import "<package>/<path>"`,
+in our case `import "@acme/units/postgres"`.
+
+So, you must ensure that the package's `package.json` has the correct `exports` field:
+
+```json
+{
+  "name": "@acme/units",
+  "scripts": {
+    "build": "highstate build"
+  },
+  "exports": {
+    "./postgres": "./dist/postgres/index.js"
+  },
+}
+```
+
+The `highstate build` command will detect all `exports` entries and compile the corresponding TypeScript files into `dist` directory.
+From there, Highstate will be able to find and run your Pulumi program.
+
+## The forUnit Magic
+
+In the code above, you saw the `forUnit` function.
+This is where the magic happens.
+This function from `@highstate/pulumi` gives you everything about the current instance:
+
+```typescript
+const {
+  name,           // instance name
+  instanceId,     // full instance ID
+  type,           // component type
+  args,           // configuration values
+  inputs,         // connections from other components
+  secrets,        // sensitive values
+  getSecret,      // secret helper
+  outputs,        // output validation function
+  invokedTriggers // triggered actions
+} = forUnit(myUnit)
+```
+
+Thanks to TypeScript's type inference, all these values have the correct types based on your unit definition.
+
+### Arguments
+
+Arguments are the configuration values users set.
+They're already validated against your Zod schemas, so you can just use them:
+
+```typescript
+// definition
+args: {
+  hostname: z.string(),
+  port: z.number().default(5432),
+  tags: z.record(z.string()).optional(),
+}
+
+// implementation
+const { args } = forUnit(myUnit)
+
+// use in resources
+const resource = new provider.Resource(name, {
+  host: args.hostname,
+  port: args.port,         // has default
+  tags: args.tags ?? {},   // optional
+})
+```
+
+### Inputs and Pulumi Outputs
+
+Here's where it gets a bit tricky.
+Inputs from other components come wrapped in Pulumi's `Output` type.
+Think of them as promises that resolve during deployment:
+
+```typescript
+// required single input
+inputs.network.apply(network => {
+  console.log(network.vpcId)
+})
+
+// you can also use property shorthands
+inputs.network.vpcId.apply(vpcId => {
+  console.log(vpcId)
+})
+
+// optional input
+if (inputs.cache) {
+  inputs.cache.apply(cache => {
+    // use cache
+  })
+}
+
+// multiple inputs
+inputs.servers.apply(servers => {
+  servers.forEach(s => console.log(s.id))
+})
+```
+
+In most cases you will not unwrap these outputs using `apply`.
+Instead, pass them directly to Pulumi resources:
+
+```typescript
+const resource = new Provider.Resource(name, {
+  vpcId: inputs.network.vpcId,  // Output<string>
+  subnetIds: inputs.network.subnetIds, // Output<string[]>
+})
+```
+
+But in some cases you need to make decisions based on input values.
+To avoid complexity with nested `apply` calls (also known as "callback hell"), our proud engineers designed the powerful helper called `toPromise`:
+
+```typescript
+import { toPromise } from "@highstate/pulumi"
+
+const network = await toPromise(inputs.network)
+
+if (network.isPrivate) {
+  // create private resources
+} else {
+  // create public resources
+}
+```
+
+Thanks to top-level async/await support, this looks just like regular synchronous code.
+
+::warning
+
+BUT!
+Be very careful with this.
+There two main pitfalls:
+
+1. Creating pulumi resources after awaiting (as well as creating them inside `apply`) will certainly break the preview phase if the inputs are not known yet.
+   It does not apply to `inputs` themselves, because they are always known, but may apply to any other `Output` values you might have.
+   Well, you might not care about the philosophy of reproducible resource plans and just want to make it work, but we warned you.
+2. If the `Output` has some secret values, they will be unwrapped and become plain text.
+   If you then export them as outputs without `secret()`, they will be leaked in pulumi state files.
+
+::
+
+Check [Pulumi's documentation on outputs](https://www.pulumi.com/docs/concepts/inputs-outputs/) for more details.
+
+### Meeting Secrets
+
+Secrets, as the name suggests, are sensitive values like passwords or API keys.
+
+One special thing about them is that they can be auto-generated if the user doesn't provide them.
+They also persist across instance recreations (when you destroy and create the instance again).
+These two features make secrets very convenient allowing a lot of things to "just work".
+
+To access secrets, you have two options:
+
+```typescript
+const { secrets, getSecret } = forUnit(myUnit)
+
+// direct access - undefined if not provided
+const apiKey = secrets.apiKey  // Output<string> | undefined
+
+// with factory - generates if not provided
+const password = getSecret("password", () => randomBytes(32).toString("hex")) // always Output<string>
+
+// use in resources
+const database = new Provider.Database(name, {
+  password: password,
+})
+```
+
+You probably concerned whether secrets are encrypted or not.
+
+Well, in Highstate state, all project data is encrypted, not only the secrets.
+So, if you even leak some secret in operation logs, it's still encrypted.
+
+Secrets are also encrypted in Pulumi state files with the password stored in Highstate state.
+But this mechanism is not managed by Highstate.
+
+### Returning Outputs
+
+The `outputs` function is your final step.
+It validates what you're returning against the entity schemas you defined:
+
+```typescript
+export default outputs({
+  database: {
+    id: resource.id,
+    host: resource.hostname,
+    port: resource.port,
+    // must match entity schema
+  },
+})
+```
+
+As you may guess, it is also fully typed.
+This way the whole unit implementation is type-safe from end to end.
+
+::warning
+
+You should always call `outputs` and return its result as the default export,
+even if you have no outputs to return (in that case, just call it with no arguments).
+If you don't, Highstate won't be able to capture auto-generated secrets.
+
+::
+
+## Going Beyond Basic Resources
+
+Units can do way more than just create resources and return outputs.
+It's not that we are not satisfied with these oportunities, but we want can do much more by simply providing additional metadata.
+
+Using `$` prefixed properties, you can add all sorts of cool features that integrate with the Highstate platform.
+
+### Status fields
+
+Want to show users what's happening with their infrastructure?
+Status fields appear in the instance card.
+They update during operations and save users from digging through logs.
+You can show simple values or arrays of them.
+
+```typescript
+export default outputs({
+  server: { /* ... */ },
+  
+  $statusFields: {
+    ipAddress: server.publicIp,
+    endpoints: server.endpoints.apply(l4EndpointToString)
+  },
+})
+```
+
+### Terminals
+
+Give users a shell right in the designer!
+Terminals create containerized environments where users can interact with their infrastructure.
+
+You can create multiple terminals with different images and commands:
+
+```typescript
+export default outputs({
+  $terminals: [{
+    name: "ssh",
+    meta: {
+      title: "Server Console",
+      icon: "mdi:console",
+    },
+    spec: {
+      image: "ubuntu:latest",
+      command: ["ssh", "-i", "/private_key", "admin@" + server.publicIp],
+      files: {
+        "/private_key": fileFromString("id_rsa", privateKey, { mode: "0400" })
+      }
+    }
+  }],
+})
+```
+
+This way you can give users direct access to every piece of infrastructure where such shell can be spawned:
+virtual machines, containers, databases, even custom interactive CLIs if you provide the right image and command.
+
+::tip
+
+The terminals are almost fully functional, they support colors, interactive prompts, and even mouse events.
+Commands like `htop`, `vim` work just fine.
+The only limitation now is that resizing the terminal window is not supported.
+The size of the browser window is captured only once when the terminal session starts and cannot be changed later.
+We are working on fixing this.
+
+::
+
+### Pages
+
+Need to show documentation, config files, or setup instructions?
+Pages let you create custom UI content right in the designer.
+Each page consists of multiple content blocks like markdown or downloadable file callouts.
+In future we may add more content types like diagrams, graphs, or even interactive widgets.
+
+```typescript
+import { text, trimIndentation } from "@highstate/contract"
+import { fileFromString, interpolate } from "@highstate/pulumi"
+
+export default outputs({
+  $pages: {
+    index: {
+      meta: { title: "Guide" },
+      content: [
+        {
+          type: "markdown",
+          content: text`
+            ## Setup
+            Your resource is ready.
+          `,
+        },
+        {
+          type: "markdown",
+          content: interpolate`
+            Access: ${resource.endpoint}
+          `.apply(trimIndentation),
+        },
+        {
+          type: "file",
+          file: fileFromString("config.yaml", configContent),
+        },
+      ],
+    },
+  },
+})
+```
+
+::tip
+
+In this example, we use `text` helper to strip all leading indentation from the markdown content.
+This way, you can indent your code properly without affecting the actual content.
+The `trimIndentation` can also be used in context where you pass a string, not a template literal.
+
+::
+
+### Triggers
+
+Triggers, honestly, are quite strange creatures at the first glance.
+They let you invoke the same Pulumi program again, but in a special mode.
+Since Pulumi tracks resources it creates, repeated runs will not create duplicates,
+but allow you to perform some extra actions or create some extra resources.
+
+For now, only the `before-destroy` type is supported, but more are coming:
+
+```typescript
+import { type TriggerInvocation, type UnitTrigger } from "@highstate/contract"
+
+const { invokedTriggers } = forUnit(myUnit)
+
+function handleTrigger(triggers: TriggerInvocation[]): UnitTrigger | undefined {
+  const trigger = triggers.find(t => t.name === "backup")
+  
+  if (trigger) {
+    // perform backup
+    new provider.BackupJob(`${name}-backup`, {})
+    return undefined
+  }
+  
+  return {
+    name: "backup",
+    meta: { title: "Backup" },
+    spec: { type: "before-destroy" },
+  }
+}
+
+export default outputs({
+  $triggers: [handleTrigger(invokedTriggers)],
+})
+```
+
+In this example, we define a `before-destroy` trigger called `backup`.
+When the user tries to destroy the instance, the same Pulumi program is invoked again with this trigger marked as invoked.
+So, destroy operation on such instance must actually update it first, and then do a real destroy.
+This may be a bit confusing ("why I click destroy, but it is going to be updated?"), but it is quite easy and powerful mechanism for certain use cases.
+
+### Workers
+
+Workers are the most advanced feature of units.
+They let you run long-running processes that can perform all sorts of tasks like monitoring or automated scaling.
+
+Workers have access to Highstate API and can interact with the instances spawned them.
+For example, a monitoring worker can periodically check some endpoint and attach the custom status to the instance desplayed in the designer:
+
+```typescript
+export default outputs({
+  $workers: {
+    monitor: {
+      image: "monitor:latest",
+      params: {
+        endpoint: resource.endpoint,
+        interval: 60,
+      },
+    },
+  },
+})
+```
+
+These feature is very experimental and not properly documented yet.
+But if you are interested, you can always ask more about it in our Discord.
+
+## What's Next?
+
+So now you can build units - components that create real infrastructure.
+But what if you want to combine multiple components into something bigger?
+That's where composites come in:
+
+::card
+---
+title: Composites
+icon: i-mdi-cube-scan
+to: /fundamentals/composites
+---
+Learn how to combine units and other components into reusable patterns.
+::

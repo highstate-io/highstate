@@ -1,0 +1,46 @@
+/// The unlock method type determines how users authenticate to decrypt project databases.
+enum UnlockMethodType {
+    /// The password is used to unlock the project.
+    password
+
+    /// The passkey (via WebAuthn) is used to unlock the project.
+    passkey
+}
+
+/// The unlock method enables decryption of project databases through user authentication.
+///
+/// Each project database is encrypted with a master key, which is then encrypted for each
+/// unlock method's recipient using AGE encryption. Users authenticate (password or passkey)
+/// to decrypt their specific AGE identity, which then decrypts the master key.
+///
+/// Multiple unlock methods can exist per project, allowing different authentication paths
+/// to the same encrypted database. When unlock methods are added/removed, the master key
+/// is re-encrypted for the new set of recipients.
+///
+/// The encryptedIdentity contains the AGE identity encrypted with the user's authentication
+/// method (password-derived key or WebAuthn), while the recipient is the public key
+/// corresponding to that identity.
+model UnlockMethod {
+    /// The CUIDv2 of the unlock method.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the unlock method managed by the backend.
+    /// 
+    /// [UnlockMethodMeta]
+    meta Json
+
+    /// The type of unlock method.
+    type UnlockMethodType
+
+    /// The AGE identity encrypted and armored also with AGE.
+    encryptedIdentity String
+
+    /// The AGE recipient for this unlock method.
+    recipient String @unique
+
+    /// The time when the unlock method was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the unlock method was last updated.
+    updatedAt DateTime @updatedAt
+}

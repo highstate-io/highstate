@@ -1,0 +1,169 @@
+/// The worker represents a containerized application that extends unit capabilities beyond Pulumi execution.
+///
+/// Workers enable units to perform runtime operations after Pulumi program completion,
+/// such as attaching custom statuses, monitoring resources, or triggering unit reconfigurations.
+/// Since Pulumi programs cannot affect instances after execution, workers bypass this limitation
+/// by providing persistent runtime behavior.
+///
+/// The worker identity (fully qualified image name) indicates the same publisher/party and services as natural authentication mechanism.
+/// All versions of a worker share the same service account, meaning they operate over
+/// the same resources and have the same access scope within the platform.
+model Worker {
+    /// The CUIDv2 of the worker.
+    id String @id @default(cuid(2))
+
+    /// The identity of the worker derived from the container image.
+    ///
+    /// This is the fully qualified image name without the tag or digest.
+    /// The format is `{<registry>/}[<namespace>/]<name>`.
+    ///
+    /// For example: `ghcr.io/highstate/worker` or `docker.io/library/ubuntu`.
+    identity String @unique
+
+    /// The ID of the service account this worker uses.
+    serviceAccountId String @unique
+
+    /// The time this worker first appeared in the system.
+    createdAt DateTime @default(now())
+
+    /// The service account impersonating this worker.
+    serviceAccount ServiceAccount @relation(fields: [serviceAccountId], references: [id])
+
+    /// The versions of this worker.
+    versions WorkerVersion[]
+}
+
+enum WorkerVersionStatus {
+    /// The status is unknown.
+    unknown
+
+    /// The worker is being started by one of the runtimes.
+    starting
+
+    /// The worker is running and serving registrations.
+    running
+
+    /// The worker is being stopping (after was starting/running and was disabled).
+    stopping
+
+    /// The worker is stopped and not serving registrations.
+    stopped
+
+    /// The worker failed to start/crashed more than the allowed number of times.
+    error
+}
+
+/// The worker version represents a specific container image digest of a worker.
+///
+/// Each version corresponds to an immutable container image identified by its SHA256 digest.
+/// Versions are automatically created when units reference new image digests and deleted
+/// when no longer referenced by any unit registrations.
+///
+/// Each version has its own API key for isolation, but all versions of a worker
+/// share the same service account and thus the same access scope within the platform.
+/// The runtime starts containers when registrations exist and stops them when removed.
+model WorkerVersion {
+    /// The CUIDv2 of the worker version.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the worker version managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The current status of the worker version reported by the runtime.
+    status WorkerVersionStatus @default(unknown)
+
+    /// Whether this worker version is enabled and will be launched when project is unclocked.
+    enabled Boolean @default(true)
+
+    /// The ID of the runtime where this worker version currently runs.
+    runtimeId String?
+
+    /// The ID of the worker this version belongs to.
+    workerId String
+
+    /// The digest of the worker version used to identify it.
+    /// The format is raw SHA256 digest without the `sha256:` prefix in lowercase hex.
+    digest String @unique
+
+    /// The ID of the API key this worker version uses.
+    apiKeyId String @unique
+
+    /// The time this worker version was created.
+    createdAt DateTime @default(now())
+
+    /// The time this worker version was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The worker this version belongs to.
+    worker Worker @relation(fields: [workerId], references: [id])
+
+    /// The API key this worker version uses.
+    apiKey ApiKey @relation(fields: [apiKeyId], references: [id])
+
+    /// The unit registrations for this worker version.
+    unitRegistrations WorkerUnitRegistration[]
+
+    /// The logs produced by this worker version.
+    logs WorkerVersionLog[]
+}
+
+/// The worker unit registration tracks which unit instances require specific worker versions.
+///
+/// Units declare worker dependencies through their outputs, creating registrations that
+/// trigger the runtime to start corresponding worker containers. Each registration
+/// includes parameters passed to the worker for unit-specific configuration.
+///
+/// Registrations are managed during operation execution - created when units declare workers
+/// and removed when units are destroyed. Worker versions without registrations are garbage collected.
+model WorkerUnitRegistration {
+    /// The ID of the state of the unit instance requesting the registration.
+    stateId String
+
+    /// The name of the worker within the instance.
+    name String
+
+    /// The parameters of the registration passed by the unit.
+    ///
+    /// [WorkerUnitRegistrationParams]
+    params Json
+
+    /// The ID of the worker version this registration currently uses.
+    workerVersionId String
+
+    /// The time this registration was created.
+    createdAt DateTime @default(now())
+
+    /// The time this registration was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The unit instance requesting the registration.
+    state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The worker version this registration currently uses.
+    workerVersion WorkerVersion @relation(fields: [workerVersionId], references: [id])
+
+    @@id([stateId, name]) // the registration is identified by the instance and name
+}
+
+/// The worker version log captures output from running worker containers.
+///
+/// Logs include both worker-generated output and system messages from the runtime.
+/// The ULID identifier provides timestamp ordering. Logs are deleted with the worker version.
+model WorkerVersionLog {
+    /// The ULID of the worker log. Also used to extract the timestamp.
+    id String @id @default(ulid())
+
+    /// The ID of the worker version that produced this log.
+    workerVersionId String
+
+    /// The log content.
+    content String
+
+    /// Whether this log is a system/runtime message (vs worker output).
+    isSystem Boolean @default(false)
+
+    /// The worker version that produced this log.
+    workerVersion WorkerVersion @relation(fields: [workerVersionId], references: [id], onDelete: Cascade)
+}

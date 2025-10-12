@@ -1,0 +1,38 @@
+{
+  "kubernetes-dashboard": {
+    "repo": "https://kubernetes.github.io/dashboard",
+    "name": "kubernetes-dashboard",
+    "version": "7.13.0",
+    "sha256": "ff7bc9645de901ed49a342c63e75ea410edbc2bde7e3047a9207ee724c6f01e4"
+  },
+  "traefik": {
+    "repo": "https://traefik.github.io/charts",
+    "name": "traefik",
+    "version": "37.0.0",
+    "sha256": "b3232b170399889871931e1d3c5cac4c9932c5a6681d229dccbee08e1550fa1f"
+  },
+  "mariadb": {
+    "repo": "https://charts.bitnami.com/bitnami",
+    "name": "mariadb",
+    "version": "21.0.3",
+    "sha256": "d06001cd525603fcb79799ef5ccfabc48142a0541bd3f51eb0b1e13e01b256a3"
+  },
+  "postgresql": {
+    "repo": "https://charts.bitnami.com/bitnami",
+    "name": "postgresql",
+    "version": "16.7.21",
+    "sha256": "05d71a3897818dec0227a9e88cde3909c63632c920a14a28348c0ebe2a8ea18b"
+  },
+  "mongodb": {
+    "repo": "https://charts.bitnami.com/bitnami",
+    "name": "mongodb",
+    "version": "16.5.36",
+    "sha256": "0c46b6440f104bd002cfe04201e035241de669bb5e236480f2a68c9fa887f488"
+  },
+  "redis": {
+    "repo": "https://charts.bitnami.com/bitnami",
+    "name": "redis",
+    "version": "21.2.14",
+    "sha256": "17ce7f9bb622903bc8b75a7c62e60fad1c54063d626fc5d31b238227efc34c46"
+  }
+}

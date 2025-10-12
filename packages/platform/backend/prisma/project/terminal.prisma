@@ -1,0 +1,107 @@
+/// The terminal status indicates whether a terminal can accept new connections.
+enum TerminalStatus {
+    /// The terminal is currently active and can create new sessions.
+    active
+
+    /// The instance was destroyed and the terminal is no longer available, but here for historical purposes.
+    unavailable
+}
+
+/// The terminal provides interactive shell access to infrastructure resources.
+///
+/// Terminals can be created by units (owned by instances) or by service accounts.
+/// Each terminal maintains a specification for creating containers that power the terminal,
+/// including image, command, environment, and mounted files.
+///
+/// Instance-owned terminals are marked unavailable when the instance is destroyed, preserving session history.
+/// Service account terminals persist independently.
+model Terminal {
+    /// The CUIDv2 of the terminal.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the terminal managed by the backend.
+    ///
+    /// [GlobalCommonObjectMeta]
+    meta Json
+
+    /// The status of the terminal.
+    status TerminalStatus @default(active)
+
+    /// The specification for creating the container that powers this terminal.
+    ///
+    /// Includes image, command, working directory, environment variables, and files.
+    ///
+    /// [TerminalSpec]
+    spec Json
+
+    /// The ID of the instance state owning this terminal.
+    stateId String?
+
+    /// The name of the terminal within the instance.
+    ///
+    /// Will be null if the terminal is not owned by an instance.
+    name String?
+
+    /// The ID of the service account owning this terminal.
+    serviceAccountId String?
+
+    /// The time when the terminal was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the terminal was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The instance this terminal belongs to.
+    state InstanceState? @relation(fields: [stateId], references: [id])
+
+    /// The service account this terminal belongs to.
+    serviceAccount ServiceAccount? @relation(fields: [serviceAccountId], references: [id])
+
+    /// The terminal sessions associated with this terminal.
+    sessions TerminalSession[]
+
+    /// The artifacts used by this terminal.
+    artifacts Artifact[]
+
+    @@unique([stateId, name]) // the name is unique within the instance
+}
+
+/// The terminal session represents a single interactive connection to a terminal.
+///
+/// Each session tracks when it started and finished. All session output is preserved in logs.
+model TerminalSession {
+    /// The CUIDv2 of the terminal session.
+    id String @id @default(cuid(2))
+
+    /// The ID of the terminal this session belongs to.
+    terminalId String
+
+    /// The time when the terminal session started.
+    startedAt DateTime @default(now())
+
+    /// The time when the terminal session finished.
+    finishedAt DateTime?
+
+    /// The terminal this session belongs to.
+    terminal Terminal @relation(fields: [terminalId], references: [id], onDelete: Cascade)
+
+    /// The logs of the terminal session.
+    logs TerminalSessionLog[]
+}
+
+/// The terminal session log captures all input and output from a terminal session.
+///
+/// Logs are stored with ULID identifiers for timestamp ordering.
+model TerminalSessionLog {
+    /// The ULID of the session log. Also used to extract the timestamp.
+    id String @id
+
+    /// The ID of the terminal session this log belongs to.
+    sessionId String
+
+    /// The content of the log.
+    content String
+
+    /// The terminal session this log belongs to.
+    session TerminalSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}

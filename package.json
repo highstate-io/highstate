@@ -1,0 +1,49 @@
+{
+  "name": "highstate",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/platform/*",
+    "packages/standard/*",
+    "packages/third-party/*",
+    "packages/standard/*/generated/*",
+    "packages/third-party/*/generated/*"
+  ],
+  "scripts": {
+    "build": "lerna run build,build-image",
+    "verify": "lerna run test,biome",
+    "ci": "lerna run test,build,build-image,biome:check,push-image,deploy-image && auto shipit",
+    "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
+  },
+  "packageManager": "yarn@4.8.1",
+  "devDependencies": {
+    "@auto-it/conventional-commits": "^11.3.0",
+    "@auto-it/first-time-contributor": "^11.3.0",
+    "@biomejs/biome": "2.2.0",
+    "@types/node": "^24.0.15",
+    "auto": "^11.3.0",
+    "classic-level": "^3.0.0",
+    "globals": "^15.13.0",
+    "lerna": "^8.1.9",
+    "mermaid": "^11.8.0",
+    "nx": "^20.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2",
+    "vitepress": "^1.6.3",
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "vitest": "^3.2.4"
+  },
+  "repository": "highstate-io/highstate",
+  "auto": {
+    "plugins": [
+      "npm",
+      "conventional-commits",
+      "first-time-contributor",
+      "released"
+    ],
+    "author": "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+  },
+  "dependencies": {
+    "opencode-ai": "^0.5.5"
+  }
+}

@@ -1,0 +1,9 @@
+model UserWorkspaceLayout {
+    /// The opaque ID of the user to which this layout belongs.
+    userId String @id
+
+    /// The layout of the user workspace managed by the frontend.
+    ///
+    /// ![unknown]
+    layout Json
+}

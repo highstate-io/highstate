@@ -1,0 +1,42 @@
+{
+  "22.04": {
+    "amd64": {
+      "url": "https://cloud-images.ubuntu.com/jammy/20250725/jammy-server-cloudimg-amd64.img",
+      "sha256": "b119a978dcb66194761674c23a860a75cdb7778e95e222b51d7a3386dfe3c920"
+    },
+    "arm64": {
+      "url": "https://cloud-images.ubuntu.com/jammy/20250725/jammy-server-cloudimg-arm64.img",
+      "sha256": "ec998e2141a14a7c7d8c5ea1bdd11cc055b46d2add71c47cb7295d53755c065c"
+    }
+  },
+  "25.04": {
+    "amd64": {
+      "url": "https://cloud-images.ubuntu.com/plucky/20250726/plucky-server-cloudimg-amd64.img",
+      "sha256": "c44fd35ad5b0c8e0ad2cf410d64f565365f56360560a3a9072c7b31c7a595538"
+    },
+    "arm64": {
+      "url": "https://cloud-images.ubuntu.com/plucky/20250726/plucky-server-cloudimg-arm64.img",
+      "sha256": "ea0130ec4e6f3bc96750f910e89288a32124f56d7dae81d0df46edad8ec2d812"
+    }
+  },
+  "25.10": {
+    "amd64": {
+      "url": "https://cloud-images.ubuntu.com/questing/20250727/questing-server-cloudimg-amd64.img",
+      "sha256": "140ad57c8fda70fb667836ef50b9f805907cff11d370f12c6a5f2861838cd463"
+    },
+    "arm64": {
+      "url": "https://cloud-images.ubuntu.com/questing/20250727/questing-server-cloudimg-arm64.img",
+      "sha256": "cad49b187e14a182fcba9fde2caffc9ee809b3ad2da95b159ba403b58056b65e"
+    }
+  },
+  "24.04": {
+    "amd64": {
+      "url": "https://cloud-images.ubuntu.com/noble/20250725/noble-server-cloudimg-amd64.img",
+      "sha256": "9611c5a9d6c43e60090305c58a1aeb5d9f1f0c0bec409004185e6284755322d1"
+    },
+    "arm64": {
+      "url": "https://cloud-images.ubuntu.com/noble/20250725/noble-server-cloudimg-arm64.img",
+      "sha256": "7afae09463e8758a768322113e57f8c56eb1fad379caa04477d7e661cd556b79"
+    }
+  }
+}

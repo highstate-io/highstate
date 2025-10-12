@@ -1,0 +1,103 @@
+model Project {
+    /// The CUIDv2 of the project.
+    id String @id @default(cuid(2))
+
+    /// Project meta managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The name of the project within the space.
+    name String
+
+    /// The ID of the project space this project belongs to.
+    spaceId String
+
+    /// The ID of the project model storage this project uses.
+    modelStorageId String
+
+    /// The ID of the library used by this project.
+    libraryId String
+
+    /// The ID of the Pulumi backend used by this project.
+    pulumiBackendId String
+
+    /// Encrypted project master key in AGE format.
+    encryptedMasterKey String
+
+    /// The unlock suite for this project.
+    ///
+    /// [ProjectUnlockSuite]
+    unlockSuite Json
+
+    /// The current version of the project database.
+    /// This is used to determine if the project needs to be migrated.
+    databaseVersion Int
+
+    /// The time when the project was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the project was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The project space this project belongs to.
+    space ProjectSpace @relation(fields: [spaceId], references: [id])
+
+    /// The project model storage this project uses.
+    modelStorage ProjectModelStorage @relation(fields: [modelStorageId], references: [id])
+
+    /// The library used by this project.
+    library Library @relation(fields: [libraryId], references: [id])
+
+    /// The Pulumi backend used by this project.
+    pulumiBackend PulumiBackend @relation(fields: [pulumiBackendId], references: [id])
+
+    @@unique([spaceId, name])
+}
+
+model ProjectSpace {
+    /// The CUIDv2 of the project space.
+    id String @id @default(cuid(2))
+
+    /// The name of the project space within the parent space.
+    ///
+    /// Will be null for the global project space.
+    name String?
+
+    /// The ID of the parent project space, if any.
+    parentId String?
+
+    /// The metadata of the project space managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The projects in this project space.
+    projects Project[]
+
+    /// The parent project space, if any.
+    parent ProjectSpace? @relation("ProjectSpaceHierarchy", fields: [parentId], references: [id])
+
+    /// The child project spaces, if any.
+    children ProjectSpace[] @relation("ProjectSpaceHierarchy")
+
+    @@unique([parentId, name])
+}
+
+model ProjectModelStorage {
+    /// The CUIDv2 of the project model storage.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the project model storage managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The specification of the project model storage.
+    ///
+    /// [ProjectModelStorageSpec]
+    spec Json
+
+    /// The projects using this model storage.
+    projects Project[]
+}

@@ -1,0 +1,8 @@
+{
+  "cert-manager": {
+    "repo": "https://charts.jetstack.io",
+    "name": "cert-manager",
+    "version": "v1.18.2",
+    "sha256": "daddf7af7b1f0eaaa10edd790aefa0bd8c2b07830febf659460d843217f5b3c5"
+  }
+}

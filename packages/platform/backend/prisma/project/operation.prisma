@@ -1,0 +1,152 @@
+enum OperationStatus {
+    // transient statuses
+    pending
+    running
+    failing
+
+    // stable statuses
+    completed
+    failed
+    cancelled
+}
+
+enum OperationType {
+    update
+    preview
+    destroy
+    recreate
+    refresh
+}
+
+enum InstanceOperationStatus {
+    // transient statuses
+    updating
+    processing_triggers
+    previewing
+    destroying
+    refreshing
+    pending
+    cancelling
+
+    // stable statuses
+    updated
+    previewed
+    skipped
+    destroyed
+    refreshed
+    cancelled
+    failed
+}
+
+model Operation {
+    /// The CUIDv2 of the operation.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the operation.
+    ///
+    /// [OperationMeta]
+    meta Json
+
+    /// The type of the operation.
+    type OperationType
+
+    /// The status of the operation.
+    status OperationStatus @default(pending)
+
+    /// The options of the operation.
+    ///
+    /// [OperationOptions]
+    options Json
+
+    /// The IDs of the instances that were exlicitly requested to operate on.
+    ///
+    /// [InstanceIds]
+    requestedInstanceIds Json
+
+    /// The execution phases of the operation.
+    ///
+    /// [OperationPhase[]]
+    phases Json?
+
+    /// The time when the operation started.
+    startedAt DateTime @default(now())
+
+    /// The time when the operation was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The time when the operation finished.
+    finishedAt DateTime?
+
+    /// The operation states associated with this operation.
+    operationStates InstanceOperationState[]
+
+    /// The logs of the operation.
+    logs OperationLog[]
+}
+
+model InstanceOperationState {
+    /// The ID of the operation this state belongs to.
+    operationId String
+
+    /// The ID of the instance state affected by the operation.
+    stateId String
+
+    /// The enum representing the current status of the instance from the operation perspective.
+    status InstanceOperationStatus
+
+    /// The current count of the Pulumi resources being managed by this instance.
+    currentResourceCount Int?
+
+    /// The total count of the Pulumi resources that this instance is expected to manage.
+    totalResourceCount Int?
+
+    /// The snapshot of the instance model at the moment of operation start.
+    ///
+    /// [InstanceModel]
+    model Json
+
+    /// The snapshot of the resolved inputs at the moment of operation start.
+    ///
+    /// [InstanceResolvedInputs]
+    resolvedInputs Json
+
+    /// The time when the operation on this instance started.
+    /// Not populated on create, even if the instance is ready to start immediately.
+    startedAt DateTime?
+
+    /// The time when the operation on this instance finished.
+    finishedAt DateTime?
+
+    /// The operation this state belongs to.
+    operation Operation @relation(fields: [operationId], references: [id])
+
+    /// The instance this state belongs to.
+    state InstanceState @relation(fields: [stateId], references: [id])
+
+    @@id([operationId, stateId])
+}
+
+model OperationLog {
+    /// The ULID of the log. Also used to extract the timestamp.
+    id String @id
+
+    /// The ID of the operation this log belongs to.
+    operationId String
+
+    /// The ID of the instance state this log produced by.
+    /// Can be `null` if the log is not associated with any instance.
+    stateId String?
+
+    /// Whether this log is a system/runtime message (vs unit output).
+    isSystem Boolean @default(false)
+
+    /// The content of the log.
+    content String
+
+    /// The operation this log belongs to.
+    operation Operation @relation(fields: [operationId], references: [id])
+
+    /// The instance this log produced by.
+    /// Can be `null` if the log is not associated with any instance.
+    state InstanceState? @relation(fields: [stateId], references: [id])
+}

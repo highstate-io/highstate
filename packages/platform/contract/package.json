@@ -1,0 +1,47 @@
+{
+  "name": "@highstate/contract",
+  "version": "0.9.36",
+  "type": "module",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "highstate": {
+    "sourceHash": {
+      ".": {
+        "mode": "manual",
+        "version": "1"
+      }
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
+    "remeda": "^2.21.0",
+    "type-fest": "^4.41.0",
+    "yaml": "^2.8.0",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "@vitest/coverage-v8": "2.1.8",
+    "highstate-cli-bootstrap": "npm:@highstate/cli@0.9.35",
+    "vitest": "^3.2.4"
+  }
+}

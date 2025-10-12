@@ -1,0 +1,107 @@
+{
+  "boundary": {
+    "width": 1665,
+    "height": 698
+  },
+  "instances": [
+    {
+      "id": "proxmox.connection.v1:connection-1",
+      "kind": "unit",
+      "type": "proxmox.connection.v1",
+      "name": "connection-1",
+      "position": {
+        "x": 0,
+        "y": 120
+      }
+    },
+    {
+      "id": "proxmox.image.v1:image-1",
+      "kind": "unit",
+      "type": "proxmox.image.v1",
+      "name": "image-1",
+      "inputs": {
+        "file": [
+          {
+            "instanceId": "distributions.ubuntu.v1:ubuntu-1",
+            "output": "image"
+          }
+        ],
+        "proxmoxCluster": [
+          {
+            "instanceId": "proxmox.connection.v1:connection-1",
+            "output": "proxmoxCluster"
+          }
+        ]
+      },
+      "position": {
+        "x": 570,
+        "y": 255
+      }
+    },
+    {
+      "id": "proxmox.virtual-machine.v1:virtual-machine-1",
+      "kind": "unit",
+      "type": "proxmox.virtual-machine.v1",
+      "name": "virtual-machine-1",
+      "inputs": {},
+      "position": {
+        "x": 1305,
+        "y": 0
+      },
+      "injectionInputs": [
+        {
+          "hubId": "Vmmab1QI6C-klblLztLPx"
+        }
+      ]
+    },
+    {
+      "id": "distributions.ubuntu.v1:ubuntu-1",
+      "kind": "unit",
+      "type": "distributions.ubuntu.v1",
+      "name": "ubuntu-1",
+      "position": {
+        "x": 0,
+        "y": 480
+      }
+    },
+    {
+      "id": "proxmox.virtual-machine.v1:virtual-machine-2",
+      "kind": "unit",
+      "type": "proxmox.virtual-machine.v1",
+      "name": "virtual-machine-2",
+      "inputs": {},
+      "position": {
+        "x": 1305,
+        "y": 420
+      },
+      "injectionInputs": [
+        {
+          "hubId": "Vmmab1QI6C-klblLztLPx"
+        }
+      ]
+    }
+  ],
+  "hubs": [
+    {
+      "id": "Vmmab1QI6C-klblLztLPx",
+      "position": {
+        "x": 1065,
+        "y": 330
+      },
+      "inputs": [
+        {
+          "instanceId": "proxmox.image.v1:image-1",
+          "output": "image"
+        },
+        {
+          "instanceId": "proxmox.connection.v1:connection-1",
+          "output": "proxmoxCluster"
+        },
+        {
+          "instanceId": "distributions.ubuntu.v1:ubuntu-1",
+          "output": "cloudConfig"
+        }
+      ]
+    }
+  ]
+}

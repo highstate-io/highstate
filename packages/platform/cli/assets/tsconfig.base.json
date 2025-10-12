@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "bin",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+    }
+  },
+}

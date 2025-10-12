@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/refs/heads/master/packages/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/dist/**/*",
+      "!{projectRoot}/bin/**/*",
+      "!{projectRoot}/.nuxt/**/*",
+      "!{projectRoot}/.output/**/*",
+      "!{projectRoot}/CHANGELOG.md"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/.nuxt",
+        "{projectRoot}/.output",
+        "{projectRoot}/bin"
+      ]
+    },
+    "test": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/coverage"]
+    },
+    "build-image": {
+      "cache": true,
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "push-image": {
+      "cache": true,
+      "dependsOn": ["build-image"],
+      "outputs": []
+    },
+    "deploy-image": {
+      "cache": true,
+      "dependsOn": ["push-image"],
+      "outputs": []
+    },
+    "biome": {
+      "cache": true,
+      "outputs": []
+    },
+    "biome:check": {
+      "cache": true,
+      "outputs": []
+    }
+  }
+}

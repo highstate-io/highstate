@@ -1,0 +1,46 @@
+model InstanceCustomStatus {
+    /// The ID of the instance state this status belongs to.
+    stateId String
+
+    /// The ID of the service account which attached this custom status.
+    serviceAccountId String
+
+    /// The name of the custom status unique within the instance and service account.
+    name String
+
+    /// The metadata of the custom status managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The status value of the custom status.
+    value String
+
+    /// The message describing the instance's custom status.
+    /// 
+    /// Can be used to provide additional context or information about the status.
+    ///
+    /// The message will be displayed in the 800x600 ANSI terminal in the UI,
+    /// so different TUI elements should be drawn within this area.
+    message String?
+
+    /// The order of the custom status in the list of statuses.
+    ///
+    /// Should be values from 0 to 100, where 0 is the highest priority.
+    /// By default, the order is 50.
+    order Int @default(50)
+
+    /// The time when the custom status was first attached to the instance.
+    createdAt DateTime @default(now())
+
+    /// The time when the custom status was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The instance this custom status belongs to.
+    state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The service account this custom status belongs to.
+    serviceAccount ServiceAccount @relation(fields: [serviceAccountId], references: [id])
+
+    @@id([stateId, serviceAccountId, name]) // the name must be unique within the instance and service account
+}

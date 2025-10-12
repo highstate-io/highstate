@@ -1,0 +1,8 @@
+{
+  "cilium": {
+    "repo": "https://helm.cilium.io",
+    "name": "cilium",
+    "version": "1.17.4",
+    "sha256": "06dcedfe25c08c770d193690d561037153e233f9cde31e0705a06802d24cea87"
+  }
+}

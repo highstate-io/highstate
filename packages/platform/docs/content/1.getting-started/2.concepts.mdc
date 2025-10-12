@@ -1,0 +1,230 @@
+---
+title: Concepts
+description: Understanding the fundamental concepts that power Highstate.
+navigation:
+  icon: i-lucide-lightbulb
+---
+
+## Explaining complex things simply
+
+First of all, let's negotiate the terminology.
+Without the right terms no science can be done!
+And while we are not doing science here, we still need to have a common language.
+
+In this section, we will give definitions, show motivation behind the concepts, and explain how are they related to each other. 
+
+## Components
+
+When we think about infrastructure management, we often think about servers, networks, databases, applications, and other components that make up a system.
+The **component** sounds like a good term to describe these parts.
+
+So... we are proud to introduce the concept of **component** in Highstate.
+
+::tip
+A **component** is a reusable, self-contained (as much as possible) unit of infrastructure that can be managed independently (also, as much as possible).
+::
+
+In Highstate the component can be anything from a single server to a complex application stack.
+Depending on your needs, you can create components that are as simple or as complex as you want.
+
+In the Highstate standard library, we have a set of predefined components that can be used to build your infrastructure.
+We try to keep these components small and focused on a single task,
+so they can be easily reused and combined with other components.
+
+For example, we have a component called `common.existing-server.v1` which allows you to bring an existing server into the control of Highstate. 
+Some other components like `proxmox.virtual-machine.v1` or `k3s.cluster.v1` may create some new infrastructure
+to be used by other components.
+
+## Instances
+
+But what the component actually is? What do we mean by `common.existing-server.v1`? Specific server?
+Of course, not.
+The components are more like templates, blueprints, or classes in programming.
+
+To use a component, we need to create an **instance** of it.
+An instance is a specific usage of a component with its own arguments and connections to other instances.
+
+In Highstate, you can create instances of components on a project canvas.
+For example, let's create an instance of `common.existing-server.v1` component:
+
+::snippet-preview{snippet="getting-started/concepts/first-instance"}
+::
+
+Yes, we integrated the entire Highstate designer into the documentation to make it more interactive and engaging!
+Now, you can interact with created instance, try to change its arguments.
+You will not be able to deploy it, but may be we will add this feature in the future.
+
+## Entities
+
+So, components allow us to break down our infrastructure into smaller, manageable pieces.
+But how to connect these components together? How to make them work as a whole?
+
+Ladies and gentlemen, we present to you the concept of **entity**.
+
+::tip
+A **entity** is a piece of structured data that describes some thing in your infrastructure.
+::
+
+What can be an entity? How about `common.server.v1` which is part of the Highstate standard library?
+As can be inferred from the name, this is structure that describes a server.
+More specifically, it includes the server's name, IP address, SSH credentials, and other relevant information.
+
+Other examples of entities can be `k8s.cluster.v1` or `apps.mariadb.v1` which describe a Kubernetes cluster and a MariaDB database, respectively.
+
+But wait, it seems that entity is also a reusable peace of infrastructure, just like a component? Well, the main point is that `entity` **describes** a piece of infrastructure, while `component` actually **implements** it.
+So, if we have an entity `common.server.v1`, the one of the components that implements this entity is `common.existing-server.v1`.
+
+## Inputs and Outputs
+
+But how do we connect components and entities together? How do we pass data between them?
+
+The answer is simple: we use **inputs** and **outputs**.
+
+Each component define a set of them in its interface.
+Each input or output consits of `name` and `type`.
+For example, `common.existing-server.v1` component has an output called `server` with entity type `common.server.v1`.
+
+And if we have another component, say, `k3s.cluster.v1`, that needs to know about the server, it can take the `server` output from `common.existing-server.v1` as an input.
+
+And, whizz, we can now connect these two components together:
+
+::snippet-preview{snippet="getting-started/concepts/inputs-outputs"}
+::
+
+This example say something like "I have an existing server, and I want to use it as a control plane for my new Kubernetes cluster".
+
+::tip
+In short, we turn the whole infrastructure management into a **acyclic graph** of **component instances** passing **entities** between each other via edges called **inputs** and **outputs**.
+::
+
+::card
+---
+title: Components
+icon: i-mdi-cube
+to: /fundamentals/components
+---
+Learn how to define custom components and entities for your infrastructure.
+::
+
+## Units
+
+Well, now we have a way to define our infrastructure as a graph of components (or, more precisely, instances) that pass entities between each other.
+But how do we actually implement these components? 
+
+There are a lot of good IaC tools like **Terraform**, **Pulumi**, **Ansible**, and we obviously don't want to reinvent the wheel.
+
+Highstate uses **Pulumi** as its IaC engine.
+If you are not familiar with **Pulumi** and its concepts, you can read more about it in [their documentation](https://www.pulumi.com/docs/iac/concepts/).
+
+So, there are two types of components in Highstate: **units** and **composites**.
+The most common one is a **unit** which is is backend by a Pulumi program and is implemented using Pulumi SDK.
+It can include any number of resources and use any Pulumi provider.
+
+::tip
+A **unit** is a basic Highstate component that is implemented by a Pulumi program.
+::
+
+::card
+---
+title: Units
+icon: i-mdi-cube
+to: /fundamentals/units
+---
+Learn how to implement unit components using Pulumi.
+::
+
+## Composites
+
+While units are great for implementing simple components, sometimes we need to create more complex components that consist of multiple units.
+
+Of course, we can just create a new unit that includes all the other units as dependencies, utilizing all the power of code reuse provided by modern programming languages.
+
+But this approach has a few drawbacks:
+
+- it is hard to manage since small changes in one resource will require to redeploy the whole unit;
+- it is simply very slow since it requires to load a lot of code and dependencies.
+
+In fact, people often create [multiple Pulumi programs](https://www.pulumi.com/docs/iac/using-pulumi/organizing-projects-stacks/#micro-stacks), Terraform modules, Ansible plays, etc. to implement their infrastructure.
+
+So, we need a way to group units together and manage them as a single entity.
+This is where the concept of **composite** comes in.
+
+::tip
+A **composite** composes multiple components (units or even other composites) into a single component which can be managed as a whole,
+but still allows to manage its parts independently.
+::
+
+::card
+---
+title: Composites
+icon: i-mdi-cube
+to: /fundamentals/composites
+---
+Learn how to define composite components from other components.
+::
+
+## Projects
+
+Now we need the place to place (sorry for the pun) our instances and connect them together.
+
+Such place is called a **project**.
+Strictly speaking, we place instances at canvas, yes, but canvas is a part of the project.
+And each project has single canvas to work with.
+
+While simply being a container for components, the project also has one important property: it is isolated from other projects.
+Yes, completely isolated.
+We are planning to add a way to share entities between projects, but for now, each project is a separate entity.
+Looking ahead, each project have its own SQLite database encrypted with a separate key, so all project are also cryptographically isolated.
+
+## Hubs
+
+One more thing that we can place on a project canvas is a **hub**.
+
+::tip
+A **hub** is a special node used to aggregate multiple instance inputs together in a bundle and inject them into other instances.
+::
+
+Imagine the following infrastructure:
+
+::blueprint-preview{blueprint="getting-started/concepts/without-hubs"}
+::
+
+Here we created and connected three instances: `proxmox.connection.v1`, `distributions.ubuntu.v1`, and `proxmox.image.v1`.
+The purpose of each of them is not important, just think that they setup a shared infrastructure to create ubuntu virtual machines on Proxmox.
+
+Then, we created two instances of `proxmox.virtual-machine.v1` component, each of them using the same inputs from the previous three instances.
+So, the total number of connections for these instances will be `3n` where `n` is the number of virtual machines.
+
+Lets improve this design by introducing a hub:
+
+::blueprint-preview{blueprint="getting-started/concepts/with-hubs"}
+::
+
+The total connection is now reduced to `n` + connections from instances to the hub.
+Now you can easily add more virtual machines with just one extra connection for each of them.
+
+Moreover, you can also easily change the inputs for all virtual machines by changing the hub inputs.
+May be migrate all you virtual machines to NixOS at one click? (just kidding, please, don't do that).
+
+## What's next?
+
+Now you have the basic understanding of main concepts of Highstate.
+You can install and try Highstate in action or keep reading to learn about making your own components.
+
+::card
+---
+title: Installation
+icon: i-lucide-download
+to: /getting-started/installation
+---
+How to install and use Highstate locally.
+::
+
+::card
+---
+title: Fundamentals
+icon: i-lucide-component
+to: /fundamentals/components
+---
+Learn how to implement custom components and entities, and how to use them in your projects.
+::

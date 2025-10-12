@@ -1,0 +1,91 @@
+---
+title: Installation
+description: How to install and use Highstate locally.
+navigation:
+  icon: i-lucide-download
+---
+
+Ready to get Highstate running on your machine?
+Right now it's a local development tool - cloud hosting and managed deployments are coming later.
+
+::steps{level="2"}
+
+## Prerequisites
+
+Before installing Highstate, ensure you have the following tools installed:
+
+- [**Node.js**](https://nodejs.org/) (v24 or later)
+- [**Docker**](https://docker.com/) - Required for terminal containers and some unit operations
+- [**Pulumi CLI**](https://www.pulumi.com/docs/install/) - Infrastructure as code engine
+
+Some components may require additional tools depending on their functionality.
+
+## Pulumi Setup
+
+Highstate uses Pulumi as its infrastructure engine. 
+Before creating a Highstate project, you need to configure Pulumi's state storage:
+
+```bash
+# use local file system for state storage
+pulumi login --local
+
+# or use Pulumi's managed cloud backend if desired
+pulumi login
+
+# or use AWS S3, Azure Blob, or Google Cloud Storage
+pulumi login s3://my-pulumi-state-bucket
+pulumi login azblob://my-pulumi-state-container
+pulumi login gs://my-pulumi-state-bucket
+```
+
+For more details, see [Pulumi's state backend documentation](https://www.pulumi.com/docs/concepts/state/).
+
+## Create New Project
+
+For now, Highstate does not provide scaffolding tools, but creating a new project is simple:
+
+```bash
+# create new npm package using your preferred package manager
+yarn init -y highstate-project
+cd highstate-project
+
+# add Highstate CLI
+yarn add -D @highstate/cli
+```
+
+If you are not planning to develop custom components, the Highstate CLI is the only required package.
+All other packages will be installed automatically as needed.
+
+## Launch Highstate Designer
+
+```bash
+# launch Highstate designer from project directory
+highstate designer
+```
+
+Then you can open the designer in you browser by provided URL and create your first project.
+All the data will be stored in your project directory + configured Pulumi backend.
+
+::
+
+## Next Steps
+
+Once installation is complete:
+
+::card
+---
+title: Fundamentals
+icon: i-lucide-component
+to: /fundamentals/components
+---
+Learn how to implement custom components and entities, and how to use them in your projects.
+::
+
+::card
+---
+title: Recipes
+icon: i-mdi-book-open-page-variant
+to: /recipes/proxmox
+---
+Explore practical examples of using Highstate standard library to build real-world infrastructure.
+::

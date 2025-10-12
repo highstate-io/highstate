@@ -1,0 +1,49 @@
+/// The page provides custom UI content for instances and service accounts.
+///
+/// Pages can be created by units to display instance-specific information or by service accounts.
+/// The content consists of blocks that support markdown text, QR codes with optional content display,
+/// and file attachments (inline or artifact references). Instance pages are explicitly deleted
+/// when instances are destroyed.
+model Page {
+    /// The CUIDv2 of the page.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the page managed by the backend.
+    ///
+    /// [GlobalCommonObjectMeta]
+    meta Json
+
+    /// The ID of the instance state that owns this page.
+    stateId String?
+
+    /// The name of the page within the instance.
+    /// Will be null if the page is not owned by an instance.
+    name String?
+
+    /// The ID of the service account that owns this page.
+    serviceAccountId String?
+
+    /// The content of the page as an array of blocks.
+    ///
+    /// Supports markdown, QR codes, and file blocks.
+    ///
+    /// [PageContent]
+    content Json
+
+    /// The time when the page was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the page was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The instance this page belongs to if any.
+    state InstanceState? @relation(fields: [stateId], references: [id])
+
+    /// The service account this page belongs to if any. 
+    serviceAccount ServiceAccount? @relation(fields: [serviceAccountId], references: [id])
+
+    /// The artifacts used by this page.
+    artifacts Artifact[]
+
+    @@unique([stateId, name]) // the name is unique within the instance
+}

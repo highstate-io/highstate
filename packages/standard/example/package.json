@@ -1,0 +1,11 @@
+{
+  "name": "@highstate/example",
+  "version": "0.9.36",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/designer": "workspace:^",
+    "classic-level": "^3.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "vaultwarden": {
+    "name": "vaultwarden/server",
+    "tag": "1.34.1-alpine",
+    "image": "vaultwarden/server:1.34.1-alpine@sha256:778be3ed8f3e89e9326f25d80fb97889297db413c9ae9705f48e85a653d51842"
+  },
+  "syncthing": {
+    "name": "linuxserver/syncthing",
+    "tag": "1.29.7",
+    "image": "linuxserver/syncthing:1.29.7@sha256:2600853512ea2744d88b05fba7524d4bc6d99e14975d408a7f53beee0a2b83e1"
+  },
+  "maybe": {
+    "name": "ghcr.io/maybe-finance/maybe",
+    "tag": "sha-cdad31812a273ec96e63aaeecc263e6bec237db8",
+    "image": "ghcr.io/maybe-finance/maybe:sha-cdad31812a273ec96e63aaeecc263e6bec237db8@sha256:51056a51735f8b6380e27b54b172d1a9706cc6960a4984730af3c233a4b9bb3e"
+  }
+}

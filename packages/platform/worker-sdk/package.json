@@ -1,0 +1,38 @@
+{
+  "name": "@highstate/worker-sdk",
+  "version": "0.9.36",
+  "type": "module",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:^0.9.36",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.6.0",
+    "@highstate/api": "workspace:^",
+    "@highstate/contract": "workspace:^",
+    "long": "^5.3.2",
+    "nice-grpc": "^2.1.12",
+    "nice-grpc-common": "^2.0.2",
+    "protobufjs": "^7.5.3"
+  }
+}

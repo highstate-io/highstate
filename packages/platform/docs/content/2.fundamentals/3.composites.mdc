@@ -1,0 +1,547 @@
+---
+title: Composites
+description: Learn how to orchestrate components into higher-level infrastructure patterns.
+navigation:
+  icon: i-mdi-cube-scan
+---
+
+## The Power of Composition
+
+So you've learned about units - components that create actual infrastructure using Pulumi.
+But what happens when you need to combine multiple components into something bigger? 
+
+Let's say you want to create a Kubernetes cluster.
+You need:
+- A virtual machine to run it on
+- K3s installed and configured
+- Networking layer (like Cilium)
+- Ingress controller (like Traefik)
+- Certificate management
+- Maybe a dashboard for convenience
+
+You could create one massive unit that does all of this.
+But that would be:
+- Hard to maintain - changing anything means redeploying everything
+- Slow to execute - loading all those dependencies takes time
+- Impossible to reuse - can't use just the VM part somewhere else
+
+This is where **composites** come in.
+They're components that orchestrate other components.
+
+::tip
+A **composite** is a component that creates and connects other components, building higher-level infrastructure patterns from simpler building blocks.
+::
+
+Think of composites as conductors in an orchestra - they don't play instruments themselves, but they coordinate all the musicians to create a symphony.
+
+## Your First Composite
+
+Let's start with the absolute basics.
+Here's the simplest possible composite:
+
+```typescript
+import { defineComponent } from "@highstate/contract"
+
+export const myFirstComposite = defineComponent({
+  type: "example.my-first-composite.v1",
+  
+  create() {
+    // composites must have a create function
+    // this is where the magic happens
+    return {}
+  },
+  
+  meta: {
+    title: "My First Composite",
+    icon: "mdi-cube-scan",
+  },
+})
+```
+
+Notice the differences from a unit:
+- We use `defineComponent` instead of `defineUnit`
+- There's no `source` property - composites don't have Pulumi code
+- There's a `create` function - this is where we orchestrate components
+
+## Instantiating Child Components
+
+The real power of composites is creating instances of other components.
+Let's build something useful - a VM that's ready to use:
+
+```typescript
+import { defineComponent } from "@highstate/contract"
+import { proxmox, distributions, ssh } from "@highstate/library"
+
+export const readyVM = defineComponent({
+  type: "example.ready-vm.v1",
+  
+  create({ name }) {
+    // create SSH key pair for access
+    const { keyPair } = ssh.keyPair({
+      name,  // can reuse parent name - must be unique project-wide
+    })
+    
+    // create connection to Proxmox
+    const { proxmoxCluster } = proxmox.connection({
+      name,
+      args: {
+        endpoint: "https://192.168.1.25:8006",
+        insecure: true,
+      },
+      inputs: {
+        sshKeyPair: keyPair,
+      },
+    })
+    
+    // get Ubuntu distribution
+    const { image, cloudConfig } = distributions.ubuntu({
+      name,
+    })
+    
+    // upload image to Proxmox
+    const { image: proxmoxImage } = proxmox.image({
+      name,
+      inputs: {
+        proxmoxCluster,
+        file: image,
+      },
+    })
+    
+    // create the VM
+    const { server } = proxmox.virtualMachine({
+      name,
+      args: {
+        ipv4: { type: "dhcp" },
+        resources: {
+          cores: 2,
+          memory: 4096,
+          diskSize: 20,
+        },
+      },
+      inputs: {
+        proxmoxCluster,
+        image: proxmoxImage,
+        vendorData: cloudConfig,
+      },
+    })
+    
+    return { server }
+  },
+})
+```
+
+Key points about instantiating components:
+- Call components like functions: `componentName({ ... })`
+- Always provide a `name` - it identifies the instance
+- Names must be unique across the entire project (or evaluation will fail)
+- Common practice: reuse the parent's name or use dot namespaces like `${name}.k3s`
+
+## Passing Inputs Through
+
+Composites need inputs just like any other component.
+These inputs flow to child components:
+
+```typescript
+import { defineComponent } from "@highstate/contract"
+import { proxmox, common } from "@highstate/library"
+
+export const vmWithSetup = defineComponent({
+  type: "example.vm-with-setup.v1",
+  
+  inputs: {
+    proxmoxCluster: proxmox.clusterEntity,
+    image: proxmox.imageEntity,
+    cloudConfig: common.fileEntity,
+  },
+  
+  create({ name, inputs }) {
+    // pass composite inputs to child component
+    const { server } = proxmox.virtualMachine({
+      name,
+      args: {
+        ipv4: { type: "dhcp" },
+        resources: {
+          cores: 4,
+          memory: 4096,
+          diskSize: 20,
+        },
+      },
+      inputs: {
+        proxmoxCluster: inputs.proxmoxCluster,  // pass through
+        image: inputs.image,                     // pass through
+        vendorData: inputs.cloudConfig,          // rename if needed
+      },
+    })
+    
+    return { server }
+  },
+})
+```
+
+Notice how inputs flow:
+- Composite receives inputs from the outside world
+- `create` function gets them in the `inputs` parameter
+- We pass them to child components as needed
+- We can rename them (cloudConfig → vendorData)
+
+## Chaining Component Outputs
+
+The real magic happens when you connect components together - one's output becomes another's input:
+
+```typescript
+export const singleNodeCluster = defineComponent({
+  type: "example.single-node-cluster.v1",
+  
+  create({ name, inputs }) {
+    // step 1: create VM
+    const { server } = proxmox.virtualMachine({
+      name,
+      args: { /* ... */ },
+      inputs: { /* ... */ },
+    })
+    
+    // step 2: install k3s on that VM
+    const { k8sCluster } = k3s.cluster({
+      name,
+      args: {
+        disabledComponents: ["traefik"],
+        cni: "none",
+      },
+      inputs: {
+        masters: [server],  // VM output → k3s input!
+      },
+    })
+    
+    // step 3: install Cilium on that cluster  
+    const { k8sCluster: withCilium } = k8s.cilium({
+      name,
+      inputs: { 
+        k8sCluster,  // k3s output → Cilium input!
+      },
+    })
+    
+    return { k8sCluster: withCilium }
+  },
+})
+```
+
+This creates a pipeline:
+- VM provides `server`
+- K3s uses `server`, provides `k8sCluster`
+- Cilium uses `k8sCluster`, provides enhanced `k8sCluster`
+
+Each component builds on the previous one's output.
+
+## Arguments and Configuration
+
+Composites can have arguments that configure how they orchestrate components:
+
+```typescript
+import { defineComponent, z } from "@highstate/contract"
+import { proxmox, k3s, k8s } from "@highstate/library"
+
+export const configurableCluster = defineComponent({
+  type: "example.configurable-cluster.v1",
+  
+  args: {
+    vmCores: z.number().default(4),
+    vmMemory: z.number().default(4096),
+    dashboardFqdn: z.string(),
+    enableDashboard: z.boolean().default(true),
+  },
+  
+  create({ name, args, inputs }) {
+    // use args to configure child components
+    const { server } = proxmox.virtualMachine({
+      name,
+      args: {
+        resources: {
+          cores: args.vmCores,      // pass arg to child
+          memory: args.vmMemory,    // pass arg to child
+          diskSize: 20,
+        },
+      },
+      inputs: { /* ... */ },
+    })
+    
+    // create k3s cluster
+    const { k8sCluster } = k3s.cluster({
+      name,
+      inputs: { masters: [server] },
+    })
+    
+    // use args for conditional logic
+    if (args.enableDashboard) {
+      k8s.apps.kubernetesDashboard({
+        name,
+        args: {
+          fqdn: args.dashboardFqdn,  // pass arg to child
+        },
+        inputs: { 
+          k8sCluster,
+          accessPoint: inputs.accessPoint,
+        },
+      })
+    }
+    
+    return { server, k8sCluster }
+  },
+})
+```
+
+Arguments let users customize the composite's behavior without changing its code.
+
+## Meaningful Aliases Pattern
+
+When enhancing components, use meaningful aliases to track the progression:
+
+```typescript
+export const enhancedCluster = defineComponent({
+  type: "example.enhanced-cluster.v1",
+  
+  create({ name, inputs }) {
+    // start with basic cluster
+    const { k8sCluster: basicCluster } = k3s.cluster({
+      name,
+      args: { cni: "none" },
+      inputs: { /* ... */ },
+    })
+    
+    // enhance with Cilium networking
+    const { k8sCluster: withCilium } = k8s.cilium({
+      name,
+      inputs: { k8sCluster: basicCluster },
+    })
+    
+    // enhance with Gateway API
+    const { k8sCluster: withGatewayApi } = k8s.gatewayApi({
+      name,
+      inputs: { k8sCluster: withCilium },
+    })
+    
+    // enhance with cert-manager
+    const { k8sCluster: withCertManager } = k8s.certManager({
+      name,
+      inputs: { k8sCluster: withCilium },  // cert-manager also uses Cilium-enhanced cluster
+    })
+    
+    // some components need gateway, others need cert-manager
+    // we can easily parallelize infrastructure chains without issues when using meaningful aliases
+    const { gateway } = k8s.apps.traefik({
+      name,
+      inputs: { k8sCluster: withGatewayApi },
+    })
+    
+    const { tlsIssuer } = k8s.dns01TlsIssuer({
+      name,
+      inputs: { k8sCluster: withCertManager },
+    })
+    
+    return { k8sCluster: withCertManager }
+  },
+})
+```
+
+Why meaningful aliases are better:
+- Clearly shows what capabilities each variable has
+- Prevents confusion about component ordering
+- Allows branching - different components can use different enhancement levels
+- Makes debugging easier - you know exactly which version you're passing
+
+## Multiple Outputs Aggregation
+
+Composites often need to expose multiple outputs from different children:
+
+```typescript
+export const fullStack = defineComponent({
+  type: "example.full-stack.v1",
+  
+  outputs: {
+    k8sCluster: k8s.clusterEntity,
+    server: common.serverEntity,
+    accessPoint: common.accessPointEntity,
+  },
+  
+  create({ name, inputs }) {
+    // create VM
+    const { server } = proxmox.virtualMachine({
+      name,
+      args: { /* ... */ },
+      inputs: { /* ... */ },
+    })
+    
+    // create cluster
+    const { k8sCluster } = k3s.cluster({
+      name,
+      inputs: { masters: [server] },
+    })
+    
+    // create access point
+    const { accessPoint } = common.accessPoint({
+      name,
+      inputs: { /* ... */ },
+    })
+    
+    // aggregate outputs from different children
+    return {
+      k8sCluster,   // from k3s.cluster
+      server,       // from proxmox.virtualMachine
+      accessPoint,  // from common.accessPoint
+    }
+  },
+})
+```
+
+The composite becomes a facade, exposing a curated set of outputs from its children.
+
+## Advanced Patterns
+
+### Conditional Component Creation
+
+Use arguments to conditionally create components:
+
+```typescript
+create({ name, args, inputs }) {
+  // create base cluster
+  const { k8sCluster } = k3s.cluster({
+    name,
+    inputs: { masters: inputs.servers },
+  })
+  
+  // only create dashboard if requested
+  if (args.includeDashboard) {
+    k8s.apps.kubernetesDashboard({
+      name,
+      args: { fqdn: args.dashboardFqdn },
+      inputs: { 
+        k8sCluster,
+        accessPoint: inputs.accessPoint,
+      },
+    })
+  }
+  
+  // only add MariaDB if requested
+  if (args.includeDatabase) {
+    k8s.apps.mariadb({
+      name,
+      inputs: { k8sCluster },
+    })
+  }
+  
+  return { k8sCluster }
+}
+```
+
+### Working with Arrays
+
+Handle multiple instances dynamically:
+
+```typescript
+create({ name, args, inputs }) {
+  // create multiple VMs
+  const servers = []
+  for (let i = 0; i < args.vmCount; i++) {
+    const { server } = proxmox.virtualMachine({
+      name: `${name}.vm${i}`,  // dot namespace for uniqueness
+      args: {
+        ipv4: {
+          type: "static",
+          address: `192.168.1.${100 + i}`,
+        },
+        resources: {
+          cores: 4,
+          memory: 4096,
+          diskSize: 20,
+        },
+      },
+      inputs: {
+        proxmoxCluster: inputs.proxmoxCluster,
+        image: inputs.image,
+        vendorData: inputs.cloudConfig,
+      },
+    })
+    servers.push(server)
+  }
+  
+  // use VMs for cluster - first N as masters, rest as workers
+  const { k8sCluster } = k3s.cluster({
+    name,
+    inputs: { 
+      masters: servers.slice(0, args.masterCount),
+      workers: servers.slice(args.masterCount),
+    },
+  })
+  
+  return { k8sCluster, servers }
+}
+```
+
+### Nested Composites
+
+Composites can use other composites:
+
+```typescript
+export const multiClusterSetup = defineComponent({
+  type: "example.multi-cluster.v1",
+  
+  create({ name }) {
+    // use our single-node cluster composite multiple times
+    const staging = singleNodeCluster({
+      name: `${name}.staging`,  // dot namespace for different environments
+      args: { dashboardFqdn: "staging.example.com" },
+      inputs: { /* ... */ },
+    })
+    
+    const production = singleNodeCluster({
+      name: `${name}.production`,
+      args: { dashboardFqdn: "prod.example.com" },
+      inputs: { /* ... */ },
+    })
+    
+    return { staging, production }
+  },
+})
+```
+
+## Best Practices
+
+When writing composites:
+- Keep them focused - one composite, one purpose
+- Reuse parent names for simplicity or use dot namespaces (`${name}.subsystem`) when needed
+- Remember: child names must be unique across the entire project
+- Validate assumptions early in the create function
+- Return meaningful outputs that hide complexity
+- Document what the composite creates in the description
+- Prefer composition over configuration - multiple simple composites beat one complex configurable one
+
+## What's Next?
+
+Now you know how to:
+- Create basic composites
+- Instantiate and connect components
+- Pass configuration through arguments
+- Chain components together
+- Aggregate outputs
+
+Composites are the key to building reusable, maintainable infrastructure.
+They let you think at a higher level - instead of managing individual resources, you orchestrate entire systems.
+
+Ready to implement the actual infrastructure? Check out:
+
+::card
+---
+title: Units
+icon: i-mdi-cube
+to: /fundamentals/units
+---
+Learn how to implement units that create actual infrastructure using Pulumi.
+::
+
+::card
+---
+title: Operations
+icon: i-lucide-play
+to: /fundamentals/operations
+---
+Understand how Highstate deploys your components to real infrastructure.
+::

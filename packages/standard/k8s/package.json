@@ -1,0 +1,97 @@
+{
+  "name": "@highstate/k8s",
+  "version": "0.9.36",
+  "type": "module",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "highstate": {
+    "sourceHash": {
+      ".": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/cert-manager": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/cluster-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/cluster-dns": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/dns01-issuer": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/existing-cluster": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/gateway-api": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/reduced-access-cluster": {
+        "mode": "manual",
+        "version": "1"
+      }
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./units/cert-manager": "./dist/units/cert-manager/index.js",
+    "./units/cluster-patch": "./dist/units/cluster-patch/index.js",
+    "./units/cluster-dns": "./dist/units/cluster-dns/index.js",
+    "./units/dns01-issuer": "./dist/units/dns01-issuer/index.js",
+    "./units/existing-cluster": "./dist/units/existing-cluster/index.js",
+    "./units/gateway-api": "./dist/units/gateway-api/index.js",
+    "./units/reduced-access-cluster": "./dist/units/reduced-access-cluster/index.js",
+    "./impl/gateway-route": "./dist/impl/gateway-route.js",
+    "./impl/tls-certificate": "./dist/impl/tls-certificate.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "update-charts": "../../../scripts/update-charts.sh ./assets/charts.json",
+    "update-images": "../../../scripts/update-images.sh ./assets/images.json",
+    "generate-crds": "./scripts/generate-crds.sh",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@highstate/cert-manager": "workspace:^0.9.36",
+    "@highstate/common": "workspace:^0.9.36",
+    "@highstate/contract": "workspace:^0.9.36",
+    "@highstate/gateway-api": "workspace:^0.9.36",
+    "@highstate/library": "workspace:^0.9.36",
+    "@highstate/pulumi": "workspace:^0.9.36",
+    "@kubernetes/client-node": "^1.1.0",
+    "@pulumi/command": "^1.0.2",
+    "@pulumi/kubernetes": "^4.18.0",
+    "@pulumi/pulumi": "^3.198.0",
+    "crypto-hash": "^3.1.0",
+    "deepmerge-ts": "^7.1.5",
+    "glob": "^11.0.1",
+    "nano-spawn": "^0.2.0",
+    "pkg-types": "^2.1.0",
+    "remeda": "^2.21.0",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:^0.9.36",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "type-fest": "^4.41.0"
+  }
+}

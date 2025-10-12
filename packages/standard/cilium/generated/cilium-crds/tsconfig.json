@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "outDir": "bin",
+    "target": "es2016",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": true,
+    "stripInternal": true,
+    "experimentalDecorators": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noCheck": true
+  },
+  "files": [
+    "cilium/index.ts",
+    "cilium/v2/ciliumClusterwideNetworkPolicy.ts",
+    "cilium/v2/ciliumClusterwideNetworkPolicyList.ts",
+    "cilium/v2/ciliumClusterwideNetworkPolicyPatch.ts",
+    "cilium/v2/ciliumNetworkPolicy.ts",
+    "cilium/v2/ciliumNetworkPolicyList.ts",
+    "cilium/v2/ciliumNetworkPolicyPatch.ts",
+    "cilium/v2/index.ts",
+    "index.ts",
+    "provider.ts",
+    "types/index.ts",
+    "types/input.ts",
+    "types/output.ts",
+    "utilities.ts"
+  ]
+}

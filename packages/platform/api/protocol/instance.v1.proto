@@ -1,0 +1,55 @@
+syntax = "proto3";
+package io.highstate.instance.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+message InstanceCustomStatus {
+  // The name of the instance's extra status. Must be unique within the instance
+  // state.
+  string name = 1;
+
+  // The metadata of the instance's extra status (title, description, icon,
+  // iconColor).
+  google.protobuf.Struct meta = 2;
+
+  // The status value. May be one of the WellKnownInstanceCustomStatus values or
+  // a custom string.
+  string value = 3;
+
+  // The message describing the instance's extra status.
+  // Can be used to provide additional context or information about the status.
+  // The message will be displayed in the 800x600 ANSI terminal in the UI.
+  optional string message = 4;
+
+  // The order of the status in the list of statuses (0-100, lower values are
+  // displayed first). If not provided, the default is 50.
+  optional int32 order = 5;
+}
+
+message UpdateCustomStatusRequest {
+  // The ID of the instance state to update the extra status for.
+  string state_id = 1;
+
+  // The extra status to update. If the status already exists, it will be
+  // updated. If it does not exist, it will be created.
+  InstanceCustomStatus status = 2;
+}
+
+message RemoveCustomStatusRequest {
+  // The ID of the instance state to remove the extra status from.
+  string state_id = 1;
+
+  // The name of the custom status to remove.
+  string status_name = 2;
+}
+
+service InstanceService {
+  // Updates the custom status of an instance.
+  rpc updateCustomStatus(UpdateCustomStatusRequest)
+      returns (google.protobuf.Empty);
+
+  // Removes a custom status from an instance.
+  rpc removeCustomStatus(RemoveCustomStatusRequest)
+      returns (google.protobuf.Empty);
+}

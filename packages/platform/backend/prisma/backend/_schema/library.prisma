@@ -1,0 +1,17 @@
+model Library {
+    /// The CUIDv2 of the library.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the library managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The spec of the library.
+    ///
+    /// [LibrarySpec]
+    spec Json
+
+    /// The projects using this library.
+    projects Project[]
+}

@@ -1,0 +1,37 @@
+/// The container for project instances. 
+///
+/// Only used when "database" project model storage is used.
+model InstanceModel {
+    /// The ID of the instance in the format of `{type}:{name}`.
+    id String @id
+
+    /// The model of the instance managed by the backend.
+    ///
+    /// [InstanceModel]
+    model Json
+
+    /// The time when the instance model was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the instance model was last updated.
+    updatedAt DateTime @updatedAt
+}
+
+/// The container for project hubs.
+///
+/// Only used when "database" project model storage is used.
+model HubModel {
+    /// The CUIDv2 of the hub.
+    id String @id
+
+    /// The model of the hub managed by the backend.
+    ///
+    /// [HubModel]
+    model Json
+
+    /// The time when the hub model was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the hub model was last updated.
+    updatedAt DateTime @updatedAt
+}

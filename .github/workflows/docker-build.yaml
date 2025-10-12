@@ -1,0 +1,106 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/docker-build.yaml
+      - docker/**
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/highstate-io/highstate
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Build and push terminal.base
+        id: build-base
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          file: ./docker/terminal.base.dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/terminal.base:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push terminal-kubectl
+        id: build-kubectl
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          file: ./docker/terminal.kubectl.dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/terminal.kubectl:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASE_IMAGE=${{ env.IMAGE_PREFIX }}/terminal.base@${{ steps.build-base.outputs.digest }}
+
+      - name: Build and push terminal-restic
+        id: build-restic
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          file: ./docker/terminal.restic.dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/terminal.restic:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASE_IMAGE=${{ env.IMAGE_PREFIX }}/terminal.base@${{ steps.build-base.outputs.digest }}
+
+      - name: Build and push terminal-ssh
+        id: build-ssh
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          file: ./docker/terminal.ssh.dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/terminal.ssh:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASE_IMAGE=${{ env.IMAGE_PREFIX }}/terminal.base@${{ steps.build-base.outputs.digest }}
+
+      - name: Build and push terminal-talosctl
+        id: build-talosctl
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          file: ./docker/terminal.talosctl.dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/terminal.talosctl:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BASE_IMAGE=${{ env.IMAGE_PREFIX }}/terminal.kubectl@${{ steps.build-kubectl.outputs.digest }}

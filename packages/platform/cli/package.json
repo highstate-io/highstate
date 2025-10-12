@@ -1,0 +1,63 @@
+{
+  "name": "@highstate/cli",
+  "version": "0.9.36",
+  "description": "The CLI for the Highstate project.",
+  "type": "module",
+  "files": [
+    "assets",
+    "dist",
+    "src"
+  ],
+  "bin": {
+    "highstate": "./dist/main.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@aws-crypto/crc32": "^5.2.0",
+    "@highstate/backend": "workspace:^0.9.36",
+    "@highstate/contract": "workspace:^0.9.36",
+    "@inquirer/prompts": "^7.8.6",
+    "@msgpack/msgpack": "^3.1.2",
+    "@pulumi/pulumi": "^3.198.0",
+    "age-encryption": "^0.2.4",
+    "ajv": "^8.17.1",
+    "clipanion": "^4.0.0-rc.4",
+    "consola": "^3.4.0",
+    "console-table-printer": "^2.12.1",
+    "crypto-hash": "^3.1.0",
+    "get-port-please": "^3.1.2",
+    "import-meta-resolve": "^4.1.0",
+    "magic-string": "^0.30.17",
+    "nypm": "^0.6.1",
+    "oxc-parser": "^0.63.0",
+    "oxc-walker": "^0.2.4",
+    "pino": "^9.6.0",
+    "pkg-types": "^1.2.1",
+    "remeda": "^2.21.2",
+    "tsup": "^8.4.0",
+    "zod": "^4.0.5"
+  },
+  "peerDependenciesMeta": {
+    "@pulumi/pulumi": {
+      "optional": true
+    },
+    "classic-level": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "highstate-cli-bootstrap": "npm:@highstate/cli@0.9.35",
+    "vitest": "^3.2.4"
+  }
+}

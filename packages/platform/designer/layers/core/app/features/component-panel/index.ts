@@ -1,0 +1,5 @@
+export { default as ComponentList } from "./components/ComponentList.vue"
+export { default as ComponentListWrapper } from "./components/ComponentListWrapper.vue"
+export { default as ComponentStatusField } from "../instance-node/components/InstanceStatusField.vue"
+export { default as ComponentStatusFieldItem } from "../instance-node/components/InstanceStatusFieldItem.vue"
+export { default as ComponentTemplate } from "./components/ComponentTemplate.vue"

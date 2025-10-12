@@ -1,0 +1,17 @@
+model PulumiBackend {
+    /// The CUIDv2 of the Pulumi backend.
+    id String @id @default(cuid(2))
+
+    /// The backend meta managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The spec of the Pulumi backend.
+    ///
+    /// [PulumiBackendSpec]
+    spec Json
+
+    /// The projects using this backend.
+    projects Project[]
+}

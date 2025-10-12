@@ -1,0 +1,41 @@
+{
+  "name": "@highstate/talos",
+  "version": "0.9.36",
+  "type": "module",
+  "files": [
+    "assets",
+    "dist"
+  ],
+  "exports": {
+    "./cluster": "./dist/cluster/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "update-assets": "./scripts/update-assets.sh",
+    "update-images": "../../scripts/update-images.sh ./assets/images.json",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@highstate/cilium": "workspace:^0.9.36",
+    "@highstate/common": "workspace:^0.9.36",
+    "@highstate/contract": "workspace:^0.9.36",
+    "@highstate/k8s": "workspace:^0.9.36",
+    "@highstate/library": "workspace:^0.9.36",
+    "@highstate/pulumi": "workspace:^0.9.36",
+    "@kubernetes/client-node": "^1.1.0",
+    "@pulumi/command": "^1.0.2",
+    "@pulumi/kubernetes": "^4.18.0",
+    "@pulumiverse/talos": "^0.6.0",
+    "remeda": "^2.21.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:^0.9.36",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+  }
+}

@@ -1,0 +1,121 @@
+---
+title: Data Management
+description: How Highstate isolates project data, processes state, and keeps encryption keys under control.
+navigation:
+  icon: i-lucide-database
+---
+
+## Shaping Your Data Boundaries
+
+As you already know from the concepts tour, a project is where you collect instances, connect hubs, and describe one slice of infrastructure.
+That same project doubles as the smallest isolation boundary for data in Highstate.
+The backend you run determines where that data lives; right now we ship only the local backend that Highstate Designer launches, so that's the focus of this page.
+Every project travels with its own encryption key, databases, artifacts, and unlock records, so nothing leaks across project borders unless we build a feature to share it.
+
+Projects do not execute anything on their own.
+To bring a project to life we rely on a backend.
+A backend opens project databases, evaluates instances, runs operations, and keeps the project state moving.
+
+::tip
+A **backend** is the runtime process that loads projects, runs operations, and keeps every unlocked project alive inside a single isolation boundary.
+::
+
+One backend can load many projects once you unlock them, and every operation runs inside that runtime.
+Yes, when you launch Highstate Designer you also launch a local backend right beside it.
+That backend shares the process, filesystem access, and memory space with anything you unlock.
+
+When you unlock a project, you explicitly trust that backend with the decrypted key material for as long as the project stays open.
+We expect one backend to manage a project at a time because concurrent runtimes would race on state updates and corrupt data.
+
+## Backend Database
+
+Every backend keeps a SQLite database at `.highstate/backend.db`.
+Here's what happens around that file:
+
+- The backend registers projects, libraries, space hierarchy, and stores encrypted project master keys.
+- Metadata lives in `backend.meta.yaml` next to the database and includes the schema version plus the encrypted database master key.
+- When encryption is enabled, the backend:
+  - Generates a 32-byte master key for the database.
+  - Encrypts that key with the backend identity stored in your OS keyring using AGE.
+  - Writes only the armored blob to `backend.meta.yaml`, never to the database itself.
+- On startup, the backend:
+  - Decrypts the blob with the OS-keyring identity.
+  - Hands the plaintext key to LibSQL for page encryption.
+  - Keeps the plaintext key out of any on-disk storage.
+- The version stored in `backend.meta.yaml` is compared with the expected version so the backend can run migrations automatically before serving requests.
+
+## Sharing Backend Data Across Machines
+
+The encrypted master key inside `backend.meta.yaml` is an AGE payload that can list multiple recipients.
+To share backend data across machines, you need that each trusted machine has its own AGE recipient in this list.
+
+To copy backend data to another machine:
+
+1. On the machine that you share data with, run `yarn highstate backend identity` to fetch its AGE recipient and copy it.
+2. On the machine that owns the backend data, run `yarn highstate backend unlock-method add <recipient>` to reencrypt the database master key with the new recipient.
+3. Deliver the entire `.highstate/` folder to the other machine (via git or any sync service).
+
+::warning
+If you keep `.highstate/` under source control or a sync service, make sure only one backend is running. Multiple active backends against the same database can rewrite state simultaneously and corrupt projects.
+::
+
+## Project Database
+
+Each project has its own SQLite database at `.highstate/projects/<id>/project.db`.
+The flow looks like this:
+
+- Project creation generates a 32-byte master key specific to that project.
+- The backend stores that encrypted key together with the project database version inside `backend.db`.
+- When you unlock the project (see the next section), the backend decrypts the key and stores it in memory; the unlock tasks then open the database, run any pending migrations, update the stored version, and keep every transaction scoped to that project only.
+
+## Unlocking Projects
+
+Here is the unlock process end to end:
+
+1. The designer receives the project's unlock suite, decrypts one of the AGE-encrypted identities using your password or passkey, and produces a plaintext identity string.
+2. The designer calls the backend with that decrypted identity together with the project ID.
+3. The backend loads the project's `encryptedMasterKey` from `backend.db`, decrypts it with AGE using the provided identity (or uses an empty key when encryption is disabled), and asks the unlock backend to keep the resulting 32-byte key in memory.
+4. The backend publishes the updated unlock state and runs registered unlock tasks that open the project database, trigger any pending migrations, update the stored version, and rehydrate subsystems such as evaluation, workers, and terminals.
+5. The master key remains in memory until you lock the project or stop the backend, so subsequent requests can access the project database without repeating the whole flow.
+
+## Artifacts and Project Models
+
+Artifacts live under `.highstate/projects/<id>/artifacts/` and use SHA256 hashes as filenames.
+Each 1 MB chunk is encrypted with XChaCha20-Poly1305 using the project master key before it hits disk, so artifact storage inherits the same isolation rules as the project database.
+When no references remain, garbage collection removes the encrypted file.
+
+Project models can stay in your workspace or move inside the project database.
+The default `codebase` option writes YAML files to `projects/<name>.yaml`.
+The optional `database` option stores the model beside the rest of the project data inside `project.db`.
+
+::note
+For now, it is not possible to switch to database storage. Leave an issue if you need that right away.
+::
+
+## Local Filesystem Layout
+
+The local backend launched by Highstate Designer stores everything under the workspace that contains `package.json`:
+
+```
+<workspace>/
+|-- .highstate/
+|   |-- backend.db           # Backend SQLite database (LibSQL)
+|   `-- projects/
+|       `-- <project-id>/
+|           |-- project.db   # Encrypted project SQLite database
+|           `-- artifacts/   # Artifact storage
+|               `-- <hash>.enc
+`-- projects/
+    `-- <project-name>.yaml  # Project model (codebase storage)
+```
+
+The backend database keeps the encrypted master keys and global metadata.
+Each project folder holds its encrypted database and artifact files, plus model YAML when you use codebase storage.
+
+## Roadmap: Backend Federation
+
+Today Highstate ships with a single supported backend: the local runtime that launches with the designer.
+We plan to add backend federation so your primary backend can spawn sub-backends, delegate individual projects, and proxy their requests while you stay in one control plane.
+That future setup would let you isolate production, staging, and hobby projects across different machines without losing the single entry point experience.
+Until federation arrives, run one backend per project to avoid conflicting writes.
+

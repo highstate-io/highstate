@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  main:
+    image: ghcr.io/exeteres/devcontainer/devops
+    volumes:
+      - ..:/home/dev/workspace:cached
+      - ~/.pulumi:/home/dev/.pulumi
+    command: sleep infinity
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1200

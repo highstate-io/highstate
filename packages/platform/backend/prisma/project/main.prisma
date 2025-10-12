@@ -1,0 +1,17 @@
+datasource db {
+    provider = "sqlite"
+    url      = env("HIGHSTATE_MIGRATION_DATABASE_URL")
+}
+
+generator client {
+    provider               = "prisma-client"
+    previewFeatures        = ["queryCompiler", "driverAdapters"]
+    output                 = "../../src/database/_generated/project"
+    moduleFormat           = "esm"
+    generatedFileExtension = "ts"
+    importFileExtension    = "ts"
+}
+
+generator json {
+    provider = "prisma-json-types-generator"
+}

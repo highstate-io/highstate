@@ -1,0 +1,52 @@
+/// The artifact represents a file or folder stored in the system.
+///
+/// It can be produced by units or manually uploaded via API by service accounts.
+///
+/// Since different actors can produce the same artifact with the same content and hash,
+/// there is the ownership/usage concept to track which entities produce or use the artifact.
+/// The "ownership" and "usage" are synonymous in this context and often referred to as "usage".
+///
+/// When no usages are present, the artifact will be automatically garbage collected after a certain period.
+model Artifact {
+    /// The CUIDv2 of the artifact.
+    id String @id @default(cuid(2))
+
+    /// The metadata of the artifact managed by the backend.
+    ///
+    /// Since multiple actors can produce the same artifact,
+    /// this metadata is the last one provided by any actor.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The SHA256 hash of the artifact content.
+    hash String @unique
+
+    /// The size of the compressed artifact content in bytes.
+    ///
+    /// Does not represent the size of the original file or folder,
+    /// but the size used to store the artifact in the system.
+    size Int
+
+    /// The chunk size of the artifact content in bytes.
+    /// Used to split the artifact into smaller chunks for storage.
+    chunkSize Int
+
+    /// The time when the artifact first appeared in the system.
+    createdAt DateTime @default(now())
+
+    /// The time when the artifact was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The service accounts using this artifact.
+    serviceAccounts ServiceAccount[]
+
+    /// The instances using this artifact.
+    instances InstanceState[]
+
+    /// The terminals using this artifact.
+    terminals Terminal[]
+
+    /// The pages using this artifact.
+    pages Page[]
+}

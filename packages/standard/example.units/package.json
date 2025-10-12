@@ -1,0 +1,34 @@
+{
+  "name": "@highstate/example.units",
+  "version": "0.9.36",
+  "type": "module",
+  "private": true,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    "./dist/cowsay": "./dist/cowsay/index.js"
+  },
+  "scripts": {
+    "build": "highstate build",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@highstate/contract": "workspace:^0.9.36",
+    "@highstate/example.library": "workspace:^0.9.36",
+    "@highstate/k8s": "workspace:^0.9.36",
+    "@highstate/library": "workspace:^0.9.36",
+    "@highstate/pulumi": "workspace:^0.9.36",
+    "h3": "^1.15.3",
+    "remeda": "^2.21.0",
+    "zx": "^8.5.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:^0.9.36",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+  }
+}

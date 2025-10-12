@@ -1,0 +1,84 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100,
+    "attributePosition": "auto",
+    "bracketSameLine": false,
+    "bracketSpacing": true,
+    "expand": "auto",
+    "useEditorconfig": true,
+    "includes": [
+      "packages/**/src/**",
+      "packages/platform/designer/**/*.ts",
+      "!packages/**/src/**/_generated/**",
+      "!**/*.mdc"
+    ]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noEmptyPattern": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
+      },
+      "performance": {
+        "noDynamicNamespaceImportAccess": "off"
+      }
+    },
+    "includes": ["packages/**/src/**/*.ts", "!packages/**/src/**/_generated/**/*.ts"]
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "all",
+      "semicolons": "asNeeded",
+      "arrowParentheses": "asNeeded",
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    }
+  },
+  "html": {
+    "formatter": {
+      "selfCloseVoidElements": "always"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              {
+                "type": true,
+                "source": null
+              }
+            ],
+            "identifierOrder": "natural"
+          }
+        }
+      }
+    },
+    "includes": ["packages/**/src/**/*.ts", "!packages/**/src/**/_generated/**/*.ts"]
+  }
+}

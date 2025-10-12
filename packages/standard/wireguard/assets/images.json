@@ -1,0 +1,7 @@
+{
+  "wireguard": {
+    "name": "docker.io/linuxserver/wireguard",
+    "tag": "latest",
+    "image": "docker.io/linuxserver/wireguard:latest@sha256:7792dcef56c51e6b4d499a209e980ed74309bf3bee6af12168ea02bf289eddd9"
+  }
+}

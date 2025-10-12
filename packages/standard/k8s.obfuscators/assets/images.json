@@ -1,0 +1,7 @@
+{
+  "phantun": {
+    "name": "ghcr.io/highstate-io/highstate/phantun",
+    "tag": "latest",
+    "image": "ghcr.io/highstate-io/highstate/phantun:latest@sha256:898b1b96b9af91f06899b77b1a33d58d0a4de2fb57a60ad0cf611c64fb1d9298"
+  }
+}
