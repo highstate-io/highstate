@@ -34,6 +34,10 @@ jobs:
 
       - name: Verify
         run: |
-          npx nx-cloud start-ci-run --no-distribution
+          npx nx-cloud start-ci-run --auto-apply-fixes="*test*,*biome:check*" --no-distribution
           yarn ci:verify
           npx nx-cloud stop-all-agents
+
+      - name: Fix CI (if needed)
+        run: npx nx fix-ci
+        if: always()
