@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -e
 
 IMAGE="ghcr.io/highstate-io/highstate/docs:latest"
 NAMESPACE="docs"
@@ -7,6 +7,14 @@ DEPLOYMENT="docs"
 
 # Get the latest image hash
 IMAGE_HASH=$(docker images --format "{{.Repository}}:{{.Tag}} {{.Digest}}" | grep "^${IMAGE} " | awk '{print $2}')
+
+# Pull the image if not found locally
+if [ -z "$IMAGE_HASH" ]; then
+  docker pull $IMAGE
+
+  # Try to get the image hash again
+  IMAGE_HASH=$(docker images --format "{{.Repository}}:{{.Tag}} {{.Digest}}" | grep "^${IMAGE} " | awk '{print $2}')
+fi
 
 if [ -z "$IMAGE_HASH" ]; then
   echo "No image found for ${IMAGE}. The image must be built and pushed before deployment."
