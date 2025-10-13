@@ -2482,7 +2482,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/backend@npm:^0.9.35, @highstate/backend@workspace:^0.9.15, @highstate/backend@workspace:^0.9.36, @highstate/backend@workspace:packages/platform/backend":
+"@highstate/backend@npm:^0.9.35, @highstate/backend@workspace:^, @highstate/backend@workspace:^0.9.36, @highstate/backend@workspace:packages/platform/backend":
   version: 0.0.0-use.local
   resolution: "@highstate/backend@workspace:packages/platform/backend"
   dependencies:
@@ -2726,7 +2726,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/contract@npm:^0.9.35, @highstate/contract@workspace:^, @highstate/contract@workspace:^0.9.15, @highstate/contract@workspace:^0.9.36, @highstate/contract@workspace:packages/platform/contract":
+"@highstate/contract@npm:^0.9.35, @highstate/contract@workspace:^, @highstate/contract@workspace:^0.9.36, @highstate/contract@workspace:packages/platform/contract":
   version: 0.0.0-use.local
   resolution: "@highstate/contract@workspace:packages/platform/contract"
   dependencies:
@@ -2751,9 +2751,9 @@ __metadata:
     "@codemirror/theme-one-dark": "npm:^6.1.2"
     "@dagrejs/dagre": "npm:^1.1.4"
     "@guolao/vue-monaco-editor": "npm:^1.5.5"
-    "@highstate/backend": "workspace:^0.9.15"
+    "@highstate/backend": "workspace:^"
     "@highstate/backend-api": "workspace:^"
-    "@highstate/contract": "workspace:^0.9.15"
+    "@highstate/contract": "workspace:^"
     "@iconify/vue": "npm:^4.1.2"
     "@mdi/font": "npm:5"
     "@msgpack/msgpack": "npm:^3.1.2"
