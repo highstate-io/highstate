@@ -1,6 +1,6 @@
 {
   "name": "@highstate/common",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "files": [
     "dist",
@@ -91,9 +91,9 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@highstate/contract": "workspace:^0.9.36",
-    "@highstate/library": "workspace:^0.9.36",
-    "@highstate/pulumi": "workspace:^0.9.36",
+    "@highstate/contract": "workspace:^0.10.0",
+    "@highstate/library": "workspace:^0.10.0",
+    "@highstate/pulumi": "workspace:^0.10.0",
     "@noble/hashes": "^1.7.1",
     "@pulumi/command": "^1.0.2",
     "micro-key-producer": "^0.7.3",
@@ -104,7 +104,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/cli": "workspace:^0.10.0",
     "@types/tar": "^6.1.13",
     "@types/unzipper": "^0.10.11",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",

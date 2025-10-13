@@ -1,6 +1,6 @@
 {
   "name": "@highstate/example.library",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "highstate": {
     "type": "library"
@@ -23,13 +23,13 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@highstate/contract": "workspace:^0.9.36",
-    "@highstate/library": "workspace:^0.9.36",
+    "@highstate/contract": "workspace:^0.10.0",
+    "@highstate/library": "workspace:^0.10.0",
     "remeda": "^2.21.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/cli": "workspace:^0.10.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   }
 }

@@ -2447,7 +2447,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
     "@bufbuild/protobuf": "npm:^2.6.0"
-    "@highstate/cli": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     long: "npm:^5.3.2"
     nice-grpc-common: "npm:^2.0.2"
@@ -2463,9 +2463,9 @@ __metadata:
     "@biomejs/biome": "npm:2.2.0"
     "@bufbuild/protobuf": "npm:^2.6.1"
     "@highstate/api": "workspace:^"
-    "@highstate/backend": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
+    "@highstate/backend": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     abort-controller-x: "npm:^0.4.3"
     nice-grpc: "npm:^2.1.12"
@@ -2482,13 +2482,64 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/backend@npm:^0.9.35, @highstate/backend@workspace:^, @highstate/backend@workspace:^0.9.36, @highstate/backend@workspace:packages/platform/backend":
+"@highstate/backend@npm:^0.9.35":
+  version: 0.9.37
+  resolution: "@highstate/backend@npm:0.9.37"
+  dependencies:
+    "@aws-crypto/crc32": "npm:^5.2.0"
+    "@highstate/contract": "npm:^0.9.37"
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@napi-rs/keyring": "npm:^1.1.8"
+    "@noble/ciphers": "npm:^1.3.0"
+    "@noble/hashes": "npm:^1.8.0"
+    "@paralleldrive/cuid2": "npm:^2.2.2"
+    "@prisma/adapter-libsql": "npm:^6.14.0"
+    "@prisma/client": "npm:^6.14.0"
+    "@prisma/driver-adapter-utils": "npm:^6.14.0"
+    "@types/node": "npm:^22.10.1"
+    age-encryption: "npm:^0.2.3"
+    ajv: "npm:^8.17.1"
+    ansi-colors: "npm:^4.1.3"
+    ansi-styles: "npm:^6.2.1"
+    better-lock: "npm:^3.2.0"
+    consola: "npm:^3.2.3"
+    crypto-hash: "npm:^3.1.0"
+    dotenv: "npm:^16.4.7"
+    execa: "npm:^9.6.0"
+    glob: "npm:^11.0.1"
+    import-meta-resolve: "npm:^4.1.0"
+    lru-cache: "npm:^11.1.0"
+    nano-spawn: "npm:^0.2.0"
+    nypm: "npm:^0.6.1"
+    p-queue: "npm:^8.0.0"
+    pino: "npm:^9.6.0"
+    pkg-types: "npm:^1.2.1"
+    prisma: "npm:^6.14.0"
+    remeda: "npm:^2.21.0"
+    ulid: "npm:^3.0.1"
+    uuid: "npm:^11.1.0"
+    watcher: "npm:^2.3.1"
+    yaml: "npm:^2.7.1"
+    zod: "npm:^4.0.5"
+  peerDependencies:
+    "@pulumi/pulumi": ^3.198.0
+    classic-level: ^2.0.0
+  peerDependenciesMeta:
+    "@pulumi/pulumi":
+      optional: true
+    classic-level:
+      optional: true
+  checksum: 10c0/2215782514713104d1fe19aea82c89b7eb4535d155421fd17ed48e22cf1de3f18c52d5e8cf50b6856d63474b2260e6cd8440f72981f44d4c0d8a4ffdf4540cc3
+  languageName: node
+  linkType: hard
+
+"@highstate/backend@workspace:^, @highstate/backend@workspace:^0.10.0, @highstate/backend@workspace:packages/platform/backend":
   version: 0.0.0-use.local
   resolution: "@highstate/backend@workspace:packages/platform/backend"
   dependencies:
     "@aws-crypto/crc32": "npm:^5.2.0"
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/contract": "workspace:^0.9.36"
+    "@highstate/contract": "workspace:^0.10.0"
     "@msgpack/msgpack": "npm:^3.1.2"
     "@napi-rs/keyring": "npm:^1.1.8"
     "@noble/ciphers": "npm:^1.3.0"
@@ -2542,7 +2593,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/cert-manager@workspace:^, @highstate/cert-manager@workspace:^0.9.36, @highstate/cert-manager@workspace:packages/standard/k8s/generated/cert-manager":
+"@highstate/cert-manager@workspace:^, @highstate/cert-manager@workspace:^0.10.0, @highstate/cert-manager@workspace:packages/standard/k8s/generated/cert-manager":
   version: 0.0.0-use.local
   resolution: "@highstate/cert-manager@workspace:packages/standard/k8s/generated/cert-manager"
   dependencies:
@@ -2562,7 +2613,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/cilium-crds@workspace:^0.9.36, @highstate/cilium-crds@workspace:packages/standard/cilium/generated/cilium-crds":
+"@highstate/cilium-crds@workspace:^0.10.0, @highstate/cilium-crds@workspace:packages/standard/cilium/generated/cilium-crds":
   version: 0.0.0-use.local
   resolution: "@highstate/cilium-crds@workspace:packages/standard/cilium/generated/cilium-crds"
   dependencies:
@@ -2582,17 +2633,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/cilium@workspace:^0.9.36, @highstate/cilium@workspace:packages/standard/cilium":
+"@highstate/cilium@workspace:^0.10.0, @highstate/cilium@workspace:packages/standard/cilium":
   version: 0.0.0-use.local
   resolution: "@highstate/cilium@workspace:packages/standard/cilium"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cilium-crds": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cilium-crds": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@kubernetes/client-node": "npm:^1.3.0"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/kubernetes": "npm:^4.18.0"
@@ -2640,14 +2691,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@highstate/cli@workspace:^0.9.36, @highstate/cli@workspace:packages/platform/cli":
+"@highstate/cli@workspace:^0.10.0, @highstate/cli@workspace:packages/platform/cli":
   version: 0.0.0-use.local
   resolution: "@highstate/cli@workspace:packages/platform/cli"
   dependencies:
     "@aws-crypto/crc32": "npm:^5.2.0"
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/backend": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
+    "@highstate/backend": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
     "@inquirer/prompts": "npm:^7.8.6"
     "@msgpack/msgpack": "npm:^3.1.2"
     "@pulumi/pulumi": "npm:^3.198.0"
@@ -2687,12 +2738,12 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
     "@highstate/cert-manager": "workspace:^"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@pulumi/cloudflare": "npm:^6.1.1"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/kubernetes": "npm:^4.18.0"
@@ -2703,15 +2754,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/common@workspace:^0.9.36, @highstate/common@workspace:packages/standard/common":
+"@highstate/common@workspace:^0.10.0, @highstate/common@workspace:packages/standard/common":
   version: 0.0.0-use.local
   resolution: "@highstate/common@workspace:packages/standard/common"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@noble/hashes": "npm:^1.7.1"
     "@pulumi/command": "npm:^1.0.2"
     "@types/tar": "npm:^6.1.13"
@@ -2726,7 +2777,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/contract@npm:^0.9.35, @highstate/contract@workspace:^, @highstate/contract@workspace:^0.9.36, @highstate/contract@workspace:packages/platform/contract":
+"@highstate/contract@npm:^0.9.35, @highstate/contract@npm:^0.9.37":
+  version: 0.9.37
+  resolution: "@highstate/contract@npm:0.9.37"
+  dependencies:
+    "@paralleldrive/cuid2": "npm:^2.2.2"
+    remeda: "npm:^2.21.0"
+    type-fest: "npm:^4.41.0"
+    yaml: "npm:^2.8.0"
+    zod: "npm:^4.0.5"
+  checksum: 10c0/6c0d66ddf5ef62ea547df78531ea104e335f022571ec27bdc7eb9353da279b7f883029ef5f137b442591e65ab54cafbbdd7e777491aae3d7214bc2c9552e5b18
+  languageName: node
+  linkType: hard
+
+"@highstate/contract@workspace:^, @highstate/contract@workspace:^0.10.0, @highstate/contract@workspace:packages/platform/contract":
   version: 0.0.0-use.local
   resolution: "@highstate/contract@workspace:packages/platform/contract"
   dependencies:
@@ -2821,11 +2885,11 @@ __metadata:
   resolution: "@highstate/distributions@workspace:packages/standard/distributions"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@pulumi/pulumi": "npm:^3.198.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     remeda: "npm:^2.21.3"
@@ -2848,14 +2912,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/example.library@workspace:^0.9.36, @highstate/example.library@workspace:packages/standard/example.library":
+"@highstate/example.library@workspace:^0.10.0, @highstate/example.library@workspace:packages/standard/example.library":
   version: 0.0.0-use.local
   resolution: "@highstate/example.library@workspace:packages/standard/example.library"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     remeda: "npm:^2.21.0"
   languageName: unknown
@@ -2866,12 +2930,12 @@ __metadata:
   resolution: "@highstate/example.units@workspace:packages/standard/example.units"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/example.library": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/example.library": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     h3: "npm:^1.15.3"
     remeda: "npm:^2.21.0"
@@ -2883,13 +2947,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@highstate/example@workspace:packages/standard/example"
   dependencies:
-    "@highstate/cli": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
     "@highstate/designer": "workspace:^"
     classic-level: "npm:^3.0.0"
   languageName: unknown
   linkType: soft
 
-"@highstate/gateway-api@workspace:^0.9.36, @highstate/gateway-api@workspace:packages/standard/k8s/generated/gateway-api":
+"@highstate/gateway-api@workspace:^0.10.0, @highstate/gateway-api@workspace:packages/standard/k8s/generated/gateway-api":
   version: 0.0.0-use.local
   resolution: "@highstate/gateway-api@workspace:packages/standard/k8s/generated/gateway-api"
   dependencies:
@@ -2909,16 +2973,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/git@workspace:^0.9.36, @highstate/git@workspace:packages/standard/git":
+"@highstate/git@workspace:^0.10.0, @highstate/git@workspace:packages/standard/git":
   version: 0.0.0-use.local
   resolution: "@highstate/git@workspace:packages/standard/git"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     remeda: "npm:^2.21.0"
     simple-git: "npm:^3.27.0"
@@ -2931,12 +2995,12 @@ __metadata:
   resolution: "@highstate/k3s@workspace:packages/standard/k3s"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@kubernetes/client-node": "npm:^1.1.0"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/kubernetes": "npm:^4.18.0"
@@ -2950,15 +3014,15 @@ __metadata:
   resolution: "@highstate/k8s.apps@workspace:packages/standard/k8s.apps"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cert-manager": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/gateway-api": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
-    "@highstate/restic": "workspace:^0.9.36"
+    "@highstate/cert-manager": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/gateway-api": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
+    "@highstate/restic": "workspace:^0.10.0"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@pulumi/pulumi": "npm:^3.198.0"
@@ -2974,14 +3038,14 @@ __metadata:
   resolution: "@highstate/k8s.game-servers@workspace:packages/standard/k8s.game-servers"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cert-manager": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
-    "@highstate/restic": "workspace:^0.9.36"
+    "@highstate/cert-manager": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
+    "@highstate/restic": "workspace:^0.10.0"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@pulumi/pulumi": "npm:^3.198.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
@@ -2995,7 +3059,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
     "@highstate/api": "workspace:^"
-    "@highstate/cli": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
     "@highstate/contract": "workspace:^"
     "@highstate/library": "workspace:^"
     "@highstate/worker-sdk": "workspace:^"
@@ -3012,13 +3076,13 @@ __metadata:
   resolution: "@highstate/k8s.obfuscators@workspace:packages/standard/k8s.obfuscators"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cert-manager": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cert-manager": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@pulumi/pulumi": "npm:^3.198.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
@@ -3026,18 +3090,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/k8s@workspace:^0.9.36, @highstate/k8s@workspace:packages/standard/k8s":
+"@highstate/k8s@workspace:^0.10.0, @highstate/k8s@workspace:packages/standard/k8s":
   version: 0.0.0-use.local
   resolution: "@highstate/k8s@workspace:packages/standard/k8s"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cert-manager": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/gateway-api": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cert-manager": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/gateway-api": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@kubernetes/client-node": "npm:^1.1.0"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/kubernetes": "npm:^4.18.0"
@@ -3054,13 +3118,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/library@workspace:^, @highstate/library@workspace:^0.9.36, @highstate/library@workspace:packages/standard/library":
+"@highstate/library@workspace:^, @highstate/library@workspace:^0.10.0, @highstate/library@workspace:packages/standard/library":
   version: 0.0.0-use.local
   resolution: "@highstate/library@workspace:packages/standard/library"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     remeda: "npm:^2.21.0"
     type-fest: "npm:^4.41.0"
@@ -3072,11 +3136,11 @@ __metadata:
   resolution: "@highstate/mullvad@workspace:packages/third-party/mullvad"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@noble/curves": "npm:^1.8.0"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
@@ -3089,12 +3153,12 @@ __metadata:
   resolution: "@highstate/nixos@workspace:packages/standard/nixos"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/git": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/git": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@pulumi/pulumi": "npm:^3.198.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
@@ -3107,23 +3171,23 @@ __metadata:
   resolution: "@highstate/proxmox@workspace:packages/standard/proxmox"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@muhlba91/pulumi-proxmoxve": "npm:^6.17.1"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
   languageName: unknown
   linkType: soft
 
-"@highstate/pulumi@workspace:^0.9.36, @highstate/pulumi@workspace:packages/platform/pulumi":
+"@highstate/pulumi@workspace:^0.10.0, @highstate/pulumi@workspace:packages/platform/pulumi":
   version: 0.0.0-use.local
   resolution: "@highstate/pulumi@workspace:packages/platform/pulumi"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
     "@pulumi/pulumi": "npm:^3.198.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     deepmerge-ts: "npm:^7.1.5"
@@ -3131,17 +3195,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/restic@workspace:^0.9.36, @highstate/restic@workspace:packages/standard/restic":
+"@highstate/restic@workspace:^0.10.0, @highstate/restic@workspace:packages/standard/restic":
   version: 0.0.0-use.local
   resolution: "@highstate/restic@workspace:packages/standard/restic"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     remeda: "npm:^2.21.0"
@@ -3153,11 +3217,11 @@ __metadata:
   resolution: "@highstate/sops@workspace:packages/standard/sops"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     remeda: "npm:^2.21.0"
   languageName: unknown
@@ -3168,13 +3232,13 @@ __metadata:
   resolution: "@highstate/talos@workspace:packages/standard/talos"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cilium": "workspace:^0.9.36"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cilium": "workspace:^0.10.0"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@kubernetes/client-node": "npm:^1.1.0"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/kubernetes": "npm:^4.18.0"
@@ -3184,7 +3248,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/timeweb-sdk@workspace:^0.9.36, @highstate/timeweb-sdk@workspace:packages/third-party/timeweb/generated/timeweb-sdk":
+"@highstate/timeweb-sdk@workspace:^0.10.0, @highstate/timeweb-sdk@workspace:packages/third-party/timeweb/generated/timeweb-sdk":
   version: 0.0.0-use.local
   resolution: "@highstate/timeweb-sdk@workspace:packages/third-party/timeweb/generated/timeweb-sdk"
   dependencies:
@@ -3200,12 +3264,12 @@ __metadata:
   resolution: "@highstate/timeweb@workspace:packages/third-party/timeweb"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
-    "@highstate/timeweb-sdk": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
+    "@highstate/timeweb-sdk": "workspace:^0.10.0"
     "@pulumi/command": "npm:^1.0.2"
     "@pulumi/pulumi": "npm:^3.198.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
@@ -3217,12 +3281,12 @@ __metadata:
   resolution: "@highstate/wireguard@workspace:packages/standard/wireguard"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/contract": "workspace:^0.9.36"
-    "@highstate/k8s": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/contract": "workspace:^0.10.0"
+    "@highstate/k8s": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
     "@noble/curves": "npm:^1.8.0"
     "@pulumi/kubernetes": "npm:^4.18.0"
     "@types/zip-stream": "npm:^7.0.0"
@@ -3239,7 +3303,7 @@ __metadata:
     "@biomejs/biome": "npm:2.2.0"
     "@bufbuild/protobuf": "npm:^2.6.0"
     "@highstate/api": "workspace:^"
-    "@highstate/cli": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
     "@highstate/contract": "workspace:^"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
     long: "npm:^5.3.2"
@@ -3249,7 +3313,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@highstate/yandex-sdk@workspace:^0.9.36, @highstate/yandex-sdk@workspace:packages/third-party/yandex/generated/yandex-sdk":
+"@highstate/yandex-sdk@workspace:^0.10.0, @highstate/yandex-sdk@workspace:packages/third-party/yandex/generated/yandex-sdk":
   version: 0.0.0-use.local
   resolution: "@highstate/yandex-sdk@workspace:packages/third-party/yandex/generated/yandex-sdk"
   dependencies:
@@ -3264,11 +3328,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@highstate/yandex@workspace:packages/third-party/yandex"
   dependencies:
-    "@highstate/cli": "workspace:^0.9.36"
-    "@highstate/common": "workspace:^0.9.36"
-    "@highstate/library": "workspace:^0.9.36"
-    "@highstate/pulumi": "workspace:^0.9.36"
-    "@highstate/yandex-sdk": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
+    "@highstate/common": "workspace:^0.10.0"
+    "@highstate/library": "workspace:^0.10.0"
+    "@highstate/pulumi": "workspace:^0.10.0"
+    "@highstate/yandex-sdk": "workspace:^0.10.0"
     "@pulumi/pulumi": "npm:^3.198.0"
   languageName: unknown
   linkType: soft
@@ -13944,7 +14008,7 @@ __metadata:
   resolution: "create-highstate@workspace:packages/platform/create-highstate"
   dependencies:
     "@biomejs/biome": "npm:2.2.0"
-    "@highstate/cli": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
     "@typescript/native-preview": "npm:^7.0.0-dev.20250920.1"
   bin:
     create-highstate: ./dist/main.js

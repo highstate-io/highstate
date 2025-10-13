@@ -1,6 +1,6 @@
 {
   "name": "create-highstate",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "description": "The scaffolding tool for the Highstate project.",
   "type": "module",
   "files": [
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/cli": "workspace:^0.10.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   }
 }

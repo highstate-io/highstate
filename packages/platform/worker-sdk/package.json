@@ -1,6 +1,6 @@
 {
   "name": "@highstate/worker-sdk",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "files": [
     "dist",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/cli": "workspace:^0.10.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "dependencies": {

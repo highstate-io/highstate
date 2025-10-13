@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cert-manager",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "keywords": [
     "pulumi",
     "kubernetes",

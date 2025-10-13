@@ -1,6 +1,6 @@
 {
   "name": "@highstate/backend-api",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "files": [
     "dist",
@@ -37,9 +37,9 @@
   "dependencies": {
     "@bufbuild/protobuf": "^2.6.1",
     "@highstate/api": "workspace:^",
-    "@highstate/backend": "workspace:^0.9.36",
-    "@highstate/cli": "workspace:^0.9.36",
-    "@highstate/contract": "workspace:^0.9.36",
+    "@highstate/backend": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/contract": "workspace:^0.10.0",
     "abort-controller-x": "^0.4.3",
     "nice-grpc": "^2.1.12",
     "nice-grpc-common": "^2.0.2",

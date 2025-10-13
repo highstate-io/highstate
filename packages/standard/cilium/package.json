@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cilium",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "files": [
     "dist",
@@ -25,11 +25,11 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@highstate/cilium-crds": "workspace:^0.9.36",
-    "@highstate/common": "workspace:^0.9.36",
-    "@highstate/k8s": "workspace:^0.9.36",
-    "@highstate/library": "workspace:^0.9.36",
-    "@highstate/pulumi": "workspace:^0.9.36",
+    "@highstate/cilium-crds": "workspace:^0.10.0",
+    "@highstate/common": "workspace:^0.10.0",
+    "@highstate/k8s": "workspace:^0.10.0",
+    "@highstate/library": "workspace:^0.10.0",
+    "@highstate/pulumi": "workspace:^0.10.0",
     "@kubernetes/client-node": "^1.3.0",
     "@pulumi/command": "^1.0.2",
     "@pulumi/kubernetes": "^4.18.0",
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/cli": "workspace:^0.10.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   }
 }

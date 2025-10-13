@@ -1,6 +1,6 @@
 {
   "name": "@highstate/yandex",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "files": [
     "dist"
@@ -20,13 +20,13 @@
     "generate-sdks": "./scripts/generate-sdks.sh"
   },
   "dependencies": {
-    "@highstate/common": "workspace:^0.9.36",
-    "@highstate/library": "workspace:^0.9.36",
-    "@highstate/pulumi": "workspace:^0.9.36",
-    "@highstate/yandex-sdk": "workspace:^0.9.36",
+    "@highstate/common": "workspace:^0.10.0",
+    "@highstate/library": "workspace:^0.10.0",
+    "@highstate/pulumi": "workspace:^0.10.0",
+    "@highstate/yandex-sdk": "workspace:^0.10.0",
     "@pulumi/pulumi": "^3.198.0"
   },
   "devDependencies": {
-    "@highstate/cli": "workspace:^0.9.36"
+    "@highstate/cli": "workspace:^0.10.0"
   }
 }

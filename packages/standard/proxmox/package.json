@@ -1,6 +1,6 @@
 {
   "name": "@highstate/proxmox",
-  "version": "0.9.36",
+  "version": "0.10.0",
   "type": "module",
   "files": [
     "dist"
@@ -21,15 +21,15 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@highstate/common": "workspace:^0.9.36",
-    "@highstate/contract": "workspace:^0.9.36",
-    "@highstate/library": "workspace:^0.9.36",
-    "@highstate/pulumi": "workspace:^0.9.36",
+    "@highstate/common": "workspace:^0.10.0",
+    "@highstate/contract": "workspace:^0.10.0",
+    "@highstate/library": "workspace:^0.10.0",
+    "@highstate/pulumi": "workspace:^0.10.0",
     "@muhlba91/pulumi-proxmoxve": "^6.17.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.9.36",
+    "@highstate/cli": "workspace:^0.10.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   }
 }
