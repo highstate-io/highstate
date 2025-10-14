@@ -7,7 +7,9 @@
       "!{projectRoot}/bin/**/*",
       "!{projectRoot}/.nuxt/**/*",
       "!{projectRoot}/.output/**/*",
-      "!{projectRoot}/CHANGELOG.md"
+      "!{projectRoot}/CHANGELOG.md",
+      "!{projectRoot}/package.json",
+      "{workspaceRoot}/yarn.lock"
     ]
   },
   "targetDefaults": {
@@ -21,12 +23,61 @@
         "{projectRoot}/bin"
       ]
     },
-    "test": { "cache": true, "dependsOn": ["^build"], "outputs": ["{projectRoot}/coverage"] },
-    "build-image": { "cache": true, "dependsOn": ["build"], "outputs": [] },
-    "push-image": { "cache": true, "dependsOn": ["build-image"], "outputs": [] },
-    "deploy-image": { "cache": true, "dependsOn": ["push-image"], "outputs": [] },
-    "biome": { "cache": true, "outputs": [] },
-    "biome:check": { "cache": true, "outputs": [] }
+    "test": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/coverage"]
+    },
+    "build-image": {
+      "cache": true,
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "push-image": {
+      "cache": true,
+      "dependsOn": ["build-image"],
+      "outputs": []
+    },
+    "deploy-image": {
+      "cache": true,
+      "dependsOn": ["push-image"],
+      "outputs": []
+    },
+    "biome": {
+      "cache": true,
+      "outputs": []
+    },
+    "biome:check": {
+      "cache": true,
+      "outputs": []
+    }
   },
-  "nxCloudId": "68ec0fb6bfeabbab18190388"
+  "release": {
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": "github"
+      },
+      "projectChangelogs": true
+    },
+    "version": {
+      "conventionalCommits": true
+    }
+  },
+  "nxCloudId": "68ec0fb6bfeabbab18190388",
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "tsc:typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    }
+  ]
 }

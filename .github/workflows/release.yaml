@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write # needed for provenance data generation
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,13 +54,22 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Release
+      - name: Version changed packages
+        run: yarn nx release version --skip-publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Run release tasks
+        env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
           DOCS_KUBECONFIG: ${{ secrets.DOCS_KUBECONFIG }}
         run: |
-          npx nx-cloud start-ci-run --no-distribution
+          yarn nx-cloud start-ci-run --no-distribution
           yarn ci:release
-          npx nx-cloud stop-all-agents
+          yarn nx-cloud stop-all-agents
+
+      - name: Publish packages
+        run: yarn nx release publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
