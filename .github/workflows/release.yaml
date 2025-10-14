@@ -55,7 +55,7 @@ jobs:
         run: yarn install
 
       - name: Version changed packages
-        run: yarn nx release version --skip-publish
+        run: yarn nx release --skip-publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
