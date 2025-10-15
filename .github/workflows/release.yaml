@@ -63,6 +63,7 @@ jobs:
           DOCS_KUBECONFIG: ${{ secrets.DOCS_KUBECONFIG }}
         run: |
           pnpm nx-cloud start-ci-run --no-distribution
+          pnpm ci:prepare
           pnpm ci:release
           pnpm nx-cloud stop-all-agents
 

@@ -4,6 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@10.18.3",
   "scripts": {
+    "ci:prepare": "nx run @highstate/cli:build && pnpm install",
     "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image",
     "ci:verify": "nx affected -t test,biome:check",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"

@@ -33,6 +33,7 @@ jobs:
       - name: Verify
         run: |
           pnpm nx-cloud start-ci-run --auto-apply-fixes="*test*,*biome:check*" --no-distribution
+          pnpm ci:prepare
           pnpm ci:verify
           pnpm nx-cloud stop-all-agents
 

@@ -82,7 +82,7 @@ importers:
         version: 6.17.1
       '@prisma/client':
         specifier: ^6.14.0
-        version: 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
+        version: 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/driver-adapter-utils':
         specifier: ^6.14.0
         version: 6.17.1
@@ -1722,6 +1722,9 @@ importers:
         specifier: ^3.198.0
         version: 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3)
     devDependencies:
+      '@biomejs/biome':
+        specifier: 2.2.0
+        version: 2.2.0
       '@highstate/cli':
         specifier: workspace:^0.10.0
         version: link:../../platform/cli
@@ -14363,7 +14366,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@paralleldrive/cuid2': 2.2.2
       '@prisma/adapter-libsql': 6.17.1
-      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/driver-adapter-utils': 6.17.1
       '@types/node': 22.18.10
       age-encryption: 0.2.4
@@ -14409,7 +14412,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@paralleldrive/cuid2': 2.2.2
       '@prisma/adapter-libsql': 6.17.1
-      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/driver-adapter-utils': 6.17.1
       '@types/node': 22.18.10
       age-encryption: 0.2.4
@@ -17293,7 +17296,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@prisma/client@6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)':
+  '@prisma/client@6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)':
     optionalDependencies:
       prisma: 6.17.1(magicast@0.3.5)(typescript@5.9.3)
       typescript: 5.9.3
@@ -24756,7 +24759,7 @@ snapshots:
 
   prisma-json-types-generator@3.6.2(@prisma/client@6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3))(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3):
     dependencies:
-      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/generator-helper': 6.17.1
       prisma: 6.17.1(magicast@0.3.5)(typescript@5.9.3)
       semver: 7.7.3
