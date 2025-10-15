@@ -44,6 +44,38 @@ Here's what happens around that file:
   - Keeps the plaintext key out of any on-disk storage.
 - The version stored in `backend.meta.yaml` is compared with the expected version so the backend can run migrations automatically before serving requests.
 
+### Manual Identity for Environments Without OS Keyring
+
+Sometimes you need to run the backend in an environment where the OS keyring isn't available - like Docker containers, CI/CD pipelines, or headless servers.
+For these cases, you can manually specify the AGE identity used to decrypt the backend master key.
+
+You have two options for providing the identity:
+
+**Option 1: Direct environment variable**
+
+Set `HIGHSTATE_BACKEND_DATABASE_IDENTITY` to the AGE identity string:
+
+```bash
+export HIGHSTATE_BACKEND_DATABASE_IDENTITY="AGE-SECRET-KEY-1..."
+```
+
+**Option 2: Identity file path**
+
+Store the identity in a file and point to it with `HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH`:
+
+```bash
+export HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH="/path/to/identity.key"
+```
+
+When you use either of these environment variables, the backend skips the OS keyring entirely and uses your provided identity instead.
+This means you're responsible for protecting that identity - keep it secret, keep it safe.
+
+::warning
+Manual identity management bypasses OS keyring security features.
+Only use this approach when the keyring is genuinely unavailable.
+Store identity files with proper permissions (chmod 600) and never commit them to source control.
+::
+
 ## Sharing Backend Data Across Machines
 
 The encrypted master key inside `backend.meta.yaml` is an AGE payload that can list multiple recipients.
