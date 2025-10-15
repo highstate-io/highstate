@@ -1,6 +1,6 @@
 {
   "name": "@highstate/timeweb-sdk",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "A Pulumi provider dynamically bridged from timeweb-cloud.",
   "repository": "https://github.com/timeweb-cloud/terraform-provider-timeweb-cloud",
   "main": "bin/index.js",
