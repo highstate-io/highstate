@@ -11,7 +11,8 @@
   "devDependencies": {
     "@nx/node": "21.6.4",
     "nx": "^21.6.4",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "vitest": "^3.2.4"
   },
   "repository": "highstate-io/highstate"
 }
