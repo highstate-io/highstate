@@ -1,7 +1,6 @@
-import { disposeServices } from "@highstate/backend"
 import { input } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
-import { getBackendServices, logger } from "../../../shared"
+import { disposeServices, getBackendServices, logger } from "../../../shared"
 
 export class BackendUnlockMethodAddCommand extends Command {
   static paths = [["backend", "unlock-method", "add"]]
@@ -46,7 +45,7 @@ export class BackendUnlockMethodAddCommand extends Command {
 
       logger.info(`added backend unlock method "%s"`, result.id)
     } finally {
-      await disposeServices(services)
+      await disposeServices()
     }
 
     // TODO: investigate why this is needed to properly exit

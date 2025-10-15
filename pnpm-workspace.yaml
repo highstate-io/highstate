@@ -1,6 +1,26 @@
 packages:
-  - "packages/platform/*"
-  - "packages/standard/*"
-  - "packages/third-party/*"
-  - "packages/standard/*/generated/*"
-  - "packages/third-party/*/generated/*"
+  - packages/platform/*
+  - packages/standard/*
+  - packages/third-party/*
+  - packages/standard/*/generated/*
+  - packages/third-party/*/generated/*
+
+ignoredBuiltDependencies:
+  - "@parcel/watcher"
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "@pulumi/command"
+  - "@pulumi/kubernetes"
+  - "@swc/core"
+  - "@tailwindcss/oxide"
+  - classic-level
+  - esbuild
+  - nx
+  - prisma
+  - protobufjs
+  - sharp
+  - unrs-resolver
+  - vue-demi
+
+onlyBuiltDependencies:
+  - better-sqlite3

@@ -18,8 +18,8 @@ Some simple rules to follow:
 
 Some additional notes:
 
-- Try to use LSP tools to check your code first. Using `yarn build` in most cases will not perform type checking. You can also use `yarn typecheck` where possible.
-- Never call `yarn build` on Nuxt projects, it is very slow.
+- Try to use LSP tools to check your code first. Using `pnpm build` in most cases will not perform type checking. You can also use `pnpm typecheck` where possible.
+- Never call `pnpm build` on Nuxt projects, it is very slow.
 
 After you finish your task, verify that your code follow the guidelines
 in `contributing/CODE_STYLE.md` and `contributing/DOCS_STYLE.md` rule by rule.

@@ -91,7 +91,7 @@ Here the `tsconfig.json` for the `library` package:
 
 ```json
 {
-  "extends": "../../../node_modules/@highstate/cli/assets/tsconfig.base.json",
+  "extends": "./node_modules/@highstate/cli/assets/tsconfig.base.json",
   "include": [
     "./src/**/*.ts",
   ]

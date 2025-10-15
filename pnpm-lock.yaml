@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      opencode-ai:
-        specifier: ^0.5.5
-        version: 0.5.29
     devDependencies:
       '@biomejs/biome':
         specifier: 2.2.0
@@ -207,8 +203,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       highstate-cli-bootstrap:
-        specifier: patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch
-        version: link:patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch
+        specifier: npm:@highstate/cli
+        version: '@highstate/cli@0.10.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       pino-pretty:
         specifier: ^13.0.0
         version: 13.1.2
@@ -350,8 +346,8 @@ importers:
         specifier: ^7.0.0-dev.20250920.1
         version: 7.0.0-dev.20251015.1
       highstate-cli-bootstrap:
-        specifier: patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch
-        version: link:patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch
+        specifier: npm:@highstate/cli
+        version: '@highstate/cli@0.10.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -384,8 +380,8 @@ importers:
         specifier: 2.1.8
         version: 2.1.8(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       highstate-cli-bootstrap:
-        specifier: patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch
-        version: link:patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch
+        specifier: npm:@highstate/cli
+        version: '@highstate/cli@0.10.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -1707,7 +1703,7 @@ importers:
     dependencies:
       '@pulumi/pulumi':
         specifier: ^3.198.0
-        version: 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@4.9.5))(typescript@4.9.5)
+        version: 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@5.9.3))(typescript@5.9.3)
       '@types/node':
         specifier: ^18
         version: 18.19.130
@@ -1715,8 +1711,8 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       typescript:
-        specifier: ^4.3.5
-        version: 4.9.5
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/third-party/yandex:
     dependencies:
@@ -1744,7 +1740,7 @@ importers:
     dependencies:
       '@pulumi/pulumi':
         specifier: ^3.198.0
-        version: 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@4.9.5))(typescript@4.9.5)
+        version: 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@5.9.3))(typescript@5.9.3)
       '@types/node':
         specifier: ^18
         version: 18.19.130
@@ -1752,8 +1748,8 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       typescript:
-        specifier: ^4.3.5
-        version: 4.9.5
+        specifier: ^5.7.2
+        version: 5.9.3
 
 packages:
 
@@ -3285,6 +3281,29 @@ packages:
     peerDependenciesMeta:
       '@vue/composition-api':
         optional: true
+
+  '@highstate/backend@0.10.0':
+    resolution: {integrity: sha512-zKuksbYFZd4LieIthxhncvTCF3yORxPNMtG0xcaGOel6GmQndsUVE7tGCbSjBL6puc4YWdSrqo0TkLeirrQNCQ==}
+    peerDependencies:
+      '@pulumi/pulumi': ^3.198.0
+      classic-level: ^2.0.0
+    peerDependenciesMeta:
+      '@pulumi/pulumi':
+        optional: true
+      classic-level:
+        optional: true
+
+  '@highstate/cli@0.10.0':
+    resolution: {integrity: sha512-COXZN7rBMWuJRc69seoOVL4Cw8VJmJfhk2B5Xu+p+axmlPJmeAgHURdHL0Jd93f4PhvW82yTTi3nypT+GtSmeA==}
+    hasBin: true
+    peerDependencies:
+      classic-level: '*'
+    peerDependenciesMeta:
+      classic-level:
+        optional: true
+
+  '@highstate/contract@0.10.0':
+    resolution: {integrity: sha512-om73DdbK0ilHaU/jmgltzfczLW5wX9FWNce5A+gMAduRGrSLZrCzcotJIEd9Ghs5QcaftizUY33mqg1o7lGn4g==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -10770,45 +10789,6 @@ packages:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
 
-  opencode-ai@0.5.29:
-    resolution: {integrity: sha512-qUnbEPZ4fz88Pd76ajKNLBVDwQ1SN814uQtqf1duXn0Z4yawsNDIldV757S/9tPW+oNVqe4EFlBjeDrxAbejhg==}
-    hasBin: true
-
-  opencode-darwin-arm64@0.5.29:
-    resolution: {integrity: sha512-r9VNR+opwM68X9cpR9zFNGlSXk+mLHvPpiNAd6lZtpQ+z93b2DTFyKEIiUEp0gVR0Oz1ilF6yRqae48guqVjcg==}
-    cpu: [arm64]
-    os: [darwin]
-
-  opencode-darwin-x64-baseline@0.5.29:
-    resolution: {integrity: sha512-h80arJCLXcSRtWPR8UIQXQ0lK6JRjijgaBh1xH+FpmnwbvO0qFg3QmV3ILHRTRcM3HYJCV4yDnehFlfXALtoeA==}
-    cpu: [x64-baseline]
-    os: [darwin]
-
-  opencode-darwin-x64@0.5.29:
-    resolution: {integrity: sha512-lwJtQmMvtakA0q1hCUwGZELsQVJycuyvWENQYdb4ou+DEgX/4saMsgk27oJ/n6rNgPbocCF8gdVzWcfhGtf8pQ==}
-    cpu: [x64]
-    os: [darwin]
-
-  opencode-linux-arm64@0.5.29:
-    resolution: {integrity: sha512-5rdKiT2tzGOQmz75EerxqRxquZzYim+ByrgrmZNLVspO3J65cugnx8COgJvj4Yf89y0Ua2g4KM692SHGNvtH1w==}
-    cpu: [arm64]
-    os: [linux]
-
-  opencode-linux-x64-baseline@0.5.29:
-    resolution: {integrity: sha512-jnQvPTtEVeCHJMfd3HY+5sSpqg11TZuOdyAWjSPG+NOQm67lZGNd2OMrtdILL8nbtwQ3CC9nhyedkvD0HeURxw==}
-    cpu: [x64-baseline]
-    os: [linux]
-
-  opencode-linux-x64@0.5.29:
-    resolution: {integrity: sha512-dEA5hdjL9iB2bz585FOk5swW96kW3caaSjbYSYFbRyHytCo8AO2vw/ohWt5lE+5mIWWAvsHJk2PucmhV4stMDQ==}
-    cpu: [x64]
-    os: [linux]
-
-  opencode-windows-x64@0.5.29:
-    resolution: {integrity: sha512-NPZeBkDWll/JQppTMTZ9scXNtYgLVWE3rjAGpEDicJqe57m0+mXK9wfiKYjg2vwIl5ud8+hb5UjS2ICCzrT6Uw==}
-    cpu: [x64]
-    os: [win32]
-
   openid-client@6.8.1:
     resolution: {integrity: sha512-VoYT6enBo6Vj2j3Q5Ec0AezS+9YGzQo1f5Xc42lreMGlfP4ljiXPKVDvCADh+XHCV/bqPu/wWSiCVXbJKvrODw==}
 
@@ -12666,11 +12646,6 @@ packages:
 
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
-
-  typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
 
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
@@ -15110,6 +15085,194 @@ snapshots:
       vue: 3.5.22(typescript@5.9.3)
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.9.3))
 
+  '@highstate/backend@0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)':
+    dependencies:
+      '@aws-crypto/crc32': 5.2.0
+      '@highstate/contract': 0.10.0
+      '@msgpack/msgpack': 3.1.2
+      '@napi-rs/keyring': 1.2.0
+      '@noble/ciphers': 1.3.0
+      '@noble/hashes': 1.8.0
+      '@paralleldrive/cuid2': 2.2.2
+      '@prisma/adapter-libsql': 6.17.1
+      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/driver-adapter-utils': 6.17.1
+      '@types/node': 22.18.10
+      age-encryption: 0.2.4
+      ajv: 8.17.1
+      ansi-colors: 4.1.3
+      ansi-styles: 6.2.3
+      better-lock: 3.2.0
+      consola: 3.4.2
+      crypto-hash: 3.1.0
+      dotenv: 16.6.1
+      execa: 9.6.0
+      glob: 11.0.3
+      import-meta-resolve: 4.2.0
+      lru-cache: 11.2.2
+      nano-spawn: 0.2.1
+      nypm: 0.6.2
+      p-queue: 8.1.1
+      pino: 9.13.1
+      pkg-types: 1.3.1
+      prisma: 6.17.1(magicast@0.3.5)(typescript@5.9.3)
+      remeda: 2.32.0
+      ulid: 3.0.1
+      uuid: 11.1.0
+      watcher: 2.3.1
+      yaml: 2.8.1
+      zod: 4.1.12
+    optionalDependencies:
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(typescript@5.9.3))(typescript@5.9.3)
+      classic-level: 3.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - magicast
+      - typescript
+      - utf-8-validate
+
+  '@highstate/backend@0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)':
+    dependencies:
+      '@aws-crypto/crc32': 5.2.0
+      '@highstate/contract': 0.10.0
+      '@msgpack/msgpack': 3.1.2
+      '@napi-rs/keyring': 1.2.0
+      '@noble/ciphers': 1.3.0
+      '@noble/hashes': 1.8.0
+      '@paralleldrive/cuid2': 2.2.2
+      '@prisma/adapter-libsql': 6.17.1
+      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/driver-adapter-utils': 6.17.1
+      '@types/node': 22.18.10
+      age-encryption: 0.2.4
+      ajv: 8.17.1
+      ansi-colors: 4.1.3
+      ansi-styles: 6.2.3
+      better-lock: 3.2.0
+      consola: 3.4.2
+      crypto-hash: 3.1.0
+      dotenv: 16.6.1
+      execa: 9.6.0
+      glob: 11.0.3
+      import-meta-resolve: 4.2.0
+      lru-cache: 11.2.2
+      nano-spawn: 0.2.1
+      nypm: 0.6.2
+      p-queue: 8.1.1
+      pino: 9.13.1
+      pkg-types: 1.3.1
+      prisma: 6.17.1(magicast@0.3.5)(typescript@5.9.3)
+      remeda: 2.32.0
+      ulid: 3.0.1
+      uuid: 11.1.0
+      watcher: 2.3.1
+      yaml: 2.8.1
+      zod: 4.1.12
+    optionalDependencies:
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3)
+      classic-level: 2.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - magicast
+      - typescript
+      - utf-8-validate
+
+  '@highstate/cli@0.10.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+    dependencies:
+      '@aws-crypto/crc32': 5.2.0
+      '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)
+      '@highstate/contract': 0.10.0
+      '@inquirer/prompts': 7.9.0(@types/node@22.18.10)
+      '@msgpack/msgpack': 3.1.2
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@22.18.10)(typescript@5.9.3))(typescript@5.9.3)
+      age-encryption: 0.2.4
+      ajv: 8.17.1
+      clipanion: 4.0.0-rc.4(typanion@3.14.0)
+      consola: 3.4.2
+      console-table-printer: 2.14.6
+      crypto-hash: 3.1.0
+      get-port-please: 3.2.0
+      import-meta-resolve: 4.2.0
+      magic-string: 0.30.19
+      nypm: 0.6.2
+      oxc-parser: 0.63.0
+      oxc-walker: 0.2.5(oxc-parser@0.63.0)
+      pino: 9.13.1
+      pkg-types: 1.3.1
+      remeda: 2.32.0
+      tsup: 8.5.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      zod: 4.1.12
+    optionalDependencies:
+      classic-level: 3.0.0
+    transitivePeerDependencies:
+      - '@microsoft/api-extractor'
+      - '@swc/core'
+      - '@types/node'
+      - bluebird
+      - bufferutil
+      - jiti
+      - magicast
+      - postcss
+      - supports-color
+      - ts-node
+      - tsx
+      - typanion
+      - typescript
+      - utf-8-validate
+      - yaml
+
+  '@highstate/cli@0.10.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+    dependencies:
+      '@aws-crypto/crc32': 5.2.0
+      '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)
+      '@highstate/contract': 0.10.0
+      '@inquirer/prompts': 7.9.0(@types/node@24.7.2)
+      '@msgpack/msgpack': 3.1.2
+      '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3)
+      age-encryption: 0.2.4
+      ajv: 8.17.1
+      clipanion: 4.0.0-rc.4(typanion@3.14.0)
+      consola: 3.4.2
+      console-table-printer: 2.14.6
+      crypto-hash: 3.1.0
+      get-port-please: 3.2.0
+      import-meta-resolve: 4.2.0
+      magic-string: 0.30.19
+      nypm: 0.6.2
+      oxc-parser: 0.63.0
+      oxc-walker: 0.2.5(oxc-parser@0.63.0)
+      pino: 9.13.1
+      pkg-types: 1.3.1
+      remeda: 2.32.0
+      tsup: 8.5.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      zod: 4.1.12
+    optionalDependencies:
+      classic-level: 2.0.0
+    transitivePeerDependencies:
+      - '@microsoft/api-extractor'
+      - '@swc/core'
+      - '@types/node'
+      - bluebird
+      - bufferutil
+      - jiti
+      - magicast
+      - postcss
+      - supports-color
+      - ts-node
+      - tsx
+      - typanion
+      - typescript
+      - utf-8-validate
+      - yaml
+
+  '@highstate/contract@0.10.0':
+    dependencies:
+      '@paralleldrive/cuid2': 2.2.2
+      remeda: 2.32.0
+      type-fest: 4.41.0
+      yaml: 2.8.1
+      zod: 4.1.12
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -15166,6 +15329,16 @@ snapshots:
 
   '@inquirer/ansi@1.0.1': {}
 
+  '@inquirer/checkbox@4.3.0(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/ansi': 1.0.1
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/figures': 1.0.14
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/checkbox@4.3.0(@types/node@24.7.2)':
     dependencies:
       '@inquirer/ansi': 1.0.1
@@ -15176,12 +15349,32 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.7.2
 
+  '@inquirer/confirm@5.1.19(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/confirm@5.1.19(@types/node@24.7.2)':
     dependencies:
       '@inquirer/core': 10.3.0(@types/node@24.7.2)
       '@inquirer/type': 3.0.9(@types/node@24.7.2)
     optionalDependencies:
       '@types/node': 24.7.2
+
+  '@inquirer/core@10.3.0(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/ansi': 1.0.1
+      '@inquirer/figures': 1.0.14
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+      cli-width: 4.1.0
+      mute-stream: 2.0.0
+      signal-exit: 4.1.0
+      wrap-ansi: 6.2.0
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.18.10
 
   '@inquirer/core@10.3.0(@types/node@24.7.2)':
     dependencies:
@@ -15196,6 +15389,14 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.7.2
 
+  '@inquirer/editor@4.2.21(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/external-editor': 1.0.2(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/editor@4.2.21(@types/node@24.7.2)':
     dependencies:
       '@inquirer/core': 10.3.0(@types/node@24.7.2)
@@ -15204,6 +15405,14 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.7.2
 
+  '@inquirer/expand@4.0.21(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/expand@4.0.21(@types/node@24.7.2)':
     dependencies:
       '@inquirer/core': 10.3.0(@types/node@24.7.2)
@@ -15211,6 +15420,13 @@ snapshots:
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
       '@types/node': 24.7.2
+
+  '@inquirer/external-editor@1.0.2(@types/node@22.18.10)':
+    dependencies:
+      chardet: 2.1.0
+      iconv-lite: 0.7.0
+    optionalDependencies:
+      '@types/node': 22.18.10
 
   '@inquirer/external-editor@1.0.2(@types/node@24.7.2)':
     dependencies:
@@ -15221,12 +15437,26 @@ snapshots:
 
   '@inquirer/figures@1.0.14': {}
 
+  '@inquirer/input@4.2.5(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/input@4.2.5(@types/node@24.7.2)':
     dependencies:
       '@inquirer/core': 10.3.0(@types/node@24.7.2)
       '@inquirer/type': 3.0.9(@types/node@24.7.2)
     optionalDependencies:
       '@types/node': 24.7.2
+
+  '@inquirer/number@3.0.21(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+    optionalDependencies:
+      '@types/node': 22.18.10
 
   '@inquirer/number@3.0.21(@types/node@24.7.2)':
     dependencies:
@@ -15235,6 +15465,14 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.7.2
 
+  '@inquirer/password@4.0.21(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/ansi': 1.0.1
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/password@4.0.21(@types/node@24.7.2)':
     dependencies:
       '@inquirer/ansi': 1.0.1
@@ -15242,6 +15480,21 @@ snapshots:
       '@inquirer/type': 3.0.9(@types/node@24.7.2)
     optionalDependencies:
       '@types/node': 24.7.2
+
+  '@inquirer/prompts@7.9.0(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/checkbox': 4.3.0(@types/node@22.18.10)
+      '@inquirer/confirm': 5.1.19(@types/node@22.18.10)
+      '@inquirer/editor': 4.2.21(@types/node@22.18.10)
+      '@inquirer/expand': 4.0.21(@types/node@22.18.10)
+      '@inquirer/input': 4.2.5(@types/node@22.18.10)
+      '@inquirer/number': 3.0.21(@types/node@22.18.10)
+      '@inquirer/password': 4.0.21(@types/node@22.18.10)
+      '@inquirer/rawlist': 4.1.9(@types/node@22.18.10)
+      '@inquirer/search': 3.2.0(@types/node@22.18.10)
+      '@inquirer/select': 4.4.0(@types/node@22.18.10)
+    optionalDependencies:
+      '@types/node': 22.18.10
 
   '@inquirer/prompts@7.9.0(@types/node@24.7.2)':
     dependencies:
@@ -15258,6 +15511,14 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.7.2
 
+  '@inquirer/rawlist@4.1.9(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/rawlist@4.1.9(@types/node@24.7.2)':
     dependencies:
       '@inquirer/core': 10.3.0(@types/node@24.7.2)
@@ -15265,6 +15526,15 @@ snapshots:
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
       '@types/node': 24.7.2
+
+  '@inquirer/search@3.2.0(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/figures': 1.0.14
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.18.10
 
   '@inquirer/search@3.2.0(@types/node@24.7.2)':
     dependencies:
@@ -15275,6 +15545,16 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.7.2
 
+  '@inquirer/select@4.4.0(@types/node@22.18.10)':
+    dependencies:
+      '@inquirer/ansi': 1.0.1
+      '@inquirer/core': 10.3.0(@types/node@22.18.10)
+      '@inquirer/figures': 1.0.14
+      '@inquirer/type': 3.0.9(@types/node@22.18.10)
+      yoctocolors-cjs: 2.1.3
+    optionalDependencies:
+      '@types/node': 22.18.10
+
   '@inquirer/select@4.4.0(@types/node@24.7.2)':
     dependencies:
       '@inquirer/ansi': 1.0.1
@@ -15284,6 +15564,10 @@ snapshots:
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
       '@types/node': 24.7.2
+
+  '@inquirer/type@3.0.9(@types/node@22.18.10)':
+    optionalDependencies:
+      '@types/node': 22.18.10
 
   '@inquirer/type@3.0.9(@types/node@24.7.2)':
     optionalDependencies:
@@ -17707,7 +17991,7 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@4.9.5))(typescript@4.9.5)':
+  '@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.0
       '@logdna/tail-file': 2.2.0
@@ -17738,8 +18022,8 @@ snapshots:
       tmp: 0.2.5
       upath: 1.2.0
     optionalDependencies:
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@4.9.5)
-      typescript: 4.9.5
+      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@5.9.3)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -24592,37 +24876,6 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  opencode-ai@0.5.29:
-    optionalDependencies:
-      opencode-darwin-arm64: 0.5.29
-      opencode-darwin-x64: 0.5.29
-      opencode-darwin-x64-baseline: 0.5.29
-      opencode-linux-arm64: 0.5.29
-      opencode-linux-x64: 0.5.29
-      opencode-linux-x64-baseline: 0.5.29
-      opencode-windows-x64: 0.5.29
-
-  opencode-darwin-arm64@0.5.29:
-    optional: true
-
-  opencode-darwin-x64-baseline@0.5.29:
-    optional: true
-
-  opencode-darwin-x64@0.5.29:
-    optional: true
-
-  opencode-linux-arm64@0.5.29:
-    optional: true
-
-  opencode-linux-x64-baseline@0.5.29:
-    optional: true
-
-  opencode-linux-x64@0.5.29:
-    optional: true
-
-  opencode-windows-x64@0.5.29:
-    optional: true
-
   openid-client@6.8.1:
     dependencies:
       jose: 6.1.0
@@ -26702,7 +26955,7 @@ snapshots:
       '@swc/core': 1.5.29(@swc/helpers@0.5.17)
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@4.9.5):
+  ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@18.19.130)(typescript@5.9.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -26716,7 +26969,7 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 4.9.5
+      typescript: 5.9.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     optionalDependencies:
@@ -26870,8 +27123,6 @@ snapshots:
       is-typed-array: 1.1.15
 
   typedarray@0.0.6: {}
-
-  typescript@4.9.5: {}
 
   typescript@5.9.3: {}
 

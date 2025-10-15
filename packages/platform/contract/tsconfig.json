@@ -1,5 +1,5 @@
 {
-  "extends": "../../../node_modules/@highstate/cli/assets/tsconfig.base.json",
+  "extends": "./node_modules/highstate-cli-bootstrap/assets/tsconfig.base.json",
   "include": [
     "./src/**/*.ts",
     "./package.json",

@@ -1,7 +1,6 @@
-import { disposeServices } from "@highstate/backend"
 import { confirm } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
-import { getBackendServices, logger } from "../../../shared"
+import { disposeServices, getBackendServices, logger } from "../../../shared"
 
 export class BackendUnlockMethodDeleteCommand extends Command {
   static paths = [["backend", "unlock-method", "delete"]]
@@ -33,7 +32,7 @@ export class BackendUnlockMethodDeleteCommand extends Command {
       await services.backendUnlockService.deleteUnlockMethod(this.id)
       logger.info(`deleted backend unlock method "%s"`, this.id)
     } finally {
-      await disposeServices(services)
+      await disposeServices()
     }
 
     process.exit(0)

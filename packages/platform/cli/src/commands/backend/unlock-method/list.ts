@@ -1,7 +1,6 @@
-import { disposeServices } from "@highstate/backend"
 import { Command } from "clipanion"
 import { Table } from "console-table-printer"
-import { getBackendServices, logger } from "../../../shared"
+import { disposeServices, getBackendServices, logger } from "../../../shared"
 
 export class BackendUnlockMethodListCommand extends Command {
   static paths = [["backend", "unlock-method", "list"]]
@@ -45,7 +44,7 @@ export class BackendUnlockMethodListCommand extends Command {
 
       table.printTable()
     } finally {
-      await disposeServices(services)
+      await disposeServices()
     }
 
     process.exit(0)

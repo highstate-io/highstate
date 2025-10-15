@@ -7,7 +7,7 @@ _post_process_generated_package() {
     jq " \
         .name = \"@highstate/$package\" | \
         .version = \"$version\" | \
-        .devDependencies.typescript = \"^5.7.2\" | \
+        .dependencies.typescript = \"^5.7.2\" | \
         .dependencies.\"@pulumi/pulumi\" = \"^3.198.0\" | \
         .publishConfig = {\"access\": \"public\"} | \
         .scripts.build = \"tsc && cp package.json bin/package.json\" | \

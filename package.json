@@ -34,8 +34,5 @@
       "released"
     ],
     "author": "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-  },
-  "dependencies": {
-    "opencode-ai": "^0.5.5"
   }
 }

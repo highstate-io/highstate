@@ -4,10 +4,10 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 COPY . .
 COPY package.json ./
-COPY yarn.lock ./
+COPY pnpm-lock.yaml ./
 
 RUN corepack enable
-RUN yarn workspaces focus @highstate/k8s.monitor-worker --production
+RUN pnpm install --filter-prod @highstate/k8s.monitor-worker
 
 # 2. at run stage, we copy only the node_modules and the built code for the app and local dependencies
 FROM node:24-alpine

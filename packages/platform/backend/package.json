@@ -29,9 +29,9 @@
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings",
     "test": "vitest --run",
-    "generate:project": "yarn prisma generate --schema prisma/project",
-    "generate:backend": "yarn prisma generate --schema prisma/backend/postgresql && yarn prisma generate --schema prisma/backend/sqlite",
-    "migrate": "yarn prisma migrate deploy --config dist/database/local/prisma.config.js"
+    "generate:project": "prisma generate --schema prisma/project",
+    "generate:backend": "prisma generate --schema prisma/backend/postgresql && prisma generate --schema prisma/backend/sqlite",
+    "migrate": "prisma migrate deploy --config dist/database/local/prisma.config.js"
   },
   "dependencies": {
     "@aws-crypto/crc32": "^5.2.0",
@@ -86,7 +86,7 @@
     "@biomejs/biome": "2.2.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "classic-level": "^3.0.0",
-    "highstate-cli-bootstrap": "patch:@highstate/cli@npm%3A0.9.35#~/.yarn/patches/@highstate-cli-npm-0.9.35-50dcf84983.patch",
+    "highstate-cli-bootstrap": "npm:@highstate/cli",
     "pino-pretty": "^13.0.0",
     "prisma-json-types-generator": "^3.5.2",
     "rollup": "^4.28.1",
