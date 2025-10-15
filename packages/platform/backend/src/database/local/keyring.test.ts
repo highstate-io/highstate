@@ -1,3 +1,4 @@
+import type { Logger } from "pino"
 import { writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -5,12 +6,19 @@ import { generateIdentity } from "age-encryption"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { type BackendIdentityConfig, getOrCreateBackendIdentity } from "./keyring"
 
-const createLogger = () => ({
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-})
+const createLogger = (): Logger => {
+  const noop = () => {}
+  return {
+    level: "info",
+    debug: noop,
+    info: noop,
+    warn: noop,
+    error: noop,
+    fatal: noop,
+    trace: noop,
+    silent: noop,
+  } as unknown as Logger
+}
 
 describe("getOrCreateBackendIdentity", () => {
   let tempFilePath: string
@@ -34,7 +42,7 @@ describe("getOrCreateBackendIdentity", () => {
       HIGHSTATE_BACKEND_DATABASE_IDENTITY: testIdentity,
     }
 
-    const identity = await getOrCreateBackendIdentity(config, createLogger() as any)
+    const identity = await getOrCreateBackendIdentity(config, createLogger())
 
     expect(identity).toBe(testIdentity)
   })
@@ -47,7 +55,7 @@ describe("getOrCreateBackendIdentity", () => {
       HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: tempFilePath,
     }
 
-    const identity = await getOrCreateBackendIdentity(config, createLogger() as any)
+    const identity = await getOrCreateBackendIdentity(config, createLogger())
 
     expect(identity).toBe(testIdentity)
   })
@@ -60,7 +68,7 @@ describe("getOrCreateBackendIdentity", () => {
       HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: tempFilePath,
     }
 
-    const identity = await getOrCreateBackendIdentity(config, createLogger() as any)
+    const identity = await getOrCreateBackendIdentity(config, createLogger())
 
     expect(identity).toBe(testIdentity)
   })
@@ -70,9 +78,9 @@ describe("getOrCreateBackendIdentity", () => {
       HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: "/nonexistent/path/to/identity.key",
     }
 
-    await expect(
-      getOrCreateBackendIdentity(config, createLogger() as any),
-    ).rejects.toThrow('Failed to read backend identity from "/nonexistent/path/to/identity.key"')
+    await expect(getOrCreateBackendIdentity(config, createLogger())).rejects.toThrow(
+      'Failed to read backend identity from "/nonexistent/path/to/identity.key"',
+    )
   })
 
   it("prioritizes HIGHSTATE_BACKEND_DATABASE_IDENTITY over PATH", async () => {
@@ -85,7 +93,7 @@ describe("getOrCreateBackendIdentity", () => {
       HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: tempFilePath,
     }
 
-    const identity = await getOrCreateBackendIdentity(config, createLogger() as any)
+    const identity = await getOrCreateBackendIdentity(config, createLogger())
 
     expect(identity).toBe(directIdentity)
   })
