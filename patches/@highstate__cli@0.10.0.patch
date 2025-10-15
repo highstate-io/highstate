@@ -1,0 +1,31 @@
+diff --git a/dist/main.js b/dist/main.js
+index c1e9fd222bb693e249bb7517f377265d50c43f09..b8c185c7df02916518aca88936bdb3e9e8382625 100755
+--- a/dist/main.js
++++ b/dist/main.js
+@@ -17,7 +17,7 @@ import { crc32 } from '@aws-crypto/crc32';
+ import { resolve as resolve$1 } from 'import-meta-resolve';
+ import { readPackageJSON, resolvePackageJSON } from 'pkg-types';
+ import { existsSync } from 'node:fs';
+-import { disposeServices } from '@highstate/backend';
++// import { disposeServices } from '@highstate/backend';
+ import { input, confirm } from '@inquirer/prompts';
+ import { Table } from 'console-table-printer';
+ import { encode } from '@msgpack/msgpack';
+@@ -27,6 +27,8 @@ import { colorize } from 'consola/utils';
+ import { getPort } from 'get-port-please';
+ import { addDevDependency } from 'nypm';
+ 
++const disposeServices = () => Promise.resolve();
++
+ // package.json
+ var version = "0.9.36";
+ var logger = pino(
+@@ -589,7 +591,7 @@ var SourceHashCalculator = class {
+       case "npm": {
+         let resolvedUrl;
+         try {
+-          const baseUrl = pathToFileURL(dirname(this.packageJsonPath));
++          const baseUrl = pathToFileURL(this.packageJsonPath);
+           resolvedUrl = resolve$1(dependency.package, baseUrl.toString());
+         } catch (error) {
+           this.logger.error(`failed to resolve package "%s"`, dependency.package);

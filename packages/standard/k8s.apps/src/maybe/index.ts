@@ -10,7 +10,7 @@ import {
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { bytesToHex, randomBytes } from "@noble/hashes/utils"
+import { bytesToHex, randomBytes } from "@noble/hashes/utils.js"
 import { PostgreSQLDatabase } from "../postgresql"
 import { charts, images } from "../shared"
 

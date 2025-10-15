@@ -10,7 +10,7 @@ import {
 } from "@highstate/common"
 import { getBestEndpoint } from "@highstate/k8s"
 import { x25519 } from "@noble/curves/ed25519"
-import { randomBytes } from "@noble/hashes/utils"
+import { randomBytes } from "@noble/hashes/utils.js"
 import { unique, uniqueBy } from "remeda"
 
 export function generateKey(): string {

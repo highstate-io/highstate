@@ -57,6 +57,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "esbuild": "^0.25.11",
     "highstate-cli-bootstrap": "npm:@highstate/cli",
     "vitest": "^3.2.4"
   }

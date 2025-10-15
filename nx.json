@@ -63,21 +63,5 @@
       "conventionalCommits": true
     }
   },
-  "nxCloudId": "68ec0fb6bfeabbab18190388",
-  "plugins": [
-    {
-      "plugin": "@nx/js/typescript",
-      "options": {
-        "typecheck": {
-          "targetName": "tsc:typecheck"
-        },
-        "build": {
-          "targetName": "build",
-          "configName": "tsconfig.lib.json",
-          "buildDepsName": "build-deps",
-          "watchDepsName": "watch-deps"
-        }
-      }
-    }
-  ]
+  "nxCloudId": "68ec0fb6bfeabbab18190388"
 }

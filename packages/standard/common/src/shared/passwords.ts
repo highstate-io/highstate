@@ -1,4 +1,4 @@
-import { bytesToHex, randomBytes } from "@noble/hashes/utils"
+import { bytesToHex, randomBytes } from "@noble/hashes/utils.js"
 import { secureMask } from "micro-key-producer/password.js"
 
 /**

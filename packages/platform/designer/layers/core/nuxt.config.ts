@@ -1,5 +1,4 @@
 import { resolve } from "node:path"
-import { nodePolyfills } from "vite-plugin-node-polyfills"
 import { version } from "../../package.json"
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -39,7 +38,7 @@ export default defineNuxtConfig({
     // bundle shared code to the frontend
     "@highstate/backend/shared": resolve(
       import.meta.dirname,
-      "../../../../../node_modules/@highstate/backend/src/shared/index.ts",
+      "../../node_modules/@highstate/backend/src/shared/index.ts",
     ),
   },
   nitro: {
@@ -69,11 +68,11 @@ export default defineNuxtConfig({
       // for HMR
       "@highstate/backend": resolve(
         import.meta.dirname,
-        "../../../../../node_modules/@highstate/backend/src/index.ts",
+        "../../node_modules/@highstate/backend/src/index.ts",
       ),
       "@highstate/backend-api": resolve(
         import.meta.dirname,
-        "../../../../../node_modules/@highstate/backend-api/src/index.ts",
+        "../../node_modules/@highstate/backend-api/src/index.ts",
       ),
     },
   },
@@ -108,13 +107,6 @@ export default defineNuxtConfig({
     worker: {
       format: "es",
     },
-
-    plugins: [
-      nodePolyfills({
-        include: ["buffer"],
-        globals: { Buffer: true },
-      }),
-    ],
   },
 
   runtimeConfig: {

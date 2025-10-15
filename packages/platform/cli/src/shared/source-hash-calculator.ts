@@ -204,7 +204,7 @@ export class SourceHashCalculator {
       case "npm": {
         let resolvedUrl: string
         try {
-          const baseUrl = pathToFileURL(dirname(this.packageJsonPath))
+          const baseUrl = pathToFileURL(this.packageJsonPath)
 
           resolvedUrl = importMetaResolve(dependency.package, baseUrl.toString())
         } catch (error) {
@@ -212,9 +212,10 @@ export class SourceHashCalculator {
           throw error
         }
 
-        if (resolvedUrl.startsWith("node:")) {
-          throw new Error(`"${dependency.package}" imported without "node:" prefix`)
-        }
+        // TODO: does this really needed?
+        // if (resolvedUrl.startsWith("node:")) {
+        //   throw new Error(`"${dependency.package}" imported without "node:" prefix`)
+        // }
 
         const resolvedPath = fileURLToPath(resolvedUrl)
 
