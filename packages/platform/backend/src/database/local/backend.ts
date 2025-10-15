@@ -16,6 +16,8 @@ import { type DatabaseMetaFile, readMetaFile, writeMetaFile } from "./meta"
 export const localBackendDatabaseConfig = z.object({
   ...codebaseConfig.shape,
   HIGHSTATE_BACKEND_DATABASE_LOCAL_PATH: z.string().optional(),
+  HIGHSTATE_BACKEND_DATABASE_IDENTITY: z.string().optional(),
+  HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: z.string().optional(),
   HIGHSTATE_ENCRYPTION_ENABLED: z.stringbool().default(true),
 })
 
@@ -26,6 +28,10 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   constructor(
     readonly database: BackendDatabase,
     private readonly databasePath: string,
+    private readonly config: Pick<
+      z.infer<typeof localBackendDatabaseConfig>,
+      "HIGHSTATE_BACKEND_DATABASE_IDENTITY" | "HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH"
+    >,
     private readonly logger: Logger,
     readonly isEncryptionEnabled: boolean,
   ) {}
@@ -49,7 +55,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
       return
     }
 
-    const identity = await getOrCreateBackendIdentity(this.logger)
+    const identity = await getOrCreateBackendIdentity(this.config, this.logger)
     const decrypter = new Decrypter()
     decrypter.addIdentity(identity)
 
@@ -72,8 +78,14 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   }
 }
 
-async function createMasterKey(logger: Logger) {
-  const identity = await getOrCreateBackendIdentity(logger)
+async function createMasterKey(
+  config: Pick<
+    z.infer<typeof localBackendDatabaseConfig>,
+    "HIGHSTATE_BACKEND_DATABASE_IDENTITY" | "HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH"
+  >,
+  logger: Logger,
+) {
+  const identity = await getOrCreateBackendIdentity(config, logger)
 
   const masterKey = randomBytes(32).toString("hex")
   const encrypter = new Encrypter()
@@ -98,6 +110,10 @@ type DatabaseInitializationResult = {
 async function ensureDatabaseInitialized(
   databasePath: string,
   encryptionEnabled: boolean,
+  config: Pick<
+    z.infer<typeof localBackendDatabaseConfig>,
+    "HIGHSTATE_BACKEND_DATABASE_IDENTITY" | "HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH"
+  >,
   logger: Logger,
 ): Promise<DatabaseInitializationResult> {
   const meta = await readMetaFile(databasePath)
@@ -105,7 +121,7 @@ async function ensureDatabaseInitialized(
   if (!meta) {
     logger.info("creating new database")
 
-    const masterKey = encryptionEnabled ? await createMasterKey(logger) : undefined
+    const masterKey = encryptionEnabled ? await createMasterKey(config, logger) : undefined
 
     const metaFile: DatabaseMetaFile = {
       version: backendDatabaseVersion,
@@ -142,7 +158,7 @@ async function ensureDatabaseInitialized(
     )
   }
 
-  const identity = await getOrCreateBackendIdentity(logger)
+  const identity = await getOrCreateBackendIdentity(config, logger)
 
   const decrypter = new Decrypter()
   decrypter.addIdentity(identity)
@@ -150,7 +166,13 @@ async function ensureDatabaseInitialized(
   const encryptedMasterKey = armor.decode(meta.masterKey)
   const masterKey = await decrypter.decrypt(encryptedMasterKey, "text")
 
-  logger.info("loaded backend master key using OS keyring")
+  const identitySource = config.HIGHSTATE_BACKEND_DATABASE_IDENTITY
+    ? "environment variable"
+    : config.HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH
+      ? "file"
+      : "OS keyring"
+
+  logger.info({ source: identitySource }, "loaded backend master key")
 
   return {
     shouldMigrate: meta.version < backendDatabaseVersion,
@@ -179,7 +201,12 @@ export async function createLocalBackendDatabaseBackend(
   databasePath ??= await getCodebaseHighstatePath(config, logger)
 
   const { shouldMigrate, masterKey, metaFile, created, initialRecipient } =
-    await ensureDatabaseInitialized(databasePath, config.HIGHSTATE_ENCRYPTION_ENABLED, logger)
+    await ensureDatabaseInitialized(
+      databasePath,
+      config.HIGHSTATE_ENCRYPTION_ENABLED,
+      config,
+      logger,
+    )
 
   const databaseUrl = `file:${databasePath}/backend.db`
 
@@ -211,6 +238,7 @@ export async function createLocalBackendDatabaseBackend(
   return new LocalBackendDatabaseBackend(
     database,
     databasePath,
+    config,
     backendLogger,
     config.HIGHSTATE_ENCRYPTION_ENABLED,
   )
