@@ -1,0 +1,6 @@
+packages:
+  - "packages/platform/*"
+  - "packages/standard/*"
+  - "packages/third-party/*"
+  - "packages/standard/*/generated/*"
+  - "packages/third-party/*/generated/*"

@@ -9,13 +9,13 @@
     (inputs.prisma-utils.lib.prisma-factory {
       inherit pkgs;
 
-      prisma-fmt-hash = "sha256-ROsmQvRXtpClfj/de8hifTc4FVCMNT7u2Qwie+G7l1Y=";
-      query-engine-hash = "sha256-bIkXzxjR7exW1US2XJAFedpCo7huuDjDIUE4bGmSSs0=";
-      libquery-engine-hash = "sha256-8VL8/jmWR325PXFwrzIoNSTtRxiQ9SXDjXoUmfeVxgU=";
-      schema-engine-hash = "sha256-jSM/yfKACWAFwmbXDDL9VO1oGIiILyYDFXXTfcSWbwA=";
+      prisma-fmt-hash = "sha256-eGKy8W30blEY1izsOOhq95IjOtJmdS6m+st+AgnCf+A=";
+      libquery-engine-hash = "sha256-Oq+YPmGRQK5Zop0WAl9KLH/sURdVZAWhX3/i+INVY38=";
+      query-engine-hash = "sha256-PNIG/mQuc5qHTAwH1lbRQKtX2/dtBrKNeJunOAGus2s=";
+      schema-engine-hash = "sha256-A0Pwhw9J83VlqdsTw6D+byUgkB45DIotR7lxFTh/Wv4=";
     })
-    .fromYarnLock
-    ./yarn.lock;
+    .fromPnpmLock
+    ./pnpm-lock.yaml;
 in {
   languages.javascript.enable = true;
   languages.javascript.package = pkgs.nodejs_24;

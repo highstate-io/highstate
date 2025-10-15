@@ -17,27 +17,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24.x
-
-      - name: Restore Yarn cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.yarn/berry/cache
-            .yarn/install-state.gz
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          cache: pnpm
 
       - name: Enable corepack
         run: corepack enable
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
       - name: Verify
         run: |
-          npx nx-cloud start-ci-run --auto-apply-fixes="*test*,*biome:check*" --no-distribution
-          yarn ci:verify
-          npx nx-cloud stop-all-agents
+          pnpm nx-cloud start-ci-run --auto-apply-fixes="*test*,*biome:check*" --no-distribution
+          pnpm ci:verify
+          pnpm nx-cloud stop-all-agents
 
       - name: Fix CI (if needed)
-        run: npx nx fix-ci
+        run: pnpm nx fix-ci
         if: always()

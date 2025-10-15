@@ -2,19 +2,12 @@
   "name": "highstate",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "packages/platform/*",
-    "packages/standard/*",
-    "packages/third-party/*",
-    "packages/standard/*/generated/*",
-    "packages/third-party/*/generated/*"
-  ],
+  "packageManager": "pnpm@10.18.3",
   "scripts": {
-    "ci:release": "nx affected -t test,build,build-image,biome:check,push-image,deploy-image",
+    "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image",
     "ci:verify": "nx affected -t test,biome:check",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
-  "packageManager": "yarn@4.8.1",
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@nx/js": "21.6.4",
