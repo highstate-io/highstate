@@ -151,7 +151,7 @@ const processEnvironmentVariables = (env: typeof args.env): ContainerEnvironment
       }
     } else if ("configKey" in value && typeof value.configKey === "string" && configMap) {
       environment[key] = {
-        configMap,
+        configMap: configMap as any,
         key: value.configKey,
       }
     } else if ("secretKey" in value && typeof value.secretKey === "string" && secret) {
@@ -245,7 +245,7 @@ if (args.type === "StatefulSet") {
 
 export default outputs({
   namespace: namespace.entity,
-  deployment: workload.entity,
+  deployment: workload.entity as any,
   service: workload.service?.entity,
 
   $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
