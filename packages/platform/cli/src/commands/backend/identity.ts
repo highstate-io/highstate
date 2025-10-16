@@ -1,4 +1,5 @@
 import { hostname } from "node:os"
+import { loadConfig } from "@highstate/backend"
 import { identityToRecipient } from "age-encryption"
 import { Command } from "clipanion"
 import { logger } from "../../shared"
@@ -14,8 +15,9 @@ export class BackendIdentityCommand extends Command {
   async execute(): Promise<void> {
     // do not initialize the backend services here, because the state might not be available yet
     const { getOrCreateBackendIdentity } = await import("@highstate/backend")
+    const config = await loadConfig()
 
-    const backendIdentity = await getOrCreateBackendIdentity(logger)
+    const backendIdentity = await getOrCreateBackendIdentity(config, logger)
     const recipient = await identityToRecipient(backendIdentity)
 
     logger.info(`stored backend identity: "%s"`, recipient)

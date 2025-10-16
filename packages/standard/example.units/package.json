@@ -7,15 +7,6 @@
     "dist",
     "src"
   ],
-  "exports": {
-    "./dist/cowsay": "./dist/cowsay/index.js"
-  },
-  "scripts": {
-    "build": "highstate build",
-    "typecheck": "tsgo --noEmit --skipLibCheck",
-    "biome": "biome check --write --unsafe --error-on-warnings",
-    "biome:check": "biome check --error-on-warnings"
-  },
   "dependencies": {
     "@highstate/contract": "workspace:^0.10.0",
     "@highstate/example.library": "workspace:^0.10.0",

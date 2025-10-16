@@ -108,7 +108,7 @@ export type ContainerEnvironmentVariable =
       /**
        * The config map to select from.
        */
-      configMap: Input<core.v1.ConfigMap>
+      configMap: Input<core.v1.ConfigMap | ConfigMap>
 
       /**
        * The key of the config map to select from.

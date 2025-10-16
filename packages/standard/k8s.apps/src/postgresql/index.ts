@@ -1,4 +1,4 @@
-import type { k8s } from "@highstate/library"
+import type { databases } from "@highstate/library"
 import { l3EndpointToString } from "@highstate/common"
 import {
   createScriptContainer,
@@ -23,7 +23,7 @@ export type PostgreSQLDatabaseArgs = ScopedResourceArgs & {
   /**
    * The PostgreSQL instance to create the database in.
    */
-  postgresql: Input<k8s.apps.PostgreSQL>
+  postgresql: Input<databases.PostgreSQL>
 
   /**
    * The name of the database to create.
@@ -82,7 +82,7 @@ export class PostgreSQLDatabase extends ComponentResource {
         namespace: args.namespace,
 
         stringData: {
-          "postgres-password": output(args.postgresql).rootPassword,
+          "postgres-password": output(args.postgresql).apply(p => p.password ?? ""),
         },
       },
       { ...opts, parent: this },
@@ -97,7 +97,7 @@ export class PostgreSQLDatabase extends ComponentResource {
     }).apply(({ endpoints, cluster }) => requireBestEndpoint(endpoints, cluster))
 
     const host = endpoint.apply(l3EndpointToString)
-    const port = endpoint.port.apply(port => port.toString())
+    const port = endpoint.apply(ep => ep.port?.toString() ?? "")
 
     this.credentials = Secret.create(
       `${name}-postgresql-credentials`,
@@ -169,9 +169,11 @@ export class PostgreSQLDatabase extends ComponentResource {
       { ...opts, parent: this },
     )
 
-    this.networkPolicy = NetworkPolicy.allowEgressToBestEndpoint(
-      output(args.postgresql).endpoints,
-      args.namespace,
+    this.networkPolicy = output({
+      namespace: args.namespace,
+      endpoints: output(args.postgresql).endpoints,
+    }).apply(async ({ namespace, endpoints }) =>
+      NetworkPolicy.allowEgressToBestEndpoint(namespace, endpoints),
     )
   }
 }

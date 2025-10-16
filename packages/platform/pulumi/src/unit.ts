@@ -1,4 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: здесь орать запрещено */
+
+import type { IsEmptyObject } from "type-fest"
 import {
   type ComponentInput,
   type ComponentInputSpec,
@@ -73,7 +75,7 @@ type ExtraOutputs<TArgName extends string = string> = {
 type OutputMapToDeepInputMap<
   T extends Record<string, unknown>,
   TArgName extends string,
-> = T extends Record<string, never>
+> = IsEmptyObject<T> extends true
   ? ExtraOutputs
   : { [K in keyof T]: DeepInput<T[K]> } & ExtraOutputs<TArgName>
 
@@ -374,7 +376,9 @@ export function forUnit<
 
           if (!result.success) {
             throw new Error(
-              `Invalid output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(result.error)}`,
+              `Invalid output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
+                result.error,
+              )}`,
             )
           }
 

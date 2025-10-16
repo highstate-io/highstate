@@ -257,7 +257,6 @@ export default outputs({
     connectionId: kubeSystem.metadata.uid,
 
     name: clusterName,
-    cni: cni === "cilium" ? "cilium" : "other",
 
     externalIps: filterEndpoints(endpoints, ["public", "external"])
       .filter(endpoint => endpoint.type !== "hostname")

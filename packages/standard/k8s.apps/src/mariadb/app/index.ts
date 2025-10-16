@@ -24,7 +24,7 @@ const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.m
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
 const rootPassword = getSecret("rootPassword", generatePassword)
-const backupPassword = getSecret("backupPassword", generateKey)
+const backupKey = getSecret("backupKey", generateKey)
 
 const rootPasswordSecret = Secret.create(
   `${args.appName}-root-password`,
@@ -68,7 +68,7 @@ const backupJobPair = inputs.resticRepo
         namespace,
 
         resticRepo: inputs.resticRepo,
-        backupKey: backupPassword,
+        backupKey,
 
         distribution: "ubuntu",
         environments: [baseEnvironment, backupEnvironment],
@@ -184,11 +184,11 @@ export default outputs({
     }
 
     if (backupJobPair) {
-      terminals.push(backupJobPair.terminal())
+      terminals.push(backupJobPair.terminal)
     }
 
     return [...terminals]
   }),
 
-  $workers: [createMonitorWorker([chart.service, ...workloads])],
+  $workers: [await createMonitorWorker(namespace, [chart.service, ...workloads])],
 })

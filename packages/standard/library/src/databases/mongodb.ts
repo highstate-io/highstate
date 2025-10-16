@@ -32,6 +32,13 @@ export const existingMongodb = defineUnit({
     package: "@highstate/common",
     path: "units/databases/existing-mongodb",
   },
+
+  meta: {
+    title: "Existing MongoDB Database",
+    icon: "simple-icons:mongodb",
+    secondaryIcon: "mdi:database",
+    category: "Databases",
+  },
 })
 
 export type MongoDB = z.infer<typeof mongodbEntity.schema>

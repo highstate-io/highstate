@@ -12,7 +12,5 @@ export async function shareBlueprint(blueprint: Blueprint): Promise<string> {
   const encoded = encode(blueprint)
   const encrypted = chacha.encrypt(encoded)
 
-  // upload the content to the sharing server
-  const { $client } = useNuxtApp()
-  const content = await $client.await
+  throw new Error("Not implemented")
 }

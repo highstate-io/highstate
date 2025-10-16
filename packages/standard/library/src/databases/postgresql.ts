@@ -32,6 +32,13 @@ export const existingPostgresql = defineUnit({
     package: "@highstate/common",
     path: "units/databases/existing-postgresql",
   },
+
+  meta: {
+    title: "Existing PostgreSQL Database",
+    icon: "simple-icons:postgresql",
+    secondaryIcon: "mdi:database",
+    category: "Databases",
+  },
 })
 
 export type PostgreSQL = z.infer<typeof postgresqlEntity.schema>

@@ -327,11 +327,6 @@ export type Component<
    */
   entities: Map<string, Entity>
 
-  /**
-   * The create function of the component.
-   *
-   * Used to create instances of the component.
-   */
   (
     context: InputComponentParams<
       { [K in keyof TArgs]: z.input<TArgs[K]> },

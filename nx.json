@@ -9,7 +9,8 @@
       "!{projectRoot}/.output/**/*",
       "!{projectRoot}/CHANGELOG.md",
       "!{projectRoot}/package.json",
-      "{workspaceRoot}/yarn.lock"
+      "!{projectRoot}/node_modules/**/*",
+      "{workspaceRoot}/pnpm-lock.yaml"
     ]
   },
   "targetDefaults": {
@@ -49,6 +50,11 @@
     },
     "biome:check": {
       "cache": true,
+      "outputs": []
+    },
+    "typecheck": {
+      "cache": true,
+      "dependsOn": ["^build"],
       "outputs": []
     }
   },

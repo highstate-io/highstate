@@ -1,6 +1,7 @@
-import { generatePassword } from "@highstate/common"
+import { generateKey, generatePassword } from "@highstate/common"
 import {
   ConfigMap,
+  type ContainerEnvironment,
   Deployment,
   Namespace,
   PersistentVolumeClaim,
@@ -28,7 +29,7 @@ const namespace = args.existingNamespace
 const mariadbPassword = getSecret("mariadbPassword", generatePassword)
 const postgresqlPassword = getSecret("postgresqlPassword", generatePassword)
 const mongodbPassword = getSecret("mongodbPassword", generatePassword)
-const backupPassword = getSecret("backupPassword", generatePassword)
+const backupKey = getSecret("backupKey", generateKey)
 
 // create secret if secretData is provided
 const secret =
@@ -67,8 +68,8 @@ const dataVolumeClaim = args.dataPath
   : undefined
 
 // process environment variables
-const processEnvironmentVariables = (env: typeof args.env) => {
-  const environment: Record<string, unknown> = {}
+const processEnvironmentVariables = (env: typeof args.env): ContainerEnvironment => {
+  const environment: ContainerEnvironment = {}
 
   for (const [key, value] of Object.entries(env)) {
     if (typeof value === "string") {
@@ -174,7 +175,7 @@ const backupJobPair =
         {
           namespace,
           resticRepo: inputs.resticRepo,
-          backupKey: backupPassword,
+          backupKey,
           volume: dataVolumeClaim,
         },
         { dependsOn: dataVolumeClaim, deletedWith: namespace },
@@ -244,7 +245,7 @@ if (args.type === "StatefulSet") {
 
 export default outputs({
   namespace: namespace.entity,
-  deployment: workload.entity,
+  workload: workload.entity,
   service: workload.service?.entity,
 
   $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],

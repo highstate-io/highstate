@@ -32,6 +32,13 @@ export const existingMariadb = defineUnit({
     package: "@highstate/common",
     path: "units/databases/existing-mariadb",
   },
+
+  meta: {
+    title: "Existing MariaDB Database",
+    icon: "simple-icons:mariadb",
+    secondaryIcon: "mdi:database",
+    category: "Databases",
+  },
 })
 
 export type MariaDB = z.infer<typeof mariadbEntity.schema>

@@ -216,6 +216,13 @@ const sharedPeerArgs = {
    * The port to listen on.
    */
   listenPort: z.number().optional(),
+
+  /**
+   * The keepalive interval in seconds that will be used by all nodes connecting to this peer.
+   *
+   * If set to 0, keepalive is disabled.
+   */
+  persistentKeepalive: z.number().int().nonnegative().default(0),
 }
 
 const sharedPeerInputs = {
@@ -288,18 +295,7 @@ const sharedPeerOutputs = {
   },
 } as const
 
-export type SharedPeerArgs = {
-  peerName?: string
-  address?: string
-  exitNode: boolean
-  excludedIps: string[]
-  excludePrivateIps: boolean
-  endpoints: string[]
-  allowedEndpoints: string[]
-  dns: string[]
-  includeDns: boolean
-  listenPort?: number
-}
+export type SharedPeerArgs = z.infer<z.ZodObject<typeof sharedPeerArgs>>
 
 /**
  * The WireGuard peer with the public key.

@@ -1,6 +1,6 @@
 import { type PageBlock, text } from "@highstate/contract"
 import { wireguard } from "@highstate/library"
-import { type DeepInput, fileFromBuffer, forUnit, secret, toPromise } from "@highstate/pulumi"
+import { type DeepInput, fileFromBuffer, forUnit, toPromise } from "@highstate/pulumi"
 import ZipStream from "zip-stream"
 import { generateIdentityConfig } from "../shared"
 
@@ -18,9 +18,11 @@ for (const peer of peers) {
     defaultInterface: args.defaultInterface,
   })
 
+  const unsafeConfigContent = await toPromise(configContent)
+
   await new Promise((resolve, reject) => {
     return zipStream.entry(
-      configContent,
+      unsafeConfigContent,
       {
         name: `${peer.name}.conf`,
 
@@ -44,7 +46,7 @@ for (const peer of peers) {
     },
     {
       type: "qr",
-      content: secret(configContent),
+      content: configContent,
       showContent: true,
       language: "ini",
     },
@@ -53,7 +55,7 @@ for (const peer of peers) {
 
 zipStream.finish()
 
-const content = await new Promise<Buffer>((resolve, reject) => {
+const unsafeZipFileContent = await new Promise<Buffer>((resolve, reject) => {
   const buffers: Buffer[] = []
 
   zipStream.on("data", data => buffers.push(data as Buffer))
@@ -61,7 +63,7 @@ const content = await new Promise<Buffer>((resolve, reject) => {
   zipStream.on("end", () => resolve(Buffer.concat(buffers)))
 })
 
-const zipFile = fileFromBuffer(`${name}.zip`, content, {
+const zipFile = fileFromBuffer(`${name}.zip`, unsafeZipFileContent, {
   contentType: "application/zip",
   isSecret: true,
 })
