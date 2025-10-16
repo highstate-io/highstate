@@ -10,7 +10,11 @@ import { PrismaClient } from "../_generated/backend/sqlite/client"
 import { type BackendDatabaseBackend, backendDatabaseVersion } from "../abstractions"
 import { migrateDatabase } from "../migrate"
 import { ensureWellKnownEntitiesCreated } from "../well-known"
-import { backendIdentityConfig, getOrCreateBackendIdentity } from "./keyring"
+import {
+  type BackendIdentityConfig,
+  backendIdentityConfig,
+  getOrCreateBackendIdentity,
+} from "./keyring"
 import { type DatabaseMetaFile, readMetaFile, writeMetaFile } from "./meta"
 
 export const localBackendDatabaseConfig = z.object({
@@ -27,7 +31,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   constructor(
     readonly database: BackendDatabase,
     private readonly databasePath: string,
-    private readonly config: z.infer<typeof backendIdentityConfig>,
+    private readonly config: BackendIdentityConfig,
     private readonly logger: Logger,
     readonly isEncryptionEnabled: boolean,
   ) {}
@@ -74,7 +78,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   }
 }
 
-async function createMasterKey(config: z.infer<typeof backendIdentityConfig>, logger: Logger) {
+async function createMasterKey(config: BackendIdentityConfig, logger: Logger) {
   const identity = await getOrCreateBackendIdentity(config, logger)
 
   const masterKey = randomBytes(32).toString("hex")
@@ -100,7 +104,7 @@ type DatabaseInitializationResult = {
 async function ensureDatabaseInitialized(
   databasePath: string,
   encryptionEnabled: boolean,
-  config: z.infer<typeof backendIdentityConfig>,
+  config: BackendIdentityConfig,
   logger: Logger,
 ): Promise<DatabaseInitializationResult> {
   const meta = await readMetaFile(databasePath)
