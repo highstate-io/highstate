@@ -49,4 +49,4 @@ export default outputs({
   $statusFields: {
     url: `http://${args.fqdn}`,
   },
-} as any)
+})

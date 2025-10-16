@@ -70,4 +70,4 @@ Deployment.create(
 
 export default outputs({
   $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
-} as any)
+})

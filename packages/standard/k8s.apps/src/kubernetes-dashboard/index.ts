@@ -110,4 +110,4 @@ export default outputs({
       ],
     },
   },
-} as any)
+})
