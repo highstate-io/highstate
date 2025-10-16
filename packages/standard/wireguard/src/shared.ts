@@ -1,5 +1,4 @@
 import type { k8s, network, wireguard } from "@highstate/library"
-import { secret, type Input, type Output, type Unwrap } from "@highstate/pulumi"
 import {
   l3EndpointToL4,
   l3EndpointToString,
@@ -9,6 +8,7 @@ import {
   parseL34Endpoint,
 } from "@highstate/common"
 import { getBestEndpoint } from "@highstate/k8s"
+import { type Input, type Output, secret, type Unwrap } from "@highstate/pulumi"
 import { x25519 } from "@noble/curves/ed25519"
 import { randomBytes } from "@noble/hashes/utils.js"
 import { unique, uniqueBy } from "remeda"

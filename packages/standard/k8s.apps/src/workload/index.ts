@@ -108,9 +108,8 @@ const processEnvironmentVariables = (env: typeof args.env): ContainerEnvironment
       } else if (service === "postgresql" && inputs.postgresql) {
         switch (configKey) {
           case "url":
-            environment[
-              key
-            ] = interpolate`postgresql://postgres:${postgresqlPassword}@postgresql:5432/`
+            environment[key] =
+              interpolate`postgresql://postgres:${postgresqlPassword}@postgresql:5432/`
             break
           case "host":
             environment[key] = "postgresql"

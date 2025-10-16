@@ -3,7 +3,7 @@ import { pick } from "remeda"
 import { portSchema } from "../../network"
 import { namespaceEntity } from "../resources"
 import { serviceEntity, serviceTypeSchema } from "../service"
-import { deploymentEntity, exposableWorkloadEntity } from "../workload"
+import { exposableWorkloadEntity } from "../workload"
 import { optionalSharedInputs, sharedInputs, source } from "./shared"
 
 export const databaseConfigKeySchema = z.enum([

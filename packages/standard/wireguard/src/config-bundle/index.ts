@@ -1,6 +1,6 @@
 import { type PageBlock, text } from "@highstate/contract"
 import { wireguard } from "@highstate/library"
-import { type DeepInput, fileFromBuffer, forUnit, secret, toPromise } from "@highstate/pulumi"
+import { type DeepInput, fileFromBuffer, forUnit, toPromise } from "@highstate/pulumi"
 import ZipStream from "zip-stream"
 import { generateIdentityConfig } from "../shared"
 

@@ -1,8 +1,8 @@
 import { hostname } from "node:os"
+import { loadConfig } from "@highstate/backend"
 import { identityToRecipient } from "age-encryption"
 import { Command } from "clipanion"
 import { logger } from "../../shared"
-import { loadConfig } from "@highstate/backend"
 
 export class BackendIdentityCommand extends Command {
   static paths = [["backend", "identity"]]

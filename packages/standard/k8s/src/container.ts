@@ -10,7 +10,7 @@ import {
 } from "@highstate/pulumi"
 import { core, type types } from "@pulumi/kubernetes"
 import { concat, map, omit } from "remeda"
-import { ConfigMap, type ConfigMapArgs } from "./config-map"
+import { ConfigMap } from "./config-map"
 import { PersistentVolumeClaim } from "./pvc"
 import { Secret } from "./secret"
 

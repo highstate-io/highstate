@@ -38,7 +38,3 @@ jobs:
           pnpm ci:prepare
           pnpm ci:verify
           pnpm nx-cloud stop-all-agents
-
-      - name: Fix CI (if needed)
-        run: pnpm nx fix-ci
-        if: always()
