@@ -139,9 +139,5 @@ export default outputs({
   },
 
   $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
-  $terminals: chart.terminals.apply(terminals =>
-    [...terminals, backupJobPair?.terminal].filter(Boolean),
-  ),
-    [...terminals, backupJobPair?.terminal].filter(Boolean),
-  ),
+  $terminals: chart.terminals.apply(terminals => [...terminals, backupJobPair?.terminal]),
 })

@@ -33,6 +33,7 @@ import {
   type Unwrap,
 } from "@pulumi/pulumi"
 import { mapValues } from "remeda"
+import type { IsEmptyObject } from "type-fest"
 import { type DeepInput, toPromise } from "./utils"
 
 type StatusField<TArgName extends string = string> = Omit<
@@ -73,7 +74,7 @@ type ExtraOutputs<TArgName extends string = string> = {
 type OutputMapToDeepInputMap<
   T extends Record<string, unknown>,
   TArgName extends string,
-> = T extends Record<string, never>
+> = IsEmptyObject<T> extends true
   ? ExtraOutputs
   : { [K in keyof T]: DeepInput<T[K]> } & ExtraOutputs<TArgName>
 
@@ -119,8 +120,8 @@ type InputSpecToWrappedValue<T extends ComponentInputSpec> = T[2] extends true
   ? // we have to wrap the array in Output since we don't know how many items will be returned by each multiple input
     Output<NonNullable<z.output<T[0]["schema"]>>[]>
   : T[1] extends true
-    ? Output<NonNullable<z.output<T[0]["schema"]>>>
-    : Output<NonNullable<z.output<T[0]["schema"]>>> | undefined
+  ? Output<NonNullable<z.output<T[0]["schema"]>>>
+  : Output<NonNullable<z.output<T[0]["schema"]>>> | undefined
 
 // z.input since the values are passed from the user and should be validated/transformed before returning from the unit
 type OutputSpecToValue<T extends ComponentInputSpec> = T[2] extends true
@@ -128,8 +129,8 @@ type OutputSpecToValue<T extends ComponentInputSpec> = T[2] extends true
     ? NonNullable<z.input<T[0]["schema"]>>[]
     : NonNullable<z.input<T[0]["schema"]>>[] | undefined
   : T[1] extends true
-    ? NonNullable<z.input<T[0]["schema"]>>
-    : NonNullable<z.input<T[0]["schema"]>> | undefined
+  ? NonNullable<z.input<T[0]["schema"]>>
+  : NonNullable<z.input<T[0]["schema"]>> | undefined
 
 const stackRefMap = new Map<string, StackReference>()
 
@@ -374,7 +375,9 @@ export function forUnit<
 
           if (!result.success) {
             throw new Error(
-              `Invalid output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(result.error)}`,
+              `Invalid output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
+                result.error,
+              )}`,
             )
           }
 

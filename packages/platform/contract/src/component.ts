@@ -110,14 +110,14 @@ export type ComponentInputOptions = Entity | FullComponentInputOptions
 type ComponentInputOptionsToOutputRef<T extends ComponentInputOptions> = T extends Entity
   ? InstanceInput<T["type"]>
   : T extends FullComponentInputOptions
-    ? T["required"] extends false
-      ? T["multiple"] extends true
-        ? InstanceInput<T["entity"]["type"]>[] | undefined
-        : InstanceInput<T["entity"]["type"]> | undefined
-      : T["multiple"] extends true
-        ? InstanceInput<T["entity"]["type"]>[]
-        : InstanceInput<T["entity"]["type"]>
-    : never
+  ? T["required"] extends false
+    ? T["multiple"] extends true
+      ? InstanceInput<T["entity"]["type"]>[] | undefined
+      : InstanceInput<T["entity"]["type"]> | undefined
+    : T["multiple"] extends true
+    ? InstanceInput<T["entity"]["type"]>[]
+    : InstanceInput<T["entity"]["type"]>
+  : never
 
 /**
  * The type-level specification of a component input hold by the component model.
@@ -127,14 +127,14 @@ export type ComponentInputSpec = [entity: Entity, required: boolean, multiple: b
 export type ComponentInputOptionsToSpec<T extends ComponentInputOptions> = T extends Entity
   ? [T, true, false] // [Entity, required, multiple]
   : T extends FullComponentInputOptions
-    ? T["required"] extends false
-      ? T["multiple"] extends true
-        ? [T["entity"], false, true]
-        : [T["entity"], false, false]
-      : T["multiple"] extends true
-        ? [T["entity"], true, true]
-        : [T["entity"], true, false]
-    : never
+  ? T["required"] extends false
+    ? T["multiple"] extends true
+      ? [T["entity"], false, true]
+      : [T["entity"], false, false]
+    : T["multiple"] extends true
+    ? [T["entity"], true, true]
+    : [T["entity"], true, false]
+  : never
 
 export type ComponentInputOptionsMapToSpecMap<T extends Record<string, ComponentInputOptions>> =
   T extends Record<string, never>
@@ -292,8 +292,8 @@ type InputSpecToInputRef<T extends ComponentInputSpec> = T[1] extends true
     ? InstanceInput<T[0]["type"]>[]
     : InstanceInput<T[0]["type"]>
   : T[2] extends true
-    ? InstanceInput<T[0]["type"]>[] | undefined
-    : InstanceInput<T[0]["type"]> | undefined
+  ? InstanceInput<T[0]["type"]>[] | undefined
+  : InstanceInput<T[0]["type"]> | undefined
 
 type InputSpecToOutputRef<T extends ComponentInputSpec> = T[2] extends true
   ? InstanceInput<T[0]["type"]>[]
@@ -327,11 +327,6 @@ export type Component<
    */
   entities: Map<string, Entity>
 
-  /**
-   * The create function of the component.
-   *
-   * Used to create instances of the component.
-   */
   (
     context: InputComponentParams<
       { [K in keyof TArgs]: z.input<TArgs[K]> },

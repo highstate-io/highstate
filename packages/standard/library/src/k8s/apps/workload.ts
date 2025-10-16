@@ -3,7 +3,7 @@ import { pick } from "remeda"
 import { portSchema } from "../../network"
 import { namespaceEntity } from "../resources"
 import { serviceEntity, serviceTypeSchema } from "../service"
-import { deploymentEntity } from "../workload"
+import { deploymentEntity, exposableWorkloadEntity } from "../workload"
 import { optionalSharedInputs, sharedInputs, source } from "./shared"
 
 export const databaseConfigKeySchema = z.enum([
@@ -177,11 +177,11 @@ export const workload = defineUnit({
     mongodbPassword: z.string().optional(),
 
     /**
-     * The password for the backup.
+     * The key for the backup.
      *
-     * If not provided and requested, a random password will be generated.
+     * If not provided and requested, a random key will be generated.
      */
-    backupPassword: z.string().optional(),
+    backupKey: z.string().optional(),
 
     /**
      * The secret configuration for the workload.
@@ -206,7 +206,7 @@ export const workload = defineUnit({
 
   outputs: {
     namespace: namespaceEntity,
-    deployment: deploymentEntity,
+    workload: exposableWorkloadEntity,
     service: serviceEntity,
   },
 

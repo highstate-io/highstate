@@ -31,6 +31,8 @@ jobs:
         run: pnpm install
 
       - name: Verify
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
           pnpm nx-cloud start-ci-run --auto-apply-fixes="*test*,*biome:check*" --no-distribution
           pnpm ci:prepare

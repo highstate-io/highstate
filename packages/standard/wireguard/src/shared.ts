@@ -1,5 +1,5 @@
 import type { k8s, network, wireguard } from "@highstate/library"
-import type { Input, Unwrap } from "@highstate/pulumi"
+import { secret, type Input, type Output, type Unwrap } from "@highstate/pulumi"
 import {
   l3EndpointToL4,
   l3EndpointToString,
@@ -14,7 +14,7 @@ import { randomBytes } from "@noble/hashes/utils.js"
 import { unique, uniqueBy } from "remeda"
 
 export function generateKey(): string {
-  const key = x25519.utils.randomPrivateKey()
+  const key = x25519.utils.randomSecretKey()
 
   return Buffer.from(key).toString("base64")
 }
@@ -113,7 +113,7 @@ export function generateIdentityConfig({
   postDown = [],
   defaultInterface,
   cluster,
-}: IdentityConfigArgs): string {
+}: IdentityConfigArgs): Output<string> {
   const allDns = unique(peers.flatMap(peer => peer.dns).concat(dns))
   const excludedIps = unique(peers.flatMap(peer => peer.excludedIps))
 
@@ -183,7 +183,7 @@ export function generateIdentityConfig({
     lines.push(generatePeerConfig(identity, peer, cluster))
   }
 
-  return lines.join("\n")
+  return secret(lines.join("\n"))
 }
 
 type SharedPeerInputs = {
@@ -306,6 +306,7 @@ export function createPeerEntity(
     network: inputs.network,
     presharedKeyPart,
     listenPort: args.listenPort,
+    persistentKeepalive: args.persistentKeepalive,
   }
 }
 

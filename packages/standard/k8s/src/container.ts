@@ -10,7 +10,7 @@ import {
 } from "@highstate/pulumi"
 import { core, type types } from "@pulumi/kubernetes"
 import { concat, map, omit } from "remeda"
-import { ConfigMap } from "./config-map"
+import { ConfigMap, type ConfigMapArgs } from "./config-map"
 import { PersistentVolumeClaim } from "./pvc"
 import { Secret } from "./secret"
 
@@ -108,7 +108,7 @@ export type ContainerEnvironmentVariable =
       /**
        * The config map to select from.
        */
-      configMap: Input<core.v1.ConfigMap>
+      configMap: Input<core.v1.ConfigMap | ConfigMap>
 
       /**
        * The key of the config map to select from.

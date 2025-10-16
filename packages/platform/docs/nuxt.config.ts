@@ -14,6 +14,10 @@ export default defineNuxtConfig({
     },
   },
 
+  llms: {
+    domain: "https://highstate.io",
+  },
+
   typescript: {
     tsConfig: {
       exclude: ["../../designer/layers/**"],
