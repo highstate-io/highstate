@@ -1,3 +1,13 @@
+## 0.11.3 (2025-10-16)
+
+### 🩹 Fixes
+
+- add repo url for all packages ([02c61d3](https://github.com/highstate-io/highstate/commit/02c61d3))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.2 (2025-10-16)
 
 ### 🩹 Fixes
