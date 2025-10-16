@@ -1,3 +1,13 @@
+## 0.11.2 (2025-10-16)
+
+### 🩹 Fixes
+
+- trigger test release ([4178426](https://github.com/highstate-io/highstate/commit/4178426))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.1 (2025-10-16)
 
 ### 🩹 Fixes

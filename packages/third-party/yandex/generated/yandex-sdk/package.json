@@ -1,6 +1,6 @@
 {
   "name": "@highstate/yandex-sdk",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "A Pulumi provider dynamically bridged from yandex.",
   "repository": "https://github.com/yandex-cloud/terraform-provider-yandex",
   "main": "bin/index.js",
