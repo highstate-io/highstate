@@ -43,5 +43,8 @@
     "@highstate/cli": "workspace:^0.10.0",
     "@types/zip-stream": "^7.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
   }
 }

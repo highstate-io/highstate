@@ -93,5 +93,8 @@
     "@highstate/cli": "workspace:^0.10.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "type-fest": "^4.41.0"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
   }
 }

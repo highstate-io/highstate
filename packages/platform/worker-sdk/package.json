@@ -34,5 +34,8 @@
     "nice-grpc": "^2.1.12",
     "nice-grpc-common": "^2.0.2",
     "protobufjs": "^7.5.3"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
   }
 }

@@ -93,5 +93,8 @@
     "ts-markdown-builder": "^0.4.1",
     "type-fest": "^4.41.0",
     "vitest": "^3.2.4"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
   }
 }

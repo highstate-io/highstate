@@ -6,6 +6,9 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  },
   "bin": "./dist/main.js",
   "publishConfig": {
     "access": "public"

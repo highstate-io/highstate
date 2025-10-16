@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.18.3",
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  },
   "scripts": {
     "ci:prepare": "nx run @highstate/cli:build && pnpm install",
     "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image,typecheck",
@@ -15,6 +18,5 @@
     "ts-node": "^10.9.2",
     "vitest": "^3.2.4",
     "@types/node": "^24"
-  },
-  "repository": "highstate-io/highstate"
+  }
 }

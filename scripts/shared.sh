@@ -10,6 +10,7 @@ _post_process_generated_package() {
         .dependencies.typescript = \"^5.7.2\" | \
         .dependencies.\"@pulumi/pulumi\" = \"^3.198.0\" | \
         .publishConfig = {\"access\": \"public\"} | \
+        .repository = {\"url\": \"https://github.com/highstate-io/highstate\"} | \
         .scripts.build = \"tsc && cp package.json bin/package.json\" | \
         del(.scripts.postinstall) \
     " generated/$package/package.json > generated/$package/package.json.tmp

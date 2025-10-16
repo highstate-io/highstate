@@ -43,5 +43,8 @@
     "@vitest/coverage-v8": "2.1.8",
     "highstate-cli-bootstrap": "npm:@highstate/cli",
     "vitest": "^3.2.4"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
   }
 }
