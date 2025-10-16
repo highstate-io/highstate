@@ -9,13 +9,16 @@
     "deploy-image": "./scripts/deploy.sh"
   },
   "dependencies": {
-    "@highstate/designer": "workspace:^",
     "@highstate/contract": "workspace:^0.10.0",
+    "@highstate/designer": "workspace:^",
     "@highstate/library": "workspace:^0.10.0",
     "@nuxt/content": "^3.7.1",
+    "@nuxt/ui": "^4.0.1",
+    "@nuxtjs/mdc": "^0.18.0",
     "better-sqlite3": "^12.4.1",
     "docus": "^5.1.0",
     "nuxt": "^4.1.2",
+    "unist-util-visit": "^5.0.0",
     "zod": "^3",
     "zod-to-json-schema": "^3.24.6"
   },

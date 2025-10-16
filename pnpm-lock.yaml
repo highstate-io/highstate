@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@highstate/cli@0.10.0':
-    hash: 8a397f4b11996e4cc8f2a5670376296b607047e4a6e3e87953c9a3c414f3d3de
-    path: patches/@highstate__cli@0.10.0.patch
-
 importers:
 
   .:
@@ -179,7 +174,7 @@ importers:
         version: 3.0.0
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.10.0(patch_hash=8a397f4b11996e4cc8f2a5670376296b607047e4a6e3e87953c9a3c414f3d3de)(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.11.3(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       pino-pretty:
         specifier: ^13.0.0
         version: 13.1.2
@@ -325,7 +320,7 @@ importers:
         version: 0.25.11
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.10.0(patch_hash=8a397f4b11996e4cc8f2a5670376296b607047e4a6e3e87953c9a3c414f3d3de)(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.11.3(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -359,7 +354,7 @@ importers:
         version: 2.1.8(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.10.0(patch_hash=8a397f4b11996e4cc8f2a5670376296b607047e4a6e3e87953c9a3c414f3d3de)(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.11.3(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -595,6 +590,12 @@ importers:
       '@nuxt/content':
         specifier: ^3.7.1
         version: 3.7.1(@libsql/client@0.8.1)(better-sqlite3@12.4.1)(magicast@0.3.5)
+      '@nuxt/ui':
+        specifier: ^4.0.1
+        version: 4.0.1(@babel/parser@7.28.4)(axios@1.12.2)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(embla-carousel@8.6.0)(encoding@0.1.13)(focus-trap@7.6.5)(ioredis@5.8.1)(magicast@0.3.5)(qrcode@1.5.4)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vue-router@4.6.3(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))(zod@3.25.76)
+      '@nuxtjs/mdc':
+        specifier: ^0.18.0
+        version: 0.18.0(magicast@0.3.5)
       better-sqlite3:
         specifier: ^12.4.1
         version: 12.4.1
@@ -604,6 +605,9 @@ importers:
       nuxt:
         specifier: ^4.1.2
         version: 4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(yaml@2.8.1)
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.0.0
       zod:
         specifier: ^3
         version: 3.25.76
@@ -3119,8 +3123,8 @@ packages:
       classic-level:
         optional: true
 
-  '@highstate/cli@0.10.0':
-    resolution: {integrity: sha512-COXZN7rBMWuJRc69seoOVL4Cw8VJmJfhk2B5Xu+p+axmlPJmeAgHURdHL0Jd93f4PhvW82yTTi3nypT+GtSmeA==}
+  '@highstate/cli@0.11.3':
+    resolution: {integrity: sha512-sU5lVa7UBRDrqTrZY77KTBuJbQlaLnMHhf+2KVDcgJ27ebWRbcWvISND2UEPdgxD/eS5tf42csVlWAGdhoZjdQ==}
     hasBin: true
     peerDependencies:
       classic-level: '*'
@@ -14471,7 +14475,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@highstate/cli@0.10.0(patch_hash=8a397f4b11996e4cc8f2a5670376296b607047e4a6e3e87953c9a3c414f3d3de)(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+  '@highstate/cli@0.11.3(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)
@@ -14515,7 +14519,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@highstate/cli@0.10.0(patch_hash=8a397f4b11996e4cc8f2a5670376296b607047e4a6e3e87953c9a3c414f3d3de)(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+  '@highstate/cli@0.11.3(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)
