@@ -4,6 +4,8 @@ export default defineNuxtConfig({
   extends: ["docus", "../designer/layers/core"],
   ogImage: { enabled: false },
 
+  modules: ["@vueuse/nuxt"],
+
   site: {
     name: "Highstate",
   },
