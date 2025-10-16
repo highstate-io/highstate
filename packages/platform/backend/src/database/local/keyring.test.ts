@@ -3,22 +3,11 @@ import { writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { generateIdentity } from "age-encryption"
+import pino from "pino"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { type BackendIdentityConfig, getOrCreateBackendIdentity } from "./keyring"
 
-const createLogger = (): Logger => {
-  const noop = () => {}
-  return {
-    level: "info",
-    debug: noop,
-    info: noop,
-    warn: noop,
-    error: noop,
-    fatal: noop,
-    trace: noop,
-    silent: noop,
-  } as unknown as Logger
-}
+const createLogger = (): Logger => pino({ level: "silent" })
 
 describe("getOrCreateBackendIdentity", () => {
   let tempFilePath: string

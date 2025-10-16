@@ -46,7 +46,7 @@ Here's what happens around that file:
 
 ### Manual Identity for Environments Without OS Keyring
 
-Sometimes you need to run the backend in an environment where the OS keyring isn't available - like Docker containers, CI/CD pipelines, or headless servers.
+Sometimes you need to run the backend in an environment where the OS keyring isn't available - like Docker containers.
 For these cases, you can manually specify the AGE identity used to decrypt the backend master key.
 
 You have two options for providing the identity:

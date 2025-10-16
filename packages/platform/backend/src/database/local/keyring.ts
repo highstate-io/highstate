@@ -2,14 +2,17 @@ import type { Logger } from "pino"
 import { readFile } from "node:fs/promises"
 import { AsyncEntry, findCredentialsAsync } from "@napi-rs/keyring"
 import { generateIdentity } from "age-encryption"
+import { z } from "zod"
 
 const serviceName = "io.highstate.backend"
 const accountName = "identity"
 
-export type BackendIdentityConfig = {
-  HIGHSTATE_BACKEND_DATABASE_IDENTITY?: string
-  HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH?: string
-}
+export const backendIdentityConfig = z.object({
+  HIGHSTATE_BACKEND_DATABASE_IDENTITY: z.string().optional(),
+  HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: z.string().optional(),
+})
+
+export type BackendIdentityConfig = z.infer<typeof backendIdentityConfig>
 
 /**
  * Retrieves or creates the backend identity for database encryption.
@@ -41,8 +44,7 @@ export async function getOrCreateBackendIdentity(
     try {
       const identity = await readFile(config.HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH, "utf-8")
       logger.info(
-        { path: config.HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH },
-        "loaded backend identity from file",
+        `using backend identity from path specified in HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH`,
       )
       return identity.trim()
     } catch (error) {
@@ -58,7 +60,7 @@ export async function getOrCreateBackendIdentity(
   const entry = credentials.find(entry => entry.account === accountName)
 
   if (entry) {
-    logger.debug("found existing backend identity in keyring")
+    logger.info("using backend identity from OS keyring")
     return entry.password
   }
 

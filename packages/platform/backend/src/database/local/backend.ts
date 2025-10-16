@@ -10,14 +10,13 @@ import { PrismaClient } from "../_generated/backend/sqlite/client"
 import { type BackendDatabaseBackend, backendDatabaseVersion } from "../abstractions"
 import { migrateDatabase } from "../migrate"
 import { ensureWellKnownEntitiesCreated } from "../well-known"
-import { getOrCreateBackendIdentity } from "./keyring"
+import { backendIdentityConfig, getOrCreateBackendIdentity } from "./keyring"
 import { type DatabaseMetaFile, readMetaFile, writeMetaFile } from "./meta"
 
 export const localBackendDatabaseConfig = z.object({
   ...codebaseConfig.shape,
   HIGHSTATE_BACKEND_DATABASE_LOCAL_PATH: z.string().optional(),
-  HIGHSTATE_BACKEND_DATABASE_IDENTITY: z.string().optional(),
-  HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH: z.string().optional(),
+  ...backendIdentityConfig.shape,
   HIGHSTATE_ENCRYPTION_ENABLED: z.stringbool().default(true),
 })
 
@@ -28,10 +27,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   constructor(
     readonly database: BackendDatabase,
     private readonly databasePath: string,
-    private readonly config: Pick<
-      z.infer<typeof localBackendDatabaseConfig>,
-      "HIGHSTATE_BACKEND_DATABASE_IDENTITY" | "HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH"
-    >,
+    private readonly config: z.infer<typeof backendIdentityConfig>,
     private readonly logger: Logger,
     readonly isEncryptionEnabled: boolean,
   ) {}
@@ -78,13 +74,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   }
 }
 
-async function createMasterKey(
-  config: Pick<
-    z.infer<typeof localBackendDatabaseConfig>,
-    "HIGHSTATE_BACKEND_DATABASE_IDENTITY" | "HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH"
-  >,
-  logger: Logger,
-) {
+async function createMasterKey(config: z.infer<typeof backendIdentityConfig>, logger: Logger) {
   const identity = await getOrCreateBackendIdentity(config, logger)
 
   const masterKey = randomBytes(32).toString("hex")
@@ -110,10 +100,7 @@ type DatabaseInitializationResult = {
 async function ensureDatabaseInitialized(
   databasePath: string,
   encryptionEnabled: boolean,
-  config: Pick<
-    z.infer<typeof localBackendDatabaseConfig>,
-    "HIGHSTATE_BACKEND_DATABASE_IDENTITY" | "HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH"
-  >,
+  config: z.infer<typeof backendIdentityConfig>,
   logger: Logger,
 ): Promise<DatabaseInitializationResult> {
   const meta = await readMetaFile(databasePath)
@@ -165,14 +152,6 @@ async function ensureDatabaseInitialized(
 
   const encryptedMasterKey = armor.decode(meta.masterKey)
   const masterKey = await decrypter.decrypt(encryptedMasterKey, "text")
-
-  const identitySource = config.HIGHSTATE_BACKEND_DATABASE_IDENTITY
-    ? "environment variable"
-    : config.HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH
-      ? "file"
-      : "OS keyring"
-
-  logger.info({ source: identitySource }, "loaded backend master key")
 
   return {
     shouldMigrate: meta.version < backendDatabaseVersion,
