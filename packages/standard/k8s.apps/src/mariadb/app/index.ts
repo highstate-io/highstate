@@ -161,7 +161,7 @@ export default outputs({
     endpoints: endpoints.map(l4EndpointToString),
   },
 
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
 
   $terminals: chart.workloads.apply(workloads => {
     const terminals: Output<UnitTerminal>[] = []
@@ -190,5 +190,5 @@ export default outputs({
     return [...terminals]
   }),
 
-  $workers: [createMonitorWorker([chart.service, ...workloads])],
+  $workers: [await createMonitorWorker(namespace, [chart.service, ...workloads])],
 })

@@ -69,5 +69,5 @@ Deployment.create(
 )
 
 export default outputs({
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
 })

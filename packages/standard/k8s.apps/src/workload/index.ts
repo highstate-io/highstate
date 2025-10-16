@@ -1,6 +1,7 @@
 import { generatePassword } from "@highstate/common"
 import {
   ConfigMap,
+  type ContainerEnvironment,
   Deployment,
   Namespace,
   PersistentVolumeClaim,
@@ -67,8 +68,8 @@ const dataVolumeClaim = args.dataPath
   : undefined
 
 // process environment variables
-const processEnvironmentVariables = (env: typeof args.env) => {
-  const environment: Record<string, unknown> = {}
+const processEnvironmentVariables = (env: typeof args.env): ContainerEnvironment => {
+  const environment: ContainerEnvironment = {}
 
   for (const [key, value] of Object.entries(env)) {
     if (typeof value === "string") {
@@ -247,5 +248,5 @@ export default outputs({
   deployment: workload.entity,
   service: workload.service?.entity,
 
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
 })

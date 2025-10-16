@@ -47,7 +47,7 @@ export class MongoDBDatabase extends ComponentResource {
         namespace: args.namespace,
 
         stringData: {
-          "mongodb-root-password": output(args.mongodb).password,
+          "mongodb-root-password": output(args.mongodb).apply(m => m.password ?? ""),
         },
       },
       { ...opts, parent: this },

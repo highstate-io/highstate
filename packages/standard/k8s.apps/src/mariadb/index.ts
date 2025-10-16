@@ -82,7 +82,7 @@ export class MariaDBDatabase extends ComponentResource {
         namespace: args.namespace,
 
         stringData: {
-          "mariadb-root-password": output(args.mariadb).password,
+          "mariadb-root-password": output(args.mariadb).apply(m => m.password ?? ""),
         },
       },
       { ...opts, parent: this },

@@ -138,6 +138,6 @@ export default outputs({
     endpoints: endpoints.map(l4EndpointToString),
   },
 
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
   $terminals: chart.terminals.apply(terminals => [...terminals, backupJobPair?.terminal].filter(Boolean)),
 })

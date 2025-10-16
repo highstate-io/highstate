@@ -82,7 +82,7 @@ export class PostgreSQLDatabase extends ComponentResource {
         namespace: args.namespace,
 
         stringData: {
-          "postgres-password": output(args.postgresql).password,
+          "postgres-password": output(args.postgresql).apply(p => p.password ?? ""),
         },
       },
       { ...opts, parent: this },
