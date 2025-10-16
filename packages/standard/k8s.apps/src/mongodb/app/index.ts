@@ -136,4 +136,6 @@ export default outputs({
   $terminals: chart.terminals.apply(terminals =>
     [...terminals, backupJobPair?.terminal].filter(Boolean),
   ),
+    [...terminals, backupJobPair?.terminal].filter(Boolean),
+  ),
 })
