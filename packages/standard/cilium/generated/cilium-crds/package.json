@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cilium-crds",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "keywords": [
     "pulumi",
     "kubernetes",

@@ -1,6 +1,6 @@
 {
   "name": "@highstate/contract",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "type": "module",
   "files": [
     "dist",

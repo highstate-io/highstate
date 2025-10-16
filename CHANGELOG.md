@@ -1,3 +1,13 @@
+## 0.11.4 (2025-10-16)
+
+### 🩹 Fixes
+
+- fix docs ([90c9fcb](https://github.com/highstate-io/highstate/commit/90c9fcb))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.3 (2025-10-16)
 
 ### 🩹 Fixes
