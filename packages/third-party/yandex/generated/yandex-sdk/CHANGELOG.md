@@ -1,3 +1,13 @@
+## 0.11.1 (2025-10-16)
+
+### 🩹 Fixes
+
+- Fix type errors ([160c1f8](https://github.com/highstate-io/highstate/commit/160c1f8))
+
+### ❤️ Thank You
+
+- Copilot @Copilot
+
 ## 0.11.0 (2025-10-16)
 
 ### 🚀 Features
