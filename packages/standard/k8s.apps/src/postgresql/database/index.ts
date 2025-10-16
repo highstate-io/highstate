@@ -1,7 +1,7 @@
 import { generatePassword } from "@highstate/common"
 import { Namespace } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit, output } from "@highstate/pulumi"
+import { forUnit } from "@highstate/pulumi"
 import { PostgreSQLDatabase } from ".."
 
 const { name, args, getSecret, inputs, outputs } = forUnit(k8s.apps.postgresqlDatabase)
