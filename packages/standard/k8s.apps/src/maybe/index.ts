@@ -16,7 +16,7 @@ import { charts, images } from "../shared"
 
 const { args, inputs, getSecret, outputs } = forUnit(k8s.apps.maybe)
 
-const backupPassword = getSecret("backupPassword", generatePassword)
+const backupKey = getSecret("backupKey", generatePassword)
 
 const namespace = await Namespace.createOrGet(args.appName, {
   cluster: inputs.k8sCluster,
@@ -35,7 +35,7 @@ const backupJobPair = inputs.resticRepo
         namespace,
 
         resticRepo: inputs.resticRepo,
-        backupKey: backupPassword,
+        backupKey,
 
         volume: dataVolumeClaim,
       },
@@ -177,6 +177,6 @@ Deployment.create(
   },
 )
 
-NetworkPolicy.isolate(namespace, inputs.k8sCluster)
+NetworkPolicy.isolateNamespace(namespace, inputs.k8sCluster)
 
 export default outputs({})

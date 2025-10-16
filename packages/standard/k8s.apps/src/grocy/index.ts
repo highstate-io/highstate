@@ -6,7 +6,7 @@ import { BackupJobPair } from "@highstate/restic"
 
 const { args, inputs, getSecret, invokedTriggers, outputs } = forUnit(k8s.apps.grocy)
 
-const backupPassword = getSecret("backupPassword", generatePassword)
+const backupKey = getSecret("backupKey", generatePassword)
 
 const namespace = await Namespace.createOrGet(args.appName, {
   cluster: inputs.k8sCluster,
@@ -25,7 +25,7 @@ const backupJobPair = inputs.resticRepo
         namespace,
 
         resticRepo: inputs.resticRepo,
-        backupKey: backupPassword,
+        backupKey,
 
         volume: dataVolumeClaim,
       },
@@ -69,5 +69,5 @@ Deployment.create(
 )
 
 export default outputs({
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
 })

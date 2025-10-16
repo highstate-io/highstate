@@ -247,5 +247,5 @@ export default outputs({
   deployment: workload.entity,
   service: workload.service?.entity,
 
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
 })

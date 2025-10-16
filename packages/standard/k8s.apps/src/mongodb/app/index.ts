@@ -11,7 +11,7 @@ const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.m
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
 const rootPassword = getSecret("rootPassword", generatePassword)
-const backupPassword = getSecret("backupPassword", generatePassword)
+const backupKey = getSecret("backupKey", generatePassword)
 
 const rootPasswordSecret = Secret.create(
   `${args.appName}-root-password`,
@@ -55,7 +55,7 @@ const backupJobPair = inputs.resticRepo
         namespace,
 
         resticRepo: inputs.resticRepo,
-        backupKey: backupPassword,
+        backupKey,
 
         environments: [backupEnvironment],
 
@@ -132,6 +132,6 @@ export default outputs({
     endpoints: endpoints.map(l4EndpointToString),
   },
 
-  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
-  $terminals: chart.terminals.apply(terminals => [...terminals, backupJobPair?.terminal()]),
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)].filter(Boolean),
+  $terminals: chart.terminals.apply(terminals => [...terminals, backupJobPair?.terminal].filter(Boolean)),
 })

@@ -1,4 +1,4 @@
-import type { k8s } from "@highstate/library"
+import type { databases } from "@highstate/library"
 import { l34EndpointToString } from "@highstate/common"
 import {
   createScriptContainer,
@@ -20,7 +20,7 @@ import {
 import { initEnvironment } from "./scripts"
 
 export type MongoDBDatabaseArgs = ScopedResourceArgs & {
-  mongodb: Input<k8s.apps.MongoDB>
+  mongodb: Input<databases.MongoDB>
   database?: Input<string>
   username?: Input<string>
   password: Input<string>
@@ -47,7 +47,7 @@ export class MongoDBDatabase extends ComponentResource {
         namespace: args.namespace,
 
         stringData: {
-          "mongodb-root-password": output(args.mongodb).rootPassword,
+          "mongodb-root-password": output(args.mongodb).password,
         },
       },
       { ...opts, parent: this },
@@ -62,7 +62,7 @@ export class MongoDBDatabase extends ComponentResource {
     }).apply(({ endpoints, cluster }) => requireBestEndpoint(endpoints, cluster))
 
     const host = endpoint.apply(l34EndpointToString)
-    const port = endpoint.port.apply(port => port.toString())
+    const port = endpoint.apply(ep => ep.port?.toString() ?? "")
 
     this.credentials = Secret.create(
       `${name}-mongodb-credentials`,
@@ -130,9 +130,11 @@ export class MongoDBDatabase extends ComponentResource {
       { ...opts, parent: this },
     )
 
-    this.networkPolicy = NetworkPolicy.allowEgressToBestEndpoint(
-      output(args.mongodb).endpoints,
-      args.namespace,
+    this.networkPolicy = output({
+      namespace: args.namespace,
+      endpoints: output(args.mongodb).endpoints,
+    }).apply(async ({ namespace, endpoints }) =>
+      NetworkPolicy.allowEgressToBestEndpoint(namespace, endpoints),
     )
   }
 }

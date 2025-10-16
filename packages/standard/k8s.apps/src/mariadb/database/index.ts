@@ -10,7 +10,7 @@ const database = args.database ?? name
 const username = args.username ?? database
 const password = getSecret("password", generatePassword)
 
-const namespace = Namespace.forAsync(inputs.namespace, inputs.k8sCluster)
+const namespace = await Namespace.forAsync(inputs.namespace, inputs.k8sCluster)
 
 new MariaDBDatabase(database, {
   mariadb: inputs.mariadb,

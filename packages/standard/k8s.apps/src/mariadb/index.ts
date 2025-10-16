@@ -82,7 +82,7 @@ export class MariaDBDatabase extends ComponentResource {
         namespace: args.namespace,
 
         stringData: {
-          "mariadb-root-password": output(args.mariadb).rootPassword,
+          "mariadb-root-password": output(args.mariadb).password,
         },
       },
       { ...opts, parent: this },
@@ -169,9 +169,11 @@ export class MariaDBDatabase extends ComponentResource {
       { ...opts, parent: this },
     )
 
-    this.networkPolicy = NetworkPolicy.allowEgressToBestEndpoint(
-      output(args.mariadb).endpoints,
-      args.namespace,
+    this.networkPolicy = output({
+      namespace: args.namespace,
+      endpoints: output(args.mariadb).endpoints,
+    }).apply(async ({ namespace, endpoints }) =>
+      NetworkPolicy.allowEgressToBestEndpoint(namespace, endpoints),
     )
 
     this.registerOutputs({ initJob: this.initJob })
