@@ -1,3 +1,13 @@
+## 0.11.5 (2025-10-16)
+
+### 🩹 Fixes
+
+- fix docs ([f625bd0](https://github.com/highstate-io/highstate/commit/f625bd0))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.4 (2025-10-16)
 
 ### 🩹 Fixes
