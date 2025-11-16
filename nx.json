@@ -79,10 +79,10 @@
       "projectChangelogs": true
     },
     "version": {
-      "conventionalCommits": true,
-      "git": {
-        "commitMessage": "chore(release): publish v{version} [skip ci]"
-      }
+      "conventionalCommits": true
+    },
+    "git": {
+      "commitMessage": "chore(release): publish v{version} [skip ci]"
     }
   },
   "nxCloudId": "68ec0fb6bfeabbab18190388"
