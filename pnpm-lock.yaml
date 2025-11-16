@@ -174,7 +174,7 @@ importers:
         version: 3.0.0
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.11.5(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.11.6(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       pino-pretty:
         specifier: ^13.0.0
         version: 13.1.2
@@ -320,7 +320,7 @@ importers:
         version: 0.25.11
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.11.5(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.11.6(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -354,7 +354,7 @@ importers:
         version: 2.1.8(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.11.5(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.11.6(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -3205,8 +3205,8 @@ packages:
       classic-level:
         optional: true
 
-  '@highstate/cli@0.11.5':
-    resolution: {integrity: sha512-D4jHvXWvUNhMqBzAqk/vERkHGG00O/l8UEvQFR0eOXimQYoXkrF0JhOqi3Rk2H8TBaqWv0LTAG5oiVWPw6Tm0g==}
+  '@highstate/cli@0.11.6':
+    resolution: {integrity: sha512-hURTg+I9zGZD58oUf+16QqZ0lfflzLbNXnxJuc3cET5O6CP8xO28uAgnzqIA8XqOuHBUhL621qrGisfTQDdAtA==}
     hasBin: true
     peerDependencies:
       classic-level: '*'
@@ -14572,7 +14572,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@highstate/cli@0.11.5(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+  '@highstate/cli@0.11.6(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)
@@ -14616,7 +14616,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@highstate/cli@0.11.5(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+  '@highstate/cli@0.11.6(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)
