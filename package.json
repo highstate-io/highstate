@@ -14,9 +14,10 @@
   },
   "devDependencies": {
     "@nx/node": "21.6.4",
+    "@types/node": "^24",
+    "biome": "^0.3.3",
     "nx": "^21.6.4",
     "ts-node": "^10.9.2",
-    "vitest": "^3.2.4",
-    "@types/node": "^24"
+    "vitest": "^3.2.4"
   }
 }

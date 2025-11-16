@@ -15,7 +15,9 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/.nuxt",
@@ -25,22 +27,32 @@
     },
     "test": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/coverage"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/coverage"
+      ]
     },
     "build-image": {
       "cache": true,
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "outputs": []
     },
     "push-image": {
       "cache": true,
-      "dependsOn": ["build-image"],
+      "dependsOn": [
+        "build-image"
+      ],
       "outputs": []
     },
     "deploy-image": {
       "cache": true,
-      "dependsOn": ["push-image"],
+      "dependsOn": [
+        "push-image"
+      ],
       "outputs": []
     },
     "biome": {
@@ -53,7 +65,9 @@
     },
     "typecheck": {
       "cache": true,
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     }
   },
@@ -65,7 +79,10 @@
       "projectChangelogs": true
     },
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "git": {
+        "commitMessage": "chore(release): publish v{version} [skip ci]"
+      }
     }
   },
   "nxCloudId": "68ec0fb6bfeabbab18190388"
