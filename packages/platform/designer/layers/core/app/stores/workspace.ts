@@ -48,7 +48,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
         panel.id,
       )
 
-      // @ts-expect-error generic usage
       void navigateTo({
         name: route,
         params: params,
@@ -79,7 +78,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
           // navigate to the route again to switch to the correct panel
           await navigateTo("/dummy")
 
-          // @ts-expect-error generic usage
           await navigateTo({
             name: currentRoute.name,
             params: currentRoute.params,

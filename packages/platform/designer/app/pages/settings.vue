@@ -112,12 +112,10 @@ const currentTab = computed(() => {
 
 const navigateToTab = async (tab: Tab) => {
   if (!tab.isProjectTab) {
-    // @ts-expect-error generic usage
     await navigateTo({ name: tab.name })
     return
   }
 
-  // @ts-expect-error generic usage
   await navigateTo({
     name: tab.name,
     params: { projectId: projectsStore.focusedProjectId },

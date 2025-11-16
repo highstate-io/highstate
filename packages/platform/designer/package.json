@@ -77,7 +77,8 @@
     "ws": "^8.18.0",
     "yaml": "^2.7.0",
     "zod": "^4.0.5",
-    "zxcvbn-typescript": "^5.0.1"
+    "zxcvbn-typescript": "^5.0.1",
+    "vue-tsc": "^3.1.4"
   },
   "dependencies": {
     "@highstate/backend": "workspace:^",

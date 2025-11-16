@@ -11,7 +11,6 @@ const { params } = defineProps<{
 
 const router = useRouter()
 
-// @ts-expect-error generic usage
 const routeLocation = router.resolve({
   name: params.params.routeName,
   params: params.params.routeParams,

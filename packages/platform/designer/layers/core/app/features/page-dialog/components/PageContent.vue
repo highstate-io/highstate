@@ -9,7 +9,6 @@ defineProps<{
 }>()
 
 const route = useRoute()
-// @ts-expect-error generic usage
 const projectId = route.params.projectId as string
 
 const qrCodeColor = {
