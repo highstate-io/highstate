@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cli",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "description": "The CLI for the Highstate project.",
   "type": "module",
   "files": [

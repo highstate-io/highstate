@@ -1,6 +1,6 @@
 {
   "name": "create-highstate",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "description": "The scaffolding tool for the Highstate project.",
   "type": "module",
   "files": [

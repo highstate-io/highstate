@@ -1,3 +1,13 @@
+## 0.11.6 (2025-11-16)
+
+### 🩹 Fixes
+
+- Fix package discovery in isolated node_modules setup ([3b06314](https://github.com/highstate-io/highstate/commit/3b06314))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.5 (2025-10-16)
 
 ### 🩹 Fixes
