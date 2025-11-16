@@ -1,3 +1,13 @@
+## 0.11.7 (2025-11-16)
+
+### 🩹 Fixes
+
+- test release ([d1da68f](https://github.com/highstate-io/highstate/commit/d1da68f))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.6 (2025-11-16)
 
 ### 🩹 Fixes
