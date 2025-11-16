@@ -9,8 +9,7 @@
       "!{projectRoot}/.output/**/*",
       "!{projectRoot}/CHANGELOG.md",
       "!{projectRoot}/package.json",
-      "!{projectRoot}/node_modules/**/*",
-      "{workspaceRoot}/pnpm-lock.yaml"
+      "!{projectRoot}/node_modules/**/*"
     ]
   },
   "targetDefaults": {

@@ -5,6 +5,7 @@ import { parentPort, workerData } from "node:worker_threads"
 import pino, { type Level } from "pino"
 
 export type PackageResolutionWorkerData = {
+  importPath: string
   packageNames: string[]
   logLevel?: Level
 }
@@ -28,7 +29,7 @@ export type PackageResolutionResponse = {
   results: PackageResult[]
 }
 
-const { packageNames, logLevel } = workerData as PackageResolutionWorkerData
+const { importPath: rootDir, packageNames, logLevel } = workerData as PackageResolutionWorkerData
 
 const logger = pino({ name: "source-resolution-worker", level: logLevel ?? "silent" })
 
@@ -36,7 +37,7 @@ const results: PackageResult[] = []
 
 for (const packageName of packageNames) {
   try {
-    const path = findPackageJSON(packageName, import.meta.url)
+    const path = findPackageJSON(packageName, rootDir)
     if (!path) {
       throw new Error(`Package "${packageName}" not found`)
     }

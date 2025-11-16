@@ -36,6 +36,15 @@ export const useProjectValidationStore = defineMultiStore({
             instance.id,
           )
 
+          if (!component) {
+            logger.warn(
+              `component "%s" for instance "%s" not found in library during validation initialization`,
+              instance.type,
+              instance.id,
+            )
+            return
+          }
+
           setValidationInput(instance.id, {
             instance,
             component,

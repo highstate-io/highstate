@@ -16,7 +16,19 @@ const { projectStore, stateStore, instancesStore, libraryStore, operationsStore,
   stores
 
 const instance = computed(() => data.instance)
-const component = computed(() => libraryStore.library.components[instance.value.type])
+
+const component = computed(() => {
+  const component = libraryStore.library.components[instance.value.type]
+
+  if (!component) {
+    throw new Error(
+      `component "${instance.value.type}" for instance "${instance.value.id}" not found in library`,
+    )
+  }
+
+  return component
+})
+
 const state = computed(() => stateStore.instanceStates.get(instance.value.id))
 const instanceLock = computed(() => state.value && stateStore.instanceLocks.get(state.value.id))
 const operation = computed(() => operationsStore.getLastInstanceOperation(instance.value.id))

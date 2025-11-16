@@ -7,7 +7,7 @@ import type {
 import type { WorkerData } from "./worker/protocol"
 import { EventEmitter, on } from "node:events"
 import { readFile } from "node:fs/promises"
-import { dirname, resolve } from "node:path"
+import { dirname, isAbsolute, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { Worker } from "node:worker_threads"
 import { type InstanceModel, isUnitModel } from "@highstate/contract"
@@ -18,7 +18,7 @@ import { resolve as importMetaResolve } from "import-meta-resolve"
 import { addDependency, runScript } from "nypm"
 import PQueue from "p-queue"
 import { type PackageJson, readPackageJSON, resolvePackageJSON } from "pkg-types"
-import { groupBy } from "remeda"
+import { groupBy, isNonNullish } from "remeda"
 import Watcher from "watcher"
 import { z } from "zod"
 import { resolveMainLocalProject, stringArrayType } from "../common"
@@ -34,6 +34,7 @@ export const localLibraryBackendConfig = z.object({
     "@highstate/library",
   ]),
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_WORKSPACE_PATH: z.string().optional(),
+  HIGHSTATE_LIBRARY_BACKEND_LOCAL_IMPORT_PATH: z.string().optional(),
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_CONCURRENCY: z.coerce.number().int().positive().default(3),
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_STARTUP: z.stringbool().default(true),
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_CHANGES: z.stringbool().default(true),
@@ -62,6 +63,7 @@ type RebuildState = {
 export class LocalLibraryBackend implements LibraryBackend {
   private readonly watcher: Watcher
   private readonly workspacePath: string
+  private readonly importPath: string
   private readonly workspacePatterns: string[]
 
   private readonly lock = new BetterLock()
@@ -80,6 +82,7 @@ export class LocalLibraryBackend implements LibraryBackend {
   private constructor(
     private readonly libraryPackages: string[],
     workspacePath: string,
+    importPath: string,
     workspacePatterns: string[],
     buildConcurrency: number,
     buildOnStartup: boolean,
@@ -87,6 +90,7 @@ export class LocalLibraryBackend implements LibraryBackend {
     private readonly logger: Logger,
   ) {
     this.workspacePath = workspacePath
+    this.importPath = importPath
     this.workspacePatterns = workspacePatterns
     this.buildQueue = new PQueue({ concurrency: buildConcurrency })
     this.configBuildOnStartup = buildOnStartup
@@ -172,8 +176,14 @@ export class LocalLibraryBackend implements LibraryBackend {
     allInstances: InstanceModel[],
     resolvedInputs: Record<string, Record<string, ResolvedInstanceInput[]>>,
   ): Promise<ProjectEvaluationResult> {
+    const packagePaths = this.libraryPackages
+      .map(name => this.packages.get(name))
+      .filter(isNonNullish)
+      // TODO: respect package exports field
+      .map(pkg => `${pkg.rootPath}/dist/index.js`)
+
     const worker = this.createLibraryWorker({
-      libraryModulePaths: this.libraryPackages,
+      libraryModulePaths: packagePaths,
       allInstances,
       resolvedInputs,
     })
@@ -458,7 +468,11 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     const missingPackages: string[] = []
 
-    const worker = this.createPackageResolutionWorker({ packageNames: names })
+    const worker = this.createPackageResolutionWorker({
+      packageNames: names,
+      importPath: this.importPath,
+    })
+
     for await (const [event] of on(worker, "message")) {
       const eventData = event as PackageResolutionResponse
 
@@ -492,7 +506,7 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     if (installIfNotFound && missingPackages.length > 0) {
       this.logger.info("installing missing library packages: %s", missingPackages.join(", "))
-      await addDependency(missingPackages)
+      await addDependency(missingPackages, { cwd: dirname(this.importPath) })
       await this.loadLibraryPackages(missingPackages)
     }
   }
@@ -841,9 +855,28 @@ export class LocalLibraryBackend implements LibraryBackend {
       logger,
     )
 
+    let importPath = config.HIGHSTATE_LIBRARY_BACKEND_LOCAL_IMPORT_PATH
+    if (!importPath) {
+      importPath = workspaceConfig.root
+    }
+
+    if (!isAbsolute(importPath)) {
+      importPath = resolve(workspaceConfig.root, importPath)
+    }
+
+    if (!importPath.endsWith("package.json")) {
+      importPath = resolve(importPath, "package.json")
+    }
+
+    logger.debug(
+      { workspaceRoot: workspaceConfig.root, importPath },
+      "resolved local library backend workspace and import paths",
+    )
+
     const backend = new LocalLibraryBackend(
       config.HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES,
       workspaceConfig.root,
+      importPath,
       workspaceConfig.patterns,
       config.HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_CONCURRENCY,
       config.HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_STARTUP,
