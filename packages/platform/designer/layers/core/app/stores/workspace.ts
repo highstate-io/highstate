@@ -1,5 +1,4 @@
 import type { DockviewApi, SerializedDockview } from "dockview-vue"
-import type { RouteMap } from "vue-router"
 
 export const useWorkspaceStore = defineStore("workspace", () => {
   const dockview = markRaw(ref<DockviewApi | null>(null))
@@ -49,10 +48,10 @@ export const useWorkspaceStore = defineStore("workspace", () => {
         panel.id,
       )
 
+      // @ts-expect-error generic usage
       void navigateTo({
-        name: route as keyof RouteMap,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-        params: params as any,
+        name: route,
+        params: params,
       })
     })
 
@@ -80,10 +79,10 @@ export const useWorkspaceStore = defineStore("workspace", () => {
           // navigate to the route again to switch to the correct panel
           await navigateTo("/dummy")
 
+          // @ts-expect-error generic usage
           await navigateTo({
-            name: currentRoute.name as keyof RouteMap,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-            params: currentRoute.params as any,
+            name: currentRoute.name,
+            params: currentRoute.params,
           })
         }
       } catch (error) {

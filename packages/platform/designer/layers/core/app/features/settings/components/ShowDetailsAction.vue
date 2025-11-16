@@ -16,6 +16,7 @@ const {
 }>()
 
 const handleClick = () => {
+  // @ts-expect-error generic usage
   navigateTo({
     name: pageName,
     params: pageParams,

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { RouteMap } from "vue-router"
 import { ProjectTabWrapper } from "#layers/core/app/features/shared"
 
 definePageMeta({
@@ -113,16 +112,15 @@ const currentTab = computed(() => {
 
 const navigateToTab = async (tab: Tab) => {
   if (!tab.isProjectTab) {
-    await navigateTo({
-      name: tab.name as keyof RouteMap,
-    })
+    // @ts-expect-error generic usage
+    await navigateTo({ name: tab.name })
     return
   }
 
+  // @ts-expect-error generic usage
   await navigateTo({
-    name: tab.name as keyof RouteMap,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params: { projectId: projectsStore.focusedProjectId } as any,
+    name: tab.name,
+    params: { projectId: projectsStore.focusedProjectId },
   })
 }
 

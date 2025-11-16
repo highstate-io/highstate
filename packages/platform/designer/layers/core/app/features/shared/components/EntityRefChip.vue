@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import type { RouteParamsRaw, RouteRecordName } from "vue-router"
 import type { ObjectMeta } from "@highstate/contract"
 import { GenericIcon } from "../index"
 
-const { id, meta, fallbackIcon, pageName, pageParams, color, maxLength = 20 } = defineProps<{
+const {
+  id,
+  meta,
+  fallbackIcon,
+  pageName,
+  pageParams,
+  color,
+  maxLength = 20,
+} = defineProps<{
   id: string
   fallbackIcon?: string
   pageName: string
@@ -14,9 +21,10 @@ const { id, meta, fallbackIcon, pageName, pageParams, color, maxLength = 20 } = 
 }>()
 
 const handleClick = () => {
+  // @ts-expect-error generic usage
   navigateTo({
-    name: pageName as RouteRecordName,
-    params: pageParams as RouteParamsRaw,
+    name: pageName,
+    params: pageParams,
   })
 }
 

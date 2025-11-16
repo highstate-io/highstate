@@ -3,7 +3,7 @@ import type { ResolvedInstanceInput } from "./input"
 import { crc32 } from "@aws-crypto/crc32"
 import { type ComponentModel, type InstanceModel, isUnitModel } from "@highstate/contract"
 import { encode } from "@msgpack/msgpack"
-import Buffer from "buffer-polyfill"
+import { Buffer } from "buffer-polyfill"
 import { int32ToBytes } from "../utils"
 import { GraphResolver } from "./graph-resolver"
 
