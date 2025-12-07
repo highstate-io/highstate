@@ -1,3 +1,18 @@
+## 0.12.0 (2025-12-07)
+
+### 🚀 Features
+
+- Promote yandex API to v1 ([64dded7](https://github.com/highstate-io/highstate/commit/64dded7))
+
+### 🩹 Fixes
+
+- Small fixes ([7d5d734](https://github.com/highstate-io/highstate/commit/7d5d734))
+- Fix k3s for multi node deployments ([035841e](https://github.com/highstate-io/highstate/commit/035841e))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.7 (2025-11-16)
 
 ### 🩹 Fixes

@@ -1,3 +1,22 @@
+## 0.12.0 (2025-12-07)
+
+### 🚀 Features
+
+- Promote yandex API to v1 ([64dded7](https://github.com/highstate-io/highstate/commit/64dded7))
+
+### 🩹 Fixes
+
+- Allow dynamic imports in isolated node_modules environments ([ec9c383](https://github.com/highstate-io/highstate/commit/ec9c383))
+- Fix jsdoc to description translator ([06bdccc](https://github.com/highstate-io/highstate/commit/06bdccc))
+- Fix description visibility in UI ([bdbb34d](https://github.com/highstate-io/highstate/commit/bdbb34d))
+- Small fixes ([af036d3](https://github.com/highstate-io/highstate/commit/af036d3))
+- Fix k3s for multi node deployments ([035841e](https://github.com/highstate-io/highstate/commit/035841e))
+- Small fixes ([7d5d734](https://github.com/highstate-io/highstate/commit/7d5d734))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.11.7 (2025-11-16)
 
 ### 🩹 Fixes
