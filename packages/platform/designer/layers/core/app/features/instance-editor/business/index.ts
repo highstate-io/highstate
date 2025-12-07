@@ -331,7 +331,7 @@ export function createEditorArguments(
           expandableArguments.push({
             name,
             title: arg.meta.title,
-            description: arg.meta.description,
+            description: arg.meta.description ?? arg.schema.description,
             kind: "group",
             discriminator: discriminatorField,
             fields,
@@ -350,7 +350,7 @@ export function createEditorArguments(
         expandableArguments.push({
           name,
           title: arg.meta.title,
-          description: arg.meta.description,
+          description: arg.meta.description ?? arg.schema.description,
           kind: "structured",
           default: arg.schema.default,
         })
@@ -383,7 +383,7 @@ export function createEditorArguments(
           expandableArguments.push({
             name,
             title: arg.meta.title,
-            description: arg.meta.description,
+            description: arg.meta.description ?? arg.schema.description,
             kind: "group",
             discriminator: undefined,
             fields: { "": fields },
@@ -400,7 +400,7 @@ export function createEditorArguments(
       expandableArguments.push({
         name,
         title: arg.meta.title,
-        description: arg.meta.description,
+        description: arg.meta.description ?? arg.schema.description,
         kind: "code",
         language: z.string().optional().safeParse(arg.schema.language).data,
         default: arg.schema.default,
@@ -410,7 +410,13 @@ export function createEditorArguments(
     }
 
     // 3. then try to create a plain argument
-    const plainArg = tryCreatePlainArgument(name, arg.meta.title, arg.meta.description, arg.schema)
+    const plainArg = tryCreatePlainArgument(
+      name,
+      arg.meta.title,
+      arg.meta.description ?? arg.schema.description,
+      arg.schema,
+    )
+
     if (plainArg) {
       plainArguments.push(plainArg)
       continue
@@ -422,7 +428,7 @@ export function createEditorArguments(
     expandableArguments.push({
       name,
       title: arg.meta.title,
-      description: arg.meta.description,
+      description: arg.meta.description ?? arg.schema.description,
       kind: "structured",
       default: arg.schema.default,
     })

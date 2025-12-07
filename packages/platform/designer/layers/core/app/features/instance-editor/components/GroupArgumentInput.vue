@@ -93,15 +93,23 @@ watch(discriminatorValue, newValue => {
       </VBtn>
     </VBtnToggle> -->
 
-          <VSelect
-            :model-value="model[argument.discriminator.name]"
-            :items="Object.keys(argument.fields)"
-            :label="argument.discriminator.title"
-            variant="outlined"
-            density="compact"
-            hide-details
-            @update:model-value="handleModelChange(argument.discriminator.name, $event)"
-          />
+          <div>
+            <VSelect
+              :model-value="model[argument.discriminator.name]"
+              :items="Object.keys(argument.fields)"
+              :label="argument.discriminator.title"
+              variant="outlined"
+              density="compact"
+              hide-details
+              @update:model-value="handleModelChange(argument.discriminator.name, $event)"
+            />
+
+            <ArgumentDescription
+              v-if="argument.discriminator.description"
+              class="mt-2"
+              :description="argument.discriminator.description"
+            />
+          </div>
 
           <PlainArgumentInput
             v-for="field in argument.fields[discriminatorValue] ?? []"
