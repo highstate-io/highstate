@@ -50,6 +50,20 @@ export const cluster = defineUnit({
     config: z.record(z.string(), z.unknown()).optional(),
 
     /**
+     * The K3S configuration to pass to each server in the cluster.
+     *
+     * See: https://docs.k3s.io/installation/configuration
+     */
+    serverConfig: z.record(z.string(), z.unknown()).optional(),
+
+    /**
+     * The K3S configuration to pass to each agent in the cluster.
+     *
+     * See: https://docs.k3s.io/installation/configuration
+     */
+    agentConfig: z.record(z.string(), z.unknown()).optional(),
+
+    /**
      * The configuration of the registries to use for the K3S cluster.
      *
      * See: https://docs.k3s.io/installation/private-registry

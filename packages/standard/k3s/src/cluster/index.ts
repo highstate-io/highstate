@@ -41,23 +41,34 @@ const apiEndpoints = uniqueBy(
   l4EndpointToString,
 )
 
-const config: Record<string, unknown> = {
+const sharedConfig: Record<string, unknown> = {
   ...args.config,
+}
+
+const serverConfig: Record<string, unknown> = {
+  ...sharedConfig,
+  ...args.serverConfig,
   "tls-san": apiEndpoints.map(l3EndpointToString),
   disable: args.disabledComponents.filter(isIncludedIn(k3s.packagedComponents)),
 }
 
+const agentConfig: Record<string, unknown> = {
+  ...sharedConfig,
+  ...args.agentConfig,
+}
+
 for (const disabledComponent of args.disabledComponents) {
   if (isIncludedIn(disabledComponent, k3s.internalComponents)) {
-    config[`disable-${disabledComponent}`] = true
+    serverConfig[`disable-${disabledComponent}`] = true
   }
 }
 
 if (args.cni === "none") {
-  config["flannel-backend"] = "none"
+  serverConfig["flannel-backend"] = "none"
 }
 
-const configContent = JSON.stringify(config, null, 2)
+const serverConfigContent = JSON.stringify(serverConfig, null, 2)
+const agentConfigContent = JSON.stringify(agentConfig, null, 2)
 
 const seedInstallCommand = createNode(seed, "server", { K3S_CLUSTER_INIT: "true" })
 
@@ -102,7 +113,7 @@ function createNode(
   const configFileCommand = Command.createTextFile(`config-${server.hostname}`, {
     host: server,
     path: "/etc/rancher/k3s/config.yaml",
-    content: configContent,
+    content: type === "server" ? serverConfigContent : agentConfigContent,
   })
 
   const registryConfigFileCommand = Command.createTextFile(`registry-config-${server.hostname}`, {
