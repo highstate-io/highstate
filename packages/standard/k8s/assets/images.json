@@ -2,11 +2,11 @@
   "terminal-kubectl": {
     "name": "ghcr.io/highstate-io/highstate/terminal.kubectl",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/terminal.kubectl:latest@sha256:2cd011119f6098d41b5bb377420f0106577d3b289ae4fc7982b4578b23c82ef4"
+    "image": "ghcr.io/highstate-io/highstate/terminal.kubectl:latest@sha256:31cf095ec6acc0b3a5088c92483d88dc1e2e7dd7fcbf2ec8de29a0171debd8aa"
   },
   "worker.k8s-monitor": {
     "name": "ghcr.io/highstate-io/highstate/worker.k8s-monitor",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:66b985a97925d39a4c6e2b15cbeefadaadfce0cb4d6e5df8881cca85281383d5"
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:1a3743611f1ae0dce76e6eceede827271f426992aac60ab5fdf4ad5e2948e2cd"
   }
 }
