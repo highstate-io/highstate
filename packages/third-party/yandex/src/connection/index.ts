@@ -6,13 +6,8 @@ import { getIamServiceAccount, getResourcemanagerFolder, Provider } from "@highs
 const { args, secrets, outputs } = forUnit(yandex.connection)
 
 // parse service account key file to extract service account ID
-interface ServiceAccountKeyFile {
-  id: string
+type ServiceAccountKeyFile = {
   service_account_id: string
-  created_at: string
-  key_algorithm: string
-  public_key: string
-  private_key: string
 }
 
 const serviceAccountKeyFileString = await toPromise(secrets.serviceAccountKeyFile)
@@ -22,59 +17,45 @@ const serviceAccountId = keyFileData.service_account_id
 // create provider for auto-discovery
 const provider = new Provider("yandex", {
   serviceAccountKeyFile: serviceAccountKeyFileString,
-  zone: args.defaultZone,
-  regionId: args.regionId,
+  zone: args.region.defaultZone,
+  regionId: args.region.id,
 })
 
 // auto-discover service account details to get folder and cloud
 const serviceAccount = await getIamServiceAccount(
-  {
-    serviceAccountId: serviceAccountId,
-  },
+  { serviceAccountId: serviceAccountId },
   { provider },
 )
 
 // auto-discover cloud ID from folder
-const folder = await getResourcemanagerFolder(
-  {
-    folderId: serviceAccount.folderId,
-  },
-  { provider },
-)
-
+const folder = await getResourcemanagerFolder({ folderId: serviceAccount.folderId }, { provider })
 if (!folder.cloudId) {
   throw new Error("Could not determine cloud ID from folder")
 }
 
-const yandexCloud: Output<yandex.Cloud> = output({
+const connection: Output<yandex.Connection> = output({
   serviceAccountKeyFile: secrets.serviceAccountKeyFile,
   cloudId: folder.cloudId,
   defaultFolderId: serviceAccount.folderId,
-  defaultZone: args.defaultZone,
-  regionId: args.regionId,
+  defaultZone: args.region.defaultZone,
+  regionId: args.region.id,
 })
 
 export default outputs({
-  yandexCloud,
+  connection,
 
   $statusFields: {
     cloudId: {
       meta: {
         icon: "mdi:cloud",
       },
-      value: yandexCloud.cloudId,
+      value: connection.cloudId,
     },
     defaultFolderId: {
       meta: {
         icon: "mdi:folder",
       },
-      value: yandexCloud.defaultFolderId,
-    },
-    defaultZone: {
-      meta: {
-        icon: "mdi:map-marker",
-      },
-      value: yandexCloud.defaultZone,
+      value: connection.defaultFolderId,
     },
   },
 })

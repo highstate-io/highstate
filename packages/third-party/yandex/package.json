@@ -7,6 +7,8 @@
   ],
   "exports": {
     "./connection": "./dist/connection/index.js",
+    "./disk": "./dist/disk/index.js",
+    "./existing-image": "./dist/existing-image/index.js",
     "./virtual-machine": "./dist/virtual-machine/index.js"
   },
   "publishConfig": {
@@ -21,6 +23,7 @@
   },
   "dependencies": {
     "@highstate/common": "workspace:^0.10.0",
+    "@highstate/contract": "workspace:^0.10.0",
     "@highstate/library": "workspace:^0.10.0",
     "@highstate/pulumi": "workspace:^0.10.0",
     "@highstate/yandex-sdk": "workspace:^0.10.0",
