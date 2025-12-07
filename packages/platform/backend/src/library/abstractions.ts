@@ -25,6 +25,11 @@ export type ProjectEvaluationResult =
 
 export interface LibraryBackend {
   /**
+   * The base path for imports.
+   */
+  get importPath(): string
+
+  /**
    * Loads the library.
    */
   loadLibrary(libraryId: string | undefined, signal?: AbortSignal): Promise<LibraryModel>

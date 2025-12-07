@@ -656,6 +656,7 @@ export class RuntimeOperation {
       invokedTriggers,
       secretNames: Object.keys(secrets),
       stateIdMap: this.context.getInstanceIdToStateIdMap(instance.id),
+      importBasePath: this.libraryBackend.importPath,
     }
   }
 

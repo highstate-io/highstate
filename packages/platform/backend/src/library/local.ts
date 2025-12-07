@@ -63,7 +63,7 @@ type RebuildState = {
 export class LocalLibraryBackend implements LibraryBackend {
   private readonly watcher: Watcher
   private readonly workspacePath: string
-  private readonly importPath: string
+  readonly importPath: string
   private readonly workspacePatterns: string[]
 
   private readonly lock = new BetterLock()

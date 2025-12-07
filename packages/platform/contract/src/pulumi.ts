@@ -40,6 +40,12 @@ export const unitConfigSchema = z.object({
    * The map of instance ID to state ID in order to resolve instance references.
    */
   stateIdMap: z.record(instanceIdSchema, z.string()),
+
+  /**
+   * The base path for imports.
+   * Used to resolve dynamic dependencies in strict environments (like in pnpm node_modules isolation).
+   */
+  importBasePath: z.string(),
 })
 
 export type UnitConfig = z.infer<typeof unitConfigSchema>

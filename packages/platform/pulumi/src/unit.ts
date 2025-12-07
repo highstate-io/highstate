@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: здесь орать запрещено */
 
 import type { IsEmptyObject } from "type-fest"
+import { pathToFileURL } from "node:url"
 import {
   type ComponentInput,
   type ComponentInputSpec,
@@ -137,6 +138,7 @@ const stackRefMap = new Map<string, StackReference>()
 
 let instanceId: string | undefined
 let instanceName: string | undefined
+let importBaseUrl: URL | undefined
 
 /**
  * Returns the current unit instance id.
@@ -160,6 +162,17 @@ export function getUnitInstanceName(): string {
   }
 
   return instanceName
+}
+
+/**
+ * Returns the base URL for dynamic imports.
+ */
+export function getImportBaseUrl(): URL {
+  if (!importBaseUrl) {
+    throw new Error(`Import base URL is not set. Did you call "forUnit" function?`)
+  }
+
+  return importBaseUrl
 }
 
 /**
@@ -292,7 +305,7 @@ export function forUnit<
 
     if (!value) {
       if (input.multiple) {
-        return []
+        return output([])
       }
 
       return undefined
@@ -305,6 +318,7 @@ export function forUnit<
 
   instanceId = hsConfig.instanceId
   instanceName = name
+  importBaseUrl = pathToFileURL(hsConfig.importBasePath)
 
   return {
     instanceId: hsConfig.instanceId,

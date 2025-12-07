@@ -1,6 +1,14 @@
 import type { z } from "@highstate/contract"
 import type { ImplementationReference } from "@highstate/library"
-import { type Input, type Output, output, toPromise, type Unwrap } from "@highstate/pulumi"
+import {
+  getImportBaseUrl,
+  type Input,
+  type Output,
+  output,
+  toPromise,
+  type Unwrap,
+} from "@highstate/pulumi"
+import { resolve as importMetaResolve } from "import-meta-resolve"
 
 /**
  * The ImplementationMediator is used as a contract between the calling code and the implementation.
@@ -69,12 +77,12 @@ export class ImplementationMediator<
 
     let impl: Record<string, unknown>
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      impl = await import(importPath)
+      const fullUrl = importMetaResolve(importPath, getImportBaseUrl().toString())
+      impl = await import(fullUrl)
     } catch (error) {
-      throw new Error(`Failed to import module "${importPath}" required by implementation.`, {
-        cause: error,
-      })
+      console.error(`Failed to import module "${importPath}":`, String(error))
+
+      throw new Error("Failed to import module required by implementation.")
     }
 
     const funcs = Object.entries(impl).filter(value => typeof value[1] === "function") as [
@@ -97,7 +105,6 @@ export class ImplementationMediator<
 
     let result: unknown
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       result = await implFunc(resolvedInput, resolvedImplRef.data)
     } catch (error) {
       console.error(`Error in implementation function "${funcName}":`, error)
