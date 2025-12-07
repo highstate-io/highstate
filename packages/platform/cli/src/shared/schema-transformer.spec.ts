@@ -111,6 +111,29 @@ const spec = {
     expect(result).toContain("$addInputDescription(dataEntity, `The source data.`)")
   })
 
+  it("should handle standalone $inputs helper calls", async () => {
+    const input = `
+var inputs2 = $inputs({
+  /**
+   * The SSH key pair to use for authentication.
+   */
+  sshKeyPair: {
+    entity: keyPairEntity,
+    required: false,
+  },
+})`
+
+    const result = await applySchemaTransformations(input)
+
+    expect(result).toContain("$addInputDescription({")
+    expect(result).toContain("entity: keyPairEntity")
+    expect(result).toContain("required: false")
+    expect(result).toContain("}, `The SSH key pair to use for authentication.`)")
+    expect(result).toContain(
+      'import { $addArgumentDescription, $addInputDescription } from "@highstate/contract"',
+    )
+  })
+
   it("should handle $outputs marker function", async () => {
     const input = `
 const spec = {
@@ -141,6 +164,22 @@ const spec = {
     const result = await applySchemaTransformations(input)
 
     expect(result).toContain("$addArgumentDescription(Type.String(), `The database password.`)")
+  })
+
+  it("should handle standalone $args helper calls", async () => {
+    const input = `
+const extraArgs = $args({
+  /**
+   * The username to authenticate with.
+   */
+  sshUser: Type.String(),
+})`
+
+    const result = await applySchemaTransformations(input)
+
+    expect(result).toContain(
+      "$addArgumentDescription(Type.String(), `The username to authenticate with.`)",
+    )
   })
 
   it("should ignore properties without JSDoc comments", async () => {

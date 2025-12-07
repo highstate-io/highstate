@@ -94,9 +94,9 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
       // handle properties in args, inputs, outputs, secrets objects
       if (node.type === "Property" && "key" in node && node.key?.type === "Identifier") {
         const propertyNode = node
-        const parentKey = getParentObjectKey(parentStack)
+        const helperFunction = getHelperFunctionForProperty(parentStack)
 
-        if (parentKey && ["inputs", "outputs", "args", "secrets"].includes(parentKey)) {
+        if (helperFunction) {
           const jsdoc = findLeadingComment(content, node, comments)
 
           if (jsdoc) {
@@ -105,13 +105,6 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
               propertyNode.value.start,
               propertyNode.value.end,
             )
-
-            let helperFunction: string
-            if (["args", "secrets"].includes(parentKey)) {
-              helperFunction = "$addArgumentDescription"
-            } else {
-              helperFunction = "$addInputDescription"
-            }
 
             const newValue = `${helperFunction}(${originalValue}, \`${description}\`)`
             result.update(propertyNode.value.start, propertyNode.value.end, newValue)
@@ -253,17 +246,6 @@ function findLeadingComment(content: string, node: Node, comments: Comment[]): C
   return comments.find(comment => isLeadingComment(content, node, comment)) ?? null
 }
 
-function getParentObjectKey(parentStack: Node[]): string | null {
-  // walk up the parent stack to find the parent object property
-  for (let i = parentStack.length - 2; i >= 0; i--) {
-    const node = parentStack[i]
-    if (node.type === "Property" && "key" in node && node.key.type === "Identifier") {
-      return node.key.name
-    }
-  }
-  return null
-}
-
 function isLeadingComment(content: string, node: Node, comment: Comment) {
   if (comment.end > node.start) {
     return false
@@ -326,6 +308,58 @@ function isInsideZodObject(parentStack: Node[]): boolean {
     }
   }
   return false
+}
+
+function getHelperFunctionForProperty(
+  parentStack: Node[],
+): "$addInputDescription" | "$addArgumentDescription" | null {
+  if (parentStack.length < 3) {
+    return null
+  }
+
+  const objectExpression = parentStack[parentStack.length - 2]
+  if (!objectExpression || objectExpression.type !== "ObjectExpression") {
+    return null
+  }
+
+  const containerParent = parentStack[parentStack.length - 3]
+  if (!containerParent) {
+    return null
+  }
+
+  if (
+    containerParent.type === "Property" &&
+    "value" in containerParent &&
+    containerParent.value === objectExpression &&
+    containerParent.key?.type === "Identifier"
+  ) {
+    const keyName = containerParent.key.name
+    if (keyName === "inputs" || keyName === "outputs") {
+      return "$addInputDescription"
+    }
+    if (keyName === "args" || keyName === "secrets") {
+      return "$addArgumentDescription"
+    }
+
+    return null
+  }
+
+  if (
+    containerParent.type === "CallExpression" &&
+    containerParent.callee.type === "Identifier" &&
+    containerParent.arguments.length > 0 &&
+    containerParent.arguments[0] === objectExpression
+  ) {
+    const calleeName = containerParent.callee.name
+    if (calleeName === "$inputs" || calleeName === "$outputs") {
+      return "$addInputDescription"
+    }
+    if (calleeName === "$args" || calleeName === "$secrets") {
+      return "$addArgumentDescription"
+    }
+  }
+
+  return null
 }
 
 function isZodObjectCall(memberExpression: Node): boolean {
