@@ -237,7 +237,7 @@ export class DnsRecordSet extends ComponentResource {
     const matchedProviders = output({
       providers: args.providers,
       name: args.name ?? name,
-    }).apply(({ providers }) => {
+    }).apply(({ providers, name }) => {
       const matchedProviders = providers.filter(provider => name.endsWith(provider.domain))
 
       if (matchedProviders.length === 0) {
@@ -308,7 +308,9 @@ export class DnsRecordSet extends ComponentResource {
  * @param endpoints The list of endpoints to register. Will be modified in place.
  * @param fqdn The FQDN to register the DNS record set for. If not provided, no DNS record set will be created and array will not be modified.
  * @param fqdnEndpointFilter The filter to apply to the endpoints before passing them to the DNS record set. Does not apply to the resulted endpoint list.
+ * @param patchMode The patch mode to use when modifying the endpoints list.
  * @param dnsProviders The DNS providers to use to create the DNS records.
+ * @param dnsSetName The name of the DNS record set. If not provided, the FQDN will be used.
  */
 export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpoint>(
   endpoints: Input<TEndpoint[]>,
@@ -316,6 +318,7 @@ export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpo
   fqdnEndpointFilter: network.EndpointFilter,
   patchMode: ArrayPatchMode,
   dnsProviders: Input<dns.Provider[]>,
+  dnsSetName?: string,
 ): Promise<{ endpoints: TEndpoint[]; dnsRecordSet: DnsRecordSet | undefined }> {
   const resolvedEndpoints = await toPromise(endpoints)
 
@@ -328,7 +331,8 @@ export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpo
 
   const filteredEndpoints = filterEndpoints(resolvedEndpoints, fqdnEndpointFilter)
 
-  const dnsRecordSet = new DnsRecordSet(fqdn, {
+  const dnsRecordSet = new DnsRecordSet(dnsSetName ?? fqdn, {
+    name: fqdn,
     providers: dnsProviders,
     values: filteredEndpoints,
     waitAt: "local",

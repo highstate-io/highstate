@@ -85,7 +85,7 @@
   },
   "scripts": {
     "build": "highstate build",
-    "update-images": "../../scripts/update-images.sh ./assets/images.json",
+    "update-images": "../../../scripts/update-images.sh ./assets/images.json",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
@@ -100,7 +100,8 @@
     "minimatch": "^10.0.3",
     "remeda": "^2.21.0",
     "tar": "^7.4.3",
-    "unzipper": "^0.12.3"
+    "unzipper": "^0.12.3",
+    "import-meta-resolve": "^4.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

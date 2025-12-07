@@ -26,6 +26,7 @@
     "@highstate/k8s.monitor-worker": "workspace:^",
     "@highstate/k8s.obfuscators": "workspace:^",
     "@highstate/library": "workspace:^",
+    "@highstate/mullvad": "workspace:^",
     "@highstate/nixos": "workspace:^",
     "@highstate/proxmox": "workspace:^",
     "@highstate/restic": "workspace:^",

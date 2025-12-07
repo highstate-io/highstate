@@ -363,6 +363,9 @@ export abstract class Workload extends ScopedResource {
 
   protected abstract getTerminalMeta(): Output<UnitTerminal["meta"]>
 
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: for pulumi which for some reason tries to copy all properties
+  private set terminal(_value: never) {}
+
   /**
    * The instance terminal to interact with the deployment.
    */
