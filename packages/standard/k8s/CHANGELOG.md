@@ -1,3 +1,13 @@
+## 0.12.1 (2025-12-14)
+
+### 🩹 Fixes
+
+- Small fixes ([74c712d](https://github.com/highstate-io/highstate/commit/74c712d))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.12.0 (2025-12-07)
 
 ### 🩹 Fixes
