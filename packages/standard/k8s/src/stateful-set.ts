@@ -81,6 +81,7 @@ export abstract class StatefulSet extends ExposableWorkload {
       containers,
       namespace,
       metadata,
+      spec.template,
       networkPolicy,
       service,
       routes,
@@ -315,20 +316,17 @@ class CreatedStatefulSet extends StatefulSet {
 
 class StatefulSetPatch extends StatefulSet {
   constructor(name: string, args: StatefulSetArgs, opts?: ComponentResourceOptions) {
-    const { labels, podTemplate, networkPolicy, containers, service, routes } =
-      getExposableWorkloadComponents(name, args, () => this, opts)
+    const { podTemplate, networkPolicy, containers, service, routes } =
+      getExposableWorkloadComponents(name, args, () => this, opts, true)
 
     const statefulSet = output(args.namespace).cluster.apply(cluster => {
       return new apps.v1.StatefulSetPatch(
         name,
         {
           metadata: mapMetadata(args, name),
-          spec: output({ args, podTemplate, labels }).apply(({ args, podTemplate, labels }) => {
+          spec: output({ args, podTemplate }).apply(({ args, podTemplate }) => {
             return deepmerge(
-              {
-                template: podTemplate,
-                selector: { matchLabels: labels },
-              },
+              { template: podTemplate },
               omit(args, exposableWorkloadExtraArgs),
             ) as types.input.apps.v1.StatefulSetSpec
           }),

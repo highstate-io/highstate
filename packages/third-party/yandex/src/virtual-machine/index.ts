@@ -9,10 +9,12 @@ import {
 import { trimIndentation } from "@highstate/contract"
 import { yandex } from "@highstate/library"
 import { forUnit, getResourceComment, interpolate, toPromise } from "@highstate/pulumi"
-import { ComputeDisk, ComputeInstance, getVpcSubnet } from "@highstate/yandex-sdk"
+import { ComputeDisk, ComputeInstance, getVpcSubnet, VpcAddress } from "@highstate/yandex-sdk"
 import { createProvider } from "../provider"
 
 const { name, args, getSecret, inputs, outputs } = forUnit(yandex.virtualMachine)
+
+const vmName = args.vmName ?? name
 
 const provider = await createProvider(inputs.connection)
 
@@ -44,9 +46,9 @@ if (!subnetId) {
 
 // create the disk
 const disk = new ComputeDisk(
-  name,
+  "disk",
   {
-    name: args.vmName ?? name,
+    name: vmName,
     type: args.bootDisk.type,
     size: args.bootDisk.size,
     imageId: inputs.image.id,
@@ -60,7 +62,7 @@ const disk = new ComputeDisk(
 // create cloud-init user data
 const userData = interpolate`
   #cloud-config
-  hostname: ${args.vmName ?? name}
+  hostname: ${vmName}
   users:
     - name: root
       ssh-authorized-keys:
@@ -68,15 +70,32 @@ const userData = interpolate`
       sudo: ALL=(ALL) NOPASSWD:ALL
 `.apply(trimIndentation)
 
+let address: VpcAddress | undefined
+
+if (args.network.assignPublicIp && args.network.reservePublicIp) {
+  address = new VpcAddress(
+    "address",
+    {
+      name: vmName,
+      description: getResourceComment(),
+      externalIpv4Address: {
+        zoneId: inputs.connection.defaultZone,
+      },
+    },
+    { provider },
+  )
+}
+
 // create the instance
 const instance = new ComputeInstance(
-  name,
+  "virtual-machine",
   {
-    name: args.vmName ?? name,
+    name: vmName,
     description: getResourceComment(),
     folderId: inputs.connection.defaultFolderId,
     zone: inputs.connection.defaultZone,
     platformId: args.platformId,
+    allowStoppingForUpdate: true,
 
     resources: {
       cores: args.resources.cores,
@@ -92,6 +111,7 @@ const instance = new ComputeInstance(
       {
         subnetId: subnetId,
         nat: args.network.assignPublicIp,
+        natIpAddress: address ? address.externalIpv4Address.apply(a => a!.address) : undefined,
       },
     ],
 
@@ -117,7 +137,7 @@ if (!publicIp) {
 const endpoint = parseL3Endpoint(publicIp)
 
 const { server, terminal } = await createServerBundle({
-  name,
+  name: vmName,
   endpoints: [endpoint],
   sshArgs: args.ssh,
   sshPassword: rootPassword,

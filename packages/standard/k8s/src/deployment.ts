@@ -81,6 +81,7 @@ export abstract class Deployment extends ExposableWorkload {
       containers,
       namespace,
       metadata,
+      spec.template,
       networkPolicy,
       service,
       routes,
@@ -294,20 +295,17 @@ class CreatedDeployment extends Deployment {
 
 class DeploymentPatch extends Deployment {
   constructor(name: string, args: DeploymentArgs, opts?: ComponentResourceOptions) {
-    const { labels, podTemplate, networkPolicy, containers, service, routes } =
-      getExposableWorkloadComponents(name, args, () => this, opts)
+    const { podTemplate, networkPolicy, containers, service, routes } =
+      getExposableWorkloadComponents(name, args, () => this, opts, true)
 
     const deployment = output(args.namespace).cluster.apply(cluster => {
       return new apps.v1.DeploymentPatch(
         name,
         {
           metadata: mapMetadata(args, name),
-          spec: output({ args, podTemplate, labels }).apply(({ args, podTemplate, labels }) => {
+          spec: output({ args, podTemplate }).apply(({ args, podTemplate }) => {
             return deepmerge(
-              {
-                template: podTemplate,
-                selector: { matchLabels: labels },
-              },
+              { template: podTemplate },
               omit(args, exposableWorkloadExtraArgs),
             ) as types.input.apps.v1.DeploymentSpec
           }),

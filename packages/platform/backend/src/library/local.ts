@@ -539,9 +539,10 @@ export class LocalLibraryBackend implements LibraryBackend {
   }
 
   private async resolveLibraryPackageForPath(path: string): Promise<LibraryPackage | null> {
-    const existingPackage = Array.from(this.packages.values()).find(pkg =>
-      path.startsWith(pkg.rootPath),
-    )
+    const existingPackage = Array.from(this.packages.values())
+      .filter(pkg => path === pkg.rootPath || path.startsWith(`${pkg.rootPath}/`))
+      .toSorted((a, b) => b.rootPath.length - a.rootPath.length)
+      .at(0)
 
     if (existingPackage) {
       return existingPackage

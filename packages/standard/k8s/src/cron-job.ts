@@ -84,6 +84,7 @@ export abstract class CronJob extends Workload {
       containers,
       namespace,
       metadata,
+      spec.jobTemplate.spec.template,
       networkPolicy,
     )
   }
@@ -313,6 +314,7 @@ class CronJobPatch extends CronJob {
       args,
       () => this,
       opts,
+      true,
     )
 
     const cronJob = output(args.namespace).cluster.apply(cluster => {

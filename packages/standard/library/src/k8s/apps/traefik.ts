@@ -14,7 +14,13 @@ export const traefik = defineUnit({
   args: {
     ...appName("traefik"),
     ...pick(sharedArgs, ["external", "replicas", "endpoints"]),
-    className: z.string().optional(),
+
+    /**
+     * The name of the class to configure for ingress and gateway resources.
+     *
+     * Defaults to "traefik".
+     */
+    className: z.string().default("traefik"),
   },
 
   inputs: {

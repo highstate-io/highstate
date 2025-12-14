@@ -7,10 +7,12 @@ const { name, args, inputs, outputs } = forUnit(yandex.disk)
 
 const provider = await createProvider(inputs.connection)
 
+const diskName = args.diskName ?? name
+
 const disk = new ComputeDisk(
-  args.diskName ?? name,
+  "disk",
   {
-    name: args.diskName ?? name,
+    name: diskName,
     description: getResourceComment(),
     type: args.type,
     size: args.size,

@@ -9,7 +9,7 @@ import { MaterializedRepository } from "@highstate/git"
 import { nixos } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
 
-const { name, args, inputs, outputs } = forUnit(nixos.system)
+const { args, inputs, outputs } = forUnit(nixos.system)
 
 const { flake, server } = await toPromise(inputs)
 
@@ -30,7 +30,7 @@ const hostKey = await MaterializedFile.open(createSshHostKeyFile(server))
 
 const system = args.system ?? server.hostname
 
-await new Command(name, {
+await new Command("system", {
   host: "local",
 
   // install the system using nixos-anywhere if not already installed

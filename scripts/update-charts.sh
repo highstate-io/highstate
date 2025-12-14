@@ -46,31 +46,38 @@ for key in $chart_keys; do
     # Create a temporary directory for pulling the chart.
     tmp_dir=$(mktemp -d)
 
-    if [ "$LATEST_FLAG" = true ]; then
-        # Pull the chart without specifying version.
-        helm pull "$name" --destination "$tmp_dir" --repo "$repo"
-        # Find the downloaded .tgz file.
-        tgz_file=$(find "$tmp_dir" -maxdepth 1 -name "*.tgz" | head -n 1)
-        if [ -z "$tgz_file" ]; then
-            echo "Failed to pull chart for $key"
-            rm -rf "$tmp_dir"
-            continue
+    if [[ "$repo" == oci://* ]]; then
+        chart_ref="${repo%/}/$name"
+
+        if [ "$LATEST_FLAG" = true ]; then
+            helm pull "$chart_ref" --destination "$tmp_dir"
+        else
+            helm pull "$chart_ref" --version "$version" --destination "$tmp_dir"
         fi
+    else
+        if [ "$LATEST_FLAG" = true ]; then
+            # Pull the chart without specifying version.
+            helm pull "$name" --destination "$tmp_dir" --repo "$repo"
+        else
+            # Pull the chart using the exact version.
+            helm pull "$name" --version "$version" --destination "$tmp_dir" --repo "$repo"
+        fi
+    fi
+
+    tgz_file=$(find "$tmp_dir" -maxdepth 1 -name "*.tgz" | head -n 1)
+    if [ -z "$tgz_file" ]; then
+        echo "Failed to pull chart for $key"
+        rm -rf "$tmp_dir"
+        continue
+    fi
+
+    if [ "$LATEST_FLAG" = true ]; then
         # Extract version from the filename.
         # Assumes filename format: name-version.tgz
         base=$(basename "$tgz_file")
         new_version="${base%.tgz}"
         new_version="${new_version#$name-}"
         version="$new_version"
-    else
-        # Pull the chart using the exact version.
-        helm pull "$name" --version "$version" --destination "$tmp_dir" --repo "$repo"
-        tgz_file=$(find "$tmp_dir" -maxdepth 1 -name "*.tgz" | head -n 1)
-        if [ -z "$tgz_file" ]; then
-            echo "Failed to pull chart for $key"
-            rm -rf "$tmp_dir"
-            continue
-        fi
     fi
 
     # Calculate the SHA256 checksum of the chart tarball.

@@ -42,7 +42,10 @@ const databaseEndpoint = databaseHost.apply(host => ({
       clusterName: k8sCluster.name,
       name: args.appName,
       namespace: args.appName,
-      selector: { "app.kubernetes.io/name": args.appName },
+      selector: {
+        "app.kubernetes.io/name": args.appName,
+        "app.kubernetes.io/instance": args.appName,
+      },
       targetPort: 5432,
     },
   } satisfies k8s.EndpointServiceMetadata,
@@ -95,24 +98,21 @@ const chart = new Chart(
 
     values: {
       fullnameOverride: args.appName,
+      nameOverride: args.appName,
 
-      volumePermissions: {
-        enabled: true,
+      auth: {
+        existingSecret: rootPasswordSecret.metadata.name,
       },
 
-      primary: {
-        persistence: {
-          existingClaim: dataVolumeClaim.metadata.name,
-        },
-
-        pgHbaConfiguration: [
+      config: {
+        pgHbaConfig: [
           "host  all         all 0.0.0.0/0 scram-sha-256",
           "host  replication all 0.0.0.0/0 scram-sha-256",
         ].join("\n"),
       },
 
-      auth: {
-        existingSecret: rootPasswordSecret.metadata.name,
+      persistence: {
+        existingClaim: dataVolumeClaim.metadata.name,
       },
     },
 

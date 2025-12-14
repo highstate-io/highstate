@@ -1,25 +1,30 @@
-import { generatePassword, l3EndpointToL4, l4EndpointToString } from "@highstate/common"
+import {
+  generateKey,
+  generatePassword,
+  l3EndpointToL4,
+  l4EndpointToString,
+} from "@highstate/common"
 import { Chart, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, interpolate, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
 import { charts } from "../../shared"
-import { backupEnvironment } from "../scripts"
 
-const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.mongodb)
+const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.minio)
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
-const rootPassword = getSecret("rootPassword", generatePassword)
-const backupKey = getSecret("backupKey", generatePassword)
+const secretKey = getSecret("secretKey", generatePassword)
+const backupKey = getSecret("backupKey", generateKey)
 
-const rootPasswordSecret = Secret.create(
-  `${args.appName}-root-password`,
+const credentialsSecret = Secret.create(
+  `${args.appName}-credentials`,
   {
     namespace,
 
     stringData: {
-      "mongodb-root-password": rootPassword,
+      "root-user": args.accessKey,
+      "root-password": secretKey,
     },
   },
   { deletedWith: namespace },
@@ -32,10 +37,10 @@ const dataVolumeClaim = PersistentVolumeClaim.create(
 )
 
 const k8sCluster = await toPromise(inputs.k8sCluster)
-const databaseHost = interpolate`${args.appName}.${namespace.metadata.name}.svc.cluster.local`
+const apiHost = interpolate`${args.appName}.${namespace.metadata.name}.svc.cluster.local`
 
-const databaseEndpoint = databaseHost.apply(host => ({
-  ...l3EndpointToL4(host, 27017),
+const apiEndpoint = apiHost.apply(host => ({
+  ...l3EndpointToL4(host, 9000),
   metadata: {
     "k8s.service": {
       clusterId: k8sCluster.id,
@@ -46,10 +51,23 @@ const databaseEndpoint = databaseHost.apply(host => ({
         "app.kubernetes.io/name": args.appName,
         "app.kubernetes.io/instance": args.appName,
       },
-      targetPort: 27017,
+      targetPort: 9000,
     },
   } satisfies k8s.EndpointServiceMetadata,
 }))
+
+const defaultBuckets =
+  args.buckets.length === 0
+    ? ""
+    : args.buckets
+        .map(bucket => {
+          if (bucket.policy && bucket.policy !== "none") {
+            return `${bucket.name}:${bucket.policy}`
+          }
+
+          return bucket.name
+        })
+        .join(",")
 
 const backupJobPair = inputs.resticRepo
   ? new BackupJobPair(
@@ -60,69 +78,77 @@ const backupJobPair = inputs.resticRepo
         resticRepo: inputs.resticRepo,
         backupKey,
 
-        environments: [backupEnvironment],
-
-        backupContainer: {
-          image:
-            "alpine/mongosh@sha256:2d7a9cb13f433ae72c13019db935e74831359a022f0a89282e5294cf578db3bc",
-        },
-
         restoreContainer: {
-          image:
-            "alpine/mongosh@sha256:2d7a9cb13f433ae72c13019db935e74831359a022f0a89282e5294cf578db3bc",
-        },
+          volume: dataVolumeClaim,
 
-        environment: {
-          environment: {
-            MONGODB_ROOT_PASSWORD: {
-              secret: rootPasswordSecret,
-              key: "mongodb-root-password",
-            },
-            DATABASE_HOST: interpolate`${args.appName}.${namespace.metadata.name}.svc`,
+          volumeMount: {
+            volume: dataVolumeClaim,
+            mountPath: "/data",
           },
         },
 
-        allowedEndpoints: [databaseEndpoint],
+        backupContainer: {
+          volume: dataVolumeClaim,
+
+          volumeMount: {
+            volume: dataVolumeClaim,
+            mountPath: "/data",
+          },
+        },
+
+        allowedEndpoints: [apiEndpoint],
       },
       { dependsOn: dataVolumeClaim, deletedWith: namespace },
     )
   : undefined
+
+const chartDependsOn = backupJobPair ? [credentialsSecret, backupJobPair] : [credentialsSecret]
 
 const chart = new Chart(
   args.appName,
   {
     namespace,
 
-    chart: charts.mongodb,
+    chart: charts.minio,
 
     values: {
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
       auth: {
-        rootUsername: "root",
-        existingSecret: rootPasswordSecret.metadata.name,
+        rootUser: args.accessKey,
+        existingSecret: credentialsSecret.metadata.name,
+        existingSecretUserKey: "root-user",
+        existingSecretPasswordKey: "root-password",
+      },
+
+      config: {
+        region: args.region,
       },
 
       persistence: {
         existingClaim: dataVolumeClaim.metadata.name,
       },
+
+      defaultBuckets,
     },
 
     service: {
       external: args.external,
     },
   },
-  { dependsOn: backupJobPair, deletedWith: namespace },
+  { dependsOn: chartDependsOn, deletedWith: namespace },
 )
 
 const endpoints = await toPromise(chart.service.endpoints)
 
 export default outputs({
-  mongodb: {
+  s3: {
     endpoints,
-    username: "root",
-    password: rootPassword,
+    region: args.region,
+    accessKey: args.accessKey,
+    secretKey,
+    buckets: args.buckets,
   },
   service: chart.service.entity,
   endpoints,

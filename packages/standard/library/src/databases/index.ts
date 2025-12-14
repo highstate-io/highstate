@@ -1,4 +1,6 @@
 export * from "./mariadb"
 export * from "./mongodb"
 export * from "./postgresql"
+export * from "./redis"
+export * from "./s3"
 export * from "./shared"

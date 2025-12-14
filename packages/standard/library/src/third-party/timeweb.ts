@@ -47,6 +47,13 @@ export const virtualMachine = defineUnit({
 
   args: {
     /**
+     * The name of the virtual machine.
+     *
+     * If not provided, the name of the unit will be used.
+     */
+    vmName: z.string().optional(),
+
+    /**
      * The ID of the preset to use for the virtual machine.
      *
      * Can be obtained from the Timeweb control panel when creating a new virtual machine.
@@ -97,3 +104,5 @@ export const virtualMachine = defineUnit({
     path: "virtual-machine",
   },
 })
+
+export type Connection = z.infer<typeof connectionEntity.schema>

@@ -78,6 +78,7 @@ export abstract class Job extends Workload {
       containers,
       namespace,
       metadata,
+      spec.template,
       networkPolicy,
     )
   }
@@ -298,6 +299,7 @@ class JobPatch extends Job {
       args,
       () => this,
       opts,
+      true,
     )
 
     const job = output(args.namespace).cluster.apply(cluster => {

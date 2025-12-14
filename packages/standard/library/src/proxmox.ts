@@ -261,6 +261,13 @@ export const virtualMachine = defineUnit({
 
   args: {
     /**
+     * The name of the virtual machine.
+     *
+     * If not specified, the unit name will be used.
+     */
+    vmName: z.string().optional(),
+
+    /**
      * The name of the node to create the virtual machine on.
      *
      * If not specified, the default node name from the cluster will be used.

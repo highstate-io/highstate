@@ -14,6 +14,8 @@ import { createProvider } from "../provider"
 
 const { name, args, getSecret, inputs, outputs } = forUnit(proxmox.virtualMachine)
 
+const vmName = args.vmName ?? name
+
 const provider = await createProvider(inputs.proxmoxCluster)
 
 const nodeName = args.nodeName ?? inputs.proxmoxCluster.defaultNodeName
@@ -26,9 +28,9 @@ const sshKeyPair =
 const rootPassword = getSecret("rootPassword", generatePassword)
 
 const machine = new vm.VirtualMachine(
-  name,
+  "virtual-machine",
   {
-    name,
+    name: vmName,
     nodeName,
     description: getResourceComment(),
     agent: {
@@ -97,7 +99,7 @@ function createCloudInit(): VM.VirtualMachineInitialization {
         nodeName,
         contentType: "snippets",
         sourceRaw: {
-          fileName: `${name}-vendor-data.yaml`,
+          fileName: `${vmName}-vendor-data.yaml`,
           data: vendorData,
         },
       },
@@ -147,7 +149,7 @@ const nonLocalHostIpV4 = findNonLocalHostIpV4(ipv4Addresses)
 const endpoint = parseL3Endpoint(nonLocalHostIpV4)
 
 const { server, terminal } = await createServerBundle({
-  name,
+  name: vmName,
   endpoints: [endpoint],
   sshArgs: args.ssh,
   sshPassword: rootPassword,
@@ -161,7 +163,7 @@ export default outputs({
 
   $statusFields: {
     endpoints: [l3EndpointToString(endpoint)],
-    hostname: name,
+    hostname: vmName,
   },
 
   $terminals: [terminal],

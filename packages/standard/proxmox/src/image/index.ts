@@ -4,7 +4,7 @@ import { forUnit, output, toPromise } from "@highstate/pulumi"
 import { download } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
-const { name, args, inputs, outputs } = forUnit(proxmox.image)
+const { args, inputs, outputs } = forUnit(proxmox.image)
 
 const provider = await createProvider(inputs.proxmoxCluster)
 
@@ -26,7 +26,7 @@ if (!url) {
 }
 
 const file = new download.File(
-  name,
+  "image",
   {
     contentType: "iso",
     checksumAlgorithm: checksum?.algorithm,

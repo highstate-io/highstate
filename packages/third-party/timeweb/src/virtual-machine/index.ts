@@ -7,26 +7,28 @@ import {
 } from "@highstate/common"
 import { timeweb } from "@highstate/library"
 import { forUnit, getResourceComment, toPromise } from "@highstate/pulumi"
-import { FloatingIp, Provider, SshKey, Server as TimewebServer } from "@highstate/timeweb-sdk"
+import { FloatingIp, SshKey, Server as TimewebServer } from "@highstate/timeweb-sdk"
+import { createProvider } from "../provider"
 
 const { name, args, secrets, getSecret, inputs, outputs } = forUnit(timeweb.virtualMachine)
 
-const provider = new Provider(name, { token: inputs.connection.apiToken })
+const provider = await createProvider(inputs.connection)
 
+const vmName = args.vmName ?? name
 const sshPrivateKey = getSecret("sshPrivateKey", generateSshPrivateKey)
 const keyPair = sshPrivateKeyToKeyPair(sshPrivateKey)
 
 const sshKey = new SshKey(
-  name,
+  "ssh-key",
   {
-    name,
+    name: vmName,
     body: keyPair.publicKey,
   },
   { provider },
 )
 
 const floatingIp = new FloatingIp(
-  name,
+  "address",
   {
     comment: getResourceComment(),
     availabilityZone: args.availabilityZone,
@@ -36,9 +38,9 @@ const floatingIp = new FloatingIp(
 )
 
 new TimewebServer(
-  name,
+  "virtual-machine",
   {
-    name,
+    name: vmName,
     comment: getResourceComment(),
     availabilityZone: args.availabilityZone,
     floatingIpId: floatingIp.id,
@@ -54,7 +56,7 @@ const serverIp = await toPromise(floatingIp.ip)
 const endpoint = parseL3Endpoint(serverIp)
 
 const { server, terminal } = await createServerBundle({
-  name,
+  name: vmName,
   endpoints: [endpoint],
   sshArgs: args.ssh,
   sshPrivateKey,

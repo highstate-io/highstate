@@ -3,12 +3,12 @@ import { forUnit } from "@highstate/pulumi"
 import { storage } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
-const { name, args, inputs, outputs } = forUnit(proxmox.existingImage)
+const { args, inputs, outputs } = forUnit(proxmox.existingImage)
 
 const provider = await createProvider(inputs.proxmoxCluster)
 
 const image = storage.File.get(
-  name,
+  "image",
   args.id,
   {
     datastoreId: inputs.proxmoxCluster.defaultDatastoreId,

@@ -253,6 +253,11 @@ export class Chart extends ComponentResource {
     })
   }
 
+  private set service(_value: never) {}
+
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: for pulumi which for some reason tries to copy all properties
+  private set terminals(_value: never) {}
+
   get service(): Output<Service> {
     return this.getServiceOutput(undefined)
   }
@@ -388,16 +393,16 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
   }
 
   // download the chart
-  await spawn("helm", [
-    "pull",
-    manifest.name,
-    "--version",
-    manifest.version,
-    "--repo",
-    manifest.repo,
-    "--destination",
-    chartsDir,
-  ])
+  const isOci = manifest.repo.startsWith("oci://")
+  const chartRef = isOci ? `${manifest.repo.replace(/\/$/, "")}/${manifest.name}` : manifest.name
+
+  const pullArgs = ["pull", chartRef, "--version", manifest.version, "--destination", chartsDir]
+
+  if (!isOci) {
+    pullArgs.push("--repo", manifest.repo)
+  }
+
+  await spawn("helm", pullArgs)
 
   // check the SHA256
   const content = await readFile(resolve(chartsDir, targetFileName))

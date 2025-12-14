@@ -12,27 +12,33 @@
     "sha256": "b3232b170399889871931e1d3c5cac4c9932c5a6681d229dccbee08e1550fa1f"
   },
   "mariadb": {
-    "repo": "https://charts.bitnami.com/bitnami",
+    "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "mariadb",
-    "version": "21.0.3",
-    "sha256": "d06001cd525603fcb79799ef5ccfabc48142a0541bd3f51eb0b1e13e01b256a3"
+    "version": "0.10.0",
+    "sha256": "01205a0dff8efdea12af0ef7fa4e44bbbac21ded0f8f4c97885d5258a21d629c"
   },
   "postgresql": {
-    "repo": "https://charts.bitnami.com/bitnami",
-    "name": "postgresql",
-    "version": "16.7.21",
-    "sha256": "05d71a3897818dec0227a9e88cde3909c63632c920a14a28348c0ebe2a8ea18b"
+    "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
+    "name": "postgres",
+    "version": "0.13.4",
+    "sha256": "d474a9c8fd2514d79890dcfee6dd5b7d960b87b5dc959ea85c687e43b1305395"
   },
   "mongodb": {
-    "repo": "https://charts.bitnami.com/bitnami",
+    "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "mongodb",
-    "version": "16.5.36",
-    "sha256": "0c46b6440f104bd002cfe04201e035241de669bb5e236480f2a68c9fa887f488"
+    "version": "0.7.0",
+    "sha256": "1513a650f8ad2a6c28ec29f2244567e72f925f3af023615a0859dc6c1e723079"
   },
-  "redis": {
-    "repo": "https://charts.bitnami.com/bitnami",
-    "name": "redis",
-    "version": "21.2.14",
-    "sha256": "17ce7f9bb622903bc8b75a7c62e60fad1c54063d626fc5d31b238227efc34c46"
+  "minio": {
+    "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
+    "name": "minio",
+    "version": "0.5.7",
+    "sha256": "a78ef8787b3058f5abab5d9734bb3a5474391dfa3000a3823c0fd9bfcabd69f1"
+  },
+  "valkey": {
+    "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
+    "name": "valkey",
+    "version": "0.13.0",
+    "sha256": "52de74f777c0c9e200a833b11c1c1938e90aaf4a6be60bbe7083b8ac496746e5"
   }
 }

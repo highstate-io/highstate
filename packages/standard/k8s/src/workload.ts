@@ -149,10 +149,10 @@ export function getWorkloadComponents(
   args: WorkloadArgs,
   parent: () => ComponentResource,
   opts: ComponentResourceOptions | undefined,
+  isForPatch?: boolean,
 ) {
-  const labels = {
-    "app.kubernetes.io/name": name,
-  }
+  // do not set labels when patching to avoid overwriting existing labels
+  const labels = isForPatch ? undefined : { "app.kubernetes.io/name": name }
 
   const containers = output(args).apply(args => normalize(args.container, args.containers))
   const initContainers = output(args).apply(args =>
@@ -229,7 +229,8 @@ export function getWorkloadComponents(
         labels,
         annotations: {
           // to trigger a redeployment when the volumes change
-          "highstate.io/dependency-hash": dependencyHash,
+          // we embed a hash as annotation name (not value) to allow patching without conflicts
+          [`highstate.io/dependency-hash-${dependencyHash}`]: "1",
         },
       },
       spec: podSpec,
@@ -237,6 +238,10 @@ export function getWorkloadComponents(
   })
 
   const networkPolicy = output({ containers }).apply(({ containers }) => {
+    if (isForPatch) {
+      return output(undefined)
+    }
+
     const allowedEndpoints = containers.flatMap(container => container.allowedEndpoints ?? [])
 
     if (allowedEndpoints.length === 0 && !args.networkPolicy) {
@@ -271,9 +276,10 @@ export function getExposableWorkloadComponents(
   args: ExposableWorkloadArgs,
   parent: () => ComponentResource,
   opts: ComponentResourceOptions | undefined,
+  isForPatch?: boolean,
 ) {
   const { labels, containers, volumes, podSpec, podTemplate, networkPolicy } =
-    getWorkloadComponents(name, args, parent, opts)
+    getWorkloadComponents(name, args, parent, opts, isForPatch)
 
   const service = output({
     existing: args.existing,
@@ -350,6 +356,11 @@ export abstract class Workload extends ScopedResource {
     metadata: Output<types.output.meta.v1.ObjectMeta>,
 
     /**
+     * The rendered pod template of the workload.
+     */
+    readonly podTemplate: Output<types.output.core.v1.PodTemplateSpec>,
+
+    /**
      * The network policy associated with the workload.
      *
      * Will be created if one or more containers have `allowedEndpoints` defined.
@@ -370,9 +381,7 @@ export abstract class Workload extends ScopedResource {
    * The instance terminal to interact with the deployment.
    */
   get terminal(): Output<UnitTerminal> {
-    const containerName = output(this.containers).apply(containers => {
-      return containers[0]?.name ?? this.name
-    })
+    const containerName = this.podTemplate.spec.containers.apply(containers => containers[0].name)
 
     const shell = this.terminalArgs.apply(args => args.shell ?? "bash")
 
@@ -521,6 +530,7 @@ export abstract class ExposableWorkload extends Workload {
     containers: Output<Container[]>,
     namespace: Output<Namespace>,
     metadata: Output<types.output.meta.v1.ObjectMeta>,
+    podTemplate: Output<types.output.core.v1.PodTemplateSpec>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
     protected readonly _service: Output<Service | undefined>,
@@ -541,9 +551,16 @@ export abstract class ExposableWorkload extends Workload {
       containers,
       namespace,
       metadata,
+      podTemplate,
       networkPolicy,
     )
   }
+
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: for pulumi which for some reason tries to copy all properties
+  private set optionalService(_value: never) {}
+
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: for pulumi which for some reason tries to copy all properties
+  private set service(_value: never) {}
 
   /**
    * The service associated with the workload.

@@ -6,7 +6,9 @@ import {
   getRuntimeInstances,
   type InstanceModel,
   InstanceNameConflictError,
+  parseArgumentValue,
 } from "@highstate/contract"
+import { mapValues } from "remeda"
 import { errorToString } from "../../common"
 
 export function evaluateProject(
@@ -98,9 +100,11 @@ export function evaluateProject(
       throw new Error(`Component not found: ${instance.type}, required by instance: ${instance.id}`)
     }
 
+    const parsedArgs = mapValues(instance.args ?? {}, rawValue => parseArgumentValue(rawValue))
+
     return component({
       name: instance.name,
-      args: instance.args as Record<string, never>,
+      args: parsedArgs as Record<string, never>,
       inputs: inputs as Record<string, never>,
     })
   }

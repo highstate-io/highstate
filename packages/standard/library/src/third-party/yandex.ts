@@ -342,6 +342,15 @@ export const virtualMachine = defineUnit({
          * Whether to assign a public IP.
          */
         assignPublicIp: z.boolean().default(true),
+
+        /**
+         * Whether to reserve the public IP permanently.
+         *
+         * If not set, the public IP can be changed when the VM is stopped and started again.
+         *
+         * Makes no sense if `assignPublicIp` is false.
+         */
+        reservePublicIp: z.boolean().default(true),
       })
       .prefault({}),
 

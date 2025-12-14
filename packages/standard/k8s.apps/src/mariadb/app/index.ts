@@ -55,7 +55,10 @@ const databaseEndpoint = databaseHost.apply(host => ({
       clusterName: k8sCluster.name,
       name: args.appName,
       namespace: args.appName,
-      selector: { "app.kubernetes.io/name": args.appName },
+      selector: {
+        "app.kubernetes.io/name": args.appName,
+        "app.kubernetes.io/instance": args.appName,
+      },
       targetPort: 3306,
     },
   } satisfies k8s.EndpointServiceMetadata,
@@ -89,7 +92,7 @@ const backupJobPair = inputs.resticRepo
 
           volumeMount: {
             volume: dataVolumeClaim,
-            mountPath: "/bitnami/mariadb",
+            mountPath: "/var/lib/mysql",
           },
         },
 
@@ -99,7 +102,6 @@ const backupJobPair = inputs.resticRepo
           volumeMount: {
             volume: dataVolumeClaim,
             mountPath: "/data",
-            subPath: "data",
           },
         },
 
@@ -118,15 +120,23 @@ const chart = new Chart(
 
     values: {
       fullnameOverride: args.appName,
+      nameOverride: args.appName,
+
       auth: {
-        database: "",
         existingSecret: rootPasswordSecret.metadata.name,
-      },
-      primary: {
-        persistence: {
-          existingClaim: dataVolumeClaim.metadata.name,
+        secretKeys: {
+          rootPasswordKey: "mariadb-root-password",
         },
       },
+
+      persistence: {
+        existingClaim: dataVolumeClaim.metadata.name,
+      },
+
+      metrics: {
+        enabled: false,
+      },
+
       networkPolicy: {
         enabled: false,
       },

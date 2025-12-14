@@ -1,29 +1,16 @@
-import { generatePassword, l3EndpointToL4, l4EndpointToString } from "@highstate/common"
-import { Chart, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
+import { generateKey, l3EndpointToL4, l4EndpointToString } from "@highstate/common"
+import { Chart, Namespace, PersistentVolumeClaim } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, interpolate, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
 import { charts } from "../../shared"
 import { backupEnvironment } from "../scripts"
 
-const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.mongodb)
+const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.valkey)
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
-const rootPassword = getSecret("rootPassword", generatePassword)
-const backupKey = getSecret("backupKey", generatePassword)
-
-const rootPasswordSecret = Secret.create(
-  `${args.appName}-root-password`,
-  {
-    namespace,
-
-    stringData: {
-      "mongodb-root-password": rootPassword,
-    },
-  },
-  { deletedWith: namespace },
-)
+const backupKey = getSecret("backupKey", generateKey)
 
 const dataVolumeClaim = PersistentVolumeClaim.create(
   `${args.appName}-data`,
@@ -32,10 +19,10 @@ const dataVolumeClaim = PersistentVolumeClaim.create(
 )
 
 const k8sCluster = await toPromise(inputs.k8sCluster)
-const databaseHost = interpolate`${args.appName}.${namespace.metadata.name}.svc.cluster.local`
+const serviceHost = interpolate`${args.appName}.${namespace.metadata.name}.svc.cluster.local`
 
-const databaseEndpoint = databaseHost.apply(host => ({
-  ...l3EndpointToL4(host, 27017),
+const serviceEndpoint = serviceHost.apply(host => ({
+  ...l3EndpointToL4(host, 6379),
   metadata: {
     "k8s.service": {
       clusterId: k8sCluster.id,
@@ -46,7 +33,7 @@ const databaseEndpoint = databaseHost.apply(host => ({
         "app.kubernetes.io/name": args.appName,
         "app.kubernetes.io/instance": args.appName,
       },
-      targetPort: 27017,
+      targetPort: 6379,
     },
   } satisfies k8s.EndpointServiceMetadata,
 }))
@@ -62,27 +49,23 @@ const backupJobPair = inputs.resticRepo
 
         environments: [backupEnvironment],
 
-        backupContainer: {
-          image:
-            "alpine/mongosh@sha256:2d7a9cb13f433ae72c13019db935e74831359a022f0a89282e5294cf578db3bc",
-        },
-
-        restoreContainer: {
-          image:
-            "alpine/mongosh@sha256:2d7a9cb13f433ae72c13019db935e74831359a022f0a89282e5294cf578db3bc",
-        },
-
         environment: {
           environment: {
-            MONGODB_ROOT_PASSWORD: {
-              secret: rootPasswordSecret,
-              key: "mongodb-root-password",
-            },
-            DATABASE_HOST: interpolate`${args.appName}.${namespace.metadata.name}.svc`,
+            DATABASE_HOST: serviceHost,
+            DATABASE_PORT: "6379",
           },
         },
 
-        allowedEndpoints: [databaseEndpoint],
+        restoreContainer: {
+          volume: dataVolumeClaim,
+
+          volumeMount: {
+            volume: dataVolumeClaim,
+            mountPath: "/data",
+          },
+        },
+
+        allowedEndpoints: [serviceEndpoint],
       },
       { dependsOn: dataVolumeClaim, deletedWith: namespace },
     )
@@ -93,19 +76,24 @@ const chart = new Chart(
   {
     namespace,
 
-    chart: charts.mongodb,
+    chart: charts.valkey,
 
     values: {
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
+      architecture: "standalone",
+
       auth: {
-        rootUsername: "root",
-        existingSecret: rootPasswordSecret.metadata.name,
+        enabled: false,
       },
 
       persistence: {
         existingClaim: dataVolumeClaim.metadata.name,
+      },
+
+      networkPolicy: {
+        enabled: false,
       },
     },
 
@@ -119,10 +107,9 @@ const chart = new Chart(
 const endpoints = await toPromise(chart.service.endpoints)
 
 export default outputs({
-  mongodb: {
+  redis: {
     endpoints,
-    username: "root",
-    password: rootPassword,
+    database: 0,
   },
   service: chart.service.entity,
   endpoints,

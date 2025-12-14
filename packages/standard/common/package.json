@@ -59,6 +59,10 @@
       "./units/databases/existing-mongodb": {
         "mode": "manual",
         "version": "1"
+      },
+      "./units/databases/existing-redis": {
+        "mode": "manual",
+        "version": "1"
       }
     }
   },
@@ -78,7 +82,8 @@
     "./units/server-patch": "./dist/units/server-patch/index.js",
     "./units/databases/existing-mariadb": "./dist/units/databases/existing-mariadb/index.js",
     "./units/databases/existing-postgresql": "./dist/units/databases/existing-postgresql/index.js",
-    "./units/databases/existing-mongodb": "./dist/units/databases/existing-mongodb/index.js"
+    "./units/databases/existing-mongodb": "./dist/units/databases/existing-mongodb/index.js",
+    "./units/databases/existing-redis": "./dist/units/databases/existing-redis/index.js"
   },
   "publishConfig": {
     "access": "public"

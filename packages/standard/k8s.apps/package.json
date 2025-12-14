@@ -20,6 +20,8 @@
     "./mongodb": "./dist/mongodb/index.js",
     "./mongodb/app": "./dist/mongodb/app/index.js",
     "./mongodb/database": "./dist/mongodb/database/index.js",
+    "./valkey/app": "./dist/valkey/app/index.js",
+    "./minio/app": "./dist/minio/app/index.js",
     "./syncthing": "./dist/syncthing/index.js",
     "./traefik": "./dist/traefik/index.js",
     "./vaultwarden": "./dist/vaultwarden/index.js",

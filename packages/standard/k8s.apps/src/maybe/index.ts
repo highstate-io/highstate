@@ -1,18 +1,11 @@
 import { generatePassword, l4EndpointToString } from "@highstate/common"
-import {
-  Chart,
-  Deployment,
-  Namespace,
-  NetworkPolicy,
-  PersistentVolumeClaim,
-  Secret,
-} from "@highstate/k8s"
+import { Deployment, Namespace, NetworkPolicy, PersistentVolumeClaim, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
 import { bytesToHex, randomBytes } from "@noble/hashes/utils.js"
 import { PostgreSQLDatabase } from "../postgresql"
-import { charts, images } from "../shared"
+import { images } from "../shared"
 
 const { args, inputs, getSecret, outputs } = forUnit(k8s.apps.maybe)
 
@@ -57,30 +50,6 @@ const secretKeySecret = Secret.create(`${args.appName}-secret-key`, {
   },
 })
 
-const redis = new Chart(`${args.appName}-redis`, {
-  namespace,
-
-  chart: charts.redis,
-  serviceName: `${args.appName}-redis-master`,
-
-  values: {
-    fullnameOverride: `${args.appName}-redis`,
-    architecture: "standalone",
-    auth: {
-      enabled: false,
-    },
-    networkPolicy: {
-      enabled: false,
-    },
-  },
-
-  networkPolicy: {
-    ingressRule: {
-      fromNamespace: namespace,
-    },
-  },
-})
-
 const sharedEnv = {
   SELF_HOSTED: "true",
   RAILS_FORCE_SSL: "false",
@@ -116,7 +85,7 @@ const sharedEnv = {
     key: "password",
   },
 
-  REDIS_URL: redis.service.endpoints[0].apply(l4EndpointToString).apply(ep => `redis://${ep}/1`),
+  REDIS_URL: inputs.redis.endpoints[0].apply(l4EndpointToString).apply(ep => `redis://${ep}/1`),
 }
 
 Deployment.create(
@@ -143,39 +112,33 @@ Deployment.create(
 
     networkPolicy: {
       egressRule: {
-        toEndpoints: redis.service.endpoints,
+        toEndpoints: inputs.redis.endpoints,
       },
     },
   },
   {
     dependsOn: backupJobPair?.restoreJob
-      ? [database.initJob, backupJobPair?.restoreJob, redis.chart]
-      : [database.initJob, redis.chart],
+      ? [database.initJob, backupJobPair?.restoreJob]
+      : [database.initJob],
   },
 )
 
-Deployment.create(
-  `${args.appName}-worker`,
-  {
-    namespace,
+Deployment.create(`${args.appName}-worker`, {
+  namespace,
 
-    container: {
-      image: images.maybe.image,
-      command: ["bundle", "exec", "sidekiq"],
+  container: {
+    image: images.maybe.image,
+    command: ["bundle", "exec", "sidekiq"],
 
-      environment: sharedEnv,
-    },
+    environment: sharedEnv,
+  },
 
-    networkPolicy: {
-      egressRule: {
-        toEndpoints: redis.service.endpoints,
-      },
+  networkPolicy: {
+    egressRule: {
+      toEndpoints: inputs.redis.endpoints,
     },
   },
-  {
-    dependsOn: redis.chart,
-  },
-)
+})
 
 NetworkPolicy.isolateNamespace(namespace, inputs.k8sCluster)
 
