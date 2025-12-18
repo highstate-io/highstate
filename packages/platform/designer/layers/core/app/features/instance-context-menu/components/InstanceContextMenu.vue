@@ -11,7 +11,12 @@ import InstanceOperationDialog from "./InstanceOperationDialog.vue"
 import ForgetInstanceStateDialog from "./ForgetInstanceStateDialog.vue"
 import TerminalListSubmenu from "./TerminalListSubmenu.vue"
 
-const { instance, stores, state, ghost = false } = defineProps<{
+const {
+  instance,
+  stores,
+  state,
+  ghost = false,
+} = defineProps<{
   instance: InstanceModel
   component: ComponentModel
   state?: InstanceState
@@ -31,6 +36,7 @@ const operationDialogVisible = ref(false)
 const operationDialogOp = ref<OperationType>("update")
 const operationDialogInstances = ref<InstanceModel[]>([])
 const forgetStateDialogVisible = ref(false)
+const forgetStateDialogInstances = ref<InstanceModel[]>([])
 
 // get selected instances (including current instance if not in multi-selection)
 const selectedInstances = computed(() => {
@@ -162,6 +168,13 @@ const openOperationDialog = (op: OperationType) => {
   selection.clearSelection()
 }
 
+const openForgetStateDialog = () => {
+  forgetStateDialogInstances.value = selectedInstances.value
+  forgetStateDialogVisible.value = true
+  visible.value = false
+  selection.clearSelection()
+}
+
 const contextMenu = useTemplateRef("contextMenu")
 
 const showContextMenu = async (event: MouseEvent) => {
@@ -285,12 +298,15 @@ defineExpose({ showContextMenu })
       />
 
       <ContextMenuItem
-        v-if="!isMultipleInstances"
-        title="Forget State"
+        :title="
+          isMultipleInstances
+            ? `Forget State selected (${selectedInstances.length})`
+            : 'Forget State'
+        "
         icon="mdi-delete-forever"
         color="error"
         :disabled="locked"
-        @click="forgetStateDialogVisible = true"
+        @click="openForgetStateDialog"
       />
     </template>
   </NodeContextMenu>
@@ -304,7 +320,6 @@ defineExpose({ showContextMenu })
 
   <ForgetInstanceStateDialog
     v-model:visible="forgetStateDialogVisible"
-    :instance="instance"
-    :component="component"
+    :instances="forgetStateDialogInstances"
   />
 </template>

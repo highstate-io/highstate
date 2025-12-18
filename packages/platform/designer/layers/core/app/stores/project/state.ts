@@ -385,23 +385,29 @@ export const useProjectStateStore = defineMultiStore({
         return true
       }
 
-      const forgetInstanceState = async (
-        instanceId: InstanceId,
+      const forgetInstanceStates = async (
+        instanceIds: InstanceId[],
         deleteSecrets = false,
         clearTerminalData = false,
       ) => {
-        await $client.state.forgetInstanceState.mutate({
+        if (instanceIds.length === 0) {
+          return
+        }
+
+        await $client.state.forgetInstanceStates.mutate({
           projectId,
-          instanceId,
+          instanceIds,
           deleteSecrets,
           clearTerminalData,
         })
 
-        const instance = instancesStore.instances.get(instanceId)
-        if (instance && instancesStore.isGhostInstance(instanceId)) {
-          instancesStore.removeInstanceLocally(instanceId)
+        for (const instanceId of instanceIds) {
+          const instance = instancesStore.instances.get(instanceId)
+          if (instance && instancesStore.isGhostInstance(instanceId)) {
+            instancesStore.removeInstanceLocally(instanceId)
 
-          // TODO: drop local removal once backend emits deletedGhostInstanceIds for forget operations
+            // TODO: drop local removal once backend emits deletedGhostInstanceIds for forget operations
+          }
         }
       }
 
@@ -425,7 +431,7 @@ export const useProjectStateStore = defineMultiStore({
 
         instanceStates,
         stateIdToStateMap,
-        forgetInstanceState,
+        forgetInstanceStates,
         getInstanceState,
         getStateByStateId,
         openInstanceLogs,

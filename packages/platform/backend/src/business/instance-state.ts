@@ -266,6 +266,31 @@ export class InstanceStateService {
     instanceId: InstanceId,
     { deleteSecrets = false, clearTerminalData = false }: ForgetInstanceStateOptions = {},
   ): Promise<void> {
+    await this.forgetInstanceStates(projectId, [instanceId], {
+      deleteSecrets,
+      clearTerminalData,
+    })
+  }
+
+  /**
+   * Forgets states for multiple instances in a single transaction.
+   *
+   * The transaction ensures the operation is all-or-nothing.
+   * Side effects are still performed after commit.
+   *
+   * @param projectId The ID of the project containing the instances.
+   * @param instanceIds The IDs of the instances whose states are to be forgotten.
+   * @param options Configuration options for terminal and secret handling.
+   */
+  async forgetInstanceStates(
+    projectId: string,
+    instanceIds: InstanceId[],
+    { deleteSecrets = false, clearTerminalData = false }: ForgetInstanceStateOptions = {},
+  ): Promise<void> {
+    if (instanceIds.length === 0) {
+      return
+    }
+
     const database = await this.database.forProject(projectId)
     const project = await this.database.backend.project.findUnique({
       where: { id: projectId },
@@ -276,41 +301,50 @@ export class InstanceStateService {
       throw new ProjectNotFoundError(projectId)
     }
 
+    const uniqueInstanceIds = Array.from(new Set(instanceIds))
+
     // collect instances to process cleanup after transaction
     const unitInstancesToCleanup: { id: string; instanceId: InstanceId }[] = []
     const updatedStateIds: string[] = []
 
     await database.$transaction(async tx => {
-      const state = await tx.instanceState.findUnique({
-        where: { instanceId },
-        select: {
-          id: true,
-          kind: true,
-          instanceId: true,
-          lock: { select: { stateId: true } },
-        },
-      })
+      for (const instanceId of uniqueInstanceIds) {
+        const state = await tx.instanceState.findUnique({
+          where: { instanceId },
+          select: {
+            id: true,
+            kind: true,
+            instanceId: true,
+            lock: { select: { stateId: true } },
+          },
+        })
 
-      if (!state) {
-        throw new InstanceStateNotFoundError(projectId, instanceId)
+        if (!state) {
+          throw new InstanceStateNotFoundError(projectId, instanceId)
+        }
+
+        if (state.lock) {
+          throw new InstanceLockedError(projectId, instanceId)
+        }
+
+        await this.processInstanceDeletion(
+          tx,
+          projectId,
+          state,
+          { deleteSecrets, clearTerminalData },
+          unitInstancesToCleanup,
+          updatedStateIds,
+        )
       }
-
-      if (state.lock) {
-        throw new InstanceLockedError(projectId, instanceId)
-      }
-
-      await this.processInstanceDeletion(
-        tx,
-        projectId,
-        state,
-        { deleteSecrets, clearTerminalData },
-        unitInstancesToCleanup,
-        updatedStateIds,
-      )
     })
 
+    const uniqueUpdatedStateIds = Array.from(new Set(updatedStateIds))
+    const uniqueUnitInstancesToCleanup = Array.from(
+      new Map(unitInstancesToCleanup.map(item => [item.id, item])).values(),
+    )
+
     // publish state events for all updated instances
-    for (const updatedStateId of updatedStateIds) {
+    for (const updatedStateId of uniqueUpdatedStateIds) {
       void this.pubsubManager.publish(["instance-state", projectId], {
         type: "patched",
         stateId: updatedStateId,
@@ -338,7 +372,7 @@ export class InstanceStateService {
       await waitAll([
         this.workerService.cleanupWorkerUsageAndSync(projectId),
         this.artifactService.collectGarbage(projectId),
-        ...unitInstancesToCleanup.map(async ({ id, instanceId }) => {
+        ...uniqueUnitInstancesToCleanup.map(async ({ id, instanceId }) => {
           const [instanceType, instanceName] = parseInstanceId(instanceId)
 
           await this.runnerBackend.deleteState({
@@ -352,7 +386,7 @@ export class InstanceStateService {
       ])
     } catch (error) {
       this.logger.warn(
-        { error, projectId, instanceId },
+        { error, projectId, instanceIds: uniqueInstanceIds },
         "failed to perform side effects after forgetting instance state",
       )
     }
@@ -431,7 +465,7 @@ export class InstanceStateService {
     // track this instance as updated
     updatedStateIds.push(state.id)
 
-    this.logger.info({ projectId }, `marked state "%s" as deleted`, state.id)
+    this.logger.info({ projectId }, `marked state "%s" as undeployed`, state.id)
 
     // recursively handle child instances using parentId
     if (state.kind === "composite") {

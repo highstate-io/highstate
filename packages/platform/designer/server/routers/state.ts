@@ -28,17 +28,17 @@ export const stateRouter = router({
       return await ctx.pubsubManager.subscribe(["instance-state", input.projectId], signal)
     }),
 
-  forgetInstanceState: publicProcedure
+  forgetInstanceStates: publicProcedure
     .input(
       z.object({
         projectId: z.string(),
-        instanceId: instanceIdSchema,
+        instanceIds: z.array(instanceIdSchema).min(1),
         deleteSecrets: z.boolean().default(false),
         clearTerminalData: z.boolean().default(false),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await ctx.instanceStateService.forgetInstanceState(input.projectId, input.instanceId, {
+      await ctx.instanceStateService.forgetInstanceStates(input.projectId, input.instanceIds, {
         deleteSecrets: input.deleteSecrets,
         clearTerminalData: input.clearTerminalData,
       })
