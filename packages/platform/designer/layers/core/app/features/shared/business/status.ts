@@ -15,6 +15,7 @@ export const operationStatusMap: StatusChipMap = {
   completed: { color: "success", icon: "mdi-check-circle" },
   failed: { color: "error", icon: "mdi-close-circle" },
   cancelled: { color: "secondary", icon: "mdi-cancel" },
+  cancelling: { color: "warning", loading: true },
 }
 
 export const workerStatusMap: StatusChipMap = {

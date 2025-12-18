@@ -1,7 +1,13 @@
 import type { InstanceId } from "@highstate/contract"
 import type { InstanceStateService, UpdateOperationStateOptions } from "../business"
 import type { InstanceOperationStatus } from "../database"
-import type { InstanceStatus, OperationPhase, OperationPhaseType, ProjectOutput } from "../shared"
+import {
+  isTransientInstanceOperationStatus,
+  type InstanceStatus,
+  type OperationPhase,
+  type OperationPhaseType,
+  type ProjectOutput,
+} from "../shared"
 import type { OperationContext } from "./operation-context"
 import { EventEmitter, on } from "node:events"
 import { mapValues } from "remeda"
@@ -156,12 +162,12 @@ export class OperationWorkset {
       options,
     )
 
+    Object.assign(state, patch)
+
     if (state.parentInstanceId && this.currentPhase !== "preview") {
       // TODO: update all updates in single transaction
       await this.recalculateCompositeInstanceState(state.parentInstanceId)
     }
-
-    Object.assign(state, patch)
   }
 
   getAffectedCompositeChildren(instanceId: InstanceId): InstanceId[] {
@@ -184,38 +190,43 @@ export class OperationWorkset {
 
     let currentResourceCount = 0
     let totalResourceCount = 0
-    let knownTotatalResourceCount = 0
+    let knownTotalResourceCount = 0
 
     const children = this.context.getStateChildIds(instanceId)
     for (const childId of children) {
       const child = this.context.getState(childId)
 
-      if (child?.lastOperationState?.currentResourceCount) {
+      if (child?.lastOperationState?.currentResourceCount != null) {
         currentResourceCount += child.lastOperationState.currentResourceCount
       }
 
-      if (child?.lastOperationState?.totalResourceCount) {
+      if (child?.lastOperationState?.totalResourceCount != null) {
         totalResourceCount += child.lastOperationState.totalResourceCount
-        knownTotatalResourceCount += 1
+        knownTotalResourceCount += 1
       }
     }
 
     // extrapolate total resource count for other resources without total resource count
     const averageTotalResourceCount =
-      knownTotatalResourceCount > 0 ? Math.round(totalResourceCount / knownTotatalResourceCount) : 0
+      knownTotalResourceCount > 0 ? Math.round(totalResourceCount / knownTotalResourceCount) : 0
 
-    const notKnownTotalResourceCount = children.length - knownTotatalResourceCount
+    const notKnownTotalResourceCount = children.length - knownTotalResourceCount
     totalResourceCount += notKnownTotalResourceCount * averageTotalResourceCount
 
     const finalTotalResourceCount =
       this.currentPhase === "destroy" && state.lastOperationState?.totalResourceCount
         ? // do not override totalResourceCount with lower values when destroying instances
-          Math.min(totalResourceCount, state.lastOperationState.totalResourceCount)
+          Math.max(totalResourceCount, state.lastOperationState.totalResourceCount)
         : totalResourceCount
 
     await this.updateState(instanceId, {
       operationState: {
-        status: this.getTransientStatusByOperationPhase(),
+        status:
+          !state.lastOperationState?.status ||
+          // do not override final statuses
+          isTransientInstanceOperationStatus(state.lastOperationState.status)
+            ? this.getTransientStatusByOperationPhase()
+            : state.lastOperationState.status,
         currentResourceCount,
         totalResourceCount: finalTotalResourceCount,
       },

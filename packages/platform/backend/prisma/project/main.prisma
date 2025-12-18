@@ -5,7 +5,7 @@ datasource db {
 
 generator client {
     provider               = "prisma-client"
-    previewFeatures        = ["queryCompiler", "driverAdapters"]
+    engineType             = "client"
     output                 = "../../src/database/_generated/project"
     moduleFormat           = "esm"
     generatedFileExtension = "ts"

@@ -60,10 +60,19 @@ export class RuntimeOperation {
 
   cancel(): void {
     this.workset.cancel()
+    this.tryMarkOperationCancelling()
   }
 
   cancelInstance(instanceId: InstanceId): void {
     this.workset.cancelInstance(instanceId)
+    this.tryMarkOperationCancelling()
+  }
+
+  private tryMarkOperationCancelling(): void {
+    if (this.operation.status === "pending" || this.operation.status === "running") {
+      this.operation.status = "cancelling"
+      this.promiseTracker.track(this.updateOperation({ status: this.operation.status }))
+    }
   }
 
   async operateSafe(): Promise<void> {
@@ -914,11 +923,6 @@ export class RuntimeOperation {
       return
     }
 
-    this.logger.warn(
-      "finalizing %d unfinished operation states before shutting down",
-      unfinishedStates.length,
-    )
-
     for (const state of unfinishedStates) {
       await this.workset.updateState(state.instanceId, {
         operationState: {
@@ -929,6 +933,8 @@ export class RuntimeOperation {
           status: state.status === "deployed" ? "deployed" : "failed",
         },
       })
+
+      this.logger.warn(`finalized operation state for unfinished instance "%s"`, state.instanceId)
     }
   }
 

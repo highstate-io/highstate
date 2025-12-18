@@ -3,6 +3,7 @@ enum OperationStatus {
     pending
     running
     failing
+    cancelling
 
     // stable statuses
     completed

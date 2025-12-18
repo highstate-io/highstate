@@ -1,3 +1,4 @@
+import * as Prisma from './internal/prismaNamespace.ts';
 declare global {
   namespace PrismaJson {
     // This namespace will always be empty. Definitions should be done by
