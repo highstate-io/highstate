@@ -8,6 +8,9 @@
     "typecheck": "nuxt typecheck"
   },
   "files": [".output"],
+  "exports": {
+    "./package.json":"./package.json"
+  },
   "publishConfig": {
     "access": "public"
   },
