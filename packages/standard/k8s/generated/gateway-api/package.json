@@ -1,6 +1,6 @@
 {
   "name": "@highstate/gateway-api",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "keywords": [
     "pulumi",
     "kubernetes",

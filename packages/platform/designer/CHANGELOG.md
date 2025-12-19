@@ -1,3 +1,13 @@
+## 0.13.2 (2025-12-19)
+
+### 🩹 Fixes
+
+- fix designer launcher + pass correct version to it ([8733501](https://github.com/highstate-io/highstate/commit/8733501))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.13.1 (2025-12-19)
 
 ### 🩹 Fixes

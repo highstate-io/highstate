@@ -1,6 +1,6 @@
 {
   "name": "@highstate/k8s.obfuscators",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "type": "module",
   "files": [
     "dist"
