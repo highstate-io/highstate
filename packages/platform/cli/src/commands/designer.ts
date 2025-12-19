@@ -1,9 +1,11 @@
+import { pathToFileURL } from "node:url"
 import { Command, UsageError } from "clipanion"
 import { consola } from "consola"
 import { colorize } from "consola/utils"
 import { getPort } from "get-port-please"
+import { resolve as importMetaResolve } from "import-meta-resolve"
 import { addDevDependency } from "nypm"
-import { readPackageJSON } from "pkg-types"
+import { readPackageJSON, resolvePackageJSON } from "pkg-types"
 import { getBackendServices, logger } from "../shared"
 
 export class DesignerCommand extends Command {
@@ -15,7 +17,10 @@ export class DesignerCommand extends Command {
   })
 
   async execute(): Promise<void> {
-    const packageJson = await readPackageJSON()
+    const packageJsonPath = await resolvePackageJSON()
+    const packageJsonUrl = pathToFileURL(packageJsonPath).toString()
+    const packageJson = await readPackageJSON(packageJsonPath)
+
     if (!packageJson.devDependencies?.["@highstate/cli"]) {
       throw new UsageError(
         "This project is not a Highstate project.\n@highstate/cli must be installed as a devDependency.",
@@ -34,10 +39,19 @@ export class DesignerCommand extends Command {
 
     const oldConsoleLog = console.log
 
-    const port = await getPort()
+    const port = await getPort({ port: 3000 })
+    const eventsPort = await getPort({ port: 3001 })
+
+    const designerPackageJsonPath = importMetaResolve(
+      "@highstate/designer/package.json",
+      packageJsonUrl,
+    )
+    const designerPackageJson = await readPackageJSON(designerPackageJsonPath)
 
     process.env.NITRO_PORT = port.toString()
     process.env.NITRO_HOST = "0.0.0.0"
+    process.env.NUXT_PUBLIC_VERSION = designerPackageJson.version
+    process.env.NUXT_PUBLIC_EVENTS_PORT = eventsPort.toString()
 
     await new Promise<void>(resolve => {
       console.log = (message: string) => {
@@ -46,8 +60,8 @@ export class DesignerCommand extends Command {
         }
       }
 
-      const path = "@highstate/designer/.output/server/index.mjs"
-      void import(path)
+      const serverPath = importMetaResolve("@highstate/designer/server", packageJsonUrl)
+      void import(serverPath)
     })
 
     console.log = oldConsoleLog

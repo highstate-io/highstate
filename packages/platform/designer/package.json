@@ -11,6 +11,7 @@
     ".output"
   ],
   "exports": {
+    "./server": "./.output/server/index.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
