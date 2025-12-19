@@ -2,9 +2,7 @@
   "name": "@highstate/k8s.apps",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     "./code-server": "./dist/code-server/index.js",
     "./grocy": "./dist/grocy/index.js",
@@ -39,14 +37,14 @@
     "update-images": "../../../scripts/update-images.sh ./assets/images.json"
   },
   "dependencies": {
-    "@highstate/cert-manager": "workspace:^0.10.0",
-    "@highstate/common": "workspace:^0.10.0",
-    "@highstate/contract": "workspace:^0.10.0",
-    "@highstate/gateway-api": "workspace:^0.10.0",
-    "@highstate/k8s": "workspace:^0.10.0",
-    "@highstate/library": "workspace:^0.10.0",
-    "@highstate/pulumi": "workspace:^0.10.0",
-    "@highstate/restic": "workspace:^0.10.0",
+    "@highstate/cert-manager": "workspace:*",
+    "@highstate/common": "workspace:*",
+    "@highstate/contract": "workspace:*",
+    "@highstate/gateway-api": "workspace:*",
+    "@highstate/k8s": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
+    "@highstate/restic": "workspace:*",
     "@noble/hashes": "^2.0.1",
     "@pulumi/command": "^1.0.2",
     "@pulumi/kubernetes": "^4.18.0",
@@ -57,7 +55,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "repository": {

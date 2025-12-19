@@ -2,9 +2,7 @@
   "name": "@highstate/yandex",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     "./connection": "./dist/connection/index.js",
     "./disk": "./dist/disk/index.js",
@@ -22,15 +20,15 @@
     "generate-sdks": "./scripts/generate-sdks.sh"
   },
   "dependencies": {
-    "@highstate/common": "workspace:^0.10.0",
-    "@highstate/contract": "workspace:^0.10.0",
-    "@highstate/library": "workspace:^0.10.0",
-    "@highstate/pulumi": "workspace:^0.10.0",
-    "@highstate/yandex-sdk": "workspace:^0.10.0",
+    "@highstate/common": "workspace:*",
+    "@highstate/contract": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
+    "@highstate/yandex-sdk": "workspace:*",
     "@pulumi/pulumi": "^3.198.0"
   },
   "devDependencies": {
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@biomejs/biome": "2.2.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },

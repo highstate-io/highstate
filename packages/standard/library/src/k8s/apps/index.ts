@@ -7,6 +7,7 @@ export * from "./maybe"
 export * from "./minio"
 export * from "./mongodb"
 export * from "./postgresql"
+export * from "./remnawave"
 export {
   appName,
   optionalSharedArgs,

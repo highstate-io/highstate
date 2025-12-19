@@ -1,16 +1,16 @@
 import type { InstanceId } from "@highstate/contract"
 import type { InstanceStateService, UpdateOperationStateOptions } from "../business"
 import type { InstanceOperationStatus } from "../database"
+import type { OperationContext } from "./operation-context"
+import { EventEmitter, on } from "node:events"
+import { mapValues } from "remeda"
 import {
-  isTransientInstanceOperationStatus,
   type InstanceStatus,
+  isTransientInstanceOperationStatus,
   type OperationPhase,
   type OperationPhaseType,
   type ProjectOutput,
 } from "../shared"
-import type { OperationContext } from "./operation-context"
-import { EventEmitter, on } from "node:events"
-import { mapValues } from "remeda"
 
 type AbortControllerPair = {
   abortController: AbortController

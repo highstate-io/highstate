@@ -2,9 +2,7 @@
   "name": "@highstate/distributions",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     "./ubuntu": "./dist/ubuntu/index.js"
   },
@@ -19,16 +17,16 @@
     "update-ubuntu": "./scripts/update-ubuntu.sh ./assets/ubuntu.json"
   },
   "dependencies": {
-    "@highstate/common": "workspace:^0.10.0",
-    "@highstate/contract": "workspace:^0.10.0",
-    "@highstate/library": "workspace:^0.10.0",
-    "@highstate/pulumi": "workspace:^0.10.0",
+    "@highstate/common": "workspace:*",
+    "@highstate/contract": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
     "@pulumi/pulumi": "^3.198.0",
     "remeda": "^2.21.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "repository": {

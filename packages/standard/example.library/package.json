@@ -6,10 +6,7 @@
     "type": "library"
   },
   "private": true,
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -23,13 +20,13 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@highstate/contract": "workspace:^0.10.0",
-    "@highstate/library": "workspace:^0.10.0",
+    "@highstate/contract": "workspace:*",
+    "@highstate/library": "workspace:*",
     "remeda": "^2.21.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "repository": {

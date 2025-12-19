@@ -2,11 +2,7 @@
   "name": "@highstate/backend",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist",
-    "src",
-    "prisma"
-  ],
+  "files": ["dist", "src", "prisma"],
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -35,7 +31,7 @@
   },
   "dependencies": {
     "@aws-crypto/crc32": "^5.2.0",
-    "@highstate/contract": "workspace:^0.10.0",
+    "@highstate/contract": "workspace:*",
     "@msgpack/msgpack": "^3.1.2",
     "@napi-rs/keyring": "^1.1.8",
     "@noble/ciphers": "^1.3.0",

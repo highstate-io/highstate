@@ -2,9 +2,7 @@
   "name": "@highstate/timeweb",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     "./connection": "./dist/connection/index.js",
     "./virtual-machine": "./dist/virtual-machine/index.js"
@@ -20,17 +18,17 @@
     "generate-sdks": "./scripts/generate-sdks.sh"
   },
   "dependencies": {
-    "@highstate/common": "workspace:^0.10.0",
-    "@highstate/k8s": "workspace:^0.10.0",
-    "@highstate/library": "workspace:^0.10.0",
-    "@highstate/pulumi": "workspace:^0.10.0",
-    "@highstate/timeweb-sdk": "workspace:^0.10.0",
+    "@highstate/common": "workspace:*",
+    "@highstate/k8s": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
+    "@highstate/timeweb-sdk": "workspace:*",
     "@pulumi/command": "^1.0.2",
     "@pulumi/pulumi": "^3.198.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "repository": {

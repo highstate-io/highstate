@@ -3,9 +3,7 @@
   "version": "0.12.1",
   "description": "The scaffolding tool for the Highstate project.",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
   },
@@ -21,7 +19,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   }
 }

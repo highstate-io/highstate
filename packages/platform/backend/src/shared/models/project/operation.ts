@@ -218,6 +218,7 @@ export const operationStatusSchema = z.enum([
   "completed",
   "failed",
   "cancelled",
+  "cancelling",
 ]) satisfies z.ZodType<OperationStatus>
 
 export const operationMetaSchema = objectMetaSchema

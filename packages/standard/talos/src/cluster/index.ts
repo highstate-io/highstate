@@ -96,8 +96,8 @@ const globalConfigPatch = output({
   machine: {
     install: {
       image:
-        "factory.talos.dev/nocloud-installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.10.4",
-      diskSelector: { size: "> 4GB" },
+        "factory.talos.dev/nocloud-installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:v1.11.5",
+      disk: "/dev/vda",
     },
     kubelet: {
       extraMounts,
@@ -114,7 +114,7 @@ const globalConfigPatch = output({
   },
 }).apply(JSON.stringify)
 
-const secrets = new machine.Secrets("secrets", { talosVersion: "v1.10.4" })
+const secrets = new machine.Secrets("secrets", { talosVersion: "v1.11.5" })
 
 const apiEndpoint = `https://${l3EndpointToString(masters[0].endpoints[0])}:6443`
 

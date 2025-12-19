@@ -1,12 +1,7 @@
 {
   "name": "@highstate/gateway-api",
   "version": "0.12.1",
-  "keywords": [
-    "pulumi",
-    "kubernetes",
-    "category/cloud",
-    "kind/native"
-  ],
+  "keywords": ["pulumi", "kubernetes", "category/cloud", "kind/native"],
   "homepage": "https://pulumi.com",
   "repository": {
     "url": "https://github.com/highstate-io/highstate"

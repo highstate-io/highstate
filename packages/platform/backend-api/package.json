@@ -2,11 +2,7 @@
   "name": "@highstate/backend-api",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist",
-    "src",
-    "patches"
-  ],
+  "files": ["dist", "src", "patches"],
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -36,10 +32,10 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.6.1",
-    "@highstate/api": "workspace:^",
-    "@highstate/backend": "workspace:^0.10.0",
-    "@highstate/cli": "workspace:^0.10.0",
-    "@highstate/contract": "workspace:^0.10.0",
+    "@highstate/api": "workspace:*",
+    "@highstate/backend": "workspace:*",
+    "@highstate/cli": "workspace:*",
+    "@highstate/contract": "workspace:*",
     "abort-controller-x": "^0.4.3",
     "nice-grpc": "^2.1.12",
     "nice-grpc-common": "^2.0.2",

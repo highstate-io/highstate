@@ -2,10 +2,7 @@
   "name": "@highstate/git",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -23,17 +20,17 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@highstate/common": "workspace:^0.10.0",
-    "@highstate/contract": "workspace:^0.10.0",
-    "@highstate/library": "workspace:^0.10.0",
-    "@highstate/pulumi": "workspace:^0.10.0",
+    "@highstate/common": "workspace:*",
+    "@highstate/contract": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
     "remeda": "^2.21.0",
     "simple-git": "^3.27.0",
     "tar": "^7.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "repository": {

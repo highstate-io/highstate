@@ -9,9 +9,9 @@
     "deploy-image": "./scripts/deploy.sh"
   },
   "dependencies": {
-    "@highstate/contract": "workspace:^0.10.0",
-    "@highstate/designer": "workspace:^",
-    "@highstate/library": "workspace:^0.10.0",
+    "@highstate/contract": "workspace:*",
+    "@highstate/designer": "workspace:*",
+    "@highstate/library": "workspace:*",
     "@nuxt/content": "^3.7.1",
     "@nuxt/ui": "^4.0.1",
     "@nuxtjs/mdc": "^0.18.0",

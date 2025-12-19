@@ -2,10 +2,7 @@
   "name": "@highstate/worker-sdk",
   "version": "0.12.1",
   "type": "module",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -23,13 +20,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:^0.10.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.6.0",
-    "@highstate/api": "workspace:^",
-    "@highstate/contract": "workspace:^",
+    "@highstate/api": "workspace:*",
+    "@highstate/contract": "workspace:*",
     "long": "^5.3.2",
     "nice-grpc": "^2.1.12",
     "nice-grpc-common": "^2.0.2",

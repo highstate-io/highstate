@@ -49,7 +49,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -64,7 +64,7 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../contract
       '@msgpack/msgpack':
         specifier: ^3.1.2
@@ -206,16 +206,16 @@ importers:
         specifier: ^2.6.1
         version: 2.9.0
       '@highstate/api':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../api
       '@highstate/backend':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../backend
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../cli
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../contract
       '@pulumi/pulumi':
         specifier: ^3.198.0
@@ -249,10 +249,10 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       '@highstate/backend':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../backend
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../contract
       '@inquirer/prompts':
         specifier: ^7.8.6
@@ -371,7 +371,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -380,13 +380,13 @@ importers:
   packages/platform/designer:
     dependencies:
       '@highstate/backend':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../backend
       '@highstate/backend-api':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../backend-api
       '@highstate/contract':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../contract
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
@@ -588,13 +588,13 @@ importers:
   packages/platform/docs:
     dependencies:
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../contract
       '@highstate/designer':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../designer
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/library
       '@nuxt/content':
         specifier: ^3.7.1
@@ -643,7 +643,7 @@ importers:
   packages/platform/pulumi:
     dependencies:
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../contract
       '@pulumi/pulumi':
         specifier: ^3.198.0
@@ -662,7 +662,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -686,10 +686,10 @@ importers:
         specifier: ^2.6.0
         version: 2.9.0
       '@highstate/api':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../api
       '@highstate/contract':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../contract
       long:
         specifier: ^5.3.2
@@ -708,7 +708,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -717,22 +717,22 @@ importers:
   packages/standard/cilium:
     dependencies:
       '@highstate/cilium-crds':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:generated/cilium-crds
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@kubernetes/client-node':
         specifier: ^1.3.0
@@ -754,7 +754,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -806,13 +806,13 @@ importers:
   packages/standard/common:
     dependencies:
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@noble/hashes':
         specifier: ^1.7.1
@@ -843,7 +843,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@types/tar':
         specifier: ^6.1.13
@@ -861,16 +861,16 @@ importers:
   packages/standard/distributions:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@pulumi/pulumi':
         specifier: ^3.198.0
@@ -883,7 +883,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -892,86 +892,86 @@ importers:
   packages/standard/example:
     dependencies:
       '@highstate/cert-manager':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s/generated/cert-manager
       '@highstate/cilium':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../cilium
       '@highstate/cilium-crds':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../cilium/generated/cilium-crds
       '@highstate/cloudflare':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../third-party/cloudflare
       '@highstate/common':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../common
       '@highstate/distributions':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../distributions
       '@highstate/example.library':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../example.library
       '@highstate/example.units':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../example.units
       '@highstate/gateway-api':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s/generated/gateway-api
       '@highstate/git':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../git
       '@highstate/k3s':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k3s
       '@highstate/k8s':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/k8s.apps':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s.apps
       '@highstate/k8s.game-servers':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s.game-servers
       '@highstate/k8s.monitor-worker':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s.monitor-worker
       '@highstate/k8s.obfuscators':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../k8s.obfuscators
       '@highstate/library':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../library
       '@highstate/mullvad':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../third-party/mullvad
       '@highstate/nixos':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../nixos
       '@highstate/proxmox':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../proxmox
       '@highstate/restic':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../restic
       '@highstate/sops':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../sops
       '@highstate/talos':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../talos
       '@highstate/wireguard':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../wireguard
       '@highstate/yandex':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../third-party/yandex
     devDependencies:
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@highstate/designer':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../platform/designer
       classic-level:
         specifier: ^3.0.0
@@ -980,10 +980,10 @@ importers:
   packages/standard/example.library:
     dependencies:
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       remeda:
         specifier: ^2.21.0
@@ -993,7 +993,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1002,19 +1002,19 @@ importers:
   packages/standard/example.units:
     dependencies:
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/example.library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../example.library
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       h3:
         specifier: ^1.15.3
@@ -1030,7 +1030,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1039,16 +1039,16 @@ importers:
   packages/standard/git:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       remeda:
         specifier: ^2.21.0
@@ -1064,7 +1064,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1073,19 +1073,19 @@ importers:
   packages/standard/k3s:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@kubernetes/client-node':
         specifier: ^1.1.0
@@ -1104,7 +1104,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1113,22 +1113,22 @@ importers:
   packages/standard/k8s:
     dependencies:
       '@highstate/cert-manager':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:generated/cert-manager
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/gateway-api':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:generated/gateway-api
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@kubernetes/client-node':
         specifier: ^1.1.0
@@ -1168,7 +1168,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1180,28 +1180,28 @@ importers:
   packages/standard/k8s.apps:
     dependencies:
       '@highstate/cert-manager':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s/generated/cert-manager
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/gateway-api':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s/generated/gateway-api
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@highstate/restic':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../restic
       '@noble/hashes':
         specifier: ^2.0.1
@@ -1229,7 +1229,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1238,25 +1238,25 @@ importers:
   packages/standard/k8s.game-servers:
     dependencies:
       '@highstate/cert-manager':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s/generated/cert-manager
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@highstate/restic':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../restic
       '@pulumi/kubernetes':
         specifier: ^4.18.0
@@ -1272,7 +1272,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1281,16 +1281,16 @@ importers:
   packages/standard/k8s.monitor-worker:
     dependencies:
       '@highstate/api':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../platform/api
       '@highstate/contract':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../library
       '@highstate/worker-sdk':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../platform/worker-sdk
       '@kubernetes/client-node':
         specifier: ^1.3.0
@@ -1306,7 +1306,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1318,22 +1318,22 @@ importers:
   packages/standard/k8s.obfuscators:
     dependencies:
       '@highstate/cert-manager':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s/generated/cert-manager
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@pulumi/kubernetes':
         specifier: ^4.18.0
@@ -1349,7 +1349,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1444,7 +1444,7 @@ importers:
   packages/standard/library:
     dependencies:
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       remeda:
         specifier: ^2.21.0
@@ -1454,7 +1454,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1466,19 +1466,19 @@ importers:
   packages/standard/nixos:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/git':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../git
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@pulumi/kubernetes':
         specifier: ^4.18.0
@@ -1494,7 +1494,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1503,16 +1503,16 @@ importers:
   packages/standard/proxmox:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@muhlba91/pulumi-proxmoxve':
         specifier: ^6.17.1
@@ -1522,7 +1522,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1531,19 +1531,19 @@ importers:
   packages/standard/restic:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@pulumi/kubernetes':
         specifier: ^4.18.0
@@ -1556,7 +1556,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1565,16 +1565,16 @@ importers:
   packages/standard/sops:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       remeda:
         specifier: ^2.21.0
@@ -1584,7 +1584,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1593,22 +1593,22 @@ importers:
   packages/standard/talos:
     dependencies:
       '@highstate/cilium':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../cilium
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@kubernetes/client-node':
         specifier: ^1.1.0
@@ -1630,7 +1630,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1639,19 +1639,19 @@ importers:
   packages/standard/wireguard:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@noble/curves':
         specifier: ^1.8.0
@@ -1676,7 +1676,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@types/zip-stream':
         specifier: ^7.0.0
@@ -1688,22 +1688,22 @@ importers:
   packages/third-party/cloudflare:
     dependencies:
       '@highstate/cert-manager':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../standard/k8s/generated/cert-manager
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@pulumi/cloudflare':
         specifier: ^6.1.1
@@ -1728,7 +1728,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1737,16 +1737,16 @@ importers:
   packages/third-party/mullvad:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/common
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@noble/curves':
         specifier: ^1.8.0
@@ -1762,7 +1762,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1771,19 +1771,19 @@ importers:
   packages/third-party/timeweb:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/common
       '@highstate/k8s':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/k8s
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@highstate/timeweb-sdk':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:generated/timeweb-sdk
       '@pulumi/command':
         specifier: ^1.0.2
@@ -1796,7 +1796,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1
@@ -1820,19 +1820,19 @@ importers:
   packages/third-party/yandex:
     dependencies:
       '@highstate/common':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/common
       '@highstate/contract':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/contract
       '@highstate/library':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../standard/library
       '@highstate/pulumi':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/pulumi
       '@highstate/yandex-sdk':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:generated/yandex-sdk
       '@pulumi/pulumi':
         specifier: ^3.198.0
@@ -1842,7 +1842,7 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@highstate/cli':
-        specifier: workspace:^0.10.0
+        specifier: workspace:*
         version: link:../../platform/cli
       '@typescript/native-preview':
         specifier: ^7.0.0-dev.20250920.1

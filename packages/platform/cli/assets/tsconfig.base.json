@@ -16,9 +16,7 @@
     "allowJs": true,
     "verbatimModuleSyntax": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
+      "@/*": ["./src/*"]
     }
-  },
+  }
 }

@@ -4,6 +4,24 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   telemetry: false,
 
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        allowImportingTsExtensions: true,
+      },
+    },
+  },
+
+  nitro: {
+    typescript: {
+      tsConfig: {
+        compilerOptions: {
+          allowImportingTsExtensions: true,
+        },
+      },
+    },
+  },
+
   css: ["vuetify/styles", "#layers/core/app/assets/main.css"],
 
   extends: ["./layers/core"],

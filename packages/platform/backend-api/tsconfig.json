@@ -1,8 +1,5 @@
 {
   "extends": "./node_modules/@highstate/cli/assets/tsconfig.base.json",
-  "include": [
-    "./src/**/*.ts",
-    "./package.json",
-    "./assets/**/*.json"
-  ]
+  "compilerOptions": { "allowImportingTsExtensions": true },
+  "include": ["./src/**/*.ts", "./package.json", "./assets/**/*.json"]
 }
