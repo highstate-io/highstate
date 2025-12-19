@@ -1,8 +1,12 @@
 {
   "name": "@highstate/backend",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
-  "files": ["dist", "src", "prisma"],
+  "files": [
+    "dist",
+    "src",
+    "prisma"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",

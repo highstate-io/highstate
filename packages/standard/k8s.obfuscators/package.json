@@ -1,8 +1,10 @@
 {
   "name": "@highstate/k8s.obfuscators",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./phantun/deobfuscator": "./dist/phantun/deobfuscator/index.js",
     "./phantun/obfuscator": "./dist/phantun/obfuscator/index.js"

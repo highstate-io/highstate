@@ -1,3 +1,13 @@
+## 0.13.0 (2025-12-19)
+
+### 🩹 Fixes
+
+- Pix workspace dependencies to exact versions ([cf4f288](https://github.com/highstate-io/highstate/commit/cf4f288))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.12.1 (2025-12-14)
 
 ### 🩹 Fixes

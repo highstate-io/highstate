@@ -1,8 +1,10 @@
 {
   "name": "@highstate/cloudflare",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./impl/dns-record": "./dist/impl/dns-record.js",
     "./impl/dns01-solver": "./dist/impl/dns01-solver.js",

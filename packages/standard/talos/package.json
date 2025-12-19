@@ -1,8 +1,11 @@
 {
   "name": "@highstate/talos",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
-  "files": ["assets", "dist"],
+  "files": [
+    "assets",
+    "dist"
+  ],
   "exports": {
     "./cluster": "./dist/cluster/index.js"
   },

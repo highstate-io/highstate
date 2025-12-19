@@ -1,8 +1,11 @@
 {
   "name": "@highstate/sops",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "exports": {
     "./secrets": "./dist/secrets/index.js"
   },

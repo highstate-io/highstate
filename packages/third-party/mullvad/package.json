@@ -1,8 +1,10 @@
 {
   "name": "@highstate/mullvad",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./peer": "./dist/peer/index.js"
   },

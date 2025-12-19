@@ -1,3 +1,18 @@
+## 0.13.0 (2025-12-19)
+
+### 🚀 Features
+
+- add bulk forget state ([c78a15e](https://github.com/highstate-io/highstate/commit/c78a15e))
+
+### 🩹 Fixes
+
+- Pix workspace dependencies to exact versions ([cf4f288](https://github.com/highstate-io/highstate/commit/cf4f288))
+- add cancelling operation status + fix bug with invalid transient composite status on error ([ec684f3](https://github.com/highstate-io/highstate/commit/ec684f3))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.12.1 (2025-12-14)
 
 ### 🩹 Fixes
