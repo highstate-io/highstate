@@ -1,15 +1,17 @@
 {
   "name": "@highstate/designer",
-  "version": "0.10.0",
+  "version": "0.13.1",
   "type": "module",
   "scripts": {
     "dev": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
     "build": "nuxt build",
     "typecheck": "nuxt typecheck"
   },
-  "files": [".output"],
+  "files": [
+    ".output"
+  ],
   "exports": {
-    "./package.json":"./package.json"
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public"

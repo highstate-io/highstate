@@ -1,3 +1,7 @@
+## 0.13.1 (2025-12-19)
+
+This was a version bump only for @highstate/nixos to align it with other projects, there were no code changes.
+
 ## 0.13.0 (2025-12-19)
 
 ### 🩹 Fixes

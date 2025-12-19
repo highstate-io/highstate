@@ -1,6 +1,6 @@
 {
   "name": "@highstate/timeweb-sdk",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "A Pulumi provider dynamically bridged from timeweb-cloud.",
   "repository": {
     "url": "https://github.com/highstate-io/highstate"

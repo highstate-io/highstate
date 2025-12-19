@@ -1,3 +1,15 @@
+## 0.13.1 (2025-12-19)
+
+### 🩹 Fixes
+
+- update designer dependencies ([db1cbdf](https://github.com/highstate-io/highstate/commit/db1cbdf))
+- force publish designer ([3d2b812](https://github.com/highstate-io/highstate/commit/3d2b812))
+- fix designer publishing ([d5e5cf1](https://github.com/highstate-io/highstate/commit/d5e5cf1))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.13.0 (2025-12-19)
 
 ### 🚀 Features
