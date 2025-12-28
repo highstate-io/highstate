@@ -1,3 +1,13 @@
+## 0.14.0 (2025-12-28)
+
+### 🚀 Features
+
+- add openttd server ([ae8d99d](https://github.com/highstate-io/highstate/commit/ae8d99d))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.13.2 (2025-12-19)
 
 ### 🩹 Fixes
