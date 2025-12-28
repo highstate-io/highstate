@@ -230,7 +230,7 @@ export function getWorkloadComponents(
         annotations: {
           // to trigger a redeployment when the volumes change
           // we embed a hash as annotation name (not value) to allow patching without conflicts
-          [`highstate.io/dependency-hash-${dependencyHash}`]: "1",
+          [`highstate.io/dependency-hash-${dependencyHash.slice(32)}`]: "1",
         },
       },
       spec: podSpec,

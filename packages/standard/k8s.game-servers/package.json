@@ -6,7 +6,8 @@
     "dist"
   ],
   "exports": {
-    "./satisfactory": "./dist/satisfactory/index.js"
+    "./satisfactory": "./dist/satisfactory/index.js",
+    "./openttd": "./dist/openttd/index.js"
   },
   "publishConfig": {
     "access": "public"

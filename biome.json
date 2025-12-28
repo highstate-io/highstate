@@ -23,6 +23,7 @@
     "includes": [
       "packages/**/tsconfig.json",
       "packages/**/src/**",
+      "packages/**/assets/**/*.json",
       "packages/platform/designer/**/*.ts",
       "!packages/**/src/**/_generated/**",
       "!**/*.mdc"
