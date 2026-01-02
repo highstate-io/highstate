@@ -27,4 +27,4 @@ export default defineNuxtConfig({
   extends: ["./layers/core"],
 })
 
-// hi
+// hi2
