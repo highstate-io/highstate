@@ -17,7 +17,7 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["standard"]
+    "tags": ["stdlib"]
   },
   "scripts": {
     "build": "highstate build",

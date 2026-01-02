@@ -92,12 +92,18 @@
         "projects": ["tag:platform"],
         "git": {
           "commitMessage": "chore(release): publish platform v{version} [skip ci]"
+        },
+        "releaseTag": {
+          "pattern": "platform-{version}"
         }
       },
-      "standard": {
-        "projects": ["tag:standard"],
+      "stdlib": {
+        "projects": ["tag:stdlib"],
         "git": {
-          "commitMessage": "chore(release): publish standard library v{version} [skip ci]"
+          "commitMessage": "chore(release): publish stdlib v{version} [skip ci]"
+        },
+        "releaseTag": {
+          "pattern": "stdlib-{version}"
         }
       }
     }
