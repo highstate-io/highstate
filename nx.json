@@ -90,6 +90,7 @@
     "groups": {
       "platform": {
         "projects": ["tag:platform"],
+        "projectsRelationship": "fixed",
         "git": {
           "commitMessage": "chore(release): publish platform v{version} [skip ci]"
         },
@@ -99,6 +100,7 @@
       },
       "stdlib": {
         "projects": ["tag:stdlib"],
+        "projectsRelationship": "fixed",
         "git": {
           "commitMessage": "chore(release): publish stdlib v{version} [skip ci]"
         },
