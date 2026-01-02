@@ -16,7 +16,7 @@
     "@biomejs/biome": "2.2.0",
     "@nx/node": "21.6.4",
     "@types/node": "^24",
-    "nx": "^21.6.4",
+    "nx": "^21.6.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"

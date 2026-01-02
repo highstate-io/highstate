@@ -15,9 +15,7 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/.nuxt",
@@ -27,32 +25,22 @@
     },
     "test": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "{projectRoot}/coverage"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/coverage"]
     },
     "build-image": {
       "cache": true,
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "outputs": []
     },
     "push-image": {
       "cache": true,
-      "dependsOn": [
-        "build-image"
-      ],
+      "dependsOn": ["build-image"],
       "outputs": []
     },
     "deploy-image": {
       "cache": true,
-      "dependsOn": [
-        "push-image"
-      ],
+      "dependsOn": ["push-image"],
       "outputs": []
     },
     "biome": {
@@ -65,9 +53,7 @@
     },
     "typecheck": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "outputs": []
     }
   },
@@ -78,10 +64,9 @@
   },
   "release": {
     "changelog": {
-      "workspaceChangelog": {
+      "projectChangelogs": {
         "createRelease": "github"
-      },
-      "projectChangelogs": true
+      }
     },
     "version": {
       "conventionalCommits": true
@@ -91,21 +76,21 @@
       "platform": {
         "projects": ["tag:platform"],
         "projectsRelationship": "fixed",
-        "git": {
-          "commitMessage": "chore(release): publish platform v{version} [skip ci]"
-        },
-        "releaseTag": {
-          "pattern": "platform-{version}"
+        "releaseTagPattern": "platform@v{version}",
+        "version": {
+          "git": {
+            "commitMessage": "chore(release): publish platform v{version} [skip ci]"
+          }
         }
       },
       "stdlib": {
         "projects": ["tag:stdlib"],
         "projectsRelationship": "fixed",
-        "git": {
-          "commitMessage": "chore(release): publish stdlib v{version} [skip ci]"
-        },
-        "releaseTag": {
-          "pattern": "stdlib-{version}"
+        "releaseTagPattern": "stdlib@v{version}",
+        "version": {
+          "git": {
+            "commitMessage": "chore(release): publish stdlib v{version} [skip ci]"
+          }
         }
       }
     }
