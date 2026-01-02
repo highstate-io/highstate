@@ -71,6 +71,11 @@
       "outputs": []
     }
   },
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeSourceFiles": false
+    }
+  },
   "release": {
     "changelog": {
       "workspaceChangelog": {
