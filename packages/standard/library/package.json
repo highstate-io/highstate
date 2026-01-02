@@ -1,6 +1,6 @@
 {
   "name": "@highstate/library",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "highstate": {
     "type": "library"
@@ -19,7 +19,9 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["stdlib"]
+    "tags": [
+      "stdlib"
+    ]
   },
   "scripts": {
     "build": "highstate build",

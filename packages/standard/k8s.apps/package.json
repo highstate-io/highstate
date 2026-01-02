@@ -1,6 +1,6 @@
 {
   "name": "@highstate/k8s.apps",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "files": [
     "dist"
@@ -31,7 +31,9 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["stdlib"]
+    "tags": [
+      "stdlib"
+    ]
   },
   "scripts": {
     "build": "highstate build",

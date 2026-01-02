@@ -1,6 +1,6 @@
 {
   "name": "@highstate/designer",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "scripts": {
     "dev": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
@@ -18,7 +18,9 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["platform"]
+    "tags": [
+      "platform"
+    ]
   },
   "devDependencies": {
     "@codemirror/lang-yaml": "^6.1.2",

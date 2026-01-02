@@ -1,6 +1,6 @@
 {
   "name": "@highstate/api",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "files": [
     "dist",
@@ -28,7 +28,9 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["platform"]
+    "tags": [
+      "platform"
+    ]
   },
   "scripts": {
     "build": "highstate build",

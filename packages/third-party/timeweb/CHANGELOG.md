@@ -1,3 +1,7 @@
+## 0.14.1 (2026-01-02)
+
+This was a version bump only for @highstate/timeweb to align it with other projects, there were no code changes.
+
 ## 0.14.0 (2025-12-28)
 
 ### 🚀 Features

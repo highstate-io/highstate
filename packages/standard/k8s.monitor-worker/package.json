@@ -1,9 +1,11 @@
 {
   "name": "@highstate/k8s.monitor-worker",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.14.1",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "highstate": {
     "type": "worker"
   },
@@ -14,7 +16,9 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["stdlib"]
+    "tags": [
+      "stdlib"
+    ]
   },
   "scripts": {
     "build": "highstate build",

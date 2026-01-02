@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cli",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "The CLI for the Highstate project.",
   "type": "module",
   "files": [
@@ -15,7 +15,9 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["platform"]
+    "tags": [
+      "platform"
+    ]
   },
   "scripts": {
     "build": "highstate build",
