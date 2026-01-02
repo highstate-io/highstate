@@ -26,7 +26,8 @@
       "packages/**/assets/**/*.json",
       "packages/platform/designer/**/*.ts",
       "!packages/**/src/**/_generated/**",
-      "!**/*.mdc"
+      "!**/*.mdc",
+      "!packages/platform/cli/assets/template/**"
     ]
   },
   "linter": {

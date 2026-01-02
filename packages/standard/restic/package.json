@@ -16,6 +16,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["standard"]
+  },
   "scripts": {
     "build": "highstate build",
     "update-images": "../../scripts/update-images.sh ./assets/images.json",

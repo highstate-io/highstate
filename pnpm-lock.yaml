@@ -86,7 +86,7 @@ importers:
         version: 6.17.1
       '@prisma/client':
         specifier: ^6.14.0
-        version: 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
+        version: 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/driver-adapter-utils':
         specifier: ^6.14.0
         version: 6.17.1
@@ -180,7 +180,7 @@ importers:
         version: 3.0.0
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.12.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.14.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       pino-pretty:
         specifier: ^13.0.0
         version: 13.1.2
@@ -284,6 +284,9 @@ importers:
       get-port-please:
         specifier: ^3.1.2
         version: 3.2.0
+      handlebars:
+        specifier: ^4.7.8
+        version: 4.7.8
       import-meta-resolve:
         specifier: ^4.1.0
         version: 4.2.0
@@ -326,7 +329,7 @@ importers:
         version: 0.25.11
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.12.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.14.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -360,7 +363,7 @@ importers:
         version: 2.1.8(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       highstate-cli-bootstrap:
         specifier: npm:@highstate/cli
-        version: '@highstate/cli@0.12.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
+        version: '@highstate/cli@0.14.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)'
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -457,7 +460,7 @@ importers:
         version: 13.9.0(vue@3.5.22(typescript@5.9.3))
       '@vueuse/nuxt':
         specifier: 12.0.0
-        version: 12.0.0(magicast@0.3.5)(nuxt@4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(yaml@2.8.1))(typescript@5.9.3)
+        version: 12.0.0(magicast@0.3.5)(nuxt@4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.1))(typescript@5.9.3)
       '@xterm/addon-attach':
         specifier: ^0.11.0
         version: 0.11.0(@xterm/xterm@5.5.0)
@@ -610,7 +613,7 @@ importers:
         version: 12.4.1
       docus:
         specifier: ^5.1.0
-        version: 5.2.1(e7e35fd96dee895f624a85adbe32fc76)
+        version: 5.2.1(f0f97241a7b5da345f73675a1c4887ce)
       nuxt:
         specifier: ^4.1.2
         version: 4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.1)
@@ -629,7 +632,7 @@ importers:
         version: 13.9.0(vue@3.5.22(typescript@5.9.3))
       '@vueuse/nuxt':
         specifier: 12.0.0
-        version: 12.0.0(magicast@0.3.5)(nuxt@4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(yaml@2.8.1))(typescript@5.9.3)
+        version: 12.0.0(magicast@0.3.5)(nuxt@4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.1))(typescript@5.9.3)
       less:
         specifier: ^4.4.0
         version: 4.4.2
@@ -3209,8 +3212,8 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  '@highstate/backend@0.10.0':
-    resolution: {integrity: sha512-zKuksbYFZd4LieIthxhncvTCF3yORxPNMtG0xcaGOel6GmQndsUVE7tGCbSjBL6puc4YWdSrqo0TkLeirrQNCQ==}
+  '@highstate/backend@0.14.0':
+    resolution: {integrity: sha512-y/7REG1Lx1RoaUxkVYaKwtyki/I725vtlV/rM7IaZhoBMdceRShC5JpAgbiA+FZNEYKE1gLxXaOp87ugEAmpng==}
     peerDependencies:
       '@pulumi/pulumi': ^3.198.0
       classic-level: ^2.0.0
@@ -3220,8 +3223,8 @@ packages:
       classic-level:
         optional: true
 
-  '@highstate/cli@0.12.0':
-    resolution: {integrity: sha512-yHPQTT9+c1lpgFY2aPwFzAb8nauFT+tziyUWvQd+PChNejgkWDYpCVlrNedGZe58easVjK6IaAKvojhNAPXuUg==}
+  '@highstate/cli@0.14.0':
+    resolution: {integrity: sha512-Kdmfs6DXMrAIPKH9rL+tvcuhg4t9T627ng7yVLgBli67wYkC9Q6gHlEsH1kS3S4k3EWiQfjOKeGhr22O0Ceuig==}
     hasBin: true
     peerDependencies:
       classic-level: '*'
@@ -3229,8 +3232,8 @@ packages:
       classic-level:
         optional: true
 
-  '@highstate/contract@0.10.0':
-    resolution: {integrity: sha512-om73DdbK0ilHaU/jmgltzfczLW5wX9FWNce5A+gMAduRGrSLZrCzcotJIEd9Ghs5QcaftizUY33mqg1o7lGn4g==}
+  '@highstate/contract@0.14.0':
+    resolution: {integrity: sha512-/MJwFJ3ZyU25dCDKF65UymUWqeDsH9fqM6oRJlADGPrtzdDr8MciEZERht/59VQJV0Mn5r1AgJp0F6DA7/KnTA==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6001,9 +6004,6 @@ packages:
 
   '@types/node@18.19.130':
     resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
-
-  '@types/node@22.18.10':
-    resolution: {integrity: sha512-anNG/V/Efn/YZY4pRzbACnKxNKoBng2VTFydVu8RRs5hQjikP8CQfaeAV59VFSCzKNp90mXiVXW2QzV56rwMrg==}
 
   '@types/node@24.7.2':
     resolution: {integrity: sha512-/NbVmcGTP+lj5oa4yiYxxeBjRivKQ5Ns1eSZeB99ExsEQ6rX5XYU1Zy/gGxY/ilqtD4Etx9mKyrPxZRetiahhA==}
@@ -12303,9 +12303,6 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
-
   undici-types@7.14.0:
     resolution: {integrity: sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA==}
 
@@ -14495,24 +14492,24 @@ snapshots:
       vue: 3.5.22(typescript@5.9.3)
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.9.3))
 
-  '@highstate/backend@0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)':
+  '@highstate/backend@0.14.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
-      '@highstate/contract': 0.10.0
+      '@highstate/contract': 0.14.0
       '@msgpack/msgpack': 3.1.2
       '@napi-rs/keyring': 1.2.0
       '@noble/ciphers': 1.3.0
       '@noble/hashes': 1.8.0
       '@paralleldrive/cuid2': 2.2.2
       '@prisma/adapter-libsql': 6.17.1
-      '@prisma/client': 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/driver-adapter-utils': 6.17.1
-      '@types/node': 22.18.10
       age-encryption: 0.2.4
       ajv: 8.17.1
       ansi-colors: 4.1.3
       ansi-styles: 6.2.3
       better-lock: 3.2.0
+      buffer-polyfill: buffer@6.0.3
       consola: 3.4.2
       crypto-hash: 3.1.0
       dotenv: 16.6.1
@@ -14541,24 +14538,24 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@highstate/backend@0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)':
+  '@highstate/backend@0.14.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
-      '@highstate/contract': 0.10.0
+      '@highstate/contract': 0.14.0
       '@msgpack/msgpack': 3.1.2
       '@napi-rs/keyring': 1.2.0
       '@noble/ciphers': 1.3.0
       '@noble/hashes': 1.8.0
       '@paralleldrive/cuid2': 2.2.2
       '@prisma/adapter-libsql': 6.17.1
-      '@prisma/client': 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/driver-adapter-utils': 6.17.1
-      '@types/node': 22.18.10
       age-encryption: 0.2.4
       ajv: 8.17.1
       ansi-colors: 4.1.3
       ansi-styles: 6.2.3
       better-lock: 3.2.0
+      buffer-polyfill: buffer@6.0.3
       consola: 3.4.2
       crypto-hash: 3.1.0
       dotenv: 16.6.1
@@ -14587,11 +14584,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@highstate/cli@0.12.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+  '@highstate/cli@0.14.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@2.0.0)(jiti@2.6.1)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
-      '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)
-      '@highstate/contract': 0.10.0
+      '@highstate/backend': 0.14.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@2.0.0)(typescript@5.9.3)
+      '@highstate/contract': 0.14.0
       '@inquirer/prompts': 7.9.0(@types/node@24.7.2)
       '@msgpack/msgpack': 3.1.2
       '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3)
@@ -14631,11 +14628,11 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@highstate/cli@0.12.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
+  '@highstate/cli@0.14.0(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(classic-level@3.0.0)(jiti@2.6.1)(magicast@0.3.5)(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(tsx@4.20.6)(typanion@3.14.0)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
-      '@highstate/backend': 0.10.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)
-      '@highstate/contract': 0.10.0
+      '@highstate/backend': 0.14.0(@pulumi/pulumi@3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3))(classic-level@3.0.0)(magicast@0.3.5)(typescript@5.9.3)
+      '@highstate/contract': 0.14.0
       '@inquirer/prompts': 7.9.0(@types/node@24.7.2)
       '@msgpack/msgpack': 3.1.2
       '@pulumi/pulumi': 3.202.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.17))(@types/node@24.7.2)(typescript@5.9.3))(typescript@5.9.3)
@@ -14675,7 +14672,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@highstate/contract@0.10.0':
+  '@highstate/contract@0.14.0':
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
       remeda: 2.32.0
@@ -17314,7 +17311,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@prisma/client@6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)':
+  '@prisma/client@6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)':
     optionalDependencies:
       prisma: 6.17.1(magicast@0.3.5)(typescript@5.9.3)
       typescript: 5.9.3
@@ -18244,10 +18241,6 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
-  '@types/node@22.18.10':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/node@24.7.2':
     dependencies:
       undici-types: 7.14.0
@@ -18895,7 +18888,7 @@ snapshots:
 
   '@vueuse/metadata@13.9.0': {}
 
-  '@vueuse/nuxt@12.0.0(magicast@0.3.5)(nuxt@4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(yaml@2.8.1))(typescript@5.9.3)':
+  '@vueuse/nuxt@12.0.0(magicast@0.3.5)(nuxt@4.1.3(@biomejs/biome@2.2.0)(@libsql/client@0.8.1)(@parcel/watcher@2.5.1)(@types/node@24.7.2)(@vue/compiler-sfc@3.5.22)(better-sqlite3@12.4.1)(db0@0.3.4(@libsql/client@0.8.1)(better-sqlite3@12.4.1))(encoding@0.1.13)(eslint@9.37.0(jiti@2.6.1))(ioredis@5.8.1)(less@4.4.2)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.4)(terser@5.44.0)(tsx@4.20.6)(typescript@5.9.3)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(less@4.4.2)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vue-tsc@3.1.4(typescript@5.9.3))(yaml@2.8.1))(typescript@5.9.3)':
     dependencies:
       '@nuxt/kit': 3.19.3(magicast@0.3.5)
       '@vueuse/core': 12.0.0(typescript@5.9.3)
@@ -20201,7 +20194,7 @@ snapshots:
       dockview-core: 4.9.0
       vue: 3.5.22(typescript@5.9.3)
 
-  docus@5.2.1(e7e35fd96dee895f624a85adbe32fc76):
+  docus@5.2.1(f0f97241a7b5da345f73675a1c4887ce):
     dependencies:
       '@iconify-json/lucide': 1.2.69
       '@iconify-json/simple-icons': 1.2.54
@@ -24752,7 +24745,7 @@ snapshots:
 
   prisma-json-types-generator@3.6.2(@prisma/client@6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3))(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3):
     dependencies:
-      '@prisma/client': 6.17.1(prisma@6.17.1(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 6.17.1(prisma@6.17.1(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/generator-helper': 6.17.1
       prisma: 6.17.1(magicast@0.3.5)(typescript@5.9.3)
       semver: 7.7.3
@@ -26167,8 +26160,6 @@ snapshots:
       unplugin: 2.3.10
 
   undici-types@5.26.5: {}
-
-  undici-types@6.21.0: {}
 
   undici-types@7.14.0: {}
 

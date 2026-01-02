@@ -1,5 +1,6 @@
 export * from "./bin-transformer"
 export * from "./entry-points"
+export * from "./generator"
 export * from "./logger"
 export * from "./schema-transformer"
 export * from "./schemas"

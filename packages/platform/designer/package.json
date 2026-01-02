@@ -17,6 +17,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["platform"]
+  },
   "devDependencies": {
     "@codemirror/lang-yaml": "^6.1.2",
     "@codemirror/theme-one-dark": "^6.1.2",

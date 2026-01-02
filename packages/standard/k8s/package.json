@@ -60,6 +60,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["standard"]
+  },
   "scripts": {
     "build": "highstate build",
     "update-charts": "../../../scripts/update-charts.sh ./assets/charts.json",

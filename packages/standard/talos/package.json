@@ -12,6 +12,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["standard"]
+  },
   "scripts": {
     "build": "highstate build",
     "update-assets": "./scripts/update-assets.sh",

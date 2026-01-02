@@ -12,6 +12,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["standard"]
+  },
   "scripts": {
     "build": "highstate build",
     "typecheck": "tsgo --noEmit --skipLibCheck",

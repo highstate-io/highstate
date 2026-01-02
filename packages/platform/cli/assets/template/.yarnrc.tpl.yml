@@ -1,0 +1,3 @@
+{{#if isYarn}}
+nodeLinker: node-modules
+{{/if}}

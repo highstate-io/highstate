@@ -27,6 +27,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["platform"]
+  },
   "scripts": {
     "build": "highstate build",
     "generate-sdk": "./scripts/generate-sdk.sh",

@@ -14,6 +14,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "nx": {
+    "tags": ["platform"]
+  },
   "scripts": {
     "build": "highstate build",
     "test": "vitest run",
@@ -35,6 +38,7 @@
     "console-table-printer": "^2.12.1",
     "crypto-hash": "^3.1.0",
     "get-port-please": "^3.1.2",
+    "handlebars": "^4.7.8",
     "import-meta-resolve": "^4.1.0",
     "magic-string": "^0.30.17",
     "nypm": "^0.6.1",

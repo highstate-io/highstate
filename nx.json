@@ -81,8 +81,20 @@
     "version": {
       "conventionalCommits": true
     },
-    "git": {
-      "commitMessage": "chore(release): publish v{version} [skip ci]"
+
+    "groups": {
+      "platform": {
+        "projects": ["tag:platform"],
+        "git": {
+          "commitMessage": "chore(release): publish platform v{version} [skip ci]"
+        }
+      },
+      "standard": {
+        "projects": ["tag:standard"],
+        "git": {
+          "commitMessage": "chore(release): publish standard library v{version} [skip ci]"
+        }
+      }
     }
   },
   "nxCloudId": "68ec0fb6bfeabbab18190388"

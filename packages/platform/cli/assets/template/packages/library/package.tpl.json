@@ -1,0 +1,14 @@
+{
+  "name": "@{{projectName}}/library",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@highstate/contract": "*",
+    "@highstate/library": "*"
+  }
+}

@@ -6,6 +6,7 @@ import { BackendUnlockMethodDeleteCommand } from "./commands/backend/unlock-meth
 import { BackendUnlockMethodListCommand } from "./commands/backend/unlock-method/list"
 import { BuildCommand } from "./commands/build"
 import { DesignerCommand } from "./commands/designer"
+import { InitCommand } from "./commands/init"
 import {
   CreateCommand as PackageCreateCommand,
   ListCommand as PackageListCommand,
@@ -21,6 +22,7 @@ const cli = new Cli({
 
 cli.register(BuildCommand)
 cli.register(DesignerCommand)
+cli.register(InitCommand)
 cli.register(BackendIdentityCommand)
 cli.register(BackendUnlockMethodListCommand)
 cli.register(BackendUnlockMethodAddCommand)
