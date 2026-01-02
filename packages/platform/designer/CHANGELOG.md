@@ -1,3 +1,13 @@
+## 0.15.0 (2026-01-02)
+
+### 🚀 Features
+
+- bump platform ([9f40c6a](https://github.com/highstate-io/highstate/commit/9f40c6a))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.14.1 (2026-01-02)
 
 ### 🩹 Fixes
