@@ -7,9 +7,9 @@
     "url": "https://github.com/highstate-io/highstate"
   },
   "scripts": {
-    "ci:prepare": "nx run @highstate/cli:build && pnpm install",
-    "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image,typecheck",
-    "ci:verify": "nx affected --base=origin/main -t test,biome:check,typecheck",
+    "ci:prepare": "nx run @highstate/cli:build --nxIgnoreCycles && pnpm install",
+    "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image,typecheck --nxIgnoreCycles",
+    "ci:verify": "nx affected --base=origin/main -t test,biome:check,typecheck --nxIgnoreCycles",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
   "devDependencies": {
