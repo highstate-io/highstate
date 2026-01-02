@@ -72,7 +72,7 @@ jobs:
           pnpm nx-cloud stop-all-agents
 
       - name: Publish packages
-        run: pnpm nx release -y --nxIgnoreCycles
+        run: pnpm nx release -y
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
