@@ -28,7 +28,7 @@
     "biome:check": "biome check --error-on-warnings"
   },
   "peerDependencies": {
-    "@pulumi/pulumi": "^3.198.0",
+    "@pulumi/pulumi": "3.198.0",
     "classic-level": "^2.0.0"
   },
   "peerDependenciesMeta": {

@@ -10,7 +10,7 @@
     "build": "tsc && cp package.json bin/package.json"
   },
   "dependencies": {
-    "@pulumi/pulumi": "^3.198.0",
+    "@pulumi/pulumi": "3.198.0",
     "@types/node": "^18",
     "async-mutex": "^0.5.0",
     "typescript": "^5.7.2"

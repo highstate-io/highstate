@@ -7,7 +7,7 @@ import {
   updateTsconfigReferences,
 } from "../../shared"
 
-export class RemoveCommand extends Command {
+export class PackageRemoveCommand extends Command {
   static paths = [["package", "remove"]]
 
   static usage = Command.Usage({

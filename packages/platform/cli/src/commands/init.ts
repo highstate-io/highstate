@@ -1,11 +1,17 @@
 import type { PackageManagerName } from "nypm"
 import { access, mkdir, readdir } from "node:fs/promises"
-import { basename, resolve } from "node:path"
+import { resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { input, select } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
 import { installDependencies } from "nypm"
-import { generateFromTemplate, logger } from "../shared"
+import {
+  applyOverrides,
+  buildOverrides,
+  generateFromTemplate,
+  logger,
+  resolveVersionBundle,
+} from "../shared"
 
 export class InitCommand extends Command {
   static paths = [["init"]]
@@ -26,19 +32,22 @@ export class InitCommand extends Command {
     description: "The project name.",
   })
 
-  private static readonly defaultPlatformVersion = "0.14.0"
-  private static readonly defaultLibraryVersion = "0.14.0"
+  platformVersion = Option.String("--platform-version", {
+    description: "The Highstate platform version to use.",
+  })
+
+  stdlibVersion = Option.String("--stdlib-version", {
+    description: "The Highstate standard library version to use.",
+  })
 
   async execute(): Promise<void> {
     const availablePackageManagers = await detectAvailablePackageManagers(["npm", "pnpm", "yarn"])
     if (availablePackageManagers.length === 0) {
-      throw new Error("no supported package managers found in PATH (npm, pnpm, yarn)")
+      throw new Error('No supported package managers found in PATH ("npm", "pnpm", "yarn")')
     }
 
-    const destinationPath = await resolveDestinationPath(this.pathOption)
-    const defaultName = basename(destinationPath)
-
-    const projectName = await resolveProjectName(this.name, defaultName)
+    const projectName = await resolveProjectName(this.name)
+    const destinationPath = await resolveDestinationPath(this.pathOption, projectName)
 
     const selectedPackageManager = await resolvePackageManager(
       this.packageManager,
@@ -47,11 +56,16 @@ export class InitCommand extends Command {
 
     const templatePath = resolveTemplatePath()
 
+    const versionBundle = await resolveVersionBundle({
+      platformVersion: this.platformVersion,
+      stdlibVersion: this.stdlibVersion,
+    })
+
     await mkdir(destinationPath, { recursive: true })
 
     const isEmptyOrMissing = await isEmptyDirectory(destinationPath)
     if (!isEmptyOrMissing) {
-      throw new Error(`destination path is not empty: ${destinationPath}`)
+      throw new Error(`Destination path is not empty: "${destinationPath}"`)
     }
 
     logger.info("initializing highstate project in %s", destinationPath)
@@ -59,10 +73,18 @@ export class InitCommand extends Command {
     await generateFromTemplate(templatePath, destinationPath, {
       projectName,
       packageName: projectName,
-      platformVersion: InitCommand.defaultPlatformVersion,
-      libraryVersion: InitCommand.defaultLibraryVersion,
+      platformVersion: versionBundle.platformVersion,
+      libraryVersion: versionBundle.stdlibVersion,
       isPnpm: selectedPackageManager === "pnpm" ? "true" : "",
       isYarn: selectedPackageManager === "yarn" ? "true" : "",
+      isNpm: selectedPackageManager === "npm" ? "true" : "",
+    })
+
+    const overrides = buildOverrides(versionBundle)
+    await applyOverrides({
+      projectRoot: destinationPath,
+      packageManager: selectedPackageManager,
+      overrides,
     })
 
     logger.info("installing dependencies using %s...", selectedPackageManager)
@@ -77,31 +99,38 @@ export class InitCommand extends Command {
   }
 }
 
-async function resolveDestinationPath(pathOption: string | undefined): Promise<string> {
+async function resolveDestinationPath(
+  pathOption: string | undefined,
+  projectName: string,
+): Promise<string> {
   if (pathOption) {
     return resolve(pathOption)
   }
 
+  const defaultPath = resolve(process.cwd(), projectName)
+
   const pathValue = await input({
     message: "Project path",
-    default: ".",
+    default: defaultPath,
     validate: value => (value.trim().length > 0 ? true : "Path is required"),
   })
 
   return resolve(pathValue)
 }
 
-async function resolveProjectName(
-  nameOption: string | undefined,
-  defaultName: string,
-): Promise<string> {
-  if (nameOption) {
-    return nameOption.trim()
+async function resolveProjectName(nameOption: string | undefined): Promise<string> {
+  if (nameOption !== undefined) {
+    const trimmed = nameOption.trim()
+    if (trimmed.length === 0) {
+      throw new Error('Flag "--name" must not be empty')
+    }
+
+    return trimmed
   }
 
   const value = await input({
     message: "Project name",
-    default: defaultName,
+    default: "my-project",
     validate: inputValue => (inputValue.trim().length > 0 ? true : "Name is required"),
   })
 
@@ -114,12 +143,12 @@ async function resolvePackageManager(
 ): Promise<PackageManagerName> {
   if (packageManagerOption) {
     if (!isSupportedPackageManagerName(packageManagerOption)) {
-      throw new Error(`unsupported package manager: ${packageManagerOption}`)
+      throw new Error(`Unsupported package manager: "${packageManagerOption}"`)
     }
 
     const name = packageManagerOption
     if (!available.includes(name)) {
-      throw new Error(`package manager not found in PATH: ${name}`)
+      throw new Error(`Package manager not found in PATH: "${name}"`)
     }
 
     return name

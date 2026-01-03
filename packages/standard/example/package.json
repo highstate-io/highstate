@@ -33,7 +33,8 @@
     "@highstate/sops": "workspace:*",
     "@highstate/talos": "workspace:*",
     "@highstate/wireguard": "workspace:*",
-    "@highstate/yandex": "workspace:*"
+    "@highstate/yandex": "workspace:*",
+    "create-highstate": "workspace:*"
   },
   "repository": {
     "url": "https://github.com/highstate-io/highstate"

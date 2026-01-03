@@ -31,7 +31,7 @@
     "@highstate/pulumi": "workspace:*",
     "@highstate/timeweb-sdk": "workspace:*",
     "@pulumi/command": "^1.0.2",
-    "@pulumi/pulumi": "^3.198.0"
+    "@pulumi/pulumi": "3.198.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

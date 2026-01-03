@@ -9,7 +9,12 @@
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
   },
-  "bin": "./dist/main.js",
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "create-highstate": "./dist/main.js"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -24,9 +29,12 @@
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
   },
+  "dependencies": {
+    "@highstate/cli": "workspace:*",
+    "clipanion": "^4.0.0-rc.4"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   }
 }

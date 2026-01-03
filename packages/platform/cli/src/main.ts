@@ -1,33 +1,36 @@
 import { Builtins, Cli } from "clipanion"
-import { version } from "../package.json"
-import { BackendIdentityCommand } from "./commands/backend/identity"
-import { BackendUnlockMethodAddCommand } from "./commands/backend/unlock-method/add"
-import { BackendUnlockMethodDeleteCommand } from "./commands/backend/unlock-method/delete"
-import { BackendUnlockMethodListCommand } from "./commands/backend/unlock-method/list"
-import { BuildCommand } from "./commands/build"
-import { DesignerCommand } from "./commands/designer"
-import { InitCommand } from "./commands/init"
 import {
-  CreateCommand as PackageCreateCommand,
-  ListCommand as PackageListCommand,
-  RemoveCommand as PackageRemoveCommand,
-  UpdateReferencesCommand,
-} from "./commands/package"
+  BackendIdentityCommand,
+  BackendUnlockMethodAddCommand,
+  BackendUnlockMethodDeleteCommand,
+  BackendUnlockMethodListCommand,
+  BuildCommand,
+  DesignerCommand,
+  InitCommand,
+  PackageCreateCommand,
+  PackageListCommand,
+  PackageRemoveCommand,
+  PackageUpdateReferencesCommand,
+  UpdateCommand,
+} from "./commands"
+
+// const { version } = await import("@highstate/cli/package.json")
 
 const cli = new Cli({
   binaryName: "highstate",
   binaryLabel: "Highstate",
-  binaryVersion: version,
+  // binaryVersion: version,
 })
 
 cli.register(BuildCommand)
 cli.register(DesignerCommand)
 cli.register(InitCommand)
+cli.register(UpdateCommand)
 cli.register(BackendIdentityCommand)
 cli.register(BackendUnlockMethodListCommand)
 cli.register(BackendUnlockMethodAddCommand)
 cli.register(BackendUnlockMethodDeleteCommand)
-cli.register(UpdateReferencesCommand)
+cli.register(PackageUpdateReferencesCommand)
 cli.register(PackageListCommand)
 cli.register(PackageCreateCommand)
 cli.register(PackageRemoveCommand)

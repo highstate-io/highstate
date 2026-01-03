@@ -34,7 +34,7 @@
     "@pulumi/cloudflare": "^6.1.1",
     "@pulumi/command": "^1.0.2",
     "@pulumi/kubernetes": "^4.18.0",
-    "@pulumi/pulumi": "^3.198.0",
+    "@pulumi/pulumi": "3.198.0",
     "@pulumi/query": "^0.6.0",
     "ajv": "^8.17.1"
   },

@@ -32,7 +32,7 @@
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
     "@highstate/yandex-sdk": "workspace:*",
-    "@pulumi/pulumi": "^3.198.0"
+    "@pulumi/pulumi": "3.198.0"
   },
   "devDependencies": {
     "@highstate/cli": "workspace:*",

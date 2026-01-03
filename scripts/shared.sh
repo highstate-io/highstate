@@ -8,7 +8,7 @@ _post_process_generated_package() {
         .name = \"@highstate/$package\" | \
         .version = \"$version\" | \
         .dependencies.typescript = \"^5.7.2\" | \
-        .dependencies.\"@pulumi/pulumi\" = \"^3.198.0\" | \
+        .dependencies.\"@pulumi/pulumi\" = \"3.198.0\" | \
         .publishConfig = {\"access\": \"public\"} | \
         .repository = {\"url\": \"https://github.com/highstate-io/highstate\"} | \
         .scripts.build = \"tsc && cp package.json bin/package.json\" | \

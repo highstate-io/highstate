@@ -1,15 +1,17 @@
 {
   "name": "@{{projectName}}/units",
   "private": true,
-  "dependencies": {
-    "@{{projectName}}/library": "workspace:*"
-  },
   "exports":{
     "./my-unit": "./dist/my-unit/index.js"
   },
+  "dependencies": {
+    {{#unless isNpm}}
+    "@{{projectName}}/library": "workspace:*",
+    {{/unless}}
+    "@highstate/contract": "^{{platformVersion}}",
+    "@highstate/pulumi": "^{{platformVersion}}"
+  },
   "peerDependencies": {
-    "@highstate/contract": "*",
-    "@highstate/pulumi": "*",
     "@pulumi/pulumi": "*"
   }
 }

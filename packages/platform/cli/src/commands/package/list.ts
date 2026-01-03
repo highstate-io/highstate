@@ -2,7 +2,7 @@ import { Command } from "clipanion"
 import { Table } from "console-table-printer"
 import { findWorkspaceRoot, logger, scanWorkspacePackages } from "../../shared"
 
-export class ListCommand extends Command {
+export class PackageListCommand extends Command {
   static paths = [["package", "list"]]
 
   static usage = Command.Usage({

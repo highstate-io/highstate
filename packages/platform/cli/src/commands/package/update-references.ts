@@ -1,7 +1,7 @@
 import { Command } from "clipanion"
 import { findWorkspaceRoot, scanWorkspacePackages, updateTsconfigReferences } from "../../shared"
 
-export class UpdateReferencesCommand extends Command {
+export class PackageUpdateReferencesCommand extends Command {
   static paths = [["package", "update-references"]]
 
   static usage = Command.Usage({

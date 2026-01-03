@@ -1,0 +1,5 @@
+dist
+node_modules
+
+# Uncomment if you don't want to store your state in git
+# .highstate

@@ -28,7 +28,7 @@
     "@highstate/contract": "workspace:*",
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
-    "@pulumi/pulumi": "^3.198.0",
+    "@pulumi/pulumi": "3.198.0",
     "remeda": "^2.21.3"
   },
   "devDependencies": {

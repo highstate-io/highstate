@@ -55,16 +55,23 @@ export function extractEntryPoints(packageJson: PackageJson): Record<string, Ent
         throw new Error(`Export "${key}" must be a string or an object in package.json`)
       }
 
-      if (!distPath.startsWith("./dist/")) {
+      const isJsonExport = distPath.endsWith(".json")
+      const isJsExport = distPath.endsWith(".js")
+
+      if (!isJsonExport && !isJsExport) {
         throw new Error(
-          `The default value of export "${key}" must start with "./dist/" in package.json, got "${distPath}"`,
+          `The default value of export "${key}" must end with ".js" or ".json" in package.json, got "${distPath}"`,
         )
       }
 
-      if (!distPath.endsWith(".js")) {
+      if (isJsExport && !distPath.startsWith("./dist/")) {
         throw new Error(
-          `The default value of export "${key}" must end with ".js" in package.json, got "${distPath}"`,
+          `The default value of export "${key}" must start with "./dist/" when exporting ".js" in package.json, got "${distPath}"`,
         )
+      }
+
+      if (isJsonExport) {
+        continue
       }
 
       const targetName = distPath.slice(7).slice(0, -3)

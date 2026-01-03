@@ -84,7 +84,7 @@
     "@kubernetes/client-node": "^1.1.0",
     "@pulumi/command": "^1.0.2",
     "@pulumi/kubernetes": "^4.18.0",
-    "@pulumi/pulumi": "^3.198.0",
+    "@pulumi/pulumi": "3.198.0",
     "crypto-hash": "^3.1.0",
     "deepmerge-ts": "^7.1.5",
     "glob": "^11.0.1",

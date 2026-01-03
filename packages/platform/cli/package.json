@@ -8,6 +8,12 @@
     "dist",
     "src"
   ],
+  "exports": {
+    "./commands": {
+      "types": "./src/commands/index.ts",
+      "default": "./dist/commands/index.js"
+    }
+  },
   "bin": {
     "highstate": "./dist/main.js"
   },
@@ -32,7 +38,7 @@
     "@highstate/contract": "workspace:*",
     "@inquirer/prompts": "^7.8.6",
     "@msgpack/msgpack": "^3.1.2",
-    "@pulumi/pulumi": "^3.198.0",
+    "@pulumi/pulumi": "3.198.0",
     "age-encryption": "^0.2.4",
     "ajv": "^8.17.1",
     "clipanion": "^4.0.0-rc.4",
@@ -49,7 +55,9 @@
     "pino": "^9.6.0",
     "pkg-types": "^1.2.1",
     "remeda": "^2.21.2",
+    "semver": "^7.7.3",
     "tsup": "^8.4.0",
+    "yaml": "^2.8.2",
     "zod": "^4.0.5"
   },
   "peerDependenciesMeta": {
@@ -62,6 +70,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@types/semver": "^7.7.1",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "esbuild": "^0.25.11",
     "highstate-cli-bootstrap": "npm:@highstate/cli",
