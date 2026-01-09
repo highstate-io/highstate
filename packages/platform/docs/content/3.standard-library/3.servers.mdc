@@ -1,0 +1,30 @@
+---
+title: Servers
+description: Managing servers with Highstate's standard library.
+navigation:
+  icon: i-mdi-server
+---
+
+## What is a Server?
+
+In Highstate, any server can be represented as a `common.server.v1` entity.
+
+Strictly speaking, a server is everything that:
+
+- has network connectivity and endpoints; 
+- optionally, has SSH access available on these endpoints;
+- has `hostname` defined (which can be arbitrary string and used for display purposes).
+
+In other words, a server is "something more than just a bunch of endpoints".
+And this is quite broad definition that can cover a wide range of use cases.
+
+You can use servers to represent:
+
+- physical machines;
+- virtual machines;
+- containers;
+- routers;
+- IoT devices
+- and more.
+
+## Endpoints

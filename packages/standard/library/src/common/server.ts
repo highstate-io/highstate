@@ -33,14 +33,6 @@ export const serverOutputs = $outputs({
    * The server entity representing the server.
    */
   server: serverEntity,
-
-  /**
-   * The L3 endpoints of the server.
-   */
-  endpoints: {
-    entity: l3EndpointEntity,
-    multiple: true,
-  },
 })
 
 export const vmSshArgs = ssh.argsSchema.omit({ user: true }).prefault({})
@@ -117,21 +109,11 @@ export const serverPatch = defineUnit({
 
   args: {
     /**
-     * The endpoints of the server.
+     * The new hostname of the server.
      *
-     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-     *
-     * The same server may also be represented by multiple entries (e.g. a node with private and public IP).
+     * If not specified, the existing hostname will be kept.
      */
-    endpoints: z.string().array().default([]),
-
-    /**
-     * The mode to use for patching the endpoints.
-     *
-     * - `prepend`: prepend the new endpoints to the existing ones (default);
-     * - `replace`: replace the existing endpoints with the new ones.
-     */
-    endpointsPatchMode: arrayPatchModeSchema.default("prepend"),
+    hostname: z.string().optional(),
   },
 
   inputs: {

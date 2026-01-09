@@ -148,7 +148,7 @@ That's it!
 You've got a valid component.
 Pretty basic though:
 
-::snippet-preview{snippet="fundamentals/components/minimal-component"}
+::designer-preview{title="Minimal Component" type="snippet" id="fundamentals/components/minimal-component"}
 ::
 
 Let's make it look good in the designer by adding some visual metadata:
@@ -176,7 +176,7 @@ export const blogApp = defineUnit({
 
 Here's how it looks now:
 
-::snippet-preview{snippet="fundamentals/components/component-with-meta"}
+::designer-preview{title="Component With Metadata" type="snippet" id="fundamentals/components/component-with-meta"}
 ::
 
 ## Making Components Configurable
@@ -283,7 +283,7 @@ export const blogApp = defineUnit({
 
 Go ahead, click that "edit" button and explore the different UI elements:
 
-::snippet-preview{snippet="fundamentals/components/component-with-args"}
+::designer-preview{title="Component With Arguments" type="snippet" id="fundamentals/components/component-with-args"}
 ::
 
 ### Default and Optional Values
@@ -375,7 +375,7 @@ export const blogApp = defineUnit({
 
 Look at that! Our blog can now connect to other components:
 
-::snippet-preview{snippet="fundamentals/components/component-with-connections"}
+::designer-preview{title="Component With Inputs/Outputs" type="snippet" id="fundamentals/components/component-with-connections"}
 ::
 
 Here's what a simplified `k8s.cluster` entity looks like (the real one is much more complex):
@@ -434,12 +434,12 @@ Here are some real examples of using different connection types from the standar
 
 1. A [k3s](https://docs.k3s.io/) cluster deployed on top of multiple servers:
 
-::snippet-preview{snippet="fundamentals/components/k3s-cluster-io" height="800px"}
+::designer-preview{title="Example: k3s Cluster" type="snippet" id="fundamentals/components/k3s-cluster-io" height="800px"}
 ::
 
 2. A wireguard server with multiple clients:
 
-::snippet-preview{snippet="fundamentals/components/wireguard-server" height="800px"}
+::designer-preview{title="Example: Wireguard Server" type="snippet" id="fundamentals/components/wireguard-server" height="800px"}
 ::
 
 ## Making Components Look Good

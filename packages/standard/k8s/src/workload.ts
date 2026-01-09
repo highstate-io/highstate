@@ -38,7 +38,7 @@ import { Namespace } from "./namespace"
 import { NetworkPolicy, type NetworkPolicyArgs } from "./network-policy"
 import { podSpecDefaults } from "./pod"
 import { mapContainerPortToServicePort, Service, type ServiceArgs } from "./service"
-import { commonExtraArgs, images, ScopedResource, type ScopedResourceArgs } from "./shared"
+import { commonExtraArgs, images, NamespacedResource, type ScopedResourceArgs } from "./shared"
 
 export type WorkloadTerminalArgs = {
   /**
@@ -341,19 +341,18 @@ export function getExposableWorkloadComponents(
   return { labels, containers, volumes, podSpec, podTemplate, networkPolicy, service, routes }
 }
 
-export abstract class Workload extends ScopedResource {
+export abstract class Workload extends NamespacedResource {
   protected constructor(
     type: string,
     protected readonly name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
+
     protected readonly terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     protected readonly containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
 
     /**
      * The rendered pod template of the workload.
@@ -367,7 +366,7 @@ export abstract class Workload extends ScopedResource {
      */
     readonly networkPolicy: Output<NetworkPolicy | undefined>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   protected abstract get templateMetadata(): Output<types.output.meta.v1.ObjectMeta>
@@ -411,7 +410,7 @@ export abstract class Workload extends ScopedResource {
               set -euo pipefail
 
               NAMESPACE="${this.metadata.namespace}"
-              RESOURCE_TYPE="${this.kind.apply(k => k.toLowerCase())}"
+              RESOURCE_TYPE="${this.kind.toLowerCase()}"
               RESOURCE_NAME="${this.metadata.name}"
               CONTAINER_NAME="${containerName}"
               SHELL="${shell}"
@@ -496,7 +495,7 @@ export abstract class Workload extends ScopedResource {
           "-it",
           "-n",
           this.metadata.namespace,
-          interpolate`${this.kind.apply(k => k.toLowerCase())}/${this.metadata.name}`,
+          `${this.kind.toLowerCase()}/${this.metadata.name}`,
           "-c",
           containerName,
           "--",
@@ -524,12 +523,11 @@ export abstract class ExposableWorkload extends Workload {
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
+
     terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
     podTemplate: Output<types.output.core.v1.PodTemplateSpec>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
@@ -545,12 +543,10 @@ export abstract class ExposableWorkload extends Workload {
       name,
       args,
       opts,
-      apiVersion,
-      kind,
+      metadata,
+      namespace,
       terminalArgs,
       containers,
-      namespace,
-      metadata,
       podTemplate,
       networkPolicy,
     )
@@ -605,7 +601,7 @@ export abstract class ExposableWorkload extends Workload {
     opts?: CustomResourceOptions,
   ): Output<ExposableWorkload> {
     return output(args).apply(async args => {
-      if (args.existing?.type === "deployment") {
+      if (args.existing?.kind === "Deployment") {
         const { Deployment } = await import("./deployment")
 
         return Deployment.patch(
@@ -619,7 +615,7 @@ export abstract class ExposableWorkload extends Workload {
         )
       }
 
-      if (args.existing?.type === "stateful-set") {
+      if (args.existing?.kind === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
         return StatefulSet.patch(

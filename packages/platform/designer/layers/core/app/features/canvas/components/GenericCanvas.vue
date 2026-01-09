@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { CustomEdge, SelectionRectangle } from "#layers/core/app/features/canvas"
-import { Panel, VueFlow, type NodeProps } from "@vue-flow/core"
+import { Panel, VueFlow, type NodeProps, type ValidConnectionFunc } from "@vue-flow/core"
 import type { InputResolverOutput } from "@highstate/backend/shared"
 import type { ComponentModel, EntityModel } from "@highstate/contract"
 import { Background } from "@vue-flow/background"

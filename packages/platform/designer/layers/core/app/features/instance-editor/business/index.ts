@@ -222,12 +222,23 @@ function tryCreatePlainArgument(
 }
 
 function isRecordSchema(schema: z.core.JSONSchema.BaseSchema) {
-  return (
-    schema.type === "object" &&
-    schema.additionalProperties &&
-    Object.keys(schema.additionalProperties).length === 0 &&
-    schema.propertyNames
-  )
+  if (schema.type !== "object") {
+    return false
+  }
+
+  if (schema.additionalProperties && Object.keys(schema.additionalProperties).length > 0) {
+    return true
+  }
+
+  if (schema.propertyNames && Object.keys(schema.propertyNames).length > 0) {
+    return true
+  }
+
+  if (schema.patternProperties && Object.keys(schema.patternProperties).length > 0) {
+    return true
+  }
+
+  return false
 }
 
 function findDiscriminatorField(

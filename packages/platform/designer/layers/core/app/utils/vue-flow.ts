@@ -1,4 +1,9 @@
-import type { ComponentModel, HubModel, InstanceModel } from "@highstate/contract"
+import {
+  isAssignableTo,
+  type ComponentModel,
+  type HubModel,
+  type InstanceModel,
+} from "@highstate/contract"
 import type { Connection, VueFlowStore } from "@vue-flow/core"
 
 import LayoutWorker from "#layers/core/app/workers/graph-layout?sharedworker"
@@ -145,7 +150,12 @@ export const validateConnection = (
     return false
   }
 
-  if (input.type !== output.type) {
+  const outputEntity = libraryStore.entities[output.type]
+  if (!outputEntity) {
+    return false
+  }
+
+  if (!isAssignableTo(outputEntity, input.type)) {
     // type mismatch
     return false
   }

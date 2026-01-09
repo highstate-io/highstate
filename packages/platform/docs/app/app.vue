@@ -64,7 +64,11 @@ provide("navigation", navigation)
 
 <template>
   <NuxtPage
-    v-if="route.name === 'preview-blueprint-blueprint' || route.name === 'preview-snippet-snippet'"
+    v-if="
+      route.name === 'preview-blueprint-blueprint' ||
+      route.name === 'preview-snippet-snippet' ||
+      route.name === 'preview-host'
+    "
   />
 
   <UApp v-else :locale="nuxtUiLocales[locale as keyof typeof nuxtUiLocales]">
@@ -78,6 +82,10 @@ provide("navigation", navigation)
 
     <ClientOnly>
       <LazyUContentSearch :files="files" :navigation="navigation" />
+    </ClientOnly>
+
+    <ClientOnly>
+      <SharedPreviewModal />
     </ClientOnly>
   </UApp>
 </template>

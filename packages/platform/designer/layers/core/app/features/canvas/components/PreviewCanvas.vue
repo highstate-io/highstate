@@ -5,6 +5,10 @@ import { createId } from "@paralleldrive/cuid2"
 import { InstanceNode } from "#layers/core/app/features/instance-node"
 import HubNode from "./HubNode.vue"
 
+const emit = defineEmits<{
+  ready: []
+}>()
+
 const {
   instances,
   hubs = [],
@@ -61,6 +65,8 @@ const init = async (canvasStore: CanvasStore) => {
   }
 
   await Promise.all(promises)
+
+  emit("ready")
 }
 </script>
 

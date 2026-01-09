@@ -4,10 +4,10 @@ import { filterEndpoints } from "../../../shared"
 
 const { args, inputs, outputs } = forUnit(network.endpointFilter)
 
-const l3EndpointsResolved = await toPromise(inputs.l3Endpoints)
-const l4EndpointsResolved = await toPromise(inputs.l4Endpoints)
+const resolvedInputs = await toPromise(inputs)
 
 export default outputs({
-  l3Endpoints: filterEndpoints(l3EndpointsResolved, args.endpointFilter),
-  l4Endpoints: filterEndpoints(l4EndpointsResolved, args.endpointFilter),
+  l3Endpoints: filterEndpoints(resolvedInputs.l3Endpoints, args.endpointFilter),
+  l4Endpoints: filterEndpoints(resolvedInputs.l4Endpoints, args.endpointFilter),
+  l7Endpoints: filterEndpoints(resolvedInputs.l7Endpoints, args.endpointFilter),
 })

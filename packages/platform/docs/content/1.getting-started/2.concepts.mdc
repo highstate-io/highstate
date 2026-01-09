@@ -47,7 +47,7 @@ An instance is a specific usage of a component with its own arguments and connec
 In Highstate, you can create instances of components on a project canvas.
 For example, let's create an instance of `common.existing-server.v1` component:
 
-::snippet-preview{snippet="getting-started/concepts/first-instance"}
+::designer-preview{title="Example: First Instance" type="snippet" id="getting-started/concepts/first-instance"}
 ::
 
 Yes, we integrated the entire Highstate designer into the documentation to make it more interactive and engaging!
@@ -88,7 +88,7 @@ And if we have another component, say, `k3s.cluster.v1`, that needs to know abou
 
 And, whizz, we can now connect these two components together:
 
-::snippet-preview{snippet="getting-started/concepts/inputs-outputs"}
+::designer-preview{title="Example: Inputs and Outputs" type="snippet" id="getting-started/concepts/inputs-outputs"}
 ::
 
 This example say something like "I have an existing server, and I want to use it as a control plane for my new Kubernetes cluster".
@@ -186,7 +186,7 @@ A **hub** is a special node used to aggregate multiple instance inputs together 
 
 Imagine the following infrastructure:
 
-::blueprint-preview{blueprint="getting-started/concepts/without-hubs"}
+::designer-preview{title="Blueprint: Without Hubs" type="blueprint" id="getting-started/concepts/without-hubs"}
 ::
 
 Here we created and connected three instances: `proxmox.connection.v1`, `distributions.ubuntu.v1`, and `proxmox.image.v1`.
@@ -197,7 +197,7 @@ So, the total number of connections for these instances will be `3n` where `n` i
 
 Lets improve this design by introducing a hub:
 
-::blueprint-preview{blueprint="getting-started/concepts/with-hubs"}
+::designer-preview{title="Blueprint: With Hubs" type="blueprint" id="getting-started/concepts/with-hubs"}
 ::
 
 The total connection is now reduced to `n` + connections from instances to the hub.

@@ -2,9 +2,9 @@ import type { k8s, network } from "@highstate/library"
 import type { Namespace } from "./namespace"
 import {
   ImplementationMediator,
-  type InputL34Endpoint,
+  type InputEndpoint,
   l3EndpointToCidr,
-  l34EndpointToString,
+  endpointToString,
   parseL34Endpoint,
 } from "@highstate/common"
 import { z } from "@highstate/contract"
@@ -90,7 +90,7 @@ export type IngressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  fromEndpoint?: Input<InputL34Endpoint>
+  fromEndpoint?: Input<InputEndpoint>
 
   /**
    * The list of allowed L3 or L4 endpoints for incoming traffic.
@@ -102,7 +102,7 @@ export type IngressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  fromEndpoints?: InputArray<InputL34Endpoint>
+  fromEndpoints?: InputArray<InputEndpoint>
 
   /**
    * The service to allow traffic from.
@@ -219,7 +219,7 @@ export type EgressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  toEndpoint?: Input<InputL34Endpoint>
+  toEndpoint?: Input<InputEndpoint>
 
   /**
    * The list of allowed L3 or L4 endpoints for outgoing traffic.
@@ -231,7 +231,7 @@ export type EgressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  toEndpoints?: InputArray<InputL34Endpoint>
+  toEndpoints?: InputArray<InputEndpoint>
 
   /**
    * The service to allow traffic to.
@@ -784,11 +784,11 @@ export class NetworkPolicy extends ComponentResource {
    */
   static async allowEgressToEndpoint(
     namespace: Input<Namespace>,
-    endpoint: InputL34Endpoint,
+    endpoint: InputEndpoint,
     opts?: ResourceOptions,
   ): Promise<NetworkPolicy> {
     const parsedEndpoint = parseL34Endpoint(endpoint)
-    const endpointStr = l34EndpointToString(parsedEndpoint).replace(/:/g, "-")
+    const endpointStr = endpointToString(parsedEndpoint).replace(/:/g, "-")
     const nsName = await toPromise(output(namespace).metadata.name)
     const cluster = await toPromise(output(namespace).cluster)
 
@@ -796,7 +796,7 @@ export class NetworkPolicy extends ComponentResource {
       `allow-egress-to-${endpointStr}.${cluster.name}.${nsName}.${cluster.id}`,
       {
         namespace,
-        description: `Allow egress traffic to "${l34EndpointToString(parsedEndpoint)}" from the namespace.`,
+        description: `Allow egress traffic to "${endpointToString(parsedEndpoint)}" from the namespace.`,
         egressRule: { toEndpoint: endpoint },
       },
       opts,
@@ -814,7 +814,7 @@ export class NetworkPolicy extends ComponentResource {
    */
   static async allowEgressToBestEndpoint(
     namespace: Input<Namespace>,
-    endpoints: InputArray<InputL34Endpoint>,
+    endpoints: InputArray<InputEndpoint>,
     opts?: ResourceOptions,
   ): Promise<NetworkPolicy> {
     const cluster = await toPromise(output(namespace).cluster)
@@ -835,11 +835,11 @@ export class NetworkPolicy extends ComponentResource {
    */
   static async allowIngressFromEndpoint(
     namespace: Input<Namespace>,
-    endpoint: InputL34Endpoint,
+    endpoint: InputEndpoint,
     opts?: ResourceOptions,
   ): Promise<NetworkPolicy> {
     const parsedEndpoint = parseL34Endpoint(endpoint)
-    const endpointStr = l34EndpointToString(parsedEndpoint).replace(/:/g, "-")
+    const endpointStr = endpointToString(parsedEndpoint).replace(/:/g, "-")
     const nsName = await toPromise(output(namespace).metadata.name)
     const cluster = await toPromise(output(namespace).cluster)
 
@@ -847,7 +847,7 @@ export class NetworkPolicy extends ComponentResource {
       `allow-ingress-from-${endpointStr}.${cluster.name}.${nsName}.${cluster.id}`,
       {
         namespace,
-        description: interpolate`Allow ingress traffic from "${l34EndpointToString(parsedEndpoint)}" to the namespace.`,
+        description: interpolate`Allow ingress traffic from "${endpointToString(parsedEndpoint)}" to the namespace.`,
         ingressRule: { fromEndpoint: endpoint },
       },
       opts,

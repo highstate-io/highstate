@@ -1,32 +1,20 @@
 import type { Simplify } from "type-fest"
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { $args, defineEntity, defineUnit, z } from "@highstate/contract"
+import { mapValues, pick } from "remeda"
+import { commonArgsSchema } from "./utils"
 
-export const endpointVisibilitySchema = z.enum([
-  "public", // reachable from the public internet
-  "external", // reachable from outside the system boundary, but not public
-  "internal", // reachable only from within the system or cluster
-])
-
-export const endpointFilterSchema = endpointVisibilitySchema.array()
-
-/**
- * The L3 endpoint for some service.
- *
- * May be a domain name or an IP address.
- */
-export const l3EndpointEntity = defineEntity({
-  type: "network.l3-endpoint.v1",
-
-  schema: z.intersection(
+export function createEndpointSchema<TLevel extends number, TShape extends z.core.$ZodShape>(
+  level: TLevel,
+  shape: TShape,
+) {
+  return z.intersection(
     z.object({
       /**
-       * The generic visibility of an endpoint.
-       *
-       * - `public`: reachable from the public internet;
-       * - `external`: reachable from outside the system boundary (e.g., LAN, VPC), but not public;
-       * - `internal`: reachable only from within the application or infrastructure boundary (e.g., within a cluster).
+       * The level of the endpoint in the network stack.
        */
-      visibility: endpointVisibilitySchema,
+      level: z.literal(level).default(level),
+
+      ...pick(commonArgsSchema, ["labels"]),
 
       /**
        * The extra metadata for the endpoint.
@@ -34,6 +22,8 @@ export const l3EndpointEntity = defineEntity({
        * In most cases, this is provided by the endpoint origin (e.g., a Kubernetes service).
        */
       metadata: z.record(z.string(), z.unknown()).optional(),
+
+      ...shape,
     }),
     z.union([
       z.object({
@@ -61,12 +51,8 @@ export const l3EndpointEntity = defineEntity({
         address: z.string(),
       }),
     ]),
-  ),
-
-  meta: {
-    color: "#4CAF50",
-  },
-})
+  )
+}
 
 export const l4ProtocolSchema = z.enum(["tcp", "udp"])
 
@@ -75,34 +61,9 @@ export const l4ProtocolSchema = z.enum(["tcp", "udp"])
  */
 export const portSchema = z.number().int().min(1).max(65535)
 
-/**
- * The schema for an IPv4 prefix length.
- */
-export const ipv4PrefixSchema = z.number().int().min(0).max(32)
-
-/**
- * The schema for address that can be either IPv4 or IPv6.
- */
-export const ipv46Schema = z.union([z.ipv4(), z.ipv6()])
-
 export const l4PortInfoSchema = z.object({
   port: portSchema,
   protocol: l4ProtocolSchema,
-})
-
-/**
- * The L4 endpoint for some service.
- *
- * Extends an L3 endpoint with a port and protocol.
- */
-export const l4EndpointEntity = defineEntity({
-  type: "network.l4-endpoint.v1",
-
-  schema: z.intersection(l3EndpointEntity.schema, l4PortInfoSchema),
-
-  meta: {
-    color: "#2196F3",
-  },
 })
 
 export const l7AppInfoSchema = z.object({
@@ -117,7 +78,62 @@ export const l7AppInfoSchema = z.object({
    *
    * Example: `api/v1/resource?query=value`, `database?param=value`, `user/repo.git`.
    */
-  resource: z.string().optional(),
+  path: z.string().optional(),
+})
+
+const l3EndpointSchema = createEndpointSchema(3, {})
+const l4EndpointSchema = createEndpointSchema(4, l4PortInfoSchema.shape)
+
+const l7EndpointSchema = createEndpointSchema(7, {
+  ...l4PortInfoSchema.shape,
+  ...l7AppInfoSchema.shape,
+})
+
+const endpointSchema = z.union([l3EndpointSchema, l4EndpointSchema, l7EndpointSchema])
+
+/**
+ * The L3 endpoint for some service.
+ *
+ * May be a domain name or an IP address.
+ */
+export const l3EndpointEntity = defineEntity({
+  type: "network.l3-endpoint.v1",
+
+  schema: endpointSchema,
+
+  meta: {
+    color: "#4CAF50",
+  },
+})
+
+/**
+ * The schema for an IPv4 prefix length.
+ */
+export const ipv4PrefixSchema = z.number().int().min(0).max(32)
+
+/**
+ * The schema for address that can be either IPv4 or IPv6.
+ */
+export const ipv46Schema = z.union([z.ipv4(), z.ipv6()])
+
+/**
+ * The L4 endpoint for some service.
+ *
+ * Extends an L3 endpoint with a port and protocol.
+ */
+export const l4EndpointEntity = defineEntity({
+  type: "network.l4-endpoint.v1",
+
+  extends: { l3EndpointEntity },
+
+  schema: z.intersection(
+    endpointSchema,
+    z.object({ level: z.union([z.literal(4), z.literal(7)]) }),
+  ),
+
+  meta: {
+    color: "#2196F3",
+  },
 })
 
 /**
@@ -128,7 +144,9 @@ export const l7AppInfoSchema = z.object({
 export const l7EndpointEntity = defineEntity({
   type: "network.l7-endpoint.v1",
 
-  schema: z.intersection(l4EndpointEntity.schema, l7AppInfoSchema),
+  extends: { l4EndpointEntity },
+
+  schema: z.intersection(endpointSchema, z.object({ level: z.literal(7) })),
 
   meta: {
     color: "#FF9800",
@@ -150,16 +168,11 @@ export const l3Endpoint = defineUnit({
     endpoint: z.string(),
 
     /**
-     * The visibility of the endpoint.
+     * The custom tags of the endpoint.
      *
-     * The visibility levels are:
-     * - `public`: reachable from the public internet;
-     * - `external`: reachable from outside the system boundary (e.g., LAN, VPC), but not public;
-     * - `internal`: reachable only from within the application or infrastructure boundary (e.g., within a cluster).
-     *
-     * If not specified, defaults to `public`.
+     * Can be used to filter them (for example, by visibility).
      */
-    visibility: endpointVisibilitySchema.default("public"),
+    tags: z.string().array().default([]),
   },
 
   outputs: {
@@ -199,18 +212,6 @@ export const l4Endpoint = defineUnit({
      * - `udp://endpoint:port`
      */
     endpoint: z.string(),
-
-    /**
-     * The visibility of the endpoint.
-     *
-     * The visibility levels are:
-     * - `public`: reachable from the public internet;
-     * - `external`: reachable from outside the system boundary (e.g., LAN, VPC), but not public;
-     * - `internal`: reachable only from within the application or infrastructure boundary (e.g., within a cluster).
-     *
-     * If not specified, defaults to `public`.
-     */
-    visibility: endpointVisibilitySchema.default("public"),
   },
 
   outputs: {
@@ -241,25 +242,16 @@ export const l7Endpoint = defineUnit({
     /**
      * The string representation of the endpoint.
      *
-     * The possible formats are:
-     *
-     * - `https://endpoint:port/resource`
-     * - `ftp://endpoint:port/resource`
-     * - `someotherprotocol://endpoint:port/resource`
+     * The format is `[protocol://]endpoint[:port][/path]`.
      */
     endpoint: z.string(),
 
     /**
-     * The visibility of the endpoint.
+     * The custom tags of the endpoint.
      *
-     * The visibility levels are:
-     * - `public`: reachable from the public internet;
-     * - `external`: reachable from outside the system boundary (e.g., LAN, VPC), but not public;
-     * - `internal`: reachable only from within the application or infrastructure boundary (e.g., within a cluster).
-     *
-     * If not specified, defaults to `public`.
+     * Can be used to filter them (for example, by visibility).
      */
-    visibility: endpointVisibilitySchema.default("public"),
+    tags: z.string().array().default([]),
   },
 
   outputs: {
@@ -280,33 +272,26 @@ export const l7Endpoint = defineUnit({
   },
 })
 
-/**
- * Explicitly filter endpoints by their accessibility.
- */
-export const endpointFilter = defineUnit({
-  type: "network.endpoint-filter.v1",
+export const networkArgs = $args({
+  /**
+   * The filter expression to select endpoints by their properties and tags.a
+   *
+   * Besides the labels, the following additional labels are available for filtering:
+   *
+   * - `type`: The type of the endpoint (`ipv4`, `ipv6`, `hostname`).
+   * - `level`: The level of the endpoint in the network stack (`3`, `4`, `7`). Numeric, can be used in expressions like `level >= 4`.
+   * - `protocol`: The L4 protocol of the endpoint (`tcp`, `udp`). Only available for L4 and L7 endpoints.
+   * - `port`: The port of the endpoint. Only available for L4 and L7 endpoints.
+   * - `appProtocol`: The application protocol of the endpoint (e.g., `http`, `https`, `dns`). Only available for L7 endpoints.
+   *
+   * See [filter-expression](https://github.com/tronghieu/filter-expression?tab=readme-ov-file#language) for more details on the expression syntax.
+   */
+  endpointFilter: z.string().meta({ language: "javascript" }),
+})
 
-  args: {
-    /**
-     * The endpoint filter to filter the endpoints before creating the DNS records.
-     *
-     * Possible values:
-     *
-     * - `public`: only endpoints exposed to the public internet;
-     * - `external`: reachable from outside the system but not public (e.g., LAN, VPC);
-     * - `internal`: reachable only from within the system boundary (e.g., inside a cluster).
-     *
-     * You can select one or more values.
-     *
-     * If no value is provided, the endpoints will be filtered by the most accessible type:
-     *
-     * - if any public endpoints exist, all public endpoints are selected;
-     * - otherwise, if any external endpoints exist, all external endpoints are selected;
-     * - if neither exist, all internal endpoints are selected.
-     */
-    endpointFilter: endpointFilterSchema.default([]),
-  },
+export const optionalNetworkArgs = mapValues(networkArgs, x => ({ schema: x.schema.optional() }))
 
+const endpointManipulation = {
   inputs: {
     l3Endpoints: {
       entity: l3EndpointEntity,
@@ -315,6 +300,11 @@ export const endpointFilter = defineUnit({
     },
     l4Endpoints: {
       entity: l4EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+    l7Endpoints: {
+      entity: l7EndpointEntity,
       multiple: true,
       required: false,
     },
@@ -329,7 +319,24 @@ export const endpointFilter = defineUnit({
       entity: l4EndpointEntity,
       multiple: true,
     },
+    l7Endpoints: {
+      entity: l7EndpointEntity,
+      multiple: true,
+    },
   },
+} as const
+
+/**
+ * Explicitly filter endpoints by their accessibility.
+ */
+export const endpointFilter = defineUnit({
+  type: "network.endpoint-filter.v1",
+
+  args: {
+    ...pick(networkArgs, ["endpointFilter"]),
+  },
+
+  ...endpointManipulation,
 
   meta: {
     title: "Endpoint Filter",
@@ -345,25 +352,6 @@ export const endpointFilter = defineUnit({
   },
 })
 
-/**
- * The generic visibility of an endpoint.
- *
- * - `public`: reachable from the public internet;
- * - `external`: reachable from outside the system boundary (e.g., LAN, VPC), but not public;
- * - `internal`: reachable only from within the application or infrastructure boundary (e.g., within a cluster).
- */
-export type EndpointVisibility = z.infer<typeof endpointVisibilitySchema>
-
-/**
- * The list of endpoint visibility levels used to filter endpoints.
- *
- * If empty, it will filter the most widely accessible endpoints, prefering visibility in the following order:
- *   - If any public endpoints exist, all public endpoints are selected.
- *   - Otherwise, if any external endpoints exist, all external endpoints are selected.
- *   - If neither exist, all internal endpoints are selected.
- */
-export type EndpointFilter = z.infer<typeof endpointFilterSchema>
-
 export type L3Endpoint = Simplify<z.infer<typeof l3EndpointEntity.schema>>
 export type L4Endpoint = Simplify<z.infer<typeof l4EndpointEntity.schema>>
 export type L4Protocol = z.infer<typeof l4ProtocolSchema>
@@ -371,21 +359,10 @@ export type L4PortInfo = z.infer<typeof l4PortInfoSchema>
 export type L7Endpoint = Simplify<z.infer<typeof l7EndpointEntity.schema>>
 export type L7AppInfo = z.infer<typeof l7AppInfoSchema>
 
-export const l34EndpointSchema = z.union([
-  z.intersection(
-    l3EndpointEntity.schema,
-    z.object({
-      port: z.undefined().optional(),
-      protocol: z.undefined().optional(),
-    }),
-  ),
-  l4EndpointEntity.schema,
-])
+export type EndpointLevel = L3Endpoint["level"]
 
-/**
- * The L3 or L4 endpoint for some service.
- *
- * For convenience, L3 case have `port` and `protocol` fields as `undefined`,
- * so you can check any of them to determine if it's an L3 or L4 endpoint.
- */
-export type L34Endpoint = Simplify<z.infer<typeof l34EndpointSchema>>
+export type EndpointByMinLevel<TMinLevel extends EndpointLevel> = {
+  3: L3Endpoint
+  4: L4Endpoint
+  7: L7Endpoint
+}[TMinLevel]

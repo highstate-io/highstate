@@ -17,6 +17,7 @@
     "@nuxtjs/mdc": "^0.18.0",
     "better-sqlite3": "^12.4.1",
     "docus": "^5.1.0",
+    "html2canvas-pro": "^1.6.3",
     "nuxt": "^4.1.2",
     "unist-util-visit": "^5.0.0",
     "zod": "^3",

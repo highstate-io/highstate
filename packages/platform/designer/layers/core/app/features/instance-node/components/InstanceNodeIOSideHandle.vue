@@ -61,6 +61,10 @@ defineProps<{
   border-radius: 0 4px 4px 0;
 }
 
+.vue-flow__handle-connecting.vue-flow__handle-valid + .handle-dot {
+  background-color: rgb(var(--v-theme-success)) !important;
+}
+
 .vue-flow__handle-connecting:not(.vue-flow__handle-valid) + .handle-dot {
   background-color: rgb(var(--v-theme-error)) !important;
 }

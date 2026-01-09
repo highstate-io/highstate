@@ -14,8 +14,17 @@ const error = ref<string | null>(null)
 const loading = ref(false)
 
 const stateStore = await useProjectStateStore.async(projectId)
+const workspaceStore = useWorkspaceStore()
+
+const passKeyInProgress = ref(false)
 
 const tryPassKeyUnlock = async () => {
+  if (passKeyInProgress.value) {
+    return
+  }
+
+  passKeyInProgress.value = true
+
   const decrypter = new Decrypter()
   decrypter.addIdentity(new webauthn.WebAuthnIdentity())
 
@@ -24,12 +33,20 @@ const tryPassKeyUnlock = async () => {
   } catch (err) {
     globalLogger.error({ error: err }, "failed to unlock project with passkey")
     error.value = "An error occurred while unlocking the project with passkey"
+  } finally {
+    passKeyInProgress.value = false
   }
 }
 
 const unlockState = await until(() => stateStore.unlockState).not.toBeUndefined()
 
-if (unlockState.type === "locked" && unlockState.unlockSuite?.hasPasskey) {
+if (
+  unlockState.type === "locked" &&
+  unlockState.unlockSuite?.hasPasskey &&
+  workspaceStore.dockview?.activePanel?.params?.projectId === projectId
+) {
+  globalLogger.info(`attempting passkey unlock for project "%s"`, projectId)
+
   void tryPassKeyUnlock()
 }
 
@@ -118,7 +135,19 @@ const rules = computed(() => [(v: string) => !!v || "Password is required"])
 
       <VCardActions>
         <VSpacer />
-        <VBtn :loading="loading" :disabled="loading" @click="tryPasswordUnlock">Unlock</VBtn>
+        <VBtn
+          v-if="unlockState.type === 'locked' && unlockState.unlockSuite?.hasPasskey"
+          color="secondary"
+          :loading="passKeyInProgress"
+          :disabled="passKeyInProgress"
+          @click="tryPassKeyUnlock"
+        >
+          <VIcon>mdi-fingerprint</VIcon>
+        </VBtn>
+        <VBtn color="primary" :loading="loading" :disabled="loading" @click="tryPasswordUnlock">
+          <VIcon class="mr-2">mdi-lock-open</VIcon>
+          Unlock
+        </VBtn>
       </VCardActions>
     </VCard>
   </div>

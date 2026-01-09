@@ -10,11 +10,11 @@ const { argument, modelValue } = defineProps<{
   instance: InstanceModel
 }>()
 
-let initialValue: string
+const currentValue = ref("")
 if (typeof modelValue === "string") {
-  initialValue = modelValue
+  currentValue.value = modelValue
 } else {
-  initialValue = yamlValueSchema.safeParse(modelValue)?.data?.value ?? ""
+  currentValue.value = yamlValueSchema.safeParse(modelValue)?.data?.value ?? ""
 }
 
 const emit = defineEmits<{
@@ -30,6 +30,8 @@ const handleModelChange = (value: string) => {
       value,
     })
   }
+
+  currentValue.value = value
 }
 </script>
 
@@ -37,13 +39,18 @@ const handleModelChange = (value: string) => {
   <VExpansionPanel :title="argument.title" color="#2d2d2d" bg-color="#1e1e1e">
     <template #title>
       <div>{{ argument.title }}</div>
-      <ArgumentDescription v-if="argument.description" :description="argument.description" />
     </template>
 
     <template #text>
+      <ArgumentDescription
+        v-if="argument.description"
+        :description="argument.description"
+        class="mb-4"
+      />
+
       <div class="editor">
         <VueMonacoEditor
-          :value="initialValue"
+          :value="currentValue"
           @update:value="handleModelChange"
           v-if="argument.kind === 'code'"
           theme="dark-plus"
@@ -53,7 +60,7 @@ const handleModelChange = (value: string) => {
         />
         <VueMonacoEditor
           v-else
-          :value="initialValue"
+          :value="currentValue"
           @update:value="handleModelChange"
           theme="vs-dark"
           language="yaml"

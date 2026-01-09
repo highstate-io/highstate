@@ -1,10 +1,8 @@
 import { defineUnit, z } from "@highstate/contract"
-import { certificateEntity, namespaceEntity, persistentVolumeClaimEntity } from "./resources"
-import { serviceEntity } from "./service"
+import { namespaceEntity, resourceEntity } from "./resources"
 import { clusterEntity } from "./shared"
-import { deploymentEntity, statefulSetEntity } from "./workload"
 
-const k8sVerbsSchema = z.enum([
+export const accessVerbSchema = z.enum([
   "get",
   "list",
   "watch",
@@ -15,26 +13,34 @@ const k8sVerbsSchema = z.enum([
   "deletecollection",
 ])
 
+export const acessRuleSchema = z.object({
+  apiGroups: z.string().array(),
+  resources: z.string().array(),
+  verbs: accessVerbSchema.array(),
+  resourceNames: z.string().array().default([]),
+})
+
 /**
  * Creates a reduced access cluster with ServiceAccount-based authentication for specific Kubernetes resources.
  */
 export const reducedAccessCluster = defineUnit({
-  type: "k8s.reduced-access-cluster.v0",
+  type: "k8s.reduced-access-cluster.v1",
 
   args: {
-    /**
-     * The verbs to allow on the specified resources.
-     *
-     * Defaults to read-only access (get, list, watch).
-     */
-    verbs: k8sVerbsSchema.array().default(["get", "list", "watch"]),
-
     /**
      * The name of the ServiceAccount to create.
      *
      * If not provided, will be the same as the unit name.
      */
     serviceAccountName: z.string().optional(),
+
+    /**
+     * The rules defining the access permissions for the ServiceAccount.
+     *
+     * If rule's `apiGroups` and `resources` exactly match resources from the `resources` input,
+     * their names will be added to the rule's `resourceNames` list.
+     */
+    rules: acessRuleSchema.array().default([]),
   },
 
   inputs: {
@@ -46,55 +52,19 @@ export const reducedAccessCluster = defineUnit({
     namespace: namespaceEntity,
 
     /**
-     * The deployments to grant access to.
+     * The extra namespaces to bind to the ClusterRole and allow ServiceAccount to access them with specified rules.
      */
-    deployments: {
-      entity: deploymentEntity,
+    extraNamespaces: {
+      entity: namespaceEntity,
       multiple: true,
       required: false,
     },
 
     /**
-     * The stateful sets to grant access to.
+     * The resources to which access will be granted.
      */
-    statefulSets: {
-      entity: statefulSetEntity,
-      multiple: true,
-      required: false,
-    },
-
-    /**
-     * The services to grant access to.
-     */
-    services: {
-      entity: serviceEntity,
-      multiple: true,
-      required: false,
-    },
-
-    /**
-     * The persistent volume claims to grant access to.
-     */
-    persistentVolumeClaims: {
-      entity: persistentVolumeClaimEntity,
-      multiple: true,
-      required: false,
-    },
-
-    /**
-     * The secrets to grant access to.
-     */
-    secrets: {
-      entity: certificateEntity,
-      multiple: true,
-      required: false,
-    },
-
-    /**
-     * The config maps to grant access to.
-     */
-    configMaps: {
-      entity: certificateEntity,
+    resources: {
+      entity: resourceEntity,
       multiple: true,
       required: false,
     },

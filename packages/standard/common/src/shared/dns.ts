@@ -17,11 +17,11 @@ import { flat, groupBy, uniqueBy } from "remeda"
 import { Command, type CommandHost } from "./command"
 import { ImplementationMediator } from "./impl-ref"
 import {
-  filterEndpoints,
-  type InputL3Endpoint,
+  type InputEndpoint,
   l3EndpointToString,
-  l34EndpointToString,
+  endpointToString,
   parseL3Endpoint,
+  filterEndpoints,
 } from "./network"
 
 export const dnsRecordMediator = new ImplementationMediator(
@@ -52,7 +52,7 @@ export type DnsRecordArgs = {
   /**
    * The value of the DNS record.
    */
-  value: Input<InputL3Endpoint>
+  value: Input<InputEndpoint>
 
   /**
    * Whether the DNS record is proxied (e.g. to provide DDoS protection).
@@ -105,12 +105,12 @@ export type DnsRecordSetArgs = Omit<DnsRecordArgs, "provider" | "value"> & {
   /**
    * The value of the DNS record.
    */
-  value?: Input<InputL3Endpoint>
+  value?: Input<InputEndpoint>
 
   /**
    * The values of the DNS records.
    */
-  values?: InputArray<InputL3Endpoint>
+  values?: InputArray<InputEndpoint>
 }
 
 function getTypeByEndpoint(endpoint: network.L3Endpoint): string {
@@ -303,19 +303,17 @@ export class DnsRecordSet extends ComponentResource {
  *
  * Waits for the DNS record set to be created/updated before continuing.
  *
- * Ignores the "hostname" endpoints in the list.
- *
  * @param endpoints The list of endpoints to register. Will be modified in place.
  * @param fqdn The FQDN to register the DNS record set for. If not provided, no DNS record set will be created and array will not be modified.
- * @param fqdnEndpointFilter The filter to apply to the endpoints before passing them to the DNS record set. Does not apply to the resulted endpoint list.
+ * @param endpointFilter The filter to apply to the endpoints before passing them to the DNS record set. Does not apply to the resulted endpoint list.
  * @param patchMode The patch mode to use when modifying the endpoints list.
  * @param dnsProviders The DNS providers to use to create the DNS records.
  * @param dnsSetName The name of the DNS record set. If not provided, the FQDN will be used.
  */
-export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpoint>(
+export async function updateEndpointsWithFqdn<TEndpoint extends network.L3Endpoint>(
   endpoints: Input<TEndpoint[]>,
   fqdn: string | undefined,
-  fqdnEndpointFilter: network.EndpointFilter,
+  endpointFilter: string,
   patchMode: ArrayPatchMode,
   dnsProviders: Input<dns.Provider[]>,
   dnsSetName?: string,
@@ -329,7 +327,7 @@ export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpo
     }
   }
 
-  const filteredEndpoints = filterEndpoints(resolvedEndpoints, fqdnEndpointFilter)
+  const filteredEndpoints = filterEndpoints(resolvedEndpoints, endpointFilter)
 
   const dnsRecordSet = new DnsRecordSet(dnsSetName ?? fqdn, {
     name: fqdn,
@@ -363,7 +361,7 @@ export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpo
       endpoints: uniqueBy(
         //
         [...newEndpoints, ...(resolvedEndpoints as TEndpoint[])],
-        endpoint => l34EndpointToString(endpoint),
+        endpoint => endpointToString(endpoint),
       ),
       dnsRecordSet,
     }

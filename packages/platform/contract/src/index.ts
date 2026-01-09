@@ -9,6 +9,7 @@ export * from "./terminal"
 export * from "./page"
 export * from "./trigger"
 export * from "./worker"
+export * from "./compaction"
 
 export {
   // common utilities

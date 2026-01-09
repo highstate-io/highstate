@@ -3,7 +3,6 @@ import { getOrCreate } from "@highstate/contract"
 import { toPromise } from "@highstate/pulumi"
 import { core, type types } from "@pulumi/kubernetes"
 import {
-  ComponentResource,
   type ComponentResourceOptions,
   type Input,
   type Inputs,
@@ -11,7 +10,13 @@ import {
   output,
   type Unwrap,
 } from "@pulumi/pulumi"
-import { getProvider, mapMetadata, type ScopedResourceArgs, validateCluster } from "./shared"
+import {
+  getProvider,
+  mapMetadata,
+  Resource,
+  type ScopedResourceArgs,
+  validateCluster,
+} from "./shared"
 
 export type NamespaceArgs = Omit<ScopedResourceArgs, "namespace"> & {
   /**
@@ -31,7 +36,7 @@ export type CreateOrGetNamespaceArgs = NamespaceArgs & {
    *
    * If not provided, the namespace will be created, otherwise it will be retrieved/patched.
    */
-  resource?: Input<k8s.ScopedResource>
+  resource?: Input<k8s.NamespacedResource>
 
   /**
    * The namespace entity to patch/retrieve.
@@ -39,22 +44,15 @@ export type CreateOrGetNamespaceArgs = NamespaceArgs & {
   existing?: Input<k8s.Namespace> | undefined
 }
 
-export abstract class Namespace extends ComponentResource {
+export abstract class Namespace extends Resource {
   constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    /**
-     * The cluster where the namespace is created.
-     */
-    readonly cluster: Output<k8s.Cluster>,
-
-    /*
-     * The metadata of the underlying Kubernetes namespace.
-     */
-    readonly metadata: Output<types.output.meta.v1.ObjectMeta>,
+    cluster: Output<k8s.Cluster>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
 
     /**
      * The spec of the underlying Kubernetes namespace.
@@ -66,19 +64,14 @@ export abstract class Namespace extends ComponentResource {
      */
     readonly status: Output<types.output.core.v1.NamespaceStatus>,
   ) {
-    super(type, name, args, opts)
+    super(type, name, args, opts, cluster, metadata)
   }
 
   /**
    * The Highstate namespace entity.
    */
   get entity(): Output<k8s.Namespace> {
-    return output({
-      type: "namespace",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+    return output(this.entityBase)
   }
 
   /**
@@ -236,7 +229,7 @@ export abstract class Namespace extends ComponentResource {
    * @param resource The resource to get the namespace for.
    * @param cluster The cluster where the namespace is located.
    */
-  static forResource(resource: k8s.ScopedResource, cluster: Input<k8s.Cluster>): Namespace {
+  static forResource(resource: k8s.NamespacedResource, cluster: Input<k8s.Cluster>): Namespace {
     return getOrCreate(
       Namespace.namespaceCache,
       `${resource.clusterName}.${resource.metadata.namespace}.${resource.clusterId}`,
@@ -257,7 +250,7 @@ export abstract class Namespace extends ComponentResource {
    * @param cluster The cluster where the namespace is located.
    */
   static async forResourceAsync(
-    resource: Input<k8s.ScopedResource>,
+    resource: Input<k8s.NamespacedResource>,
     cluster: Input<k8s.Cluster>,
   ): Promise<Namespace> {
     const resolvedResource = await toPromise(resource)

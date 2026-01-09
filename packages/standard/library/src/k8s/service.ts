@@ -1,6 +1,6 @@
 import { defineEntity, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
-import { scopedResourceSchema } from "./resources"
+import { namespacedResourceEntity } from "./resources"
 
 export const endpointServiceMetadataSchema = z.object({
   "k8s.service": z.object({
@@ -46,11 +46,16 @@ export const serviceEndpointSchema = z.intersection(
 export const serviceEntity = defineEntity({
   type: "k8s.service.v1",
 
-  schema: z.object({
-    ...scopedResourceSchema.shape,
-    type: z.literal("service"),
-    endpoints: serviceEndpointSchema.array(),
-  }),
+  extends: { namespacedResourceEntity },
+
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
+
+  schema: z.unknown(),
 
   meta: {
     color: "#2196F3",

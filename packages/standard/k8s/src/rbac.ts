@@ -10,17 +10,24 @@ import {
   type Output,
   output,
   toPromise,
+  type Unwrap,
 } from "@highstate/pulumi"
 import { KubeConfig } from "@kubernetes/client-node"
 import { core, rbac, type types } from "@pulumi/kubernetes"
 import { map, unique } from "remeda"
 import { stringify } from "yaml"
 import { Secret } from "./secret"
-import { getNamespaceName, getProvider, type NamespaceLike, type ScopedResource } from "./shared"
+import {
+  getNamespaceName,
+  getProvider,
+  type Resource,
+  NamespacedResource,
+  type NamespaceLike,
+} from "./shared"
 
 export type ClusterAccessScopeArgs = {
   /**
-   * The namespace to locate the ServiceAccount in.
+   * The namespace to create the ServiceAccount in.
    */
   namespace: Input<Namespace>
 
@@ -52,35 +59,19 @@ export type ClusterAccessScopeArgs = {
   extraNamespaces?: InputArray<NamespaceLike>
 
   /**
-   * Whether to create `ClusterRoleBinding` to bind the `ServiceAccount` to the `ClusterRole`.
+   * Whether to create `ClusterRoleBinding` instead of `RoleBinding` to allow cluster-wide access.
    *
    * This will allow the `ServiceAccount` to access all namespaces and cluster resources.
    */
   clusterWide?: boolean
-}
-
-export type ClusterAccessScopeForResourcesArgs = {
-  /**
-   * The namespace to locate the `ServiceAccount` in.
-   */
-  namespace: Input<Namespace>
 
   /**
-   * The verbs to allow on the resources.
-   */
-  verbs: string[]
-
-  /**
-   * The resources to allow verbs on.
-   */
-  resources: InputArray<ScopedResource>
-
-  /**
-   * Whether to allow access on the whole collection rather than specific resources.
+   * The extra resources to merge into passed rules.
    *
-   * The provided resources in this case will be used to determine the types and api groups only.
+   * Resources will be merged into rule `resourceNames` if they exactly match rule's `apiGroups` and `resources`.
+   * If rule specifies multiple apiGroups or resources, resources will not be merged into it.
    */
-  collectionAccess?: boolean
+  resources?: InputArray<Resource | k8s.Resource>
 }
 
 export class ClusterAccessScope extends ComponentResource {
@@ -111,12 +102,15 @@ export class ClusterAccessScope extends ComponentResource {
         name,
         {
           metadata: {
-            name: interpolate`highstate.${namespaceName}.${name}`,
+            name: interpolate`hs.${namespaceName}.${name}`,
             annotations: {
               "kubernetes.io/description": interpolate`Created by Highstate for the ServiceAccount "${name}" in the namespace "${namespaceName}".`,
             },
           },
-          rules: normalizeInputs(args.rule, args.rules),
+          rules: output({
+            rules: normalizeInputs(args.rule, args.rules),
+            resources: args.resources ?? [],
+          }).apply(({ rules, resources }) => mergeResources(rules, resources)),
         },
         { provider },
       )
@@ -143,13 +137,35 @@ export class ClusterAccessScope extends ComponentResource {
         )
       }
 
-      if (args.allowOriginNamespace ?? true) {
-        createRoleBinding(namespaceName)
-      }
+      if (args.clusterWide) {
+        new rbac.v1.ClusterRoleBinding(
+          name,
+          {
+            metadata: { name },
+            roleRef: {
+              kind: "ClusterRole",
+              name: clusterRole.metadata.name,
+              apiGroup: "rbac.authorization.k8s.io",
+            },
+            subjects: [
+              {
+                kind: "ServiceAccount",
+                name: serviceAccount.metadata.name,
+                namespace: namespaceName,
+              },
+            ],
+          },
+          { provider },
+        )
+      } else {
+        if (args.allowOriginNamespace !== false) {
+          createRoleBinding(namespaceName)
+        }
 
-      output(args.extraNamespaces ?? [])
-        .apply(map(getNamespaceName))
-        .apply(map(createRoleBinding))
+        output(args.extraNamespaces ?? [])
+          .apply(map(getNamespaceName))
+          .apply(map(createRoleBinding))
+      }
 
       return { serviceAccount, kubeconfig: cluster.kubeconfig }
     })
@@ -193,81 +209,40 @@ export class ClusterAccessScope extends ComponentResource {
       }
     })
   }
+}
 
-  /**
-   * Creates `ClusterAccessScope` for the given resources with the specified verbs.
-   *
-   * All resources must belong to the same namespace in the same cluster.
-   *
-   * @param name The name of the resource and the ServiceAccount.
-   * @param resources The resources to create access scope for.
-   * @param verbs The verbs to allow on the resources.
-   */
-  static async forResources(
-    name: string,
-    args: ClusterAccessScopeForResourcesArgs,
-    opts?: ComponentResourceOptions,
-  ): Promise<ClusterAccessScope> {
-    const resolved = await toPromise(
-      output(args.resources).apply(resources =>
-        resources.map(r => ({
-          namespaceId: r.namespace.metadata.uid,
-          namespace: r.namespace,
-          metadata: r.metadata,
-          apiVersion: r.apiVersion,
-          kind: r.kind,
-        })),
-      ),
+async function mergeResources(
+  rules: Unwrap<types.input.rbac.v1.PolicyRule>[],
+  resources: (Resource | k8s.Resource)[],
+): Promise<types.input.rbac.v1.PolicyRule[]> {
+  for (const resource of resources) {
+    const entity = await toPromise(
+      resource instanceof NamespacedResource ? resource.entity : resource,
     )
 
-    if (resolved.length === 0) {
-      throw new Error("No resources provided to forResources.")
+    const apiGroup = entity.apiVersion.includes("/") // e.g., "apps/v1"
+      ? entity.apiVersion.split("/")[0]
+      : ""
+
+    const resourceCollection = `${entity.kind.toLowerCase()}s`
+
+    const matchingRule = rules.find(rule => {
+      const apiGroupsMatch = rule.apiGroups?.length === 1 && rule.apiGroups[0] === apiGroup
+      const resourcesMatch =
+        rule.resources?.length === 1 && rule.resources[0] === resourceCollection
+
+      return apiGroupsMatch && resourcesMatch
+    })
+
+    if (!matchingRule) {
+      continue
     }
 
-    if (unique(resolved.map(r => r.namespaceId)).length > 1) {
-      throw new Error("All resources must belong to the same namespace.")
-    }
-
-    const saNamespaceId = await toPromise(output(args.namespace).metadata.uid)
-
-    if (resolved[0].namespaceId !== saNamespaceId) {
-      throw new Error("The resources must belong to the same namespace as the ServiceAccount.")
-    }
-
-    if (args.collectionAccess) {
-      // when collection access is requested, we only need to know the types and api groups
-      const uniqueTypes = unique(resolved.map(r => `${r.apiVersion}::${r.kind}`))
-
-      return new ClusterAccessScope(
-        name,
-        {
-          namespace: args.namespace,
-          rules: uniqueTypes.map(t => {
-            const [apiVersion, kind] = t.split("::")
-
-            return {
-              apiGroups: apiVersion === "v1" ? [""] : [apiVersion.split("/")[0]],
-              resources: [`${kind.toLowerCase()}s`],
-              verbs: args.verbs,
-            }
-          }),
-        },
-        opts,
-      )
-    }
-
-    return new ClusterAccessScope(
-      name,
-      {
-        namespace: args.namespace,
-        rules: resolved.map(r => ({
-          apiGroups: r.apiVersion === "v1" ? [""] : [r.apiVersion.split("/")[0]],
-          resources: [r.kind.toLowerCase() + (r.metadata?.name ? "s" : "")],
-          resourceNames: r.metadata?.name ? [r.metadata.name] : undefined,
-          verbs: args.verbs,
-        })),
-      },
-      opts,
-    )
+    matchingRule.resourceNames = unique([
+      ...(matchingRule.resourceNames ?? []),
+      entity.metadata.name,
+    ])
   }
+
+  return rules
 }

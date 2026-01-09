@@ -1,0 +1,46 @@
+---
+title: Endpoints
+description: Managing endpoints with Highstate's standard library.
+navigation:
+  icon: i-mdi-network
+---
+
+## Endpoints
+
+When we talk about connectivity, we usually refer to endpoints.
+Everything connected to a network has an endpoint(s) that can be used to reach it.
+Servers, devices, services, applications — all of them have endpoints.
+
+Highstate provides a set of entities to represent endpoints in different layers of the network stack:
+
+- `network.l3-endpoint.v1`: L3 endpoints (IP addresses).
+- `network.l4-endpoint.v1`: L4 endpoints (IP address + port/protocol).
+- `network.l7-endpoint.v1`: L7 endpoints (IP address + port/protocol + application-level info).
+
+Endpoints of different layers used by different entities.
+For example, servers usually have L3 endpoints, while services/applications have L4 or L7 endpoints.
+
+Endpoints of higher layers extends the ones of lower layers.
+For example, L4 endpoint includes L3 endpoint information, and L7 endpoint includes both L3 and L4 information.
+This also means that you can use an L4 endpoint wherever an L3 endpoint is expected, and an L7 endpoint wherever an L4 or L3 endpoint is expected.
+
+### L3 Endpoints
+
+Each L3 endpoint represent the one of the following:
+
+- IPv4 address.
+- IPv6 address.
+- Hostname (DNS name).
+
+Yes, hostnames are also considered endpoints in Highstate.
+Think of L3 endpoints as something that you can substitute in the `ping` command.
+
+### L4 Endpoints
+
+L4 endpoints extend L3 endpoints by adding port and protocol information.
+The port is number between 1 and 65535, while protocol is either `tcp` or `udp`.
+
+You can stringify L4 endpoints in one of the following formats:
+
+- short: `ip:port` (e.g., `192.168.1.1:80`, `example.com:443` or `[2001:0db8::1]:22`);
+- full: `protocol://ip:port` (e.g., `tcp://192.168.1.1:80`, `tcp://example.com:443` or `tcp://[2001:0db8::1]:22`).

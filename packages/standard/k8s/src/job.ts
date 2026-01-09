@@ -36,25 +36,26 @@ export type CreateOrGetJobArgs = JobArgs & {
   /**
    * The job entity to patch/retrieve.
    */
-  existing: Input<k8s.ScopedResource> | undefined
+  existing: Input<k8s.NamespacedResource> | undefined
 }
 
 /**
  * Represents a Kubernetes Job resource with metadata and spec.
  */
 export abstract class Job extends Workload {
+  static apiVersion = "batch/v1"
+  static kind = "Job"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
     terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
     /**
@@ -72,12 +73,10 @@ export abstract class Job extends Workload {
       name,
       args,
       opts,
-      apiVersion,
-      kind,
+      metadata,
+      namespace,
       terminalArgs,
       containers,
-      namespace,
-      metadata,
       spec.template,
       networkPolicy,
     )
@@ -90,11 +89,12 @@ export abstract class Job extends Workload {
   /**
    * The Highstate job entity.
    */
-  get entity(): Output<k8s.ScopedResource> {
+  get entity(): Output<k8s.NamespacedResource> {
     return output({
-      type: "job",
       clusterId: this.cluster.id,
       clusterName: this.cluster.name,
+      apiVersion: this.apiVersion,
+      kind: this.kind,
       metadata: this.metadata,
     })
   }
@@ -203,7 +203,7 @@ export abstract class Job extends Workload {
    * @param entity The entity to get the job for.
    * @param cluster The cluster where the job is located.
    */
-  static for(entity: k8s.ScopedResource, cluster: Input<k8s.Cluster>): Job {
+  static for(entity: k8s.NamespacedResource, cluster: Input<k8s.Cluster>): Job {
     return getOrCreate(
       Job.jobCache,
       `${entity.clusterName}.${entity.metadata.namespace}.${entity.metadata.name}.${entity.clusterId}`,
@@ -228,7 +228,7 @@ export abstract class Job extends Workload {
    * @param cluster The cluster where the job is located.
    */
   static async forAsync(
-    entity: Input<k8s.ScopedResource>,
+    entity: Input<k8s.NamespacedResource>,
     cluster: Input<k8s.Cluster>,
   ): Promise<Job> {
     const resolvedEntity = await toPromise(entity)
@@ -277,15 +277,11 @@ class CreatedJob extends Job {
       name,
       args,
       opts,
-
-      job.apiVersion,
-      job.kind,
+      job.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      job.metadata,
       networkPolicy,
-
       job.spec,
       job.status,
     )
@@ -323,15 +319,11 @@ class JobPatch extends Job {
       name,
       args,
       opts,
-
-      job.apiVersion,
-      job.kind,
+      job.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      job.metadata,
       networkPolicy,
-
       job.spec,
       job.status,
     )
@@ -369,12 +361,10 @@ class WrappedJob extends Job {
       args,
       opts,
 
-      output(args.job).apiVersion,
-      output(args.job).kind,
+      output(args.job).metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       output([]),
-      output(args.namespace),
-      output(args.job).metadata,
       output(undefined),
 
       output(args.job).spec,
@@ -411,12 +401,10 @@ class ExternalJob extends Job {
       args,
       opts,
 
-      job.apiVersion,
-      job.kind,
+      job.metadata,
+      output(args.namespace),
       output({}),
       output([]),
-      output(args.namespace),
-      job.metadata,
       output(undefined),
 
       job.spec,

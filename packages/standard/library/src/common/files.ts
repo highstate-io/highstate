@@ -96,8 +96,18 @@ export const remoteFile = defineUnit({
   args: {
     /**
      * The URL of the remote file.
+     *
+     * Either this or the 'endpoint' input must be provided.
      */
     url: z.string().optional(),
+
+    /**
+     * The name of the file.
+     *
+     * If not provided, the name will be derived from the URL or endpoint path.
+     * If not possible, the name of the unit will be used.
+     */
+    fileName: z.string().optional(),
   },
 
   inputs: {

@@ -17,7 +17,7 @@ import {
   commonExtraArgs,
   getProvider,
   mapMetadata,
-  ScopedResource,
+  NamespacedResource,
   type ScopedResourceArgs,
 } from "./shared"
 
@@ -43,17 +43,18 @@ const extraPersistentVolumeClaimArgs = [...commonExtraArgs, "size"] as const
 /**
  * Represents a Kubernetes PersistentVolumeClaim resource with metadata and spec.
  */
-export abstract class PersistentVolumeClaim extends ScopedResource {
+export abstract class PersistentVolumeClaim extends NamespacedResource {
+  static apiVersion = "v1"
+  static kind = "PersistentVolumeClaim"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
-    namespace: Output<Namespace>,
     metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The spec of the underlying Kubernetes PVC.
@@ -65,19 +66,14 @@ export abstract class PersistentVolumeClaim extends ScopedResource {
      */
     readonly status: Output<types.output.core.v1.PersistentVolumeClaimStatus>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
    * The Highstate PVC entity.
    */
   get entity(): Output<k8s.PersistentVolumeClaim> {
-    return output({
-      type: "persistent-volume-claim",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+    return output(this.entityBase)
   }
 
   /**
@@ -256,11 +252,8 @@ class CreatedPersistentVolumeClaim extends PersistentVolumeClaim {
       name,
       args,
       opts,
-
-      pvc.apiVersion,
-      pvc.kind,
-      output(args.namespace),
       pvc.metadata,
+      output(args.namespace),
       pvc.spec,
       pvc.status,
     )
@@ -301,11 +294,8 @@ class PersistentVolumeClaimPatch extends PersistentVolumeClaim {
       name,
       args,
       opts,
-
-      pvc.apiVersion,
-      pvc.kind,
-      output(args.namespace),
       pvc.metadata,
+      output(args.namespace),
       pvc.spec,
       pvc.status,
     )
@@ -335,11 +325,8 @@ class WrappedPersistentVolumeClaim extends PersistentVolumeClaim {
       name,
       args,
       opts,
-
-      output(args.pvc).apiVersion,
-      output(args.pvc).kind,
-      output(args.namespace),
       output(args.pvc).metadata,
+      output(args.namespace),
       output(args.pvc).spec,
       output(args.pvc).status,
     )
@@ -377,11 +364,8 @@ class ExternalPersistentVolumeClaim extends PersistentVolumeClaim {
       name,
       args,
       opts,
-
-      pvc.apiVersion,
-      pvc.kind,
-      output(args.namespace),
       pvc.metadata,
+      output(args.namespace),
       pvc.spec,
       pvc.status,
     )

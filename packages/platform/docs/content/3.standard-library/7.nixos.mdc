@@ -32,7 +32,7 @@ Also ensure that prerequisites from the `nixos-anywhere` README are met.
 Already have a flake that works?
 Clone it with `git.remote-repository.v1` and hand it to `nixos.system.v1` together with the server:
 
-::snippet-preview{snippet="recipes/nixos/vm-from-repo"}
+::designer-preview{title="Snippet: Install From Repo" type="snippet" id="recipes/nixos/vm-from-repo"}
 ::
 
 If the `nixos.system.v1` called first, it uses `nixos-anywhere` to install NixOS on the server.
@@ -48,7 +48,7 @@ This means that every time you change the flake, you need to run this unit again
 Need to tweak something without pushing to a repo?
 Write the flake in `nixos.inline-flake.v1`, reference any other flakes or modules, and pass it to `nixos.system.v1`:
 
-::snippet-preview{snippet="recipes/nixos/vm-from-inline-flake"}
+::designer-preview{title="Snippet: Install From Inline Flake" type="snippet" id="recipes/nixos/vm-from-inline-flake"}
 ::
 
 See the code argument of the flake component for details on how to write the flake.
@@ -69,7 +69,7 @@ This allows you to receive the host keys of the old system before installation a
 
 In this example, we use [sops](https://github.com/getsops/sops) to encrypt a file with secrets for the new system:
 
-::snippet-preview{snippet="recipes/nixos/sops-preinstall"}
+::designer-preview{title="Snippet: sops Preinstall" type="snippet" id="recipes/nixos/sops-preinstall"}
 ::
 
 Then you can reference this file in your NixOS configuration using [sops-nix](https://github.com/Mic92/sops-nix).
@@ -82,7 +82,7 @@ You can split the configuration into multiple modules to keep things tidy.
 For example, you can create a separate module for secrets using `nixos.inline-module.v1`.
 Then you reference this module you inlike flake as any other folder or file and pass it to `nixos.system.v1`:
 
-::snippet-preview{snippet="recipes/nixos/sops-inline-module"}
+::designer-preview{title="Snippet: sops Inline Module" type="snippet" id="recipes/nixos/sops-inline-module"}
 ::
 
 ## What next?

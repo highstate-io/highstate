@@ -43,18 +43,20 @@ export type CreateOrGetDeploymentArgs = DeploymentArgs & {
 }
 
 export abstract class Deployment extends ExposableWorkload {
+  static apiVersion = "apps/v1"
+  static kind = "Deployment"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
+
     terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
     service: Output<Service | undefined>,
@@ -75,12 +77,10 @@ export abstract class Deployment extends ExposableWorkload {
       name,
       args,
       opts,
-      apiVersion,
-      kind,
+      metadata,
+      namespace,
       terminalArgs,
       containers,
-      namespace,
-      metadata,
       spec.template,
       networkPolicy,
       service,
@@ -105,12 +105,12 @@ export abstract class Deployment extends ExposableWorkload {
    * The Highstate deployment entity.
    */
   get entity(): Output<k8s.Deployment> {
+    const service = this._service.apply(service => service?.entity)
+
     return output({
-      type: "deployment",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-      service: this._service.apply(service => service?.entity),
+      ...this.entityBase,
+      service,
+      endpoints: service.apply(svc => output(svc?.endpoints ?? [])),
     })
   }
 
@@ -276,14 +276,13 @@ class CreatedDeployment extends Deployment {
       args,
       opts,
 
-      deployment.apiVersion,
-      deployment.kind,
+      deployment.metadata,
+      output(args.namespace),
+
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      deployment.metadata,
-      networkPolicy,
 
+      networkPolicy,
       service,
       routes,
 
@@ -324,12 +323,10 @@ class DeploymentPatch extends Deployment {
       args,
       opts,
 
-      deployment.apiVersion,
-      deployment.kind,
+      deployment.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      deployment.metadata,
       networkPolicy,
 
       service,
@@ -366,12 +363,10 @@ class WrappedDeployment extends Deployment {
       args,
       opts,
 
-      output(args.deployment).apiVersion,
-      output(args.deployment).kind,
+      output(args.deployment).metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       output([]),
-      output(args.namespace),
-      output(args.deployment).metadata,
 
       output(undefined),
       output(undefined),
@@ -411,12 +406,10 @@ class ExternalDeployment extends Deployment {
       args,
       opts,
 
-      deployment.apiVersion,
-      deployment.kind,
+      deployment.metadata,
+      output(args.namespace),
       output({}),
       output([]),
-      output(args.namespace),
-      deployment.metadata,
 
       output(undefined),
       output(undefined),

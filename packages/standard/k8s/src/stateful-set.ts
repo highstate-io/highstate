@@ -43,18 +43,19 @@ export type CreateOrGetStatefulSetArgs = StatefulSetArgs & {
 }
 
 export abstract class StatefulSet extends ExposableWorkload {
+  static apiVersion = "apps/v1"
+  static kind = "StatefulSet"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
     terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
     service: Output<Service | undefined>,
@@ -75,12 +76,10 @@ export abstract class StatefulSet extends ExposableWorkload {
       name,
       args,
       opts,
-      apiVersion,
-      kind,
+      metadata,
+      namespace,
       terminalArgs,
       containers,
-      namespace,
-      metadata,
       spec.template,
       networkPolicy,
       service,
@@ -97,11 +96,9 @@ export abstract class StatefulSet extends ExposableWorkload {
    */
   get entity(): Output<k8s.StatefulSet> {
     return output({
-      type: "stateful-set",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
+      ...this.entityBase,
       service: this.service.entity,
+      endpoints: this.service.endpoints,
     })
   }
 
@@ -297,12 +294,10 @@ class CreatedStatefulSet extends StatefulSet {
       args,
       opts,
 
-      statefulSet.apiVersion,
-      statefulSet.kind,
+      statefulSet.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      statefulSet.metadata,
       networkPolicy,
 
       service,
@@ -345,12 +340,10 @@ class StatefulSetPatch extends StatefulSet {
       args,
       opts,
 
-      statefulSet.apiVersion,
-      statefulSet.kind,
+      statefulSet.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      statefulSet.metadata,
       networkPolicy,
 
       service,
@@ -390,12 +383,10 @@ class WrappedStatefulSet extends StatefulSet {
       args,
       opts,
 
-      output(args.statefulSet).apiVersion,
-      output(args.statefulSet).kind,
+      output(args.statefulSet).metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       output([]),
-      output(args.namespace),
-      output(args.statefulSet).metadata,
 
       output(undefined),
       output(args.service),
@@ -435,12 +426,10 @@ class ExternalStatefulSet extends StatefulSet {
       args,
       opts,
 
-      statefulSet.apiVersion,
-      statefulSet.kind,
+      statefulSet.metadata,
+      output(args.namespace),
       output({}),
       output([]),
-      output(args.namespace),
-      statefulSet.metadata,
 
       output(undefined),
       output(undefined),

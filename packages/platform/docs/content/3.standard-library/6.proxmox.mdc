@@ -31,7 +31,7 @@ The connection component stores your credentials and provides them to other Prox
 
 The simplest way to connect is with a username and password:
 
-::snippet-preview{snippet="recipes/proxmox/basic-connection"}
+::designer-preview{title="Snippet: Basic Connection" type="snippet" id="recipes/proxmox/basic-connection"}
 ::
 
 API tokens are recommended over passwords.
@@ -42,7 +42,7 @@ The token string must be in the format: `{username}@pam!{token_id}={token_secret
 
 If you add SSH credentials, you can access the Proxmox host terminal directly from Highstate:
 
-::snippet-preview{snippet="recipes/proxmox/connection-with-ssh"}
+::designer-preview{title="Snippet: Connection With SSH" type="snippet" id="recipes/proxmox/connection-with-ssh"}
 ::
 
 Most of Highstate's Proxmox components require SSH access, so it's a good idea to set this up.
@@ -65,7 +65,7 @@ Proxmox supports ISO files and cloud images (qcow2, raw, etc.).
 
 The easiest way to get started is using distribution components:
 
-::snippet-preview{snippet="recipes/proxmox/ubuntu-image"}
+::designer-preview{title="Snippet: Ubuntu Image" type="snippet" id="recipes/proxmox/ubuntu-image"}
 ::
 
 The distribution provides two key outputs:
@@ -78,14 +78,14 @@ Highstate automatically uploads the image to your Proxmox storage.
 
 You can also upload custom images from URLs:
 
-::snippet-preview{snippet="recipes/proxmox/custom-image"}
+::designer-preview{title="Snippet: Custom Image" type="snippet" id="recipes/proxmox/custom-image"}
 ::
 
 ### Using Existing Images
 
 If you already have images on your Proxmox server, reference them directly:
 
-::snippet-preview{snippet="recipes/proxmox/existing-image"}
+::designer-preview{title="Snippet: Existing Image" type="snippet" id="recipes/proxmox/existing-image"}
 ::
 
 ## Creating Virtual Machines
@@ -97,7 +97,7 @@ Highstate handles all the Proxmox API calls and cloud-init configuration.
 
 The simplest VM uses DHCP for networking:
 
-::snippet-preview{snippet="recipes/proxmox/basic-vm"}
+::designer-preview{title="Snippet: Basic VM" type="snippet" id="recipes/proxmox/basic-vm"}
 ::
 
 This creates a small VM with 1 CPU core, 512MB RAM, and 8GB disk.
@@ -107,7 +107,7 @@ Perfect for testing or lightweight services.
 
 Static IPs are recommended for services that need consistent addresses:
 
-::snippet-preview{snippet="recipes/proxmox/vm-static-ip"}
+::designer-preview{title="Snippet: VM With Static IP" type="snippet" id="recipes/proxmox/vm-static-ip"}
 ::
 
 ### Custom Resources
@@ -115,7 +115,7 @@ Static IPs are recommended for services that need consistent addresses:
 Need more power?
 Adjust the resources:
 
-::snippet-preview{snippet="recipes/proxmox/vm-custom-resources"}
+::designer-preview{title="Snippet: VM Custom Resources" type="snippet" id="recipes/proxmox/vm-custom-resources"}
 ::
 
 For now, you can only set CPU cores, RAM, and disk size.
@@ -125,7 +125,7 @@ For now, you can only set CPU cores, RAM, and disk size.
 Want to run Kubernetes?
 Here's how to create a k3s cluster on Proxmox VMs:
 
-::snippet-preview{snippet="recipes/proxmox/k3s-cluster" height="1000px"}
+::designer-preview{title="Snippet: k3s Cluster" type="snippet" id="recipes/proxmox/k3s-cluster" height="1000px"}
 ::
 
 This creates:

@@ -192,7 +192,7 @@ const isConnecting = computed(
       :instance="instance"
       :component="component"
       :state="state"
-      :allInstances="allInstances"
+      :all-instances="allInstances"
       @save="(instanceId, newName, newArgs) => emit('save:args', instanceId, newName, newArgs)"
     />
 

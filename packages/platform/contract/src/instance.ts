@@ -256,11 +256,24 @@ export function findRequiredInputs<T extends string>(
 export enum HighstateSignature {
   Artifact = "d55c63ac-3174-4756-808f-f778e99af0d1",
   Yaml = "c857cac5-caa6-4421-b82c-e561fbce6367",
+  Id = "348d020e-0d9e-4ae7-9415-b91af99f5339",
+  Ref = "6d7f9da0-9cb6-496d-b72e-cf85ee4d9cf8",
 }
 
 export const yamlValueSchema = z.object({
   [HighstateSignature.Yaml]: z.literal(true),
   value: z.string(),
+})
+
+export const objectWithIdSchema = z.object({
+  [HighstateSignature.Id]: z.literal(true),
+  id: z.number(),
+  value: z.unknown(),
+})
+
+export const objectRefSchema = z.object({
+  [HighstateSignature.Ref]: z.literal(true),
+  id: z.number(),
 })
 
 export type YamlValue = z.infer<typeof yamlValueSchema>

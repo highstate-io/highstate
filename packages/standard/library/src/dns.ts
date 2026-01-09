@@ -1,7 +1,8 @@
 import { defineEntity, defineUnit, z } from "@highstate/contract"
 import { implementationReferenceSchema } from "./impl-ref"
-import { endpointFilterSchema, l3EndpointEntity, l4EndpointEntity } from "./network"
+import { l3EndpointEntity, l4EndpointEntity, networkArgs } from "./network"
 import { arrayPatchModeSchema, prefixKeysWith } from "./utils"
+import { mapValues, pick } from "remeda"
 
 export const providerEntity = defineEntity({
   type: "dns.provider.v1",
@@ -35,6 +36,12 @@ export const recordSet = defineUnit({
 
   args: {
     ...createArgs(),
+
+    ...mapValues(
+      //
+      pick(networkArgs, ["endpointFilter"]),
+      arg => ({ ...arg, schema: arg.schema.default(`type != "hostname"`) }),
+    ),
 
     /**
      * The values of the DNS record.
@@ -127,23 +134,11 @@ export function createArgs<TPrefix extends string = "">(prefix?: TPrefix) {
     fqdn: z.string().optional(),
 
     /**
-     * The endpoint filter to filter the endpoints before creating the DNS records.
+     * The tag regex to apply to filter endpoints.
      *
-     * Possible values:
-     *
-     * - `public`: only endpoints exposed to the public internet;
-     * - `external`: reachable from outside the system but not public (e.g., LAN, VPC);
-     * - `internal`: reachable only from within the system boundary (e.g., inside a cluster).
-     *
-     * You can select one or more values.
-     *
-     * If no value is provided, the endpoints will be filtered by the most accessible type:
-     *
-     * - if any public endpoints exist, all public endpoints are selected;
-     * - otherwise, if any external endpoints exist, all external endpoints are selected;
-     * - if neither exist, all internal endpoints are selected.
+     * If at least one tag matches, the endpoint is included.
      */
-    endpointFilter: endpointFilterSchema.default([]),
+    tagPattern: z.string().optional(),
 
     /**
      * The mode to use for patching the existing endpoints.

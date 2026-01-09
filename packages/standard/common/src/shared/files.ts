@@ -730,5 +730,5 @@ export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<numbe
 export function getNameByEndpoint(endpoint: InputL7Endpoint): string {
   const parsedEndpoint = parseL7Endpoint(endpoint)
 
-  return parsedEndpoint.resource ? basename(parsedEndpoint.resource) : ""
+  return parsedEndpoint.path ? basename(parsedEndpoint.path) : ""
 }

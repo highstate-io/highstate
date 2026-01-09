@@ -106,12 +106,9 @@ export class TerminalManager {
       throw new Error(`Terminal "${terminalId}" not found`)
     }
 
-    const sessionId = uuidv7()
-
     // create the terminal session in database
     const session = await database.terminalSession.create({
       data: {
-        id: sessionId,
         terminalId,
       },
     })

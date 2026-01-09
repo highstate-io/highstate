@@ -4,17 +4,19 @@ import type { DeepInput, Input, InputArray, Unwrap } from "@highstate/pulumi"
 import type { Namespace } from "./namespace"
 import { type Output, output } from "@pulumi/pulumi"
 import { ClusterAccessScope } from "./rbac"
-import { images, type ScopedResource } from "./shared"
+import { images, type NamespacedResource } from "./shared"
 
 export async function createMonitorWorker(
   namespace: Input<Namespace>,
-  resources: InputArray<ScopedResource>,
+  resources: InputArray<NamespacedResource>,
 ): Promise<Output<Unwrap<UnitWorker>>> {
-  const scope = await ClusterAccessScope.forResources("monitor", {
+  const scope = new ClusterAccessScope("monitor", {
+    rule: {
+      verbs: ["get", "list", "watch"],
+    },
+
     namespace,
     resources,
-    verbs: ["get", "list", "watch"],
-    collectionAccess: true,
   })
 
   return output({

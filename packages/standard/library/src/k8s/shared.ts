@@ -4,7 +4,7 @@ import * as dns from "../dns"
 import { implementationReferenceSchema } from "../impl-ref"
 import { l3EndpointEntity, l4EndpointEntity } from "../network"
 import { arrayPatchModeSchema } from "../utils"
-import { scopedResourceSchema } from "./resources"
+import { namespacedResourceEntity } from "./resources"
 
 export const fallbackKubeApiAccessSchema = z.object({
   serverIp: z.string(),
@@ -332,7 +332,7 @@ export const monitorWorkerParamsSchema = z.object({
   /**
    * The resources to monitor in the cluster.
    */
-  resources: scopedResourceSchema.array(),
+  resources: namespacedResourceEntity.schema.array(),
 })
 
 export type Cluster = z.infer<typeof clusterEntity.schema>

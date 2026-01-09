@@ -16,22 +16,16 @@ const { name, args, inputs, outputs } = forUnit(k8s.reducedAccessCluster)
 
 const resolvedInputs = await toPromise(inputs)
 
-const resources = [
-  ...resolvedInputs.deployments.map(r => Deployment.for(r, inputs.k8sCluster)),
-  ...resolvedInputs.statefulSets.map(r => StatefulSet.for(r, inputs.k8sCluster)),
-  ...resolvedInputs.services.map(r => Service.for(r, inputs.k8sCluster)),
-  ...resolvedInputs.persistentVolumeClaims.map(r =>
-    PersistentVolumeClaim.for(r, inputs.k8sCluster),
-  ),
-  ...resolvedInputs.secrets.map(r => Secret.for(r, inputs.k8sCluster)),
-  ...resolvedInputs.configMaps.map(r => ConfigMap.for(r, inputs.k8sCluster)),
-]
-
-const accessScope = await ClusterAccessScope.forResources(args.serviceAccountName ?? name, {
-  namespace: Namespace.for(resolvedInputs.namespace, inputs.k8sCluster),
-  verbs: args.verbs,
-  resources,
-})
+const accessScope = new ClusterAccessScope(
+  "scope",
+  {
+    namespace: Namespace.for(resolvedInputs.namespace, inputs.k8sCluster),
+    extraNamespaces: resolvedInputs.extraNamespaces.map(ns => Namespace.for(ns, inputs.k8sCluster)),
+    rules: args.rules,
+    resources: resolvedInputs.resources,
+  },
+  {},
+)
 
 const resourceLines = await toPromise(
   output(

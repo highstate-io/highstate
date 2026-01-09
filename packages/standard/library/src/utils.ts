@@ -1,4 +1,5 @@
-import { z } from "@highstate/contract"
+import { $args, genericNameSchema, z } from "@highstate/contract"
+import { mapValues } from "remeda"
 
 type PrefixWith<TString extends string, TPrefix extends string> = TPrefix extends ""
   ? TString
@@ -56,3 +57,36 @@ export type ArrayPatchMode = z.infer<typeof arrayPatchModeSchema>
  * - `false`: set the value to `false`.
  */
 export type BooleanPatch = z.infer<typeof booleanPatchSchema>
+
+/**
+ * The schema for a label key.
+ *
+ * Follows the same conventions as Highstate generic name, but requires at least two segments separated by a dot.
+ */
+export const labelKeySchema = z.templateLiteral([
+  genericNameSchema,
+  z.literal("."),
+  genericNameSchema,
+])
+
+export const labelValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
+
+export type LabelKey = z.infer<typeof labelKeySchema>
+export type LabelValue = z.infer<typeof labelValueSchema>
+
+export type Labels = Record<LabelKey, LabelValue>
+export type LabelContainer = { labels?: Labels }
+
+export const commonArgs = $args({
+  /**
+   * The labels associated with the entity.
+   * Represents a set of key/value pairs with string keys and string/number/boolean values.
+   *
+   * Can be queried used simple query expressions.
+   * See [filter-expression](https://github.com/tronghieu/filter-expression?tab=readme-ov-file#language)
+   * for more details on the expression syntax.
+   */
+  labels: z.record(labelKeySchema, labelValueSchema).optional(),
+})
+
+export const commonArgsSchema = mapValues(commonArgs, x => x.schema)

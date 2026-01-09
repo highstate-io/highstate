@@ -19,7 +19,7 @@ import {
   commonExtraArgs,
   getProvider,
   mapMetadata,
-  ScopedResource,
+  NamespacedResource,
   type ScopedResourceArgs,
 } from "./shared"
 
@@ -66,17 +66,18 @@ export function isEndpointFromCluster(
 /**
  * Represents a Kubernetes Service resource with endpoints and metadata.
  */
-export abstract class Service extends ScopedResource {
+export abstract class Service extends NamespacedResource {
+  static apiVersion = "v1"
+  static kind = "Service"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
-    namespace: Output<Namespace>,
     metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The spec of the underlying Kubernetes service.
@@ -88,7 +89,7 @@ export abstract class Service extends ScopedResource {
      */
     readonly status: Output<types.output.core.v1.ServiceStatus>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
@@ -96,10 +97,7 @@ export abstract class Service extends ScopedResource {
    */
   get entity(): Output<k8s.Service> {
     return output({
-      type: "service",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
+      ...this.entityBase,
       endpoints: this.endpoints,
     })
   }
@@ -226,18 +224,6 @@ export abstract class Service extends ScopedResource {
   }
 
   /**
-   * Returns the endpoints of the service applying the given filter.
-   *
-   * If no filter is specified, the default behavior of `filterEndpoints` is used.
-   *
-   * @param filter If specified, the endpoints are filtered based on the given filter.
-   * @returns The endpoints of the service.
-   */
-  filterEndpoints(filter?: network.EndpointFilter): Output<k8s.ServiceEndpoint[]> {
-    return output(this.endpoints).apply(endpoints => filterEndpoints(endpoints, filter))
-  }
-
-  /**
    * Returns the endpoints of the service including both internal and external endpoints.
    */
   get endpoints(): Output<k8s.ServiceEndpoint[]> {
@@ -260,7 +246,7 @@ export abstract class Service extends ScopedResource {
 
       const clusterIpEndpoints = spec.clusterIPs?.map(ip => ({
         ...parseL3Endpoint(ip),
-        visibility: "internal" as network.EndpointVisibility,
+        tags: ["k8s.internal"],
         port: spec.ports[0].port,
         protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
         metadata: endpointMetadata,
@@ -269,7 +255,7 @@ export abstract class Service extends ScopedResource {
       if (clusterIpEndpoints.length > 0) {
         clusterIpEndpoints.unshift({
           type: "hostname",
-          visibility: "internal",
+          tags: ["k8s.internal"],
           hostname: `${metadata.name}.${metadata.namespace}.svc.cluster.local`,
           port: spec.ports[0].port,
           protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
@@ -281,6 +267,7 @@ export abstract class Service extends ScopedResource {
         spec.type === "NodePort"
           ? cluster.endpoints.map(endpoint => ({
               ...(endpoint as network.L3Endpoint),
+              tags: ["k8s.external"],
               port: spec.ports[0].nodePort,
               protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
               metadata: endpointMetadata,
@@ -291,6 +278,7 @@ export abstract class Service extends ScopedResource {
         spec.type === "LoadBalancer"
           ? status.loadBalancer?.ingress?.map(endpoint => ({
               ...parseL3Endpoint(endpoint.ip ?? endpoint.hostname),
+              tags: ["k8s.external"],
               port: spec.ports[0].port,
               protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
               metadata: endpointMetadata,
@@ -353,11 +341,8 @@ class CreatedService extends Service {
       name,
       args,
       opts,
-
-      service.apiVersion,
-      service.kind,
-      output(args.namespace),
       service.metadata,
+      output(args.namespace),
       service.spec,
       service.status,
     )
@@ -382,11 +367,8 @@ class ServicePatch extends Service {
       name,
       args,
       opts,
-
-      service.apiVersion,
-      service.kind,
-      output(args.namespace),
       service.metadata,
+      output(args.namespace),
       service.spec,
       service.status,
     )
@@ -412,11 +394,8 @@ class WrappedService extends Service {
       name,
       args,
       opts,
-
-      output(args.service).apiVersion,
-      output(args.service).kind,
-      output(args.namespace),
       output(args.service).metadata,
+      output(args.namespace),
       output(args.service).spec,
       output(args.service).status,
     )
@@ -450,11 +429,8 @@ class ExternalService extends Service {
       name,
       args,
       opts,
-
-      service.apiVersion,
-      service.kind,
-      output(args.namespace),
       service.metadata,
+      output(args.namespace),
       service.spec,
       service.status,
     )

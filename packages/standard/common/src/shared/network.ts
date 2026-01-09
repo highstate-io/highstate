@@ -1,33 +1,34 @@
-import type { ArrayPatchMode, network } from "@highstate/library"
+import { network, type ArrayPatchMode, type Labels, type LabelValue } from "@highstate/library"
 import { type Input, toPromise } from "@highstate/pulumi"
-import { uniqueBy } from "remeda"
+import { map, pipe, uniqueBy } from "remeda"
+import { filterByLabels } from "./utils"
 
 /**
- * The L3 or L4 endpoint for some service.
+ * The input L3, L4, or L7 endpoint for some service.
  *
- * The format is: `[protocol://]endpoint[:port]`
+ * Can be provided as a string or an object.
  */
-export type InputL34Endpoint = network.L34Endpoint | string
+export type InputEndpoint = network.L3Endpoint | string
 
 /**
- * The L3 endpoint for some service.
- */
-export type InputL3Endpoint = network.L3Endpoint | string
-
-/**
- * The L4 endpoint for some service.
+ * The input L4 or L7 endpoint for some service.
+ *
+ * Can be provided as a string or an object.
  */
 export type InputL4Endpoint = network.L4Endpoint | string
 
 /**
- * The L7 endpoint for some service.
+ * The input L7 endpoint for some service.
  *
- * The format is: `appProtocol://endpoint[:port][/resource]`
+ * Can be provided as a string or an object.
  */
 export type InputL7Endpoint = network.L7Endpoint | string
 
 /**
  * Stringifies a L3 endpoint object into a string.
+ *
+ * The result format is simply the address or hostname.
+ * The format does not depend on runtime level and will produce the same output for L3, L4, and L7 endpoints.
  *
  * @param l3Endpoint The L3 endpoint object to stringify.
  * @returns The string representation of the L3 endpoint.
@@ -46,6 +47,12 @@ export function l3EndpointToString(l3Endpoint: network.L3Endpoint): string {
 /**
  * Stringifies a L4 endpoint object into a string.
  *
+ * The result format is:
+ * - `[endpoint]:port` for IPv6;
+ * - `endpoint:port` for IPv4 and hostname.
+ *
+ * The format does not depend on runtime level and will produce the same output for L4 and L7 endpoints.
+ *
  * @param l4Endpoint The L4 endpoint object to stringify.
  * @returns The string representation of the L4 endpoint.
  */
@@ -60,10 +67,16 @@ export function l4EndpointToString(l4Endpoint: network.L4Endpoint): string {
 /**
  * Stringifies a L4 endpoint object into a string with protocol.
  *
+ * The result format is:
+ * - `protocol://[endpoint]:port` for IPv6;
+ * - `protocol://endpoint:port` for IPv4 and hostname.
+ *
+ * The format does not depend on runtime level and will produce the same output for L4 and L7 endpoints.
+ *
  * @param l4Endpoint The L4 endpoint object to stringify.
  * @returns The string representation of the L4 endpoint with protocol.
  */
-export function l4EndpointWithProtocolToString(l4Endpoint: network.L4Endpoint): string {
+export function l4EndpointToFullString(l4Endpoint: network.L4Endpoint): string {
   const protocol = `${l4Endpoint.protocol}://`
 
   return `${protocol}${l4EndpointToString(l4Endpoint)}`
@@ -72,7 +85,10 @@ export function l4EndpointWithProtocolToString(l4Endpoint: network.L4Endpoint): 
 /**
  * Stringifies a L7 endpoint object into a string.
  *
- * The format is: `appProtocol://endpoint[:port][/resource]`
+ * The result format is:
+ * - `appProtocol://[endpoint]:port[/path]` for IPv6;
+ * - `appProtocol://endpoint:port[/path]` for IPv4 and hostname.
+ *
  * @param l7Endpoint The L7 endpoint object to stringify.
  * @returns The string representation of the L7 endpoint.
  */
@@ -81,116 +97,173 @@ export function l7EndpointToString(l7Endpoint: network.L7Endpoint): string {
 
   let endpoint = l4EndpointToString(l7Endpoint)
 
-  if (l7Endpoint.resource) {
-    endpoint += `/${l7Endpoint.resource}`
+  if (l7Endpoint.path) {
+    endpoint += `/${l7Endpoint.path}`
   }
 
   return `${protocol}${endpoint}`
 }
 
 /**
- * Stringifies a L3 or L4 endpoint object into a string.
+ * Stringifies any L3, L4, or L7 endpoint object into a string.
+ * The result format depends on the endpoint level at runtime.
  *
- * @param l34Endpoint The L3 or L4 endpoint object to stringify.
- * @returns The string representation of the L3 or L4 endpoint.
+ * @param endpoint The endpoint object to stringify.
+ * @returns The string representation of the endpoint.
  */
-export function l34EndpointToString(l34Endpoint: network.L34Endpoint): string {
-  if (l34Endpoint.port) {
-    return l4EndpointToString(l34Endpoint)
+export function endpointToString(endpoint: network.L3Endpoint): string {
+  switch (endpoint.level) {
+    case 3:
+      return l3EndpointToString(endpoint)
+    case 4:
+      return l4EndpointToString(endpoint)
+    case 7:
+      return l7EndpointToString(endpoint)
   }
-
-  return l3EndpointToString(l34Endpoint)
 }
 
 const L34_ENDPOINT_RE =
   /^(?:(?<protocol>[a-z]+):\/\/)?(?:(?:\[?(?<ipv6>[0-9A-Fa-f:]+)\]?)|(?<ipv4>(?:\d{1,3}\.){3}\d{1,3})|(?<hostname>[a-zA-Z0-9-*]+(?:\.[a-zA-Z0-9-*]+)*))(?::(?<port>\d{1,5}))?$/
 
 const L7_ENDPOINT_RE =
-  /^(?<appProtocol>[a-z]+):\/\/(?:(?:\[?(?<ipv6>[0-9A-Fa-f:]+)\]?)|(?<ipv4>(?:\d{1,3}\.){3}\d{1,3})|(?<hostname>[a-zA-Z0-9-*]+(?:\.[a-zA-Z0-9-*]+)*))(?::(?<port>\d{1,5}))?(?:\/(?<resource>.*))?$/
+  /^(?<appProtocol>[a-z]+):\/\/(?:(?:\[?(?<ipv6>[0-9A-Fa-f:]+)\]?)|(?<ipv4>(?:\d{1,3}\.){3}\d{1,3})|(?<hostname>[a-zA-Z0-9-*]+(?:\.[a-zA-Z0-9-*]+)*))(?::(?<port>\d{1,5}))?(?:\/(?<path>.*))?$/
 
 /**
- * Parses a L3 or L4 endpoint from a string.
+ * Checks if the given endpoint meets the minimum level requirement.
  *
- * The format is `[protocol://]endpoint[:port]`.
- *
- * @param l34Endpoint The L3 or L4 endpoint string to parse.
- * @returns The parsed L3 or L4 endpoint object.
+ * @param endpoint The endpoint to check.
+ * @param minLevel The minimum level of the endpoint to check.
+ * @returns True if the endpoint meets the minimum level requirement, false otherwise.
  */
-export function parseL34Endpoint(l34Endpoint: InputL34Endpoint): network.L34Endpoint {
-  if (typeof l34Endpoint === "object") {
-    return l34Endpoint
+export function checkEndpointLevel<TMinLevel extends network.EndpointLevel>(
+  endpoint: network.L3Endpoint,
+  minLevel: TMinLevel,
+): endpoint is network.EndpointByMinLevel<TMinLevel> {
+  return endpoint.level >= minLevel
+}
+
+/**
+ * Asserts that the given endpoint meets the minimum level requirement.
+ *
+ * @param endpoint The endpoint to check.
+ * @param minLevel The minimum level of the endpoint to check.
+ * @throws If the endpoint does not meet the minimum level requirement.
+ */
+export function assertEndpointLevel<TMinLevel extends network.EndpointLevel>(
+  endpoint: network.L3Endpoint,
+  minLevel: TMinLevel,
+): asserts endpoint is network.EndpointByMinLevel<TMinLevel> {
+  if (!checkEndpointLevel(endpoint, minLevel)) {
+    throw new Error(
+      `The endpoint "${endpointToString(endpoint)}" is L${endpoint.level}, but L${minLevel} is required`,
+    )
+  }
+}
+
+/**
+ * Parses an endpoint from a string.
+ * If endpoint object is provided, it is returned as is.
+ *
+ * Supports L3, L4, and L7 endpoints.
+ *
+ * - L3 format: `endpoint`
+ * - L4 format: `[protocol://]endpoint[:port]`
+ * - L7 format: `appProtocol://endpoint[:port][/path]`
+ *
+ * @param endpoint The endpoint string or object to parse.
+ * @param minLevel The minimum level of the endpoint to parse. If provided, ensures the returned endpoint is at least this level.
+ * @returns The parsed endpoint object.
+ */
+export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
+  endpoint: InputEndpoint,
+  minLevel: TMinLevel = 3 as TMinLevel,
+): network.EndpointByMinLevel<TMinLevel> {
+  if (typeof endpoint === "object") {
+    assertEndpointLevel(endpoint, minLevel)
+
+    return endpoint
   }
 
-  const match = l34Endpoint.match(L34_ENDPOINT_RE)
-  if (!match) {
-    throw new Error(`Invalid L3/L4 endpoint: "${l34Endpoint}"`)
+  const l7Match = endpoint.match(L7_ENDPOINT_RE)
+  if (l7Match) {
+    const { appProtocol, ipv6, ipv4, hostname, port, path } = l7Match.groups!
+    const udpAppProtocols = ["dns", "dhcp"]
+
+    const resEndpoint: network.L7Endpoint = {
+      type: ipv6 ? "ipv6" : ipv4 ? "ipv4" : "hostname",
+      level: 7,
+      labels: extractAddressLabels(ipv6 || ipv4),
+      address: ipv6 || ipv4,
+      hostname: hostname,
+
+      // Default port for L7 endpoints (TODO: add more specific defaults for common protocols)
+      port: port ? parseInt(port, 10) : 443,
+
+      // L7 endpoints typically use TCP, but can also use UDP for specific protocols
+      protocol: udpAppProtocols.includes(appProtocol) ? "udp" : "tcp",
+
+      appProtocol,
+      path: path || "",
+    }
+
+    const result = network.l7EndpointEntity.schema.safeParse(resEndpoint)
+    if (!result.success) {
+      throw new Error(`Invalid L7 endpoint "${endpoint}": ${result.error.message}`)
+    }
+
+    return result.data
   }
 
-  const { protocol, ipv6, ipv4, hostname, port } = match.groups!
+  const l34Match = endpoint.match(L34_ENDPOINT_RE)
+  if (!l34Match) {
+    throw new Error(`Invalid endpoint: "${endpoint}"`)
+  }
+
+  const { protocol, ipv6, ipv4, hostname, port } = l34Match.groups!
 
   if (protocol && protocol !== "tcp" && protocol !== "udp") {
     throw new Error(`Invalid L4 endpoint protocol: "${protocol}"`)
   }
 
-  let visibility: network.EndpointVisibility = "public"
+  if (port) {
+    const portNumber = parseInt(port, 10)
 
-  if (ipv4 && IPV4_PRIVATE_REGEX.test(ipv4)) {
-    visibility = "external"
-  } else if (ipv6 && IPV6_PRIVATE_REGEX.test(ipv6)) {
-    visibility = "external"
+    const resEndpoint: network.L4Endpoint = {
+      type: ipv6 ? "ipv6" : ipv4 ? "ipv4" : "hostname",
+      level: 4,
+      labels: extractAddressLabels(ipv6 || ipv4),
+      address: ipv6 || ipv4,
+      hostname: hostname,
+      port: portNumber,
+      protocol: protocol ? (protocol as network.L4Protocol) : "tcp",
+    }
+
+    const result = network.l4EndpointEntity.schema.safeParse(resEndpoint)
+    if (!result.success) {
+      throw new Error(`Invalid L4 endpoint "${endpoint}": ${result.error.message}`)
+    }
+
+    assertEndpointLevel(result.data, minLevel)
+
+    return result.data
   }
 
-  const fallbackProtocol = port ? "tcp" : undefined
-
-  return {
+  const resEndpoint: network.L3Endpoint = {
     type: ipv6 ? "ipv6" : ipv4 ? "ipv4" : "hostname",
-    visibility,
+    level: 3,
+    labels: extractAddressLabels(ipv6 || ipv4),
     address: ipv6 || ipv4,
     hostname: hostname,
-    port: port ? parseInt(port, 10) : undefined,
-    protocol: protocol ? (protocol as network.L4Protocol) : fallbackProtocol,
-  } as network.L34Endpoint
-}
-
-/**
- * Parses a L3 endpoint from a string.
- *
- * The same as `parseL34Endpoint`, but only for L3 endpoints and will throw an error if the endpoint contains a port.
- *
- * @param l3Endpoint The L3 endpoint string to parse.
- * @returns The parsed L3 endpoint object.
- */
-export function parseL3Endpoint(l3Endpoint: InputL3Endpoint): network.L3Endpoint {
-  if (typeof l3Endpoint === "object") {
-    return l3Endpoint
   }
 
-  const parsed = parseL34Endpoint(l3Endpoint)
-
-  if (parsed.port) {
-    throw new Error(`Port cannot be specified in L3 endpoint: "${l3Endpoint}"`)
+  const result = network.l3EndpointEntity.schema.safeParse(resEndpoint)
+  if (!result.success) {
+    throw new Error(`Invalid L3 endpoint "${endpoint}": ${result.error.message}`)
   }
 
-  return parsed
-}
+  assertEndpointLevel(result.data, minLevel)
 
-/**
- * Parses a L4 endpoint from a string.
- *
- * The same as `parseL34Endpoint`, but only for L4 endpoints and will throw an error if the endpoint does not contain a port.
- */
-export function parseL4Endpoint(l4Endpoint: InputL4Endpoint): network.L4Endpoint {
-  if (typeof l4Endpoint === "object") {
-    return l4Endpoint
-  }
-
-  const parsed = parseL34Endpoint(l4Endpoint)
-
-  if (!parsed.port) {
-    throw new Error(`No port found in L4 endpoint: "${l4Endpoint}"`)
-  }
-
-  return parsed
+  return result.data
 }
 
 const IPV4_PRIVATE_REGEX =
@@ -198,54 +271,6 @@ const IPV4_PRIVATE_REGEX =
 
 const IPV6_PRIVATE_REGEX =
   /^(?:fc|fd)(?:[0-9a-f]{2}){0,2}::(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$|^::(?:ffff:(?:10|127)(?:\.\d{1,3}){3}|(?:172\.1[6-9]|172\.2[0-9]|172\.3[0-1])(?:\.\d{1,3}){2}|(?:192\.168)(?:\.\d{1,3}){2})$/
-
-/**
- * Helper function to get the input L3 endpoint from the raw endpoint or input endpoint.
- *
- * If neither is provided, an error is thrown.
- *
- * @param rawEndpoint The raw endpoint string to parse.
- * @param inputEndpoint The input endpoint object to use if the raw endpoint is not provided.
- * @returns The parsed L3 endpoint object.
- */
-export async function requireInputL3Endpoint(
-  rawEndpoint: string | undefined,
-  inputEndpoint: Input<network.L3Endpoint> | undefined,
-): Promise<network.L3Endpoint> {
-  if (rawEndpoint) {
-    return parseL3Endpoint(rawEndpoint)
-  }
-
-  if (inputEndpoint) {
-    return toPromise(inputEndpoint)
-  }
-
-  throw new Error("No endpoint provided")
-}
-
-/**
- * Helper function to get the input L4 endpoint from the raw endpoint or input endpoint.
- *
- * If neither is provided, an error is thrown.
- *
- * @param rawEndpoint The raw endpoint string to parse.
- * @param inputEndpoint The input endpoint object to use if the raw endpoint is not provided.
- * @returns The parsed L4 endpoint object.
- */
-export async function requireInputL4Endpoint(
-  rawEndpoint: string | undefined,
-  inputEndpoint: Input<network.L4Endpoint> | undefined,
-): Promise<network.L4Endpoint> {
-  if (rawEndpoint) {
-    return parseL4Endpoint(rawEndpoint)
-  }
-
-  if (inputEndpoint) {
-    return toPromise(inputEndpoint)
-  }
-
-  throw new Error("No endpoint provided")
-}
 
 /**
  * Converts L3 endpoint to L4 endpoint by adding a port and protocol.
@@ -256,47 +281,41 @@ export async function requireInputL4Endpoint(
  * @returns The L4 endpoint with the port and protocol added.
  */
 export function l3EndpointToL4(
-  l3Endpoint: InputL3Endpoint,
+  l3Endpoint: InputEndpoint,
   port: number,
   protocol: network.L4Protocol = "tcp",
 ): network.L4Endpoint {
+  const parsed = parseEndpoint(l3Endpoint)
+
   return {
-    ...parseL3Endpoint(l3Endpoint),
+    ...parsed,
+    level: 4,
     port,
     protocol,
   }
 }
 
 /**
- * Filters the endpoints based on the given filter.
+ * Converts L4 endpoint to L7 endpoint by adding application protocol and path.
  *
- * @param endpoints The list of endpoints to filter.
- * @param filter The filter to apply. If not provided, the endpoints will be filtered by the most accessible type: `public` > `external` > `internal`.
- * @param types The list of endpoint types to filter by. If provided, only endpoints of these types will be returned.
- *
- * @returns The filtered list of endpoints.
+ * @param l4Endpoint The L4 endpoint to convert.
+ * @param appProtocol The application protocol to add to the L4 endpoint.
+ * @param path The path to add to the L4 endpoint. Defaults to an empty string.
+ * @returns The L7 endpoint with the application protocol and path added.
  */
-export function filterEndpoints<
-  TEndpoint extends network.L34Endpoint,
-  TType extends network.L34Endpoint["type"],
->(
-  endpoints: TEndpoint[],
-  filter?: network.EndpointFilter,
-  types?: TType[],
-): (TEndpoint & { type: TType })[] {
-  if (filter?.length) {
-    endpoints = endpoints.filter(endpoint => filter.includes(endpoint.visibility))
-  } else if (endpoints.some(endpoint => endpoint.visibility === "public")) {
-    endpoints = endpoints.filter(endpoint => endpoint.visibility === "public")
-  } else if (endpoints.some(endpoint => endpoint.visibility === "external")) {
-    endpoints = endpoints.filter(endpoint => endpoint.visibility === "external")
-  }
+export function l4EndpointToL7(
+  l4Endpoint: InputEndpoint,
+  appProtocol: string,
+  path: string = "",
+): network.L7Endpoint {
+  const parsed = parseEndpoint(l4Endpoint, 4)
 
-  if (types?.length) {
-    endpoints = endpoints.filter(endpoint => types.includes(endpoint.type as TType))
+  return {
+    ...parsed,
+    level: 7,
+    appProtocol,
+    path,
   }
-
-  return endpoints as (TEndpoint & { type: TType })[]
 }
 
 /**
@@ -304,65 +323,34 @@ export function filterEndpoints<
  *
  * If the endpoint is a hostname, an error is thrown.
  *
- * @param l3Endpoint The L3 endpoint to convert.
+ * @param endpoint The L3 endpoint to convert.
  * @returns The CIDR notation of the L3 endpoint.
  */
-export function l3EndpointToCidr(l3Endpoint: network.L3Endpoint): string {
-  switch (l3Endpoint.type) {
+export function l3EndpointToCidr(endpoint: network.L3Endpoint): string {
+  switch (endpoint.type) {
     case "ipv4":
-      return `${l3Endpoint.address}/32`
+      return `${endpoint.address}/32`
     case "ipv6":
-      return `${l3Endpoint.address}/128`
+      return `${endpoint.address}/128`
     case "hostname":
       throw new Error("Cannot convert hostname to CIDR")
   }
 }
 
-const udpAppProtocols = ["dns", "dhcp"]
-
-/**
- * Parses a L7 endpoint from a string.
- *
- * The format is: `appProtocol://endpoint[:port][/resource]`
- *
- * @param l7Endpoint The L7 endpoint string to parse.
- * @returns The parsed L7 endpoint object.
- */
-export function parseL7Endpoint(l7Endpoint: InputL7Endpoint): network.L7Endpoint {
-  if (typeof l7Endpoint === "object") {
-    return l7Endpoint
+function extractAddressLabels(address?: string): Record<string, LabelValue> | undefined {
+  if (!address) {
+    return undefined
   }
 
-  const match = l7Endpoint.match(L7_ENDPOINT_RE)
-  if (!match) {
-    throw new Error(`Invalid L7 endpoint: "${l7Endpoint}"`)
+  const labels: Labels = {}
+
+  if (IPV4_PRIVATE_REGEX.test(address) || IPV6_PRIVATE_REGEX.test(address)) {
+    labels["iana.scope"] = "private"
+  } else {
+    labels["iana.scope"] = "global"
   }
 
-  const { appProtocol, ipv6, ipv4, hostname, port, resource } = match.groups!
-
-  let visibility: network.EndpointVisibility = "public"
-
-  if (ipv4 && IPV4_PRIVATE_REGEX.test(ipv4)) {
-    visibility = "external"
-  } else if (ipv6 && IPV6_PRIVATE_REGEX.test(ipv6)) {
-    visibility = "external"
-  }
-
-  return {
-    type: ipv6 ? "ipv6" : ipv4 ? "ipv4" : "hostname",
-    visibility,
-    address: ipv6 || ipv4,
-    hostname: hostname,
-
-    // Default port for L7 endpoints (TODO: add more specific defaults for common protocols)
-    port: port ? parseInt(port, 10) : 443,
-
-    // L7 endpoints typically use TCP, but can also use UDP for specific protocols
-    protocol: udpAppProtocols.includes(appProtocol) ? "udp" : "tcp",
-
-    appProtocol,
-    resource: resource || "",
-  } as network.L7Endpoint
+  return labels
 }
 
 /**
@@ -374,40 +362,69 @@ export function parseL7Endpoint(l7Endpoint: InputL7Endpoint): network.L7Endpoint
  * @param mode The mode to use when updating the endpoints. Can be "replace" or "prepend". Defaults to "prepend".
  * @returns The updated list of endpoints with duplicates removed.
  */
-export async function updateEndpoints<TEndpoints extends network.L34Endpoint>(
-  currentEndpoints: Input<TEndpoints[]>,
+export async function updateEndpoints<TMinLevel extends network.EndpointLevel = 3>(
+  currentEndpoints: Input<network.L3Endpoint[]>,
   endpoints: string[] | undefined,
-  inputEndpoints: Input<TEndpoints[]> | undefined,
+  inputEndpoints: Input<network.L3Endpoint[]> | undefined,
   mode: ArrayPatchMode = "prepend",
-): Promise<TEndpoints[]> {
+  minLevel: TMinLevel = 3 as TMinLevel,
+): Promise<network.L3Endpoint[]> {
   const resolvedCurrentEndpoints = await toPromise(currentEndpoints)
-  const newEndpoints = await parseEndpoints(endpoints, inputEndpoints)
+  const newEndpoints = await parseEndpoints(endpoints, inputEndpoints, minLevel)
 
   if (mode === "replace") {
-    return newEndpoints as TEndpoints[]
+    return newEndpoints
   }
 
-  return uniqueBy(
-    [...newEndpoints, ...resolvedCurrentEndpoints],
-    l34EndpointToString,
-  ) as TEndpoints[]
+  return uniqueBy([...newEndpoints, ...resolvedCurrentEndpoints], endpointToString)
 }
 
 /**
- * Parses a list of endpoints from strings and input objects.
+ * Parses multiple endpoints from strings and input objects.
  *
- * @param endpoints The list of endpoint strings to parse.
- * @param inputEndpoints The list of input endpoint objects to use.
+ * @param endpoints The endpoint strings to parse.
+ * @param inputEndpoints The input endpoint objects to use.
  * @returns The parsed list of endpoint objects with duplicates removed.
  */
-export async function parseEndpoints<TEndpoints extends network.L34Endpoint>(
+export async function parseEndpoints<TMinLevel extends network.EndpointLevel = 3>(
   endpoints: string[] | undefined,
-  inputEndpoints: Input<TEndpoints[]> | undefined,
-): Promise<TEndpoints[]> {
-  const resolvedInputEndpoints = await toPromise(inputEndpoints)
+  inputEndpoints: Input<network.L3Endpoint[]> | undefined,
+  minLevel: TMinLevel = 3 as TMinLevel,
+): Promise<network.L3Endpoint[]> {
+  const resolvedInputEndpoints = await toPromise(inputEndpoints ?? [])
 
-  return uniqueBy(
-    [...(endpoints?.map(parseL34Endpoint) ?? []), ...(resolvedInputEndpoints ?? [])],
-    l34EndpointToString,
-  ) as TEndpoints[]
+  return pipe(
+    [...(endpoints ?? []), ...resolvedInputEndpoints],
+    map(endpoint => parseEndpoint(endpoint, minLevel)),
+    uniqueBy(endpointToString),
+  )
+}
+
+/**
+ * Filters the given L3 endpoints by the given label expression.
+ *
+ * Besides the labels, the following additional labels are available for filtering:
+ *
+ * - `type`: The type of the endpoint (`ipv4`, `ipv6`, `hostname`).
+ * - `level`: The level of the endpoint in the network stack (`3`, `4`, `7`). Numeric, can be used in expressions like `level >= 4`.
+ * - `protocol`: The L4 protocol of the endpoint (`tcp`, `udp`). Only available for L4 and L7 endpoints.
+ * - `port`: The port of the endpoint. Only available for L4 and L7 endpoints.
+ * - `appProtocol`: The application protocol of the endpoint (e.g., `http`, `https`, `dns`). Only available for L7 endpoints.
+ *
+ * @param endpoints The list of L3 endpoints to filter.
+ * @param expression The label expression to filter by.
+ * @returns The filtered list of L3 endpoints.
+ */
+export function filterEndpoints<TEndpoint extends network.L3Endpoint>(
+  endpoints: TEndpoint[],
+  expression: string,
+): TEndpoint[] {
+  return filterByLabels(endpoints, expression, endpoint => ({
+    ...endpoint.labels,
+    type: endpoint.type,
+    level: endpoint.level,
+    protocol: endpoint.level === 4 || endpoint.level === 7 ? endpoint.protocol : undefined,
+    port: endpoint.level === 4 || endpoint.level === 7 ? endpoint.port : undefined,
+    appProtocol: endpoint.level === 7 ? endpoint.appProtocol : undefined,
+  }))
 }
