@@ -3,7 +3,7 @@ import {
   generatePassword,
   generateSshPrivateKey,
   l3EndpointToString,
-  parseL3Endpoint,
+  parseEndpoint,
   sshPrivateKeyToKeyPair,
 } from "@highstate/common"
 import { trimIndentation } from "@highstate/contract"
@@ -134,7 +134,7 @@ if (!publicIp) {
   throw new Error("No IP address assigned to instance")
 }
 
-const endpoint = parseL3Endpoint(publicIp)
+const endpoint = parseEndpoint(publicIp, 3)
 
 const { server, terminal } = await createServerBundle({
   name: vmName,
@@ -146,7 +146,6 @@ const { server, terminal } = await createServerBundle({
 
 export default outputs({
   server,
-  endpoints: [endpoint],
 
   $statusFields: {
     id: instance.id,

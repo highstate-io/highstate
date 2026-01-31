@@ -1,3 +1,4 @@
+import type { EntityTypes } from "./entity"
 import type { boundaryInput, boundaryInputs } from "./evaluation"
 import { z } from "zod"
 import { componentKindSchema } from "./component"
@@ -11,20 +12,21 @@ import {
 
 declare const type: unique symbol
 
-export type InstanceInput<TType extends string = string> = {
-  [type]?: TType
+export type InstanceInput<TTypes extends EntityTypes = EntityTypes> = {
+  [type]?: TTypes
   [boundaryInput]?: InstanceInput
   instanceId: InstanceId
   output: string
 }
 
-export type OptionalInstanceInput<TType extends string = string> =
-  | ({ provided: true } & InstanceInput<TType>)
+export type OptionalInstanceInput<TTypes extends EntityTypes = EntityTypes> =
+  | ({ provided: true } & InstanceInput<TTypes>)
   | { provided: false; [boundaryInput]?: InstanceInput }
 
-export type InstanceInputGroup<TType extends string = string> = InstanceInput<TType>[] & {
-  [boundaryInputs]?: InstanceInputGroup<TType>
-}
+export type InstanceInputGroup<TTypes extends EntityTypes = EntityTypes> =
+  InstanceInput<TTypes>[] & {
+    [boundaryInputs]?: InstanceInputGroup<TTypes>
+  }
 
 export function inputKey(input: InstanceInput): string {
   return `${input.instanceId}:${input.output}`
@@ -200,7 +202,7 @@ export function parseInstanceId(
   return parts as [VersionedName, GenericName]
 }
 
-export function findInput<T extends string>(
+export function findInput<T extends EntityTypes>(
   inputs: InstanceInput<T>[],
   name: string,
 ): InstanceInput<T> | null {
@@ -221,7 +223,7 @@ export function findInput<T extends string>(
   return matchedInputs[0]
 }
 
-export function findRequiredInput<T extends string>(
+export function findRequiredInput<T extends EntityTypes>(
   inputs: InstanceInput<T>[],
   name: string,
 ): InstanceInput<T> {
@@ -234,14 +236,14 @@ export function findRequiredInput<T extends string>(
   return input
 }
 
-export function findInputs<T extends string>(
+export function findInputs<T extends EntityTypes>(
   inputs: InstanceInput<T>[],
   names: string[],
 ): InstanceInput<T>[] {
   return names.map(name => findInput(inputs, name)).filter(Boolean) as InstanceInput<T>[]
 }
 
-export function findRequiredInputs<T extends string>(
+export function findRequiredInputs<T extends EntityTypes>(
   inputs: InstanceInput<T>[],
   names: string[],
 ): InstanceInput<T>[] {
@@ -256,11 +258,24 @@ export function findRequiredInputs<T extends string>(
 export enum HighstateSignature {
   Artifact = "d55c63ac-3174-4756-808f-f778e99af0d1",
   Yaml = "c857cac5-caa6-4421-b82c-e561fbce6367",
+  Id = "348d020e-0d9e-4ae7-9415-b91af99f5339",
+  Ref = "6d7f9da0-9cb6-496d-b72e-cf85ee4d9cf8",
 }
 
 export const yamlValueSchema = z.object({
   [HighstateSignature.Yaml]: z.literal(true),
   value: z.string(),
+})
+
+export const objectWithIdSchema = z.object({
+  [HighstateSignature.Id]: z.literal(true),
+  id: z.number(),
+  value: z.unknown(),
+})
+
+export const objectRefSchema = z.object({
+  [HighstateSignature.Ref]: z.literal(true),
+  id: z.number(),
 })
 
 export type YamlValue = z.infer<typeof yamlValueSchema>

@@ -4,6 +4,7 @@ import {
   z,
   type ComponentArgument,
 } from "@highstate/contract"
+import { clone } from "remeda"
 
 export function populateDefaultValues(
   values: Record<string, unknown>,
@@ -14,7 +15,31 @@ export function populateDefaultValues(
   for (const key in args) {
     const arg = args[key]
     if (arg.schema.default && result[key] === undefined) {
-      result[key] = arg.schema.default
+      result[key] = clone(arg.schema.default)
+    }
+  }
+
+  return result
+}
+
+function removeObjectDefaultValues(value: unknown, schema: z.core.JSONSchema.BaseSchema): unknown {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    schema.type !== "object" ||
+    !schema.properties
+  ) {
+    return value
+  }
+
+  const result: Record<string, unknown> = {}
+
+  for (const key in value) {
+    const propSchema = schema.properties[key] as z.core.JSONSchema.BaseSchema
+    const fieldValue = (value as Record<string, unknown>)[key]
+
+    if (!shouldBeRemoved(fieldValue, propSchema)) {
+      result[key] = removeObjectDefaultValues(fieldValue, propSchema)
     }
   }
 
@@ -29,13 +54,13 @@ function shouldBeRemoved(value: unknown, schema: z.core.JSONSchema.BaseSchema) {
   }
 
   // 1. always remove default values
-  if (schema.default) {
+  if (schema.default !== undefined) {
     if (value === undefined || value === null) {
       return true
     }
 
     const stringifiedDefault = JSON.stringify(schema.default)
-    const stringifiedValue = JSON.stringify(value)
+    const stringifiedValue = JSON.stringify(removeObjectDefaultValues(value, schema))
 
     if (stringifiedDefault === stringifiedValue) {
       return true
@@ -77,6 +102,11 @@ export function removeDefaultValues(
   const result: Record<string, unknown> = {}
 
   for (const key in values) {
+    if (!args[key]) {
+      // always remove unknown args
+      continue
+    }
+
     if (!shouldBeRemoved(values[key], args[key].schema)) {
       result[key] = values[key]
     }
@@ -222,12 +252,23 @@ function tryCreatePlainArgument(
 }
 
 function isRecordSchema(schema: z.core.JSONSchema.BaseSchema) {
-  return (
-    schema.type === "object" &&
-    schema.additionalProperties &&
-    Object.keys(schema.additionalProperties).length === 0 &&
-    schema.propertyNames
-  )
+  if (schema.type !== "object") {
+    return false
+  }
+
+  if (schema.additionalProperties && Object.keys(schema.additionalProperties).length > 0) {
+    return true
+  }
+
+  if (schema.propertyNames && Object.keys(schema.propertyNames).length > 0) {
+    return true
+  }
+
+  if (schema.patternProperties && Object.keys(schema.patternProperties).length > 0) {
+    return true
+  }
+
+  return false
 }
 
 function findDiscriminatorField(
@@ -241,7 +282,7 @@ function findDiscriminatorField(
     }
 
     for (const [fName, fSchema] of Object.entries(schema.properties)) {
-      if (typeof fSchema !== "object" || !fSchema.const) {
+      if (typeof fSchema !== "object" || fSchema.const === undefined) {
         continue
       }
 
@@ -258,7 +299,7 @@ function findDiscriminatorField(
     }
 
     const fSchema = schemas[0].properties?.[fName]
-    if (fSchema && typeof fSchema === "object" && fSchema.const) {
+    if (fSchema && typeof fSchema === "object" && fSchema.const !== undefined) {
       // create a plain argument for the discriminator field
       return tryCreatePlainArgument(
         fName,
@@ -335,7 +376,7 @@ export function createEditorArguments(
             kind: "group",
             discriminator: discriminatorField,
             fields,
-            default: arg.schema.default,
+            default: clone(arg.schema.default),
           })
         }
         continue
@@ -352,7 +393,7 @@ export function createEditorArguments(
           title: arg.meta.title,
           description: arg.meta.description ?? arg.schema.description,
           kind: "structured",
-          default: arg.schema.default,
+          default: clone(arg.schema.default),
         })
       } else {
         const fields: PlainEditorArgument[] = []
@@ -387,7 +428,7 @@ export function createEditorArguments(
             kind: "group",
             discriminator: undefined,
             fields: { "": fields },
-            default: arg.schema.default,
+            default: clone(arg.schema.default),
           })
         }
       }
@@ -430,7 +471,7 @@ export function createEditorArguments(
       title: arg.meta.title,
       description: arg.meta.description ?? arg.schema.description,
       kind: "structured",
-      default: arg.schema.default,
+      default: clone(arg.schema.default),
     })
   }
 

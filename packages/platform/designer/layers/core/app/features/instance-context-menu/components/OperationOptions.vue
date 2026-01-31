@@ -70,7 +70,7 @@ const optionConfigs: OptionConfig[] = [
       "Force deletion of instance state even if the destroy operation fails. Bypasses normal destroy procedures as emergency fallback.",
     warning:
       "This will delete the stack state and all resources in it even if the destroy operation failed. Use only when the stack is unrecoverable and you want to start from scratch.",
-    showForOperations: ["destroy"],
+    showForOperations: ["destroy", "recreate"],
   },
   {
     key: "allowPartialCompositeInstanceUpdate",

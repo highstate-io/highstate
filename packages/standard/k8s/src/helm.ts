@@ -26,7 +26,7 @@ import spawn from "nano-spawn"
 import { isNonNullish, omit } from "remeda"
 import { Deployment } from "./deployment"
 import { NetworkPolicy, type NetworkPolicyArgs } from "./network-policy"
-import { getServiceType, Service, type ServiceArgs } from "./service"
+import { createServiceSpec, Service, type ServiceArgs } from "./service"
 import { getNamespaceName, getProvider, type NamespaceLike } from "./shared"
 import { StatefulSet } from "./stateful-set"
 
@@ -147,19 +147,18 @@ export class Chart extends ComponentResource {
                 resourceArgs.type === "kubernetes:core/v1:Service" &&
                 resourceArgs.name === expectedName
               ) {
-                const spec = resourceArgs.props.spec as types.input.core.v1.ServiceSpec
+                const spec = await toPromise(
+                  resourceArgs.props.spec as types.input.core.v1.ServiceSpec,
+                )
+
+                const serviceSpec = await toPromise(createServiceSpec(args.service ?? {}, cluster))
 
                 return {
                   props: {
                     ...resourceArgs.props,
                     spec: {
                       ...spec,
-                      ...(args.service ?? {}),
-
-                      type: getServiceType(args.service, cluster),
-
-                      externalIPs:
-                        args.service?.externalIPs ?? cluster.externalIps ?? spec.externalIPs,
+                      ...omit(serviceSpec, ["ports"]),
                     },
                   },
                   opts: resourceArgs.opts,

@@ -1,13 +1,13 @@
-import { l4EndpointToString, parseL3Endpoint } from "@highstate/common"
+import { endpointToString } from "@highstate/common"
 import { Chart, ClusterAccessScope, Namespace } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
-import { map } from "remeda"
+import { forUnit, toPromise } from "@highstate/pulumi"
 import { charts } from "../shared"
 
 const { name, args, inputs, outputs } = forUnit(k8s.apps.traefik)
 
 const className = args.className ?? name
+const clusterEndpoints = await toPromise(inputs.k8sCluster.endpoints)
 
 const namespace = await Namespace.createOrGet(args.appName, { cluster: inputs.k8sCluster })
 
@@ -28,15 +28,16 @@ const chart = new Chart(args.appName, {
 
     providers: {
       kubernetesCRD: {
-        enabled: false,
+        enabled: args.enableTraefikCrds,
       },
 
       kubernetesIngress: {
-        enabled: true,
+        enabled: args.enableIngressApi,
       },
 
       kubernetesGateway: {
-        enabled: true,
+        enabled: args.enableGatewayApi,
+        experimentalChannel: true,
       },
     },
 
@@ -109,9 +110,6 @@ const clusterScope = new ClusterAccessScope(name, {
   ],
 })
 
-const endpoints =
-  args.endpoints.length > 0 ? args.endpoints.map(parseL3Endpoint) : chart.service.endpoints
-
 export default outputs({
   gateway: {
     implRef: {
@@ -124,7 +122,7 @@ export default outputs({
         httpsPort: 8443,
       },
     },
-    endpoints,
+    endpoints: clusterEndpoints,
   },
 
   service: chart.service.entity,
@@ -133,6 +131,6 @@ export default outputs({
   $terminals: chart.terminals,
 
   $statusFields: {
-    endpoints: chart.service.endpoints.apply(map(l4EndpointToString)),
+    endpoints: clusterEndpoints.map(endpointToString),
   },
 })

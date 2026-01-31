@@ -1,7 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
 import { databases } from "../.."
-import { l4EndpointEntity } from "../../network"
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -35,10 +34,6 @@ export const valkey = defineUnit({
   outputs: {
     redis: databases.redisEntity,
     service: serviceEntity,
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
   },
 
   meta: {

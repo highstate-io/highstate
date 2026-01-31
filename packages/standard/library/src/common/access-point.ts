@@ -30,9 +30,9 @@ export const tlsIssuerEntity = defineEntity({
 
   schema: z.object({
     /**
-     * The domain apex for which the TLS issuer will manage certificates.
+     * The zones for which the TLS issuer will manage certificates.
      */
-    domain: z.string(),
+    zones: z.string().array(),
 
     /**
      * The reference to the implementation of the TLS issuer.

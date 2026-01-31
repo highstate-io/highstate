@@ -1,4 +1,4 @@
-import type { ArrayPatchMode, dns, network } from "@highstate/library"
+import type { dns, network } from "@highstate/library"
 import { getOrCreate, z } from "@highstate/contract"
 import {
   ComponentResource,
@@ -10,19 +10,12 @@ import {
   type Output,
   output,
   type ResourceOptions,
-  toPromise,
   type Unwrap,
 } from "@highstate/pulumi"
-import { flat, groupBy, uniqueBy } from "remeda"
+import { flat } from "remeda"
 import { Command, type CommandHost } from "./command"
 import { ImplementationMediator } from "./impl-ref"
-import {
-  filterEndpoints,
-  type InputL3Endpoint,
-  l3EndpointToString,
-  l34EndpointToString,
-  parseL3Endpoint,
-} from "./network"
+import { type InputEndpoint, l3EndpointToString, parseEndpoint } from "./network/endpoints"
 
 export const dnsRecordMediator = new ImplementationMediator(
   "dns-record",
@@ -52,7 +45,7 @@ export type DnsRecordArgs = {
   /**
    * The value of the DNS record.
    */
-  value: Input<InputL3Endpoint>
+  value: Input<InputEndpoint>
 
   /**
    * Whether the DNS record is proxied (e.g. to provide DDoS protection).
@@ -105,12 +98,12 @@ export type DnsRecordSetArgs = Omit<DnsRecordArgs, "provider" | "value"> & {
   /**
    * The value of the DNS record.
    */
-  value?: Input<InputL3Endpoint>
+  value?: Input<InputEndpoint>
 
   /**
    * The values of the DNS records.
    */
-  values?: InputArray<InputL3Endpoint>
+  values?: InputArray<InputEndpoint>
 }
 
 function getTypeByEndpoint(endpoint: network.L3Endpoint): string {
@@ -145,7 +138,7 @@ export class DnsRecord extends ComponentResource {
   constructor(name: string, args: DnsRecordArgs, opts?: ResourceOptions) {
     super("highstate:common:DnsRecord", name, args, opts)
 
-    const l3Endpoint = output(args.value).apply(value => parseL3Endpoint(value))
+    const l3Endpoint = output(args.value).apply(value => parseEndpoint(value))
     const resolvedValue = l3Endpoint.apply(l3EndpointToString)
     const resolvedType = args.type ? output(args.type) : l3Endpoint.apply(getTypeByEndpoint)
 
@@ -238,7 +231,9 @@ export class DnsRecordSet extends ComponentResource {
       providers: args.providers,
       name: args.name ?? name,
     }).apply(({ providers, name }) => {
-      const matchedProviders = providers.filter(provider => name.endsWith(provider.domain))
+      const matchedProviders = providers.filter(provider =>
+        provider.zones.some(zone => name.endsWith(zone)),
+      )
 
       if (matchedProviders.length === 0) {
         throw new Error(`No DNS provider matched the domain "${name}"`)
@@ -253,7 +248,7 @@ export class DnsRecordSet extends ComponentResource {
         providers: matchedProviders,
       }).apply(({ name, providers }) => {
         return providers.flatMap(provider => {
-          const l3Endpoint = parseL3Endpoint(value)
+          const l3Endpoint = parseEndpoint(value)
 
           return new DnsRecord(
             `${name}.${provider.id}.${l3EndpointToString(l3Endpoint)}`,
@@ -295,82 +290,5 @@ export class DnsRecordSet extends ComponentResource {
       name,
       () => new DnsRecordSet(name, args, opts),
     )
-  }
-}
-
-/**
- * Registers the DNS record set for the given endpoints and prepends the corresponding hostname endpoint to the list.
- *
- * Waits for the DNS record set to be created/updated before continuing.
- *
- * Ignores the "hostname" endpoints in the list.
- *
- * @param endpoints The list of endpoints to register. Will be modified in place.
- * @param fqdn The FQDN to register the DNS record set for. If not provided, no DNS record set will be created and array will not be modified.
- * @param fqdnEndpointFilter The filter to apply to the endpoints before passing them to the DNS record set. Does not apply to the resulted endpoint list.
- * @param patchMode The patch mode to use when modifying the endpoints list.
- * @param dnsProviders The DNS providers to use to create the DNS records.
- * @param dnsSetName The name of the DNS record set. If not provided, the FQDN will be used.
- */
-export async function updateEndpointsWithFqdn<TEndpoint extends network.L34Endpoint>(
-  endpoints: Input<TEndpoint[]>,
-  fqdn: string | undefined,
-  fqdnEndpointFilter: network.EndpointFilter,
-  patchMode: ArrayPatchMode,
-  dnsProviders: Input<dns.Provider[]>,
-  dnsSetName?: string,
-): Promise<{ endpoints: TEndpoint[]; dnsRecordSet: DnsRecordSet | undefined }> {
-  const resolvedEndpoints = await toPromise(endpoints)
-
-  if (!fqdn) {
-    return {
-      endpoints: resolvedEndpoints as TEndpoint[],
-      dnsRecordSet: undefined,
-    }
-  }
-
-  const filteredEndpoints = filterEndpoints(resolvedEndpoints, fqdnEndpointFilter)
-
-  const dnsRecordSet = new DnsRecordSet(dnsSetName ?? fqdn, {
-    name: fqdn,
-    providers: dnsProviders,
-    values: filteredEndpoints,
-    waitAt: "local",
-  })
-
-  const portProtocolGroups = groupBy(filteredEndpoints, endpoint =>
-    endpoint.port ? `${endpoint.port}-${endpoint.protocol}` : "",
-  )
-
-  const newEndpoints: TEndpoint[] = []
-
-  for (const group of Object.values(portProtocolGroups)) {
-    newEndpoints.unshift({
-      type: "hostname",
-      hostname: fqdn,
-      visibility: group[0].visibility,
-      port: group[0].port,
-      protocol: group[0].protocol,
-    } as TEndpoint)
-  }
-
-  await toPromise(
-    dnsRecordSet.waitCommands.apply(waitCommands => waitCommands.map(command => command.stdout)),
-  )
-
-  if (patchMode === "prepend") {
-    return {
-      endpoints: uniqueBy(
-        //
-        [...newEndpoints, ...(resolvedEndpoints as TEndpoint[])],
-        endpoint => l34EndpointToString(endpoint),
-      ),
-      dnsRecordSet,
-    }
-  }
-
-  return {
-    endpoints: newEndpoints,
-    dnsRecordSet,
   }
 }

@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { text, type ComponentModel, type InstanceId, type InstanceModel } from "@highstate/contract"
+import {
+  genericNameSchema,
+  getInstanceId,
+  text,
+  type ComponentModel,
+  type InstanceId,
+  type InstanceModel,
+} from "@highstate/contract"
 import type { InstanceState } from "@highstate/backend/shared"
 import { ComponentIcon } from "#layers/core/app/features/shared"
 import ArgumentDescription from "./ArgumentDescription.vue"
@@ -41,8 +48,13 @@ const nameRules = [
   (v: string) => !!v || "Name is required",
   (v: string) =>
     v === instance.name ||
-    !allInstances.has(v) ||
+    !allInstances.has(getInstanceId(instance.type, v)) ||
     "Instance with this name and type already exists",
+  (v: string) => {
+    const result = genericNameSchema.safeParse(v)
+
+    return result.success || result.error.issues[0].message
+  },
 ]
 
 const { plainArguments, expandableArguments } = createEditorArguments(
@@ -52,9 +64,8 @@ const { plainArguments, expandableArguments } = createEditorArguments(
 
 const nameValid = ref(true)
 
-const nameDescription = text`
-  The name of the instance. It must be unique within the same type across the project.
-`
+const nameDescription =
+  "The name of the instance. It must be unique within the same type across the project."
 </script>
 
 <template>
@@ -96,9 +107,9 @@ const nameDescription = text`
           <template v-for="argument in expandableArguments" :key="argument.name">
             <GroupArgumentInput
               v-if="argument.kind === 'group'"
+              v-model="args[argument.name]"
               :argument="argument"
               :instance="instance"
-              v-model="args[argument.name]"
             />
 
             <CodeArgumentInput
@@ -117,7 +128,7 @@ const nameDescription = text`
         <VSpacer />
 
         <VBtn @click="cancel">Cancel</VBtn>
-        <VBtn @click="save" color="primary">Save</VBtn>
+        <VBtn @click="save" color="primary" :disabled="!nameValid">Save</VBtn>
       </VCardActions>
     </VCard>
   </VDialog>

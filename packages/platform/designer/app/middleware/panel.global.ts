@@ -90,6 +90,7 @@ export default defineNuxtRouteMiddleware(async to => {
       id: panelId,
       component: "GenericPanel",
       tabComponent: "CustomTab",
+      renderer: "always",
 
       params,
 

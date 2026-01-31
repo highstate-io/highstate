@@ -1,0 +1,226 @@
+---
+title: Kubernetes
+description: Managing Kubernetes clusters and workloads.
+navigation:
+  icon: i-mdi-kubernetes
+---
+
+## Overview
+
+In Highstate, the Kubernetes world starts with a single entity: `k8s.cluster.v1`.
+It contains everything other components need to talk to your cluster (kubeconfig, endpoints, and some extra metadata).
+
+This page covers:
+
+- [Clusters](#clusters): how to get a `k8s.cluster.v1` from existing clusters or from cluster installers.
+- [Resources](#resources): the base entities Highstate uses to represent Kubernetes objects.
+- [Workloads](#workloads): deployments/statefulsets/jobs and friends.
+- [Services](#services): L4 endpoints with Kubernetes metadata.
+- [Helm](#helm): charts with routes, terminals, and network policies.
+- [Network Policies](#network-policies): cluster-native policies plus optional advanced backends.
+- [Gateway API](#gateway-api): modern routing primitives.
+- [TLS and cert-manager](#tls-and-cert-manager): issuing and managing certificates.
+- [Apps](#apps): batteries-included workloads from `k8s.apps.*`.
+
+Here is a simplified diagram of how these concepts relate:
+
+::mermaid
+graph TD
+  Cluster -- includes (multiple) --> L3Endpoint
+
+  NamespacedResource -- extends --> Resource
+  Namespace -- extends --> Resource
+
+  Workload -- extends --> NamespacedResource
+  ExposableWorkload -- extends --> Workload
+  ExposableWorkload -- includes (optional) --> Service
+  ExposableWorkload -- includes (multiple) --> L4Endpoint
+
+  Service -- extends --> NamespacedResource
+  Service -- includes (multiple) --> L4Endpoint
+
+  Resource -- references by id --> Cluster
+::
+
+## Clusters
+
+The cluster is represented by `k8s.cluster.v1` entity.
+It also `includes` a list of L3 endpoints, which means you can often pass the cluster where endpoints are expected.
+
+### Existing cluster
+
+If you already have a kubeconfig, you can bring the cluster into Highstate using `k8s.existing-cluster.v1`:
+
+::designer-preview{title="Existing Cluster" type="snippet" id="standard-library/kubernetes/existing-cluster"}
+::
+
+This unit can also:
+
+- Auto-detect external IPs of nodes (useful when you want to expose services).
+- Merge endpoints from your kubeconfig and from explicit inputs.
+- Detect Cilium in the cluster and attach a `networkPolicyImplRef` automatically.
+
+### Cluster patch
+
+Sometimes you want to override cluster endpoints (for example, you started using a load balancer for the API server).
+For this, use `k8s.cluster-patch.v1`.
+It patches the cluster metadata and outputs an updated `k8s.cluster.v1`:
+
+::designer-preview{title="Cluster Patch" type="snippet" id="standard-library/kubernetes/cluster-patch"}
+::
+
+### Reduced access kubeconfig
+
+Not every component needs full admin access to the cluster.
+If you want to generate a kubeconfig that can only access a specific set of resources, use `k8s.reduced-access-cluster.v1`:
+
+::designer-preview{title="Reduced Access Cluster" type="snippet" id="standard-library/kubernetes/reduced-access-cluster"}
+::
+
+### Creating a cluster
+
+Highstate also ships cluster installers that output the same `k8s.cluster.v1` entity.
+The most common options are:
+
+- `k3s.cluster.v1` for K3s-based clusters.
+- `talos.cluster.v1` for Talos-based clusters.
+
+Here is the minimal K3s example:
+
+::designer-preview{title="K3s Cluster" type="snippet" id="standard-library/kubernetes/k3s-cluster"}
+::
+
+## Resources
+
+Highstate represents Kubernetes objects as entities.
+The base layer is:
+
+- `k8s.resource.v1`: any Kubernetes object with metadata.
+- `k8s.namespaced-resource.v1`: a resource that always has a namespace.
+
+And then there are specialized entities like:
+
+- `k8s.namespace.v1`
+- `k8s.config-map.v1`
+- `k8s.secret.v1`
+- `k8s.persistent-volume-claim.v1`
+
+At runtime, `@highstate/k8s` provides resource wrappers like `Namespace`.
+They implement the "create / patch / get / wrap" pattern and also include `*.for(entity, cluster)` helpers.
+
+## Workloads
+
+Workloads are the things that run containers.
+In the standard library they are represented by entities like:
+
+- `k8s.deployment.v1`
+- `k8s.stateful-set.v1`
+- `k8s.job.v1`
+- `k8s.cron-job.v1`
+
+There is also a higher-level entity `k8s.exposable-workload.v1`.
+It bundles a workload with an optional service and exported endpoints.
+
+If you want a generic "run this container in Kubernetes" building block, use `k8s.apps.workload.v0`:
+
+::designer-preview{title="Generic Workload" type="snippet" id="standard-library/kubernetes/workload"}
+::
+
+## Services
+
+Kubernetes services are represented by `k8s.service.v1`.
+It `includes` a list of L4 endpoints.
+These endpoints also carry Kubernetes metadata (cluster id/name, service name, namespace, selector, and so on).
+
+At runtime, `@highstate/k8s` provides `Service` wrapper and a few helpers.
+For example, you can check whether some endpoint belongs to a specific cluster:
+
+```ts
+import { parseEndpoint } from "@highstate/common"
+import { common, k3s } from "@highstate/library"
+import { isEndpointFromCluster } from "@highstate/k8s"
+
+const { server: master } = common.existingServer({
+  name: "master",
+  args: { endpoint: "192.168.1.10" },
+})
+
+const { k8sCluster } = k3s.cluster({
+  name: "my-cluster",
+  inputs: { masters: [master] },
+})
+
+const endpoint = parseEndpoint("example.com:443")
+const isFromThisCluster = isEndpointFromCluster(endpoint, k8sCluster)
+```
+
+## Helm
+
+Many stdlib Kubernetes components use Helm under the hood.
+The main runtime abstraction is `Chart` from `@highstate/k8s`.
+It can do more than just "install a chart":
+
+- Patch the primary service to match cluster quirks.
+- Create access point routes.
+- Attach network policies.
+- Export workloads for terminals and scripting.
+
+There is also `RenderedChart` which renders manifests into YAML (Talos uses it to inline manifests during bootstrap).
+
+## Network Policies
+
+Kubernetes NetworkPolicy is represented as a runtime component in `@highstate/k8s`.
+Highstate models network policy as an expression-like rule system.
+Rules can refer to CIDRs, FQDNs, services, namespaces, selectors, and endpoints.
+
+Some clusters can also attach a `networkPolicyImplRef`.
+For example, if your cluster runs Cilium, Highstate can use a richer backend (like FQDN-aware policies).
+
+To install Cilium in a cluster, you can use `k8s.cilium.v1`:
+
+::designer-preview{title="Cilium" type="snippet" id="standard-library/kubernetes/cilium"}
+::
+
+## Gateway API
+
+Highstate supports the Kubernetes Gateway API.
+
+First, install the Gateway API CRDs using `k8s.gateway-api.v1`:
+
+::designer-preview{title="Gateway API" type="snippet" id="standard-library/kubernetes/gateway-api"}
+::
+
+Then you can create gateways and routes.
+At runtime, `@highstate/k8s` provides route helpers like `HttpRoute`, `TcpRoute`, and `UdpRoute`.
+
+## TLS and cert-manager
+
+To issue and manage TLS certificates inside a cluster, install cert-manager:
+
+::designer-preview{title="Cert Manager" type="snippet" id="standard-library/kubernetes/cert-manager"}
+::
+
+Then create an issuer.
+The stdlib includes `k8s.dns01-issuer.v1` which connects a DNS provider and produces a `common.tls-issuer.v1`:
+
+::tip
+This is the standard way to get ACME DNS01 certificates in Highstate.
+It keeps your DNS provider credentials in one place and lets workloads request TLS without knowing provider details.
+::
+
+## Apps
+
+The `k8s.apps.*` namespace provides ready-to-run workloads.
+They follow the same pattern as other components: they take a cluster as input and output useful entities like services.
+
+Some examples:
+
+- `k8s.apps.traefik.v1` (ingress / gateway)
+- `k8s.apps.kubernetes-dashboard.v1`
+- `k8s.apps.mariadb.v1`, `k8s.apps.postgresql.v1`, `k8s.apps.mongodb.v1`
+- `k8s.apps.minio.v1`, `k8s.apps.vaultwarden.v1`, `k8s.apps.syncthing.v1`
+
+Here is a Traefik example:
+
+::designer-preview{title="Traefik" type="snippet" id="standard-library/kubernetes/traefik"}
+::

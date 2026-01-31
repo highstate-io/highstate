@@ -1,8 +1,6 @@
 import { $outputs, $secrets, defineEntity, defineUnit, z } from "@highstate/contract"
-import * as dns from "../dns"
 import { l3EndpointEntity } from "../network"
 import * as ssh from "../ssh"
-import { arrayPatchModeSchema } from "../utils"
 
 /**
  * The server entity represents a server with its hostname, endpoints, and optional SSH configuration.
@@ -14,9 +12,15 @@ import { arrayPatchModeSchema } from "../utils"
 export const serverEntity = defineEntity({
   type: "common.server.v1",
 
+  includes: {
+    endpoints: {
+      entity: l3EndpointEntity,
+      multiple: true,
+    },
+  },
+
   schema: z.object({
     hostname: z.string(),
-    endpoints: l3EndpointEntity.schema.array(),
     ssh: ssh.connectionSchema.optional(),
   }),
 
@@ -33,14 +37,6 @@ export const serverOutputs = $outputs({
    * The server entity representing the server.
    */
   server: serverEntity,
-
-  /**
-   * The L3 endpoints of the server.
-   */
-  endpoints: {
-    entity: l3EndpointEntity,
-    multiple: true,
-  },
 })
 
 export const vmSshArgs = ssh.argsSchema.omit({ user: true }).prefault({})
@@ -86,9 +82,10 @@ export const existingServer = defineUnit({
   },
 
   inputs: {
-    endpoint: {
+    endpoints: {
       entity: l3EndpointEntity,
       required: false,
+      multiple: true,
     },
 
     ...ssh.inputs,
@@ -117,21 +114,18 @@ export const serverPatch = defineUnit({
 
   args: {
     /**
-     * The endpoints of the server.
+     * The new hostname of the server.
      *
-     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-     *
-     * The same server may also be represented by multiple entries (e.g. a node with private and public IP).
+     * If not specified, the existing hostname will be kept.
      */
-    endpoints: z.string().array().default([]),
+    hostname: z.string().optional(),
 
     /**
-     * The mode to use for patching the endpoints.
+     * The endpoints to set on the server.
      *
-     * - `prepend`: prepend the new endpoints to the existing ones (default);
-     * - `replace`: replace the existing endpoints with the new ones.
+     * If not specified, the existing endpoints will be kept.
      */
-    endpointsPatchMode: arrayPatchModeSchema.default("prepend"),
+    endpoints: z.string().array().default([]),
   },
 
   inputs: {
@@ -157,42 +151,6 @@ export const serverPatch = defineUnit({
   source: {
     package: "@highstate/common",
     path: "units/server-patch",
-  },
-})
-
-/**
- * Creates a DNS record for the server and updates the endpoints.
- *
- * The DNS record will be created with the provided FQDN and the endpoints will be updated with the DNS record.
- */
-export const serverDns = defineUnit({
-  type: "common.server-dns.v1",
-
-  args: dns.createArgs(),
-
-  inputs: {
-    server: serverEntity,
-    ...dns.inputs,
-  },
-
-  outputs: {
-    server: serverEntity,
-    endpoints: {
-      entity: l3EndpointEntity,
-      multiple: true,
-    },
-  },
-
-  meta: {
-    title: "Server DNS",
-    icon: "mdi:server",
-    secondaryIcon: "mdi:dns",
-    category: "Infrastructure",
-  },
-
-  source: {
-    package: "@highstate/common",
-    path: "units/server-dns",
   },
 })
 

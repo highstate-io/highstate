@@ -1,5 +1,5 @@
 import type { databases } from "@highstate/library"
-import { l34EndpointToString } from "@highstate/common"
+import { l3EndpointToString } from "@highstate/common"
 import {
   createScriptContainer,
   Job,
@@ -61,7 +61,7 @@ export class MongoDBDatabase extends ComponentResource {
       endpoints: output(args.mongodb).endpoints,
     }).apply(({ endpoints, cluster }) => requireBestEndpoint(endpoints, cluster))
 
-    const host = endpoint.apply(l34EndpointToString)
+    const host = endpoint.apply(l3EndpointToString)
     const port = endpoint.apply(ep => ep.port?.toString() ?? "")
 
     this.credentials = Secret.create(

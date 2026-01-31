@@ -10,6 +10,7 @@
     "./identity": "./dist/identity/index.js",
     "./config": "./dist/config/index.js",
     "./config-bundle": "./dist/config-bundle/index.js",
+    "./feed": "./dist/feed/index.js",
     "./node": "./dist/node/index.js",
     "./node.k8s": "./dist/node.k8s/index.js",
     "./peer": "./dist/peer/index.js",
@@ -36,12 +37,16 @@
     "@highstate/k8s": "workspace:*",
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
+    "@highstate/etcd-sdk": "workspace:*",
     "@noble/curves": "^1.8.0",
     "@noble/hashes": "^2.0.1",
     "@pulumi/kubernetes": "^4.18.0",
     "deepmerge-ts": "^7.1.5",
     "remeda": "^2.32.0",
-    "zip-stream": "^7.0.2"
+    "zip-stream": "^7.0.2",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "uuid": "^11.1.0",
+    "age-encryption": "^0.2.4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

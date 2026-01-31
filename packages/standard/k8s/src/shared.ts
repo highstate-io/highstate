@@ -114,7 +114,7 @@ export function validateCluster(
   return output({ entity, cluster }).apply(({ entity, cluster }) => {
     if (entity.clusterId !== cluster.id) {
       throw new Error(
-        `Cluster mismatch for ${entity.type} "${entity.metadata.name}": "${entity.clusterId}" != "${cluster.id}"`,
+        `Cluster mismatch for ${entity.kind} "${entity.metadata.name}": "${entity.clusterId}" != "${cluster.id}"`,
       )
     }
 
@@ -125,11 +125,26 @@ export function validateCluster(
 export { images }
 
 /**
- * Base class for all Kubernetes scoped resources.
+ * Base class for all Kubernetes resources.
  *
- * Provides common functionality for resources that have a cluster, namespace, metadata, and entity.
+ * Provides common functionality for resources that have a cluster and entity.
  */
-export abstract class ScopedResource extends ComponentResource {
+export abstract class Resource extends ComponentResource {
+  /**
+   * The Kubernetes API version (e.g., "v1", "apps/v1", "batch/v1").
+   */
+  static readonly apiVersion: string
+
+  /**
+   * The Kubernetes kind (e.g., "ConfigMap", "Deployment", "CronJob").
+   */
+  static readonly kind: string
+
+  /**
+   * Whether the resource is namespaced.
+   */
+  static readonly isNamespaced: boolean = false
+
   protected constructor(
     type: string,
     name: string,
@@ -137,19 +152,9 @@ export abstract class ScopedResource extends ComponentResource {
     opts: ComponentResourceOptions | undefined,
 
     /**
-     * The Kubernetes API version (e.g., "v1", "apps/v1", "batch/v1").
+     * The cluster where the resource is located.
      */
-    readonly apiVersion: Output<string>,
-
-    /**
-     * The Kubernetes kind (e.g., "ConfigMap", "Deployment", "CronJob").
-     */
-    readonly kind: Output<string>,
-
-    /**
-     * The namespace where the resource is located.
-     */
-    readonly namespace: Output<Namespace>,
+    readonly cluster: Output<k8s.Cluster>,
 
     /**
      * The metadata of the underlying Kubernetes resource.
@@ -160,14 +165,71 @@ export abstract class ScopedResource extends ComponentResource {
   }
 
   /**
-   * The cluster where the resource is located.
+   * The Kubernetes API version (e.g., "v1", "apps/v1", "batch/v1").
    */
-  get cluster(): Output<k8s.Cluster> {
-    return this.namespace.cluster
+  get apiVersion() {
+    return (this.constructor as typeof Resource).apiVersion
+  }
+
+  /**
+   * The Kubernetes kind (e.g., "ConfigMap", "Deployment", "CronJob").
+   */
+  get kind() {
+    return (this.constructor as typeof Resource).kind
+  }
+
+  get isNamespaced() {
+    return (this.constructor as typeof Resource).isNamespaced
+  }
+
+  protected get entityBase() {
+    return {
+      clusterId: this.cluster.id,
+      clusterName: this.cluster.name,
+      apiVersion: this.apiVersion,
+      kind: this.kind,
+      isNamespaced: false,
+      metadata: this.metadata,
+    }
+  }
+}
+
+/**
+ * Base class for all Kubernetes namespaced resources.
+ *
+ * Provides common functionality for resources that have a cluster, namespace, metadata, and entity.
+ */
+export abstract class NamespacedResource extends Resource {
+  static readonly isNamespaced = true
+
+  protected constructor(
+    type: string,
+    name: string,
+    args: Inputs,
+    opts: ComponentResourceOptions | undefined,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+
+    /**
+     * The namespace where the resource is located.
+     */
+    readonly namespace: Output<Namespace>,
+  ) {
+    super(type, name, args, opts, namespace.cluster, metadata)
   }
 
   /**
    * The Highstate resource entity.
    */
-  abstract get entity(): Output<k8s.ScopedResource>
+  abstract get entity(): Output<k8s.NamespacedResource>
+
+  protected get entityBase() {
+    return {
+      clusterId: this.cluster.id,
+      clusterName: this.cluster.name,
+      apiVersion: this.apiVersion,
+      kind: this.kind,
+      isNamespaced: true,
+      metadata: this.metadata,
+    } as const
+  }
 }

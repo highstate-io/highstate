@@ -65,7 +65,6 @@ export const singleNodeCluster = defineComponent({
       name,
       args: {
         external: true,
-        endpoints: args.gatewayEndpoint ? [args.gatewayEndpoint] : undefined,
       },
       inputs: {
         k8sCluster: withGatewayApi,

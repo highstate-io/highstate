@@ -6,6 +6,8 @@ import {
   type ComponentInput,
   type ComponentInputSpec,
   camelCaseToHumanReadable,
+  compact,
+  decompact,
   HighstateConfigKey,
   type InstanceInput,
   type InstanceStatusField,
@@ -18,12 +20,14 @@ import {
   type Unit,
   type UnitArtifact,
   type UnitConfig,
+  type UnitInputReference,
   type UnitPage,
   type UnitTerminal,
   type UnitTrigger,
   type UnitWorker,
   unitArtifactSchema,
   unitConfigSchema,
+  type VersionedName,
   z,
 } from "@highstate/contract"
 import {
@@ -200,32 +204,39 @@ function getStackRef(config: UnitConfig, input: InstanceInput) {
   return stackRef
 }
 
-function getOutput(config: UnitConfig, unit: Unit, input: ComponentInput, refs: InstanceInput[]) {
+function getOutput(
+  config: UnitConfig,
+  unit: Unit,
+  inputName: string,
+  input: ComponentInput,
+  refs: UnitInputReference[],
+) {
   const entity = unit.entities.get(input.type)
   if (!entity) {
     throw new Error(`Entity "${input.type}" not found in the unit "${unit.model.type}".`)
   }
 
-  const _getOutput = (ref: InstanceInput) => {
+  const _getOutput = (ref: UnitInputReference) => {
     const value = getStackRef(config, ref).requireOutput(ref.output)
 
     return value.apply(value => {
-      if (Array.isArray(value)) {
-        for (const [index, item] of value.entries()) {
-          const result = entity.schema.safeParse(item)
-
-          if (!result.success) {
-            throw new Error(
-              `Invalid output for "${input.type}[${index}]": ${z.prettifyError(result.error)}`,
-            )
-          }
+      if (ref.inclusion) {
+        if (value === null || value === undefined || typeof value !== "object") {
+          throw new Error(
+            `Cannot extract field "${ref.inclusion.field}" from non-object output "${ref.output}" of instance "${ref.instanceId}".`,
+          )
         }
-      } else {
-        const result = entity.schema.safeParse(value)
 
-        if (!result.success) {
-          throw new Error(`Invalid output for "${input.type}": ${z.prettifyError(result.error)}`)
-        }
+        value = (value as Record<string, unknown>)[ref.inclusion.field]
+      }
+
+      const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
+      const result = schema.safeParse(value)
+
+      if (!result.success) {
+        throw new Error(
+          `Invalid output "${ref.output}" from "${ref.instanceId}" for input "${inputName}": ${result.error.message}`,
+        )
       }
 
       if (Array.isArray(value)) {
@@ -236,7 +247,11 @@ function getOutput(config: UnitConfig, unit: Unit, input: ComponentInput, refs: 
     })
   }
 
-  const values = output(refs.map(ref => _getOutput(ref))).apply(values => values.flat())
+  const _getDecompactedOutput = (ref: UnitInputReference) => {
+    return _getOutput(ref).apply(decompact)
+  }
+
+  const values = output(refs.map(_getDecompactedOutput)).apply(values => values.flat())
 
   if (!input.multiple) {
     return values.apply(values => values[0])
@@ -246,12 +261,13 @@ function getOutput(config: UnitConfig, unit: Unit, input: ComponentInput, refs: 
 }
 
 export function forUnit<
+  TType extends VersionedName,
   TArgs extends Record<string, z.ZodType>,
   TInputs extends Record<string, ComponentInputSpec>,
   TOutputs extends Record<string, ComponentInputSpec>,
   TSecrets extends Record<string, z.ZodType>,
 >(
-  unit: Unit<TArgs, TInputs, TOutputs, TSecrets>,
+  unit: Unit<TType, TArgs, TInputs, TOutputs, TSecrets>,
 ): UnitContext<
   { [K in keyof TArgs]: z.output<TArgs[K]> },
   { [K in keyof TInputs]: InputSpecToWrappedValue<TInputs[K]> },
@@ -311,7 +327,7 @@ export function forUnit<
       return undefined
     }
 
-    return getOutput(hsConfig, unit as unknown as Unit, input, value)
+    return getOutput(hsConfig, unit as unknown as Unit, inputName, input, value)
   })
 
   const [type, name] = parseInstanceId(hsConfig.instanceId)
@@ -390,13 +406,13 @@ export function forUnit<
 
           if (!result.success) {
             throw new Error(
-              `Invalid output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
+              `Invalid value for output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
                 result.error,
               )}`,
             )
           }
 
-          return result.data
+          return compact(result.data)
         })
       })
 

@@ -129,6 +129,7 @@ export class LocalRunnerBackend implements RunnerBackend {
       const envVars: Record<string, string> = {
         HIGHSTATE_CACHE_DIR: this.cacheDir,
         HIGHSTATE_TEMP_PATH: unitTempPath,
+        PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
         ...options.envVars,
       }
 

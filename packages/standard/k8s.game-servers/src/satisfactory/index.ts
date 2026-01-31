@@ -1,10 +1,4 @@
-import {
-  DnsRecordSet,
-  filterEndpoints,
-  generateKey,
-  l3EndpointToString,
-  TlsCertificate,
-} from "@highstate/common"
+import { DnsRecordSet, generateKey, l3EndpointToString, TlsCertificate } from "@highstate/common"
 import {
   type Certificate,
   Deployment,
@@ -162,7 +156,7 @@ const deployment = Deployment.create(args.appName, {
 })
 
 const endpoints = await toPromise(inputs.k8sCluster.endpoints)
-const publicEndpoint = filterEndpoints(endpoints, ["public"])[0]
+const publicEndpoint = endpoints.find(endpoint => endpoint.metadata["iana.scope"] === "global")
 
 if (!publicEndpoint) {
   throw new Error(
@@ -173,7 +167,7 @@ if (!publicEndpoint) {
 
 new DnsRecordSet(args.fqdn, {
   providers: inputs.accessPoint.dnsProviders,
-  value: filterEndpoints(endpoints, ["public"])[0],
+  value: publicEndpoint,
   waitAt: "local",
 })
 

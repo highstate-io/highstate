@@ -10,7 +10,7 @@ const provider = await getProviderAsync(inputs.k8sCluster)
 new yaml.v2.ConfigFile(
   "gateway-api",
   {
-    file: "https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml",
+    file: "https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/experimental-install.yaml",
   },
   { provider },
 )

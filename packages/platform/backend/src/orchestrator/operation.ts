@@ -18,6 +18,7 @@ import {
   parseInstanceId,
   type TriggerInvocation,
   type UnitConfig,
+  type UnitInputReference,
   type VersionedName,
 } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
@@ -28,6 +29,7 @@ import {
   isTransientInstanceOperationStatus,
   type OperationPhase,
   PromiseTracker,
+  type ResolvedInstanceInput,
   waitAll,
 } from "../shared"
 import { OperationContext } from "./operation-context"
@@ -186,7 +188,7 @@ export class RuntimeOperation {
             this.workset.markInstanceLocked(stateId)
           }
         },
-        true, // allow partial locks to allow independent free branches to run
+        true, // allow partial locks to allow independent branches to run
         this.workset.abortController.signal,
         60_000, // wait up to 60 seconds for unlock events before retrying
         this.unlockToken,
@@ -390,6 +392,47 @@ export class RuntimeOperation {
         throw new AbortError("The operation is failing, aborting current branch (still not failed)")
       }
 
+      // Runtime short-circuit:
+      // If this instance's own config has not changed and none of its dependencies outputs changed,
+      // we can skip execution even if the full inputHash changed due to upstream config-only changes.
+      //
+      // Do not short-circuit when the caller requested side effects that require a real engine run or the instance was explicitly requested.
+      if (
+        state.status === "deployed" &&
+        state.selfHash != null &&
+        state.dependencyOutputHash != null &&
+        // ignore explicitly requested updates
+        !this.operation.requestedInstanceIds.includes(instance.id) &&
+        // ignore when side effects are requested
+        !this.operation.options.refresh &&
+        !this.operation.options.deleteUnreachableResources &&
+        !this.operation.options.forceUpdateDependencies
+      ) {
+        const expected = await this.context.getUpToDateInputHashOutput(instance)
+
+        if (
+          expected.selfHash === state.selfHash &&
+          expected.dependencyOutputHash === state.dependencyOutputHash
+        ) {
+          logger.info("skipping unit update (short-circuit: no effective changes)")
+
+          const now = new Date()
+
+          await this.workset.updateState(instance.id, {
+            operationState: {
+              status: "skipped",
+              startedAt: now,
+              finishedAt: now,
+            },
+            instanceState: {
+              inputHash: expected.inputHash,
+            },
+          })
+
+          return
+        }
+      }
+
       logger.info("updating unit")
 
       await this.workset.updateState(instance.id, {
@@ -421,6 +464,7 @@ export class RuntimeOperation {
         instanceName: instance.name,
         config,
         refresh: this.operation.options.refresh,
+        deleteUnreachable: this.operation.options.deleteUnreachableResources,
         secrets,
         artifacts,
         signal,
@@ -503,6 +547,7 @@ export class RuntimeOperation {
       instanceName: instance.name,
       config: this.prepareUnitConfig(instance, secrets, invokedTriggers),
       refresh: this.operation.options.refresh,
+      deleteUnreachable: this.operation.options.deleteUnreachableResources,
       secrets,
       signal,
       forceSignal,
@@ -661,11 +706,52 @@ export class RuntimeOperation {
     return {
       instanceId: instance.id,
       args: instance.args ?? {},
-      inputs: mapValues(resolvedInputs ?? {}, input => input.map(value => value.input)),
+      inputs: mapValues(resolvedInputs ?? {}, (input, inputName) =>
+        input.map(value => this.getUnitInputRef(inputName, value)),
+      ),
       invokedTriggers,
       secretNames: Object.keys(secrets),
       stateIdMap: this.context.getInstanceIdToStateIdMap(instance.id),
       importBasePath: this.libraryBackend.importPath,
+    }
+  }
+
+  private getUnitInputRef(inputName: string, input: ResolvedInstanceInput): UnitInputReference {
+    const instance = this.context.getInstance(input.input.instanceId)
+    const component = this.context.library.components[instance.type]
+
+    const outputSpec = component.outputs[input.input.output]
+    if (!outputSpec) {
+      throw new Error(
+        `Output "${input.input.output}" is not defined on component "${instance.type}"`,
+      )
+    }
+
+    const entity = this.context.library.entities[outputSpec.type]
+    if (!entity) {
+      throw new Error(`Entity type "${outputSpec.type}" is not defined in the library`)
+    }
+
+    // if output type matches input type or extends it, return simple reference, no transformation needed
+    if (input.type === outputSpec.type || entity.extensions?.includes(input.type)) {
+      return {
+        instanceId: input.input.instanceId,
+        output: input.input.output,
+      }
+    }
+
+    // otherwise, find matching inclusion to perform transformation
+    const inclusion = entity.inclusions?.find(inc => inc.type === input.type)
+    if (!inclusion) {
+      throw new Error(
+        `Cannot use output "${input.input.output}" of type "${outputSpec.type}" from instance "${input.input.instanceId}" for input "${inputName}" of type "${input.type}": no matching inclusion found in entity "${entity.type}"`,
+      )
+    }
+
+    return {
+      instanceId: input.input.instanceId,
+      output: input.input.output,
+      inclusion,
     }
   }
 
@@ -753,9 +839,10 @@ export class RuntimeOperation {
       state.outputHash = update.outputHash ?? null
 
       // recalculate the input and output hashes for the instance
-      const { inputHash, dependencyOutputHash } =
+      const { selfHash, inputHash, dependencyOutputHash } =
         await this.context.getUpToDateInputHashOutput(instance)
 
+      data.selfHash = selfHash
       data.inputHash = inputHash
       data.dependencyOutputHash = dependencyOutputHash
       data.outputHash = update.outputHash
@@ -770,6 +857,7 @@ export class RuntimeOperation {
         data.parentId = null
       }
     } else {
+      data.selfHash = null
       data.inputHash = null
       data.dependencyOutputHash = null
       data.outputHash = null

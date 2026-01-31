@@ -1,0 +1,6 @@
+---
+title: WireGuard
+description: Managing WireGuard VPNs with Highstate's Standard Library.
+navigation:
+  icon: i-simple-icons-wireguard
+---

@@ -4,7 +4,7 @@ import {
   generatePassword,
   generateSshPrivateKey,
   l3EndpointToString,
-  parseL3Endpoint,
+  parseEndpoint,
   sshPrivateKeyToKeyPair,
 } from "@highstate/common"
 import { proxmox } from "@highstate/library"
@@ -146,7 +146,7 @@ function createCloudInit(): VM.VirtualMachineInitialization {
 const ipv4Addresses = await toPromise(machine.ipv4Addresses)
 const nonLocalHostIpV4 = findNonLocalHostIpV4(ipv4Addresses)
 
-const endpoint = parseL3Endpoint(nonLocalHostIpV4)
+const endpoint = parseEndpoint(nonLocalHostIpV4)
 
 const { server, terminal } = await createServerBundle({
   name: vmName,
@@ -159,7 +159,6 @@ const { server, terminal } = await createServerBundle({
 
 export default outputs({
   server,
-  endpoints: [endpoint],
 
   $statusFields: {
     endpoints: [l3EndpointToString(endpoint)],

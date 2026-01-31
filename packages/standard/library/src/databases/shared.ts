@@ -1,12 +1,9 @@
-import { $args, $inputs, $secrets, z } from "@highstate/contract"
+import type { Simplify } from "type-fest"
+import { $args, $inputs, $secrets, type FullComponentArgumentOptions, z } from "@highstate/contract"
+import { mapValues } from "remeda"
 import { l4EndpointEntity } from "../network"
 
 export const sharedSchema = z.object({
-  /**
-   * The endpoints to connect to the database.
-   */
-  endpoints: l4EndpointEntity.schema.array(),
-
   /**
    * The username to connect to the database with.
    */
@@ -41,6 +38,15 @@ export const sharedArgs = $args({
    */
   database: z.string().optional(),
 })
+
+type ToOptionalArgs<T extends Record<string, FullComponentArgumentOptions>> = Simplify<{
+  [K in keyof T]: Simplify<Omit<T[K], "schema"> & { schema: z.ZodOptional<T[K]["schema"]> }>
+}>
+
+export const optionalSharedArgs = mapValues(sharedArgs, arg => ({
+  ...arg,
+  schema: arg.schema.optional(),
+})) as ToOptionalArgs<typeof sharedArgs>
 
 export const sharedSecrets = $secrets({
   /**

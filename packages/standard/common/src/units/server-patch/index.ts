@@ -1,23 +1,20 @@
 import { common } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
-import { l3EndpointToString, updateEndpoints } from "../../shared"
+import { forUnit, toPromise } from "@highstate/pulumi"
+import { l3EndpointToString, parseEndpoints } from "../../shared"
 
 const { args, inputs, outputs } = forUnit(common.serverPatch)
 
-const endpoints = await updateEndpoints(
-  inputs.server.endpoints,
-  args.endpoints,
-  inputs.endpoints,
-  args.endpointsPatchMode,
-)
+const server = await toPromise(inputs.server)
+const endpoints = await parseEndpoints(args.endpoints, inputs.endpoints, 3)
+
+const newEndpoints = endpoints.length > 0 ? endpoints : server.endpoints
 
 export default outputs({
-  server: inputs.server.apply(server => ({
+  server: {
     ...server,
-    endpoints,
-  })),
-
-  endpoints,
+    hostname: args.hostname ?? server.hostname,
+    endpoints: newEndpoints,
+  },
 
   $statusFields: {
     endpoints: endpoints.map(l3EndpointToString),

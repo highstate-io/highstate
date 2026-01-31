@@ -29,6 +29,7 @@ export type AggregateInstanceState = {
 
 export type InstanceStateAvgAggregateOutputType = {
   inputHashNonce: number | null
+  selfHash: number | null
   inputHash: number | null
   outputHash: number | null
   dependencyOutputHash: number | null
@@ -37,6 +38,7 @@ export type InstanceStateAvgAggregateOutputType = {
 
 export type InstanceStateSumAggregateOutputType = {
   inputHashNonce: number | null
+  selfHash: number | null
   inputHash: number | null
   outputHash: number | null
   dependencyOutputHash: number | null
@@ -51,6 +53,7 @@ export type InstanceStateMinAggregateOutputType = {
   kind: string | null
   parentId: string | null
   inputHashNonce: number | null
+  selfHash: number | null
   inputHash: number | null
   outputHash: number | null
   dependencyOutputHash: number | null
@@ -65,6 +68,7 @@ export type InstanceStateMaxAggregateOutputType = {
   kind: string | null
   parentId: string | null
   inputHashNonce: number | null
+  selfHash: number | null
   inputHash: number | null
   outputHash: number | null
   dependencyOutputHash: number | null
@@ -79,6 +83,7 @@ export type InstanceStateCountAggregateOutputType = {
   kind: number
   parentId: number
   inputHashNonce: number
+  selfHash: number
   inputHash: number
   outputHash: number
   dependencyOutputHash: number
@@ -93,6 +98,7 @@ export type InstanceStateCountAggregateOutputType = {
 
 export type InstanceStateAvgAggregateInputType = {
   inputHashNonce?: true
+  selfHash?: true
   inputHash?: true
   outputHash?: true
   dependencyOutputHash?: true
@@ -101,6 +107,7 @@ export type InstanceStateAvgAggregateInputType = {
 
 export type InstanceStateSumAggregateInputType = {
   inputHashNonce?: true
+  selfHash?: true
   inputHash?: true
   outputHash?: true
   dependencyOutputHash?: true
@@ -115,6 +122,7 @@ export type InstanceStateMinAggregateInputType = {
   kind?: true
   parentId?: true
   inputHashNonce?: true
+  selfHash?: true
   inputHash?: true
   outputHash?: true
   dependencyOutputHash?: true
@@ -129,6 +137,7 @@ export type InstanceStateMaxAggregateInputType = {
   kind?: true
   parentId?: true
   inputHashNonce?: true
+  selfHash?: true
   inputHash?: true
   outputHash?: true
   dependencyOutputHash?: true
@@ -143,6 +152,7 @@ export type InstanceStateCountAggregateInputType = {
   kind?: true
   parentId?: true
   inputHashNonce?: true
+  selfHash?: true
   inputHash?: true
   outputHash?: true
   dependencyOutputHash?: true
@@ -248,6 +258,7 @@ export type InstanceStateGroupByOutputType = {
   kind:PrismaJson.InstanceKind
   parentId: string | null
   inputHashNonce: number | null
+  selfHash: number | null
   inputHash: number | null
   outputHash: number | null
   dependencyOutputHash: number | null
@@ -289,6 +300,7 @@ export type InstanceStateWhereInput = {
   kind?: Prisma.StringFilter<"InstanceState"> | string
   parentId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
   inputHashNonce?: Prisma.IntNullableFilter<"InstanceState"> | number | null
+  selfHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   inputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   outputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   dependencyOutputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
@@ -321,6 +333,7 @@ export type InstanceStateOrderByWithRelationInput = {
   kind?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   inputHashNonce?: Prisma.SortOrderInput | Prisma.SortOrder
+  selfHash?: Prisma.SortOrderInput | Prisma.SortOrder
   inputHash?: Prisma.SortOrderInput | Prisma.SortOrder
   outputHash?: Prisma.SortOrderInput | Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -356,6 +369,7 @@ export type InstanceStateWhereUniqueInput = Prisma.AtLeast<{
   kind?: Prisma.StringFilter<"InstanceState"> | string
   parentId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
   inputHashNonce?: Prisma.IntNullableFilter<"InstanceState"> | number | null
+  selfHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   inputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   outputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   dependencyOutputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
@@ -388,6 +402,7 @@ export type InstanceStateOrderByWithAggregationInput = {
   kind?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   inputHashNonce?: Prisma.SortOrderInput | Prisma.SortOrder
+  selfHash?: Prisma.SortOrderInput | Prisma.SortOrder
   inputHash?: Prisma.SortOrderInput | Prisma.SortOrder
   outputHash?: Prisma.SortOrderInput | Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,6 +429,7 @@ export type InstanceStateScalarWhereWithAggregatesInput = {
   kind?: Prisma.StringWithAggregatesFilter<"InstanceState"> | string
   parentId?: Prisma.StringNullableWithAggregatesFilter<"InstanceState"> | string | null
   inputHashNonce?: Prisma.IntNullableWithAggregatesFilter<"InstanceState"> | number | null
+  selfHash?: Prisma.IntNullableWithAggregatesFilter<"InstanceState"> | number | null
   inputHash?: Prisma.IntNullableWithAggregatesFilter<"InstanceState"> | number | null
   outputHash?: Prisma.IntNullableWithAggregatesFilter<"InstanceState"> | number | null
   dependencyOutputHash?: Prisma.IntNullableWithAggregatesFilter<"InstanceState"> | number | null
@@ -431,6 +447,7 @@ export type InstanceStateCreateInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -463,6 +480,7 @@ export type InstanceStateUncheckedCreateInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -493,6 +511,7 @@ export type InstanceStateUpdateInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -525,6 +544,7 @@ export type InstanceStateUncheckedUpdateInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -556,6 +576,7 @@ export type InstanceStateCreateManyInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -573,6 +594,7 @@ export type InstanceStateUpdateManyMutationInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -591,6 +613,7 @@ export type InstanceStateUncheckedUpdateManyInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -629,6 +652,7 @@ export type InstanceStateCountOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   inputHashNonce?: Prisma.SortOrder
+  selfHash?: Prisma.SortOrder
   inputHash?: Prisma.SortOrder
   outputHash?: Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrder
@@ -641,6 +665,7 @@ export type InstanceStateCountOrderByAggregateInput = {
 
 export type InstanceStateAvgOrderByAggregateInput = {
   inputHashNonce?: Prisma.SortOrder
+  selfHash?: Prisma.SortOrder
   inputHash?: Prisma.SortOrder
   outputHash?: Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrder
@@ -655,6 +680,7 @@ export type InstanceStateMaxOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   inputHashNonce?: Prisma.SortOrder
+  selfHash?: Prisma.SortOrder
   inputHash?: Prisma.SortOrder
   outputHash?: Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrder
@@ -669,6 +695,7 @@ export type InstanceStateMinOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   inputHashNonce?: Prisma.SortOrder
+  selfHash?: Prisma.SortOrder
   inputHash?: Prisma.SortOrder
   outputHash?: Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrder
@@ -677,6 +704,7 @@ export type InstanceStateMinOrderByAggregateInput = {
 
 export type InstanceStateSumOrderByAggregateInput = {
   inputHashNonce?: Prisma.SortOrder
+  selfHash?: Prisma.SortOrder
   inputHash?: Prisma.SortOrder
   outputHash?: Prisma.SortOrder
   dependencyOutputHash?: Prisma.SortOrder
@@ -964,6 +992,7 @@ export type InstanceStateCreateWithoutArtifactsInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -995,6 +1024,7 @@ export type InstanceStateUncheckedCreateWithoutArtifactsInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1049,6 +1079,7 @@ export type InstanceStateScalarWhereInput = {
   kind?: Prisma.StringFilter<"InstanceState"> | string
   parentId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
   inputHashNonce?: Prisma.IntNullableFilter<"InstanceState"> | number | null
+  selfHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   inputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   outputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   dependencyOutputHash?: Prisma.IntNullableFilter<"InstanceState"> | number | null
@@ -1066,6 +1097,7 @@ export type InstanceStateCreateWithoutCustomStatusesInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1097,6 +1129,7 @@ export type InstanceStateUncheckedCreateWithoutCustomStatusesInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1142,6 +1175,7 @@ export type InstanceStateUpdateWithoutCustomStatusesInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1173,6 +1207,7 @@ export type InstanceStateUncheckedUpdateWithoutCustomStatusesInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1202,6 +1237,7 @@ export type InstanceStateCreateWithoutEvaluationStateInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1233,6 +1269,7 @@ export type InstanceStateUncheckedCreateWithoutEvaluationStateInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1278,6 +1315,7 @@ export type InstanceStateUpdateWithoutEvaluationStateInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1309,6 +1347,7 @@ export type InstanceStateUncheckedUpdateWithoutEvaluationStateInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1338,6 +1377,7 @@ export type InstanceStateCreateWithoutChildrenInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1369,6 +1409,7 @@ export type InstanceStateUncheckedCreateWithoutChildrenInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1403,6 +1444,7 @@ export type InstanceStateCreateWithoutParentInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1433,6 +1475,7 @@ export type InstanceStateUncheckedCreateWithoutParentInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1483,6 +1526,7 @@ export type InstanceStateUpdateWithoutChildrenInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1514,6 +1558,7 @@ export type InstanceStateUncheckedUpdateWithoutChildrenInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1559,6 +1604,7 @@ export type InstanceStateCreateWithoutUserViewportsInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1590,6 +1636,7 @@ export type InstanceStateUncheckedCreateWithoutUserViewportsInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1635,6 +1682,7 @@ export type InstanceStateUpdateWithoutUserViewportsInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1666,6 +1714,7 @@ export type InstanceStateUncheckedUpdateWithoutUserViewportsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1695,6 +1744,7 @@ export type InstanceStateCreateWithoutLockInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1726,6 +1776,7 @@ export type InstanceStateUncheckedCreateWithoutLockInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1771,6 +1822,7 @@ export type InstanceStateUpdateWithoutLockInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1802,6 +1854,7 @@ export type InstanceStateUncheckedUpdateWithoutLockInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1831,6 +1884,7 @@ export type InstanceStateCreateWithoutOperationStatesInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1862,6 +1916,7 @@ export type InstanceStateUncheckedCreateWithoutOperationStatesInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1907,6 +1962,7 @@ export type InstanceStateUpdateWithoutOperationStatesInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1938,6 +1994,7 @@ export type InstanceStateUncheckedUpdateWithoutOperationStatesInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1967,6 +2024,7 @@ export type InstanceStateCreateWithoutOperationLogsInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -1998,6 +2056,7 @@ export type InstanceStateUncheckedCreateWithoutOperationLogsInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2043,6 +2102,7 @@ export type InstanceStateUpdateWithoutOperationLogsInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2074,6 +2134,7 @@ export type InstanceStateUncheckedUpdateWithoutOperationLogsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2103,6 +2164,7 @@ export type InstanceStateCreateWithoutPagesInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2134,6 +2196,7 @@ export type InstanceStateUncheckedCreateWithoutPagesInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2179,6 +2242,7 @@ export type InstanceStateUpdateWithoutPagesInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2210,6 +2274,7 @@ export type InstanceStateUncheckedUpdateWithoutPagesInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2239,6 +2304,7 @@ export type InstanceStateCreateWithoutSecretsInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2270,6 +2336,7 @@ export type InstanceStateUncheckedCreateWithoutSecretsInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2315,6 +2382,7 @@ export type InstanceStateUpdateWithoutSecretsInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2346,6 +2414,7 @@ export type InstanceStateUncheckedUpdateWithoutSecretsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2375,6 +2444,7 @@ export type InstanceStateCreateWithoutTerminalsInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2406,6 +2476,7 @@ export type InstanceStateUncheckedCreateWithoutTerminalsInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2451,6 +2522,7 @@ export type InstanceStateUpdateWithoutTerminalsInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2482,6 +2554,7 @@ export type InstanceStateUncheckedUpdateWithoutTerminalsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2511,6 +2584,7 @@ export type InstanceStateCreateWithoutTriggersInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2542,6 +2616,7 @@ export type InstanceStateUncheckedCreateWithoutTriggersInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2587,6 +2662,7 @@ export type InstanceStateUpdateWithoutTriggersInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2618,6 +2694,7 @@ export type InstanceStateUncheckedUpdateWithoutTriggersInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2647,6 +2724,7 @@ export type InstanceStateCreateWithoutWorkerRegistrationsInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2678,6 +2756,7 @@ export type InstanceStateUncheckedCreateWithoutWorkerRegistrationsInput = {
   kind:PrismaJson.InstanceKind
   parentId?: string | null
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2723,6 +2802,7 @@ export type InstanceStateUpdateWithoutWorkerRegistrationsInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2754,6 +2834,7 @@ export type InstanceStateUncheckedUpdateWithoutWorkerRegistrationsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2783,6 +2864,7 @@ export type InstanceStateUpdateWithoutArtifactsInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2814,6 +2896,7 @@ export type InstanceStateUncheckedUpdateWithoutArtifactsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2844,6 +2927,7 @@ export type InstanceStateUncheckedUpdateManyWithoutArtifactsInput = {
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2861,6 +2945,7 @@ export type InstanceStateCreateManyParentInput = {
   source: $Enums.InstanceSource
   kind:PrismaJson.InstanceKind
   inputHashNonce?: number | null
+  selfHash?: number | null
   inputHash?: number | null
   outputHash?: number | null
   dependencyOutputHash?: number | null
@@ -2878,6 +2963,7 @@ export type InstanceStateUpdateWithoutParentInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2908,6 +2994,7 @@ export type InstanceStateUncheckedUpdateWithoutParentInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2938,6 +3025,7 @@ export type InstanceStateUncheckedUpdateManyWithoutParentInput = {
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3077,6 +3165,7 @@ export type InstanceStateSelect<ExtArgs extends runtime.Types.Extensions.Interna
   kind?: boolean
   parentId?: boolean
   inputHashNonce?: boolean
+  selfHash?: boolean
   inputHash?: boolean
   outputHash?: boolean
   dependencyOutputHash?: boolean
@@ -3110,6 +3199,7 @@ export type InstanceStateSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   kind?: boolean
   parentId?: boolean
   inputHashNonce?: boolean
+  selfHash?: boolean
   inputHash?: boolean
   outputHash?: boolean
   dependencyOutputHash?: boolean
@@ -3129,6 +3219,7 @@ export type InstanceStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   kind?: boolean
   parentId?: boolean
   inputHashNonce?: boolean
+  selfHash?: boolean
   inputHash?: boolean
   outputHash?: boolean
   dependencyOutputHash?: boolean
@@ -3148,6 +3239,7 @@ export type InstanceStateSelectScalar = {
   kind?: boolean
   parentId?: boolean
   inputHashNonce?: boolean
+  selfHash?: boolean
   inputHash?: boolean
   outputHash?: boolean
   dependencyOutputHash?: boolean
@@ -3158,7 +3250,7 @@ export type InstanceStateSelectScalar = {
   statusFields?: boolean
 }
 
-export type InstanceStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "status" | "source" | "kind" | "parentId" | "inputHashNonce" | "inputHash" | "outputHash" | "dependencyOutputHash" | "exportedArtifactIds" | "model" | "resolvedInputs" | "currentResourceCount" | "statusFields", ExtArgs["result"]["instanceState"]>
+export type InstanceStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "status" | "source" | "kind" | "parentId" | "inputHashNonce" | "selfHash" | "inputHash" | "outputHash" | "dependencyOutputHash" | "exportedArtifactIds" | "model" | "resolvedInputs" | "currentResourceCount" | "statusFields", ExtArgs["result"]["instanceState"]>
 export type InstanceStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
   children?: boolean | Prisma.InstanceState$childrenArgs<ExtArgs>
@@ -3276,6 +3368,19 @@ export type $InstanceStatePayload<ExtArgs extends runtime.Types.Extensions.Inter
      * The 32-bit nonce used to invalidate the input hash when secrets are updated.
      */
     inputHashNonce: number | null
+    /**
+     * The calculated CRC32 hash of the instance's own configuration at the moment of last operation completion.
+     * 
+     * This hash covers:
+     * - component definition hash;
+     * - the unit's source hash (if applicable);
+     * - the instance's configuration (name, args, secret hashes / nonce).
+     * 
+     * It does not include hashes of dependencies.
+     * 
+     * Used together with `dependencyOutputHash` to short-circuit execution at runtime.
+     */
+    selfHash: number | null
     /**
      * The calculated instance CRC32 input hash at the moment of last operation completion.
      * 
@@ -3781,6 +3886,7 @@ export interface InstanceStateFieldRefs {
   readonly kind: Prisma.FieldRef<"InstanceState", 'String'>
   readonly parentId: Prisma.FieldRef<"InstanceState", 'String'>
   readonly inputHashNonce: Prisma.FieldRef<"InstanceState", 'Int'>
+  readonly selfHash: Prisma.FieldRef<"InstanceState", 'Int'>
   readonly inputHash: Prisma.FieldRef<"InstanceState", 'Int'>
   readonly outputHash: Prisma.FieldRef<"InstanceState", 'Int'>
   readonly dependencyOutputHash: Prisma.FieldRef<"InstanceState", 'Int'>

@@ -11,7 +11,7 @@ import {
   output,
 } from "@pulumi/pulumi"
 import { Namespace } from "./namespace"
-import { getProvider, mapMetadata, ScopedResource, type ScopedResourceArgs } from "./shared"
+import { getProvider, mapMetadata, NamespacedResource, type ScopedResourceArgs } from "./shared"
 
 export type SecretArgs = ScopedResourceArgs &
   Omit<types.input.core.v1.Secret, "kind" | "metadata" | "apiVersion">
@@ -20,23 +20,24 @@ export type CreateOrGetSecretArgs = SecretArgs & {
   /**
    * The secret entity to patch/retrieve.
    */
-  existing: Input<k8s.ScopedResource> | undefined
+  existing: Input<k8s.NamespacedResource> | undefined
 }
 
 /**
  * Represents a Kubernetes Secret resource with metadata and data.
  */
-export abstract class Secret extends ScopedResource {
+export abstract class Secret extends NamespacedResource {
+  static apiVersion = "v1"
+  static kind = "Secret"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
-    namespace: Output<Namespace>,
     metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The data of the underlying Kubernetes secret.
@@ -48,19 +49,14 @@ export abstract class Secret extends ScopedResource {
      */
     readonly stringData: Output<Record<string, string>>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
    * The Highstate secret entity.
    */
-  get entity(): Output<k8s.ScopedResource> {
-    return output({
-      type: "secret",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+  get entity(): Output<k8s.Secret> {
+    return output(this.entityBase)
   }
 
   /**
@@ -165,7 +161,7 @@ export abstract class Secret extends ScopedResource {
    * @param entity The entity to get the secret for.
    * @param cluster The cluster where the secret is located.
    */
-  static for(entity: k8s.ScopedResource, cluster: Input<k8s.Cluster>): Secret {
+  static for(entity: k8s.NamespacedResource, cluster: Input<k8s.Cluster>): Secret {
     return getOrCreate(
       Secret.secretCache,
       `${entity.clusterName}.${entity.metadata.namespace}.${entity.metadata.name}.${entity.clusterId}`,
@@ -190,7 +186,7 @@ export abstract class Secret extends ScopedResource {
    * @param cluster The cluster where the secret is located.
    */
   static async forAsync(
-    entity: Input<k8s.ScopedResource>,
+    entity: Input<k8s.NamespacedResource>,
     cluster: Input<k8s.Cluster>,
   ): Promise<Secret> {
     const resolvedEntity = await toPromise(entity)
@@ -223,10 +219,8 @@ class CreatedSecret extends Secret {
       name,
       args,
       opts,
-      secret.apiVersion,
-      secret.kind,
-      output(args.namespace),
       secret.metadata,
+      output(args.namespace),
       secret.data,
       secret.stringData,
     )
@@ -258,10 +252,8 @@ class SecretPatch extends Secret {
       name,
       args,
       opts,
-      secret.apiVersion,
-      secret.kind,
-      output(args.namespace),
       secret.metadata,
+      output(args.namespace),
       secret.data,
       secret.stringData,
     )
@@ -287,11 +279,8 @@ class WrappedSecret extends Secret {
       name,
       args,
       opts,
-
-      output(args.secret).apiVersion,
-      output(args.secret).kind,
-      output(args.namespace),
       output(args.secret).metadata,
+      output(args.namespace),
       output(args.secret).data,
       output(args.secret).stringData,
     )
@@ -335,11 +324,8 @@ class ExternalSecret extends Secret {
       name,
       args,
       opts,
-
-      secret.apiVersion,
-      secret.kind,
-      output(args.namespace),
       secret.metadata,
+      output(args.namespace),
       secret.data,
       secret.stringData,
     )

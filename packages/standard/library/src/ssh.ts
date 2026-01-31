@@ -4,11 +4,8 @@ import { l4EndpointEntity, portSchema } from "./network"
 
 export const keyTypeSchema = z.enum(["ed25519"])
 
-/**
- * The entity representing an SSH key pair.
- */
-export const keyPairEntity = defineEntity({
-  type: "ssh.key-pair.v1",
+export const publicKeyEntity = defineEntity({
+  type: "ssh.public-key.v1",
 
   schema: z.object({
     /**
@@ -19,15 +16,30 @@ export const keyPairEntity = defineEntity({
     type: keyTypeSchema,
 
     /**
-     * The fingerprint of the SSH key.
-     */
-    fingerprint: z.string(),
-
-    /**
      * The public key in OpenSSH format.
      */
     publicKey: z.string(),
 
+    /**
+     * The fingerprint of the SSH key.
+     */
+    fingerprint: z.string(),
+  }),
+
+  meta: {
+    color: "#2b5797",
+  },
+})
+
+/**
+ * The entity representing an SSH key pair.
+ */
+export const keyPairEntity = defineEntity({
+  type: "ssh.key-pair.v1",
+
+  extends: { publicKeyEntity },
+
+  schema: z.object({
     /**
      * The private key in PEM format.
      */
@@ -109,11 +121,54 @@ export const secrets = $secrets({
 
 export const inputs = $inputs({
   /**
-   * The SSH key pair to use for authentication.
+   * The SSH key pair to use for authentication by Highstate.
    */
   sshKeyPair: {
     entity: keyPairEntity,
     required: false,
+  },
+
+  /**
+   * The extra SSH public keys to add to the server's `authorized_keys` file.
+   *
+   * Will not (and cannot) be used for authentication by Highstate.
+   */
+  sshPublicKeys: {
+    entity: publicKeyEntity,
+    required: false,
+    multiple: true,
+  },
+})
+
+/**
+ * Provides existing SSH public key.
+ */
+export const publicKey = defineUnit({
+  type: "ssh.public-key.v1",
+
+  args: {
+    /**
+     * The public key in OpenSSH format.
+     */
+    publicKey: z.string().meta({ multiline: true }),
+  },
+
+  outputs: {
+    publicKey: publicKeyEntity,
+  },
+
+  meta: {
+    title: "SSH Public Key",
+    category: "ssh",
+    icon: "charm:key",
+    iconColor: "#ffffff",
+    secondaryIcon: "mdi:lock-open",
+    secondaryIconColor: "#ffffff",
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/ssh/public-key",
   },
 })
 
@@ -154,5 +209,6 @@ export const keyPair = defineUnit({
 
 export type Args = z.infer<typeof argsSchema>
 export type KeyType = z.infer<typeof keyTypeSchema>
+export type PublicKey = z.infer<typeof publicKeyEntity.schema>
 export type KeyPair = z.infer<typeof keyPairEntity.schema>
 export type Connection = z.infer<typeof connectionSchema>

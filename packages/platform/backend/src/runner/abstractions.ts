@@ -171,6 +171,11 @@ export type UnitUpdateOptions = UnitOptions & {
    * Whether to refresh the state before updating.
    */
   refresh?: boolean
+
+  /**
+   * Whether to delete the unreachable resources (e.g. k8s resources in unreachable clusters).
+   */
+  deleteUnreachable?: boolean
 }
 
 export type UnitDestroyOptions = UnitOptions & {

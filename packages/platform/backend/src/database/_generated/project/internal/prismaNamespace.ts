@@ -2377,6 +2377,7 @@ export const InstanceStateScalarFieldEnum = {
   kind: 'kind',
   parentId: 'parentId',
   inputHashNonce: 'inputHashNonce',
+  selfHash: 'selfHash',
   inputHash: 'inputHash',
   outputHash: 'outputHash',
   dependencyOutputHash: 'dependencyOutputHash',

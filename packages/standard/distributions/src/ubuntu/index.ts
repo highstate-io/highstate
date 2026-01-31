@@ -1,5 +1,5 @@
 import { basename } from "node:path"
-import { parseL7Endpoint } from "@highstate/common"
+import { parseEndpoint } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { distributions } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
@@ -17,7 +17,7 @@ export default outputs({
     },
     content: {
       type: "remote",
-      endpoint: parseL7Endpoint(ubuntuImage.url),
+      endpoint: parseEndpoint(ubuntuImage.url, 7),
       checksum: {
         algorithm: "sha256",
         value: ubuntuImage.sha256,

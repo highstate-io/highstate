@@ -1,17 +1,16 @@
 import { $args, defineEntity, defineUnit, z } from "@highstate/contract"
 import { serverEntity } from "../common"
-import * as dns from "../dns"
 import { implementationReferenceSchema } from "../impl-ref"
-import { l3EndpointEntity, l4EndpointEntity } from "../network"
-import { arrayPatchModeSchema } from "../utils"
-import { scopedResourceSchema } from "./resources"
+import { addressEntity, l3EndpointEntity, l4EndpointEntity } from "../network"
+import { metadataSchema } from "../utils"
+import { namespacedResourceEntity } from "./resources"
 
 export const fallbackKubeApiAccessSchema = z.object({
   serverIp: z.string(),
   serverPort: z.number(),
 })
 
-export const tunDevicePolicySchema = z.union([
+export const tunDevicePolicySchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("host"),
   }),
@@ -40,14 +39,14 @@ export const clusterQuirksSchema = z.object({
    *
    * For some runtimes, like Talos's one, the /dev/net/tun device is not available in the host, so the plugin policy should be used.
    */
-  tunDevicePolicy: tunDevicePolicySchema.optional(),
+  tunDevicePolicy: tunDevicePolicySchema.prefault({ type: "host" }),
 
   /**
    * The service type to use for external services.
    *
    * If not provided, the default service type is `NodePort` since `LoadBalancer` may not be available.
    */
-  externalServiceType: externalServiceTypeSchema.optional(),
+  externalServiceType: externalServiceTypeSchema.default("NodePort"),
 })
 
 export const clusterInfoProperties = {
@@ -80,15 +79,6 @@ export const clusterInfoProperties = {
   networkPolicyImplRef: implementationReferenceSchema.optional(),
 
   /**
-   * The endpoints of the cluster nodes.
-   *
-   * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-   *
-   * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
-   */
-  endpoints: l3EndpointEntity.schema.array(),
-
-  /**
    * The endpoints of the API server.
    *
    * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
@@ -100,7 +90,7 @@ export const clusterInfoProperties = {
   /**
    * The external IPs of the cluster nodes allowed to be used for external access.
    */
-  externalIps: z.string().array(),
+  externalIps: addressEntity.schema.array(),
 
   /**
    * The extra quirks of the cluster to improve compatibility.
@@ -110,11 +100,25 @@ export const clusterInfoProperties = {
   /**
    * The extra metadata to attach to the cluster.
    */
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  metadata: metadataSchema.optional(),
 } as const
 
 export const clusterEntity = defineEntity({
   type: "k8s.cluster.v1",
+
+  includes: {
+    /**
+     * The endpoints of the cluster nodes.
+     *
+     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
+     *
+     * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
+     */
+    endpoints: {
+      entity: l3EndpointEntity,
+      multiple: true,
+    },
+  },
 
   schema: z.object({
     ...clusterInfoProperties,
@@ -153,14 +157,6 @@ export const clusterInputs = {
 
 export const clusterOutputs = {
   k8sCluster: clusterEntity,
-  apiEndpoints: {
-    entity: l4EndpointEntity,
-    multiple: true,
-  },
-  endpoints: {
-    entity: l3EndpointEntity,
-    multiple: true,
-  },
 } as const
 
 /**
@@ -171,11 +167,9 @@ export const existingCluster = defineUnit({
 
   args: {
     /**
-     * The list of external IPs of the cluster nodes allowed to be used for external access.
-     *
-     * If not provided, will be automatically detected by querying the cluster nodes.
+     * Whether to auto-detect external IPs of the cluster nodes and merge them with the provided external IPs.
      */
-    externalIps: z.string().array().optional(),
+    autoDetectExternalIps: z.boolean().default(true),
 
     /**
      * The policy for using internal IPs of the nodes as external IPs.
@@ -183,13 +177,44 @@ export const existingCluster = defineUnit({
      * - `always`: always use internal IPs as external IPs;
      * - `public`: use internal IPs as external IPs only if they are (theoretically) routable from the public internet **(default)**;
      * - `never`: never use internal IPs as external IPs.
+     *
+     * Have no effect if `autoDetectExternalIps` is `false`.
      */
     internalIpsPolicy: internalIpsPolicySchema.default("public"),
 
     /**
+     * The list of external IPs of the cluster nodes allowed to be used for external access.
+     */
+    externalIps: z.string().array().default([]),
+
+    /**
+     * Whether to use all external IPs (auto-detected and provided) as endpoints of the cluster.
+     *
+     * Set to `false` if you want to manage endpoints manually.
+     */
+    useExternalIpsAsEndpoints: z.boolean().default(true),
+
+    /**
+     * The list of endpoints of the cluster nodes.
+     */
+    endpoints: z.string().array().default([]),
+
+    /**
+     * Whether to add endpoints from `kubeconfig` to the list of API endpoints.
+     *
+     * Set to `false` if you want to manage API endpoints manually.
+     */
+    useKubeconfigApiEndpoint: z.boolean().default(true),
+
+    /**
+     * The list of endpoints of the API server.
+     */
+    apiEndpoints: z.string().array().default([]),
+
+    /**
      * The extra quirks of the cluster to improve compatibility.
      */
-    quirks: clusterQuirksSchema.optional(),
+    quirks: clusterQuirksSchema.optional().meta({ complex: true }),
   },
 
   secrets: {
@@ -223,38 +248,14 @@ export const clusterPatch = defineUnit({
 
   args: {
     /**
-     * The endpoints of the API server.
-     *
-     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-     *
-     * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
-     */
-    apiEndpoints: z.string().array().default([]),
-
-    /**
-     * The mode to use for patching the API endpoints.
-     *
-     * - `prepend`: prepend the new endpoints to the existing ones (default);
-     * - `replace`: replace the existing endpoints with the new ones.
-     */
-    apiEndpointsPatchMode: arrayPatchModeSchema.default("prepend"),
-
-    /**
-     * The endpoints of the cluster nodes.
-     *
-     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-     *
-     * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
+     * The endpoints to set on the cluster.
      */
     endpoints: z.string().array().default([]),
 
     /**
-     * The mode to use for patching the endpoints.
-     *
-     * - `prepend`: prepend the new endpoints to the existing ones (default);
-     * - `replace`: replace the existing endpoints with the new ones.
+     * The API endpoints to set on the cluster.
      */
-    endpointsPatchMode: arrayPatchModeSchema.default("prepend"),
+    apiEndpoints: z.string().array().default([]),
   },
 
   inputs: {
@@ -286,37 +287,6 @@ export const clusterPatch = defineUnit({
   },
 })
 
-/**
- * Creates a set of DNS records for the cluster and updates the endpoints.
- */
-export const clusterDns = defineUnit({
-  type: "k8s.cluster-dns.v1",
-
-  args: {
-    ...dns.createArgs(),
-    ...dns.createArgs("api"),
-  },
-
-  inputs: {
-    k8sCluster: clusterEntity,
-    ...dns.inputs,
-  },
-
-  outputs: clusterOutputs,
-
-  meta: {
-    title: "Cluster DNS",
-    icon: "devicon:kubernetes",
-    secondaryIcon: "mdi:dns",
-    category: "Kubernetes",
-  },
-
-  source: {
-    package: "@highstate/k8s",
-    path: "units/cluster-dns",
-  },
-})
-
 export const monitorWorkerResourceGroupSchema = z.object({
   type: z.enum(["deployment", "statefulset", "pod", "service"]),
   namespace: z.string(),
@@ -332,7 +302,7 @@ export const monitorWorkerParamsSchema = z.object({
   /**
    * The resources to monitor in the cluster.
    */
-  resources: scopedResourceSchema.array(),
+  resources: namespacedResourceEntity.schema.array(),
 })
 
 export type Cluster = z.infer<typeof clusterEntity.schema>

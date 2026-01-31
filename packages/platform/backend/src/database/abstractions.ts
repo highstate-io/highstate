@@ -38,4 +38,4 @@ export interface ProjectDatabaseBackend {
 }
 
 export const backendDatabaseVersion = 1
-export const projectDatabaseVersion = 1
+export const projectDatabaseVersion = 2

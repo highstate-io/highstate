@@ -1,0 +1,5 @@
+{
+  "compilerOptions": { "baseUrl": "." },
+  "extends": "../../../platform/cli/assets/tsconfig.base.json",
+  "include": ["*.mts"]
+}

@@ -1,11 +1,4 @@
-import {
-  Command,
-  filterEndpoints,
-  l3EndpointToL4,
-  l3EndpointToString,
-  l4EndpointToString,
-  parseL3Endpoint,
-} from "@highstate/common"
+import { Command, l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { createK8sTerminal } from "@highstate/k8s"
 import { type common, k3s } from "@highstate/library"
@@ -30,9 +23,7 @@ const { masters, workers } = await toPromise(inputs)
 const seed = masters[0]
 
 const endpoints = uniqueBy(
-  [...workers, ...masters].flatMap(server =>
-    server.endpoints.map(endpoint => parseL3Endpoint(endpoint)),
-  ),
+  [...workers, ...masters].flatMap(server => server.endpoints),
   l3EndpointToString,
 )
 
@@ -162,17 +153,15 @@ kubeConfig.loadFromString(kubeconfig)
 const provider = new Provider(name, { kubeconfig: secret(kubeconfig) })
 const kubeSystem = core.v1.Namespace.get("kube-system", "kube-system", { provider })
 
-// const kubeconfigFile = fileFromString("config", kubeconfig, "text/yaml", true)
-
 export default outputs({
   k8sCluster: {
     id: kubeSystem.metadata.uid,
     connectionId: kubeSystem.metadata.uid,
     name,
 
-    externalIps: filterEndpoints(endpoints, ["public", "external"])
+    externalIps: endpoints
       .filter(endpoint => endpoint.type !== "hostname")
-      .map(l3EndpointToString),
+      .map(endpoint => endpoint.address),
 
     endpoints,
     apiEndpoints,
@@ -185,9 +174,6 @@ export default outputs({
 
     kubeconfig: secret(kubeconfig),
   },
-
-  endpoints,
-  apiEndpoints,
 
   $terminals: [createK8sTerminal(kubeconfig)],
 

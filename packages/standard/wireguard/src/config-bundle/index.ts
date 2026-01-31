@@ -4,18 +4,19 @@ import { type DeepInput, fileFromBuffer, forUnit, toPromise } from "@highstate/p
 import ZipStream from "zip-stream"
 import { generateIdentityConfig } from "../shared"
 
-const { name, inputs, args, outputs } = forUnit(wireguard.configBundle)
+const { name, args, inputs, outputs } = forUnit(wireguard.configBundle)
 
 const { identity, peers, sharedPeers } = await toPromise(inputs)
 
 const blocks: DeepInput<PageBlock>[] = []
+const configs: DeepInput<wireguard.Config>[] = []
 const zipStream = new ZipStream()
 
 for (const peer of peers) {
   const configContent = generateIdentityConfig({
     identity,
     peers: [...sharedPeers, peer],
-    defaultInterface: args.defaultInterface,
+    peerEndpointFilter: args.peerEndpointFilter,
   })
 
   const unsafeConfigContent = await toPromise(configContent)
@@ -51,6 +52,18 @@ for (const peer of peers) {
       language: "ini",
     },
   )
+
+  configs.push({
+    file: {
+      meta: {
+        name: `${peer.name}.conf`,
+      },
+      content: {
+        type: "embedded",
+        value: configContent,
+      },
+    },
+  })
 }
 
 zipStream.finish()
@@ -69,6 +82,8 @@ const zipFile = fileFromBuffer(`${name}.zip`, unsafeZipFileContent, {
 })
 
 export default outputs({
+  configs,
+
   $pages: {
     index: {
       meta: {

@@ -1,5 +1,7 @@
 import { defineEntity, defineUnit, z } from "@highstate/contract"
-import { sharedArgs, sharedInputs, sharedSchema } from "./shared"
+import { l4EndpointEntity } from "../network"
+import { toPatchArgs } from "../utils"
+import { optionalSharedArgs, sharedArgs, sharedInputs } from "./shared"
 
 /**
  * Represents the Redis database or virtual database behind it.
@@ -7,7 +9,14 @@ import { sharedArgs, sharedInputs, sharedSchema } from "./shared"
 export const redisEntity = defineEntity({
   type: "databases.redis.v1",
 
-  schema: sharedSchema.pick({ endpoints: true }).extend({
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
+
+  schema: z.object({
     /**
      * The number of the database to use.
      */
@@ -41,6 +50,43 @@ export const existingRedis = defineUnit({
     title: "Existing Redis Database",
     icon: "simple-icons:redis",
     secondaryIcon: "mdi:database",
+    category: "Databases",
+  },
+})
+
+/**
+ * Patches some properties of the Redis database and outputs the updated database.
+ */
+export const redisPatch = defineUnit({
+  type: "databases.redis-patch.v1",
+
+  args: {
+    ...toPatchArgs(optionalSharedArgs),
+
+    endpoints: {
+      ...sharedArgs.endpoints,
+      schema: z.string().array().default([]),
+    },
+  },
+
+  inputs: {
+    redis: redisEntity,
+    ...sharedInputs,
+  },
+
+  outputs: {
+    redis: redisEntity,
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/databases/redis-patch",
+  },
+
+  meta: {
+    title: "Redis Patch",
+    icon: "simple-icons:redis",
+    secondaryIcon: "fluent:patch-20-filled",
     category: "Databases",
   },
 })

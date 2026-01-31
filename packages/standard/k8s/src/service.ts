@@ -1,4 +1,10 @@
-import { filterEndpoints, l4EndpointToString, parseL3Endpoint } from "@highstate/common"
+import {
+  addEndpointMetadata,
+  l3EndpointToL4,
+  mergeEndpoints,
+  parseEndpoint,
+  parseL4Protocol,
+} from "@highstate/common"
 import { check, getOrCreate } from "@highstate/contract"
 import { k8s, type network } from "@highstate/library"
 import {
@@ -12,14 +18,13 @@ import {
   toPromise,
 } from "@highstate/pulumi"
 import { core, type types } from "@pulumi/kubernetes"
-import { deepmerge } from "deepmerge-ts"
-import { omit, uniqueBy } from "remeda"
+import { omit, pipe } from "remeda"
 import { Namespace } from "./namespace"
 import {
   commonExtraArgs,
   getProvider,
   mapMetadata,
-  ScopedResource,
+  NamespacedResource,
   type ScopedResourceArgs,
 } from "./shared"
 
@@ -66,17 +71,18 @@ export function isEndpointFromCluster(
 /**
  * Represents a Kubernetes Service resource with endpoints and metadata.
  */
-export abstract class Service extends ScopedResource {
+export abstract class Service extends NamespacedResource {
+  static apiVersion = "v1"
+  static kind = "Service"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
-    namespace: Output<Namespace>,
     metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The spec of the underlying Kubernetes service.
@@ -88,7 +94,7 @@ export abstract class Service extends ScopedResource {
      */
     readonly status: Output<types.output.core.v1.ServiceStatus>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
@@ -96,10 +102,7 @@ export abstract class Service extends ScopedResource {
    */
   get entity(): Output<k8s.Service> {
     return output({
-      type: "service",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
+      ...this.entityBase,
       endpoints: this.endpoints,
     })
   }
@@ -226,18 +229,6 @@ export abstract class Service extends ScopedResource {
   }
 
   /**
-   * Returns the endpoints of the service applying the given filter.
-   *
-   * If no filter is specified, the default behavior of `filterEndpoints` is used.
-   *
-   * @param filter If specified, the endpoints are filtered based on the given filter.
-   * @returns The endpoints of the service.
-   */
-  filterEndpoints(filter?: network.EndpointFilter): Output<k8s.ServiceEndpoint[]> {
-    return output(this.endpoints).apply(endpoints => filterEndpoints(endpoints, filter))
-  }
-
-  /**
    * Returns the endpoints of the service including both internal and external endpoints.
    */
   get endpoints(): Output<k8s.ServiceEndpoint[]> {
@@ -247,64 +238,57 @@ export abstract class Service extends ScopedResource {
       spec: this.spec,
       status: this.status,
     }).apply(({ cluster, metadata, spec, status }) => {
-      const endpointMetadata: k8s.EndpointServiceMetadata = {
-        "k8s.service": {
-          clusterId: cluster.id,
-          clusterName: cluster.name,
-          name: metadata.name,
-          namespace: metadata.namespace,
-          selector: spec.selector,
-          targetPort: spec.ports[0].targetPort ?? spec.ports[0].port,
-        },
+      function createMetadata(isInternal: boolean): k8s.EndpointServiceMetadata {
+        return {
+          "k8s.service": {
+            clusterId: cluster.id,
+            clusterName: cluster.name,
+            name: metadata.name,
+            namespace: metadata.namespace,
+            isInternal,
+            selector: spec.selector,
+            targetPort: spec.ports[0].targetPort ?? spec.ports[0].port,
+          },
+        }
       }
 
-      const clusterIpEndpoints = spec.clusterIPs?.map(ip => ({
-        ...parseL3Endpoint(ip),
-        visibility: "internal" as network.EndpointVisibility,
-        port: spec.ports[0].port,
-        protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
-        metadata: endpointMetadata,
-      }))
+      const internalHosts = spec.clusterIPs.length
+        ? [...spec.clusterIPs, `${metadata.name}.${metadata.namespace}.svc.cluster.local`]
+        : []
 
-      if (clusterIpEndpoints.length > 0) {
-        clusterIpEndpoints.unshift({
-          type: "hostname",
-          visibility: "internal",
-          hostname: `${metadata.name}.${metadata.namespace}.svc.cluster.local`,
-          port: spec.ports[0].port,
-          protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
-          metadata: endpointMetadata,
-        })
-      }
-
-      const nodePortEndpoints =
-        spec.type === "NodePort"
-          ? cluster.endpoints.map(endpoint => ({
-              ...(endpoint as network.L3Endpoint),
-              port: spec.ports[0].nodePort,
-              protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
-              metadata: endpointMetadata,
-            }))
-          : []
-
-      const loadBalancerEndpoints =
-        spec.type === "LoadBalancer"
-          ? status.loadBalancer?.ingress?.map(endpoint => ({
-              ...parseL3Endpoint(endpoint.ip ?? endpoint.hostname),
-              port: spec.ports[0].port,
-              protocol: spec.ports[0].protocol?.toLowerCase() as network.L4Protocol,
-              metadata: endpointMetadata,
-            }))
-          : []
-
-      return uniqueBy(
-        [
-          ...(clusterIpEndpoints ?? []),
-          ...(loadBalancerEndpoints ?? []),
-          ...(nodePortEndpoints ?? []),
-        ],
-        l4EndpointToString,
+      const internalEndpoints = internalHosts.flatMap(ip =>
+        spec.ports.map(port =>
+          pipe(
+            ip,
+            parseEndpoint,
+            endpoint => l3EndpointToL4(endpoint, port.port, parseL4Protocol(port.protocol)),
+            endpoint => addEndpointMetadata(endpoint, createMetadata(true)),
+          ),
+        ),
       )
+
+      const externalHosts =
+        spec.type === "NodePort" || spec.type === "LoadBalancer"
+          ? [
+              ...spec.externalIPs,
+              ...cluster.endpoints,
+              ...(status.loadBalancer?.ingress?.map(ingress => ingress.ip ?? ingress.hostname) ??
+                []),
+            ]
+          : []
+
+      const externalEndpoints = externalHosts.flatMap(ip =>
+        spec.ports.map(port =>
+          pipe(
+            ip,
+            parseEndpoint,
+            endpoint => l3EndpointToL4(endpoint, port.port, parseL4Protocol(port.protocol)),
+            endpoint => addEndpointMetadata(endpoint, createMetadata(false)),
+          ),
+        ),
+      )
+
+      return mergeEndpoints([...internalEndpoints, ...externalEndpoints])
     })
   }
 }
@@ -316,22 +300,31 @@ export abstract class Service extends ScopedResource {
  * @param cluster The cluster where the service will be created.
  * @returns The service spec configuration.
  */
-function createServiceSpec(args: ServiceArgs, cluster: k8s.Cluster) {
+export function createServiceSpec(
+  args: Partial<ServiceArgs>,
+  cluster: k8s.Cluster,
+): Output<types.input.core.v1.ServiceSpec> {
   return output(args).apply(args => {
-    return deepmerge(
-      {
-        ports: normalize(args.port, args.ports),
+    return {
+      ...omit(args, serviceExtraArgs),
 
-        externalIPs: args.external
+      ports: normalize(args.port, args.ports),
+
+      // externalIPs: args.external
+      //   ? args.externalIPs
+      //     ? args.externalIPs
+      //     : cluster.externalIps.map(ip => ip.value)
+      //   : normalize(undefined, args.externalIPs),
+
+      // TODO: check for args.external being falsey
+      // for now we always set externalIPs since it for some reason fails if its empty
+      externalIPs:
+        args.externalIPs && args.externalIPs.length > 0
           ? args.externalIPs
-            ? args.externalIPs
-            : cluster.externalIps
-          : normalize(undefined, args.externalIPs),
+          : cluster.externalIps.map(ip => ip.value),
 
-        type: getServiceType(args, cluster),
-      },
-      omit(args, serviceExtraArgs),
-    )
+      type: getServiceType(args, cluster),
+    }
   })
 }
 
@@ -353,11 +346,8 @@ class CreatedService extends Service {
       name,
       args,
       opts,
-
-      service.apiVersion,
-      service.kind,
-      output(args.namespace),
       service.metadata,
+      output(args.namespace),
       service.spec,
       service.status,
     )
@@ -382,11 +372,8 @@ class ServicePatch extends Service {
       name,
       args,
       opts,
-
-      service.apiVersion,
-      service.kind,
-      output(args.namespace),
       service.metadata,
+      output(args.namespace),
       service.spec,
       service.status,
     )
@@ -412,11 +399,8 @@ class WrappedService extends Service {
       name,
       args,
       opts,
-
-      output(args.service).apiVersion,
-      output(args.service).kind,
-      output(args.namespace),
       output(args.service).metadata,
+      output(args.namespace),
       output(args.service).spec,
       output(args.service).status,
     )
@@ -450,11 +434,8 @@ class ExternalService extends Service {
       name,
       args,
       opts,
-
-      service.apiVersion,
-      service.kind,
-      output(args.namespace),
       service.metadata,
+      output(args.namespace),
       service.spec,
       service.status,
     )

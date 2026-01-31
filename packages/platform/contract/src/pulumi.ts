@@ -1,5 +1,6 @@
 import { parse } from "yaml"
 import { z } from "zod"
+import { entityInclusionSchema } from "./entity"
 import {
   fileMetaSchema,
   HighstateSignature,
@@ -9,6 +10,17 @@ import {
 } from "./instance"
 import { commonObjectMetaSchema } from "./meta"
 import { triggerInvocationSchema } from "./trigger"
+
+export type UnitInputReference = z.infer<typeof unitInputReference>
+
+export const unitInputReference = z.object({
+  ...instanceInputSchema.shape,
+
+  /**
+   * The resolved inclusion needed to extract the input value.
+   */
+  inclusion: entityInclusionSchema.optional(),
+})
 
 export const unitConfigSchema = z.object({
   /**
@@ -24,7 +36,7 @@ export const unitConfigSchema = z.object({
   /**
    * The record of input references for the unit.
    */
-  inputs: z.record(z.string(), instanceInputSchema.array()),
+  inputs: z.record(z.string(), unitInputReference.array()),
 
   /**
    * The list of triggers that have been invoked for this unit.

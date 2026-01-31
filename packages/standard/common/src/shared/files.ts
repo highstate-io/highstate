@@ -11,7 +11,7 @@ import { asset, type Input, toPromise } from "@highstate/pulumi"
 import { minimatch } from "minimatch"
 import * as tar from "tar"
 import unzipper from "unzipper"
-import { type InputL7Endpoint, l7EndpointToString, parseL7Endpoint } from "./network"
+import { type InputL7Endpoint, l7EndpointToString, parseEndpoint } from "./network/endpoints"
 
 export type FolderPackOptions = {
   /**
@@ -728,7 +728,7 @@ export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<numbe
  * Extracts the name from an L7 endpoint URL without its file extension.
  */
 export function getNameByEndpoint(endpoint: InputL7Endpoint): string {
-  const parsedEndpoint = parseL7Endpoint(endpoint)
+  const parsedEndpoint = parseEndpoint(endpoint, 7)
 
-  return parsedEndpoint.resource ? basename(parsedEndpoint.resource) : ""
+  return parsedEndpoint.path ? basename(parsedEndpoint.path) : ""
 }

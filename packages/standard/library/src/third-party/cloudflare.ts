@@ -47,6 +47,7 @@ export const connection = defineUnit({
   meta: {
     title: "Cloudflare Connection",
     icon: "simple-icons:cloudflare",
+    iconColor: "#F38020",
     category: "Cloudflare",
   },
 

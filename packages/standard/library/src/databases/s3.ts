@@ -1,5 +1,16 @@
-import { $args, $inputs, $secrets, defineEntity, defineUnit, z } from "@highstate/contract"
+import type { Simplify } from "type-fest"
+import {
+  $args,
+  $inputs,
+  $secrets,
+  defineEntity,
+  defineUnit,
+  type FullComponentArgumentOptions,
+  z,
+} from "@highstate/contract"
+import { mapValues } from "remeda"
 import { l4EndpointEntity } from "../network"
+import { toPatchArgs } from "../utils"
 
 export const s3BucketPolicySchema = z.enum(["none", "download", "upload", "public"])
 
@@ -37,6 +48,15 @@ const s3Args = $args({
   buckets: s3BucketSchema.array().default([]),
 })
 
+type ToOptionalArgs<T extends Record<string, FullComponentArgumentOptions>> = Simplify<{
+  [K in keyof T]: Simplify<Omit<T[K], "schema"> & { schema: z.ZodOptional<T[K]["schema"]> }>
+}>
+
+const optionalS3Args = mapValues(s3Args, arg => ({
+  ...arg,
+  schema: arg.schema.optional(),
+})) as ToOptionalArgs<typeof s3Args>
+
 const s3Secrets = $secrets({
   /**
    * The secret key used to authenticate against the S3-compatible API.
@@ -61,12 +81,14 @@ const s3Inputs = $inputs({
 export const s3Entity = defineEntity({
   type: "databases.s3.v1",
 
-  schema: z.object({
-    /**
-     * The endpoints that expose the S3-compatible API.
-     */
-    endpoints: l4EndpointEntity.schema.array(),
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
 
+  schema: z.object({
     /**
      * The region associated with the object storage instance.
      */
@@ -116,6 +138,43 @@ export const existingS3 = defineUnit({
     title: "Existing S3-Compatible Storage",
     icon: "simple-icons:amazons3",
     secondaryIcon: "mdi:bucket",
+    category: "Databases",
+  },
+})
+
+/**
+ * Patches some properties of the S3-compatible object storage and outputs the updated storage.
+ */
+export const s3Patch = defineUnit({
+  type: "databases.s3-patch.v1",
+
+  args: {
+    ...toPatchArgs(optionalS3Args),
+
+    endpoints: {
+      ...s3Args.endpoints,
+      schema: z.string().array().default([]),
+    },
+  },
+
+  inputs: {
+    s3: s3Entity,
+    ...s3Inputs,
+  },
+
+  outputs: {
+    s3: s3Entity,
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/databases/s3-patch",
+  },
+
+  meta: {
+    title: "S3 Patch",
+    icon: "simple-icons:amazons3",
+    secondaryIcon: "fluent:patch-20-filled",
     category: "Databases",
   },
 })

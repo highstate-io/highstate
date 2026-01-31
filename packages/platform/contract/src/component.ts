@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: maybe fix later */
 
 import type { Simplify } from "type-fest"
-import type { Entity } from "./entity"
+import type { Entity, implementedTypes } from "./entity"
 import type { OptionalEmptyRecords, OptionalUndefinedFields, PartialKeys } from "./utils"
 import { isNonNullish, mapValues, pickBy, uniqueBy } from "remeda"
 import { z } from "zod"
@@ -108,15 +108,15 @@ export type FullComponentInputOptions = {
 export type ComponentInputOptions = Entity | FullComponentInputOptions
 
 type ComponentInputOptionsToOutputRef<T extends ComponentInputOptions> = T extends Entity
-  ? InstanceInput<T["type"]>
+  ? InstanceInput<T[typeof implementedTypes]>
   : T extends FullComponentInputOptions
     ? T["required"] extends false
       ? T["multiple"] extends true
-        ? InstanceInput<T["entity"]["type"]>[] | undefined
-        : InstanceInput<T["entity"]["type"]> | undefined
+        ? InstanceInput<T["entity"][typeof implementedTypes]>[] | undefined
+        : InstanceInput<T["entity"][typeof implementedTypes]> | undefined
       : T["multiple"] extends true
-        ? InstanceInput<T["entity"]["type"]>[]
-        : InstanceInput<T["entity"]["type"]>
+        ? InstanceInput<T["entity"][typeof implementedTypes]>[]
+        : InstanceInput<T["entity"][typeof implementedTypes]>
     : never
 
 /**
@@ -171,6 +171,7 @@ export type InputComponentParams<
 }>
 
 export type ComponentOptions<
+  TType extends VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions>,
   TInputs extends Record<string, ComponentInputOptions>,
   TOutputs extends Record<string, ComponentInputOptions>,
@@ -181,7 +182,7 @@ export type ComponentOptions<
    *
    * Examples: `proxmox.virtual-machine.v1`, `common.server.v1`.
    */
-  type: VersionedName
+  type: TType
 
   /**
    * The extra metadata of the component.
@@ -289,15 +290,15 @@ export type ComponentModel = z.infer<typeof componentModelSchema>
 
 type InputSpecToInputRef<T extends ComponentInputSpec> = T[1] extends true
   ? T[2] extends true
-    ? InstanceInput<T[0]["type"]>[]
-    : InstanceInput<T[0]["type"]>
+    ? InstanceInput<T[0][typeof implementedTypes]>[]
+    : InstanceInput<T[0][typeof implementedTypes]>
   : T[2] extends true
-    ? InstanceInput<T[0]["type"]>[] | undefined
-    : InstanceInput<T[0]["type"]> | undefined
+    ? InstanceInput<T[0][typeof implementedTypes]>[] | undefined
+    : InstanceInput<T[0][typeof implementedTypes]> | undefined
 
 type InputSpecToOutputRef<T extends ComponentInputSpec> = T[2] extends true
-  ? InstanceInput<T[0]["type"]>[]
-  : InstanceInput<T[0]["type"]>
+  ? InstanceInput<T[0][typeof implementedTypes]>[]
+  : InstanceInput<T[0][typeof implementedTypes]>
 
 export type InputSpecMapToInputRefMap<TInputs extends Record<string, ComponentInputSpec>> =
   TInputs extends Record<string, [string, never, never]>
@@ -313,10 +314,16 @@ export const originalCreate = Symbol("originalCreate")
 export const kind = Symbol("kind")
 
 export type Component<
+  TType extends VersionedName = VersionedName,
   TArgs extends Record<string, z.ZodType> = Record<string, never>,
   TInputs extends Record<string, ComponentInputSpec> = Record<string, never>,
   TOutputs extends Record<string, ComponentInputSpec> = Record<string, never>,
 > = {
+  /**
+   * The type of the component.
+   */
+  type: TType
+
   /**
    * The non-generic model of the component.
    */
@@ -343,12 +350,14 @@ export type Component<
 }
 
 export function defineComponent<
+  TType extends VersionedName = VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions> = Record<string, never>,
   TInputs extends Record<string, ComponentInputOptions> = Record<string, never>,
   TOutputs extends Record<string, ComponentInputOptions> = Record<string, never>,
 >(
-  options: ComponentOptions<TArgs, TInputs, TOutputs>,
+  options: ComponentOptions<TType, TArgs, TInputs, TOutputs>,
 ): Component<
+  TType,
   { [K in keyof TArgs]: ComponentArgumentOptionsToSchema<TArgs[K]> },
   { [K in keyof TInputs]: ComponentInputOptionsToSpec<TInputs[K]> },
   { [K in keyof TOutputs]: ComponentInputOptionsToSpec<TOutputs[K]> }
@@ -536,7 +545,11 @@ function isSchemaOptional(schema: z.ZodType): boolean {
 export function mapArgument(value: ComponentArgumentOptions, key: string): ComponentArgument {
   if ("schema" in value) {
     return {
-      schema: z.toJSONSchema(value.schema, { target: "draft-7", io: "input" }),
+      schema: z.toJSONSchema(value.schema, {
+        target: "draft-7",
+        io: "input",
+        unrepresentable: "any",
+      }),
       [runtimeSchema]: value.schema,
       required: !isSchemaOptional(value.schema),
       meta: {
@@ -547,7 +560,7 @@ export function mapArgument(value: ComponentArgumentOptions, key: string): Compo
   }
 
   return {
-    schema: z.toJSONSchema(value, { target: "draft-7", io: "input" }),
+    schema: z.toJSONSchema(value, { target: "draft-7", io: "input", unrepresentable: "any" }),
     [runtimeSchema]: value,
     required: !isSchemaOptional(value),
     meta: {

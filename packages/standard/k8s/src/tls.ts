@@ -3,7 +3,6 @@ import type { types } from "@pulumi/kubernetes"
 import { cert_manager, type types as cmTypes } from "@highstate/cert-manager"
 import { getOrCreate } from "@highstate/contract"
 import {
-  ComponentResource,
   type ComponentResourceOptions,
   type Input,
   type Inputs,
@@ -15,7 +14,13 @@ import {
 import { omit } from "remeda"
 import { Namespace } from "./namespace"
 import { Secret } from "./secret"
-import { commonExtraArgs, getProvider, mapMetadata, type ScopedResourceArgs } from "./shared"
+import {
+  commonExtraArgs,
+  getProvider,
+  mapMetadata,
+  NamespacedResource,
+  type ScopedResourceArgs,
+} from "./shared"
 
 export type CertificateArgs = ScopedResourceArgs & cmTypes.input.cert_manager.v1.CertificateSpec
 
@@ -29,7 +34,10 @@ export type CreateOrGetCertificateArgs = CertificateArgs & {
 /**
  * Represents a cert-manager Certificate resource with metadata and secret.
  */
-export abstract class Certificate extends ComponentResource {
+export abstract class Certificate extends NamespacedResource {
+  static readonly apiVersion = "cert-manager.io/v1"
+  static readonly kind = "Certificate"
+
   private _secret?: Output<Secret>
 
   protected constructor(
@@ -38,15 +46,8 @@ export abstract class Certificate extends ComponentResource {
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    /**
-     * The namespace where the certificate is located.
-     */
-    readonly namespace: Output<Namespace>,
-
-    /**
-     * The metadata of the underlying cert-manager certificate.
-     */
-    readonly metadata: Output<types.output.meta.v1.ObjectMeta>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The spec of the underlying cert-manager certificate.
@@ -58,26 +59,14 @@ export abstract class Certificate extends ComponentResource {
      */
     readonly status: Output<cmTypes.output.cert_manager.v1.CertificateStatus>,
   ) {
-    super(type, name, args, opts)
-  }
-
-  /**
-   * The cluster where the certificate is located.
-   */
-  get cluster(): Output<k8s.Cluster> {
-    return this.namespace.cluster
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
    * The Highstate certificate entity.
    */
-  get entity(): Output<k8s.ScopedResource> {
-    return output({
-      type: "certificate",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+  get entity(): Output<k8s.NamespacedResource> {
+    return output(this.entityBase)
   }
 
   /**
@@ -252,8 +241,8 @@ class CreatedCertificate extends Certificate {
       args,
       opts,
 
-      output(args.namespace),
       certificate.metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       certificate.spec,
       certificate.status,
     )
@@ -279,8 +268,8 @@ class CertificatePatch extends Certificate {
       args,
       opts,
 
-      output(args.namespace),
       certificate.metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       certificate.spec,
       certificate.status,
     )
@@ -307,8 +296,8 @@ class WrappedCertificate extends Certificate {
       args,
       opts,
 
-      output(args.namespace),
       output(args.certificate).metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       output(args.certificate).spec,
       output(args.certificate).status,
     )
@@ -343,8 +332,8 @@ class ExternalCertificate extends Certificate {
       args,
       opts,
 
-      output(args.namespace),
       certificate.metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       certificate.spec,
       certificate.status,
     )

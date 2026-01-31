@@ -16,7 +16,7 @@ import {
   type InstanceModel,
 } from "@highstate/contract"
 import { useNode, type ValidConnectionFunc } from "@vue-flow/core"
-import { ComponentCard } from "#layers/core/app/features/shared"
+import { ComponentCard, ComponentIcon } from "#layers/core/app/features/shared"
 import {
   InstanceArgumentEditor,
   InstanceSecretEditor,
@@ -26,7 +26,7 @@ import InstanceStatusFieldList from "./InstanceStatusFieldList.vue"
 import InstanceNodeActions from "./InstanceNodeActions.vue"
 import InstanceNodeLockBadge from "./InstanceNodeLockBadge.vue"
 import InstanceNodeIO from "./InstanceNodeIO.vue"
-import { computed } from "vue"
+import { computed, type ComponentInstance } from "vue"
 import { getBlueprintStatus } from "#layers/core/app/features/blueprint"
 
 const {
@@ -84,7 +84,7 @@ defineSlots<{
   status: []
 }>()
 
-const editingSecrets = defineModel<boolean>("editingSecrets")
+const editingSecrets = defineModel<boolean>("editingSecrets", { default: false })
 const editingArgs = ref(false)
 
 const hasInputs = computed(() => Object.keys(component.inputs).length > 0)
@@ -146,6 +146,13 @@ const usedOutputs = computed(() => {
   return usedOutputs
 })
 
+watch(usedOutputs, value => {
+  if (value.size === 0) return
+
+  // TODO: call in central place
+  vueFlowStore.updateNodeInternals([node.node.id])
+})
+
 const { vueFlowStore, selection } = useCanvasStore()
 
 const node = useNode()
@@ -153,6 +160,19 @@ const blueprintStatus = computed(() => getBlueprintStatus(node.node, vueFlowStor
 
 const isConnecting = computed(
   () => vueFlowStore.connectionStartHandle.value?.nodeId === node.node.id,
+)
+
+const componentCardRef: Ref<ComponentInstance<typeof ComponentCard> | null> =
+  useTemplateRef("componentCard")
+
+// show big icon instead of the component card when zoomed out
+const showIconOverlay = computed(() => vueFlowStore.viewport.value.zoom < 0.5)
+
+const overlayIconSize = computed(() =>
+  componentCardRef.value
+    ? Math.min(componentCardRef.value.$el.clientWidth, componentCardRef.value.$el.clientHeight) *
+      0.7
+    : 0,
 )
 </script>
 
@@ -165,6 +185,7 @@ const isConnecting = computed(
     :selected="selection.isNodeSelected(node.node)"
     style="overflow: visible"
     @contextmenu="emit('contextmenu', $event)"
+    ref="componentCard"
   >
     <slot />
 
@@ -192,12 +213,12 @@ const isConnecting = computed(
       :instance="instance"
       :component="component"
       :state="state"
-      :allInstances="allInstances"
+      :all-instances="allInstances"
       @save="(instanceId, newName, newArgs) => emit('save:args', instanceId, newName, newArgs)"
     />
 
     <InstanceSecretEditor
-      v-if="state && isUnitModel(component) && editingSecrets"
+      v-if="isUnitModel(component) && editingSecrets"
       v-model="editingSecrets"
       :instance="instance"
       :state="state"
@@ -222,7 +243,7 @@ const isConnecting = computed(
         :resolved-inputs="resolvedInputs"
         :resolved-injection-input="resolvedInjectionInput"
         :force-show-all-handles="isConnecting"
-        :prevent-show-all-handles="editingArgs || editingSecrets || !editable"
+        :prevent-show-all-handles="editingArgs || editingSecrets || !editable || showIconOverlay"
       />
     </template>
 
@@ -242,7 +263,7 @@ const isConnecting = computed(
       :ghost="ghost"
       :hide-show-composite="hideShowComposite"
       @open:args="editingArgs = true"
-      @open:secrets="emit('open:secrets')"
+      @open:secrets="state ? emit('open:secrets') : (editingSecrets = true)"
       @open:terminal="emit('open:terminal')"
       @open:page="emit('open:page')"
       @open:composite="emit('open:composite')"
@@ -255,14 +276,17 @@ const isConnecting = computed(
     </InstanceNodeActions>
   </ComponentCard>
 
-  <!-- <ComponentNodePageDialog
-    v-if="state.pageIds.length > 0 && pageMeta"
-    v-model:visible="pageVisible"
-    :project-id="projectStore.projectId"
-    :instance-id="instance.id"
-    :meta="pageMeta"
-    :content="pageContent"
-  /> -->
+  <VOverlay
+    v-model="showIconOverlay"
+    scrim="#1e1e1e"
+    :opacity="1"
+    absolute
+    class="align-center justify-center"
+    :style="`border: 3px solid ${component.meta.iconColor ?? '#3f51b5'}; border-radius: 8px`"
+    contained
+  >
+    <ComponentIcon :meta="component.meta" :size="overlayIconSize" />
+  </VOverlay>
 </template>
 
 <style scoped>

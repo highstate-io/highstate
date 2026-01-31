@@ -1,6 +1,6 @@
 import type { k8s, network } from "@highstate/library"
 import type { Input } from "@pulumi/pulumi"
-import { parseL4Endpoint } from "@highstate/common"
+import { parseEndpoint } from "@highstate/common"
 import { Namespace, requireBestEndpoint } from "@highstate/k8s"
 import { toPromise } from "@highstate/pulumi"
 import * as images from "../assets/images.json"
@@ -30,7 +30,11 @@ export async function getDeobfuscatorComponents(
   })
 
   const resolvedTargetInputs = await toPromise(inputs.targetEndpoints)
-  const targetEndpoints = [...args.targetEndpoints.map(parseL4Endpoint), ...resolvedTargetInputs]
+
+  const targetEndpoints = [
+    ...args.targetEndpoints.map(endpoint => parseEndpoint(endpoint, 4)),
+    ...resolvedTargetInputs,
+  ]
 
   const bestTargetEndpoint = requireBestEndpoint(targetEndpoints, cluster)
 
@@ -52,7 +56,11 @@ export async function getObfuscatorComponents(
   })
 
   const resolvedEndpoints = await toPromise(inputs.endpoints)
-  const endpoints = [...args.endpoints.map(parseL4Endpoint), ...resolvedEndpoints]
+
+  const endpoints = [
+    ...args.endpoints.map(endpoint => parseEndpoint(endpoint, 4)),
+    ...resolvedEndpoints,
+  ]
 
   const bestEndpoint = requireBestEndpoint(endpoints, cluster)
 

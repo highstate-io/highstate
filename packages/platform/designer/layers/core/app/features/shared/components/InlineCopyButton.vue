@@ -18,7 +18,7 @@ const icon = computed(() => (copied.value ? "mdi-check" : "mdi-content-copy"))
 .copy-button {
   min-width: 0;
   width: 12px;
-  height: 16px;
+  height: 16px !important;
   align-self: center;
 }
 </style>

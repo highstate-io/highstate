@@ -108,9 +108,9 @@ const createRouter = async (
 
   const router: Router = new avoid.Router(avoid.OrthogonalRouting)
 
-  router.setRoutingParameter(avoid.idealNudgingDistance, 40)
+  router.setRoutingParameter(avoid.idealNudgingDistance, 6)
   router.setRoutingParameter(avoid.shapeBufferDistance, 40)
-  router.setRoutingOption(avoid.nudgeOrthogonalTouchingColinearSegments, false)
+  router.setRoutingOption(avoid.nudgeOrthogonalTouchingColinearSegments, true)
   router.setRoutingOption(avoid.performUnifyingNudgingPreprocessingStep, true)
   router.setRoutingOption(avoid.nudgeSharedPathsWithCommonEndPoint, false)
 

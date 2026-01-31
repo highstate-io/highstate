@@ -1,13 +1,13 @@
 import { network } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { filterEndpoints } from "../../../shared"
+import { filterByExpression } from "../../../shared"
 
 const { args, inputs, outputs } = forUnit(network.endpointFilter)
 
-const l3EndpointsResolved = await toPromise(inputs.l3Endpoints)
-const l4EndpointsResolved = await toPromise(inputs.l4Endpoints)
+const resolvedInputs = await toPromise(inputs)
 
 export default outputs({
-  l3Endpoints: filterEndpoints(l3EndpointsResolved, args.endpointFilter),
-  l4Endpoints: filterEndpoints(l4EndpointsResolved, args.endpointFilter),
+  l3Endpoints: filterByExpression(resolvedInputs.l3Endpoints, args.endpointFilter),
+  l4Endpoints: filterByExpression(resolvedInputs.l4Endpoints, args.endpointFilter),
+  l7Endpoints: filterByExpression(resolvedInputs.l7Endpoints, args.endpointFilter),
 })

@@ -10,11 +10,14 @@ const {
   canvasId,
   editable = false,
   minimap = true,
+  interactive = true,
+  inputResolverOutputs,
 } = defineProps<{
   canvasId: CanvasId
   inputResolverOutputs: ReadonlyMap<string, InputResolverOutput>
   components: Record<string, ComponentModel>
   entities: Record<string, EntityModel>
+  interactive?: boolean
   editable?: boolean
   minimap?: boolean
 }>()
@@ -34,6 +37,10 @@ defineSlots<{
 }>()
 
 const canvasStore = useCanvasStore.ensureCreated(...canvasId)
+
+watchEffect(() => {
+  canvasStore.edgeEndpointOffsets.setInputResolverOutputs(inputResolverOutputs)
+})
 emit("init", canvasStore)
 </script>
 
@@ -41,7 +48,7 @@ emit("init", canvasStore)
   <ClientOnly>
     <div class="vue-flow-container">
       <VueFlow
-        :min-zoom="0.5"
+        :min-zoom="0.1"
         :max-zoom="1"
         :snap-to-grid="true"
         @dragover="emit('dragover', $event)"
@@ -75,17 +82,19 @@ emit("init", canvasStore)
         </template>
 
         <Panel position="top-left">
-          Hold Control to add nodes to selection and Alt to remove them
-          <br />
-
-          <div v-if="editable">Press Ctrl+V to paste blueprint from clipboard</div>
-
-          <div v-if="canvasStore.selection.selectedNodeIds.size > 0">
-            Selected {{ canvasStore.selection.selectedNodeIds.size }} nodes
+          <div v-if="interactive">
+            Hold Control to add nodes to selection and Alt to remove them
             <br />
-            Press Escape to clear selection
-            <br />
-            Press Ctrl+C to copy selected nodes to clipboard
+
+            <div v-if="editable">Press Ctrl+V to paste blueprint from clipboard</div>
+
+            <div v-if="canvasStore.selection.selectedNodeIds.size > 0">
+              Selected {{ canvasStore.selection.selectedNodeIds.size }} nodes
+              <br />
+              Press Escape to clear selection
+              <br />
+              Press Ctrl+C to copy selected nodes to clipboard
+            </div>
           </div>
         </Panel>
 

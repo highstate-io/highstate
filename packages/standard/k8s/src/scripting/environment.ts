@@ -1,4 +1,4 @@
-import type { InputL34Endpoint } from "@highstate/common"
+import type { InputEndpoint } from "@highstate/common"
 import type { Input, InputArray, InputRecord } from "@highstate/pulumi"
 import type { ContainerEnvironment, ContainerVolumeMount, WorkloadVolume } from "../container"
 
@@ -35,7 +35,7 @@ export type DistributionEnvironment = {
    *
    * Will be used to generate a network policy.
    */
-  allowedEndpoints?: InputArray<InputL34Endpoint>
+  allowedEndpoints?: InputArray<InputEndpoint>
 }
 
 export type ScriptProgram = () => unknown
@@ -78,7 +78,7 @@ export type ScriptEnvironment = {
    *
    * Will be used to generate a network policy.
    */
-  allowedEndpoints?: InputArray<InputL34Endpoint>
+  allowedEndpoints?: InputArray<InputEndpoint>
 }
 
 export type ResolvedScriptEnvironment = Omit<Required<ScriptEnvironment>, ScriptDistribution> & {

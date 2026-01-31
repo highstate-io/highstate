@@ -6,7 +6,7 @@ const { args, secrets, inputs, outputs } = forUnit(databases.existingMariadb)
 
 export default outputs({
   mariadb: {
-    endpoints: parseEndpoints(args.endpoints, inputs.endpoints),
+    endpoints: parseEndpoints(args.endpoints, inputs.endpoints, 4),
     username: args.username,
     password: secrets.password,
     database: args.database,

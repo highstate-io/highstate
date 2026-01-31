@@ -42,6 +42,15 @@ const abortMessagePatterns = [
 ]
 
 export function isAbortErrorLike(error: unknown): boolean {
+  if (error instanceof AggregateError) {
+    const errors = Array.from(error.errors ?? [])
+    if (errors.length === 0) {
+      return false
+    }
+
+    return errors.every(isAbortErrorLike)
+  }
+
   if (isAbortError(error)) {
     return true
   }

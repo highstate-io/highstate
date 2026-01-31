@@ -1,0 +1,8 @@
+name: stub
+runtime: nodejs
+packages:
+  etcd:
+    source: terraform-provider
+    version: 0.7.0
+    parameters:
+      - ferlab-ste-justine/etcd

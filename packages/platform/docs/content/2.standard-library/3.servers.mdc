@@ -1,0 +1,90 @@
+---
+title: Servers
+description: Managing servers with Highstate's Standard Library.
+navigation:
+  icon: i-mdi-server
+---
+
+## Overview
+
+In Highstate, any server can be represented as a `common.server.v1` entity.
+
+Strictly speaking, a server is everything that:
+
+- has network connectivity and endpoints; 
+- optionally, has SSH access available on these endpoints;
+- has `hostname` defined (which can be arbitrary string and used for display purposes).
+
+In other words, a server is "something more than just a bunch of endpoints".
+And this is quite broad definition that can cover a wide range of use cases.
+
+You can use servers to represent:
+
+- physical machines;
+- virtual machines;
+- containers;
+- routers;
+- IoT devices
+- and more.
+
+The server entity includes the array of `network.l3-endpoint.v1` entities:
+
+::mermaid
+graph TD
+  Server -- includes (multiple) --> L3Endpoint
+::
+
+It means that in any place where a list of L3 endpoints is expected, you can just provide a server (or a list of servers) instead.
+
+## Existing Server
+
+The most simple way to start working with server is to use `common.existing-server.v1` component:
+
+::designer-preview{title="Existing Server" type="snippet" id="standard-library/servers/existing-server"}
+::
+
+It allows you to bring any existing server into Highstate management by providing its endpoints + SSH private key or password.
+
+You can also use separate `ssh.key-pair.v1` component to generate key pair and make server use it for SSH access:
+
+::designer-preview{title="Existing Server with Key Pair" type="snippet" id="standard-library/servers/existing-server-with-key-pair"}
+::
+
+In this case, you must first run the `ssh.key-pair.v1` component to generate the key pair,
+copy the public key to the server's `~/.ssh/authorized_keys` file,
+and then run the `common.existing-server.v1` component to verify the connectivity.
+
+::tip
+Highstate prevents MITM attacks by automatically verifying the server's host key during all SSH connections.
+The host key is fetched on the first connection and stored in the `hostKey` secret.
+If the server identity is changed and you want to update the host key, you can clear this secret and re-run the component.
+::
+
+## Running Commands
+
+You can run commands on any server using the `common.command.v1` component:
+
+::designer-preview{title="Run Command on Server" type="snippet" id="standard-library/servers/run-command-on-server"}
+::
+
+This component outputs the same `common.server.v1` as the input server,
+allowing you to define multiple commands to be run on the same server in sequence
+before using it for other purposes.
+
+You can also run commands programmatically:
+
+```ts
+import { common } from "@highstate/library"
+import { Command } from "@highstate/common"
+
+// run command on server
+new Command("my-command", {
+  host: server, // pass common.server.v1 here
+  create: `echo "some setup command"`,
+  update: `echo "some command to run on update"`,
+  delete: `echo "some cleanup command"`,
+
+  triggers: [/* any values that will be hashed and trigger command replacement when changed */],
+  updateTriggers: [/* any values that will be hashed and trigger command update when changed */],
+})
+```

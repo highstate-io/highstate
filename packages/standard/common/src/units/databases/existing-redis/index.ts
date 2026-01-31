@@ -12,7 +12,7 @@ if (redisDatabase !== undefined && Number.isNaN(redisDatabase)) {
 
 export default outputs({
   redis: {
-    endpoints: parseEndpoints(args.endpoints, inputs.endpoints),
+    endpoints: parseEndpoints(args.endpoints, inputs.endpoints, 4),
     database: redisDatabase ?? 0,
   },
 })

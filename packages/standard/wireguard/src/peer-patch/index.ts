@@ -1,49 +1,25 @@
-import { l3EndpointToString, l4EndpointToString, updateEndpoints } from "@highstate/common"
+import { l4EndpointToString, parseEndpoints, parseSubnets, subnetToString } from "@highstate/common"
 import { wireguard } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { calculateAllowedEndpoints, calculateAllowedIps, calculateEndpoints } from "../shared"
 
 const { args, inputs, outputs } = forUnit(wireguard.peerPatch)
 
-const resolvedInputs = await toPromise(inputs)
+const peer = await toPromise(inputs.peer)
+const endpoints = await parseEndpoints(args.endpoints, inputs.endpoints, 4)
+const allowedSubnets = await parseSubnets(args.allowedSubnets, inputs.allowedSubnets)
 
-const endpoints = await updateEndpoints(
-  inputs.peer.endpoints,
-  [],
-  calculateEndpoints({ ...args, listenPort: resolvedInputs.peer.listenPort }, resolvedInputs),
-  args.endpointsPatchMode,
-)
-
-const allowedEndpoints = await updateEndpoints(
-  inputs.peer.allowedEndpoints,
-  [],
-  calculateAllowedEndpoints(args, resolvedInputs),
-  args.allowedEndpointsPatchMode,
-)
+const newEndpoints = endpoints.length > 0 ? endpoints : peer.endpoints
+const newAllowedSubnets = allowedSubnets.length > 0 ? allowedSubnets : peer.allowedSubnets
 
 export default outputs({
-  peer: {
-    ...resolvedInputs.peer,
-    endpoints,
-    allowedEndpoints,
-    dns: args.dns.length > 0 ? args.dns : resolvedInputs.peer.dns,
-    allowedIps: calculateAllowedIps(
-      { address: args.address ?? resolvedInputs.peer.address, exitNode: args.exitNode },
-      resolvedInputs,
-      allowedEndpoints,
-    ),
-  },
-
-  endpoints,
+  peer: inputs.peer.apply(peer => ({
+    ...peer,
+    endpoints: newEndpoints,
+    allowedSubnets: newAllowedSubnets,
+  })),
 
   $statusFields: {
-    endpoints: {
-      value: endpoints.map(l4EndpointToString),
-      complementaryTo: "endpoints",
-    },
-    allowedEndpoints: {
-      value: allowedEndpoints.map(l3EndpointToString),
-      complementaryTo: "allowedEndpoints",
-    },
+    endpoints: endpoints.map(l4EndpointToString),
+    allowedSubnets: allowedSubnets.map(subnetToString),
   },
 })

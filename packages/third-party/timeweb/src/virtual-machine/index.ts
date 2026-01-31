@@ -2,7 +2,7 @@ import {
   createServerBundle,
   generateSshPrivateKey,
   l3EndpointToString,
-  parseL3Endpoint,
+  parseEndpoint,
   sshPrivateKeyToKeyPair,
 } from "@highstate/common"
 import { timeweb } from "@highstate/library"
@@ -53,7 +53,7 @@ new TimewebServer(
 )
 
 const serverIp = await toPromise(floatingIp.ip)
-const endpoint = parseL3Endpoint(serverIp)
+const endpoint = parseEndpoint(serverIp)
 
 const { server, terminal } = await createServerBundle({
   name: vmName,
@@ -65,7 +65,6 @@ const { server, terminal } = await createServerBundle({
 
 export default outputs({
   server,
-  endpoints: [endpoint],
 
   $statusFields: {
     hostname: {

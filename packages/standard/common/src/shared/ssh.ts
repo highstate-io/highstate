@@ -13,7 +13,7 @@ import getKeys, { PrivateExport } from "micro-key-producer/ssh.js"
 import { randomBytes } from "micro-key-producer/utils.js"
 import * as images from "../../assets/images.json"
 import { Command } from "./command"
-import { l3EndpointToL4, l3EndpointToString } from "./network"
+import { l3EndpointToL4, l3EndpointToString } from "./network/endpoints"
 
 export async function createSshTerminal(
   credentials: Input<ssh.Connection>,

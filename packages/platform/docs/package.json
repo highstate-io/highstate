@@ -6,9 +6,12 @@
     "build": "NODE_OPTIONS=--max-old-space-size=4096 nuxt build",
     "build-image": "docker build . -t ghcr.io/highstate-io/highstate/docs --load",
     "push-image": "docker push ghcr.io/highstate-io/highstate/docs",
-    "deploy-image": "./scripts/deploy.sh"
+    "deploy-image": "./scripts/deploy.sh",
+    "update-thumbnails": "ts-node ./scripts/update-thumbnails.mts"
   },
   "dependencies": {
+    "@barzhsieh/nuxt-content-mermaid": "2.2.1",
+    "@braintree/sanitize-url": "^7.1.2",
     "@highstate/contract": "workspace:*",
     "@highstate/designer": "workspace:*",
     "@highstate/library": "workspace:*",
@@ -16,7 +19,10 @@
     "@nuxt/ui": "^4.0.1",
     "@nuxtjs/mdc": "^0.18.0",
     "better-sqlite3": "^12.4.1",
+    "dayjs": "^1.11.19",
+    "debug": "^4.4.3",
     "docus": "^5.1.0",
+    "html2canvas-pro": "^1.6.3",
     "nuxt": "^4.1.2",
     "unist-util-visit": "^5.0.0",
     "zod": "^3",
@@ -26,6 +32,7 @@
     "@vueuse/core": "^13.9.0",
     "@vueuse/nuxt": "12.0.0",
     "less": "^4.4.0",
+    "playwright": "^1.57.0",
     "postcss-prefix-selector": "^2.1.1",
     "vuetify": "^3.10.5"
   },

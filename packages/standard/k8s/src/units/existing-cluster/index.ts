@@ -1,8 +1,11 @@
 import {
   l3EndpointToString,
   l4EndpointToString,
-  parseL3Endpoint,
-  parseL4Endpoint,
+  mergeAddresses,
+  mergeEndpoints,
+  parseAddress,
+  parseEndpoint,
+  parseEndpoints,
 } from "@highstate/common"
 import { type ImplementationReference, k8s } from "@highstate/library"
 import { forUnit, secret, toPromise } from "@highstate/pulumi"
@@ -10,7 +13,7 @@ import { AppsV1Api, KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
 import { createK8sTerminal, detectExternalIps } from "../../cluster"
 
-const { name, args, secrets, outputs } = forUnit(k8s.existingCluster)
+const { name, args, inputs, secrets, outputs } = forUnit(k8s.existingCluster)
 
 const kubeconfigContent = await toPromise(secrets.kubeconfig.apply(JSON.stringify))
 
@@ -35,11 +38,29 @@ if (hasCilium) {
   }
 }
 
-const externalIps =
-  args.externalIps ?? (await detectExternalIps(kubeConfig, args.internalIpsPolicy))
+// calculate external IPs
+let externalIps = args.externalIps.map(parseAddress)
 
-const endpoints = externalIps.map(parseL3Endpoint)
-const apiEndpoints = [parseL4Endpoint(kubeConfig.clusters[0].server.replace("https://", ""))]
+if (args.autoDetectExternalIps) {
+  const detectedIps = await detectExternalIps(kubeConfig, args.internalIpsPolicy)
+  externalIps = mergeAddresses([...externalIps, ...detectedIps])
+}
+
+// calculate endpoints
+let endpoints = await parseEndpoints(args.endpoints, inputs.endpoints)
+
+if (args.useExternalIpsAsEndpoints) {
+  const ipEndpoints = externalIps.map(ip => parseEndpoint(ip))
+  endpoints = mergeEndpoints([...endpoints, ...ipEndpoints])
+}
+
+// calculate api endpoints
+let apiEndpoints = await parseEndpoints(args.apiEndpoints, inputs.endpoints, 4)
+
+if (args.useKubeconfigApiEndpoint) {
+  const configEndpoint = parseEndpoint(kubeConfig.clusters[0].server.replace("https://", ""), 4)
+  apiEndpoints = mergeEndpoints([configEndpoint, ...apiEndpoints])
+}
 
 const kubeSystem = core.v1.Namespace.get("kube-system", "kube-system", { provider })
 
@@ -55,9 +76,6 @@ export default outputs({
     quirks: args.quirks,
     kubeconfig: secret(kubeconfigContent),
   },
-
-  endpoints,
-  apiEndpoints,
 
   $terminals: [createK8sTerminal(kubeconfigContent)],
 

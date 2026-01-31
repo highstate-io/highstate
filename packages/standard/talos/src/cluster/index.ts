@@ -1,11 +1,6 @@
 import type { Input } from "@highstate/pulumi"
 import { readFile } from "node:fs/promises"
-import {
-  filterEndpoints,
-  l3EndpointToL4,
-  l3EndpointToString,
-  l4EndpointToString,
-} from "@highstate/common"
+import { l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { RenderedChart } from "@highstate/k8s"
 import { type common, talos } from "@highstate/library"
@@ -258,9 +253,9 @@ export default outputs({
 
     name: clusterName,
 
-    externalIps: filterEndpoints(endpoints, ["public", "external"])
+    externalIps: endpoints
       .filter(endpoint => endpoint.type !== "hostname")
-      .map(l3EndpointToString),
+      .map(endpoint => endpoint.address),
 
     endpoints,
     apiEndpoints,
@@ -280,9 +275,6 @@ export default outputs({
     clientConfiguration,
     machineSecrets,
   },
-
-  endpoints,
-  apiEndpoints,
 
   $terminals: {
     management: {

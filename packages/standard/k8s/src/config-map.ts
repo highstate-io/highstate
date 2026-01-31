@@ -11,7 +11,7 @@ import {
   output,
 } from "@pulumi/pulumi"
 import { Namespace } from "./namespace"
-import { getProvider, mapMetadata, ScopedResource, type ScopedResourceArgs } from "./shared"
+import { getProvider, mapMetadata, NamespacedResource, type ScopedResourceArgs } from "./shared"
 
 export type ConfigMapArgs = ScopedResourceArgs &
   Omit<types.input.core.v1.ConfigMap, "kind" | "metadata" | "apiVersion">
@@ -20,42 +20,38 @@ export type CreateOrGetConfigMapArgs = ConfigMapArgs & {
   /**
    * The config map entity to patch/retrieve.
    */
-  existing: Input<k8s.ScopedResource> | undefined
+  existing: Input<k8s.NamespacedResource> | undefined
 }
 
 /**
  * Represents a Kubernetes ConfigMap resource with metadata and data.
  */
-export abstract class ConfigMap extends ScopedResource {
+export abstract class ConfigMap extends NamespacedResource {
+  static apiVersion = "v1"
+  static kind = "ConfigMap"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
-    namespace: Output<Namespace>,
     metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The data of the underlying Kubernetes config map.
      */
     readonly data: Output<Record<string, string>>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
    * The Highstate config map entity.
    */
-  get entity(): Output<k8s.ScopedResource> {
-    return output({
-      type: "config-map",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+  get entity(): Output<k8s.ConfigMap> {
+    return output(this.entityBase)
   }
 
   /**
@@ -156,7 +152,7 @@ export abstract class ConfigMap extends ScopedResource {
    * @param entity The entity to get the config map for.
    * @param cluster The cluster where the config map is located.
    */
-  static for(entity: k8s.ScopedResource, cluster: Input<k8s.Cluster>): ConfigMap {
+  static for(entity: k8s.NamespacedResource, cluster: Input<k8s.Cluster>): ConfigMap {
     return getOrCreate(
       ConfigMap.configMapCache,
       `${entity.clusterName}.${entity.metadata.namespace}.${entity.metadata.name}.${entity.clusterId}`,
@@ -181,7 +177,7 @@ export abstract class ConfigMap extends ScopedResource {
    * @param cluster The cluster where the config map is located.
    */
   static async forAsync(
-    entity: Input<k8s.ScopedResource>,
+    entity: Input<k8s.NamespacedResource>,
     cluster: Input<k8s.Cluster>,
   ): Promise<ConfigMap> {
     const resolvedEntity = await toPromise(entity)
@@ -211,10 +207,8 @@ class CreatedConfigMap extends ConfigMap {
       name,
       args,
       opts,
-      configMap.apiVersion,
-      configMap.kind,
-      output(args.namespace),
       configMap.metadata,
+      output(args.namespace),
       configMap.data,
     )
   }
@@ -242,10 +236,8 @@ class ConfigMapPatch extends ConfigMap {
       name,
       args,
       opts,
-      configMap.apiVersion,
-      configMap.kind,
-      output(args.namespace),
       configMap.metadata,
+      output(args.namespace),
       configMap.data,
     )
   }
@@ -270,11 +262,8 @@ class WrappedConfigMap extends ConfigMap {
       name,
       args,
       opts,
-
-      output(args.configMap).apiVersion,
-      output(args.configMap).kind,
-      output(args.namespace),
       output(args.configMap).metadata,
+      output(args.namespace),
       output(args.configMap).data,
     )
   }
@@ -307,11 +296,8 @@ class ExternalConfigMap extends ConfigMap {
       name,
       args,
       opts,
-
-      configMap.apiVersion,
-      configMap.kind,
-      output(args.namespace),
       configMap.metadata,
+      output(args.namespace),
       configMap.data,
     )
   }

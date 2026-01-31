@@ -103,6 +103,7 @@ export class PlanTestBuilder {
       kind: instance.kind,
       parentId: null,
       parentInstanceId: instance.parentId ?? null,
+      selfHash: null,
       inputHash: null,
       outputHash: null,
       dependencyOutputHash: null,

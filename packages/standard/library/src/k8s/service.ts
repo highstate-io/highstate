@@ -1,8 +1,9 @@
+import type { Simplify } from "type-fest"
 import { defineEntity, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
-import { scopedResourceSchema } from "./resources"
+import { namespacedResourceEntity } from "./resources"
 
-export const endpointServiceMetadataSchema = z.object({
+export const serviceEndpointMetadataSchema = z.object({
   "k8s.service": z.object({
     /**
      * The ID of the cluster where the service is located.
@@ -25,6 +26,11 @@ export const endpointServiceMetadataSchema = z.object({
     namespace: z.string(),
 
     /**
+     * Whether this endpoint is only accessible within the cluster.
+     */
+    isInternal: z.boolean(),
+
+    /**
      * The selector of the service.
      */
     selector: z.record(z.string(), z.string()),
@@ -39,18 +45,23 @@ export const endpointServiceMetadataSchema = z.object({
 export const serviceEndpointSchema = z.intersection(
   l4EndpointEntity.schema,
   z.object({
-    metadata: endpointServiceMetadataSchema,
+    metadata: serviceEndpointMetadataSchema,
   }),
 )
 
 export const serviceEntity = defineEntity({
   type: "k8s.service.v1",
 
-  schema: z.object({
-    ...scopedResourceSchema.shape,
-    type: z.literal("service"),
-    endpoints: serviceEndpointSchema.array(),
-  }),
+  extends: { namespacedResourceEntity },
+
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
+
+  schema: z.unknown(),
 
   meta: {
     color: "#2196F3",
@@ -59,7 +70,7 @@ export const serviceEntity = defineEntity({
 
 export const serviceTypeSchema = z.enum(["NodePort", "LoadBalancer", "ClusterIP"])
 
-export type EndpointServiceMetadata = z.infer<typeof endpointServiceMetadataSchema>
-export type ServiceEndpoint = z.infer<typeof serviceEndpointSchema>
+export type EndpointServiceMetadata = z.infer<typeof serviceEndpointMetadataSchema>
+export type ServiceEndpoint = Simplify<z.infer<typeof serviceEndpointSchema>>
 export type ServiceType = z.infer<typeof serviceTypeSchema>
 export type Service = z.infer<typeof serviceEntity.schema>

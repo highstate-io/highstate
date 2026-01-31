@@ -4,7 +4,10 @@ export default defineNuxtConfig({
   extends: ["docus", "../designer/layers/core"],
   ogImage: { enabled: false },
 
-  modules: ["@vueuse/nuxt"],
+  modules: [
+    "@vueuse/nuxt",
+    "@barzhsieh/nuxt-content-mermaid",
+  ],
 
   site: {
     name: "Highstate",
@@ -12,7 +15,7 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ["debug"],
+      include: ["debug", "dayjs"],
     },
   },
 

@@ -92,7 +92,6 @@ const wgConfig = generateIdentityConfig({
   postUp,
   preDown,
   postDown,
-  defaultInterface: args.defaultInterface,
 })
 
 // create WireGuard configuration file

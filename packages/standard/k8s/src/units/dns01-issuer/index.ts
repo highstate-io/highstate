@@ -28,7 +28,7 @@ new cert_manager.v1.ClusterIssuer(
             dns01: dns01SolverMediator.callOutput(inputs.dnsProvider.implRef, {
               namespace: certManagerNs,
             }),
-            selector: { dnsZones: [inputs.dnsProvider.domain] },
+            selector: { dnsZones: inputs.dnsProvider.zones },
           },
         ],
         privateKeySecretRef: {
@@ -41,12 +41,8 @@ new cert_manager.v1.ClusterIssuer(
 )
 
 export default outputs({
-  $statusFields: {
-    domain: inputs.dnsProvider.domain,
-  },
-
   tlsIssuer: {
-    domain: inputs.dnsProvider.domain,
+    zones: inputs.dnsProvider.zones,
     implRef: {
       package: "@highstate/k8s",
       data: {
@@ -54,5 +50,9 @@ export default outputs({
         cluster: inputs.k8sCluster,
       },
     },
+  },
+
+  $statusFields: {
+    zones: inputs.dnsProvider.zones,
   },
 })

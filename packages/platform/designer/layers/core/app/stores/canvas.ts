@@ -6,6 +6,7 @@ import {
 } from "#layers/core/app/features/blueprint"
 import {
   useCanvasSelection,
+  useCanvasEdgeEndpointOffsets,
   useNodeFactory,
   useNodeMovement,
   type CursorMode,
@@ -78,6 +79,8 @@ export const useCanvasStore = defineMultiStore({
       }
 
       const selection = useCanvasSelection(vueFlowStore, cursorMode, selectionActive)
+
+      const edgeEndpointOffsets = useCanvasEdgeEndpointOffsets(vueFlowStore, onNodesMoved)
 
       const { onInstanceMoved, onHubMoved } = useNodeMovement(vueFlowStore, cursorMode, selection)
 
@@ -179,6 +182,7 @@ export const useCanvasStore = defineMultiStore({
 
         cursorMode,
         selection,
+        edgeEndpointOffsets,
         blueprint,
         blueprintCopied,
 

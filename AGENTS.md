@@ -18,7 +18,7 @@ Some simple rules to follow:
 
 Some additional notes:
 
-- Try to use LSP tools to check your code first. Using `pnpm build` in most cases will not perform type checking. You can also use `pnpm typecheck` where possible.
+- Try to use LSP tools to check your code first. Using `pnpm build` in most cases will not perform type checking. You can also use `pnpm typecheck` where possible. In some cases, LSP tool may provide outdated diagnostics, so you can fall back to `pnpm typecheck` if you suspect that.
 - Never call `pnpm build` on Nuxt projects, it is very slow.
 
 After you finish your task, verify that your code follow the guidelines

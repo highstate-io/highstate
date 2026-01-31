@@ -13,7 +13,7 @@ import {
 import { sha256 } from "@noble/hashes/sha2"
 import { local, remote, type types } from "@pulumi/command"
 import { flat } from "remeda"
-import { l3EndpointToString } from "./network"
+import { l3EndpointToString } from "./network/endpoints"
 
 /**
  * Creates a connection object for the given SSH credentials.

@@ -1,10 +1,5 @@
 import type { Secret } from "../secret"
-import {
-  filterEndpoints,
-  type GatewayRouteSpec,
-  gatewayRouteMediator,
-  type TlsCertificate,
-} from "@highstate/common"
+import { type GatewayRouteSpec, gatewayRouteMediator, type TlsCertificate } from "@highstate/common"
 import { k8s, type network } from "@highstate/library"
 import { type ComponentResourceOptions, type Input, toPromise } from "@highstate/pulumi"
 import { core } from "@pulumi/kubernetes"
@@ -279,13 +274,10 @@ async function createServiceFromEndpoints(
     throw new Error(`Gateway route "${name}" has no endpoints to expose.`)
   }
 
-  const hostnameEndpoints = filterEndpoints(endpoints, undefined, ["hostname"])
-  const ipEndpoints = filterEndpoints(endpoints, undefined, ["ipv4", "ipv6"])
+  const hostnameEndpoints = endpoints.filter(endpoint => endpoint.type === "hostname")
+  const ipEndpoints = endpoints.filter(endpoint => endpoint.type !== "hostname")
 
-  if (
-    hostnameEndpoints.length > 0 &&
-    hostnameEndpoints[0].visibility > ipEndpoints[0]?.visibility
-  ) {
+  if (hostnameEndpoints.length > 0) {
     const hostnamePortInfos: ServicePortInfo[] = []
     for (const endpoint of hostnameEndpoints) {
       hostnamePortInfos.push(toServicePortInfoFromEndpoint(endpoint))
@@ -326,7 +318,7 @@ async function createServiceFromEndpoints(
     {
       metadata: mapMetadata({ namespace }, endpointsName),
       subsets: ipEndpoints.map(endpoint => ({
-        addresses: [{ ip: endpoint.address }],
+        addresses: [{ ip: endpoint.address.value }],
         ports: [l4EndpointToServicePort(endpoint)],
       })),
     },

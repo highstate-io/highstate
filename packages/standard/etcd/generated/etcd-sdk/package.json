@@ -1,0 +1,31 @@
+{
+  "name": "@highstate/etcd-sdk",
+  "version": "0.14.2",
+  "description": "A Pulumi provider dynamically bridged from etcd.",
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  },
+  "main": "bin/index.js",
+  "scripts": {
+    "build": "tsc && cp package.json bin/package.json"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "3.198.0",
+    "@types/node": "^18",
+    "async-mutex": "^0.5.0",
+    "typescript": "^5.7.2"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "terraform-provider",
+    "version": "0.7.0",
+    "parameterization": {
+      "name": "etcd",
+      "version": "0.11.0",
+      "value": "eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkub3BlbnRvZnUub3JnL2ZlcmxhYi1zdGUtanVzdGluZS9ldGNkIiwidmVyc2lvbiI6IjAuMTEuMCJ9fQ=="
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

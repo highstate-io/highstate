@@ -12,10 +12,8 @@ const { argument, isSecret } = defineProps<{
   isSecret?: boolean
 }>()
 
-if (model.value === undefined && argument.default !== undefined) {
+if (model.value === undefined) {
   model.value = argument.default ?? {}
-} else if (model.value === undefined) {
-  model.value = {}
 }
 
 const handleModelChange = (key: string, value: any) => {
@@ -29,6 +27,13 @@ const discriminatorValue = computed(() => {
 
   return ""
 })
+
+// also fill defaults for fields since for some reason they cannot be filled by handleModelChange
+for (const field of argument.fields[discriminatorValue.value] ?? []) {
+  if (model.value[field.name] === undefined && field.default !== undefined) {
+    model.value[field.name] = field.default
+  }
+}
 
 watch(discriminatorValue, newValue => {
   if (!argument.discriminator) {
@@ -53,10 +58,15 @@ watch(discriminatorValue, newValue => {
   <VExpansionPanel color="#2d2d2d" bg-color="#2d2d2d">
     <template #title>
       <div>{{ argument.title }}</div>
-      <ArgumentDescription v-if="argument.description" :description="argument.description" />
     </template>
 
     <template #text>
+      <ArgumentDescription
+        v-if="argument.description"
+        :description="argument.description"
+        class="mb-4"
+      />
+
       <div class="d-flex flex-column ga-4">
         <!-- 1. static argument group -->
         <template v-if="!argument.discriminator">

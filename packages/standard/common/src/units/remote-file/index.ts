@@ -1,17 +1,24 @@
 import { common } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
-import { parseL7Endpoint } from "../../shared"
+import { forUnit, toPromise } from "@highstate/pulumi"
+import { parseEndpoint } from "../../shared"
 
-const { args, inputs, outputs } = forUnit(common.remoteFile)
+const { name, args, inputs, outputs } = forUnit(common.remoteFile)
+
+const resolvedInputs = await toPromise(inputs)
+if (!resolvedInputs.endpoint && !args.url) {
+  throw new Error("Either 'endpoint' input or 'url' argument must be provided.")
+}
+
+const endpoint = parseEndpoint(resolvedInputs.endpoint ?? args.url!, 7)
 
 export default outputs({
   file: {
     meta: {
-      name: args.url ? new URL(args.url).pathname.split("/").pop() || "file" : "file",
+      name: args.fileName ?? endpoint.path?.split("/").pop() ?? name,
     },
     content: {
       type: "remote",
-      endpoint: inputs.endpoint ? inputs.endpoint : parseL7Endpoint(args.url!),
+      endpoint,
     },
   },
 })

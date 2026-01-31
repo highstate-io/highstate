@@ -1,10 +1,10 @@
 import { wireguard } from "@highstate/library"
 
-const { identity: client1Id, peer: client1 } = wireguard.identity({
+const { identity: client1,  } = wireguard.identity({
   name: "client-1",
 })
 
-const { identity: client2Id, peer: client2 } = wireguard.identity({
+const { identity: client2, } = wireguard.identity({
   name: "client-2",
 })
 
@@ -24,7 +24,7 @@ const { peer: server } = wireguard.nodeK8s({
 wireguard.config({
   name: "client-1",
   inputs: {
-    identity: client1Id,
+    identity: client1,
     peers: [server],
   },
 })
@@ -32,7 +32,7 @@ wireguard.config({
 wireguard.config({
   name: "client-2",
   inputs: {
-    identity: client2Id,
+    identity: client2,
     peers: [server],
   },
 })

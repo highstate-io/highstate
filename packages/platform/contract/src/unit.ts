@@ -1,8 +1,9 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: maybe fix later */
 
 import type { InstanceInput } from "./instance"
+import type { VersionedName } from "./meta"
 import { mapValues } from "remeda"
-import z from "zod"
+import { z } from "zod"
 import {
   type Component,
   type ComponentArgumentOptions,
@@ -44,11 +45,12 @@ export type FullComponentSecretOptions = FullComponentArgumentOptions & {
 export type ComponentSecretOptions = z.ZodType | FullComponentSecretOptions
 
 type UnitOptions<
+  TType extends VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions>,
   TInputs extends Record<string, ComponentInputOptions>,
   TOutputs extends Record<string, ComponentInputOptions>,
   TSecrets extends Record<string, ComponentSecretOptions>,
-> = Omit<ComponentOptions<TArgs, TInputs, TOutputs>, "create"> & {
+> = Omit<ComponentOptions<TType, TArgs, TInputs, TOutputs>, "create"> & {
   source: UnitSource
 
   secrets?: TSecrets
@@ -87,14 +89,15 @@ export const unitModelSchema = z.object({
 export type UnitModel = z.infer<typeof unitModelSchema>
 export type UnitSource = z.infer<typeof unitSourceSchema>
 
-const secrets = Symbol("secrets")
+declare const secrets: unique symbol
 
 export type Unit<
+  TType extends VersionedName = VersionedName,
   TArgs extends Record<string, z.ZodType> = Record<string, never>,
   TInputs extends Record<string, ComponentInputSpec> = Record<string, never>,
   TOutputs extends Record<string, ComponentInputSpec> = Record<string, never>,
   TSecrets extends Record<string, unknown> = Record<string, never>,
-> = Component<TArgs, TInputs, TOutputs> & {
+> = Component<TType, TArgs, TInputs, TOutputs> & {
   /**
    * Holds the type of the unit secrets.
    *
@@ -109,13 +112,15 @@ export type Unit<
 }
 
 export function defineUnit<
+  TType extends VersionedName = VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions> = Record<string, never>,
   TInputs extends Record<string, ComponentInputOptions> = Record<string, never>,
   TOutputs extends Record<string, ComponentInputOptions> = Record<string, never>,
   TSecrets extends Record<string, ComponentSecretOptions> = Record<string, never>,
 >(
-  options: UnitOptions<TArgs, TInputs, TOutputs, TSecrets>,
+  options: UnitOptions<TType, TArgs, TInputs, TOutputs, TSecrets>,
 ): Unit<
+  TType,
   { [K in keyof TArgs]: ComponentArgumentOptionsToSchema<TArgs[K]> },
   { [K in keyof TInputs]: ComponentInputOptionsToSpec<TInputs[K]> },
   { [K in keyof TOutputs]: ComponentInputOptionsToSpec<TOutputs[K]> },
@@ -125,7 +130,7 @@ export function defineUnit<
     throw new Error("Unit source is required")
   }
 
-  const component = defineComponent<TArgs, TInputs, TOutputs>({
+  const component = defineComponent<TType, TArgs, TInputs, TOutputs>({
     ...options,
     [kind]: "unit",
 

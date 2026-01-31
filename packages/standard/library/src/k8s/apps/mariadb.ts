@@ -1,7 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
 import * as databases from "../../databases"
-import { l4EndpointEntity } from "../../network"
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -36,10 +35,6 @@ export const mariadb = defineUnit({
   outputs: {
     mariadb: databases.mariadbEntity,
     service: serviceEntity,
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
   },
 
   meta: {

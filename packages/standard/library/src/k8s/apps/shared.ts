@@ -12,7 +12,13 @@ import {
 } from "@highstate/contract"
 import { mapValues } from "remeda"
 import { accessPointEntity } from "../../common"
-import { mariadbEntity, mongodbEntity, postgresqlEntity, redisEntity } from "../../databases"
+import {
+  etcdEntity,
+  mariadbEntity,
+  mongodbEntity,
+  postgresqlEntity,
+  redisEntity,
+} from "../../databases"
 import { providerEntity } from "../../dns"
 import { repositoryEntity } from "../../restic"
 import { namespaceEntity, persistentVolumeClaimEntity } from "../resources"
@@ -140,6 +146,9 @@ export const sharedInputs = $inputs({
   },
   redis: {
     entity: redisEntity,
+  },
+  etcd: {
+    entity: etcdEntity,
   },
 })
 

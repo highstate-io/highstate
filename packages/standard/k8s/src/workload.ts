@@ -1,9 +1,10 @@
-import type { k8s } from "@highstate/library"
+import type { k8s, network } from "@highstate/library"
 import type { types } from "@pulumi/kubernetes"
 import type { Except } from "type-fest"
 import type { DeploymentArgs } from "./deployment"
+import type { JobArgs } from "./job"
 import type { StatefulSetArgs } from "./stateful-set"
-import { AccessPointRoute, type AccessPointRouteArgs } from "@highstate/common"
+import { AccessPointRoute, type AccessPointRouteArgs, mergeEndpoints } from "@highstate/common"
 import { type TerminalSpec, trimIndentation, type UnitTerminal } from "@highstate/contract"
 import {
   type ComponentResourceOptions,
@@ -25,7 +26,7 @@ import {
 } from "@pulumi/pulumi"
 import { sha256 } from "crypto-hash"
 import { deepmerge } from "deepmerge-ts"
-import { filter, isNonNullish, unique, uniqueBy } from "remeda"
+import { filter, flat, isNonNullish, unique, uniqueBy } from "remeda"
 import {
   type Container,
   getFallbackContainerName,
@@ -38,7 +39,7 @@ import { Namespace } from "./namespace"
 import { NetworkPolicy, type NetworkPolicyArgs } from "./network-policy"
 import { podSpecDefaults } from "./pod"
 import { mapContainerPortToServicePort, Service, type ServiceArgs } from "./service"
-import { commonExtraArgs, images, ScopedResource, type ScopedResourceArgs } from "./shared"
+import { commonExtraArgs, images, NamespacedResource, type ScopedResourceArgs } from "./shared"
 
 export type WorkloadTerminalArgs = {
   /**
@@ -114,7 +115,50 @@ export const exposableWorkloadExtraArgs = [
   "routes",
 ] as const
 
+export type WorkloadType = "Deployment" | "StatefulSet" | "Job" | "CronJob"
 export type ExposableWorkloadType = "Deployment" | "StatefulSet"
+
+export type GenericWorkloadArgs = Omit<ExposableWorkloadArgs, "existing"> & {
+  /**
+   * The type of workload to create.
+   *
+   * Will be ignored if the `existing` argument is provided.
+   */
+  defaultType: WorkloadType
+
+  /**
+   * The existing workload to patch.
+   */
+  existing: Input<k8s.Workload | undefined>
+
+  /**
+   * The args specific to the "Deployment" workload type.
+   *
+   * Will be ignored for other workload types.
+   */
+  deployment?: Input<DeploymentArgs>
+
+  /**
+   * The args specific to the "StatefulSet" workload type.
+   *
+   * Will be ignored for other workload types.
+   */
+  statefulSet?: Input<StatefulSetArgs>
+
+  /**
+   * The args specific to the "Job" workload type.
+   *
+   * Will be ignored for other workload types.
+   */
+  job?: Input<JobArgs>
+
+  /**
+   * The args specific to the "CronJob" workload type.
+   *
+   * Will be ignored for other workload types.
+   */
+  cronJob?: Input<JobArgs>
+}
 
 export type GenericExposableWorkloadArgs = Omit<ExposableWorkloadArgs, "existing"> & {
   /**
@@ -122,7 +166,7 @@ export type GenericExposableWorkloadArgs = Omit<ExposableWorkloadArgs, "existing
    *
    * Will be ignored if the `existing` argument is provided.
    */
-  type: ExposableWorkloadType
+  defaultType: ExposableWorkloadType
 
   /**
    * The existing workload to patch.
@@ -341,19 +385,18 @@ export function getExposableWorkloadComponents(
   return { labels, containers, volumes, podSpec, podTemplate, networkPolicy, service, routes }
 }
 
-export abstract class Workload extends ScopedResource {
+export abstract class Workload extends NamespacedResource {
   protected constructor(
     type: string,
     protected readonly name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
+
     protected readonly terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     protected readonly containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
 
     /**
      * The rendered pod template of the workload.
@@ -367,7 +410,7 @@ export abstract class Workload extends ScopedResource {
      */
     readonly networkPolicy: Output<NetworkPolicy | undefined>,
   ) {
-    super(type, name, args, opts, apiVersion, kind, namespace, metadata)
+    super(type, name, args, opts, metadata, namespace)
   }
 
   protected abstract get templateMetadata(): Output<types.output.meta.v1.ObjectMeta>
@@ -378,7 +421,7 @@ export abstract class Workload extends ScopedResource {
   private set terminal(_value: never) {}
 
   /**
-   * The instance terminal to interact with the deployment.
+   * The instance terminal to interact with the workload's pods.
    */
   get terminal(): Output<UnitTerminal> {
     const containerName = this.podTemplate.spec.containers.apply(containers => containers[0].name)
@@ -411,7 +454,7 @@ export abstract class Workload extends ScopedResource {
               set -euo pipefail
 
               NAMESPACE="${this.metadata.namespace}"
-              RESOURCE_TYPE="${this.kind.apply(k => k.toLowerCase())}"
+              RESOURCE_TYPE="${this.kind.toLowerCase()}"
               RESOURCE_NAME="${this.metadata.name}"
               CONTAINER_NAME="${containerName}"
               SHELL="${shell}"
@@ -496,7 +539,7 @@ export abstract class Workload extends ScopedResource {
           "-it",
           "-n",
           this.metadata.namespace,
-          interpolate`${this.kind.apply(k => k.toLowerCase())}/${this.metadata.name}`,
+          `${this.kind.toLowerCase()}/${this.metadata.name}`,
           "-c",
           containerName,
           "--",
@@ -515,6 +558,99 @@ export abstract class Workload extends ScopedResource {
       },
     })
   }
+
+  /**
+   * Creates a generic workload or patches the existing one.
+   */
+  static createOrPatchGeneric(
+    name: string,
+    args: GenericWorkloadArgs,
+    opts?: CustomResourceOptions,
+  ): Output<Workload> {
+    return output(args).apply(async args => {
+      if (args.existing?.kind === "Deployment") {
+        const { Deployment } = await import("./deployment")
+
+        return Deployment.patch(
+          name,
+          {
+            ...deepmerge(args, args.deployment),
+            name: args.existing.metadata.name,
+            namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
+          },
+          opts,
+        )
+      }
+
+      if (args.existing?.kind === "StatefulSet") {
+        const { StatefulSet } = await import("./stateful-set")
+
+        return StatefulSet.patch(
+          name,
+          {
+            ...deepmerge(args, args.statefulSet),
+            name: args.existing.metadata.name,
+            namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
+          },
+          opts,
+        )
+      }
+
+      if (args.existing?.kind === "Job") {
+        const { Job } = await import("./job")
+
+        return Job.patch(
+          name,
+          {
+            ...deepmerge(args, args.job),
+            name: args.existing.metadata.name,
+            namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
+          },
+          opts,
+        )
+      }
+
+      if (args.existing?.kind === "CronJob") {
+        const { CronJob } = await import("./cron-job")
+
+        return CronJob.patch(
+          name,
+          {
+            ...deepmerge(args, args.cronJob),
+            name: args.existing.metadata.name,
+            namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
+          },
+          opts,
+        )
+      }
+
+      if (args.defaultType === "Deployment") {
+        const { Deployment } = await import("./deployment")
+
+        return Deployment.create(name, deepmerge(args, args.deployment), opts)
+      }
+
+      if (args.defaultType === "StatefulSet") {
+        const { StatefulSet } = await import("./stateful-set")
+
+        return StatefulSet.create(name, deepmerge(args, args.statefulSet), opts)
+      }
+
+      if (args.defaultType === "Job") {
+        const { Job } = await import("./job")
+
+        return Job.create(name, deepmerge(args, args.job), opts)
+      }
+
+      if (args.defaultType === "CronJob") {
+        const { CronJob } = await import("./cron-job")
+
+        return CronJob.create(name, deepmerge(args, args.cronJob), opts)
+      }
+
+      throw new Error(`Unknown workload type: ${args.defaultType as string}`)
+    })
+  }
 }
 
 export abstract class ExposableWorkload extends Workload {
@@ -524,12 +660,11 @@ export abstract class ExposableWorkload extends Workload {
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
+
     terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
     podTemplate: Output<types.output.core.v1.PodTemplateSpec>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
@@ -545,12 +680,10 @@ export abstract class ExposableWorkload extends Workload {
       name,
       args,
       opts,
-      apiVersion,
-      kind,
+      metadata,
+      namespace,
       terminalArgs,
       containers,
-      namespace,
-      metadata,
       podTemplate,
       networkPolicy,
     )
@@ -585,6 +718,17 @@ export abstract class ExposableWorkload extends Workload {
   }
 
   /**
+   * The merged and deduplicated L3 endpoints of all routes.
+   */
+  get endpoints(): Output<network.L3Endpoint[]> {
+    return this.routes.apply(routes =>
+      output(routes.map(route => route.route.endpoints))
+        .apply(endpoints => flat(endpoints))
+        .apply(mergeEndpoints),
+    )
+  }
+
+  /**
    * The entity of the workload.
    */
   abstract get entity(): Output<k8s.ExposableWorkload>
@@ -597,7 +741,7 @@ export abstract class ExposableWorkload extends Workload {
   >
 
   /**
-   * Creates a generic workload or patches the existing one.
+   * Creates a generic exposable workload or patches the existing one.
    */
   static createOrPatchGeneric(
     name: string,
@@ -605,7 +749,7 @@ export abstract class ExposableWorkload extends Workload {
     opts?: CustomResourceOptions,
   ): Output<ExposableWorkload> {
     return output(args).apply(async args => {
-      if (args.existing?.type === "deployment") {
+      if (args.existing?.kind === "Deployment") {
         const { Deployment } = await import("./deployment")
 
         return Deployment.patch(
@@ -619,7 +763,7 @@ export abstract class ExposableWorkload extends Workload {
         )
       }
 
-      if (args.existing?.type === "stateful-set") {
+      if (args.existing?.kind === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
         return StatefulSet.patch(
@@ -633,19 +777,19 @@ export abstract class ExposableWorkload extends Workload {
         )
       }
 
-      if (args.type === "Deployment") {
+      if (args.defaultType === "Deployment") {
         const { Deployment } = await import("./deployment")
 
         return Deployment.create(name, deepmerge(args, args.deployment), opts)
       }
 
-      if (args.type === "StatefulSet") {
+      if (args.defaultType === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
         return StatefulSet.create(name, deepmerge(args, args.statefulSet), opts)
       }
 
-      throw new Error(`Unknown workload type: ${args.type as string}`)
+      throw new Error(`Unknown workload type: ${args.defaultType as string}`)
     })
   }
 }

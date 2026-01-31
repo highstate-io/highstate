@@ -1,0 +1,54 @@
+---
+title: Overview
+description: Overview of Highstate's Standard Library.
+navigation:
+  icon: i-mdi-book-open-page-variant
+---
+
+## Organization
+
+The Highstate can be separated into two major parts: the Platform and the Standard Library.
+In this part of the documentation, we will focus on the Standard Library, or stdlib for short.
+
+For now we have the single standard library, but in the future,
+we may split in into multiple smaller parts that can be connected as needed.
+
+The stdlib like any other Highstate library is divided in two main parts:
+
+- `@highsate/library`: Definitions of entities and components (design time code).
+- `@highsate/*`: Implementations of unit components (runtime code).
+
+Both of them also include public helpers and utilities to use them in your own libraries.
+
+## Usage
+
+The only required package to use the stdlib is the `@highstate/library`.
+It contains the design time code that is enough to show all available components in the editor and
+allow you to place them in your projects.
+All other packages contains runtime code and they will be automatically
+installed when you place a component that requires them.
+
+To update the Standard Library in a local project, you can use the Highstate CLI:
+
+```bash
+# Update only the Standard Library
+# Will throw an error if the stdlib cannot be updated without updating the platform
+highstate update --stdlib
+
+# Update both the platform and the Standard Library
+highstate update
+```
+
+The main package (`@highstate/library`) also must be included in `HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES` env variable.
+If you create the project using the Highstate CLI, this will be done automatically for you.
+
+::tip
+One more interesting thing about the Standard Library is that its completely optional.
+You can design your own entities and components from scratch without using anything from the stdlib.
+Then you can omit it from `HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES` and
+use only your own code in the project.
+This illustrates that stdlib have no special status in Highstate
+and is just another library that happens to be provided by the platform itself.
+::
+
+## Structure

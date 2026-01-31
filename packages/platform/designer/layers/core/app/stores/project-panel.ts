@@ -17,6 +17,7 @@ export const useProjectPanelStore = defineMultiStore({
         onHubNodeDeleted,
         onInstanceNodeDeleted,
         onNodesMoved,
+        edgeEndpointOffsets,
       } = useCanvasStore("project", projectId)
 
       const { $client } = useNuxtApp()
@@ -46,7 +47,7 @@ export const useProjectPanelStore = defineMultiStore({
 
         void waitForLayoutCompletion(vueFlowStore)
           //
-          .then(() => setupEdgeRouter(vueFlowStore, onNodesMoved))
+          .then(() => setupEdgeRouter(vueFlowStore, onNodesMoved, edgeEndpointOffsets))
       }
 
       onInstanceMoved(instance => {

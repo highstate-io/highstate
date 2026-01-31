@@ -74,11 +74,11 @@ export class TlsCertificate extends ComponentResource {
     }).apply(async ({ issuers, commonName, dnsNames }) => {
       // for now, we require single issuer to match all requested names
       const matchedIssuer = issuers.find(issuer => {
-        if (commonName && !commonName.endsWith(issuer.domain)) {
+        if (commonName && !issuer.zones.some(zone => commonName.endsWith(zone))) {
           return false
         }
 
-        if (dnsNames && !dnsNames.every(name => name.endsWith(issuer.domain))) {
+        if (dnsNames && !dnsNames.every(name => issuer.zones.some(zone => name.endsWith(zone)))) {
           return false
         }
 
@@ -86,9 +86,25 @@ export class TlsCertificate extends ComponentResource {
       })
 
       if (!matchedIssuer) {
-        throw new Error(
-          `No TLS issuer matched the common name "${commonName}" and DNS names "${dnsNames?.join(", ") ?? ""}"`,
-        )
+        if (commonName && dnsNames && dnsNames.length > 0) {
+          const dnsNameList = dnsNames.join(", ")
+
+          throw new Error(
+            `No TLS issuer matched the common name "${commonName}" and DNS names "${dnsNameList}"`,
+          )
+        }
+
+        if (commonName) {
+          throw new Error(`No TLS issuer matched the common name "${commonName}"`)
+        }
+
+        if (dnsNames && dnsNames.length > 0) {
+          const dnsNameList = dnsNames.join(", ")
+
+          throw new Error(`No TLS issuer matched the DNS names "${dnsNameList}"`)
+        }
+
+        throw new Error("No TLS issuer provided")
       }
 
       return await tlsCertificateMediator.call(matchedIssuer.implRef, {

@@ -1,4 +1,4 @@
-import { l34EndpointToString, parseL34Endpoint } from "@highstate/common"
+import { l3EndpointToString, parseEndpoint } from "@highstate/common"
 import { restic } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
 import { uniqueBy } from "remeda"
@@ -48,12 +48,12 @@ const autoDiscoveredEndpoints: Record<string, string[]> = {
 const remoteEndpoints = uniqueBy(
   [
     //
-    ...(autoDiscoveredEndpoints[remoteInfo.type] ?? []).map(parseL34Endpoint),
-    ...args.remoteEndpoints.map(parseL34Endpoint),
+    ...(autoDiscoveredEndpoints[remoteInfo.type] ?? []).map(endpoint => parseEndpoint(endpoint)),
+    ...args.remoteEndpoints.map(endpoint => parseEndpoint(endpoint)),
     ...remoteL3Endpoints,
     ...remoteL4Endpoints,
   ],
-  l34EndpointToString,
+  l3EndpointToString,
 )
 
 export default outputs({
@@ -70,7 +70,7 @@ export default outputs({
     remoteType: remoteInfo.type,
 
     remoteEndpoints: {
-      value: remoteEndpoints.map(l34EndpointToString),
+      value: remoteEndpoints.map(l3EndpointToString),
       complementaryTo: "remoteEndpoints",
     },
   },

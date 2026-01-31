@@ -133,7 +133,7 @@ export function bytesToHumanReadable(bytes: number): string {
 export function check<TSchema extends z.ZodType>(
   schema: TSchema,
   value: unknown,
-): value is z.input<TSchema> {
+): value is z.infer<TSchema> {
   return schema.safeParse(value).success
 }
 

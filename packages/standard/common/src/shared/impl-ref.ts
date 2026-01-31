@@ -128,3 +128,7 @@ export class ImplementationMediator<
     return output(this.call(implRef, input))
   }
 }
+
+export function areImplRefsEqual(a: ImplementationReference, b: ImplementationReference): boolean {
+  return a.package === b.package && JSON.stringify(a.data) === JSON.stringify(b.data)
+}

@@ -1,4 +1,4 @@
-import { DnsRecordSet, filterEndpoints, generateKey, l3EndpointToString } from "@highstate/common"
+import { DnsRecordSet, generateKey, l3EndpointToString } from "@highstate/common"
 import { Deployment, Namespace, PersistentVolumeClaim } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
@@ -58,7 +58,7 @@ const deployment = Deployment.create(args.appName, {
 })
 
 const endpoints = await toPromise(inputs.k8sCluster.endpoints)
-const publicEndpoint = filterEndpoints(endpoints, ["public"])[0]
+const publicEndpoint = endpoints.find(endpoint => endpoint.metadata["iana.scope"] === "global")
 
 if (!publicEndpoint) {
   throw new Error(
@@ -69,7 +69,7 @@ if (!publicEndpoint) {
 
 new DnsRecordSet(args.fqdn, {
   providers: inputs.dnsProviders,
-  value: filterEndpoints(endpoints, ["public"])[0],
+  value: publicEndpoint,
   waitAt: "local",
 })
 

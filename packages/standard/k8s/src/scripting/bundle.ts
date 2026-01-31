@@ -1,7 +1,7 @@
 import type { network } from "@highstate/library"
 import type { ContainerEnvironment, ContainerVolumeMount, WorkloadVolume } from "../container"
 import type { ScopedResourceArgs } from "../shared"
-import { parseL34Endpoint } from "@highstate/common"
+import { parseEndpoint } from "@highstate/common"
 import { text, trimIndentation } from "@highstate/contract"
 import { type InputArray, normalize } from "@highstate/pulumi"
 import {
@@ -76,7 +76,7 @@ export class ScriptBundle extends ComponentResource {
   /**
    * The list of endpoints that the script is allowed to access.
    */
-  readonly allowedEndpoints: Output<network.L34Endpoint[]>
+  readonly allowedEndpoints: Output<network.L3Endpoint[]>
 
   constructor(name: string, args: ScriptBundleArgs, opts?: ComponentResourceOptions) {
     super("highstate:k8s:ScriptBundle", name, args, opts)
@@ -113,7 +113,7 @@ export class ScriptBundle extends ComponentResource {
           allowedEndpoints.push("tcp://registry.npmjs.org:443")
         }
 
-        return allowedEndpoints.map(parseL34Endpoint)
+        return allowedEndpoints.map(endpoint => parseEndpoint(endpoint))
       },
     )
 

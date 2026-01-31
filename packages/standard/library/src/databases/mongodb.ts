@@ -1,11 +1,20 @@
-import { defineEntity, defineUnit, type z } from "@highstate/contract"
-import { sharedArgs, sharedInputs, sharedSchema, sharedSecrets } from "./shared"
+import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { l4EndpointEntity } from "../network"
+import { toPatchArgs } from "../utils"
+import { optionalSharedArgs, sharedArgs, sharedInputs, sharedSchema, sharedSecrets } from "./shared"
 
 /**
  * Represents the MongoDB database or virtual database behind it.
  */
 export const mongodbEntity = defineEntity({
   type: "databases.mongodb.v1",
+
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
 
   schema: sharedSchema,
 
@@ -37,6 +46,43 @@ export const existingMongodb = defineUnit({
     title: "Existing MongoDB Database",
     icon: "simple-icons:mongodb",
     secondaryIcon: "mdi:database",
+    category: "Databases",
+  },
+})
+
+/**
+ * Patches some properties of the MongoDB database and outputs the updated database.
+ */
+export const mongodbPatch = defineUnit({
+  type: "databases.mongodb-patch.v1",
+
+  args: {
+    ...toPatchArgs(optionalSharedArgs),
+
+    endpoints: {
+      ...sharedArgs.endpoints,
+      schema: z.string().array().default([]),
+    },
+  },
+
+  inputs: {
+    mongodb: mongodbEntity,
+    ...sharedInputs,
+  },
+
+  outputs: {
+    mongodb: mongodbEntity,
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/databases/mongodb-patch",
+  },
+
+  meta: {
+    title: "MongoDB Patch",
+    icon: "simple-icons:mongodb",
+    secondaryIcon: "fluent:patch-20-filled",
     category: "Databases",
   },
 })

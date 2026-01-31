@@ -50,17 +50,44 @@ async function applyZodMetaTransformations(content: string): Promise<string> {
       // handle zod object patterns
       if (isZodObjectProperty(node, parentStack)) {
         const jsdoc = findLeadingComment(content, node, comments)
-        if (jsdoc) {
-          const description = cleanJsdoc(jsdoc.value)
-          const fieldName =
-            "name" in node.key && typeof node.key.name === "string" ? node.key.name : "unknown"
-          const originalValue = content.substring(node.value.start, node.value.end)
+        if (!jsdoc) {
+          return
+        }
 
-          if (!originalValue.includes(".meta(")) {
-            const newValue = `${originalValue}.meta({ title: __camelCaseToHumanReadable("${fieldName}"), description: \`${description}\` })`
-            result.update(node.value.start, node.value.end, newValue)
-            hasTransformations = true
+        const description = cleanJsdoc(jsdoc.value)
+        const fieldName =
+          "name" in node.key && typeof node.key.name === "string" ? node.key.name : "unknown"
+
+        // Getter properties (get foo() { return ... }) need special handling:
+        // we inject `.meta(...)` into the returned schema expression.
+        if (isGetterProperty(node)) {
+          const returnArgument = findFirstReturnArgument(node)
+          if (!returnArgument) {
+            return
           }
+
+          const originalReturnValue = content.substring(returnArgument.start, returnArgument.end)
+          if (originalReturnValue.includes(".meta(")) {
+            return
+          }
+
+          const newReturnValue = `${originalReturnValue}.meta({ title: __camelCaseToHumanReadable("${fieldName}"), description: \`${description}\` })`
+          result.update(returnArgument.start, returnArgument.end, newReturnValue)
+          hasTransformations = true
+          return
+        }
+
+        // Standard properties (foo: z.string())
+        if (!hasValue(node) || !hasSourceRange(node.value)) {
+          return
+        }
+
+        const originalValue = content.substring(node.value.start, node.value.end)
+
+        if (!originalValue.includes(".meta(")) {
+          const newValue = `${originalValue}.meta({ title: __camelCaseToHumanReadable("${fieldName}"), description: \`${description}\` })`
+          result.update(node.value.start, node.value.end, newValue)
+          hasTransformations = true
         }
       }
     },
@@ -101,11 +128,36 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
 
           if (jsdoc) {
             const description = cleanJsdoc(jsdoc.value)
+            // Getter properties (get foo() { return ... }) need special handling:
+            // inject the helper call into the returned expression.
+            if (isGetterProperty(propertyNode)) {
+              const returnArgument = findFirstReturnArgument(propertyNode)
+              if (!returnArgument) {
+                return
+              }
+
+              const originalReturnValue = content.substring(
+                returnArgument.start,
+                returnArgument.end,
+              )
+              if (originalReturnValue.trimStart().startsWith(`${helperFunction}(`)) {
+                return
+              }
+
+              const newReturnValue = `${helperFunction}(${originalReturnValue}, \`${description}\`)`
+              result.update(returnArgument.start, returnArgument.end, newReturnValue)
+              hasTransformations = true
+              return
+            }
+
+            if (!hasValue(propertyNode) || !hasSourceRange(propertyNode.value)) {
+              return
+            }
+
             const originalValue = content.substring(
               propertyNode.value.start,
               propertyNode.value.end,
             )
-
             const newValue = `${helperFunction}(${originalValue}, \`${description}\`)`
             result.update(propertyNode.value.start, propertyNode.value.end, newValue)
             hasTransformations = true
@@ -239,6 +291,60 @@ function isZodObjectProperty(node: Node, parentStack: Node[]): node is ObjectPro
     "key" in node &&
     node.key?.type === "Identifier" &&
     isInsideZodObject(parentStack)
+  )
+}
+
+type GetterObjectProperty = ObjectProperty & {
+  kind: "get"
+  value: Node & { type: "FunctionExpression" }
+}
+
+function isGetterProperty(node: Node): node is GetterObjectProperty {
+  if (node.type !== "Property") {
+    return false
+  }
+
+  if (!hasValue(node)) {
+    return false
+  }
+
+  return "kind" in node && node.kind === "get" && node.value.type === "FunctionExpression"
+}
+
+function findFirstReturnArgument(node: ObjectProperty): Node | null {
+  if (!hasValue(node) || node.value.type !== "FunctionExpression") {
+    return null
+  }
+
+  const body = node.value.body
+  if (!body || body.type !== "BlockStatement") {
+    return null
+  }
+
+  for (const statement of body.body) {
+    if (statement.type !== "ReturnStatement") {
+      continue
+    }
+
+    const returnArgument = "argument" in statement ? statement.argument : null
+    if (returnArgument && hasSourceRange(returnArgument)) {
+      return returnArgument
+    }
+  }
+
+  return null
+}
+
+function hasValue(node: Node): node is Node & { value: Node } {
+  return "value" in node && !!node.value
+}
+
+function hasSourceRange(node: Node): node is Node & { start: number; end: number } {
+  return (
+    "start" in node &&
+    typeof node.start === "number" &&
+    "end" in node &&
+    typeof node.end === "number"
   )
 }
 

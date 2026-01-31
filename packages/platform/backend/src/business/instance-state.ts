@@ -95,6 +95,7 @@ export type InstanceStatePatch = Pick<
   | "statusFields"
   | "parentId"
   | "lastOperationState"
+  | "selfHash"
   | "inputHash"
   | "outputHash"
   | "dependencyOutputHash"
@@ -351,6 +352,7 @@ export class InstanceStateService {
         patch: {
           status: "undeployed",
           statusFields: null,
+          selfHash: null,
           inputHash: null,
           outputHash: null,
           dependencyOutputHash: null,
@@ -412,6 +414,7 @@ export class InstanceStateService {
       data: {
         status: "undeployed",
         statusFields: DbNull,
+        selfHash: null,
         inputHash: null,
         outputHash: null,
         dependencyOutputHash: null,

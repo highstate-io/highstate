@@ -1,4 +1,3 @@
-export { default as ComponentNodePageDialog } from "../page-dialog/components/PageDialog.vue"
 export { default as ContentUpdateOverlay } from "./components/ContentUpdateOverlay.vue"
 export { default as CustomEdge } from "./components/CustomEdge.vue"
 export { default as EditorLoader } from "./components/EditorLoader.vue"

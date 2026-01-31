@@ -125,7 +125,10 @@ export const timestampsSchema = z.object({
  */
 export const genericNameSchema = z
   .string()
-  .regex(/^[a-z][a-z0-9-_.]+$/)
+  .regex(
+    /^[a-z][a-z0-9-.]+$/,
+    "Name must start with a letter and can only contain lowercase letters, numbers, dashes (-) and dots (.)",
+  )
   .min(2)
   .max(64)
 
@@ -190,7 +193,7 @@ export function parseVersionedName(name: string): [name: string, version: number
  */
 export const fieldNameSchema = z
   .string()
-  .regex(/^[a-z][a-zA-Z0-9]+$/)
+  .regex(/^[a-z][a-zA-Z0-9]+$/, "Field name must start with a letter and be in camelCase format")
   .min(2)
   .max(64)
 

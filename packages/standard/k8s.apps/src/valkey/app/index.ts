@@ -1,9 +1,9 @@
-import { generateKey, l3EndpointToL4, l4EndpointToString } from "@highstate/common"
+import { generateKey, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { Chart, Namespace, PersistentVolumeClaim } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit, interpolate, toPromise } from "@highstate/pulumi"
+import { forUnit, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts } from "../../shared"
+import { charts, createBootstrapServiceEndpoint } from "../../shared"
 import { backupEnvironment } from "../scripts"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.valkey)
@@ -18,25 +18,7 @@ const dataVolumeClaim = PersistentVolumeClaim.create(
   { deletedWith: namespace },
 )
 
-const k8sCluster = await toPromise(inputs.k8sCluster)
-const serviceHost = interpolate`${args.appName}.${namespace.metadata.name}.svc.cluster.local`
-
-const serviceEndpoint = serviceHost.apply(host => ({
-  ...l3EndpointToL4(host, 6379),
-  metadata: {
-    "k8s.service": {
-      clusterId: k8sCluster.id,
-      clusterName: k8sCluster.name,
-      name: args.appName,
-      namespace: args.appName,
-      selector: {
-        "app.kubernetes.io/name": args.appName,
-        "app.kubernetes.io/instance": args.appName,
-      },
-      targetPort: 6379,
-    },
-  } satisfies k8s.EndpointServiceMetadata,
-}))
+const serviceEndpoint = createBootstrapServiceEndpoint(namespace, args.appName, 6379)
 
 const backupJobPair = inputs.resticRepo
   ? new BackupJobPair(
@@ -51,7 +33,7 @@ const backupJobPair = inputs.resticRepo
 
         environment: {
           environment: {
-            DATABASE_HOST: serviceHost,
+            DATABASE_HOST: serviceEndpoint.apply(l3EndpointToString),
             DATABASE_PORT: "6379",
           },
         },
@@ -112,7 +94,6 @@ export default outputs({
     database: 0,
   },
   service: chart.service.entity,
-  endpoints,
 
   $statusFields: {
     endpoints: endpoints.map(l4EndpointToString),

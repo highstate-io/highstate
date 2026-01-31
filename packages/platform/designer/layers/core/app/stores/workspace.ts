@@ -17,8 +17,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   }, 1000)
 
   const populateDefaultLayout = async () => {
-    await navigateTo("/dummy")
-    await navigateTo({ name: "home" })
+    await navigateTo({ name: "home", force: true })
     await navigateTo({ name: "components" })
     await navigateTo({ name: "operations" })
     await navigateTo({ name: "home" })

@@ -1,7 +1,6 @@
 import { $secrets, defineUnit, text, z } from "@highstate/contract"
 import { pick } from "remeda"
 import * as databases from "../../databases"
-import { l4EndpointEntity } from "../../network"
 import { serviceEntity } from "../service"
 import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
 
@@ -64,10 +63,6 @@ export const minio = defineUnit({
   outputs: {
     s3: databases.s3Entity,
     service: serviceEntity,
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
   },
 
   meta: {

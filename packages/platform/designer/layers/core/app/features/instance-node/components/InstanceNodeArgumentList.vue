@@ -16,7 +16,10 @@ const argumentsToShow = computed(() => {
   const result: ArgumentToShow[] = []
 
   for (const [argName, arg] of Object.entries(component.args)) {
-    if (!arg.required && instance.args?.[argName] == null) {
+    if (
+      !arg.required &&
+      (instance.args?.[argName] == null || instance.args?.[argName] === arg.schema.default)
+    ) {
       continue
     }
 

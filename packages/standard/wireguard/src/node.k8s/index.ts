@@ -1,7 +1,7 @@
-import { l4EndpointToString, l34EndpointToString, updateEndpoints } from "@highstate/common"
-import { ExposableWorkload, Namespace, NetworkPolicy, Secret } from "@highstate/k8s"
+import { createAddressSpace, l4EndpointToString, subnetToString } from "@highstate/common"
+import { ExposableWorkload, Namespace, NetworkPolicy, Secret, Workload } from "@highstate/k8s"
 import { wireguard } from "@highstate/library"
-import { forUnit, output, toPromise } from "@highstate/pulumi"
+import { forUnit, toPromise } from "@highstate/pulumi"
 import { deepmerge } from "deepmerge-ts"
 import * as images from "../../assets/images.json"
 import { generateIdentityConfig, isExitNode, shouldExpose } from "../shared"
@@ -26,10 +26,7 @@ const namespace = Namespace.createOrPatch(appName, {
 
 const downstreamInterface = await toPromise(inputs.interface)
 
-const preUp: string[] = [
-  // idk why
-  "sleep 5",
-]
+const preUp: string[] = []
 
 const postUp: string[] = [
   // enable masquerading for all traffic going out of the WireGuard node
@@ -42,9 +39,9 @@ const preDown: string[] = [
   "iptables -t nat -D POSTROUTING -j MASQUERADE",
 ]
 
-// Add forwarding restrictions for specified CIDRs
-for (const restrictedCidr of args.forwardRestrictedIps) {
-  // Block forwarding to restricted CIDR (prevents other peers from reaching these destinations)
+// add forwarding restrictions for specified CIDRs
+for (const restrictedCidr of args.forwardRestrictedSubnets) {
+  // block forwarding to restricted CIDR (prevents other peers from reaching these destinations)
   postUp.push(`iptables -I FORWARD -d ${restrictedCidr} -j DROP`)
   preDown.push(`iptables -D FORWARD -d ${restrictedCidr} -j DROP`)
 }
@@ -89,61 +86,62 @@ const configSecret = Secret.create(appName, {
       preUp,
       postUp,
       preDown,
-      defaultInterface: "eth0",
       cluster: await toPromise(inputs.k8sCluster),
     }),
   },
 })
 
-const workload = ExposableWorkload.createOrPatchGeneric(appName, {
-  type: "Deployment",
-  namespace,
+const workload = await toPromise(
+  Workload.createOrPatchGeneric(appName, {
+    defaultType: "Deployment",
+    namespace,
 
-  existing: inputs.workload ?? inputs.interface?.workload,
+    existing: inputs.workload ?? inputs.interface?.workload,
 
-  container: deepmerge(
-    {
-      image: images.wireguard.image,
+    container: deepmerge(
+      {
+        image: images.wireguard.image,
 
-      environment: {
-        PUID: "1000",
-        PGID: "1000",
-        TZ: "Etc/UTC",
-      },
-
-      securityContext: {
-        capabilities: {
-          add: ["NET_ADMIN"],
+        environment: {
+          PUID: "1000",
+          PGID: "1000",
+          TZ: "Etc/UTC",
         },
-      },
 
-      port: {
-        containerPort,
-        protocol: "UDP",
-      },
+        securityContext: {
+          capabilities: {
+            add: ["NET_ADMIN"],
+          },
+        },
 
-      volumeMount: {
-        volume: configSecret,
-        mountPath: "/config/wg_confs",
-      },
-    },
-    args.containerSpec ?? {},
-  ),
-
-  service: shouldExpose(identity, args.exposePolicy)
-    ? {
-        external: args.external,
         port: {
-          port: identity.peer.listenPort ?? 51820,
-          targetPort: containerPort,
+          containerPort,
           protocol: "UDP",
-          nodePort: args.external ? identity.peer.listenPort : undefined,
         },
-      }
-    : undefined,
-})
 
-if (shouldExpose(identity, args.exposePolicy)) {
+        volumeMount: {
+          volume: configSecret,
+          mountPath: "/config/wg_confs",
+        },
+      },
+      args.containerSpec ?? {},
+    ),
+
+    service: shouldExpose(identity, args.exposePolicy)
+      ? {
+          external: args.external,
+          port: {
+            port: identity.peer.listenPort ?? 51820,
+            targetPort: containerPort,
+            protocol: "UDP",
+            nodePort: args.external ? identity.peer.listenPort : undefined,
+          },
+        }
+      : undefined,
+  }),
+)
+
+if (shouldExpose(identity, args.exposePolicy) && workload instanceof ExposableWorkload) {
   new NetworkPolicy("allow-wireguard-ingress", {
     namespace,
     selector: workload.spec.selector,
@@ -156,7 +154,7 @@ if (shouldExpose(identity, args.exposePolicy)) {
   })
 }
 
-if (isExitNode(identity.peer)) {
+if (isExitNode(identity.peer) && workload instanceof ExposableWorkload) {
   new NetworkPolicy("allow-all-egress", {
     namespace,
     selector: workload.spec.selector,
@@ -169,53 +167,62 @@ if (isExitNode(identity.peer)) {
   })
 }
 
-for (const endpoint of identity.peer.allowedEndpoints) {
-  new NetworkPolicy(`allow-egress-to-${l34EndpointToString(endpoint)}`, {
+const pureAllowedSpace = createAddressSpace({
+  included: identity.peer.allowedSubnets,
+  excluded: identity.peer.addresses,
+})
+
+// allow egress to the subnets that are not part of the peer's addresses
+if (pureAllowedSpace.subnets.length > 0 && workload instanceof ExposableWorkload) {
+  new NetworkPolicy("allow-egress-to-allowed-subnets", {
     namespace,
     selector: workload.spec.selector,
 
-    description: `Allow egress traffic from the WireGuard node to the allowed endpoint "${l34EndpointToString(endpoint)}".`,
+    description: "Allow egress traffic from the WireGuard node to its allowed subnets.",
 
     egressRule: {
-      toEndpoint: endpoint,
+      toCidrs: pureAllowedSpace.subnets.map(subnetToString),
     },
   })
 }
 
-for (const peer of peers) {
-  if (!peer.endpoints.length) {
-    continue
+if (workload instanceof ExposableWorkload) {
+  for (const peer of peers) {
+    if (!peer.endpoints.length) {
+      continue
+    }
+
+    new NetworkPolicy(`allow-egress-to-peer-${peer.name}`, {
+      namespace,
+      selector: workload.spec.selector,
+
+      description: `Allow egress traffic from the WireGuard node to the endpoints of the peer "${peer.name}".`,
+
+      egressRule: {
+        toEndpoints: peer.endpoints,
+      },
+    })
   }
-
-  new NetworkPolicy(`allow-egress-to-peer-${peer.name}`, {
-    namespace,
-    selector: workload.spec.selector,
-
-    description: `Allow egress traffic from the WireGuard node to the endpoints of the peer "${peer.name}".`,
-
-    egressRule: {
-      toEndpoints: peer.endpoints,
-    },
-  })
 }
 
-const endpoints = await updateEndpoints(
-  identity.peer.endpoints,
-  [],
-  output(workload.optionalService.apply(service => service?.endpoints ?? [])),
-  "prepend",
+const endpoints = await toPromise(
+  workload instanceof ExposableWorkload
+    ? workload.optionalService.apply(service => service?.endpoints!)
+    : [],
 )
 
 export default outputs({
+  workload: workload.entity,
+
   interface: {
     name: interfaceName,
     workload: workload.entity,
   },
+
   peer: {
     ...identity.peer,
     endpoints,
   },
-  endpoints,
 
   $statusFields: {
     endpoints: endpoints.map(l4EndpointToString),

@@ -1,4 +1,4 @@
-import { DnsRecordSet, filterEndpoints, generateKey } from "@highstate/common"
+import { DnsRecordSet, generateKey } from "@highstate/common"
 import { Namespace, PersistentVolumeClaim, StatefulSet } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
@@ -75,7 +75,7 @@ const endpoints = await toPromise(statefulSet.service.endpoints)
 
 new DnsRecordSet(deviceFqdn, {
   providers: inputs.accessPoint.dnsProviders,
-  values: filterEndpoints(endpoints, undefined, ["ipv4", "ipv6"]),
+  values: endpoints.filter(endpoint => endpoint.type !== "hostname"),
 })
 
 export default outputs({

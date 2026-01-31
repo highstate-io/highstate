@@ -60,6 +60,18 @@ model InstanceState {
     /// The 32-bit nonce used to invalidate the input hash when secrets are updated.
     inputHashNonce Int?
 
+    /// The calculated CRC32 hash of the instance's own configuration at the moment of last operation completion.
+    ///
+    /// This hash covers:
+    /// - component definition hash;
+    /// - the unit's source hash (if applicable);
+    /// - the instance's configuration (name, args, secret hashes / nonce).
+    ///
+    /// It does not include hashes of dependencies.
+    ///
+    /// Used together with `dependencyOutputHash` to short-circuit execution at runtime.
+    selfHash Int?
+
     /// The calculated instance CRC32 input hash at the moment of last operation completion.
     ///
     /// This hash covers:

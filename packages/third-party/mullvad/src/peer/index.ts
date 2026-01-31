@@ -1,4 +1,10 @@
-import { l3EndpointToL4, l4EndpointToString, parseL3Endpoint } from "@highstate/common"
+import {
+  l3EndpointToL4,
+  l4EndpointToString,
+  parseAddress,
+  parseEndpoint,
+  parseSubnet,
+} from "@highstate/common"
 import { mullvad } from "@highstate/library"
 import { forUnit, output, toPromise } from "@highstate/pulumi"
 import { map } from "remeda"
@@ -25,10 +31,10 @@ const server = serverList.servers.apply(servers => {
 })
 
 const endpoints = output([server.fqdn, server.ipv4_addr_in, server.ipv6_addr_in])
-  .apply(map(parseL3Endpoint))
+  .apply(map(endpoint => parseEndpoint(endpoint)))
   .apply(map(endpoint => l3EndpointToL4(endpoint, 51820, "udp")))
 
-const dns = args.includeDns ? ["10.64.0.1"] : []
+const dns = args.includeDns ? [parseAddress("10.64.0.1")] : []
 const allowedIps = ["0.0.0.0/0", ...dns]
 
 if (network?.ipv6) {
@@ -39,10 +45,9 @@ export default outputs({
   peer: {
     name,
     publicKey: server.pubkey,
+    addresses: [],
     endpoints,
-    allowedEndpoints: [],
-    excludedIps: [],
-    allowedIps,
+    allowedSubnets: allowedIps.map(parseSubnet),
     dns,
   },
 

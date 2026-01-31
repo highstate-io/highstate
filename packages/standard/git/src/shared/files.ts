@@ -8,7 +8,7 @@ import {
   type InputL7Endpoint,
   l7EndpointToString,
   MaterializedFolder,
-  parseL7Endpoint,
+  parseEndpoint,
 } from "@highstate/common"
 import { type SimpleGit, simpleGit } from "simple-git"
 
@@ -280,7 +280,7 @@ export class MaterializedRepository implements AsyncDisposable {
     name?: string,
     mode?: number,
   ): Promise<MaterializedRepository> {
-    const parsedEndpoint = parseL7Endpoint(endpoint)
+    const parsedEndpoint = parseEndpoint(endpoint, 7)
 
     const entity: common.Folder = {
       meta: {

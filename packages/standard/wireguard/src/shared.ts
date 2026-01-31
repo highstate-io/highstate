@@ -1,15 +1,20 @@
 import type { k8s, network, wireguard } from "@highstate/library"
 import {
+  addressToCidr,
+  createAddressSpace,
+  filterWithMetadataByExpression,
+  type InputAddressSpace,
   l3EndpointToL4,
-  l3EndpointToString,
   l4EndpointToString,
-  l34EndpointToString,
-  parseL4Endpoint,
-  parseL34Endpoint,
+  parseAddress,
+  parseEndpoint,
+  parseSubnets,
+  subnetToString,
 } from "@highstate/common"
 import { getBestEndpoint } from "@highstate/k8s"
 import { type Input, type Output, secret, type Unwrap } from "@highstate/pulumi"
 import { x25519 } from "@noble/curves/ed25519"
+import { sha256 } from "@noble/hashes/sha2.js"
 import { randomBytes } from "@noble/hashes/utils.js"
 import { unique, uniqueBy } from "remeda"
 
@@ -34,19 +39,18 @@ export function generatePresharedKey(): string {
 export function combinePresharedKeyParts(part1: string, part2: string): string {
   const key1 = Buffer.from(part1, "base64")
   const key2 = Buffer.from(part2, "base64")
-  const result = new Uint8Array(32)
 
-  for (let i = 0; i < 32; i++) {
-    result[i] = key1[i] ^ key2[i]
-  }
+  // combine the two parts in a deterministic order to ensure both sides generate the same key
+  const combined = Buffer.concat([key1, key2].toSorted((a, b) => a.compare(b)))
 
-  return Buffer.from(result).toString("base64")
+  return Buffer.from(sha256(combined)).toString("base64")
 }
 
 function generatePeerConfig(
   identity: wireguard.Identity,
   peer: wireguard.Peer,
   cluster?: k8s.Cluster,
+  peerEndpointFilter?: string,
 ): string {
   const lines = [
     //
@@ -55,11 +59,15 @@ function generatePeerConfig(
     `PublicKey = ${peer.publicKey}`,
   ]
 
-  if (peer.allowedIps.length > 0) {
-    lines.push(`AllowedIPs = ${peer.allowedIps.join(", ")}`)
+  if (peer.allowedSubnets.length > 0) {
+    lines.push(`AllowedIPs = ${peer.allowedSubnets.map(subnetToString).join(", ")}`)
   }
 
-  const bestEndpoint = getBestEndpoint(peer.endpoints, cluster)
+  const endpoints = peerEndpointFilter
+    ? filterWithMetadataByExpression(peer.endpoints, peerEndpointFilter)
+    : peer.endpoints
+
+  const bestEndpoint = getBestEndpoint(endpoints, cluster)
 
   if (bestEndpoint) {
     lines.push(`Endpoint = ${l4EndpointToString(bestEndpoint)}`)
@@ -98,8 +106,8 @@ export type IdentityConfigArgs = {
   preUp?: string[]
   preDown?: string[]
   postDown?: string[]
-  defaultInterface?: string
   cluster?: k8s.Cluster
+  peerEndpointFilter?: string
 }
 
 export function generateIdentityConfig({
@@ -111,11 +119,15 @@ export function generateIdentityConfig({
   postUp = [],
   preDown = [],
   postDown = [],
-  defaultInterface,
   cluster,
+  peerEndpointFilter,
 }: IdentityConfigArgs): Output<string> {
-  const allDns = unique(peers.flatMap(peer => peer.dns).concat(dns))
-  const excludedIps = unique(peers.flatMap(peer => peer.excludedIps))
+  const allDns = unique(
+    peers
+      .flatMap(peer => peer.dns)
+      .map(dns => dns.value)
+      .concat(dns),
+  )
 
   const lines = [
     //
@@ -123,8 +135,8 @@ export function generateIdentityConfig({
     `# ${identity.peer.name}`,
   ]
 
-  if (identity.peer.address) {
-    lines.push(`Address = ${identity.peer.address}`)
+  if (identity.peer.addresses) {
+    lines.push(`Address = ${identity.peer.addresses.map(addressToCidr).join(", ")}`)
   }
 
   lines.push(
@@ -169,18 +181,11 @@ export function generateIdentityConfig({
     }
   }
 
-  if (defaultInterface) {
-    lines.push()
-    for (const excludedIp of excludedIps) {
-      lines.push(`PostUp = ip route add ${excludedIp} dev ${defaultInterface}`)
-    }
-  }
-
   const otherPeers = peers.filter(peer => peer.name !== identity.peer.name)
 
   for (const peer of otherPeers) {
     lines.push("")
-    lines.push(generatePeerConfig(identity, peer, cluster))
+    lines.push(generatePeerConfig(identity, peer, cluster, peerEndpointFilter))
   }
 
   return secret(lines.join("\n"))
@@ -188,124 +193,100 @@ export function generateIdentityConfig({
 
 type SharedPeerInputs = {
   network?: Input<wireguard.Network>
-  l3Endpoints: Input<network.L3Endpoint>[]
-  l4Endpoints: Input<network.L4Endpoint>[]
-  allowedL3Endpoints: Input<network.L3Endpoint>[]
-  allowedL4Endpoints: Input<network.L4Endpoint>[]
+  endpoints: Input<network.L3Endpoint>[]
+  allowedSubnets: Input<network.Subnet>[]
+  allowedEndpoints: Input<network.L3Endpoint>[]
 }
 
 export function calculateEndpoints(
-  { endpoints, listenPort }: Pick<wireguard.SharedPeerArgs, "endpoints" | "listenPort">,
-  { l3Endpoints, l4Endpoints }: Pick<Unwrap<SharedPeerInputs>, "l3Endpoints" | "l4Endpoints">,
+  {
+    endpoints: argsEnpoints,
+    listenPort,
+  }: Pick<wireguard.SharedPeerArgs, "endpoints" | "listenPort">,
+  { endpoints }: Pick<Unwrap<SharedPeerInputs>, "endpoints">,
 ): network.L4Endpoint[] {
   return uniqueBy(
     [
-      ...l3Endpoints.map(e => l3EndpointToL4(e, listenPort ?? 51820)),
-      ...l4Endpoints,
-      ...endpoints.map(parseL4Endpoint),
+      ...endpoints.map(e => l3EndpointToL4(e, e.port ?? listenPort ?? 51820)),
+      ...argsEnpoints.map(endpoint => parseEndpoint(endpoint, 4)),
     ],
     endpoint => l4EndpointToString(endpoint),
   )
 }
 
-export function calculateAllowedIps(
-  { address, exitNode }: Pick<wireguard.SharedPeerArgs, "address" | "exitNode">,
-  { network }: Unwrap<SharedPeerInputs>,
-  allowedEndpoints: network.L34Endpoint[],
-): string[] {
-  const result = new Set<string>()
+export async function calculateAllowedSubnets(
+  {
+    includeAddresses,
+    excludePrivateSubnets,
+    exitNode,
+    allowedSubnets,
+  }: Pick<
+    wireguard.SharedPeerArgs,
+    "includeAddresses" | "excludePrivateSubnets" | "exitNode" | "allowedSubnets"
+  >,
+  { network, allowedSubnets: inputAllowedSubnets }: Unwrap<SharedPeerInputs>,
+  addresses: network.Address[],
+): Promise<network.Subnet[]> {
+  const included: InputAddressSpace[] = await parseSubnets(allowedSubnets, inputAllowedSubnets)
+  const excluded: InputAddressSpace[] = []
 
-  if (address) {
-    result.add(address)
+  if (includeAddresses) {
+    included.push(...addresses)
   }
 
   if (exitNode) {
-    result.add("0.0.0.0/0")
+    if (network?.ipv4) {
+      included.push("0.0.0.0/0")
+    }
 
     if (network?.ipv6) {
-      result.add("::/0")
+      included.push("::/0")
     }
   }
 
-  for (const endpoint of allowedEndpoints) {
-    if (endpoint.type !== "hostname") {
-      result.add(l3EndpointToString(endpoint))
-    }
-  }
-
-  return Array.from(result)
-}
-
-export function calculateAllowedEndpoints(
-  { allowedEndpoints }: Pick<wireguard.SharedPeerArgs, "allowedEndpoints">,
-  {
-    allowedL3Endpoints,
-    allowedL4Endpoints,
-  }: Pick<Unwrap<SharedPeerInputs>, "allowedL3Endpoints" | "allowedL4Endpoints">,
-): network.L34Endpoint[] {
-  return uniqueBy(
-    [
-      //
-      ...allowedL3Endpoints,
-      ...allowedL4Endpoints,
-      ...allowedEndpoints.map(parseL34Endpoint),
-    ],
-    endpoint => l34EndpointToString(endpoint),
-  )
-}
-
-function calculateExcludedIps(
-  { excludedIps, excludePrivateIps }: wireguard.SharedPeerArgs,
-  { network }: Unwrap<SharedPeerInputs>,
-): string[] {
-  const result = new Set<string>()
-
-  for (const ip of excludedIps) {
-    result.add(ip)
-  }
-
-  if (excludePrivateIps) {
-    result.add("10.0.0.0/8")
-    result.add("172.16.0.0/12")
-    result.add("192.168.0.0/16")
+  if (excludePrivateSubnets) {
+    excluded.push("10.0.0.0/8")
+    excluded.push("172.16.0.0/12")
+    excluded.push("192.168.0.0/16")
 
     if (network?.ipv6) {
-      result.add("fc00::/7")
-      result.add("fe80::/10")
+      excluded.push("fc00::/7")
+      excluded.push("fe80::/10")
     }
   }
 
-  return Array.from(result)
+  const space = createAddressSpace({ included, excluded })
+  return space.subnets
 }
 
 export function isExitNode(peer: wireguard.Peer): boolean {
-  return peer.allowedIps.includes("0.0.0.0/0") || peer.allowedIps.includes("::/0")
+  return (
+    peer.allowedSubnets.some(subnet => subnetToString(subnet) === "0.0.0.0/0") ||
+    peer.allowedSubnets.some(subnet => subnetToString(subnet) === "::/0")
+  )
 }
 
-export function createPeerEntity(
+export async function createPeerEntity(
   name: string,
   args: wireguard.SharedPeerArgs,
   inputs: Unwrap<SharedPeerInputs>,
   publicKey: string,
   presharedKeyPart?: string,
-): wireguard.Peer {
+): Promise<wireguard.Peer> {
   const endpoints = calculateEndpoints(args, inputs)
-  const allowedEndpoints = calculateAllowedEndpoints(args, inputs)
-  const allowedIps = calculateAllowedIps(args, inputs, allowedEndpoints)
-  const excludedIps = calculateExcludedIps(args, inputs)
+  const addresses = args.addresses.map(parseAddress)
+  const allowedSubnets = await calculateAllowedSubnets(args, inputs, addresses)
 
   return {
     name: args.peerName ?? name,
     endpoints,
-    allowedIps,
-    allowedEndpoints,
-    excludedIps,
-    dns: args.dns,
+    allowedSubnets,
+    dns: args.dns.map(parseAddress),
     publicKey,
-    address: args.address,
+    addresses,
     network: inputs.network,
     presharedKeyPart,
-    listenPort: args.listenPort,
+    listenPort: args.listenPort ?? 51820,
     persistentKeepalive: args.persistentKeepalive,
   }
 }

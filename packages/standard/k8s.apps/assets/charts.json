@@ -8,8 +8,8 @@
   "traefik": {
     "repo": "https://traefik.github.io/charts",
     "name": "traefik",
-    "version": "37.0.0",
-    "sha256": "b3232b170399889871931e1d3c5cac4c9932c5a6681d229dccbee08e1550fa1f"
+    "version": "38.0.2",
+    "sha256": "9a3307a1bdba400e8c6f0627807421a3cfc181767e957bfdfc4b447bdf18a603"
   },
   "mariadb": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
@@ -27,18 +27,24 @@
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "mongodb",
     "version": "0.7.0",
-    "sha256": "1513a650f8ad2a6c28ec29f2244567e72f925f3af023615a0859dc6c1e723079"
+    "sha256": "9e7336929d3a800f2f483ff6b28ed5d04480c245326563dee16eb6308ca9a2f4"
   },
   "minio": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "minio",
     "version": "0.5.7",
-    "sha256": "a78ef8787b3058f5abab5d9734bb3a5474391dfa3000a3823c0fd9bfcabd69f1"
+    "sha256": "184d60dd6b6a723842957b2d642cf13ed145c3c70564f475d5b58825aa556e00"
   },
   "valkey": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "valkey",
     "version": "0.13.0",
-    "sha256": "52de74f777c0c9e200a833b11c1c1938e90aaf4a6be60bbe7083b8ac496746e5"
+    "sha256": "02abd6c12dc3a4d501e9dcc4d03c7b9d34d58c7999c055ee3b152fb589b6aed0"
+  },
+  "etcd": {
+    "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
+    "name": "etcd",
+    "version": "0.5.0",
+    "sha256": "7d798683281e6e12ff2135373154d82e84120cc0ebce702ea00cd2065e373166"
   }
 }

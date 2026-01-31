@@ -3,7 +3,7 @@ import type { CommonObjectMeta } from "@highstate/contract"
 
 export const useProjectsStore = defineStore("projects", () => {
   const { $client } = useNuxtApp()
-  const { data: projectsData } = $client.project.getProjects.useQuery()
+  const { execute: refreshProjects, data: projectsData } = $client.project.getProjects.useQuery()
   const projects = refDefault(
     computed(() => projectsData.value),
     [],
@@ -19,13 +19,17 @@ export const useProjectsStore = defineStore("projects", () => {
     loadingCreateProject.value = true
 
     try {
-      return await $client.project.createProject.mutate({
+      const project = await $client.project.createProject.mutate({
         projectInput: {
           meta,
           name,
         },
         unlockMethodInput,
       })
+
+      await refreshProjects()
+
+      return project
     } finally {
       loadingCreateProject.value = false
     }

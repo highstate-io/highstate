@@ -1,7 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
 import * as databases from "../../databases"
-import { l4EndpointEntity } from "../../network"
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -37,10 +36,6 @@ export const postgresql = defineUnit({
   outputs: {
     postgresql: databases.postgresqlEntity,
     service: serviceEntity,
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
   },
 
   meta: {

@@ -7,7 +7,7 @@ export const useCompositeStore = defineMultiStore({
 
   create: ({ storeId, id: [projectId, stateId, version], logger }) => {
     return defineStore(storeId, () => {
-      const { vueFlowStore, nodeFactory, onNodesMoved } = useCanvasStore(
+      const { vueFlowStore, nodeFactory, onNodesMoved, edgeEndpointOffsets } = useCanvasStore(
         "instance",
         projectId,
         stateId,
@@ -75,7 +75,7 @@ export const useCompositeStore = defineMultiStore({
         void waitForLayoutCompletion(vueFlowStore)
           .then(() => layoutNodes(vueFlowStore))
           .then(() => vueFlowStore.fitView())
-          .then(() => setupEdgeRouter(vueFlowStore, onNodesMoved))
+          .then(() => setupEdgeRouter(vueFlowStore, onNodesMoved, edgeEndpointOffsets))
       }
 
       const debouncedSetViewport = useDebounceFn(async (viewport: ViewportTransform) => {

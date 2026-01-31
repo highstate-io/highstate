@@ -21,11 +21,16 @@ in {
   languages.javascript.package = pkgs.nodejs_24;
   languages.javascript.corepack.enable = true;
 
-  env = prisma.env;
+  env =
+    prisma.env
+    // {
+      CHROMIUM_PATH = "${pkgs.chromium}/bin/chromium";
+    };
 
   packages = with pkgs; [
     pkgs-unstable.pulumi-bin
     pkgs-unstable.pulumiPackages.pulumi-nodejs
+    chromium
     crd2pulumi
     kubectl
     pkgs-unstable.kubernetes-helm

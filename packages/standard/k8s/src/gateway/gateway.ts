@@ -1,11 +1,10 @@
 import type { k8s, network } from "@highstate/library"
 import type { types } from "@pulumi/kubernetes"
 import type { SetRequired } from "type-fest"
-import { parseL3Endpoint } from "@highstate/common"
+import { parseEndpoint } from "@highstate/common"
 import { getOrCreate } from "@highstate/contract"
 import { gateway, type types as gwTypes } from "@highstate/gateway-api"
 import {
-  ComponentResource,
   type ComponentResourceOptions,
   type Input,
   type InputArray,
@@ -17,7 +16,13 @@ import {
 } from "@highstate/pulumi"
 import { omit } from "remeda"
 import { Namespace } from "../namespace"
-import { commonExtraArgs, getProvider, mapMetadata, type ScopedResourceArgs } from "../shared"
+import {
+  commonExtraArgs,
+  getProvider,
+  mapMetadata,
+  NamespacedResource,
+  type ScopedResourceArgs,
+} from "../shared"
 
 export type GatewayArgs = ScopedResourceArgs & {
   /**
@@ -43,7 +48,10 @@ const gatewayExtraArgs = [...commonExtraArgs, "fqdn", "fqdns"] as const
 /**
  * Represents a Kubernetes Gateway resource.
  */
-export abstract class Gateway extends ComponentResource {
+export abstract class Gateway extends NamespacedResource {
+  static readonly apiVersion = "gateway.networking.k8s.io/v1"
+  static readonly kind = "Gateway"
+
   protected constructor(
     type: string,
     name: string,
@@ -53,12 +61,8 @@ export abstract class Gateway extends ComponentResource {
     /**
      * The namespace where the gateway is located.
      */
-    readonly namespace: Output<Namespace>,
-
-    /**
-     * The metadata of the underlying Kubernetes gateway.
-     */
-    readonly metadata: Output<types.output.meta.v1.ObjectMeta>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
 
     /**
      * The spec of the underlying Gateway resource.
@@ -70,26 +74,14 @@ export abstract class Gateway extends ComponentResource {
      */
     readonly status: Output<gwTypes.output.gateway.v1.GatewayStatus>,
   ) {
-    super(type, name, args, opts)
-  }
-
-  /**
-   * The cluster where the gateway is located.
-   */
-  get cluster(): Output<k8s.Cluster> {
-    return this.namespace.cluster
+    super(type, name, args, opts, metadata, namespace)
   }
 
   /**
    * The Highstate gateway entity.
    */
   get entity(): Output<k8s.Gateway> {
-    return output({
-      type: "gateway",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+    return output(this.entityBase)
   }
 
   /**
@@ -101,7 +93,7 @@ export abstract class Gateway extends ComponentResource {
         return []
       }
 
-      return addresses.map(address => parseL3Endpoint(address.value))
+      return addresses.map(address => parseEndpoint(address.value))
     })
   }
 
@@ -299,8 +291,8 @@ class CreatedGateway extends Gateway {
       args,
       opts,
 
-      output(args.namespace),
       gatewayResource.metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       gatewayResource.spec,
       gatewayResource.status,
     )
@@ -326,8 +318,8 @@ class GatewayPatch extends Gateway {
       args,
       opts,
 
-      output(args.namespace),
       gatewayResource.metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       gatewayResource.spec,
       gatewayResource.status,
     )
@@ -354,8 +346,8 @@ class WrappedGateway extends Gateway {
       args,
       opts,
 
-      output(args.namespace),
       output(args.gateway).metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       output(args.gateway).spec,
       output(args.gateway).status,
     )
@@ -390,8 +382,8 @@ class ExternalGateway extends Gateway {
       args,
       opts,
 
-      output(args.namespace),
       gatewayResource.metadata as Output<types.output.meta.v1.ObjectMeta>,
+      output(args.namespace),
       gatewayResource.spec,
       gatewayResource.status,
     )

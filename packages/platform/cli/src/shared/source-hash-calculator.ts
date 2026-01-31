@@ -28,6 +28,44 @@ type FileDependency =
       package: string
     }
 
+export function parseFileDependencies(filePath: string, content: string): FileDependency[] {
+  type DependencyMatch = {
+    relativePath?: string
+    nodeBuiltin?: string
+    npmPackage?: string
+  }
+
+  const dependencyRegex =
+    /^[ \t]*import\b[\s\S]*?\bfrom\s*["']((?<relativePath>\.\.?\/[^"']+)|(?<nodeBuiltin>node:[^"']+)|(?<npmPackage>[^"']+))["']/gm
+
+  const matches = content.matchAll(dependencyRegex)
+  const dependencies: FileDependency[] = []
+
+  for (const match of matches) {
+    const { nodeBuiltin, npmPackage, relativePath } = match.groups as DependencyMatch
+
+    if (relativePath) {
+      const fullPath = resolve(dirname(filePath), relativePath)
+
+      dependencies.push({
+        type: "relative",
+        id: `relative:${fullPath}`,
+        fullPath,
+      })
+    } else if (npmPackage) {
+      dependencies.push({
+        type: "npm",
+        id: `npm:${npmPackage}`,
+        package: npmPackage,
+      })
+    } else if (nodeBuiltin) {
+      // ignore node built-in modules
+    }
+  }
+
+  return dependencies
+}
+
 export class SourceHashCalculator {
   private readonly dependencyHashes = new Map<string, Promise<number>>()
   private readonly fileHashes = new Map<string, Promise<number>>()
@@ -174,7 +212,7 @@ export class SourceHashCalculator {
 
   private async calculateFileHash(fullPath: string): Promise<number> {
     const content = await readFile(fullPath, "utf8")
-    const fileDeps = this.parseDependencies(fullPath, content)
+    const fileDeps = parseFileDependencies(fullPath, content)
 
     const hashes = await Promise.all([
       this.hashString(content),
@@ -283,43 +321,5 @@ export class SourceHashCalculator {
 
       basePath = resolve(dirname(basePath), "..")
     }
-  }
-
-  private parseDependencies(filePath: string, content: string): FileDependency[] {
-    type DependencyMatch = {
-      relativePath?: string
-      nodeBuiltin?: string
-      npmPackage?: string
-    }
-
-    const dependencyRegex =
-      /^[ \t]*import[\s\S]*?\bfrom\s*["']((?<relativePath>\.\.?\/[^"']+)|(?<nodeBuiltin>node:[^"']+)|(?<npmPackage>[^"']+))["']/gm
-
-    const matches = content.matchAll(dependencyRegex)
-    const dependencies: FileDependency[] = []
-
-    for (const match of matches) {
-      const { nodeBuiltin, npmPackage, relativePath } = match.groups as DependencyMatch
-
-      if (relativePath) {
-        const fullPath = resolve(dirname(filePath), relativePath)
-
-        dependencies.push({
-          type: "relative",
-          id: `relative:${fullPath}`,
-          fullPath,
-        })
-      } else if (npmPackage) {
-        dependencies.push({
-          type: "npm",
-          id: `npm:${npmPackage}`,
-          package: npmPackage,
-        })
-      } else if (nodeBuiltin) {
-        // ignore node built-in modules
-      }
-    }
-
-    return dependencies
   }
 }

@@ -5,18 +5,24 @@ import { createId } from "@paralleldrive/cuid2"
 import { InstanceNode } from "#layers/core/app/features/instance-node"
 import HubNode from "./HubNode.vue"
 
+const emit = defineEmits<{
+  ready: []
+}>()
+
 const {
   instances,
   hubs = [],
   components,
   entities,
   autoPosition = true,
+  interactive = false,
 } = defineProps<{
   instances: InstanceModel[]
   hubs?: HubModel[]
   components: Record<string, ComponentModel>
   entities: Record<string, EntityModel>
   autoPosition?: boolean
+  interactive?: boolean
 }>()
 
 const canvasId = createId()
@@ -49,18 +55,32 @@ const init = async (canvasStore: CanvasStore) => {
         .then(() => layoutNodes(canvasStore.vueFlowStore))
         .then(() => canvasStore.vueFlowStore.fitView())
         .then(() => nextTick())
-        .then(() => setupEdgeRouter(canvasStore.vueFlowStore, canvasStore.onNodesMoved)),
+        .then(() =>
+          setupEdgeRouter(
+            canvasStore.vueFlowStore,
+            canvasStore.onNodesMoved,
+            canvasStore.edgeEndpointOffsets,
+          ),
+        ),
     )
   } else {
     promises.push(
       waitForLayoutCompletion(canvasStore.vueFlowStore)
         .then(() => canvasStore.vueFlowStore.fitView())
         .then(() => nextTick())
-        .then(() => setupEdgeRouter(canvasStore.vueFlowStore, canvasStore.onNodesMoved)),
+        .then(() =>
+          setupEdgeRouter(
+            canvasStore.vueFlowStore,
+            canvasStore.onNodesMoved,
+            canvasStore.edgeEndpointOffsets,
+          ),
+        ),
     )
   }
 
   await Promise.all(promises)
+
+  emit("ready")
 }
 </script>
 
@@ -72,6 +92,7 @@ const init = async (canvasStore: CanvasStore) => {
     :components="components"
     :entities="entities"
     :minimap="false"
+    :interactive="interactive"
   >
     <template #node-instance="{ data }">
       <InstanceNode
@@ -80,6 +101,7 @@ const init = async (canvasStore: CanvasStore) => {
         :entities="entities"
         :input-resolver-outputs="inputResolverOutputs"
         :input-resolver-dependent-map="inputResolverDependentMap"
+        editable
       />
     </template>
 

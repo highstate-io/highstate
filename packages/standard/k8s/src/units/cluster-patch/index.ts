@@ -1,32 +1,22 @@
-import { l3EndpointToString, l4EndpointToString, updateEndpoints } from "@highstate/common"
+import { l3EndpointToString, l4EndpointToString, parseEndpoints } from "@highstate/common"
 import { k8s } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
+import { forUnit, toPromise } from "@highstate/pulumi"
 
 const { args, inputs, outputs } = forUnit(k8s.clusterPatch)
 
-const endpoints = await updateEndpoints(
-  inputs.k8sCluster.endpoints,
-  args.endpoints,
-  inputs.endpoints,
-  args.endpointsPatchMode,
-)
+const cluster = await toPromise(inputs.k8sCluster)
+const endpoints = await parseEndpoints(args.endpoints, inputs.endpoints, 3)
+const apiEndpoints = await parseEndpoints(args.apiEndpoints, inputs.apiEndpoints, 4)
 
-const apiEndpoints = await updateEndpoints(
-  inputs.k8sCluster.apiEndpoints,
-  args.apiEndpoints,
-  inputs.apiEndpoints,
-  args.apiEndpointsPatchMode,
-)
+const newEndpoints = endpoints.length > 0 ? endpoints : cluster.endpoints
+const newApiEndpoints = apiEndpoints.length > 0 ? apiEndpoints : cluster.apiEndpoints
 
 export default outputs({
   k8sCluster: inputs.k8sCluster.apply(k8sCluster => ({
     ...k8sCluster,
-    endpoints,
-    apiEndpoints,
+    endpoints: newEndpoints,
+    apiEndpoints: newApiEndpoints,
   })),
-
-  endpoints,
-  apiEndpoints,
 
   $statusFields: {
     endpoints: endpoints.map(l3EndpointToString),

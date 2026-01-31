@@ -1,6 +1,6 @@
 import type { UnitTerminal } from "@highstate/contract"
 import type { Output } from "@highstate/pulumi"
-import { createServerBundle, parseL7Endpoint } from "@highstate/common"
+import { createServerBundle, parseEndpoint } from "@highstate/common"
 import { type common, proxmox, type ssh } from "@highstate/library"
 import { forUnit, output, toPromise } from "@highstate/pulumi"
 import { cluster, Provider, storage } from "@muhlba91/pulumi-proxmoxve"
@@ -41,7 +41,7 @@ if (!datastores.datastoreIds.includes(datastoreId)) {
   throw new Error(`Datastore "${datastoreId}" not found in the node "${nodeName}"`)
 }
 
-const endpoint = parseL7Endpoint(args.endpoint)
+const endpoint = parseEndpoint(args.endpoint, 7)
 
 let serverEntity: Output<common.Server> | undefined
 let sshCredentials: Output<ssh.Connection | undefined> | undefined

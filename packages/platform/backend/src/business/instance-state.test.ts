@@ -192,6 +192,7 @@ describe("forgetInstanceState", () => {
       })
       expect(updatedState?.status).toBe("undeployed")
       expect(updatedState?.statusFields).toBeNull()
+      expect(updatedState?.selfHash).toBeNull()
       expect(updatedState?.inputHash).toBeNull()
       expect(updatedState?.outputHash).toBeNull()
       expect(updatedState?.dependencyOutputHash).toBeNull()

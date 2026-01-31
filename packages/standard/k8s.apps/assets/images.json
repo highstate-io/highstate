@@ -13,5 +13,10 @@
     "name": "ghcr.io/maybe-finance/maybe",
     "tag": "sha-cdad31812a273ec96e63aaeecc263e6bec237db8",
     "image": "ghcr.io/maybe-finance/maybe:sha-cdad31812a273ec96e63aaeecc263e6bec237db8@sha256:51056a51735f8b6380e27b54b172d1a9706cc6960a4984730af3c233a4b9bb3e"
+  },
+  "wg-feed-server": {
+    "name": "ghcr.io/exeteres/wg-feed/server",
+    "tag": "v0.2.0",
+    "image": "ghcr.io/exeteres/wg-feed/server:v0.2.0@sha256:ebdd718fc1a28caecc9b0c7ce5d624dd1e5cdb08f7b276586d25009c74516661"
   }
 }

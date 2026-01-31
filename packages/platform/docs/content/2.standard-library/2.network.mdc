@@ -1,0 +1,274 @@
+---
+title: Network 
+description: Highstate abstractions to work with network.
+navigation:
+  icon: i-mdi-network
+---
+
+## Overview
+
+Highstate provides a rich set of abstractions to work with network-related concepts.
+
+They are include:
+
+- [Subnets](#subnets): normalized network subnets in CIDR notation.
+- [Addresses](#addresses): normalized IpV4/IPv6 addresses with subnet they belong to.
+- [Address Spaces](#address-spaces): collections of subnets.
+- [Endpoints](#endpoints): network endpoints at different layers (L3, L4, L7) with metadata.
+
+Here the diagram illustrating the relationship between these concepts:
+
+::mermaid
+graph TD
+  Address -- includes --> Subnet
+  L3Endpoint -- includes (optional) --> Address
+  L3Endpoint -- includes (optional) --> Subnet
+  L4Endpoint -- extends --> L3Endpoint
+  L7Endpoint -- extends --> L4Endpoint
+  AddressSpace -- includes (multiple) --> Subnet
+::
+
+These `includes` and `extends` relationships means that you can:
+
+- use any endpoint of higher layer wherever an endpoint of lower layer is expected;
+- use endpoint wherever an address or subnet is expected (will fail for hostname endpoints though);
+- use address wherever a subnet is expected.
+
+## Subnets
+
+The subnet is represented by `network.subnet.v1` entity.
+
+It consist of:
+- `type`: either `ipv4` or `ipv6`.
+- `baseAddress`: the canonical string representation of the base address of the subnet.
+- `prefixLength`: the prefix length of the subnet.
+
+The base address is the lowest address in the subnet.
+It is also can be calculated from any address within the subnet and its prefix length.
+
+You can work with subnets using the following utility functions:
+
+```ts
+import { network } from "@highstate/library"
+import { parseSubnet, subnetToString } from "@highstate/common"
+
+const subnet = parseSubnet("192.168.1.0/24") // network.Subnet
+const subnetStr = subnetToString(subnet) // "192.168.1.0/24"
+```
+
+## Addresses
+
+The address is represented by `network.address.v1` entity.
+
+It consist of:
+- `type`: either `ipv4` or `ipv6`.
+- `value`: the canonical string representation of the address.
+- `subnet`: the subnet the address belongs to.
+
+You can work with addresses using the following utility functions:
+
+```ts
+import { network } from "@highstate/library"
+import { parseAddress, addressToString, addressToCidr, doesAddressBelongToSubnet } from "@highstate/common"
+
+const address1 = parseAddress("192.168.1.1") // network.Address
+const address2 = parseAddress("192.168.1.1/24") // network.Address (+ subnet with prefix other than /32)
+
+const addressStr1 = addressToString(address1) // "192.168.1.1"
+const addressStr2 = addressToString(address2) // "192.168.1.1"
+
+const addressCidr1 = addressToCidr(address1) // "192.168.1.1/32"
+const addressCidr2 = addressToCidr(address2) // "192.168.1.1/24"
+
+// you can also access subnet 
+const prefixLength = address2.subnet.prefixLength // 24
+
+// you can check if an address belongs to a subnet
+const subnet = parseSubnet("192.168.1.1/24")
+const belongs = doesAddressBelongToSubnet(address1, subnet) // true
+```
+
+## Address Spaces
+
+Address Space (`network.address-space.v1`) is a higher level abstraction that represents a collection of subnets.
+
+You can create address space by providing `included` and `excluded` sets of subnets/addresses/endpoints/strings in different formats.
+Highstate will normalize them and calculate the minimal set of non-overlapping subnets that represent the address space.
+
+To create address space, you can use `network.address-space.v1` component:
+
+::designer-preview{title="Address Space" type="snippet" id="standard-library/network/address-space"}
+::
+
+You can also create address space at runtime using `createAddressSpace` utility function:
+
+```ts
+import { network } from "@highstate/library"
+import { createAddressSpace } from "@highstate/common"
+
+const addressSpace = await createAddressSpace({
+  included: ["0.0.0.0/0"],
+  excluded: ["192.168.0.0/16"],
+}) // network.AddressSpace
+
+const subnets = addressSpace.subnets // network.Subnet[]
+```
+
+## Endpoints
+
+When we talk about connectivity, we usually refer to endpoints.
+Everything connected to a network has an endpoint(s) that can be used to reach it.
+Servers, devices, services, applications — all of them have endpoints.
+
+Highstate provides a set of entities to represent endpoints in different layers of the network stack:
+
+- `network.l3-endpoint.v1`: L3 endpoints (IP addresses).
+- `network.l4-endpoint.v1`: L4 endpoints (IP address + port/protocol).
+- `network.l7-endpoint.v1`: L7 endpoints (IP address + port/protocol + application-level info).
+
+Endpoints of different layers used by different entities.
+For example, servers usually have L3 endpoints, while services/applications have L4 or L7 endpoints.
+
+Endpoints of higher layers extends the ones of lower layers.
+For example, L4 endpoint includes L3 endpoint information, and L7 endpoint includes both L3 and L4 information.
+This also means that you can use an L4 endpoint wherever an L3 endpoint is expected, and an L7 endpoint wherever an L4 or L3 endpoint is expected.
+
+Endpoints also optionally include `subnet` and `address` fields, but only for IP address endpoints (not hostnames).
+If you try to use an endpoint with hostname as an address or subnet, it will result in an error.
+
+### L3 Endpoints
+
+Each L3 endpoint represent the one of the following:
+
+- IPv4 address.
+- IPv6 address.
+- Hostname (DNS name).
+
+Yes, hostnames are also considered endpoints in Highstate.
+Think of L3 endpoints as something that you can substitute in the `ping` command.
+
+The canonical string representation of L3 endpoints is rather its IP address or hostname.
+
+### L4 Endpoints
+
+L4 endpoints extend L3 endpoints by adding port and protocol information.
+The port is number between 1 and 65535, while protocol is either `tcp` or `udp`.
+
+The canonical string representation of L4 endpoints is:
+
+- short: `hostname:port`, `address:port` or `[address]:port` for IPv6 addresses.
+- full: `protocol://hostname:port`, `protocol://address:port` or `protocol://[address]:port` for IPv6 addresses.
+
+### L7 Endpoints
+
+L7 endpoints extend L4 endpoints by adding application-level information.
+Currently, it includes `appInfo` field that can store arbitrary string describing the application-level protocol
+and `path` field that can store URL path or similar information.
+
+The canonical string representation of L7 endpoints is similar to URLs: `appProtocol://l4endpoint[/path]`.
+
+### Endpoint Utilities
+
+The `@highstate/common` package provides utilities to work with endpoints at runtime,
+including parsing and stringifying them.
+
+You can parse endpoints using `parseL3Endpoint` function:
+
+```ts
+import { network } from "@highstate/library"
+import { parseEndpoint } from "@highstate/common"
+
+// 1. parse L3 endpoint with hostname
+const endpoint1 = parseL3Endpoint("example.com") // network.L3Endpoint
+
+// 2. parse L4 endpoint with IP address and port
+const endpoint2 = parseEndpoint("192.168.1.1:80") // network.L4Endpoint
+
+// 3. parse L7 endpoint with full format
+const endpoint3 = parseEndpoint("https://[2001:0db8::1]:443") // network.L7Endpoint
+
+// 4. require at least L4 endpoint
+const endpoint4 = parseEndpoint("example.com:22", 4) // network.L4Endpoint
+const endpoint5 = parseEndpoint("example.com", 4) // throws error
+```
+
+You can also stringify endpoints:
+
+```ts
+import {
+  parseEndpoint,
+  endpointToString,
+  l3EndpointToString,
+  l4EndpointToString,
+  l4EndpointToFullString,
+  l7EndpointToString,
+} from "@highstate/common"
+
+// 1. stringify any endpoint depending on its runtime level
+const endpoint1 = parseEndpoint("example.com:80")
+const str1 = endpointToString(endpoint1) // "example.com:80"
+
+// 2. stringify L3 endpoint, ignoring higher layer info
+const endpoint2 = parseEndpoint("https://[2001:0db8::1]:443")
+const str2 = l3EndpointToString(endpoint2) // "2001:0db8::1"
+
+// 3. stringify L4 endpoint, ignoring L7 info
+const endpoint3 = parseEndpoint("https://example.com:443/api")
+const str3 = l4EndpointToString(endpoint3) // "example.com:443"
+
+// 4. stringify L4 endpoint in full format
+const endpoint4 = parseEndpoint("https://example.com:443/api")
+const str4 = l4EndpointToFullString(endpoint4) // "tcp://example.com:443"
+
+// 5. stringify L7 endpoint 
+const endpoint5 = parseEndpoint("https://example.com:443/api")
+const str5 = l7EndpointToString(endpoint5) // "https://example.com:443/api"
+```
+
+
+### Endpoint Filter
+
+Almost every entity working with endpoints supports multiple endpoints.
+For example, a server can have multiple L3 endpoints visible on different networks.
+
+Highstate provides a powerful expression-based filtering mechanism to select endpoints based on various criteria.
+This way you can adapt your configurations to different environments and scenarios.
+
+You can filter endpoints using `network.endpoint-filter.v1` component:
+
+::designer-preview{title="Endpoint Filter" type="snippet" id="standard-library/network/endpoint-filter"}
+::
+
+## DNS Records
+
+Highstate provides `dns.provider.v1` entity for everything that can manage DNS records.
+For example, there is `cloudflare.connection.v1` component that exports this entity.
+Every provider can manage one or many DNS zones.
+
+You can create DNS records using `dns.record-set.v1` entity:
+
+::designer-preview{title="DNS Record Set" type="snippet" id="standard-library/network/dns-record-set"}
+::
+
+It will create all possible DNS records for the provided endpoints using all matched providers.
+All three endpoints sets (L3, L4, and L7) are isolated from each other when creating DNS records.
+
+The name of the DNS record can be specified using `recordName` or `name` of the record set.
+You can also specify endpoint filter to select specific endpoints to use as DNS record targets.
+By default, this filter selects everything except endpoints with hostnames.
+
+::warning
+
+CNAME records are currenly not supported, but will be added in the future.
+
+::
+
+This component outputs only hostname endpoints of the created DNS records, "masking" the actual IP addresses.
+If you need to merge DNS endpoints with other endpoints (to support both DNS and direct IP connectivity),
+you can use Highstate's native ability to merge entities from multiple sources.
+
+Just connect the outputs of both the DNS record set and the original endpoints to the target entity: 
+
+::designer-preview{title="DNS Record Set Merged" type="snippet" id="standard-library/network/dns-record-set-merged"}
+::
+

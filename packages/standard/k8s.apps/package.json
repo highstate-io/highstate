@@ -7,6 +7,7 @@
   ],
   "exports": {
     "./code-server": "./dist/code-server/index.js",
+    "./etcd/app": "./dist/etcd/app/index.js",
     "./grocy": "./dist/grocy/index.js",
     "./hubble": "./dist/hubble/index.js",
     "./kubernetes-dashboard": "./dist/kubernetes-dashboard/index.js",
@@ -25,6 +26,7 @@
     "./syncthing": "./dist/syncthing/index.js",
     "./traefik": "./dist/traefik/index.js",
     "./vaultwarden": "./dist/vaultwarden/index.js",
+    "./wg-feed-server": "./dist/wg-feed-server/index.js",
     "./workload": "./dist/workload/index.js"
   },
   "publishConfig": {

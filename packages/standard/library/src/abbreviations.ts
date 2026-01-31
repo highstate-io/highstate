@@ -30,6 +30,7 @@ registerKnownAbbreviations([
   "MariaDB",
   "PostgreSQL",
   "MongoDB",
+  "etcd",
 ])
 
 export const noop = () => {}

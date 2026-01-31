@@ -398,6 +398,33 @@ const schema = z.discriminatedUnion("type", [
     expect(result).toContain('type: z.literal("static"),') // unchanged, no comment
   })
 
+  it("should handle z.object getter fields with JSDoc comments", async () => {
+    const input = `
+const schema = z.object({
+  /**
+   * The peers which are relayed through this peer.
+   *
+   * All their allowed IPs will be added to this peer's allowed IPs
+   * and will be used to setup routing for all other peers except the relayed ones.
+   */
+  get relayedPeers() {
+    return peerEntity.schema.array().optional()
+  },
+})`
+
+    const result = await applySchemaTransformations(input)
+
+    expect(result).toContain(
+      'import { camelCaseToHumanReadable as __camelCaseToHumanReadable } from "@highstate/contract"',
+    )
+    expect(result).toContain(
+      'return peerEntity.schema.array().optional().meta({ title: __camelCaseToHumanReadable("relayedPeers"), description: `The peers which are relayed through this peer.',
+    )
+    expect(result).toContain(
+      "and will be used to setup routing for all other peers except the relayed ones.` })",
+    )
+  })
+
   it("should handle the full defineUnit case with discriminated union and mixed transformations", async () => {
     const input = `
 var virtualMachine = defineUnit({

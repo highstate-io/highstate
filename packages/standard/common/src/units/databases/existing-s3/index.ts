@@ -6,7 +6,7 @@ const { args, secrets, inputs, outputs } = forUnit(databases.existingS3)
 
 export default outputs({
   s3: {
-    endpoints: parseEndpoints(args.endpoints, inputs.endpoints),
+    endpoints: parseEndpoints(args.endpoints, inputs.endpoints, 4),
     region: args.region,
     accessKey: args.accessKey,
     secretKey: secrets.secretKey,

@@ -1,4 +1,4 @@
-import type { RequiredKeys, UnitTerminal } from "@highstate/contract"
+import type { UnitTerminal } from "@highstate/contract"
 import type { k8s } from "@highstate/library"
 import type { Container } from "./container"
 import type { NetworkPolicy } from "./network-policy"
@@ -26,7 +26,7 @@ import {
 } from "./workload"
 
 export type CronJobArgs = ScopedResourceArgs &
-  Omit<RequiredKeys<Partial<types.input.batch.v1.CronJobSpec>, "schedule">, "jobTemplate"> & {
+  Omit<Partial<types.input.batch.v1.CronJobSpec>, "jobTemplate"> & {
     jobTemplate?: {
       metadata?: types.input.meta.v1.ObjectMeta
       spec?: Omit<types.input.batch.v1.JobSpec, "template"> & {
@@ -42,25 +42,26 @@ export type CreateOrGetCronJobArgs = CronJobArgs & {
   /**
    * The cron job entity to patch/retrieve.
    */
-  existing: Input<k8s.ScopedResource> | undefined
+  existing: Input<k8s.NamespacedResource> | undefined
 }
 
 /**
  * Represents a Kubernetes CronJob resource with metadata and spec.
  */
 export abstract class CronJob extends Workload {
+  static apiVersion = "batch/v1"
+  static kind = "CronJob"
+
   protected constructor(
     type: string,
     name: string,
     args: Inputs,
     opts: ComponentResourceOptions | undefined,
 
-    apiVersion: Output<string>,
-    kind: Output<string>,
+    metadata: Output<types.output.meta.v1.ObjectMeta>,
+    namespace: Output<Namespace>,
     terminalArgs: Output<Unwrap<WorkloadTerminalArgs>>,
     containers: Output<Container[]>,
-    namespace: Output<Namespace>,
-    metadata: Output<types.output.meta.v1.ObjectMeta>,
     networkPolicy: Output<NetworkPolicy | undefined>,
 
     /**
@@ -78,12 +79,10 @@ export abstract class CronJob extends Workload {
       name,
       args,
       opts,
-      apiVersion,
-      kind,
+      metadata,
+      namespace,
       terminalArgs,
       containers,
-      namespace,
-      metadata,
       spec.jobTemplate.spec.template,
       networkPolicy,
     )
@@ -96,13 +95,8 @@ export abstract class CronJob extends Workload {
   /**
    * The Highstate cron job entity.
    */
-  get entity(): Output<k8s.ScopedResource> {
-    return output({
-      type: "cron-job",
-      clusterId: this.cluster.id,
-      clusterName: this.cluster.name,
-      metadata: this.metadata,
-    })
+  get entity(): Output<k8s.CronJob> {
+    return output(this.entityBase)
   }
 
   protected getTerminalMeta(): Output<UnitTerminal["meta"]> {
@@ -209,7 +203,7 @@ export abstract class CronJob extends Workload {
    * @param entity The entity to get the cron job for.
    * @param cluster The cluster where the cron job is located.
    */
-  static for(entity: k8s.ScopedResource, cluster: Input<k8s.Cluster>): CronJob {
+  static for(entity: k8s.NamespacedResource, cluster: Input<k8s.Cluster>): CronJob {
     return getOrCreate(
       CronJob.cronJobCache,
       `${entity.clusterName}.${entity.metadata.namespace}.${entity.metadata.name}.${entity.clusterId}`,
@@ -234,7 +228,7 @@ export abstract class CronJob extends Workload {
    * @param cluster The cluster where the cron job is located.
    */
   static async forAsync(
-    entity: Input<k8s.ScopedResource>,
+    entity: Input<k8s.NamespacedResource>,
     cluster: Input<k8s.Cluster>,
   ): Promise<CronJob> {
     const resolvedEntity = await toPromise(entity)
@@ -292,15 +286,11 @@ class CreatedCronJob extends CronJob {
       name,
       args,
       opts,
-
-      cronJob.apiVersion,
-      cronJob.kind,
+      cronJob.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      cronJob.metadata,
       networkPolicy,
-
       cronJob.spec,
       cronJob.status,
     )
@@ -330,7 +320,7 @@ class CronJobPatch extends CronJob {
                     template: podTemplate,
                   },
                 },
-                schedule: args.schedule,
+                schedule: args.schedule!,
               } satisfies types.input.batch.v1.CronJobSpec,
               omit(args, cronJobExtraArgs) as types.input.batch.v1.CronJobSpec,
             )
@@ -349,15 +339,11 @@ class CronJobPatch extends CronJob {
       name,
       args,
       opts,
-
-      cronJob.apiVersion,
-      cronJob.kind,
+      cronJob.metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       containers,
-      output(args.namespace),
-      cronJob.metadata,
       networkPolicy,
-
       cronJob.spec,
       cronJob.status,
     )
@@ -389,12 +375,10 @@ class WrappedCronJob extends CronJob {
       args,
       opts,
 
-      output(args.cronJob).apiVersion,
-      output(args.cronJob).kind,
+      output(args.cronJob).metadata,
+      output(args.namespace),
       output(args.terminal ?? {}),
       output([]),
-      output(args.namespace),
-      output(args.cronJob).metadata,
       output(undefined),
 
       output(args.cronJob).spec,
@@ -431,12 +415,10 @@ class ExternalCronJob extends CronJob {
       args,
       opts,
 
-      cronJob.apiVersion,
-      cronJob.kind,
+      cronJob.metadata,
+      output(args.namespace),
       output({}),
       output([]),
-      output(args.namespace),
-      cronJob.metadata,
       output(undefined),
 
       cronJob.spec,

@@ -11,15 +11,20 @@ import { WellKnownInstanceCustomStatus } from "@highstate/contract"
 import c from "ansi-colors"
 import { funnel } from "remeda"
 
+type SupportedKind =
+  | "Deployment"
+  | "StatefulSet"
+  | "Service"
+  | "PersistentVolumeClaim"
+  | "Gateway"
+  | "Certificate"
+
 type ResourceStatus = {
   status: "ok" | "error" | "warning" | "progressing" | "not-found"
   message?: string
 }
 
-type ResourceStatusMap = Record<
-  k8s.ScopedResource["type"],
-  Record<string, Record<string, ResourceStatus>>
->
+type ResourceStatusMap = Record<SupportedKind, Record<string, Record<string, ResourceStatus>>>
 
 type KubernetesResourceWithMetadata = {
   metadata?: { namespace?: string; name?: string }
@@ -36,31 +41,29 @@ type ResourceItem = {
   status: ResourceStatus
 }
 
-const resourceTypeLabels: Record<k8s.ScopedResource["type"], string> = {
-  deployment: "deployment",
-  "stateful-set": "stateful set",
-  service: "service",
-  "persistent-volume-claim": "persistent volume claim",
-  gateway: "gateway",
-  certificate: "certificate",
-  namespace: "namespace",
+const kindLabels: Record<SupportedKind, string> = {
+  Deployment: "deployment",
+  StatefulSet: "stateful set",
+  Service: "service",
+  PersistentVolumeClaim: "persistent volume claim",
+  Gateway: "gateway",
+  Certificate: "certificate",
 }
 
 export class StatusTracker {
   private readonly statusMap: ResourceStatusMap = {
-    deployment: {},
-    "stateful-set": {},
-    service: {},
-    "persistent-volume-claim": {},
-    gateway: {},
-    certificate: {},
-    namespace: {},
+    Deployment: {},
+    StatefulSet: {},
+    Service: {},
+    PersistentVolumeClaim: {},
+    Gateway: {},
+    Certificate: {},
   }
 
   constructor(
     private readonly stateId: string,
     private readonly instanceService: InstanceServiceClient,
-    public resources: k8s.ScopedResource[],
+    public resources: k8s.NamespacedResource[],
   ) {}
 
   private updateStatusDebouncer = funnel(
@@ -70,43 +73,43 @@ export class StatusTracker {
   )
 
   updateDeploymentStatus(deployment: V1Deployment): void {
-    this.updateResourceFromObject("deployment", deployment, this.getDeploymentStatus(deployment))
+    this.updateResourceFromObject("Deployment", deployment, this.getDeploymentStatus(deployment))
   }
 
   updateStatefulSetStatus(statefulSet: V1StatefulSet): void {
     this.updateResourceFromObject(
-      "stateful-set",
+      "StatefulSet",
       statefulSet,
       this.getStatefulSetStatus(statefulSet),
     )
   }
 
   updateServiceStatus(service: V1Service): void {
-    this.updateResourceFromObject("service", service, this.getServiceStatus(service))
+    this.updateResourceFromObject("Service", service, this.getServiceStatus(service))
   }
 
   updatePersistentVolumeClaimStatus(pvc: V1PersistentVolumeClaim): void {
     this.updateResourceFromObject(
-      "persistent-volume-claim",
+      "PersistentVolumeClaim",
       pvc,
       this.getPersistentVolumeClaimStatus(pvc),
     )
   }
 
   updateGatewayStatus(gateway: KubernetesObject): void {
-    this.updateResourceFromObject("gateway", gateway, this.getGatewayStatus(gateway))
+    this.updateResourceFromObject("Gateway", gateway, this.getGatewayStatus(gateway))
   }
 
   updateCertificateStatus(certificate: KubernetesObject): void {
     this.updateResourceFromObject(
-      "certificate",
+      "Certificate",
       certificate,
       this.getCertificateStatus(certificate),
     )
   }
 
   private updateResourceFromObject(
-    type: k8s.ScopedResource["type"],
+    type: SupportedKind,
     resource: KubernetesResourceWithMetadata,
     status: ResourceStatus,
   ): void {
@@ -122,7 +125,7 @@ export class StatusTracker {
   }
 
   private updateResourceStatus(
-    type: k8s.ScopedResource["type"],
+    type: SupportedKind,
     namespace: string,
     name: string,
     status: ResourceStatus,
@@ -139,7 +142,7 @@ export class StatusTracker {
     this.updateStatusDebouncer.call()
   }
 
-  removeResourceStatus(type: k8s.ScopedResource["type"], namespace: string, name: string): void {
+  removeResourceStatus(type: SupportedKind, namespace: string, name: string): void {
     if (this.statusMap[type]?.[namespace]) {
       delete this.statusMap[type][namespace][name]
       if (Object.keys(this.statusMap[type][namespace]).length === 0) {
@@ -312,18 +315,21 @@ export class StatusTracker {
 
   private resolveStatusMap(): ResourceStatusMap {
     const resolvedStatusMap: ResourceStatusMap = {
-      deployment: {},
-      "stateful-set": {},
-      service: {},
-      "persistent-volume-claim": {},
-      gateway: {},
-      certificate: {},
-      namespace: {},
+      Deployment: {},
+      StatefulSet: {},
+      Service: {},
+      PersistentVolumeClaim: {},
+      Gateway: {},
+      Certificate: {},
     }
 
     for (const resource of this.resources) {
-      const { type, metadata } = resource
-      const { namespace, name } = metadata
+      const type = this.kindToSupportedKind(resource)
+      if (!type) {
+        continue
+      }
+
+      const { namespace, name } = resource.metadata
 
       const existingStatus = this.statusMap[type][namespace]?.[name]
 
@@ -337,10 +343,24 @@ export class StatusTracker {
     return resolvedStatusMap
   }
 
+  private kindToSupportedKind(resource: k8s.NamespacedResource): SupportedKind | null {
+    switch (resource.kind) {
+      case "Deployment":
+      case "StatefulSet":
+      case "Service":
+      case "PersistentVolumeClaim":
+      case "Gateway":
+      case "Certificate":
+        return resource.kind
+      default:
+        return null
+    }
+  }
+
   private resolveInstanceStatus(statusMap: ResourceStatusMap): WellKnownInstanceCustomStatus {
     let status = WellKnownInstanceCustomStatus.Healthy
 
-    for (const type of Object.keys(statusMap) as k8s.ScopedResource["type"][]) {
+    for (const type of Object.keys(statusMap) as SupportedKind[]) {
       for (const namespace of Object.keys(statusMap[type])) {
         for (const name of Object.keys(statusMap[type][namespace])) {
           const resourceStatus = statusMap[type][namespace][name]
@@ -416,7 +436,7 @@ export class StatusTracker {
 
     // calculate the maximum width needed for left part to align all status messages
     const leftParts = resources.map(({ type, name }) => {
-      const resourceLabel = resourceTypeLabels[type as k8s.ScopedResource["type"]] ?? type
+      const resourceLabel = kindLabels[type as SupportedKind] ?? type
       return `${resourceLabel} "${c.blueBright(name)}"`
     })
 

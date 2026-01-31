@@ -2,7 +2,7 @@ import type { UnitTerminal } from "@highstate/contract"
 import {
   generateKey,
   generatePassword,
-  l3EndpointToL4,
+  l3EndpointToString,
   l4EndpointToString,
 } from "@highstate/common"
 import {
@@ -16,7 +16,7 @@ import {
 import { k8s } from "@highstate/library"
 import { forUnit, interpolate, type Output, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts } from "../../shared"
+import { charts, createBootstrapServiceEndpoint } from "../../shared"
 import { backupEnvironment, baseEnvironment } from "../scripts"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.mariadb)
@@ -44,25 +44,7 @@ const dataVolumeClaim = PersistentVolumeClaim.create(
   { deletedWith: namespace },
 )
 
-const k8sCluster = await toPromise(inputs.k8sCluster)
-const databaseHost = interpolate`${args.appName}.${namespace.metadata.name}.svc.cluster.local`
-
-const databaseEndpoint = databaseHost.apply(host => ({
-  ...l3EndpointToL4(host, 3306),
-  metadata: {
-    "k8s.service": {
-      clusterId: k8sCluster.id,
-      clusterName: k8sCluster.name,
-      name: args.appName,
-      namespace: args.appName,
-      selector: {
-        "app.kubernetes.io/name": args.appName,
-        "app.kubernetes.io/instance": args.appName,
-      },
-      targetPort: 3306,
-    },
-  } satisfies k8s.EndpointServiceMetadata,
-}))
+const serviceEndpoint = createBootstrapServiceEndpoint(namespace, args.appName, 3306)
 
 const backupJobPair = inputs.resticRepo
   ? new BackupJobPair(
@@ -82,7 +64,7 @@ const backupJobPair = inputs.resticRepo
               secret: rootPasswordSecret,
               key: "mariadb-root-password",
             },
-            DATABASE_HOST: databaseHost,
+            DATABASE_HOST: serviceEndpoint.apply(l3EndpointToString),
             DATABASE_PORT: "3306",
           },
         },
@@ -105,7 +87,7 @@ const backupJobPair = inputs.resticRepo
           },
         },
 
-        allowedEndpoints: [databaseEndpoint],
+        allowedEndpoints: [serviceEndpoint],
       },
       { dependsOn: dataVolumeClaim, deletedWith: namespace },
     )
@@ -165,7 +147,6 @@ export default outputs({
     password: rootPassword,
   },
   service: chart.service.entity,
-  endpoints,
 
   $statusFields: {
     endpoints: endpoints.map(l4EndpointToString),

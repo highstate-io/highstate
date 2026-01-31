@@ -16,6 +16,7 @@ export type InputHashNode = {
 }
 
 export type InputHashOutput = {
+  selfHash: number
   inputHash: number
   dependencyOutputHash: number
   outputHash: number
@@ -44,33 +45,35 @@ export class InputHashResolver extends GraphResolver<InputHashNode, InputHashOut
     sourceHash,
     state,
   }: InputHashNode): InputHashOutput {
-    const inputHashSink: Uint8Array[] = []
+    const selfHashSink: Uint8Array[] = []
 
     // 0. include the instance id to reflect renames
-    inputHashSink.push(Buffer.from(instance.id))
+    selfHashSink.push(Buffer.from(instance.id))
 
     // 1. include the component definition hash
-    inputHashSink.push(int32ToBytes(component.definitionHash))
+    selfHashSink.push(int32ToBytes(component.definitionHash))
 
     // 2. include the input hash nonce if available
     if (state?.inputHashNonce) {
-      inputHashSink.push(int32ToBytes(state.inputHashNonce))
+      selfHashSink.push(int32ToBytes(state.inputHashNonce))
     }
 
     // 3. include instance args encoded as msgpack
     if (instance.args) {
-      inputHashSink.push(encode(instance.args))
+      selfHashSink.push(encode(instance.args))
     }
 
     // 4. include the source hash if available
     if (sourceHash) {
-      inputHashSink.push(int32ToBytes(sourceHash))
+      selfHashSink.push(int32ToBytes(sourceHash))
     } else if (isUnitModel(component)) {
       this.logger.warn(
         { instanceId: instance.id },
         "missing source hash for unit model, this may lead to incorrect input hash",
       )
     }
+
+    const inputHashSink = [...selfHashSink]
 
     const sortedInputs = Object.entries(resolvedInputs)
       //
@@ -126,6 +129,7 @@ export class InputHashResolver extends GraphResolver<InputHashNode, InputHashOut
     }
 
     return {
+      selfHash: crc32(Buffer.concat(selfHashSink)),
       inputHash: crc32(Buffer.concat(inputHashSink)),
       dependencyOutputHash: crc32(Buffer.concat(dependencyOutputHashSink)),
       outputHash: state?.outputHash ?? 0,

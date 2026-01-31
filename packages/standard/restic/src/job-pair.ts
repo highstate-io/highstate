@@ -1,5 +1,4 @@
-import type { InputL34Endpoint } from "@highstate/common"
-import type { restic } from "@highstate/library"
+import type { network, restic } from "@highstate/library"
 import {
   type TriggerInvocation,
   text,
@@ -118,7 +117,7 @@ export type BackupJobPairArgs = ScopedResourceArgs & {
   /**
    * Extra allowed endpoints for the backup and restore jobs.
    */
-  allowedEndpoints?: InputArray<InputL34Endpoint>
+  allowedEndpoints?: InputArray<network.L3Endpoint>
 }
 
 export class BackupJobPair extends ComponentResource {

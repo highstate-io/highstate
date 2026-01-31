@@ -20,10 +20,6 @@
         "mode": "manual",
         "version": "1"
       },
-      "./units/cluster-dns": {
-        "mode": "manual",
-        "version": "1"
-      },
       "./units/dns01-issuer": {
         "mode": "manual",
         "version": "1"
@@ -49,7 +45,6 @@
     },
     "./units/cert-manager": "./dist/units/cert-manager/index.js",
     "./units/cluster-patch": "./dist/units/cluster-patch/index.js",
-    "./units/cluster-dns": "./dist/units/cluster-dns/index.js",
     "./units/dns01-issuer": "./dist/units/dns01-issuer/index.js",
     "./units/existing-cluster": "./dist/units/existing-cluster/index.js",
     "./units/gateway-api": "./dist/units/gateway-api/index.js",

@@ -1,38 +1,38 @@
-import type { k8s } from "@highstate/library"
+import type { k8s, network } from "@highstate/library"
+import { isPrivateAddress, parseAddress } from "@highstate/common"
 import { text, type UnitTerminal } from "@highstate/contract"
 import { fileFromString, type Input, type Output, output } from "@highstate/pulumi"
 import { CoreV1Api, type KubeConfig } from "@kubernetes/client-node"
 import { images } from "./shared"
 
-function isPrivateIp(ip: string) {
-  const privateIpRegex = /^(10|172\.16|192\.168)\./
-  return privateIpRegex.test(ip)
-}
-
 export async function detectExternalIps(
   kubeConfig: KubeConfig,
   internalIpsPolicy: k8s.InternalIpsPolicy,
-): Promise<string[]> {
+): Promise<network.Address[]> {
   const nodeApi = kubeConfig.makeApiClient(CoreV1Api)
   const nodes = await nodeApi.listNode()
 
   return nodes.items.flatMap(node => {
     const addresses = node.status?.addresses ?? []
+
     const externalIp = addresses.find(address => address.type === "ExternalIP")
     const internalIp = addresses.find(address => address.type === "InternalIP")
 
-    const result: string[] = []
+    const externalAddress = externalIp ? parseAddress(externalIp.address) : undefined
+    const internalAddress = internalIp ? parseAddress(internalIp.address) : undefined
 
-    if (externalIp?.address) {
-      result.push(externalIp.address)
+    const result: network.Address[] = []
+
+    if (externalAddress) {
+      result.push(externalAddress)
     }
 
-    if (internalIp?.address && internalIpsPolicy === "always") {
-      result.push(internalIp.address)
+    if (internalAddress && internalIpsPolicy === "always") {
+      result.push(internalAddress)
     }
 
-    if (internalIp?.address && internalIpsPolicy === "public" && !isPrivateIp(internalIp.address)) {
-      result.push(internalIp.address)
+    if (internalAddress && internalIpsPolicy === "public" && !isPrivateAddress(internalAddress)) {
+      result.push(internalAddress)
     }
 
     return result

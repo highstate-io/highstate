@@ -67,7 +67,7 @@ export type Container = Omit<PartialKeys<types.input.core.v1.Container, "name">,
    *
    * This is used to generate a network policy.
    */
-  allowedEndpoints?: InputArray<network.L34Endpoint>
+  allowedEndpoints?: InputArray<network.L3Endpoint>
 
   /**
    * Enable the TUN device in the container.

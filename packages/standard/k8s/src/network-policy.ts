@@ -1,11 +1,12 @@
 import type { k8s, network } from "@highstate/library"
 import type { Namespace } from "./namespace"
 import {
+  addressToCidr,
+  endpointToString,
   ImplementationMediator,
-  type InputL34Endpoint,
+  type InputEndpoint,
   l3EndpointToCidr,
-  l34EndpointToString,
-  parseL34Endpoint,
+  parseEndpoint,
 } from "@highstate/common"
 import { z } from "@highstate/contract"
 import {
@@ -22,7 +23,7 @@ import {
   type Unwrap,
 } from "@highstate/pulumi"
 import { type core, networking, type types } from "@pulumi/kubernetes"
-import { flat, groupBy, merge, mergeDeep, uniqueBy } from "remeda"
+import { flat, groupBy, isNonNullish, merge, mergeDeep, uniqueBy } from "remeda"
 import { requireBestEndpoint } from "./network"
 import { isEndpointFromCluster, mapServiceToLabelSelector } from "./service"
 import {
@@ -90,7 +91,7 @@ export type IngressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  fromEndpoint?: Input<InputL34Endpoint>
+  fromEndpoint?: Input<InputEndpoint>
 
   /**
    * The list of allowed L3 or L4 endpoints for incoming traffic.
@@ -102,7 +103,7 @@ export type IngressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  fromEndpoints?: InputArray<InputL34Endpoint>
+  fromEndpoints?: InputArray<InputEndpoint>
 
   /**
    * The service to allow traffic from.
@@ -219,7 +220,7 @@ export type EgressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  toEndpoint?: Input<InputL34Endpoint>
+  toEndpoint?: Input<InputEndpoint>
 
   /**
    * The list of allowed L3 or L4 endpoints for outgoing traffic.
@@ -231,7 +232,7 @@ export type EgressRuleArgs = {
    * If a single endpoint also has a port/protocol/service metadata,
    * it will produce separate rule for it with them and ORed with the rest of the rules.
    */
-  toEndpoints?: InputArray<InputL34Endpoint>
+  toEndpoints?: InputArray<InputEndpoint>
 
   /**
    * The service to allow traffic to.
@@ -443,7 +444,7 @@ export class NetworkPolicy extends ComponentResource {
 
         ingressRules: ingressRules.flatMap(rule => {
           const endpoints = normalize(rule?.fromEndpoint, rule?.fromEndpoints)
-          const parsedEndpoints = endpoints.map(parseL34Endpoint)
+          const parsedEndpoints = endpoints.map(endpoint => parseEndpoint(endpoint))
 
           const endpointsNamespaces = groupBy(parsedEndpoints, endpoint => {
             const namespace = isEndpointFromCluster(endpoint, cluster)
@@ -481,7 +482,7 @@ export class NetworkPolicy extends ComponentResource {
         egressRules: egressRules
           .flatMap(rule => {
             const endpoints = normalize(rule?.toEndpoint, rule?.toEndpoints)
-            const parsedEndpoints = endpoints.map(parseL34Endpoint)
+            const parsedEndpoints = endpoints.map(endpoint => parseEndpoint(endpoint))
 
             const endpointsByPortsAnsNamespaces = groupBy(parsedEndpoints, endpoint => {
               const namespace = isEndpointFromCluster(endpoint, cluster)
@@ -490,7 +491,9 @@ export class NetworkPolicy extends ComponentResource {
 
               const port = isEndpointFromCluster(endpoint, cluster)
                 ? endpoint.metadata["k8s.service"].targetPort
-                : endpoint.port
+                : endpoint.level !== 3
+                  ? endpoint.port
+                  : undefined
 
               return `${port ?? "0"}:${namespace}`
             })
@@ -554,30 +557,24 @@ export class NetworkPolicy extends ComponentResource {
     )
   }
 
-  private static mapCidrFromEndpoint(
-    this: void,
-    result: network.L3Endpoint & { type: "ipv4" | "ipv6" },
-  ): string {
-    if (result.type === "ipv4") {
-      return `${result.address}/32`
-    }
-
-    return `${result.address}/128`
-  }
-
   private static getRuleFromEndpoint(
     port: number | string | undefined,
-    endpoints: network.L34Endpoint[],
+    endpoints: network.L3Endpoint[],
     cluster: k8s.Cluster,
   ): NormalizedRuleArgs {
     const ports: NetworkPolicyPort[] = port
-      ? [{ port, protocol: endpoints[0].protocol?.toUpperCase() }]
+      ? [
+          {
+            port,
+            protocol: endpoints[0].level !== 3 ? endpoints[0].protocol?.toUpperCase() : undefined,
+          },
+        ]
       : []
 
     const cidrs = endpoints
       .filter(endpoint => !isEndpointFromCluster(endpoint, cluster))
-      .filter(endpoint => endpoint.type === "ipv4" || endpoint.type === "ipv6")
-      .map(NetworkPolicy.mapCidrFromEndpoint)
+      .map(endpoint => (endpoint.address ? addressToCidr(endpoint.address) : null))
+      .filter(isNonNullish)
 
     const fqdns = endpoints
       .filter(endpoint => endpoint.type === "hostname")
@@ -784,11 +781,11 @@ export class NetworkPolicy extends ComponentResource {
    */
   static async allowEgressToEndpoint(
     namespace: Input<Namespace>,
-    endpoint: InputL34Endpoint,
+    endpoint: InputEndpoint,
     opts?: ResourceOptions,
   ): Promise<NetworkPolicy> {
-    const parsedEndpoint = parseL34Endpoint(endpoint)
-    const endpointStr = l34EndpointToString(parsedEndpoint).replace(/:/g, "-")
+    const parsedEndpoint = parseEndpoint(endpoint)
+    const endpointStr = endpointToString(parsedEndpoint).replace(/:/g, "-")
     const nsName = await toPromise(output(namespace).metadata.name)
     const cluster = await toPromise(output(namespace).cluster)
 
@@ -796,7 +793,7 @@ export class NetworkPolicy extends ComponentResource {
       `allow-egress-to-${endpointStr}.${cluster.name}.${nsName}.${cluster.id}`,
       {
         namespace,
-        description: `Allow egress traffic to "${l34EndpointToString(parsedEndpoint)}" from the namespace.`,
+        description: `Allow egress traffic to "${endpointToString(parsedEndpoint)}" from the namespace.`,
         egressRule: { toEndpoint: endpoint },
       },
       opts,
@@ -814,12 +811,16 @@ export class NetworkPolicy extends ComponentResource {
    */
   static async allowEgressToBestEndpoint(
     namespace: Input<Namespace>,
-    endpoints: InputArray<InputL34Endpoint>,
+    endpoints: InputArray<InputEndpoint>,
     opts?: ResourceOptions,
   ): Promise<NetworkPolicy> {
     const cluster = await toPromise(output(namespace).cluster)
     const resolvedEndpoints = await toPromise(output(endpoints))
-    const bestEndpoint = requireBestEndpoint(resolvedEndpoints.map(parseL34Endpoint), cluster)
+
+    const bestEndpoint = requireBestEndpoint(
+      resolvedEndpoints.map(endpoint => parseEndpoint(endpoint)),
+      cluster,
+    )
 
     return await NetworkPolicy.allowEgressToEndpoint(namespace, bestEndpoint, opts)
   }
@@ -835,11 +836,11 @@ export class NetworkPolicy extends ComponentResource {
    */
   static async allowIngressFromEndpoint(
     namespace: Input<Namespace>,
-    endpoint: InputL34Endpoint,
+    endpoint: InputEndpoint,
     opts?: ResourceOptions,
   ): Promise<NetworkPolicy> {
-    const parsedEndpoint = parseL34Endpoint(endpoint)
-    const endpointStr = l34EndpointToString(parsedEndpoint).replace(/:/g, "-")
+    const parsedEndpoint = parseEndpoint(endpoint)
+    const endpointStr = endpointToString(parsedEndpoint).replace(/:/g, "-")
     const nsName = await toPromise(output(namespace).metadata.name)
     const cluster = await toPromise(output(namespace).cluster)
 
@@ -847,7 +848,7 @@ export class NetworkPolicy extends ComponentResource {
       `allow-ingress-from-${endpointStr}.${cluster.name}.${nsName}.${cluster.id}`,
       {
         namespace,
-        description: interpolate`Allow ingress traffic from "${l34EndpointToString(parsedEndpoint)}" to the namespace.`,
+        description: interpolate`Allow ingress traffic from "${endpointToString(parsedEndpoint)}" to the namespace.`,
         ingressRule: { fromEndpoint: endpoint },
       },
       opts,

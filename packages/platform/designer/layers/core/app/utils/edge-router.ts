@@ -6,6 +6,7 @@ import type {
   EdgeRouterOutputMessage,
   EdgeRouterShape,
 } from "#layers/core/app/workers/edge-router"
+import type { RoutedEdgeData } from "#layers/core/app/features/canvas"
 import { createId } from "@paralleldrive/cuid2"
 import type { EventHookOn } from "@vueuse/core"
 
@@ -21,6 +22,9 @@ const {
 export function setupEdgeRouter(
   vueFlowStore: VueFlowStore,
   onNodesMoved: EventHookOn<[GraphNode[], GraphEdge[]]>,
+  edgeEndpointOffsets?: {
+    onOffsetsUpdated: EventHookOn<[string[]]>
+  },
 ): void {
   const routerId = createId()
   const ready = ref(false)
@@ -44,14 +48,16 @@ export function setupEdgeRouter(
   }
 
   const getEdgeFromGraphEdge = (edge: GraphEdge<any, any, string>): EdgeRouterEdge => {
+    const data = (edge.data ?? {}) as RoutedEdgeData
+
     return {
       id: edge.id,
       source: edge.source,
       target: edge.target,
       sourceX: edge.sourceX,
-      sourceY: edge.sourceY,
+      sourceY: data.routedSourceY ?? edge.sourceY,
       targetX: edge.targetX,
-      targetY: edge.targetY,
+      targetY: data.routedTargetY ?? edge.targetY,
     }
   }
 
@@ -175,6 +181,19 @@ export function setupEdgeRouter(
         break
       }
     }
+  })
+
+  edgeEndpointOffsets?.onOffsetsUpdated(edgeIds => {
+    for (const edgeId of edgeIds) {
+      const edge = vueFlowStore.findEdge(edgeId)
+      if (!edge) {
+        continue
+      }
+
+      updateGraphEdge(edge)
+    }
+
+    processTransaction()
   })
 
   onError(() => {

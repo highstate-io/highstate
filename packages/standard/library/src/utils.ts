@@ -1,4 +1,5 @@
-import { z } from "@highstate/contract"
+import { type FullComponentArgumentOptions, genericNameSchema, z } from "@highstate/contract"
+import { mapValues } from "remeda"
 
 type PrefixWith<TString extends string, TPrefix extends string> = TPrefix extends ""
   ? TString
@@ -37,16 +38,7 @@ export function prefixKeysWith<T extends Record<string, unknown>, Prefix extends
   ) as PrefixedKeys<T, Prefix>
 }
 
-export const arrayPatchModeSchema = z.enum(["prepend", "replace"])
-export const booleanPatchSchema = z.enum(["keep", "true", "false"])
-
-/**
- * The mode to use when patching some array:
- *
- * - `prepend`: prepend the values of the new array to the existing array;
- * - `replace`: replace the existing array with the new array.
- */
-export type ArrayPatchMode = z.infer<typeof arrayPatchModeSchema>
+export const booleanPatchSchema = z.enum(["keep", "true", "false"]).default("keep")
 
 /**
  * The boolean patch:
@@ -56,3 +48,41 @@ export type ArrayPatchMode = z.infer<typeof arrayPatchModeSchema>
  * - `false`: set the value to `false`.
  */
 export type BooleanPatch = z.infer<typeof booleanPatchSchema>
+
+export function toPatchArgs<T extends Record<string, FullComponentArgumentOptions>>(
+  args: T,
+): {
+  [K in keyof T]: T[K]["schema"] extends z.ZodBoolean
+    ? Omit<T[K], "schema"> & { schema: typeof booleanPatchSchema }
+    : T[K]
+} {
+  return mapValues(args, arg => {
+    if (
+      arg.schema instanceof z.ZodBoolean ||
+      (arg.schema instanceof z.ZodDefault && arg.schema.unwrap() instanceof z.ZodBoolean) ||
+      (arg.schema instanceof z.ZodOptional && arg.schema.unwrap() instanceof z.ZodBoolean)
+    ) {
+      return { ...arg, schema: booleanPatchSchema }
+    }
+
+    return arg
+    // biome-ignore lint/suspicious/noExplicitAny: already typed
+  }) as any
+}
+
+/**
+ * The schema for a metadata key.
+ *
+ * Follows the same conventions as Highstate generic name, but requires at least two segments separated by a dot.
+ */
+export const metadataKeySchema = z.templateLiteral([
+  genericNameSchema,
+  z.literal("."),
+  genericNameSchema,
+])
+
+export const metadataSchema = z.record(metadataKeySchema, z.unknown())
+
+export type Metadata = z.infer<typeof metadataSchema>
+export type MetadataKey = z.infer<typeof metadataKeySchema>
+export type MetadataContainer = { metadata?: Metadata }

@@ -20,11 +20,23 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/network/address-space":{
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/network/endpoint-filter": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/network/l3-endpoint": {
         "mode": "manual",
         "version": "1"
       },
       "./units/network/l4-endpoint": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/network/l7-endpoint": {
         "mode": "manual",
         "version": "1"
       },
@@ -40,11 +52,11 @@
         "mode": "manual",
         "version": "1"
       },
-      "./units/server-dns": {
+      "./units/server-patch": {
         "mode": "manual",
         "version": "1"
       },
-      "./units/server-patch": {
+      "./units/databases/existing-etcd": {
         "mode": "manual",
         "version": "1"
       },
@@ -63,6 +75,34 @@
       "./units/databases/existing-redis": {
         "mode": "manual",
         "version": "1"
+      },
+      "./units/databases/existing-s3": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/etcd-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/mariadb-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/postgresql-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/mongodb-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/redis-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/databases/s3-patch": {
+        "mode": "manual",
+        "version": "1"
       }
     }
   },
@@ -73,17 +113,27 @@
     },
     "./units/access-point": "./dist/units/access-point/index.js",
     "./units/dns/record-set": "./dist/units/dns/record-set/index.js",
+    "./units/network/address-space": "./dist/units/network/address-space/index.js",
+    "./units/network/endpoint-filter": "./dist/units/network/endpoint-filter/index.js",
     "./units/network/l3-endpoint": "./dist/units/network/l3-endpoint/index.js",
     "./units/network/l4-endpoint": "./dist/units/network/l4-endpoint/index.js",
+    "./units/network/l7-endpoint": "./dist/units/network/l7-endpoint/index.js",
     "./units/existing-server": "./dist/units/existing-server/index.js",
     "./units/ssh/key-pair": "./dist/units/ssh/key-pair/index.js",
     "./units/script": "./dist/units/script/index.js",
-    "./units/server-dns": "./dist/units/server-dns/index.js",
     "./units/server-patch": "./dist/units/server-patch/index.js",
+    "./units/databases/existing-etcd": "./dist/units/databases/existing-etcd/index.js",
     "./units/databases/existing-mariadb": "./dist/units/databases/existing-mariadb/index.js",
     "./units/databases/existing-postgresql": "./dist/units/databases/existing-postgresql/index.js",
     "./units/databases/existing-mongodb": "./dist/units/databases/existing-mongodb/index.js",
-    "./units/databases/existing-redis": "./dist/units/databases/existing-redis/index.js"
+    "./units/databases/existing-redis": "./dist/units/databases/existing-redis/index.js",
+    "./units/databases/existing-s3": "./dist/units/databases/existing-s3/index.js",
+    "./units/databases/etcd-patch": "./dist/units/databases/etcd-patch/index.js",
+    "./units/databases/mariadb-patch": "./dist/units/databases/mariadb-patch/index.js",
+    "./units/databases/postgresql-patch": "./dist/units/databases/postgresql-patch/index.js",
+    "./units/databases/mongodb-patch": "./dist/units/databases/mongodb-patch/index.js",
+    "./units/databases/redis-patch": "./dist/units/databases/redis-patch/index.js",
+    "./units/databases/s3-patch": "./dist/units/databases/s3-patch/index.js"
   },
   "publishConfig": {
     "access": "public"
@@ -95,6 +145,7 @@
   },
   "scripts": {
     "build": "highstate build",
+    "test": "vitest run",
     "update-images": "../../../scripts/update-images.sh ./assets/images.json",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
@@ -106,12 +157,13 @@
     "@highstate/pulumi": "workspace:*",
     "@noble/hashes": "^1.7.1",
     "@pulumi/command": "^1.0.2",
+    "filter-expression": "^1.0.0",
+    "import-meta-resolve": "^4.1.0",
     "micro-key-producer": "^0.7.3",
     "minimatch": "^10.0.3",
     "remeda": "^2.21.0",
     "tar": "^7.4.3",
-    "unzipper": "^0.12.3",
-    "import-meta-resolve": "^4.1.0"
+    "unzipper": "^0.12.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
@@ -119,6 +171,8 @@
     "@types/tar": "^6.1.13",
     "@types/unzipper": "^0.10.11",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "@vitest/coverage-v8": "2.1.8",
+    "vitest": "^3.2.4",
     "type-fest": "^4.41.0"
   },
   "repository": {

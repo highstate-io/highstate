@@ -1,0 +1,8 @@
+{
+  "name": "@highstate/etcd",
+  "version": "0.14.2",
+  "private": true,
+  "scripts": {
+    "generate-sdks": "./scripts/generate-sdks.sh"
+  }
+}

@@ -1,7 +1,8 @@
 import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { mapValues, pick } from "remeda"
+import { serverEntity } from "./common/server"
 import { implementationReferenceSchema } from "./impl-ref"
-import { endpointFilterSchema, l3EndpointEntity, l4EndpointEntity } from "./network"
-import { arrayPatchModeSchema, prefixKeysWith } from "./utils"
+import { l3EndpointEntity, l4EndpointEntity, networkArgs } from "./network"
 
 export const providerEntity = defineEntity({
   type: "dns.provider.v1",
@@ -13,11 +14,9 @@ export const providerEntity = defineEntity({
     id: z.string(),
 
     /**
-     * The domain apex for which the DNS records will be created.
-     *
-     * If the provider manages multiple domains, the separate provider entity should be created for each domain.
+     * The zones managed by the DNS provider.
      */
-    domain: z.string(),
+    zones: z.string().array(),
 
     /**
      * The reference to the implementation of the DNS provider.
@@ -34,12 +33,25 @@ export const recordSet = defineUnit({
   type: "dns.record-set.v1",
 
   args: {
-    ...createArgs(),
+    /**
+     * The FQDN of the DNS to create.
+     *
+     * If not provided, the name of the unit will be used.
+     */
+    recordName: z.string().optional(),
 
     /**
      * The values of the DNS record.
+     *
+     * Will be parsed as endpoints and merged with provided L3/L4/L7 endpoint inputs.
      */
     values: z.string().array().default([]),
+
+    ...mapValues(
+      //
+      pick(networkArgs, ["endpointFilter"]),
+      arg => ({ ...arg, schema: arg.schema.default(`type != "hostname"`) }),
+    ),
 
     /**
      * The TTL of the DNS record.
@@ -57,6 +69,11 @@ export const recordSet = defineUnit({
      * Available only for public IPs and some DNS providers like Cloudflare.
      */
     proxied: z.boolean().default(false),
+
+    /**
+     * Wait for the DNS record creation/update to be visible at local DNS before continuing.
+     */
+    waitLocal: z.boolean().default(true),
   },
 
   inputs: {
@@ -67,6 +84,15 @@ export const recordSet = defineUnit({
      */
     dnsProviders: {
       entity: providerEntity,
+      multiple: true,
+    },
+
+    /**
+     * The servers to wait for the DNS records to be visible at before continuing.
+     */
+    waitServers: {
+      entity: serverEntity,
+      required: false,
       multiple: true,
     },
 
@@ -87,15 +113,41 @@ export const recordSet = defineUnit({
       required: false,
       multiple: true,
     },
+
+    /**
+     * The L7 endpoints to use as values of the DNS records.
+     */
+    l7Endpoints: {
+      entity: l4EndpointEntity,
+      required: false,
+      multiple: true,
+    },
   },
 
   outputs: {
+    /**
+     * The filtered L3 endpoints with all IPs replaced with FQDNs.
+     * The duplicates are removed and metadata is merged.
+     */
     l3Endpoints: {
       entity: l3EndpointEntity,
       multiple: true,
     },
 
+    /**
+     * The filtered L4 endpoints with all IPs replaced with FQDNs.
+     * The duplicates are removed and metadata is merged.
+     */
     l4Endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+
+    /**
+     * The filtered L7 endpoints with all IPs replaced with FQDNs.
+     * The duplicates are removed and metadata is merged.
+     */
+    l7Endpoints: {
       entity: l4EndpointEntity,
       multiple: true,
     },
@@ -114,48 +166,6 @@ export const recordSet = defineUnit({
     path: "units/dns/record-set",
   },
 })
-
-export function createArgs<TPrefix extends string = "">(prefix?: TPrefix) {
-  return prefixKeysWith(prefix, {
-    /**
-     * The FQDN to register the existing endpoints with.
-     *
-     * Will be inserted at the beginning of the resulting endpoint list.
-     *
-     * Will throw an error if no matching provider is found.
-     */
-    fqdn: z.string().optional(),
-
-    /**
-     * The endpoint filter to filter the endpoints before creating the DNS records.
-     *
-     * Possible values:
-     *
-     * - `public`: only endpoints exposed to the public internet;
-     * - `external`: reachable from outside the system but not public (e.g., LAN, VPC);
-     * - `internal`: reachable only from within the system boundary (e.g., inside a cluster).
-     *
-     * You can select one or more values.
-     *
-     * If no value is provided, the endpoints will be filtered by the most accessible type:
-     *
-     * - if any public endpoints exist, all public endpoints are selected;
-     * - otherwise, if any external endpoints exist, all external endpoints are selected;
-     * - if neither exist, all internal endpoints are selected.
-     */
-    endpointFilter: endpointFilterSchema.default([]),
-
-    /**
-     * The mode to use for patching the existing endpoints.
-     *
-     * - `prepend`: Prepend the FQDN to the existing endpoints. It will make them prioritized.
-     * - `replace`: Replace the existing endpoints with the FQDN. It will ensure that the only the FQDN is used.
-     *
-     * The default is `prepend`.
-     */
-    patchMode: arrayPatchModeSchema.default("prepend"),
-  })
-}
 
 export const inputs = {
   /**

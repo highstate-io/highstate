@@ -14,9 +14,17 @@ import { StatusTracker } from "./status"
 const informeres: Map<string, Informer<KubernetesObject>[]> = new Map()
 const statusTrackers = new Map<string, StatusTracker>()
 
+type SupportedKind =
+  | "Deployment"
+  | "StatefulSet"
+  | "Service"
+  | "PersistentVolumeClaim"
+  | "Gateway"
+  | "Certificate"
+
 function setupInformerEvents<T extends KubernetesObject>(
   informer: Informer<T>,
-  resourceType: k8s.ScopedResource["type"],
+  resourceType: SupportedKind,
   statusTracker: StatusTracker,
   updateCallback: (obj: T) => void,
 ): void {
@@ -56,12 +64,12 @@ function setupInformerEvents<T extends KubernetesObject>(
 function createResourceInformer(
   statusTracker: StatusTracker,
   kc: KubeConfig,
-  resource: k8s.ScopedResource,
+  resource: k8s.NamespacedResource,
 ): Informer<KubernetesObject> {
   const appsApi = kc.makeApiClient(AppsV1Api)
 
-  switch (resource.type) {
-    case "deployment": {
+  switch (resource.kind) {
+    case "Deployment": {
       const listFn = () =>
         appsApi.listNamespacedDeployment({ namespace: resource.metadata.namespace })
 
@@ -73,7 +81,7 @@ function createResourceInformer(
 
       setupInformerEvents(
         informer,
-        "deployment",
+        "Deployment",
         statusTracker,
         //
         deployment => statusTracker.updateDeploymentStatus(deployment),
@@ -81,7 +89,7 @@ function createResourceInformer(
 
       return informer
     }
-    case "stateful-set": {
+    case "StatefulSet": {
       const listFn = () =>
         appsApi.listNamespacedStatefulSet({ namespace: resource.metadata.namespace })
 
@@ -93,7 +101,7 @@ function createResourceInformer(
 
       setupInformerEvents(
         informer,
-        "stateful-set",
+        "StatefulSet",
         statusTracker,
         //
         statefulSet => statusTracker.updateStatefulSetStatus(statefulSet),
@@ -101,7 +109,7 @@ function createResourceInformer(
 
       return informer
     }
-    case "service": {
+    case "Service": {
       const coreApi = kc.makeApiClient(CoreV1Api)
       const listFn = () => coreApi.listNamespacedService({ namespace: resource.metadata.namespace })
 
@@ -113,7 +121,7 @@ function createResourceInformer(
 
       setupInformerEvents(
         informer,
-        "service",
+        "Service",
         statusTracker,
         //
         service => statusTracker.updateServiceStatus(service),
@@ -125,7 +133,7 @@ function createResourceInformer(
 
       return informer
     }
-    case "persistent-volume-claim": {
+    case "PersistentVolumeClaim": {
       const coreApi = kc.makeApiClient(CoreV1Api)
       const listFn = () =>
         coreApi.listNamespacedPersistentVolumeClaim({ namespace: resource.metadata.namespace })
@@ -138,7 +146,7 @@ function createResourceInformer(
 
       setupInformerEvents(
         informer,
-        "persistent-volume-claim",
+        "PersistentVolumeClaim",
         statusTracker,
         //
         pvc => statusTracker.updatePersistentVolumeClaimStatus(pvc),
@@ -146,8 +154,8 @@ function createResourceInformer(
 
       return informer
     }
-    case "gateway": {
-      // Note: Gateway API resources may require different API groups
+    case "Gateway": {
+      // Note: Gateway API resources may require different API groups.
       const customApi = kc.makeApiClient(CustomObjectsApi)
       const listFn = () =>
         customApi.listNamespacedCustomObject({
@@ -165,7 +173,7 @@ function createResourceInformer(
 
       setupInformerEvents(
         informer,
-        "gateway",
+        "Gateway",
         statusTracker,
         //
         gateway => statusTracker.updateGatewayStatus(gateway),
@@ -173,8 +181,8 @@ function createResourceInformer(
 
       return informer
     }
-    case "certificate": {
-      // cert-manager certificates
+    case "Certificate": {
+      // cert-manager certificates.
       const customApi = kc.makeApiClient(CustomObjectsApi)
       const listFn = () =>
         customApi.listNamespacedCustomObject({
@@ -192,7 +200,7 @@ function createResourceInformer(
 
       setupInformerEvents(
         informer,
-        "certificate",
+        "Certificate",
         statusTracker,
         //
         certificate => statusTracker.updateCertificateStatus(certificate),
@@ -202,14 +210,14 @@ function createResourceInformer(
     }
   }
 
-  throw new Error(`Unsupported resource type: ${resource.type}`)
+  throw new Error(`Unsupported resource kind: ${resource.kind}`)
 }
 
 export async function updateInstanceInformers(
   stateId: string,
   instanceService: InstanceServiceClient,
   kc: KubeConfig,
-  resources: k8s.ScopedResource[],
+  resources: k8s.NamespacedResource[],
 ): Promise<void> {
   let statusTracker = statusTrackers.get(stateId)
   if (statusTracker) {

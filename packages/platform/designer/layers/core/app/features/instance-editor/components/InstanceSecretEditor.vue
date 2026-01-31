@@ -9,7 +9,7 @@ import type { InstanceState } from "@highstate/backend"
 
 const { component, state, initialSecrets } = defineProps<{
   instance: InstanceModel
-  state: InstanceState
+  state?: InstanceState
   component: UnitModel
   initialSecrets: Record<string, unknown>
 }>()
@@ -30,7 +30,9 @@ const cancel = async () => {
 const save = async () => {
   const secretValues = removeDefaultValues(secrets, component.secrets)
 
-  emit("save", state.id, secretValues)
+  if (state) {
+    emit("save", state.id, secretValues)
+  }
 
   await nextTick()
   editing.value = false
