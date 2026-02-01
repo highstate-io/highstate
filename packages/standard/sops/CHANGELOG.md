@@ -1,3 +1,13 @@
+## 0.16.0 (2026-02-01)
+
+### 🚀 Features
+
+- one more commit with a lot of code, new features, fixes and reworked standard library ([7a7d1e1](https://github.com/highstate-io/highstate/commit/7a7d1e1))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.15.0 (2026-01-03)
 
 ### 🚀 Features

@@ -1,6 +1,6 @@
 {
   "name": "@highstate/common",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "type": "module",
   "files": [
     "dist",
@@ -20,7 +20,7 @@
         "mode": "manual",
         "version": "1"
       },
-      "./units/network/address-space":{
+      "./units/network/address-space": {
         "mode": "manual",
         "version": "1"
       },
