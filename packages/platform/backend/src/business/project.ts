@@ -1,6 +1,5 @@
 import type { InputJsonValue } from "@prisma/client/runtime/client"
 import type { Logger } from "pino"
-import type { DatabaseManager, Project } from "../database"
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
 import type { ProjectModelService } from "./project-model"
@@ -17,7 +16,7 @@ import {
 } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import { createProjectLogger } from "../common"
-import { projectDatabaseVersion } from "../database/abstractions"
+import { type DatabaseManager, type Project, projectDatabaseVersion } from "../database"
 import {
   applyInstancePatch,
   type ProjectEvaluationSubsystem,

@@ -1,11 +1,9 @@
 datasource db {
     provider = "postgresql"
-    url      = env("HIGHSTATE_MIGRATION_DATABASE_URL")
 }
 
 generator client {
     provider               = "prisma-client"
-    previewFeatures        = ["queryCompiler", "driverAdapters"]
     output                 = "../../../src/database/_generated/backend/postgresql"
     moduleFormat           = "esm"
     generatedFileExtension = "ts"

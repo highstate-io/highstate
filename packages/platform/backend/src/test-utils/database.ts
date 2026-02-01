@@ -4,12 +4,17 @@ import { constants } from "node:fs"
 import { access, mkdtemp, rm } from "node:fs/promises"
 import { hostname, tmpdir } from "node:os"
 import { join } from "node:path"
-import { PrismaLibSQL } from "@prisma/adapter-libsql"
+import { PrismaLibSql } from "@prisma/adapter-libsql"
 import { generateIdentity, identityToRecipient } from "age-encryption"
-import { type DatabaseManager, ensureWellKnownEntitiesCreated } from "../database"
+import { createProjectLogger } from "../common"
+import {
+  type DatabaseManager,
+  ensureWellKnownEntitiesCreated,
+  migrateDatabase,
+  migrationPacks,
+} from "../database"
 import { PrismaClient as BackendPrismaClient } from "../database/_generated/backend/sqlite/client"
 import { getInitialBackendUnlockMethodMeta } from "../database/local/backend"
-import { migrateDatabase } from "../database/migrate"
 import {
   type BackendDatabase as BackendDatabaseClient,
   ProjectDatabase as ProjectDatabaseClient,
@@ -58,12 +63,15 @@ export class TestDatabaseManager implements DatabaseManager {
   async _forProject(projectId: string): Promise<ProjectDatabase> {
     const tempPath = await this.createTempPath()
     const projectUrl = `file:${join(tempPath, `${projectId}.db`)}`
+    const logger = createProjectLogger(this.logger, projectId)
 
-    await migrateDatabase(projectUrl, "project", undefined, this.logger)
-
-    return new ProjectDatabaseClient({
-      adapter: new PrismaLibSQL({ url: projectUrl }),
+    const client = new ProjectDatabaseClient({
+      adapter: new PrismaLibSql({ url: projectUrl }),
     })
+
+    await migrateDatabase(client, migrationPacks.project, 0, () => Promise.resolve(), logger)
+
+    return client
   }
 
   static async create(
@@ -75,20 +83,26 @@ export class TestDatabaseManager implements DatabaseManager {
     const tempPath = await mkdtemp(join(tempRoot, "highstate"))
     const backendUrl = `file:${join(tempPath, "backend.db")}`
 
-    await migrateDatabase(backendUrl, "backend/sqlite", undefined, logger)
-
-    const backend = new BackendPrismaClient({
-      adapter: new PrismaLibSQL({ url: backendUrl }),
+    const backendClient = new BackendPrismaClient({
+      adapter: new PrismaLibSql({ url: backendUrl }),
     }) as BackendDatabaseClient
 
-    await ensureWellKnownEntitiesCreated(backend)
+    await migrateDatabase(
+      backendClient,
+      migrationPacks["backend/sqlite"],
+      0,
+      () => Promise.resolve(),
+      logger,
+    )
+
+    await ensureWellKnownEntitiesCreated(backendClient)
 
     if (isEncryptionEnabled) {
       const identity = await generateIdentity()
       const recipient = await identityToRecipient(identity)
       const meta = getInitialBackendUnlockMethodMeta(hostname())
 
-      await backend.backendUnlockMethod.create({
+      await backendClient.backendUnlockMethod.create({
         data: {
           recipient,
           meta,
@@ -96,7 +110,7 @@ export class TestDatabaseManager implements DatabaseManager {
       })
     }
 
-    return new TestDatabaseManager(backend, logger, isEncryptionEnabled)
+    return new TestDatabaseManager(backendClient, logger, isEncryptionEnabled)
   }
 
   private async createTempPath(): Promise<string> {

@@ -31,11 +31,5 @@ export interface ProjectDatabaseBackend {
    * @param projectId The ID of the project to open the database for.
    * @param masterKey The master key to decrypt the project database. If not provided, the encryption is assumed to be disabled.
    */
-  openProjectDatabase(
-    projectId: string,
-    masterKey?: string,
-  ): Promise<[database: ProjectDatabase, url: string]>
+  openProjectDatabase(projectId: string, masterKey?: string): Promise<ProjectDatabase>
 }
-
-export const backendDatabaseVersion = 1
-export const projectDatabaseVersion = 2

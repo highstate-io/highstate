@@ -1,14 +1,14 @@
 import type { Logger } from "pino"
+import type { BackendDatabaseBackend } from "../abstractions"
 import type { BackendDatabase } from "../prisma"
 import { randomBytes } from "node:crypto"
 import { hostname } from "node:os"
-import { PrismaLibSQL } from "@prisma/adapter-libsql"
+import { PrismaLibSql } from "@prisma/adapter-libsql"
 import { armor, Decrypter, Encrypter, identityToRecipient } from "age-encryption"
 import { z } from "zod"
 import { codebaseConfig, getCodebaseHighstatePath } from "../../common"
 import { PrismaClient } from "../_generated/backend/sqlite/client"
-import { type BackendDatabaseBackend, backendDatabaseVersion } from "../abstractions"
-import { migrateDatabase } from "../migrate"
+import { migrateDatabase, migrationPacks } from "../migration"
 import { ensureWellKnownEntitiesCreated } from "../well-known"
 import {
   type BackendIdentityConfig,
@@ -94,7 +94,6 @@ async function createMasterKey(config: BackendIdentityConfig, logger: Logger) {
 }
 
 type DatabaseInitializationResult = {
-  shouldMigrate: boolean
   masterKey?: string
   metaFile: DatabaseMetaFile
   created: boolean
@@ -115,12 +114,11 @@ async function ensureDatabaseInitialized(
     const masterKey = encryptionEnabled ? await createMasterKey(config, logger) : undefined
 
     const metaFile: DatabaseMetaFile = {
-      version: backendDatabaseVersion,
+      version: 0,
       masterKey: masterKey?.armoredMasterKey,
     }
 
     return {
-      shouldMigrate: true,
       masterKey: masterKey?.masterKey,
       metaFile,
       created: true,
@@ -128,15 +126,8 @@ async function ensureDatabaseInitialized(
     }
   }
 
-  if (meta.version > backendDatabaseVersion) {
-    throw new Error(
-      `Database version (${meta.version}) is newer than expected (${backendDatabaseVersion}). You likely need to update the Highstate.`,
-    )
-  }
-
   if (!encryptionEnabled) {
     return {
-      shouldMigrate: meta.version < backendDatabaseVersion,
       masterKey: undefined,
       metaFile: meta,
       created: false,
@@ -158,7 +149,6 @@ async function ensureDatabaseInitialized(
   const masterKey = await decrypter.decrypt(encryptedMasterKey, "text")
 
   return {
-    shouldMigrate: meta.version < backendDatabaseVersion,
     masterKey,
     metaFile: meta,
     created: false,
@@ -183,23 +173,16 @@ export async function createLocalBackendDatabaseBackend(
   let databasePath = config.HIGHSTATE_BACKEND_DATABASE_LOCAL_PATH
   databasePath ??= await getCodebaseHighstatePath(config, logger)
 
-  const { shouldMigrate, masterKey, metaFile, created, initialRecipient } =
-    await ensureDatabaseInitialized(
-      databasePath,
-      config.HIGHSTATE_ENCRYPTION_ENABLED,
-      config,
-      logger,
-    )
+  const { masterKey, metaFile, created, initialRecipient } = await ensureDatabaseInitialized(
+    databasePath,
+    config.HIGHSTATE_ENCRYPTION_ENABLED,
+    config,
+    logger,
+  )
 
   const databaseUrl = `file:${databasePath}/backend.db`
 
-  if (shouldMigrate) {
-    await migrateDatabase(databaseUrl, "backend/sqlite", masterKey, logger)
-
-    await writeMetaFile(databasePath, { ...metaFile, version: backendDatabaseVersion })
-  }
-
-  const adapter = new PrismaLibSQL({
+  const adapter = new PrismaLibSql({
     url: databaseUrl,
     encryptionKey: masterKey,
   })
@@ -208,6 +191,14 @@ export async function createLocalBackendDatabaseBackend(
     adapter,
   })
 
+  await migrateDatabase(
+    prismaClient,
+    migrationPacks["backend/sqlite"],
+    metaFile.version,
+    async version => await writeMetaFile(databasePath, { ...metaFile, version }),
+    logger,
+  )
+
   const database = prismaClient as BackendDatabase
 
   await ensureWellKnownEntitiesCreated(database)
@@ -215,8 +206,6 @@ export async function createLocalBackendDatabaseBackend(
   const backendLogger = logger.child({ service: "LocalBackendDatabaseBackend" })
 
   await ensureInitialUnlockMethod(database, created, initialRecipient, backendLogger)
-
-  backendLogger.info("database is ready")
 
   return new LocalBackendDatabaseBackend(
     database,

@@ -19,7 +19,6 @@ export const STDLIB_PACKAGES = [
   "@highstate/k8s",
   "@highstate/k8s.apps",
   "@highstate/k8s.game-servers",
-  "@highstate/k8s.monitor-worker",
   "@highstate/k8s.obfuscators",
   "@highstate/library",
   "@highstate/mullvad",

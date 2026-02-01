@@ -2,30 +2,25 @@ import type { Logger } from "pino"
 import type { z } from "zod"
 import type { ProjectDatabaseBackend } from "../abstractions"
 import { mkdir } from "node:fs/promises"
-import { PrismaLibSQL } from "@prisma/adapter-libsql"
+import { PrismaLibSql } from "@prisma/adapter-libsql"
 import { type codebaseConfig, getCodebaseHighstatePath } from "../../common"
 import { ProjectDatabase } from "../prisma"
 
 export class LocalProjectDatabaseBackend implements ProjectDatabaseBackend {
   constructor(private readonly highstatePath: string) {}
 
-  async openProjectDatabase(
-    projectId: string,
-    masterKey?: string,
-  ): Promise<[database: ProjectDatabase, url: string]> {
+  async openProjectDatabase(projectId: string, masterKey?: string): Promise<ProjectDatabase> {
     const databasePath = `${this.highstatePath}/projects/${projectId}`
     await mkdir(databasePath, { recursive: true })
 
     const databaseUrl = `file:${databasePath}/project.db`
 
-    const adapter = new PrismaLibSQL({
+    const adapter = new PrismaLibSql({
       url: databaseUrl,
       encryptionKey: masterKey,
     })
 
-    const database = new ProjectDatabase({ adapter })
-
-    return [database, databaseUrl]
+    return new ProjectDatabase({ adapter })
   }
 
   static async create(

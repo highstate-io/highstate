@@ -1,16 +1,12 @@
 import type { Logger } from "pino"
 import type { ProjectUnlockBackend } from "../unlock"
+import type { BackendDatabaseBackend, ProjectDatabaseBackend } from "./abstractions"
 import type { BackendDatabase, ProjectDatabase } from "./prisma"
 import { LRUCache } from "lru-cache"
 import z from "zod"
 import { createProjectLogger } from "../common"
-import { BackendError, ProjectLockedError, ProjectNotFoundError } from "../shared"
-import {
-  type BackendDatabaseBackend,
-  type ProjectDatabaseBackend,
-  projectDatabaseVersion,
-} from "./abstractions"
-import { migrateDatabase } from "./migrate"
+import { ProjectLockedError, ProjectNotFoundError } from "../shared"
+import { migrateDatabase, migrationPacks } from "./migration"
 
 export const databaseManagerConfig = z.object({
   HIGHSTATE_ENCRYPTION_ENABLED: z.stringbool().default(true),
@@ -132,13 +128,16 @@ export class DatabaseManagerImpl implements DatabaseManager {
     const masterKey = await this.getProjectMasterKey(projectId)
     const hexMasterKey = masterKey?.toString("hex")
 
-    const [database, databaseUrl] = await this.projectDatabaseBackend.openProjectDatabase(
-      projectId,
-      hexMasterKey,
-    )
+    const database = await this.projectDatabaseBackend.openProjectDatabase(projectId, hexMasterKey)
 
     // can safely apply migrations here, because no one knows about the database yet
-    await migrateDatabase(databaseUrl, "project", hexMasterKey, logger)
+    await migrateDatabase(
+      database,
+      migrationPacks.project,
+      0, // current version
+      () => Promise.resolve(), // project will be created later
+      logger,
+    )
 
     this.projectDatabases.set(projectId, database)
 
@@ -151,50 +150,45 @@ export class DatabaseManagerImpl implements DatabaseManager {
       return cachedDatabase
     }
 
+    const logger = createProjectLogger(this.logger, projectId)
     const masterKey = await this.getProjectMasterKey(projectId)
     const hexMasterKey = masterKey?.toString("hex")
 
     // TODO: is it really necessary to migrate the database inside the transaction?
     let database = await this.backend.$transaction(async tx => {
-      const databaseEntity = await tx.project.findUnique({
+      const project = await tx.project.findUnique({
         where: { id: projectId },
         select: { databaseVersion: true },
       })
 
-      if (!databaseEntity) {
+      if (!project) {
         throw new ProjectNotFoundError(projectId)
       }
 
-      if (databaseEntity.databaseVersion > projectDatabaseVersion) {
-        throw new BackendError(
-          `Project database version (${databaseEntity.databaseVersion}) is newer than expected (${projectDatabaseVersion}).`,
-        )
-      }
-
-      if (databaseEntity.databaseVersion === projectDatabaseVersion) {
-        return
-      }
-
-      const [database, databaseUrl] = await this.projectDatabaseBackend.openProjectDatabase(
+      const database = await this.projectDatabaseBackend.openProjectDatabase(
         projectId,
         hexMasterKey,
       )
 
-      if (databaseEntity.databaseVersion < projectDatabaseVersion) {
-        await migrateDatabase(databaseUrl, "project", hexMasterKey, this.logger)
-      }
-
-      await tx.project.update({
-        where: { id: projectId },
-        data: { databaseVersion: projectDatabaseVersion },
-      })
+      await migrateDatabase(
+        database,
+        migrationPacks.project,
+        project.databaseVersion,
+        async version => {
+          await tx.project.update({
+            where: { id: projectId },
+            data: { databaseVersion: version },
+          })
+        },
+        logger,
+      )
 
       return database
     })
 
     if (!database) {
       // open database if was not migrated in the transaction
-      const [_database] = await this.projectDatabaseBackend.openProjectDatabase(
+      const _database = await this.projectDatabaseBackend.openProjectDatabase(
         projectId,
         hexMasterKey,
       )
