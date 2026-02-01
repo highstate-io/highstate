@@ -1,3 +1,13 @@
+## 0.18.0 (2026-02-01)
+
+### 🚀 Features
+
+- update prisma to next major version and rework migration system ([0406eef](https://github.com/highstate-io/highstate/commit/0406eef))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.17.0 (2026-02-01)
 
 ### 🚀 Features
