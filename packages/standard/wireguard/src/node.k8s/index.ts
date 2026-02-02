@@ -205,6 +205,13 @@ if (workload instanceof ExposableWorkload) {
   }
 }
 
+if (args.allowClusterPods) {
+  new NetworkPolicy("allow-egress-to-cluster-pods", {
+    namespace,
+    egressRule: { toClusterPods: true },
+  })
+}
+
 const endpoints = await toPromise(
   workload instanceof ExposableWorkload
     ? workload.optionalService.apply(service => service?.endpoints!)

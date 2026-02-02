@@ -84,6 +84,7 @@ class CiliumNetworkPolicy extends ComponentResource {
 
     return [
       ...CiliumNetworkPolicy.createAllRules(prefix, rule, ports),
+      ...CiliumNetworkPolicy.createClusterPodRules(prefix, rule, ports),
       ...CiliumNetworkPolicy.createCidrRules(prefix, rule, ports),
       ...CiliumNetworkPolicy.createServiceRules(prefix, rule, ports),
       ...CiliumNetworkPolicy.createSelectorRules(prefix, rule, ports),
@@ -103,6 +104,23 @@ class CiliumNetworkPolicy extends ComponentResource {
     return [
       {
         [`${prefix}Entities`]: ["all"],
+        toPorts: ports,
+      },
+    ]
+  }
+
+  private static createClusterPodRules(
+    prefix: "from" | "to",
+    rule: NormalizedRuleArgs,
+    ports: types.input.cilium.v2.CiliumNetworkPolicySpecEgressToPorts[] | undefined,
+  ): Rule[] {
+    if (!rule.clusterPods) {
+      return []
+    }
+
+    return [
+      {
+        [`${prefix}Entities`]: ["cluster"],
         toPorts: ports,
       },
     ]
@@ -195,6 +213,8 @@ class CiliumNetworkPolicy extends ComponentResource {
       },
     ]
   }
+
+  // TODO: support namespace selectors
 
   private static createNamespaceExpressions(
     rule: NormalizedRuleArgs,

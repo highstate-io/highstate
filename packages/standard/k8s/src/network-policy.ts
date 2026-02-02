@@ -68,6 +68,11 @@ export type IngressRuleArgs = {
   fromAll?: Input<boolean>
 
   /**
+   * Whether to allow all incoming traffic from the cluster internal pods.
+   */
+  fromClusterPods?: Input<boolean>
+
+  /**
    * The allowed cidr for incoming traffic.
    *
    * Will be ORed with other conditions inside the same rule (except ports).
@@ -140,6 +145,26 @@ export type IngressRuleArgs = {
   fromNamespaces?: InputArray<NamespaceLike>
 
   /**
+   * The namespace selector to allow traffic from.
+   *
+   * If provided, it will match all pods in the matched namespaces.
+   * Will be merged with `fromNamespace(s)`.
+   *
+   * Will be ORed with other conditions inside the same rule (except ports and selectors).
+   */
+  fromNamespaceSelector?: Input<SelectorLike>
+
+  /**
+   * The list of namespace selectors to allow traffic from.
+   *
+   * If provided, it will match all pods in the matched namespaces.
+   * Will be merged with `fromNamespace(s)`.
+   *
+   * Will be ORed with other conditions inside the same rule (except ports and selectors).
+   */
+  fromNamespaceSelectors?: InputArray<SelectorLike>
+
+  /**
    * The selector for incoming traffic.
    *
    * If provided with `fromNamespace(s)`, it will be ANDed with them.
@@ -181,6 +206,11 @@ export type EgressRuleArgs = {
    * If set to `true`, all other rules will be ignored for matched traffic.
    */
   toAll?: Input<boolean>
+
+  /**
+   * Whether to allow all outgoing traffic to the cluster internal pods.
+   */
+  toClusterPods?: Input<boolean>
 
   /**
    * The allowed cidr for outgoing traffic.
@@ -267,6 +297,26 @@ export type EgressRuleArgs = {
    * Will be ORed with other conditions inside the same rule (except ports and selectors).
    */
   toNamespaces?: InputArray<NamespaceLike>
+
+  /**
+   * The namespace selector to allow traffic to.
+   *
+   * If provided, it will match all pods in the matched namespaces.
+   * Will be merged with `toNamespace(s)`.
+   *
+   * Will be ORed with other conditions inside the same rule (except ports and selectors).
+   */
+  toNamespaceSelector?: Input<SelectorLike>
+
+  /**
+   * The list of namespace selectors to allow traffic to.
+   *
+   * If provided, it will match all pods in the matched namespaces.
+   * Will be merged with `toNamespace(s)`.
+   *
+   * Will be ORed with other conditions inside the same rule (except ports and selectors).
+   */
+  toNamespaceSelectors?: InputArray<SelectorLike>
 
   /**
    * The selector for outgoing traffic.
@@ -359,10 +409,12 @@ export type NetworkPolicyArgs = ScopedResourceArgs & {
 
 export type NormalizedRuleArgs = {
   all: boolean
+  clusterPods: boolean
   cidrs: string[]
   fqdns: string[]
   services: core.v1.Service[]
   namespaces: NamespaceLike[]
+  namespaceSelectors: SelectorLike[]
   selectors: SelectorLike[]
   ports: NetworkPolicyPort[]
 }
@@ -422,9 +474,11 @@ export class NetworkPolicy extends ComponentResource {
       if (args.allowKubeDns) {
         extraEgressRules.push({
           namespaces: ["kube-system"],
+          namespaceSelectors: [],
           selectors: [{ matchLabels: { "k8s-app": "kube-dns" } }],
           ports: [{ port: 53, protocol: "UDP" }],
           all: false,
+          clusterPods: false,
           cidrs: [],
           fqdns: [],
           services: [],
@@ -467,10 +521,15 @@ export class NetworkPolicy extends ComponentResource {
           return [
             {
               all: rule.fromAll ?? false,
+              clusterPods: rule.fromClusterPods ?? false,
               cidrs: normalize(rule.fromCidr, rule.fromCidrs).concat(l3OnlyRule?.cidrs ?? []),
               fqdns: [],
               services: normalize(rule.fromService, rule.fromServices),
               namespaces: normalize(rule.fromNamespace, rule.fromNamespaces),
+              namespaceSelectors: normalize(
+                rule.fromNamespaceSelector,
+                rule.fromNamespaceSelectors,
+              ),
               selectors: normalize(rule.fromSelector, rule.fromSelectors),
               ports: normalize(rule.toPort, rule.toPorts),
             } as NormalizedRuleArgs,
@@ -519,10 +578,12 @@ export class NetworkPolicy extends ComponentResource {
             return [
               {
                 all: rule.toAll ?? false,
+                clusterPods: rule.toClusterPods ?? false,
                 cidrs: normalize(rule.toCidr, rule.toCidrs).concat(l3OnlyRule?.cidrs ?? []),
                 fqdns: normalize(rule.toFqdn, rule.toFqdns).concat(l3OnlyRule?.fqdns ?? []),
                 services: normalize(rule.toService, rule.toServices),
                 namespaces: normalize(rule.toNamespace, rule.toNamespaces),
+                namespaceSelectors: normalize(rule.toNamespaceSelector, rule.toNamespaceSelectors),
                 selectors: normalize(rule.toSelector, rule.toSelectors),
                 ports: normalize(rule.toPort, rule.toPorts),
               } as NormalizedRuleArgs,
@@ -590,10 +651,12 @@ export class NetworkPolicy extends ComponentResource {
 
     return {
       all: false,
+      clusterPods: false,
       cidrs,
       fqdns,
       services: [],
       namespaces: namespace ? [namespace] : [],
+      namespaceSelectors: [],
       selectors,
       ports,
     }
@@ -602,10 +665,12 @@ export class NetworkPolicy extends ComponentResource {
   private static isEmptyRule(rule: NormalizedRuleArgs): boolean {
     return (
       !rule.all &&
+      !rule.clusterPods &&
       rule.cidrs.length === 0 &&
       rule.fqdns.length === 0 &&
       rule.services.length === 0 &&
       rule.namespaces.length === 0 &&
+      rule.namespaceSelectors.length === 0 &&
       rule.selectors.length === 0 &&
       rule.ports.length === 0
     )
@@ -917,7 +982,11 @@ export class NativeNetworkPolicy extends ComponentResource {
   ): types.input.networking.v1.NetworkPolicyIngressRule[] {
     return uniqueBy(
       args.ingressRules.map(rule => ({
-        from: rule.all ? [] : NativeNetworkPolicy.createRulePeers(rule),
+        from: rule.all
+          ? []
+          : rule.clusterPods
+            ? [{ namespaceSelector: {} }]
+            : NativeNetworkPolicy.createRulePeers(rule),
         ports: NativeNetworkPolicy.mapPorts(rule.ports),
       })),
       rule => JSON.stringify(rule),
@@ -968,7 +1037,11 @@ export class NativeNetworkPolicy extends ComponentResource {
       args.egressRules
         .map(rule => {
           return {
-            to: rule.all ? [] : NativeNetworkPolicy.createRulePeers(rule),
+            to: rule.all
+              ? []
+              : rule.clusterPods
+                ? [{ namespaceSelector: {} }]
+                : NativeNetworkPolicy.createRulePeers(rule),
             ports: NativeNetworkPolicy.mapPorts(rule.ports),
           } as types.input.networking.v1.NetworkPolicyEgressRule
         })
@@ -1020,7 +1093,10 @@ export class NativeNetworkPolicy extends ComponentResource {
       podSelector: mapSelectorLikeToSelector(selector),
     }))
 
-    const namespacePeers = args.namespaces.map(NativeNetworkPolicy.createNamespacePeer)
+    const namespacePeers = [
+      ...args.namespaces.map(NativeNetworkPolicy.createNamespacePeer),
+      ...args.namespaceSelectors.map(NativeNetworkPolicy.createNamespaceSelectorPeer),
+    ]
 
     if (namespacePeers.length === 0) {
       // if there are no namespaces, we can just return selector peers
@@ -1048,6 +1124,15 @@ export class NativeNetworkPolicy extends ComponentResource {
     const namespaceSelector = mapNamespaceNameToSelector(namespaceName)
 
     return { namespaceSelector }
+  }
+
+  private static createNamespaceSelectorPeer(
+    this: void,
+    selector: SelectorLike,
+  ): types.input.networking.v1.NetworkPolicyPeer {
+    return {
+      namespaceSelector: mapSelectorLikeToSelector(selector),
+    }
   }
 
   private static mapPorts(

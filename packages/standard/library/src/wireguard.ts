@@ -576,6 +576,13 @@ export const nodeK8s = defineUnit({
      * Useful for peer isolation where you want to prevent cross-peer communication.
      */
     forwardRestrictedSubnets: z.string().array().default([]),
+
+    /**
+     * Whether to allow traffic to all pods inside the cluster from the WireGuard node.
+     *
+     * By default, is false.
+     */
+    allowClusterPods: z.boolean().default(false),
   },
 
   inputs: {
