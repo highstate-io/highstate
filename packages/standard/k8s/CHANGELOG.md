@@ -1,3 +1,13 @@
+## 0.18.0 (2026-02-03)
+
+### 🚀 Features
+
+- add option to allow egress to cluster pods in k8s wireguard node ([12e60e3](https://github.com/highstate-io/highstate/commit/12e60e3))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.17.0 (2026-02-01)
 
 ### 🚀 Features
