@@ -102,9 +102,6 @@ export function setupEdgeRouter(
   })
 
   vueFlowStore.onNodesChange(changes => {
-    let needReroute = false
-    const nodesWithUpdatedPositions = new Set<string>()
-
     for (const change of changes) {
       if (change.type === "position" || change.type === "dimensions") {
         const item = vueFlowStore.findNode(change.id)
@@ -114,34 +111,12 @@ export function setupEdgeRouter(
         for (const edge of edges) {
           updateGraphEdge(edge)
         }
-
-        needReroute = true
-        nodesWithUpdatedPositions.add(change.id)
       } else if (change.type === "remove") {
         removeGraphNodeShape(change.id)
-        needReroute = true
       }
-    }
-
-    if (!needReroute) {
-      return
     }
 
     processTransaction()
-
-    nextTick(() => {
-      for (const nodeId of nodesWithUpdatedPositions) {
-        const node = vueFlowStore.findNode(nodeId)
-        updateGraphNodeShape(node!)
-
-        const edges = vueFlowStore.getConnectedEdges(nodeId)
-        for (const edge of edges) {
-          updateGraphEdge(edge)
-        }
-      }
-
-      processTransaction()
-    })
   })
 
   vueFlowStore.onEdgesChange(changes => {

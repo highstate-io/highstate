@@ -75,6 +75,7 @@ export const useCompositeStore = defineMultiStore({
         void waitForLayoutCompletion(vueFlowStore)
           .then(() => layoutNodes(vueFlowStore))
           .then(() => vueFlowStore.fitView())
+          .then(() => vueFlowStore.updateNodeInternals(vueFlowStore.getNodes.value.map(n => n.id)))
           .then(() => setupEdgeRouter(vueFlowStore, onNodesMoved, edgeEndpointOffsets))
       }
 

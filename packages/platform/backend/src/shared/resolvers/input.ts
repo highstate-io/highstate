@@ -37,6 +37,7 @@ export type InputResolverOutput =
     }
   | {
       kind: "hub"
+      hub: HubModel
       resolvedInputs: ResolvedInstanceInput[]
     }
 
@@ -143,6 +144,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
 
       return {
         kind: "hub",
+        hub: node.hub,
         resolvedInputs: Array.from(hubResult.values()),
       }
     }

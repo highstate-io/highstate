@@ -13,6 +13,7 @@ import {
   type ComponentModel,
   type EntityModel,
   type InstanceId,
+  type InstanceInput,
   type InstanceModel,
 } from "@highstate/contract"
 import { useNode, type ValidConnectionFunc } from "@vue-flow/core"
@@ -104,13 +105,13 @@ const usedOutputs = computed(() => {
   const usedOutputs = new Set<string>()
   const dependents = inputResolverDependentMap.get(`instance:${instance.id}`) ?? []
 
-  const handleResolvedInput = (input: ResolvedInstanceInput) => {
+  const handleResolvedInput = (input: InstanceInput) => {
     if (
-      input.input.instanceId === instance.id ||
+      input.instanceId === instance.id ||
       // for comosite instances which outputs may be resolved to another instance
-      allResolvedOutputs.some(o => o.instanceId === input.input.instanceId)
+      allResolvedOutputs.some(o => o.instanceId === input.instanceId)
     ) {
-      usedOutputs.add(input.input.output)
+      usedOutputs.add(input.output)
     }
   }
 
@@ -119,13 +120,13 @@ const usedOutputs = computed(() => {
     if (!result) continue
 
     if (result.kind === "instance") {
-      for (const inputs of Object.values(result.resolvedInputs)) {
+      for (const inputs of Object.values(result.instance.inputs ?? {})) {
         for (const input of inputs) {
           handleResolvedInput(input)
         }
       }
     } else {
-      for (const input of result.resolvedInputs) {
+      for (const input of Object.values(result.hub.inputs ?? {})) {
         handleResolvedInput(input)
       }
     }
