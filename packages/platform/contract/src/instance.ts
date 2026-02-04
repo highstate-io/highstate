@@ -1,4 +1,4 @@
-import type { EntityTypes } from "./entity"
+import type { Entity, EntityTypes } from "./entity"
 import type { boundaryInput, boundaryInputs } from "./evaluation"
 import { z } from "zod"
 import { componentKindSchema } from "./component"
@@ -18,6 +18,13 @@ export type InstanceInput<TTypes extends EntityTypes = EntityTypes> = {
   instanceId: InstanceId
   output: string
 }
+
+export type EntityInput<TEntity extends Entity> = TEntity extends Entity<
+  VersionedName,
+  infer TImplementedTypes
+>
+  ? InstanceInput<TImplementedTypes>
+  : never
 
 export type OptionalInstanceInput<TTypes extends EntityTypes = EntityTypes> =
   | ({ provided: true } & InstanceInput<TTypes>)
