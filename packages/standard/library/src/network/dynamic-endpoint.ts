@@ -1,10 +1,14 @@
-import { defineEntity, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z } from "@highstate/contract"
 import { implementationReferenceSchema } from "../impl-ref"
 import { l3EndpointSchema } from "./endpoint-schema"
 
 export type DynamicL3Endpoint = z.infer<typeof dynamicL3EndpointEntity.schema>
 export type DynamicL4Endpoint = z.infer<typeof dynamicL4EndpointEntity.schema>
 export type DynamicL7Endpoint = z.infer<typeof dynamicL7EndpointEntity.schema>
+
+export type DynamicL3EndpointInput = EntityInput<typeof dynamicL3EndpointEntity>
+export type DynamicL4EndpointInput = EntityInput<typeof dynamicL4EndpointEntity>
+export type DynamicL7EndpointInput = EntityInput<typeof dynamicL7EndpointEntity>
 
 function defineDynamicEndpointEntity<TLevel extends number, TSchema extends z.ZodType>(
   level: TLevel,

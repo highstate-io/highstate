@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import {
   checksumSchema,
   fileEntity,
@@ -432,3 +432,6 @@ export const virtualMachine = defineUnit({
 
 export type Cluster = z.infer<typeof clusterEntity.schema>
 export type Image = z.infer<typeof imageEntity.schema>
+
+export type ClusterInput = EntityInput<typeof clusterEntity>
+export type ImageInput = EntityInput<typeof imageEntity>

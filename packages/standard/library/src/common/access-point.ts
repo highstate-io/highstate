@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import * as dns from "../dns"
 import { implementationReferenceSchema } from "../impl-ref"
 import { l3EndpointEntity } from "../network"
@@ -128,3 +128,7 @@ export const accessPoint = defineUnit({
 export type Gateway = z.infer<typeof gatewayEntity.schema>
 export type AccessPoint = z.infer<typeof accessPointEntity.schema>
 export type TlsIssuer = z.infer<typeof tlsIssuerEntity.schema>
+
+export type GatewayInput = EntityInput<typeof gatewayEntity>
+export type AccessPointInput = EntityInput<typeof accessPointEntity>
+export type TlsIssuerInput = EntityInput<typeof tlsIssuerEntity>

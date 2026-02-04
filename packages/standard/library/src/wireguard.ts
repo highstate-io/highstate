@@ -4,6 +4,7 @@ import {
   $outputs,
   defineEntity,
   defineUnit,
+  type EntityInput,
   genericNameSchema,
   z,
 } from "@highstate/contract"
@@ -244,6 +245,11 @@ export type Identity = z.infer<typeof identityEntity.schema>
 export type Peer = z.infer<typeof peerEntity.schema>
 export type NodeExposePolicy = z.infer<typeof nodeExposePolicySchema>
 export type Config = z.infer<typeof configEntity.schema>
+
+export type NetworkInput = EntityInput<typeof networkEntity>
+export type IdentityInput = EntityInput<typeof identityEntity>
+export type PeerInput = EntityInput<typeof peerEntity>
+export type ConfigInput = EntityInput<typeof configEntity>
 
 /**
  * Holds the shared configuration for WireGuard identities, peers, and nodes.

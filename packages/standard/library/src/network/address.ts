@@ -1,7 +1,8 @@
-import { defineEntity, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z } from "@highstate/contract"
 import { addressTypeSchema, subnetEntity } from "./subnet"
 
 export type Address = z.infer<typeof addressEntity.schema>
+export type AddressInput = EntityInput<typeof addressEntity>
 
 export const addressEntity = defineEntity({
   type: "network.address.v1",

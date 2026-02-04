@@ -1,5 +1,5 @@
 import type { Simplify, SimplifyDeep } from "type-fest"
-import { defineEntity, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z } from "@highstate/contract"
 
 /**
  * The generic metadata schema for Kubernetes resources.
@@ -138,6 +138,7 @@ export const secretEntity = defineEntity({
 
 export type Metadata = z.infer<typeof metadataSchema>
 export type Resource = z.infer<typeof resourceEntity.schema>
+export type ResourceInput = EntityInput<typeof resourceEntity>
 
 export type NamespacedMetadata = z.infer<typeof namespacedMetadataSchema>
 
@@ -146,9 +147,17 @@ export type NamespacedResource = SimplifyDeep<
   Record<string, string>
 >
 
+export type NamespacedResourceInput = EntityInput<typeof namespacedResourceEntity>
+
 export type Namespace = Simplify<z.infer<typeof namespaceEntity.schema>>
+export type NamespaceInput = EntityInput<typeof namespaceEntity>
 export type PersistentVolumeClaim = z.infer<typeof persistentVolumeClaimEntity.schema>
+export type PersistentVolumeClaimInput = EntityInput<typeof persistentVolumeClaimEntity>
 export type Gateway = z.infer<typeof gatewayEntity.schema>
+export type GatewayInput = EntityInput<typeof gatewayEntity>
 export type Certificate = z.infer<typeof certificateEntity.schema>
+export type CertificateInput = EntityInput<typeof certificateEntity>
 export type ConfigMap = z.infer<typeof configMapEntity.schema>
+export type ConfigMapInput = EntityInput<typeof configMapEntity>
 export type Secret = z.infer<typeof secretEntity.schema>
+export type SecretInput = EntityInput<typeof secretEntity>

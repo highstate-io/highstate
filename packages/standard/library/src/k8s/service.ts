@@ -1,5 +1,5 @@
 import type { Simplify } from "type-fest"
-import { defineEntity, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { namespacedResourceEntity } from "./resources"
 
@@ -74,3 +74,4 @@ export type EndpointServiceMetadata = z.infer<typeof serviceEndpointMetadataSche
 export type ServiceEndpoint = Simplify<z.infer<typeof serviceEndpointSchema>>
 export type ServiceType = z.infer<typeof serviceTypeSchema>
 export type Service = z.infer<typeof serviceEntity.schema>
+export type ServiceInput = EntityInput<typeof serviceEntity>

@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { toPatchArgs } from "../utils"
 import { optionalSharedArgs, sharedArgs, sharedInputs, sharedSchema, sharedSecrets } from "./shared"
@@ -88,3 +88,4 @@ export const mariadbPatch = defineUnit({
 })
 
 export type MariaDB = z.infer<typeof mariadbEntity.schema>
+export type MariaDBInput = EntityInput<typeof mariadbEntity>

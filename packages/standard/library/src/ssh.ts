@@ -1,4 +1,11 @@
-import { $inputs, $secrets, defineEntity, defineUnit, z } from "@highstate/contract"
+import {
+  $inputs,
+  $secrets,
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+} from "@highstate/contract"
 import { fileEntity } from "./common/files"
 import { l4EndpointEntity, portSchema } from "./network"
 
@@ -212,3 +219,6 @@ export type KeyType = z.infer<typeof keyTypeSchema>
 export type PublicKey = z.infer<typeof publicKeyEntity.schema>
 export type KeyPair = z.infer<typeof keyPairEntity.schema>
 export type Connection = z.infer<typeof connectionSchema>
+
+export type PublicKeyInput = EntityInput<typeof publicKeyEntity>
+export type KeyPairInput = EntityInput<typeof keyPairEntity>

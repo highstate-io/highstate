@@ -1,5 +1,5 @@
 import type { Simplify } from "type-fest"
-import { $args, defineEntity, defineUnit, z } from "@highstate/contract"
+import { $args, defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { mapValues, pick } from "remeda"
 import { metadataSchema } from "../utils"
 import { addressEntity } from "./address"
@@ -332,10 +332,13 @@ export const endpointFilter = defineUnit({
 })
 
 export type L3Endpoint = Simplify<z.infer<typeof l3EndpointEntity.schema>>
+export type L3EndpointInput = EntityInput<typeof l3EndpointEntity>
 export type L4Endpoint = Simplify<z.infer<typeof l4EndpointEntity.schema>>
+export type L4EndpointInput = EntityInput<typeof l4EndpointEntity>
 export type L4Protocol = z.infer<typeof l4ProtocolSchema>
 export type L4PortInfo = z.infer<typeof l4PortInfoSchema>
 export type L7Endpoint = Simplify<z.infer<typeof l7EndpointEntity.schema>>
+export type L7EndpointInput = EntityInput<typeof l7EndpointEntity>
 export type L7AppInfo = z.infer<typeof l7AppInfoSchema>
 
 export type EndpointLevel = L3Endpoint["level"]

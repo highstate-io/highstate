@@ -4,6 +4,7 @@ import {
   fileMetaSchema as baseFileMetaSchema,
   defineEntity,
   defineUnit,
+  type EntityInput,
   unitArtifactSchema,
   z,
 } from "@highstate/contract"
@@ -137,6 +138,7 @@ export const remoteFile = defineUnit({
 })
 
 export type File = z.infer<typeof fileEntity.schema>
+export type FileInput = EntityInput<typeof fileEntity>
 export type FileMeta = z.infer<typeof baseFileMetaSchema>
 export type FileContent = z.infer<typeof fileContentSchema>
 
@@ -146,6 +148,7 @@ export type LocalFile = Simplify<File & { content: { type: "local" } }>
 export type RemoteFile = Simplify<File & { content: { type: "remote" } }>
 
 export type Folder = z.infer<typeof folderEntity.schema>
+export type FolderInput = EntityInput<typeof folderEntity>
 export type FolderMeta = z.infer<typeof folderMetaSchema>
 export type FolderContent = z.infer<typeof folderContentSchema>
 

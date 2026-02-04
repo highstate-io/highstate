@@ -5,6 +5,7 @@ import {
   $secrets,
   defineEntity,
   defineUnit,
+  type EntityInput,
   type FullComponentArgumentOptions,
   z,
 } from "@highstate/contract"
@@ -180,3 +181,4 @@ export const s3Patch = defineUnit({
 })
 
 export type S3 = z.infer<typeof s3Entity.schema>
+export type S3Input = EntityInput<typeof s3Entity>

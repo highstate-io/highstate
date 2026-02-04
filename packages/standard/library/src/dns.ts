@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { mapValues, pick } from "remeda"
 import { serverEntity } from "./common/server"
 import { implementationReferenceSchema } from "./impl-ref"
@@ -180,3 +180,4 @@ export const inputs = {
 } as const
 
 export type Provider = z.infer<typeof providerEntity.schema>
+export type ProviderInput = EntityInput<typeof providerEntity>

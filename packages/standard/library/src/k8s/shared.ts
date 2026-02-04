@@ -1,4 +1,4 @@
-import { $args, defineEntity, defineUnit, z } from "@highstate/contract"
+import { $args, defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { serverEntity } from "../common"
 import { implementationReferenceSchema } from "../impl-ref"
 import { addressEntity, l3EndpointEntity, l4EndpointEntity } from "../network"
@@ -306,6 +306,7 @@ export const monitorWorkerParamsSchema = z.object({
 })
 
 export type Cluster = z.infer<typeof clusterEntity.schema>
+export type ClusterInput = EntityInput<typeof clusterEntity>
 
 export type InternalIpsPolicy = z.infer<typeof internalIpsPolicySchema>
 

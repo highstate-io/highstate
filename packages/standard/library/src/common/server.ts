@@ -1,4 +1,11 @@
-import { $outputs, $secrets, defineEntity, defineUnit, z } from "@highstate/contract"
+import {
+  $outputs,
+  $secrets,
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+} from "@highstate/contract"
 import { l3EndpointEntity } from "../network"
 import * as ssh from "../ssh"
 
@@ -187,3 +194,4 @@ export const script = defineUnit({
 })
 
 export type Server = z.infer<typeof serverEntity.schema>
+export type ServerInput = EntityInput<typeof serverEntity>

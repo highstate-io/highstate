@@ -1,4 +1,4 @@
-import { defineEntity, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { namespacedResourceEntity } from "./resources"
 import { serviceEntity } from "./service"
@@ -130,9 +130,16 @@ export const networkInterfaceEntity = defineEntity({
 })
 
 export type Workload = z.infer<typeof workloadEntity.schema>
+export type WorkloadInput = EntityInput<typeof workloadEntity>
 export type Job = z.infer<typeof jobEntity.schema>
+export type JobInput = EntityInput<typeof jobEntity>
 export type CronJob = z.infer<typeof cronJobEntity.schema>
+export type CronJobInput = EntityInput<typeof cronJobEntity>
 export type ExposableWorkload = z.infer<typeof exposableWorkloadEntity.schema>
+export type ExposableWorkloadInput = EntityInput<typeof exposableWorkloadEntity>
 export type Deployment = z.infer<typeof deploymentEntity.schema>
+export type DeploymentInput = EntityInput<typeof deploymentEntity>
 export type StatefulSet = z.infer<typeof statefulSetEntity.schema>
+export type StatefulSetInput = EntityInput<typeof statefulSetEntity>
 export type NetworkInterface = z.infer<typeof networkInterfaceEntity.schema>
+export type NetworkInterfaceInput = EntityInput<typeof networkInterfaceEntity>

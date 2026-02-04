@@ -1,6 +1,7 @@
-import { defineEntity, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z } from "@highstate/contract"
 
 export type Subnet = z.infer<typeof subnetEntity.schema>
+export type SubnetInput = EntityInput<typeof subnetEntity>
 export type AddressType = z.infer<typeof addressTypeSchema>
 
 export const addressTypeSchema = z.enum(["ipv4", "ipv6"])

@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { toPatchArgs } from "../utils"
 import { optionalSharedArgs, sharedArgs, sharedInputs, sharedSchema, sharedSecrets } from "./shared"
@@ -91,3 +91,4 @@ export const postgresqlPatch = defineUnit({
 })
 
 export type PostgreSQL = z.infer<typeof postgresqlEntity.schema>
+export type PostgreSQLInput = EntityInput<typeof postgresqlEntity>

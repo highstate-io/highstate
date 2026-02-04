@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { optionalSharedInputs, sharedInputs, source } from "./shared"
 
@@ -64,3 +64,6 @@ export const node = defineUnit({
 
   source: source("remnawave/node"),
 })
+
+export type Remnawave = z.infer<typeof remnawaveEntity.schema>
+export type RemnawaveInput = EntityInput<typeof remnawaveEntity>

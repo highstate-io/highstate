@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { toPatchArgs } from "../utils"
 import { optionalSharedArgs, sharedArgs, sharedInputs } from "./shared"
@@ -92,3 +92,4 @@ export const redisPatch = defineUnit({
 })
 
 export type Redis = z.infer<typeof redisEntity.schema>
+export type RedisInput = EntityInput<typeof redisEntity>

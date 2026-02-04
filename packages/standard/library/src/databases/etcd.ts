@@ -1,4 +1,4 @@
-import { defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { toPatchArgs } from "../utils"
 
@@ -95,3 +95,6 @@ export const etcdPatch = defineUnit({
     category: "Databases",
   },
 })
+
+export type Etcd = z.infer<typeof etcdEntity.schema>
+export type EtcdInput = EntityInput<typeof etcdEntity>
