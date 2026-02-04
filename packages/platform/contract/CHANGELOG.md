@@ -1,3 +1,13 @@
+## 0.19.0 (2026-02-04)
+
+### 🚀 Features
+
+- add EntityInput helper ([d3e9fe4](https://github.com/highstate-io/highstate/commit/d3e9fe4))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.18.0 (2026-02-01)
 
 ### 🚀 Features

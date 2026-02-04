@@ -1,3 +1,13 @@
+## 0.19.0 (2026-02-04)
+
+### 🩹 Fixes
+
+- **designer:** fix composite input rendering ([454b8ba](https://github.com/highstate-io/highstate/commit/454b8ba))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.18.0 (2026-02-01)
 
 ### 🚀 Features

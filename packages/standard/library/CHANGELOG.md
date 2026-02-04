@@ -1,3 +1,13 @@
+## 0.19.0 (2026-02-04)
+
+### 🚀 Features
+
+- add types for inputs ([39c6e52](https://github.com/highstate-io/highstate/commit/39c6e52))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.18.0 (2026-02-03)
 
 ### 🚀 Features
