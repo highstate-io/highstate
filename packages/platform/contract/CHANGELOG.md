@@ -1,3 +1,13 @@
+## 0.19.1 (2026-02-04)
+
+### 🩹 Fixes
+
+- force publish ([4b9fc18](https://github.com/highstate-io/highstate/commit/4b9fc18))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.19.0 (2026-02-04)
 
 ### 🚀 Features

@@ -1,3 +1,7 @@
+## 0.19.1 (2026-02-04)
+
+This was a version bump only for @highstate/pulumi to align it with other projects, there were no code changes.
+
 ## 0.19.0 (2026-02-04)
 
 This was a version bump only for @highstate/pulumi to align it with other projects, there were no code changes.
