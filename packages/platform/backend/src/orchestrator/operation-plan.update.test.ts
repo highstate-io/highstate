@@ -314,11 +314,6 @@ describe("OperationPlan - Update Operations", () => {
           {
             "instances": [
               {
-                "id": "composite.v1:Parent",
-                "message": "explicitly requested",
-                "parentId": undefined,
-              },
-              {
                 "id": "component.v1:GhostChild",
                 "message": "ghost cleanup",
                 "parentId": "composite.v1:Parent",
@@ -360,11 +355,6 @@ describe("OperationPlan - Update Operations", () => {
         [
           {
             "instances": [
-              {
-                "id": "composite.v1:Parent",
-                "message": "explicitly requested",
-                "parentId": undefined,
-              },
               {
                 "id": "component.v1:GhostChild",
                 "message": "ghost cleanup",
@@ -986,11 +976,6 @@ describe("OperationPlan - Update Operations", () => {
           },
           {
             "instances": [
-              {
-                "id": "composite.v1:Parent",
-                "message": "explicitly requested",
-                "parentId": undefined,
-              },
               {
                 "id": "component.v1:GhostChild",
                 "message": "ghost cleanup",

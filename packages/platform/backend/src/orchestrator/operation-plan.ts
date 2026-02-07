@@ -656,17 +656,10 @@ function findGhostCleanup(
 ): OperationPhaseInstance[] {
   const ghosts: OperationPhaseInstance[] = []
 
-  // find ghost instances and their parent composites that need cleanup
+  // find ghost instances that need cleanup
   for (const instanceId of compositesNeedingGhostCleanup) {
     const instance = context.getInstance(instanceId)
     if (instance.kind !== "composite") continue
-
-    // add the composite itself for destroy if needed
-    ghosts.push({
-      id: instanceId,
-      parentId: instance.parentId,
-      message: "included in operation",
-    })
 
     // find ghost children
     const children = context.getInstanceChildren(instanceId)
