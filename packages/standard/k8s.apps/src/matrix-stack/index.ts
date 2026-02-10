@@ -13,7 +13,7 @@ const elementWebHost = `element.${args.fqdn}`
 const matrixAuthenticationServiceHost = `mas.${args.fqdn}`
 const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
-const disabledIngressClassName = "none"
+const INGRESS_CLASS_DISABLED = "none"
 
 const chart = new Chart(args.appName, {
   namespace,
@@ -24,7 +24,7 @@ const chart = new Chart(args.appName, {
   values: {
     serverName: args.fqdn,
     ingress: {
-      className: disabledIngressClassName,
+      className: INGRESS_CLASS_DISABLED,
     },
 
     synapse: {
@@ -123,7 +123,6 @@ new AccessPointRoute(
   {
     ...commonRouteArgs,
     fqdn: matrixRtcHost,
-    path: "/",
     endpoints: matrixRtcSfuService.endpoints,
     gatewayNativeData: matrixRtcSfuService,
   },
