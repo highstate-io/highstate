@@ -78,82 +78,78 @@ const commonRouteArgs = {
   tlsCertificateNativeData: namespace,
 }
 
-const routes = [
-  new AccessPointRoute(
-    `${args.appName}-synapse`,
-    {
-      ...commonRouteArgs,
-      fqdn: synapseHost,
-      endpoints: synapseService.endpoints,
-      gatewayNativeData: synapseService,
-    },
-    { dependsOn: chart.chart },
-  ),
-  new AccessPointRoute(
-    `${args.appName}-element-web`,
-    {
-      ...commonRouteArgs,
-      fqdn: elementWebHost,
-      endpoints: elementWebService.endpoints,
-      gatewayNativeData: elementWebService,
-    },
-    { dependsOn: chart.chart },
-  ),
-  new AccessPointRoute(
-    `${args.appName}-element-admin`,
-    {
-      ...commonRouteArgs,
-      fqdn: elementAdminHost,
-      endpoints: elementAdminService.endpoints,
-      gatewayNativeData: elementAdminService,
-    },
-    { dependsOn: chart.chart },
-  ),
-  new AccessPointRoute(
-    `${args.appName}-matrix-authentication-service`,
-    {
-      ...commonRouteArgs,
-      fqdn: matrixAuthenticationServiceHost,
-      endpoints: matrixAuthenticationService.endpoints,
-      gatewayNativeData: matrixAuthenticationService,
-    },
-    { dependsOn: chart.chart },
-  ),
-  new AccessPointRoute(
-    `${args.appName}-matrix-rtc-sfu`,
-    {
-      ...commonRouteArgs,
-      fqdn: matrixRtcHost,
-      endpoints: matrixRtcSfuService.endpoints,
-      gatewayNativeData: matrixRtcSfuService,
-    },
-    { dependsOn: chart.chart },
-  ),
-  new AccessPointRoute(
-    `${args.appName}-matrix-rtc-authorisation`,
-    {
-      ...commonRouteArgs,
-      fqdn: matrixRtcHost,
-      path: "/sfu/get",
-      endpoints: matrixRtcAuthorisationService.endpoints,
-      gatewayNativeData: matrixRtcAuthorisationService,
-    },
-    { dependsOn: chart.chart },
-  ),
-  new AccessPointRoute(
-    `${args.appName}-well-known`,
-    {
-      ...commonRouteArgs,
-      fqdn: args.fqdn,
-      path: "/.well-known/matrix",
-      endpoints: wellKnownService.endpoints,
-      gatewayNativeData: wellKnownService,
-    },
-    { dependsOn: chart.chart },
-  ),
-]
-
-void routes
+new AccessPointRoute(
+  `${args.appName}-synapse`,
+  {
+    ...commonRouteArgs,
+    fqdn: synapseHost,
+    endpoints: synapseService.endpoints,
+    gatewayNativeData: synapseService,
+  },
+  { dependsOn: chart.chart },
+)
+new AccessPointRoute(
+  `${args.appName}-element-web`,
+  {
+    ...commonRouteArgs,
+    fqdn: elementWebHost,
+    endpoints: elementWebService.endpoints,
+    gatewayNativeData: elementWebService,
+  },
+  { dependsOn: chart.chart },
+)
+new AccessPointRoute(
+  `${args.appName}-element-admin`,
+  {
+    ...commonRouteArgs,
+    fqdn: elementAdminHost,
+    endpoints: elementAdminService.endpoints,
+    gatewayNativeData: elementAdminService,
+  },
+  { dependsOn: chart.chart },
+)
+new AccessPointRoute(
+  `${args.appName}-matrix-authentication-service`,
+  {
+    ...commonRouteArgs,
+    fqdn: matrixAuthenticationServiceHost,
+    endpoints: matrixAuthenticationService.endpoints,
+    gatewayNativeData: matrixAuthenticationService,
+  },
+  { dependsOn: chart.chart },
+)
+new AccessPointRoute(
+  `${args.appName}-matrix-rtc-sfu`,
+  {
+    ...commonRouteArgs,
+    fqdn: matrixRtcHost,
+    endpoints: matrixRtcSfuService.endpoints,
+    gatewayNativeData: matrixRtcSfuService,
+  },
+  { dependsOn: chart.chart },
+)
+new AccessPointRoute(
+  `${args.appName}-matrix-rtc-authorisation`,
+  {
+    ...commonRouteArgs,
+    fqdn: matrixRtcHost,
+    path: "/sfu/get",
+    endpoints: matrixRtcAuthorisationService.endpoints,
+    gatewayNativeData: matrixRtcAuthorisationService,
+  },
+  { dependsOn: chart.chart },
+)
+new AccessPointRoute(
+  `${args.appName}-well-known`,
+  {
+    ...commonRouteArgs,
+    fqdn: args.fqdn,
+    path: "/.well-known/matrix",
+    endpoints: wellKnownService.endpoints,
+    gatewayNativeData: wellKnownService,
+  },
+  { dependsOn: chart.chart },
+)
 
 const endpoints = await toPromise(chart.service.endpoints)
 
