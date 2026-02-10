@@ -8,9 +8,9 @@ const { args, inputs, outputs } = forUnit(k8s.apps.matrixStack)
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
-const synapseHost = `synapse.${args.fqdn}`
-const elementWebHost = `element.${args.fqdn}`
-const matrixAuthenticationServiceHost = `mas.${args.fqdn}`
+const synapseHost = `matrix.${args.fqdn}`
+const elementWebHost = `chat.${args.fqdn}`
+const matrixAuthenticationServiceHost = `account.${args.fqdn}`
 const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
