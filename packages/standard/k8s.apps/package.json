@@ -15,6 +15,7 @@
     "./mariadb/app": "./dist/mariadb/app/index.js",
     "./mariadb/database": "./dist/mariadb/database/index.js",
     "./maybe": "./dist/maybe/index.js",
+    "./matrix-stack": "./dist/matrix-stack/index.js",
     "./postgresql": "./dist/postgresql/index.js",
     "./postgresql/app": "./dist/postgresql/app/index.js",
     "./postgresql/database": "./dist/postgresql/database/index.js",

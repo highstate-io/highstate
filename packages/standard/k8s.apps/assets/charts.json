@@ -35,6 +35,12 @@
     "version": "0.5.7",
     "sha256": "184d60dd6b6a723842957b2d642cf13ed145c3c70564f475d5b58825aa556e00"
   },
+  "matrix-stack": {
+    "repo": "oci://ghcr.io/element-hq/ess-helm",
+    "name": "matrix-stack",
+    "version": "26.2.0",
+    "sha256": "96881b2746acf6251a7fbdd2a06bab6c0d42b0e2c3a75b20210bb4e2cc47a165"
+  },
   "valkey": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "valkey",
