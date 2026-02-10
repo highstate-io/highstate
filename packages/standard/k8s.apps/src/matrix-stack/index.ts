@@ -13,7 +13,7 @@ const elementWebHost = `element.${args.fqdn}`
 const matrixAuthenticationServiceHost = `mas.${args.fqdn}`
 const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
-const ingressDisabledClassName = "none"
+const disabledIngressClassName = "none"
 
 const chart = new Chart(args.appName, {
   namespace,
@@ -24,7 +24,7 @@ const chart = new Chart(args.appName, {
   values: {
     serverName: args.fqdn,
     ingress: {
-      className: ingressDisabledClassName,
+      className: disabledIngressClassName,
     },
 
     synapse: {
