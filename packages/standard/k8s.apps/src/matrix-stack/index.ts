@@ -78,7 +78,7 @@ const commonRouteArgs = {
   tlsCertificateNativeData: namespace,
 }
 
-const _routes = [
+const routes = [
   new AccessPointRoute(
     `${args.appName}-synapse`,
     {
@@ -152,6 +152,8 @@ const _routes = [
     { dependsOn: chart.chart },
   ),
 ]
+
+void routes
 
 const endpoints = await toPromise(chart.service.endpoints)
 
