@@ -17,6 +17,7 @@ export const matrixStack = defineUnit({
      * The base domain for the Matrix stack services.
      *
      * Subdomains like synapse.<fqdn> and element.<fqdn> are generated automatically.
+     * This value cannot be changed after the first deployment.
      */
     fqdn: {
       schema: z.string(),
