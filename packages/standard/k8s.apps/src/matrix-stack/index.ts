@@ -13,6 +13,7 @@ const elementWebHost = `element.${args.fqdn}`
 const matrixAuthenticationServiceHost = `mas.${args.fqdn}`
 const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
+const ingressClassName = "highstate-disabled"
 
 const chart = new Chart(args.appName, {
   namespace,
@@ -23,8 +24,11 @@ const chart = new Chart(args.appName, {
   values: {
     serverName: args.fqdn,
     ingress: {
-      className: "disabled",
+      className: ingressClassName,
       tlsEnabled: false,
+      annotations: {
+        "kubernetes.io/ingress.class": ingressClassName,
+      },
     },
 
     synapse: {
@@ -123,6 +127,7 @@ new AccessPointRoute(
   {
     ...commonRouteArgs,
     fqdn: matrixRtcHost,
+    path: "/",
     endpoints: matrixRtcSfuService.endpoints,
     gatewayNativeData: matrixRtcSfuService,
   },
