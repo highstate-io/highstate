@@ -18,29 +18,34 @@ const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
 const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
-let postrenderReady = false
+let postrenderReady: Promise<void> | undefined
 
-const ensurePostrenderExecutable = async () => {
-  if (postrenderReady) {
-    return
+const ensurePostrenderExecutable = () => {
+  if (!postrenderReady) {
+    postrenderReady = (async () => {
+      try {
+        const postrenderMode = (await stat(postrenderScript)).mode
+        if ((postrenderMode & 0o111) === 0) {
+          await chmod(postrenderScript, 0o755)
+        }
+      } catch (error) {
+        if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+          throw new Error(`Helm postrender script not found: ${postrenderScript}`, {
+            cause: error,
+          })
+        }
+
+        throw new Error(
+          `Failed to mark Helm postrender script as executable: ${postrenderScript}`,
+          {
+            cause: error,
+          },
+        )
+      }
+    })()
   }
 
-  postrenderReady = true
-
-  try {
-    const postrenderMode = (await stat(postrenderScript)).mode
-    if ((postrenderMode & 0o111) === 0) {
-      await chmod(postrenderScript, 0o755)
-    }
-  } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      throw new Error(`Helm postrender script not found: ${postrenderScript}`, { cause: error })
-    }
-
-    throw new Error(`Failed to mark Helm postrender script as executable: ${postrenderScript}`, {
-      cause: error,
-    })
-  }
+  return postrenderReady
 }
 
 await ensurePostrenderExecutable()
@@ -106,7 +111,8 @@ const matrixAuthenticationServiceName = serviceName("matrix-authentication-servi
 const matrixRtcAuthorisationServiceName = serviceName("matrix-rtc-authorisation-service")
 const matrixRtcSfuServiceName = serviceName("matrix-rtc-sfu")
 const wellKnownServiceName = serviceName("well-known")
-const getService = (name: string) => Service.get(name, { namespace, name }, serviceOptions)
+const getService = (serviceName: string) =>
+  Service.get(serviceName, { namespace, name: serviceName }, serviceOptions)
 const synapseService = getService(synapseServiceName)
 const elementWebService = getService(elementWebServiceName)
 const elementAdminService = getService(elementAdminServiceName)
