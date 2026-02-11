@@ -19,7 +19,11 @@ const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
 const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
 
-await chmod(postrenderScript, 0o755)
+try {
+  await chmod(postrenderScript, 0o755)
+} catch (error) {
+  throw new Error(`Failed to mark Helm postrender script as executable`, { cause: error })
+}
 
 const provider = await getProviderAsync(inputs.k8sCluster)
 const chartPath = await resolveHelmChart(charts["matrix-stack"])
