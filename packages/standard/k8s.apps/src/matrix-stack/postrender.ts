@@ -2,7 +2,8 @@
 import { readFileSync } from "node:fs"
 
 const input = readFileSync(0, "utf8")
-const documents = input.split(/^\s*---\s*$/m)
+const normalizedInput = input.replace(/\r\n/g, "\n").replace(/^---\s*\n/, "")
+const documents = normalizedInput.split(/\n---\s*\n/)
 const ingressPattern = /^\s*kind:\s*Ingress\s*(?:#.*)?$/m
 const filtered = documents.filter(document => !ingressPattern.test(document))
 const output = filtered.filter(document => document.trim().length > 0).join("\n---\n")

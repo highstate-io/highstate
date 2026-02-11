@@ -19,14 +19,13 @@ const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
 const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
 
-const postrenderMode = (await stat(postrenderScript)).mode
-
-if ((postrenderMode & 0o111) === 0) {
-  try {
+try {
+  const postrenderMode = (await stat(postrenderScript)).mode
+  if ((postrenderMode & 0o111) === 0) {
     await chmod(postrenderScript, 0o755)
-  } catch (error) {
-    throw new Error(`Failed to mark Helm postrender script as executable`, { cause: error })
   }
+} catch (error) {
+  throw new Error(`Failed to mark Helm postrender script as executable`, { cause: error })
 }
 
 const provider = await getProviderAsync(inputs.k8sCluster)
