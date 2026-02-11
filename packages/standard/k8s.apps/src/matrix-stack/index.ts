@@ -87,39 +87,47 @@ const release = new helm.v3.Release(
 )
 
 const serviceOptions = { dependsOn: release }
+const serviceName = (name: string) => `${args.appName}-${name}`
+const synapseServiceName = serviceName("synapse")
+const elementWebServiceName = serviceName("element-web")
+const elementAdminServiceName = serviceName("element-admin")
+const matrixAuthenticationServiceName = serviceName("matrix-authentication-service")
+const matrixRtcAuthorisationServiceName = serviceName("matrix-rtc-authorisation-service")
+const matrixRtcSfuServiceName = serviceName("matrix-rtc-sfu")
+const wellKnownServiceName = serviceName("well-known")
 const synapseService = Service.get(
-  `${args.appName}-synapse`,
-  { namespace, name: `${args.appName}-synapse` },
+  synapseServiceName,
+  { namespace, name: synapseServiceName },
   serviceOptions,
 )
 const elementWebService = Service.get(
-  `${args.appName}-element-web`,
-  { namespace, name: `${args.appName}-element-web` },
+  elementWebServiceName,
+  { namespace, name: elementWebServiceName },
   serviceOptions,
 )
 const elementAdminService = Service.get(
-  `${args.appName}-element-admin`,
-  { namespace, name: `${args.appName}-element-admin` },
+  elementAdminServiceName,
+  { namespace, name: elementAdminServiceName },
   serviceOptions,
 )
 const matrixAuthenticationService = Service.get(
-  `${args.appName}-matrix-authentication-service`,
-  { namespace, name: `${args.appName}-matrix-authentication-service` },
+  matrixAuthenticationServiceName,
+  { namespace, name: matrixAuthenticationServiceName },
   serviceOptions,
 )
 const matrixRtcAuthorisationService = Service.get(
-  `${args.appName}-matrix-rtc-authorisation-service`,
-  { namespace, name: `${args.appName}-matrix-rtc-authorisation-service` },
+  matrixRtcAuthorisationServiceName,
+  { namespace, name: matrixRtcAuthorisationServiceName },
   serviceOptions,
 )
 const matrixRtcSfuService = Service.get(
-  `${args.appName}-matrix-rtc-sfu`,
-  { namespace, name: `${args.appName}-matrix-rtc-sfu` },
+  matrixRtcSfuServiceName,
+  { namespace, name: matrixRtcSfuServiceName },
   serviceOptions,
 )
 const wellKnownService = Service.get(
-  `${args.appName}-well-known`,
-  { namespace, name: `${args.appName}-well-known` },
+  wellKnownServiceName,
+  { namespace, name: wellKnownServiceName },
   serviceOptions,
 )
 
