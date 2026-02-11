@@ -111,8 +111,7 @@ const matrixAuthenticationServiceName = serviceName("matrix-authentication-servi
 const matrixRtcAuthorisationServiceName = serviceName("matrix-rtc-authorisation-service")
 const matrixRtcSfuServiceName = serviceName("matrix-rtc-sfu")
 const wellKnownServiceName = serviceName("well-known")
-const getService = (serviceName: string) =>
-  Service.get(serviceName, { namespace, name: serviceName }, serviceOptions)
+const getService = (name: string) => Service.get(name, { namespace, name }, serviceOptions)
 const synapseService = getService(synapseServiceName)
 const elementWebService = getService(elementWebServiceName)
 const elementAdminService = getService(elementAdminServiceName)
