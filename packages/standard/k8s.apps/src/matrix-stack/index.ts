@@ -18,15 +18,17 @@ const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
 const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
-let postrenderReady: Promise<void> | undefined
+const EXECUTABLE_MASK = 0o111
+const EXECUTABLE_MODE = 0o755
+let postrenderExecutablePromise: Promise<void> | undefined
 
 const ensurePostrenderExecutable = () => {
-  if (!postrenderReady) {
-    postrenderReady = (async () => {
+  if (!postrenderExecutablePromise) {
+    postrenderExecutablePromise = (async () => {
       try {
         const postrenderMode = (await stat(postrenderScript)).mode
-        if ((postrenderMode & 0o111) === 0) {
-          await chmod(postrenderScript, 0o755)
+        if ((postrenderMode & EXECUTABLE_MASK) === 0) {
+          await chmod(postrenderScript, EXECUTABLE_MODE)
         }
       } catch (error) {
         if (error instanceof Error && "code" in error && error.code === "ENOENT") {
@@ -45,7 +47,7 @@ const ensurePostrenderExecutable = () => {
     })()
   }
 
-  return postrenderReady
+  return postrenderExecutablePromise
 }
 
 await ensurePostrenderExecutable()
