@@ -1,7 +1,10 @@
+import { chmod } from "node:fs/promises"
+import { fileURLToPath } from "node:url"
 import { AccessPointRoute, l4EndpointToString } from "@highstate/common"
-import { Chart, Namespace } from "@highstate/k8s"
+import { getProviderAsync, Namespace, resolveHelmChart, Service } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
+import { helm } from "@pulumi/kubernetes"
 import { charts } from "../shared"
 
 const { args, inputs, outputs } = forUnit(k8s.apps.matrixStack)
@@ -14,63 +17,98 @@ const matrixAuthenticationServiceHost = `account.${args.fqdn}`
 const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
+const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
 
-const chart = new Chart(args.appName, {
-  namespace,
+await chmod(postrenderScript, 0o755)
 
-  chart: charts["matrix-stack"],
-  serviceName: `${args.appName}-synapse`,
+const provider = await getProviderAsync(inputs.k8sCluster)
+const chartPath = await resolveHelmChart(charts["matrix-stack"])
 
-  values: {
-    serverName: args.fqdn,
-    ingress: {
-      className: HELM_INGRESS_DISABLED_VALUE,
+const release = new helm.v3.Release(
+  args.appName,
+  {
+    chart: chartPath,
+    namespace: namespace.metadata.name,
+
+    values: {
+      serverName: args.fqdn,
+      ingress: {
+        className: HELM_INGRESS_DISABLED_VALUE,
+      },
+
+      synapse: {
+        ingress: {
+          host: synapseHost,
+        },
+      },
+      elementWeb: {
+        ingress: {
+          host: elementWebHost,
+        },
+      },
+      elementAdmin: {
+        ingress: {
+          host: elementAdminHost,
+        },
+      },
+      matrixAuthenticationService: {
+        ingress: {
+          host: matrixAuthenticationServiceHost,
+        },
+      },
+      matrixRTC: {
+        ingress: {
+          host: matrixRtcHost,
+        },
+      },
+      wellKnownDelegation: {
+        baseDomainRedirect: {
+          enabled: false,
+        },
+      },
     },
 
-    synapse: {
-      ingress: {
-        host: synapseHost,
-      },
-    },
-    elementWeb: {
-      ingress: {
-        host: elementWebHost,
-      },
-    },
-    elementAdmin: {
-      ingress: {
-        host: elementAdminHost,
-      },
-    },
-    matrixAuthenticationService: {
-      ingress: {
-        host: matrixAuthenticationServiceHost,
-      },
-    },
-    matrixRTC: {
-      ingress: {
-        host: matrixRtcHost,
-      },
-    },
-    wellKnownDelegation: {
-      baseDomainRedirect: {
-        enabled: false,
-      },
-    },
+    postrender: postrenderScript,
   },
-})
+  { provider, dependsOn: namespace },
+)
 
-const synapseService = chart.getServiceOutput(`${args.appName}-synapse`)
-const elementWebService = chart.getServiceOutput(`${args.appName}-element-web`)
-const elementAdminService = chart.getServiceOutput(`${args.appName}-element-admin`)
-const matrixAuthenticationService = chart.getServiceOutput(
+const serviceOptions = { dependsOn: release }
+const synapseService = Service.get(
+  `${args.appName}-synapse`,
+  { namespace, name: `${args.appName}-synapse` },
+  serviceOptions,
+)
+const elementWebService = Service.get(
+  `${args.appName}-element-web`,
+  { namespace, name: `${args.appName}-element-web` },
+  serviceOptions,
+)
+const elementAdminService = Service.get(
+  `${args.appName}-element-admin`,
+  { namespace, name: `${args.appName}-element-admin` },
+  serviceOptions,
+)
+const matrixAuthenticationService = Service.get(
   `${args.appName}-matrix-authentication-service`,
+  { namespace, name: `${args.appName}-matrix-authentication-service` },
+  serviceOptions,
 )
-const matrixRtcAuthorisationService = chart.getServiceOutput(
+const matrixRtcAuthorisationService = Service.get(
   `${args.appName}-matrix-rtc-authorisation-service`,
+  { namespace, name: `${args.appName}-matrix-rtc-authorisation-service` },
+  serviceOptions,
 )
-const matrixRtcSfuService = chart.getServiceOutput(`${args.appName}-matrix-rtc-sfu`)
-const wellKnownService = chart.getServiceOutput(`${args.appName}-well-known`)
+const matrixRtcSfuService = Service.get(
+  `${args.appName}-matrix-rtc-sfu`,
+  { namespace, name: `${args.appName}-matrix-rtc-sfu` },
+  serviceOptions,
+)
+const wellKnownService = Service.get(
+  `${args.appName}-well-known`,
+  { namespace, name: `${args.appName}-well-known` },
+  serviceOptions,
+)
 
 const commonRouteArgs = {
   accessPoint: inputs.accessPoint,
@@ -86,7 +124,7 @@ new AccessPointRoute(
     endpoints: synapseService.endpoints,
     gatewayNativeData: synapseService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 new AccessPointRoute(
   `${args.appName}-element-web`,
@@ -96,7 +134,7 @@ new AccessPointRoute(
     endpoints: elementWebService.endpoints,
     gatewayNativeData: elementWebService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 new AccessPointRoute(
   `${args.appName}-element-admin`,
@@ -106,7 +144,7 @@ new AccessPointRoute(
     endpoints: elementAdminService.endpoints,
     gatewayNativeData: elementAdminService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 new AccessPointRoute(
   `${args.appName}-matrix-authentication-service`,
@@ -116,7 +154,7 @@ new AccessPointRoute(
     endpoints: matrixAuthenticationService.endpoints,
     gatewayNativeData: matrixAuthenticationService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 new AccessPointRoute(
   `${args.appName}-matrix-rtc-sfu`,
@@ -126,7 +164,7 @@ new AccessPointRoute(
     endpoints: matrixRtcSfuService.endpoints,
     gatewayNativeData: matrixRtcSfuService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 new AccessPointRoute(
   `${args.appName}-matrix-rtc-authorisation`,
@@ -137,7 +175,7 @@ new AccessPointRoute(
     endpoints: matrixRtcAuthorisationService.endpoints,
     gatewayNativeData: matrixRtcAuthorisationService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 new AccessPointRoute(
   `${args.appName}-well-known`,
@@ -148,14 +186,14 @@ new AccessPointRoute(
     endpoints: wellKnownService.endpoints,
     gatewayNativeData: wellKnownService,
   },
-  { dependsOn: chart.chart },
+  { dependsOn: release },
 )
 
-const endpoints = await toPromise(chart.service.endpoints)
+const endpoints = await toPromise(synapseService.endpoints)
 
 export default outputs({
-  service: chart.service.entity,
-  endpoints: chart.service.endpoints,
+  service: synapseService.entity,
+  endpoints: synapseService.endpoints,
 
   $statusFields: {
     serverName: args.fqdn,
