@@ -25,6 +25,10 @@ try {
     await chmod(postrenderScript, 0o755)
   }
 } catch (error) {
+  if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+    throw new Error(`Helm postrender script not found: ${postrenderScript}`, { cause: error })
+  }
+
   throw new Error(`Failed to mark Helm postrender script as executable: ${postrenderScript}`, {
     cause: error,
   })
