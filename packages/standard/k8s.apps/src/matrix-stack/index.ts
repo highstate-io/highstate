@@ -1,4 +1,4 @@
-import { chmod } from "node:fs/promises"
+import { chmod, stat } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { AccessPointRoute, l4EndpointToString } from "@highstate/common"
 import { getProviderAsync, Namespace, resolveHelmChart, Service } from "@highstate/k8s"
@@ -19,10 +19,14 @@ const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
 const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
 
-try {
-  await chmod(postrenderScript, 0o755)
-} catch (error) {
-  throw new Error(`Failed to mark Helm postrender script as executable`, { cause: error })
+const postrenderMode = (await stat(postrenderScript)).mode
+
+if ((postrenderMode & 0o111) === 0) {
+  try {
+    await chmod(postrenderScript, 0o755)
+  } catch (error) {
+    throw new Error(`Failed to mark Helm postrender script as executable`, { cause: error })
+  }
 }
 
 const provider = await getProviderAsync(inputs.k8sCluster)
