@@ -18,21 +18,32 @@ const matrixRtcHost = `mrtc.${args.fqdn}`
 const elementAdminHost = `admin.${args.fqdn}`
 const HELM_INGRESS_DISABLED_VALUE = "none"
 const postrenderScript = fileURLToPath(new URL("./postrender.js", import.meta.url))
+let postrenderReady = false
 
-try {
-  const postrenderMode = (await stat(postrenderScript)).mode
-  if ((postrenderMode & 0o111) === 0) {
-    await chmod(postrenderScript, 0o755)
-  }
-} catch (error) {
-  if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-    throw new Error(`Helm postrender script not found: ${postrenderScript}`, { cause: error })
+const ensurePostrenderExecutable = async () => {
+  if (postrenderReady) {
+    return
   }
 
-  throw new Error(`Failed to mark Helm postrender script as executable: ${postrenderScript}`, {
-    cause: error,
-  })
+  postrenderReady = true
+
+  try {
+    const postrenderMode = (await stat(postrenderScript)).mode
+    if ((postrenderMode & 0o111) === 0) {
+      await chmod(postrenderScript, 0o755)
+    }
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+      throw new Error(`Helm postrender script not found: ${postrenderScript}`, { cause: error })
+    }
+
+    throw new Error(`Failed to mark Helm postrender script as executable: ${postrenderScript}`, {
+      cause: error,
+    })
+  }
 }
+
+await ensurePostrenderExecutable()
 
 const provider = await getProviderAsync(inputs.k8sCluster)
 const chartPath = await resolveHelmChart(charts["matrix-stack"])
@@ -95,41 +106,14 @@ const matrixAuthenticationServiceName = serviceName("matrix-authentication-servi
 const matrixRtcAuthorisationServiceName = serviceName("matrix-rtc-authorisation-service")
 const matrixRtcSfuServiceName = serviceName("matrix-rtc-sfu")
 const wellKnownServiceName = serviceName("well-known")
-const synapseService = Service.get(
-  synapseServiceName,
-  { namespace, name: synapseServiceName },
-  serviceOptions,
-)
-const elementWebService = Service.get(
-  elementWebServiceName,
-  { namespace, name: elementWebServiceName },
-  serviceOptions,
-)
-const elementAdminService = Service.get(
-  elementAdminServiceName,
-  { namespace, name: elementAdminServiceName },
-  serviceOptions,
-)
-const matrixAuthenticationService = Service.get(
-  matrixAuthenticationServiceName,
-  { namespace, name: matrixAuthenticationServiceName },
-  serviceOptions,
-)
-const matrixRtcAuthorisationService = Service.get(
-  matrixRtcAuthorisationServiceName,
-  { namespace, name: matrixRtcAuthorisationServiceName },
-  serviceOptions,
-)
-const matrixRtcSfuService = Service.get(
-  matrixRtcSfuServiceName,
-  { namespace, name: matrixRtcSfuServiceName },
-  serviceOptions,
-)
-const wellKnownService = Service.get(
-  wellKnownServiceName,
-  { namespace, name: wellKnownServiceName },
-  serviceOptions,
-)
+const getService = (name: string) => Service.get(name, { namespace, name }, serviceOptions)
+const synapseService = getService(synapseServiceName)
+const elementWebService = getService(elementWebServiceName)
+const elementAdminService = getService(elementAdminServiceName)
+const matrixAuthenticationService = getService(matrixAuthenticationServiceName)
+const matrixRtcAuthorisationService = getService(matrixRtcAuthorisationServiceName)
+const matrixRtcSfuService = getService(matrixRtcSfuServiceName)
+const wellKnownService = getService(wellKnownServiceName)
 
 const commonRouteArgs = {
   accessPoint: inputs.accessPoint,
