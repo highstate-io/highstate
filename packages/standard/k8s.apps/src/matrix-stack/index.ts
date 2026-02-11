@@ -25,7 +25,9 @@ try {
     await chmod(postrenderScript, 0o755)
   }
 } catch (error) {
-  throw new Error(`Failed to mark Helm postrender script as executable`, { cause: error })
+  throw new Error(`Failed to mark Helm postrender script as executable: ${postrenderScript}`, {
+    cause: error,
+  })
 }
 
 const provider = await getProviderAsync(inputs.k8sCluster)
