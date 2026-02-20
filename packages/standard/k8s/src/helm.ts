@@ -261,6 +261,14 @@ export class Chart extends ComponentResource {
     return this.getServiceOutput(undefined)
   }
 
+  get deployment(): Output<Deployment> {
+    return this.getDeploymentOutput(this.name)
+  }
+
+  get statefulSet(): Output<StatefulSet> {
+    return this.getStatefulSetOutput(this.name)
+  }
+
   get terminals(): Output<UnitTerminal[]> {
     return this.workloads.apply(workloads => output(workloads.map(workload => workload.terminal)))
   }
@@ -289,8 +297,56 @@ export class Chart extends ComponentResource {
     })
   }
 
+  getWorkloadOutput(name: string): Output<Workload> {
+    return this.workloads.apply(async workloads => {
+      const workloadsWithNames = await toPromise(
+        workloads.map(workload => output({ workload, name: workload.metadata.name })),
+      )
+
+      const item = workloadsWithNames.find(w => w.name === name)
+
+      if (!item) {
+        throw new Error(`Workload with name '${name}' not found in the chart workloads`)
+      }
+
+      return item.workload
+    })
+  }
+
+  getDeploymentOutput(name: string): Output<Deployment> {
+    return this.getWorkloadOutput(name).apply(workload => {
+      if (workload instanceof Deployment) {
+        return workload
+      }
+
+      throw new Error(`Workload with name '${name}' is not a Deployment`)
+    })
+  }
+
+  getStatefulSetOutput(name: string): Output<StatefulSet> {
+    return this.getWorkloadOutput(name).apply(workload => {
+      if (workload instanceof StatefulSet) {
+        return workload
+      }
+
+      throw new Error(`Workload with name '${name}' is not a StatefulSet`)
+    })
+  }
+
   getService(name?: string): Promise<Service> {
     return toPromise(this.getServiceOutput(name))
+  }
+
+  getWorkload(name: string): Promise<Workload> {
+    return toPromise(this.getWorkloadOutput(name))
+  }
+
+  getDeployment(name: string): Promise<Deployment> {
+    return toPromise(this.getDeploymentOutput(name))
+  }
+
+  getStatefulSet(name: string): Promise<StatefulSet> {
+    return toPromise(this.getStatefulSetOutput(name))
   }
 }
 

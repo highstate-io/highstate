@@ -1,5 +1,5 @@
 import type { common, network, ssh } from "@highstate/library"
-import { stripNullish, type UnitTerminal } from "@highstate/contract"
+import { stripNullish, text, type UnitTerminal } from "@highstate/contract"
 import {
   fileFromString,
   type Input,
@@ -284,7 +284,7 @@ export async function createServerEntity({
       create: `ping -c 1 ${l3EndpointToString(endpoints[0])}`,
       timeout: pingTimeout ?? 300,
       interval: pingInterval ?? 5,
-      triggers: [Date.now()],
+      updateTriggers: [Date.now()],
     }).wait()
   }
 
@@ -303,7 +303,7 @@ export async function createServerEntity({
       create: `nc -zv ${sshHost} ${sshArgs.port}`,
       timeout: sshCheckTimeout ?? 300,
       interval: sshCheckInterval ?? 5,
-      triggers: [Date.now()],
+      updateTriggers: [Date.now()],
     }).wait()
   }
 
@@ -318,23 +318,35 @@ export async function createServerEntity({
 
   const hostnameResult = new remote.Command("hostname", {
     connection,
-    create: "hostname",
-    triggers: [Date.now()],
+    addPreviousOutputInEnv: false,
+    create: text`
+      # ${Date.now()}
+      hostname
+    `,
   })
 
   const hostKeyResult = new remote.Command("host-key", {
     connection,
-    create: "cat /etc/ssh/ssh_host_ed25519_key.pub",
-    triggers: [Date.now()],
+    addPreviousOutputInEnv: false,
+    create: text`
+      # ${Date.now()}
+      cat /etc/ssh/ssh_host_ed25519_key.pub
+    `,
   })
 
+  const hostKey = await toPromise(hostKeyResult.stdout.apply(x => x.trim()))
+
   return output({
+    $meta: {
+      type: "common.server.v1",
+      identity: hostKey,
+    },
     endpoints,
     hostname: hostnameResult.stdout.apply(x => x.trim()),
     ssh: {
       endpoints: [l3EndpointToL4(sshHost, sshArgs.port ?? 22)],
       user: sshArgs.user ?? "root",
-      hostKey: hostKeyResult.stdout.apply(x => x.trim()),
+      hostKey,
       password: connection.password,
       keyPair: sshKeyPair
         ? sshKeyPair

@@ -88,6 +88,7 @@ async function createHttpGatewayRoute({
       name: "https",
       port: data.httpsPort,
       protocol: "HTTPS",
+      hostname: spec.fqdn,
       tls: {
         mode: "Terminate",
         certificateRefs: certificateRef ? [certificateRef] : undefined,
@@ -110,7 +111,10 @@ async function createHttpGatewayRoute({
     {
       gateway,
       rule: {
-        backend: backendService,
+        backend: {
+          service: backendService,
+          port: spec.targetPort,
+        },
       },
     },
     opts,

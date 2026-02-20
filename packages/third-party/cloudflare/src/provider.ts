@@ -7,7 +7,7 @@ const providers = new Map<string, Provider>()
 export function getProvider(data: cloudflare.ProviderData): Provider {
   return getOrCreate(
     providers,
-    data.zoneId,
-    () => new Provider(data.zoneId, { apiToken: data.apiToken }),
+    data.zoneIds[Object.keys(data.zoneIds)[0]],
+    () => new Provider(data.zoneIds[Object.keys(data.zoneIds)[0]], { apiToken: data.apiToken }),
   )
 }

@@ -21,7 +21,7 @@ Deployment.create(args.appName, {
     },
 
     environment: {
-      ETCD_ENDPOINTS: inputs.etcd.endpoints.apply(map(endpointToString)).apply(join(", ")),
+      ETCD_ENDPOINTS: inputs.etcdCluster.endpoints.apply(map(endpointToString)).apply(join(", ")),
     },
   },
 

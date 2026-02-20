@@ -1,6 +1,13 @@
-import { l4EndpointToString, parseEndpoints, parseSubnets, subnetToString } from "@highstate/common"
+import {
+  l4EndpointToString,
+  parseAddress,
+  parseEndpoints,
+  parseSubnets,
+  subnetToString,
+} from "@highstate/common"
 import { wireguard } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
+import { feedMetadataFromArgs } from "../shared"
 
 const { args, inputs, outputs } = forUnit(wireguard.peerPatch)
 
@@ -14,6 +21,8 @@ const newAllowedSubnets = allowedSubnets.length > 0 ? allowedSubnets : peer.allo
 export default outputs({
   peer: inputs.peer.apply(peer => ({
     ...peer,
+    feedMetadata: feedMetadataFromArgs(args.feedMetadata) ?? peer.feedMetadata,
+    dns: args.dns.length > 0 ? args.dns.map(parseAddress) : peer.dns,
     endpoints: newEndpoints,
     allowedSubnets: newAllowedSubnets,
   })),

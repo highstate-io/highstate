@@ -1,15 +1,12 @@
-import type {
-  GenericName,
-  InstanceId,
-  InstanceStatusField,
-  UnitConfig,
-  UnitPage,
-  UnitTerminal,
-  UnitTrigger,
-  UnitWorker,
-  VersionedName,
-} from "@highstate/contract"
+import type { GenericName, InstanceId, UnitConfig, VersionedName } from "@highstate/contract"
 import type { Artifact } from "../database"
+
+export type RawPulumiOutputValue = {
+  value: unknown
+  secret?: boolean
+}
+
+export type RawPulumiOutputs = Record<string, RawPulumiOutputValue>
 
 export type OperationType = "update" | "destroy" | "refresh"
 
@@ -57,46 +54,11 @@ export type UnitStateUpdate = {
       operationType: OperationType
 
       /**
-       * The CRC32 hash of the output produced by the unit.
-       */
-      outputHash?: number | null
-
-      /**
-       * The status fields produced by the unit.
-       */
-      statusFields?: InstanceStatusField[] | null
-
-      /**
-       * The terminals produced by the unit.
-       */
-      terminals?: UnitTerminal[] | null
-
-      /**
-       * The pages produced by the unit.
-       */
-      pages?: UnitPage[] | null
-
-      /**
-       * The triggers produced by the unit.
-       */
-      triggers?: UnitTrigger[] | null
-
-      /**
-       * The values of the secrets produced by the unit.
-       */
-      secrets?: Record<string, unknown> | null
-
-      /**
-       * The workers produced by the unit.
-       */
-      workers?: UnitWorker[] | null
-
-      /**
-       * The IDs of the artifacts exported by the unit.
+       * Raw Pulumi outputs produced by the unit.
        *
-       * The keys are the output names, and the values are the IDs of the artifacts exported for that output.
+       * Parsing and persistence is handled in the business layer.
        */
-      exportedArtifactIds?: Record<string, string[]> | null
+      rawOutputs?: RawPulumiOutputs | null
     }
 )
 
@@ -107,6 +69,11 @@ export type UnitOptions = {
    * The project ID containing the instance.
    */
   projectId: string
+
+  /**
+   * The operation ID that triggered this run.
+   */
+  operationId?: string
 
   /**
    * The state ID to use as the stack name.

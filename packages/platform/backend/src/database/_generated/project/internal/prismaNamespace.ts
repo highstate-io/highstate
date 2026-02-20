@@ -387,6 +387,9 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Artifact: 'Artifact',
   InstanceCustomStatus: 'InstanceCustomStatus',
+  Entity: 'Entity',
+  EntitySnapshot: 'EntitySnapshot',
+  EntitySnapshotReference: 'EntitySnapshotReference',
   InstanceEvaluationState: 'InstanceEvaluationState',
   InstanceState: 'InstanceState',
   UserProjectViewport: 'UserProjectViewport',
@@ -424,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
+    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -647,6 +650,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.InstanceCustomStatusCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InstanceCustomStatusCountAggregateOutputType> | number
+        }
+      }
+    }
+    Entity: {
+      payload: Prisma.$EntityPayload<ExtArgs>
+      fields: Prisma.EntityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EntityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EntityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>
+        }
+        findFirst: {
+          args: Prisma.EntityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EntityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>
+        }
+        findMany: {
+          args: Prisma.EntityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>[]
+        }
+        create: {
+          args: Prisma.EntityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>
+        }
+        createMany: {
+          args: Prisma.EntityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EntityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>[]
+        }
+        delete: {
+          args: Prisma.EntityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>
+        }
+        update: {
+          args: Prisma.EntityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>
+        }
+        deleteMany: {
+          args: Prisma.EntityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EntityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EntityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>[]
+        }
+        upsert: {
+          args: Prisma.EntityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntityPayload>
+        }
+        aggregate: {
+          args: Prisma.EntityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEntity>
+        }
+        groupBy: {
+          args: Prisma.EntityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EntityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntityCountAggregateOutputType> | number
+        }
+      }
+    }
+    EntitySnapshot: {
+      payload: Prisma.$EntitySnapshotPayload<ExtArgs>
+      fields: Prisma.EntitySnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EntitySnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EntitySnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.EntitySnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EntitySnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.EntitySnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.EntitySnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.EntitySnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EntitySnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.EntitySnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>
+        }
+        update: {
+          args: Prisma.EntitySnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.EntitySnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EntitySnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EntitySnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.EntitySnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.EntitySnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEntitySnapshot>
+        }
+        groupBy: {
+          args: Prisma.EntitySnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntitySnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EntitySnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntitySnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    EntitySnapshotReference: {
+      payload: Prisma.$EntitySnapshotReferencePayload<ExtArgs>
+      fields: Prisma.EntitySnapshotReferenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EntitySnapshotReferenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EntitySnapshotReferenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>
+        }
+        findFirst: {
+          args: Prisma.EntitySnapshotReferenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EntitySnapshotReferenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>
+        }
+        findMany: {
+          args: Prisma.EntitySnapshotReferenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>[]
+        }
+        create: {
+          args: Prisma.EntitySnapshotReferenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>
+        }
+        createMany: {
+          args: Prisma.EntitySnapshotReferenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EntitySnapshotReferenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>[]
+        }
+        delete: {
+          args: Prisma.EntitySnapshotReferenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>
+        }
+        update: {
+          args: Prisma.EntitySnapshotReferenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>
+        }
+        deleteMany: {
+          args: Prisma.EntitySnapshotReferenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EntitySnapshotReferenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EntitySnapshotReferenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>[]
+        }
+        upsert: {
+          args: Prisma.EntitySnapshotReferenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntitySnapshotReferencePayload>
+        }
+        aggregate: {
+          args: Prisma.EntitySnapshotReferenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEntitySnapshotReference>
+        }
+        groupBy: {
+          args: Prisma.EntitySnapshotReferenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntitySnapshotReferenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EntitySnapshotReferenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntitySnapshotReferenceCountAggregateOutputType> | number
         }
       }
     }
@@ -2354,6 +2579,37 @@ export const InstanceCustomStatusScalarFieldEnum = {
 export type InstanceCustomStatusScalarFieldEnum = (typeof InstanceCustomStatusScalarFieldEnum)[keyof typeof InstanceCustomStatusScalarFieldEnum]
 
 
+export const EntityScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  identity: 'identity'
+} as const
+
+export type EntityScalarFieldEnum = (typeof EntityScalarFieldEnum)[keyof typeof EntityScalarFieldEnum]
+
+
+export const EntitySnapshotScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  content: 'content',
+  entityId: 'entityId',
+  operationId: 'operationId',
+  stateId: 'stateId',
+  output: 'output',
+  createdAt: 'createdAt'
+} as const
+
+export type EntitySnapshotScalarFieldEnum = (typeof EntitySnapshotScalarFieldEnum)[keyof typeof EntitySnapshotScalarFieldEnum]
+
+
+export const EntitySnapshotReferenceScalarFieldEnum = {
+  fromId: 'fromId',
+  toId: 'toId'
+} as const
+
+export type EntitySnapshotReferenceScalarFieldEnum = (typeof EntitySnapshotReferenceScalarFieldEnum)[keyof typeof EntitySnapshotReferenceScalarFieldEnum]
+
+
 export const InstanceEvaluationStateScalarFieldEnum = {
   stateId: 'stateId',
   status: 'status',
@@ -2886,6 +3142,9 @@ export type GlobalOmitConfig = {
   apiKey?: Prisma.ApiKeyOmit
   artifact?: Prisma.ArtifactOmit
   instanceCustomStatus?: Prisma.InstanceCustomStatusOmit
+  entity?: Prisma.EntityOmit
+  entitySnapshot?: Prisma.EntitySnapshotOmit
+  entitySnapshotReference?: Prisma.EntitySnapshotReferenceOmit
   instanceEvaluationState?: Prisma.InstanceEvaluationStateOmit
   instanceState?: Prisma.InstanceStateOmit
   userProjectViewport?: Prisma.UserProjectViewportOmit

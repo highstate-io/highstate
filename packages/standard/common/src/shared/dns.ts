@@ -75,7 +75,12 @@ export type DnsRecordArgs = {
   waitAt?: InputOrArray<CommandHost>
 }
 
-export type ResolvedDnsRecordArgs = Pick<DnsRecordArgs, "name" | "priority" | "ttl" | "proxied"> & {
+export type ResolvedDnsRecordArgs = Pick<DnsRecordArgs, "priority" | "ttl" | "proxied"> & {
+  /**
+   * The resolved name of the DNS record.
+   */
+  name: string
+
   /**
    * The value of the DNS record.
    */
@@ -85,6 +90,11 @@ export type ResolvedDnsRecordArgs = Pick<DnsRecordArgs, "name" | "priority" | "t
    * The type of the DNS record.
    */
   type: Input<string>
+
+  /**
+   * The zone where the DNS record should be created.
+   */
+  zone: string
 }
 
 export type DnsRecordSetArgs = Omit<DnsRecordArgs, "provider" | "value"> & {
@@ -142,20 +152,34 @@ export class DnsRecord extends ComponentResource {
     const resolvedValue = l3Endpoint.apply(l3EndpointToString)
     const resolvedType = args.type ? output(args.type) : l3Endpoint.apply(getTypeByEndpoint)
 
-    this.dnsRecord = output(args.provider).apply(provider => {
-      return dnsRecordMediator.call(provider.implRef, {
-        name,
-        args: {
-          name: args.name,
-          priority: args.priority,
-          ttl: args.ttl,
-          value: resolvedValue,
-          type: resolvedType,
-        },
-      })
-    })
+    this.dnsRecord = output({ recordName: args.name, provider: args.provider }).apply(
+      ({ recordName, provider }) => {
+        const resolvedName = recordName ?? name
+        const zone = provider.zones.find(zone => resolvedName.endsWith(zone))
+
+        if (!zone) {
+          throw new Error(
+            `The DNS provider "${provider.id}" does not have a zone matching the domain "${resolvedName}"`,
+          )
+        }
+
+        return dnsRecordMediator.call(provider.implRef, {
+          name,
+          args: {
+            name: resolvedName,
+            priority: args.priority,
+            ttl: args.ttl,
+            value: resolvedValue,
+            type: resolvedType,
+            zone,
+            proxied: args.proxied,
+          },
+        })
+      },
+    )
 
     this.waitCommands = output({
+      recordName: args.name,
       waitAt: args.waitAt,
       resolvedType,
       proxied: args.proxied,
@@ -165,6 +189,7 @@ export class DnsRecord extends ComponentResource {
         return []
       }
 
+      const resolvedName = args.name ?? name
       const resolvedHosts = waitAt ? [waitAt].flat() : []
 
       if (proxied) {
@@ -178,8 +203,8 @@ export class DnsRecord extends ComponentResource {
             {
               host,
               create: [
-                interpolate`while ! getent hosts "${args.name}";`,
-                interpolate`do echo "Waiting for DNS record \"${args.name}\" to be available...";`,
+                interpolate`while ! getent hosts "${resolvedName}";`,
+                interpolate`do echo "Waiting for DNS record \"${resolvedName}\" to be available...";`,
                 `sleep 5;`,
                 `done`,
               ],
@@ -197,8 +222,8 @@ export class DnsRecord extends ComponentResource {
           {
             host,
             create: [
-              interpolate`while ! getent hosts "${args.name}" | grep "${resolvedValue}";`,
-              interpolate`do echo "Waiting for DNS record \"${args.name}" to resolve to "${resolvedValue}"...";`,
+              interpolate`while ! getent hosts "${resolvedName}" | grep "${resolvedValue}";`,
+              interpolate`do echo "Waiting for DNS record \"${resolvedName}" to resolve to "${resolvedValue}"...";`,
               `sleep 5;`,
               `done`,
             ],

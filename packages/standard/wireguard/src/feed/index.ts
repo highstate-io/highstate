@@ -62,6 +62,9 @@ const document: WgFeedDocument = await toPromise({
       id: config.feedMetadata.id,
       name: config.feedMetadata.name,
 
+      enabled: config.feedMetadata.enabled,
+      forced: config.feedMetadata.forced,
+
       display_info: {
         title: config.feedMetadata.displayInfo.title,
         description: config.feedMetadata.displayInfo.description,

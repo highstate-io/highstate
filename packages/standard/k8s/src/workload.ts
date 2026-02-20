@@ -136,14 +136,14 @@ export type GenericWorkloadArgs = Omit<ExposableWorkloadArgs, "existing"> & {
    *
    * Will be ignored for other workload types.
    */
-  deployment?: Input<DeploymentArgs>
+  deployment?: Input<Omit<DeploymentArgs, "name" | "namespace">>
 
   /**
    * The args specific to the "StatefulSet" workload type.
    *
    * Will be ignored for other workload types.
    */
-  statefulSet?: Input<StatefulSetArgs>
+  statefulSet?: Input<Omit<StatefulSetArgs, "name" | "namespace">>
 
   /**
    * The args specific to the "Job" workload type.

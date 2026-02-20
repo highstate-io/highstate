@@ -54,20 +54,10 @@ if (downstreamInterface) {
   postUp.push("ip rule del not from all fwmark 0xca6c lookup 51820")
 
   // add a rule to route all downstream traffic to the upstream wireguard interface
-  postUp.push("ip rule add from all fwmark 0x1 lookup 51820")
-
-  // mark all downstream traffic with 0x1
-  postUp.push(
-    `iptables -t mangle -A PREROUTING -i ${downstreamInterface.name} -j MARK --set-mark 0x1`,
-  )
-
-  // remove the rule to route all downstream traffic to the upstream wireguard interface
-  preDown.push(
-    `iptables -t mangle -D PREROUTING -i ${downstreamInterface.name} -j MARK --set-mark 0x1`,
-  )
+  postUp.push(`ip rule add iif ${downstreamInterface.name} lookup 51820`)
 
   // remove the rule to route all non-encapsulated traffic to upstream wireguard interface
-  preDown.push("ip rule del from all fwmark 0x1 lookup 51820")
+  preDown.push(`ip rule del iif ${downstreamInterface.name} lookup 51820`)
 }
 
 const interfaceName = identityName.substring(0, 15) // linux kernel limit
@@ -134,7 +124,6 @@ const workload = await toPromise(
             port: identity.peer.listenPort ?? 51820,
             targetPort: containerPort,
             protocol: "UDP",
-            nodePort: args.external ? identity.peer.listenPort : undefined,
           },
         }
       : undefined,
@@ -214,7 +203,7 @@ if (args.allowClusterPods) {
 
 const endpoints = await toPromise(
   workload instanceof ExposableWorkload
-    ? workload.optionalService.apply(service => service?.endpoints!)
+    ? workload.optionalService.apply(service => service?.endpoints ?? [])
     : [],
 )
 

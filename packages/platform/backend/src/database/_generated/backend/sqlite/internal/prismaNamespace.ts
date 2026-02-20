@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
+  Object: 'Object',
   Project: 'Project',
   ProjectSpace: 'ProjectSpace',
   ProjectModelStorage: 'ProjectModelStorage',
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userWorkspaceLayout" | "library" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendUnlockMethod"
+    modelProps: "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendUnlockMethod"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -555,6 +556,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.LibraryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.LibraryCountAggregateOutputType> | number
+        }
+      }
+    }
+    Object: {
+      payload: Prisma.$ObjectPayload<ExtArgs>
+      fields: Prisma.ObjectFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ObjectFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ObjectFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>
+        }
+        findFirst: {
+          args: Prisma.ObjectFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ObjectFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>
+        }
+        findMany: {
+          args: Prisma.ObjectFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>[]
+        }
+        create: {
+          args: Prisma.ObjectCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>
+        }
+        createMany: {
+          args: Prisma.ObjectCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ObjectCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>[]
+        }
+        delete: {
+          args: Prisma.ObjectDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>
+        }
+        update: {
+          args: Prisma.ObjectUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>
+        }
+        deleteMany: {
+          args: Prisma.ObjectDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ObjectUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ObjectUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>[]
+        }
+        upsert: {
+          args: Prisma.ObjectUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ObjectPayload>
+        }
+        aggregate: {
+          args: Prisma.ObjectAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateObject>
+        }
+        groupBy: {
+          args: Prisma.ObjectGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ObjectGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ObjectCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ObjectCountAggregateOutputType> | number
         }
       }
     }
@@ -981,6 +1056,14 @@ export const LibraryScalarFieldEnum = {
 export type LibraryScalarFieldEnum = (typeof LibraryScalarFieldEnum)[keyof typeof LibraryScalarFieldEnum]
 
 
+export const ObjectScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId'
+} as const
+
+export type ObjectScalarFieldEnum = (typeof ObjectScalarFieldEnum)[keyof typeof ObjectScalarFieldEnum]
+
+
 export const ProjectScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
@@ -1222,6 +1305,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   userWorkspaceLayout?: Prisma.UserWorkspaceLayoutOmit
   library?: Prisma.LibraryOmit
+  object?: Prisma.ObjectOmit
   project?: Prisma.ProjectOmit
   projectSpace?: Prisma.ProjectSpaceOmit
   projectModelStorage?: Prisma.ProjectModelStorageOmit

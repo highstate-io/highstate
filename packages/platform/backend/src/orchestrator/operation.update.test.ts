@@ -19,6 +19,8 @@ describe("Operation - Update", () => {
       instanceStateService,
       projectModelService,
       unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -90,6 +92,8 @@ describe("Operation - Update", () => {
         instanceStateService,
         projectModelService,
         unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
         logger,
       )
 

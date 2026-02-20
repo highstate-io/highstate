@@ -67,6 +67,24 @@ export type Artifact = Prisma.ArtifactModel
  */
 export type InstanceCustomStatus = Prisma.InstanceCustomStatusModel
 /**
+ * Model Entity
+ * This model represents and instance of Highstate entity produced by one or many component instances one or many times.
+ * Entity tracks EntitySnapshots by their unique IDs allowing to correlate them across different operations and instances.
+ * Entities also can be tracked globally across different projects by referencing them in the Object model at the backend level.
+ */
+export type Entity = Prisma.EntityModel
+/**
+ * Model EntitySnapshot
+ * This model represents an immutable snapshot of an entity at a certain point of time
+ * provide by some component instance during an operation.
+ */
+export type EntitySnapshot = Prisma.EntitySnapshotModel
+/**
+ * Model EntitySnapshotReference
+ * 
+ */
+export type EntitySnapshotReference = Prisma.EntitySnapshotReferenceModel
+/**
  * Model InstanceEvaluationState
  * The evaluation state tracks the result of evaluating composite instances to produce virtual instances.
  * 

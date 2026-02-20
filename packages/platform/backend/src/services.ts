@@ -5,6 +5,8 @@ import { type ArtifactBackend, ArtifactService, createArtifactBackend } from "./
 import {
   ApiKeyService,
   BackendUnlockService,
+  EntitySnapshotService,
+  GlobalSearchService,
   InstanceLockService,
   InstanceStateService,
   OperationService,
@@ -15,6 +17,7 @@ import {
   SettingsService,
   TerminalSessionService,
   UnitExtraService,
+  UnitOutputService,
   WorkerService,
 } from "./business"
 import { ProjectEvaluationSubsystem } from "./business/evaluation"
@@ -74,6 +77,7 @@ export type Services = {
 
   // business services
   readonly backendUnlockService: BackendUnlockService
+  readonly globalSearchService: GlobalSearchService
   readonly instanceLockService: InstanceLockService
   readonly projectUnlockService: ProjectUnlockService
   readonly operationService: OperationService
@@ -86,6 +90,8 @@ export type Services = {
   readonly artifactService: ArtifactService
   readonly settingsService: SettingsService
   readonly unitExtraService: UnitExtraService
+  readonly entitySnapshotService: EntitySnapshotService
+  readonly unitOutputService: UnitOutputService
 }
 
 export interface CreateServicesOptions {
@@ -134,6 +140,7 @@ export async function createServices({
 
     // business services
     backendUnlockService,
+    globalSearchService,
     instanceLockService,
     projectUnlockService,
     operationService,
@@ -146,6 +153,8 @@ export async function createServices({
     projectModelService,
     settingsService,
     unitExtraService,
+    entitySnapshotService,
+    unitOutputService,
   } = {},
 }: CreateServicesOptions = {}): Promise<Services> {
   runtimeId ??= createId()
@@ -182,6 +191,12 @@ export async function createServices({
     logger.child({ service: "BackendUnlockService" }),
   )
 
+  globalSearchService ??= new GlobalSearchService(
+    database,
+    projectUnlockBackend,
+    logger.child({ service: "GlobalSearchService" }),
+  )
+
   secretService ??= new SecretService(
     database,
     pubsubManager,
@@ -197,6 +212,11 @@ export async function createServices({
     artifactBackend,
     secretService,
     logger,
+  )
+
+  unitOutputService ??= new UnitOutputService(
+    libraryBackend,
+    logger.child({ service: "UnitOutputService" }),
   )
 
   projectModelBackends ??= await createProjectModelBackends(database, logger)
@@ -219,6 +239,11 @@ export async function createServices({
     database,
     pubsubManager,
     logger.child({ service: "OperationService" }),
+  )
+
+  entitySnapshotService ??= new EntitySnapshotService(
+    database,
+    logger.child({ service: "EntitySnapshotService" }),
   )
 
   apiKeyService ??= new ApiKeyService(database, logger.child({ service: "ApiKeyService" }))
@@ -305,6 +330,8 @@ export async function createServices({
     instanceStateService,
     projectModelService,
     unitExtraService,
+    entitySnapshotService,
+    unitOutputService,
     database,
     logger,
   )
@@ -344,6 +371,7 @@ export async function createServices({
 
     // business services
     backendUnlockService,
+    globalSearchService,
     instanceLockService,
     projectUnlockService,
     operationService,
@@ -356,6 +384,8 @@ export async function createServices({
     projectModelService,
     settingsService,
     unitExtraService,
+    entitySnapshotService,
+    unitOutputService,
   }
 }
 

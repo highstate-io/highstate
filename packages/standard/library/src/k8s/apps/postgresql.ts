@@ -1,6 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
+import { databaseEntity } from "../../databases/postgresql"
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -25,7 +25,7 @@ export const postgresql = defineUnit({
   },
 
   secrets: {
-    ...pick(sharedSecrets, ["rootPassword", "backupKey"]),
+    ...pick(sharedSecrets, ["adminPassword", "backupKey"]),
   },
 
   inputs: {
@@ -34,7 +34,7 @@ export const postgresql = defineUnit({
   },
 
   outputs: {
-    postgresql: databases.postgresqlEntity,
+    database: databaseEntity,
     service: serviceEntity,
   },
 
@@ -52,8 +52,6 @@ export const postgresql = defineUnit({
  * The virtual PostgreSQL database created on the PostgreSQL instance.
  *
  * The provided database must be authorized to create databases and users.
- *
- * Requires a Kubernetes cluster to place init jobs and secrets.
  */
 export const postgresqlDatabase = defineUnit({
   type: "k8s.apps.postgresql.database.v1",
@@ -62,12 +60,11 @@ export const postgresqlDatabase = defineUnit({
   secrets: sharedDatabaseSecrets,
 
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "postgresql"]),
-    ...pick(optionalSharedInputs, ["namespace"]),
+    postgresql: databaseEntity,
   },
 
   outputs: {
-    postgresql: databases.postgresqlEntity,
+    postgresql: databaseEntity,
   },
 
   meta: {

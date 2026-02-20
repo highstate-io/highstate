@@ -1,42 +1,41 @@
 {
-  "name": "@highstate/example",
-  "version": "0.10.0",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@highstate/cli": "workspace:*",
-    "@highstate/designer": "workspace:*",
-    "classic-level": "^3.0.0"
-  },
-  "dependencies": {
-    "@highstate/cert-manager": "workspace:*",
-    "@highstate/cilium": "workspace:*",
-    "@highstate/cilium-crds": "workspace:*",
-    "@highstate/cloudflare": "workspace:*",
-    "@highstate/common": "workspace:*",
-    "@highstate/distributions": "workspace:*",
-    "@highstate/example.library": "workspace:*",
-    "@highstate/example.units": "workspace:*",
-    "@highstate/gateway-api": "workspace:*",
-    "@highstate/git": "workspace:*",
-    "@highstate/k3s": "workspace:*",
-    "@highstate/k8s": "workspace:*",
-    "@highstate/k8s.apps": "workspace:*",
-    "@highstate/k8s.game-servers": "workspace:*",
-    "@highstate/k8s.monitor-worker": "workspace:*",
-    "@highstate/k8s.obfuscators": "workspace:*",
-    "@highstate/library": "workspace:*",
-    "@highstate/mullvad": "workspace:*",
-    "@highstate/nixos": "workspace:*",
-    "@highstate/proxmox": "workspace:*",
-    "@highstate/restic": "workspace:*",
-    "@highstate/sops": "workspace:*",
-    "@highstate/talos": "workspace:*",
-    "@highstate/wireguard": "workspace:*",
-    "@highstate/yandex": "workspace:*",
-    "create-highstate": "workspace:*"
-  },
-  "repository": {
-    "url": "https://github.com/highstate-io/highstate"
-  }
+	"name": "@highstate/example",
+	"version": "0.10.0",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@highstate/cli": "workspace:*",
+		"@highstate/designer": "workspace:*",
+		"classic-level": "^3.0.0"
+	},
+	"dependencies": {
+		"@highstate/cert-manager": "workspace:*",
+		"@highstate/cilium": "workspace:*",
+		"@highstate/cilium-crds": "workspace:*",
+		"@highstate/cloudflare": "workspace:*",
+		"@highstate/common": "workspace:*",
+		"@highstate/distributions": "workspace:*",
+		"@highstate/example.library": "workspace:*",
+		"@highstate/example.units": "workspace:*",
+		"@highstate/gateway-api": "workspace:*",
+		"@highstate/git": "workspace:*",
+		"@highstate/k3s": "workspace:*",
+		"@highstate/k8s": "workspace:*",
+		"@highstate/k8s.apps": "workspace:*",
+		"@highstate/k8s.game-servers": "workspace:*",
+		"@highstate/k8s.monitor-worker": "workspace:*",
+		"@highstate/k8s.obfuscators": "workspace:*",
+		"@highstate/library": "workspace:*",
+		"@highstate/mullvad": "workspace:*",
+		"@highstate/nixos": "workspace:*",
+		"@highstate/proxmox": "workspace:*",
+		"@highstate/restic": "workspace:*",
+		"@highstate/sops": "workspace:*",
+		"@highstate/talos": "workspace:*",
+		"@highstate/wireguard": "workspace:*",
+		"@highstate/yandex": "workspace:*"
+	},
+	"repository": {
+		"url": "https://github.com/highstate-io/highstate"
+	}
 }

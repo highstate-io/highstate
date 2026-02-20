@@ -1,0 +1,40 @@
+{
+  "name": "@highstate/mysql",
+  "version": "0.19.1",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./units/connection": "./dist/units/connection/index.js",
+    "./units/database": "./dist/units/database/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "nx": {
+    "tags": [
+      "stdlib"
+    ]
+  },
+  "scripts": {
+    "build": "highstate build",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@highstate/common": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
+    "@pulumi/mysql": "^3.2.13"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:*",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  }
+}

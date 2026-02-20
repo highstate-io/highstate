@@ -1,0 +1,4 @@
+{
+  "extends": "./node_modules/@highstate/cli/assets/tsconfig.base.json",
+  "include": ["./src/**/*.ts", "./package.json"]
+}

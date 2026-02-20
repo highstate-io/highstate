@@ -49,7 +49,7 @@ export const cilium = defineUnit({
 })
 
 export const ciliumClusterMetadata = z.object({
-  cilium: z.object({
+  "cilium.cni": z.object({
     /**
      * If set to `true`, the generated network policy will allow
      * all DNS queries to be resolved, even if they are

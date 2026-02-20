@@ -25,7 +25,7 @@ export const remnawave = defineUnit({
   },
 
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "postgresql", "redis"]),
+    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "postgresqlDatabase", "redisDatabase"]),
     ...pick(optionalSharedInputs, ["resticRepo"]),
   },
 

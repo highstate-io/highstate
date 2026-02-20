@@ -127,6 +127,13 @@ export type CommandArgs = {
    * They will be mounted to the same paths in the container.
    */
   mounts?: InputOrArray<string>
+
+  /**
+   * Whether to ignore all changes to the command's create, update, and delete properties.
+   *
+   * You can still trigger the command rerun by changing the triggers or updateTriggers.
+   */
+  ignoreCommandChanges?: boolean
 }
 
 export type TextFileArgs = {
@@ -249,7 +256,11 @@ export class Command extends ComponentResource {
               stdin: args.stdin,
               addPreviousOutputInEnv: false,
             },
-            { ...opts, parent: this },
+            {
+              ...opts,
+              parent: this,
+              ignoreChanges: args.ignoreCommandChanges ? ["create", "update", "delete"] : undefined,
+            },
           )
         : new remote.Command(
             name,
@@ -290,7 +301,11 @@ export class Command extends ComponentResource {
               // TODO: does not work if server do not define AcceptEnv
               // environment,
             },
-            { ...opts, parent: this },
+            {
+              ...opts,
+              parent: this,
+              ignoreChanges: args.ignoreCommandChanges ? ["create", "update", "delete"] : undefined,
+            },
           )
 
     this.stdout = command.stdout

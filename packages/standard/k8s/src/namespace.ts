@@ -17,6 +17,7 @@ import {
   type ScopedResourceArgs,
   validateCluster,
 } from "./shared"
+import { ClusterAccessScope } from "./rbac"
 
 export type NamespaceArgs = Omit<ScopedResourceArgs, "namespace"> & {
   /**
@@ -47,6 +48,13 @@ export type CreateOrGetNamespaceArgs = NamespaceArgs & {
 export abstract class Namespace extends Resource {
   static readonly apiVersion = "v1"
   static readonly kind = "Namespace"
+
+  /**
+   * The cluster entity authorized to port-forward into the namespace.
+   *
+   * Only created for namespaces created with `create` or `createOrGet` methods, not for wrapped or external namespaces.
+   */
+  portForwardCluster?: Output<k8s.Cluster>
 
   constructor(
     type: string,
@@ -298,6 +306,33 @@ class CreatedNamespace extends Namespace {
       namespace.spec,
       namespace.status,
     )
+
+    const scope = new ClusterAccessScope(
+      `${name}-port-forward`,
+      {
+        namespace: this,
+        rules: [
+          {
+            apiGroups: [""],
+            resources: ["services"],
+            verbs: ["get"],
+          },
+          {
+            apiGroups: [""],
+            resources: ["pods"],
+            verbs: ["get", "list"],
+          },
+          {
+            apiGroups: [""],
+            resources: ["pods/portforward"],
+            verbs: ["create"],
+          },
+        ],
+      },
+      { parent: this },
+    )
+
+    this.portForwardCluster = scope.cluster
   }
 }
 

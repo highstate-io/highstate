@@ -6,10 +6,7 @@ import {
   type ComponentInput,
   type ComponentInputSpec,
   camelCaseToHumanReadable,
-  compact,
-  decompact,
   HighstateConfigKey,
-  type InstanceInput,
   type InstanceStatusField,
   type InstanceStatusFieldValue,
   type PartialKeys,
@@ -20,7 +17,7 @@ import {
   type Unit,
   type UnitArtifact,
   type UnitConfig,
-  type UnitInputReference,
+  type UnitInputValue,
   type UnitPage,
   type UnitTerminal,
   type UnitTrigger,
@@ -36,7 +33,6 @@ import {
   type Output,
   output,
   secret as pulumiSecret,
-  StackReference,
   type Unwrap,
 } from "@pulumi/pulumi"
 import { mapValues } from "remeda"
@@ -112,6 +108,12 @@ interface UnitContext<
     factory: () => Input<NonNullable<TSecrets[K]>>,
   ): Output<NonNullable<TSecrets[K]>>
 
+  setSecret<K extends keyof TSecrets>(
+    this: void,
+    name: K,
+    value: Input<NonNullable<TSecrets[K]>>,
+  ): void
+
   inputs: TInputs
   invokedTriggers: TriggerInvocation[]
 
@@ -137,8 +139,6 @@ type OutputSpecToValue<T extends ComponentInputSpec> = T[2] extends true
   : T[1] extends true
     ? NonNullable<z.input<T[0]["schema"]>>
     : NonNullable<z.input<T[0]["schema"]>> | undefined
-
-const stackRefMap = new Map<string, StackReference>()
 
 let instanceId: string | undefined
 let instanceName: string | undefined
@@ -186,56 +186,25 @@ export function getResourceComment(): string {
   return `Managed by Highstate (${getUnitInstanceId()})`
 }
 
-function getStackRef(config: UnitConfig, input: InstanceInput) {
-  const [instanceType] = parseInstanceId(input.instanceId)
-  const stateId = config.stateIdMap[input.instanceId]
-  if (!stateId) {
-    throw new Error(`State ID for instance "${input.instanceId}" not found in the unit config.`)
-  }
-
-  const key = `organization/${instanceType}/${stateId}`
-  let stackRef = stackRefMap.get(key)
-
-  if (!stackRef) {
-    stackRef = new StackReference(key)
-    stackRefMap.set(key, stackRef)
-  }
-
-  return stackRef
-}
-
-function getOutput(
-  config: UnitConfig,
+function getOutputValue(
   unit: Unit,
   inputName: string,
   input: ComponentInput,
-  refs: UnitInputReference[],
+  entries: UnitInputValue[],
 ) {
   const entity = unit.entities.get(input.type)
   if (!entity) {
     throw new Error(`Entity "${input.type}" not found in the unit "${unit.model.type}".`)
   }
 
-  const _getOutput = (ref: UnitInputReference) => {
-    const value = getStackRef(config, ref).requireOutput(ref.output)
-
-    return value.apply(value => {
-      if (ref.inclusion) {
-        if (value === null || value === undefined || typeof value !== "object") {
-          throw new Error(
-            `Cannot extract field "${ref.inclusion.field}" from non-object output "${ref.output}" of instance "${ref.instanceId}".`,
-          )
-        }
-
-        value = (value as Record<string, unknown>)[ref.inclusion.field]
-      }
-
+  const _validateValue = (entry: UnitInputValue) => {
+    return output(entry.value).apply(value => {
       const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
       const result = schema.safeParse(value)
 
       if (!result.success) {
         throw new Error(
-          `Invalid output "${ref.output}" from "${ref.instanceId}" for input "${inputName}": ${result.error.message}`,
+          `Invalid value for input "${inputName}": ${z.prettifyError(result.error)}`,
         )
       }
 
@@ -247,11 +216,7 @@ function getOutput(
     })
   }
 
-  const _getDecompactedOutput = (ref: UnitInputReference) => {
-    return _getOutput(ref).apply(decompact)
-  }
-
-  const values = output(refs.map(_getDecompactedOutput)).apply(values => values.flat())
+  const values = output(entries.map(_validateValue)).apply(values => values.flat())
 
   if (!input.multiple) {
     return values.apply(values => values[0])
@@ -327,7 +292,7 @@ export function forUnit<
       return undefined
     }
 
-    return getOutput(hsConfig, unit as unknown as Unit, inputName, input, value)
+    return getOutputValue(unit as unknown as Unit, inputName, input, value)
   })
 
   const [type, name] = parseInstanceId(hsConfig.instanceId)
@@ -358,6 +323,10 @@ export function forUnit<
       secrets[name as string] = value
 
       return value
+    }) as any,
+
+    setSecret: ((name: keyof TSecrets, value: Input<NonNullable<TSecrets[keyof TSecrets]>>) => {
+      secrets[name as string] = pulumiSecret(value)
     }) as any,
 
     outputs: async (outputs: any = {}) => {
@@ -412,7 +381,7 @@ export function forUnit<
             )
           }
 
-          return compact(result.data)
+          return result.data
         })
       })
 

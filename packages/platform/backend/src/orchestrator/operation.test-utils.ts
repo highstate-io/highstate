@@ -1,17 +1,20 @@
 import type { InstanceId, InstanceModel, VersionedName } from "@highstate/contract"
 import type { ArtifactService } from "../artifact"
 import type {
+  EntitySnapshotService,
   InstanceLockService,
   InstanceStateService,
   OperationService,
   ProjectModelService,
   SecretService,
   UnitExtraService,
+  UnitOutputService,
 } from "../business"
 import type { Operation } from "../database"
 import type { LibraryBackend } from "../library"
 import type {
   OperationType,
+  RawPulumiOutputs,
   RunnerBackend,
   UnitDestroyOptions,
   UnitOptions,
@@ -95,11 +98,9 @@ export type RunnerTestController = {
   emitError: (stateId: string, message: string) => void
   emitCompletion: (
     stateId: string,
-    update?: Omit<
-      Extract<UnitStateUpdate, { type: "completion" }>,
-      "type" | "unitId" | "operationType"
-    > & {
+    update?: {
       operationType?: OperationType
+      rawOutputs?: RawPulumiOutputs | null
     },
   ) => void
 }
@@ -115,6 +116,8 @@ export const operationTest = test.extend<{
   instanceStateService: MockedObject<InstanceStateService>
   projectModelService: MockedObject<ProjectModelService>
   unitExtraService: MockedObject<UnitExtraService>
+  entitySnapshotService: MockedObject<EntitySnapshotService>
+  unitOutputService: MockedObject<UnitOutputService>
 
   createMockLibrary: () => LibraryModel
   createUnit: (name: string, type?: VersionedName) => InstanceModel
@@ -198,18 +201,17 @@ export const operationTest = test.extend<{
         const operationType =
           update.operationType ?? lastOperationTypeByStateId.get(stateId) ?? "update"
 
+        const rawOutputs = update.rawOutputs ?? {
+          // Note: tests generally don't care about actual Pulumi outputs.
+          // Provide a non-empty object so business parsing can run if needed.
+          $test: { value: true },
+        }
+
         getQueue(stateId).push({
           type: "completion",
           unitId: stateId as unknown as InstanceId,
           operationType,
-          outputHash: update.outputHash ?? null,
-          statusFields: update.statusFields ?? null,
-          terminals: update.terminals ?? null,
-          pages: update.pages ?? null,
-          triggers: update.triggers ?? null,
-          secrets: update.secrets ?? null,
-          workers: update.workers ?? null,
-          exportedArtifactIds: update.exportedArtifactIds ?? null,
+          rawOutputs,
         })
       },
     }
@@ -358,6 +360,33 @@ export const operationTest = test.extend<{
     } as unknown as UnitExtraService)
 
     await use(unitExtraService)
+  },
+
+  unitOutputService: async ({}, use) => {
+    const unitOutputService = vi.mockObject({
+      parseUnitOutputs: vi.fn().mockResolvedValue({
+        outputHash: null,
+        statusFields: null,
+        terminals: null,
+        pages: null,
+        triggers: null,
+        secrets: null,
+        workers: null,
+        exportedArtifactIds: null,
+        entitySnapshotPayload: null,
+      }),
+    } as unknown as UnitOutputService)
+
+    await use(unitOutputService)
+  },
+
+  entitySnapshotService: async ({}, use) => {
+    const entitySnapshotService = vi.mockObject({
+      captureLatestSnapshotValues: vi.fn().mockResolvedValue(new Map()),
+      persistUnitEntitySnapshots: vi.fn().mockResolvedValue(undefined),
+    } as unknown as EntitySnapshotService)
+
+    await use(entitySnapshotService)
   },
 
   createMockLibrary: async ({}, use) => {
@@ -564,6 +593,8 @@ export const operationTest = test.extend<{
         libraryBackend,
         instanceStateService,
         projectModelService,
+        undefined,
+        undefined,
         logger,
       )
     }

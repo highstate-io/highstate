@@ -11,7 +11,8 @@
       "types": "./src/index.ts",
       "default": "./dist/index.js"
     },
-    "./unit": "./dist/unit/index.js"
+    "./unit": "./dist/unit/index.js",
+    "./impl/network-policy": "./dist/impl/network-policy.js"
   },
   "publishConfig": {
     "access": "public"

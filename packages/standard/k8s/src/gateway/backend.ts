@@ -24,12 +24,12 @@ export interface ServiceBackendRef {
   /**
    * The name of the service being referenced.
    */
-  service: Input<core.v1.Service>
+  service: Input<core.v1.Service | Service>
 
   /**
    * The port of the service being referenced.
    */
-  port: Input<number>
+  port?: Input<number>
 }
 
 export type BackendRef = FullBackendRef | ServiceBackendRef | Service
@@ -49,7 +49,7 @@ export function resolveBackendRef(ref: BackendRef): Output<Unwrap<FullBackendRef
     return output({
       name: service.metadata.name,
       namespace: service.metadata.namespace,
-      port: ref.port,
+      port: ref.port ?? service.spec.ports[0].port,
     })
   }
 

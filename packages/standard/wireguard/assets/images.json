@@ -2,6 +2,11 @@
   "wireguard": {
     "name": "docker.io/linuxserver/wireguard",
     "tag": "latest",
-    "image": "docker.io/linuxserver/wireguard:latest@sha256:7792dcef56c51e6b4d499a209e980ed74309bf3bee6af12168ea02bf289eddd9"
+    "image": "docker.io/linuxserver/wireguard:latest@sha256:72a3c0b6eb67bcecf0138092a7a66220c081246083c7f1e0d078c186560e745b"
+  },
+  "wgFeedDaemon": {
+    "name": "ghcr.io/exeteres/wg-feed/daemon",
+    "tag": "latest",
+    "image": "ghcr.io/exeteres/wg-feed/daemon:latest@sha256:840c950e6f880674baef5bbfb294caeb15f46370b98d52a845daea5266410b15"
   }
 }

@@ -1,7 +1,7 @@
 import { text } from "@highstate/contract"
 import { wireguard } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { generateIdentityConfig } from "../shared"
+import { feedMetadataFromArgs, feedMetadataFromPeers, generateIdentityConfig } from "../shared"
 
 const { name, inputs, args, outputs } = forUnit(wireguard.config)
 
@@ -11,6 +11,7 @@ const configContent = generateIdentityConfig({
   identity,
   peers,
   peerEndpointFilter: args.peerEndpointFilter,
+  listen: args.listen,
 })
 
 export default outputs({
@@ -24,18 +25,7 @@ export default outputs({
         value: configContent,
       },
     },
-    feedMetadata:
-      args.feedMetadata.enabled === "true"
-        ? {
-            id: args.feedMetadata.id,
-            name: args.feedMetadata.name,
-            displayInfo: {
-              title: args.feedMetadata.title,
-              description: args.feedMetadata.description,
-              iconUrl: args.feedMetadata.iconUrl,
-            },
-          }
-        : undefined,
+    feedMetadata: feedMetadataFromArgs(args.feedMetadata) ?? feedMetadataFromPeers(peers),
   },
   $pages: {
     index: {

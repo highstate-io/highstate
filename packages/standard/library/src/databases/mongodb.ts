@@ -1,13 +1,23 @@
 import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
-import { toPatchArgs } from "../utils"
-import { optionalSharedArgs, sharedArgs, sharedInputs, sharedSchema, sharedSecrets } from "./shared"
+
+export const credentialsSchema = z.object({
+  /**
+   * The username used to authenticate against the database.
+   */
+  username: z.string(),
+
+  /**
+   * The password used to authenticate against the database.
+   */
+  password: z.string(),
+})
 
 /**
- * Represents the MongoDB database or virtual database behind it.
+ * Represents a connection to a MongoDB instance, including the endpoints and credentials.
  */
-export const mongodbEntity = defineEntity({
-  type: "databases.mongodb.v1",
+export const connectionEntity = defineEntity({
+  type: "mongodb.connection.v1",
 
   includes: {
     endpoints: {
@@ -16,7 +26,12 @@ export const mongodbEntity = defineEntity({
     },
   },
 
-  schema: sharedSchema,
+  schema: z.object({
+    /**
+     * The credentials for authenticating to the MongoDB instance.
+     */
+    credentials: credentialsSchema,
+  }),
 
   meta: {
     color: "#13aa52",
@@ -24,26 +39,52 @@ export const mongodbEntity = defineEntity({
 })
 
 /**
- * The existing MongoDB database or virtual database behind it.
+ * The existing MongoDB connection hosted on a server or a managed service.
  */
-export const existingMongodb = defineUnit({
-  type: "databases.mongodb.existing.v1",
+export const connection = defineUnit({
+  type: "mongodb.connection.existing.v1",
 
-  args: sharedArgs,
-  secrets: sharedSecrets,
-  inputs: sharedInputs,
+  args: {
+    /**
+     * The username to authenticate with.
+     */
+    username: z.string(),
+
+    /**
+     * The endpoints to connect to the MongoDB instance in form of `host:port`.
+     */
+    endpoints: z.string().array().default([]),
+  },
+
+  inputs: {
+    /**
+     * The endpoints to connect to the MongoDB instance.
+     */
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+  },
+
+  secrets: {
+    /**
+     * The password to authenticate with.
+     */
+    password: z.string(),
+  },
 
   outputs: {
-    mongodb: mongodbEntity,
+    connection: connectionEntity,
   },
 
   source: {
-    package: "@highstate/common",
-    path: "units/databases/existing-mongodb",
+    package: "@highstate/mongodb",
+    path: "units/connection",
   },
 
   meta: {
-    title: "Existing MongoDB Database",
+    title: "MongoDB Connection",
     icon: "simple-icons:mongodb",
     secondaryIcon: "mdi:database",
     category: "Databases",
@@ -51,41 +92,92 @@ export const existingMongodb = defineUnit({
 })
 
 /**
- * Patches some properties of the MongoDB database and outputs the updated database.
+ * Represents a MongoDB database with credentials and endpoints to access it.
  */
-export const mongodbPatch = defineUnit({
-  type: "databases.mongodb-patch.v1",
+export const databaseEntity = defineEntity({
+  type: "mongodb.database.v1",
 
-  args: {
-    ...toPatchArgs(optionalSharedArgs),
-
+  includes: {
     endpoints: {
-      ...sharedArgs.endpoints,
-      schema: z.string().array().default([]),
+      entity: l4EndpointEntity,
+      multiple: true,
     },
   },
 
-  inputs: {
-    mongodb: mongodbEntity,
-    ...sharedInputs,
-  },
+  schema: z.object({
+    /**
+     * The name of the MongoDB database.
+     */
+    name: z.string(),
 
-  outputs: {
-    mongodb: mongodbEntity,
-  },
-
-  source: {
-    package: "@highstate/common",
-    path: "units/databases/mongodb-patch",
-  },
+    /**
+     * The credentials that can be used to access the database.
+     */
+    credentials: credentialsSchema,
+  }),
 
   meta: {
-    title: "MongoDB Patch",
-    icon: "simple-icons:mongodb",
-    secondaryIcon: "fluent:patch-20-filled",
-    category: "Databases",
+    color: "#13aa52",
   },
 })
 
-export type MongoDB = z.infer<typeof mongodbEntity.schema>
-export type MongoDBInput = EntityInput<typeof mongodbEntity>
+/**
+ * Creates a database in a MongoDB instance.
+ */
+export const database = defineUnit({
+  type: "mongodb.database.v1",
+
+  args: {
+    /**
+     * The name of the database.
+     *
+     * If not provided, it will be set to the unit name.
+     */
+    databaseName: z.string().optional(),
+
+    /**
+     * The username to create.
+     *
+     * If not provided, it will be set to the database name.
+     */
+    username: z.string().optional(),
+  },
+
+  inputs: {
+    /**
+     * The connection to the MongoDB instance where the database should be created.
+     */
+    connection: connectionEntity,
+  },
+
+  secrets: {
+    /**
+     * The password of the created user.
+     *
+     * If not provided, a random password will be generated.
+     */
+    password: z.string().optional(),
+  },
+
+  outputs: {
+    database: databaseEntity,
+  },
+
+  meta: {
+    title: "MongoDB Database",
+    icon: "simple-icons:mongodb",
+    secondaryIcon: "mdi:database-plus",
+    category: "Databases",
+  },
+
+  source: {
+    package: "@highstate/mongodb",
+    path: "units/database",
+  },
+})
+
+export type Connection = z.infer<typeof connectionEntity.schema>
+export type ConnectionInput = EntityInput<typeof connectionEntity>
+
+export type Database = z.infer<typeof databaseEntity.schema>
+export type DatabaseInput = EntityInput<typeof databaseEntity>

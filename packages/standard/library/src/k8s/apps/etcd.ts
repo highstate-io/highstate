@@ -1,6 +1,5 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
 import {
   appName,
   optionalSharedInputs,
@@ -9,6 +8,7 @@ import {
   sharedSecrets,
   source,
 } from "./shared"
+import { clusterEntity } from "../../databases/etcd"
 
 /**
  * The etcd instance deployed on Kubernetes.
@@ -31,7 +31,7 @@ export const etcd = defineUnit({
   },
 
   outputs: {
-    etcd: databases.etcdEntity,
+    etcd: clusterEntity,
   },
 
   meta: {

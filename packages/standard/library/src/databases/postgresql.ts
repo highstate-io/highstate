@@ -1,13 +1,23 @@
 import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
-import { toPatchArgs } from "../utils"
-import { optionalSharedArgs, sharedArgs, sharedInputs, sharedSchema, sharedSecrets } from "./shared"
+
+export const credentialsSchema = z.object({
+  /**
+   * The username used to authenticate against the database.
+   */
+  username: z.string(),
+
+  /**
+   * The password used to authenticate against the database.
+   */
+  password: z.string(),
+})
 
 /**
- * Represents the PostgreSQL database or virtual database behind it.
+ * Represents a connection to a PostgreSQL instance, including the endpoints and credentials.
  */
-export const postgresqlEntity = defineEntity({
-  type: "databases.postgresql.v1",
+export const connectionEntity = defineEntity({
+  type: "postgresql.connection.v1",
 
   includes: {
     endpoints: {
@@ -16,7 +26,12 @@ export const postgresqlEntity = defineEntity({
     },
   },
 
-  schema: sharedSchema,
+  schema: z.object({
+    /**
+     * The credentials for authenticating to the PostgreSQL instance.
+     */
+    credentials: credentialsSchema,
+  }),
 
   meta: {
     color: "#336791",
@@ -24,26 +39,52 @@ export const postgresqlEntity = defineEntity({
 })
 
 /**
- * The existing PostgreSQL database or virtual database behind it.
+ * The existing PostgreSQL connection hosted on a server or a managed service.
  */
-export const existingPostgresql = defineUnit({
-  type: "databases.postgresql.existing.v1",
+export const connection = defineUnit({
+  type: "postgresql.connection.existing.v1",
 
-  args: sharedArgs,
-  secrets: sharedSecrets,
-  inputs: sharedInputs,
+  args: {
+    /**
+     * The username to authenticate with.
+     */
+    username: z.string(),
+
+    /**
+     * The endpoints to connect to the PostgreSQL instance in form of `host:port`.
+     */
+    endpoints: z.string().array().default([]),
+  },
+
+  inputs: {
+    /**
+     * The endpoints to connect to the PostgreSQL instance.
+     */
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+  },
+
+  secrets: {
+    /**
+     * The password to authenticate with.
+     */
+    password: z.string(),
+  },
 
   outputs: {
-    postgresql: postgresqlEntity,
+    connection: connectionEntity,
   },
 
   source: {
-    package: "@highstate/common",
-    path: "units/databases/existing-postgresql",
+    package: "@highstate/postgresql",
+    path: "units/connection",
   },
 
   meta: {
-    title: "Existing PostgreSQL Database",
+    title: "PostgreSQL Connection",
     icon: "simple-icons:postgresql",
     secondaryIcon: "mdi:database",
     category: "Databases",
@@ -51,44 +92,92 @@ export const existingPostgresql = defineUnit({
 })
 
 /**
- * Patches some properties of the PostgreSQL database and outputs the updated database.
+ * Represents a PostgreSQL database with credentials and endpoints to access it.
  */
-export const postgresqlPatch = defineUnit({
-  type: "databases.postgresql-patch.v1",
+export const databaseEntity = defineEntity({
+  type: "postgresql.database.v1",
 
-  args: {
-    ...toPatchArgs(optionalSharedArgs),
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
+
+  schema: z.object({
+    /**
+     * The name of the PostgreSQL database.
+     */
+    name: z.string(),
 
     /**
-     * The endpoints to connect to the database in form of `host:port`.
-     *
-     * If at least one endpoint is provided (either via args or inputs), the existing endpoints
-     * will be replaced completely.
+     * The credentials that can be used to access the database.
      */
-    endpoints: z.string().array().default([]),
-  },
-
-  inputs: {
-    postgresql: postgresqlEntity,
-    ...sharedInputs,
-  },
-
-  outputs: {
-    postgresql: postgresqlEntity,
-  },
-
-  source: {
-    package: "@highstate/common",
-    path: "units/databases/postgresql-patch",
-  },
+    credentials: credentialsSchema,
+  }),
 
   meta: {
-    title: "PostgreSQL Patch",
-    icon: "simple-icons:postgresql",
-    secondaryIcon: "fluent:patch-20-filled",
-    category: "Databases",
+    color: "#336791",
   },
 })
 
-export type PostgreSQL = z.infer<typeof postgresqlEntity.schema>
-export type PostgreSQLInput = EntityInput<typeof postgresqlEntity>
+/**
+ * Creates a database in a PostgreSQL instance.
+ */
+export const database = defineUnit({
+  type: "postgresql.database.v1",
+
+  args: {
+    /**
+     * The name of the database.
+     *
+     * If not provided, it will be set to the unit name.
+     */
+    databaseName: z.string().optional(),
+
+    /**
+     * The username to create.
+     *
+     * If not provided, it will be set to the database name.
+     */
+    username: z.string().optional(),
+  },
+
+  inputs: {
+    /**
+     * The connection to the PostgreSQL instance where the database should be created.
+     */
+    connection: connectionEntity,
+  },
+
+  secrets: {
+    /**
+     * The password of the created user.
+     *
+     * If not provided, a random password will be generated.
+     */
+    password: z.string().optional(),
+  },
+
+  outputs: {
+    database: databaseEntity,
+  },
+
+  meta: {
+    title: "PostgreSQL Database",
+    icon: "simple-icons:postgresql",
+    secondaryIcon: "mdi:database-plus",
+    category: "Databases",
+  },
+
+  source: {
+    package: "@highstate/postgresql",
+    path: "units/database",
+  },
+})
+
+export type Connection = z.infer<typeof connectionEntity.schema>
+export type ConnectionInput = EntityInput<typeof connectionEntity>
+
+export type Database = z.infer<typeof databaseEntity.schema>
+export type DatabaseInput = EntityInput<typeof databaseEntity>

@@ -11,7 +11,6 @@ import {
 import { pick } from "remeda"
 import { fileEntity } from "./common"
 import { serverEntity } from "./common/server"
-import { etcdEntity } from "./databases"
 import { clusterEntity, networkInterfaceEntity, workloadEntity } from "./k8s"
 import {
   addressEntity,
@@ -21,6 +20,7 @@ import {
   subnetEntity,
 } from "./network"
 import { toPatchArgs } from "./utils"
+import { etcd } from "./databases"
 
 export const backendSchema = z.enum(["wireguard", "amneziawg"])
 
@@ -65,6 +65,52 @@ export const networkEntity = defineEntity({
 })
 
 export const nodeExposePolicySchema = z.enum(["always", "when-has-endpoint", "never"])
+
+export const feedDisplayInfoSchema = z.object({
+  /**
+   * The display title of the tunnel.
+   */
+  title: z.string(),
+
+  /**
+   * The display description of the tunnel.
+   */
+  description: z.string().optional(),
+
+  /**
+   * The display icon URL of the tunnel.
+   *
+   * Must only be `data:` URL with SVG image.
+   */
+  iconUrl: z.url().optional(),
+})
+
+export const feedMetadataSchema = z.object({
+  /**
+   * The ID of the tunnel in the feed.
+   */
+  id: z.string(),
+
+  /**
+   * The suggested name of the interface for the tunnel.
+   */
+  name: genericNameSchema,
+
+  /**
+   * Whether the tunnel should be enabled by the client.
+   */
+  enabled: z.boolean().default(false),
+
+  /**
+   * Whether the tunnel state must be forced by the client.
+   */
+  forced: z.boolean().default(false),
+
+  /**
+   * The display information of the tunnel.
+   */
+  displayInfo: feedDisplayInfoSchema,
+})
 
 export const peerEntity = defineEntity({
   type: "wireguard.peer.v1",
@@ -147,6 +193,13 @@ export const peerEntity = defineEntity({
     persistentKeepalive: z.number().int().nonnegative().default(0),
 
     /**
+     * The wg-feed metadata of the WireGuard peer.
+     *
+     * Will be used in the config referencing this peer (not the peer itself).
+     */
+    feedMetadata: feedMetadataSchema.optional(),
+
+    /**
      * The peers which are relayed through this peer.
      *
      * All their allowed IPs will be added to this peer's allowed IPs
@@ -184,42 +237,6 @@ export const identityEntity = defineEntity({
   },
 })
 
-export const feedDisplayInfoSchema = z.object({
-  /**
-   * The display title of the tunnel.
-   */
-  title: z.string(),
-
-  /**
-   * The display description of the tunnel.
-   */
-  description: z.string().optional(),
-
-  /**
-   * The display icon URL of the tunnel.
-   *
-   * Must only be `data:` URL with SVG image.
-   */
-  iconUrl: z.url().optional(),
-})
-
-export const feedMetadataSchema = z.object({
-  /**
-   * The ID of the tunnel in the feed.
-   */
-  id: z.string(),
-
-  /**
-   * The suggested name of the interface for the tunnel.
-   */
-  name: genericNameSchema,
-
-  /**
-   * The display information of the tunnel.
-   */
-  displayInfo: feedDisplayInfoSchema,
-})
-
 export const configEntity = defineEntity({
   type: "wireguard.config.v1",
 
@@ -251,6 +268,9 @@ export type IdentityInput = EntityInput<typeof identityEntity>
 export type PeerInput = EntityInput<typeof peerEntity>
 export type ConfigInput = EntityInput<typeof configEntity>
 
+export type FeedDisplayInfo = z.infer<typeof feedDisplayInfoSchema>
+export type FeedMetadata = z.infer<typeof feedMetadataSchema>
+
 /**
  * Holds the shared configuration for WireGuard identities, peers, and nodes.
  */
@@ -274,6 +294,35 @@ export const network = defineUnit({
     package: "@highstate/wireguard",
     path: "network",
   },
+})
+
+const sharedFeedArgs = $args({
+  /**
+   * The metadata to include in the wg-feed for this config.
+   */
+  feedMetadata: z
+    .discriminatedUnion("provided", [
+      z.object({
+        /**
+         * Whether this config is enabled for upload to wg-feed.
+         *
+         * You must fill the metadata fields.
+         */
+        provided: z.literal("yes"),
+
+        ...pick(feedMetadataSchema.shape, ["id", "name", "enabled", "forced"]),
+
+        // Highstate does not support nested objects in UI
+        ...feedDisplayInfoSchema.shape,
+      }),
+      z.object({
+        /**
+         * Whether this config is enabled for upload to wg-feed.
+         */
+        provided: z.literal("no"),
+      }),
+    ])
+    .prefault({ provided: "no" }),
 })
 
 const sharedPeerArgs = $args({
@@ -363,6 +412,8 @@ const sharedPeerArgs = $args({
    * If set to 0, keepalive is disabled.
    */
   persistentKeepalive: z.number().int().nonnegative().default(0),
+
+  ...sharedFeedArgs,
 })
 
 const sharedPeerInputs = $inputs({
@@ -641,6 +692,120 @@ export const nodeK8s = defineUnit({
 })
 
 /**
+ * The wg-feed daemon deployed in the Kubernetes cluster.
+ *
+ * It runs `wg-feed-daemon` which continuously reconciles local WireGuard tunnels
+ * from one or more wg-feed Setup URLs.
+ */
+export const nodeFeedK8s = defineUnit({
+  type: "wireguard.node.feed.k8s.v1",
+
+  args: {
+    /**
+     * The name of the namespace/deployment/statefulset where the daemon will be deployed.
+     *
+     * By default, the name is `wg-${identity.name}`.
+     */
+    appName: z.string().optional(),
+
+    /**
+     * Whether to expose the WireGuard node to the outside world.
+     */
+    external: z.boolean().default(false),
+
+    /**
+     * Whether to create a Service and allow ingress.
+     */
+    expose: z.boolean().default(false),
+
+    /**
+     * The UDP port that will be exposed by the Service.
+     *
+     * This is required for consumers that need to know the port ahead of time.
+     */
+    listenPort: z.number().default(51820),
+
+    /**
+     * The name of the WireGuard interface to export as `interface` output.
+     *
+     * Note: wg-feed may manage multiple tunnels.
+     * This output is a convenience handle for downstream units.
+     */
+    interfaceName: z.string().default("wg0"),
+
+    /**
+     * List of CIDR blocks that should be blocked from forwarding through this WireGuard node.
+     *
+     * This prevents other peers from reaching these destination CIDRs while still allowing
+     * the peers in those CIDRs to access the internet and other allowed endpoints.
+     *
+     * Useful for peer isolation where you want to prevent cross-peer communication.
+     */
+    forwardRestrictedSubnets: z.string().array().default([]),
+
+    /**
+     * The extra specification of the container which runs the wg-feed daemon.
+     *
+     * Will override any overlapping fields.
+     */
+    containerSpec: z.record(z.string(), z.unknown()).optional(),
+  },
+
+  inputs: {
+    k8sCluster: clusterEntity,
+    endpoints: {
+      entity: l7EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+
+    peer: {
+      entity: peerEntity,
+      required: false,
+    },
+
+    workload: {
+      entity: workloadEntity,
+      required: false,
+    },
+
+    interface: {
+      entity: networkInterfaceEntity,
+      required: false,
+    },
+  },
+
+  outputs: {
+    workload: {
+      entity: workloadEntity,
+    },
+
+    interface: {
+      entity: networkInterfaceEntity,
+    },
+
+    peer: {
+      entity: peerEntity,
+      required: false,
+    },
+  },
+
+  meta: {
+    title: "WireGuard Feed Kubernetes Node",
+    description: "The wg-feed daemon deployed in the Kubernetes cluster.",
+    icon: "simple-icons:wireguard",
+    iconColor: "#88171a",
+    secondaryIcon: "devicon:kubernetes",
+    category: "VPN",
+  },
+
+  source: {
+    package: "@highstate/wireguard",
+    path: "node.feed.k8s",
+  },
+})
+
+/**
  * The WireGuard node deployed on a server using wg-quick systemd service.
  */
 export const node = defineUnit({
@@ -711,12 +876,6 @@ export const node = defineUnit({
       entity: peerEntity,
       required: false,
     },
-
-    endpoints: {
-      entity: l4EndpointEntity,
-      required: false,
-      multiple: true,
-    },
   },
 
   meta: {
@@ -733,7 +892,7 @@ export const node = defineUnit({
   },
 })
 
-const sharedArgs = $args({
+const configSharedArgs = $args({
   /**
    * The filter to use when selecting endpoints for each peer.
    *
@@ -742,6 +901,13 @@ const sharedArgs = $args({
    * If not provided, all endpoints will be considered.
    */
   peerEndpointFilter: z.string().optional().meta({ language: "javascript" }),
+
+  /**
+   * Whether to include the `ListenPort` in the generated config.
+   *
+   * By default, is `false` because in most cases the config is used for peers which don't listen for incoming connections.
+   */
+  listen: z.boolean().default(false),
 })
 
 /**
@@ -751,34 +917,8 @@ export const config = defineUnit({
   type: "wireguard.config.v1",
 
   args: {
-    ...sharedArgs,
-
-    /**
-     * The metadata to include in the wg-feed for this config.
-     */
-    feedMetadata: z
-      .discriminatedUnion("enabled", [
-        z.object({
-          /**
-           * Whether this config is enabled for upload to wg-feed.
-           *
-           * You must fill the metadata fields.
-           */
-          enabled: z.literal("true"),
-
-          ...pick(feedMetadataSchema.shape, ["id", "name"]),
-
-          // Highstate does not support nested objects in UI
-          ...feedDisplayInfoSchema.shape,
-        }),
-        z.object({
-          /**
-           * Whether this config is enabled for upload to wg-feed.
-           */
-          enabled: z.literal("false"),
-        }),
-      ])
-      .prefault({ enabled: "false" }),
+    ...configSharedArgs,
+    ...sharedFeedArgs,
   },
 
   inputs: {
@@ -815,7 +955,7 @@ export const configBundle = defineUnit({
   type: "wireguard.config-bundle.v1",
 
   args: {
-    ...sharedArgs,
+    ...configSharedArgs,
   },
 
   inputs: {
@@ -909,7 +1049,7 @@ export const feed = defineUnit({
   },
 
   inputs: {
-    etcd: etcdEntity,
+    etcd: etcd.clusterEntity,
     serverEndpoints: {
       entity: l4EndpointEntity,
       required: false,

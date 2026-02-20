@@ -46,5 +46,11 @@
     "name": "etcd",
     "version": "0.5.0",
     "sha256": "7d798683281e6e12ff2135373154d82e84120cc0ebce702ea00cd2065e373166"
+  },
+  "grafana": {
+    "repo": "https://grafana-community.github.io/helm-charts",
+    "name": "grafana",
+    "version": "11.0.1",
+    "sha256": "8bbcea91c361974f64b0cbf28a9f3e86b70fbe0fe057596218d5bd26bcf145de"
   }
 }

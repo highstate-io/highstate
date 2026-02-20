@@ -67,10 +67,13 @@ new Chart(
 export default outputs({
   k8sCluster: secret({
     ...cluster,
-    cni: "cilium",
+    networkPolicyImplRef: {
+      package: "@highstate/cilium",
+      data: {},
+    },
     metadata: {
       ...cluster.metadata,
-      cilium: {
+      "cilium.cni": {
         allowForbiddenFqdnResolution: args.allowForbiddenFqdnResolution ?? false,
       },
     } satisfies k8s.CiliumClusterMetadata,

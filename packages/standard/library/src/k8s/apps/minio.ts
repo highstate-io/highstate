@@ -1,68 +1,61 @@
-import { $secrets, defineUnit, text, z } from "@highstate/contract"
+import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
-import { serviceEntity } from "../service"
-import { appName, optionalSharedInputs, sharedArgs, sharedInputs, source } from "./shared"
-
-const minioSecrets = $secrets({
-  /**
-   * The secret key used to authenticate with MinIO.
-   */
-  secretKey: z.string().optional(),
-
-  /**
-   * The key that protects Restic backups.
-   */
-  backupKey: z.string().optional(),
-})
+import {
+  appName,
+  optionalSharedArgs,
+  optionalSharedInputs,
+  sharedArgs,
+  sharedInputs,
+  sharedSecrets,
+  source,
+} from "./shared"
+import { connectionEntity } from "../../databases/minio"
+import { deploymentEntity } from "../workload"
 
 /**
  * The MinIO object storage deployed on Kubernetes.
  */
 export const minio = defineUnit({
   type: "k8s.apps.minio.v1",
+
   args: {
     ...appName("minio"),
+    ...pick(optionalSharedArgs, ["fqdn"]),
     ...pick(sharedArgs, ["external"]),
 
-    accessKey: {
-      schema: z.string().default("admin"),
-      meta: {
-        description: text`
-          The access key used to authenticate with MinIO.
-          If not provided, defaults to "admin".
-        `,
-      },
-    },
+    /**
+     * The FQDN of the MinIO console.
+     *
+     * If not provided, the console will not be exposed and only the S3 API will be available.
+     */
+    consoleFqdn: z.string().optional(),
 
-    region: {
-      schema: z.string().optional(),
-      meta: {
-        description: text`The region associated with the MinIO deployment.`,
-      },
-    },
+    /**
+     * The name of the region to associate with the MinIO deployment.
+     *
+     * Defaults to "us-east-1".
+     */
+    region: z.string().default("us-east-1"),
 
-    buckets: {
-      schema: databases.s3BucketSchema.array().default([]),
-      meta: {
-        description: text`
-          The buckets that must exist on the MinIO instance.
-          Each entry can optionally include a bucket policy: none, download, upload, or public.
-        `,
-      },
-    },
+    /**
+     * Whether to use the [fork](https://github.com/huncrys/minio-console) of MinIO Console instead of the built-in console.
+     * The fork contains admin features that were removed from the original console.
+     */
+    useConsoleFork: z.boolean().default(false),
   },
 
-  secrets: minioSecrets,
+  secrets: {
+    ...pick(sharedSecrets, ["adminPassword", "backupKey"]),
+  },
 
   inputs: {
     ...pick(sharedInputs, ["k8sCluster"]),
-    ...pick(optionalSharedInputs, ["resticRepo"]),
+    ...pick(optionalSharedInputs, ["accessPoint", "resticRepo"]),
   },
 
   outputs: {
-    s3: databases.s3Entity,
-    service: serviceEntity,
+    connection: connectionEntity,
+    deployment: deploymentEntity,
   },
 
   meta: {

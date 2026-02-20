@@ -1,15 +1,21 @@
-import { generateKey, generatePassword, l4EndpointToString } from "@highstate/common"
-import { Chart, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
+import {
+  generateKey,
+  generatePassword,
+  l4EndpointToL7,
+  l4EndpointToString,
+  parseEndpoint,
+} from "@highstate/common"
+import { Chart, Deployment, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { forUnit, secret, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
-import { charts, createBootstrapServiceEndpoint } from "../../shared"
+import { charts, createBootstrapServiceEndpoint, images } from "../../shared"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.minio)
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
-const secretKey = getSecret("secretKey", generatePassword)
+const adminPassword = getSecret("adminPassword", generatePassword)
 const backupKey = getSecret("backupKey", generateKey)
 
 const credentialsSecret = Secret.create(
@@ -18,8 +24,8 @@ const credentialsSecret = Secret.create(
     namespace,
 
     stringData: {
-      "root-user": args.accessKey,
-      "root-password": secretKey,
+      username: "admin",
+      password: adminPassword,
     },
   },
   { deletedWith: namespace },
@@ -32,19 +38,6 @@ const dataVolumeClaim = PersistentVolumeClaim.create(
 )
 
 const serviceEndpoint = createBootstrapServiceEndpoint(namespace, args.appName, 9000)
-
-const defaultBuckets =
-  args.buckets.length === 0
-    ? ""
-    : args.buckets
-        .map(bucket => {
-          if (bucket.policy && bucket.policy !== "none") {
-            return `${bucket.name}:${bucket.policy}`
-          }
-
-          return bucket.name
-        })
-        .join(",")
 
 const backupJobPair = inputs.resticRepo
   ? new BackupJobPair(
@@ -81,6 +74,13 @@ const backupJobPair = inputs.resticRepo
 
 const chartDependsOn = backupJobPair ? [credentialsSecret, backupJobPair] : [credentialsSecret]
 
+if ((args.consoleFqdn || args.fqdn) && !inputs.accessPoint) {
+  throw new Error("Access point must be provided when fqdn or consoleFqdn is set")
+}
+
+const DATABASE_PORT = 9000
+const CONSOLE_PORT = 9090
+
 const chart = new Chart(
   args.appName,
   {
@@ -93,10 +93,9 @@ const chart = new Chart(
       nameOverride: args.appName,
 
       auth: {
-        rootUser: args.accessKey,
         existingSecret: credentialsSecret.metadata.name,
-        existingSecretUserKey: "root-user",
-        existingSecretPasswordKey: "root-password",
+        existingSecretUserKey: "username",
+        existingSecretPasswordKey: "password",
       },
 
       config: {
@@ -107,27 +106,85 @@ const chart = new Chart(
         existingClaim: dataVolumeClaim.metadata.name,
       },
 
-      defaultBuckets,
+      service: {
+        consolePort: CONSOLE_PORT,
+      },
     },
 
     service: {
       external: args.external,
     },
+
+    routes: [
+      // main
+      ...(args.fqdn
+        ? [
+            {
+              type: "http" as const,
+              fqdn: args.consoleFqdn,
+              accessPoint: inputs.accessPoint!,
+              targetPort: DATABASE_PORT,
+            },
+          ]
+        : []),
+
+      // console
+      ...(args.consoleFqdn && !args.useConsoleFork
+        ? [
+            {
+              type: "http" as const,
+              fqdn: args.consoleFqdn,
+              accessPoint: inputs.accessPoint!,
+              targetPort: CONSOLE_PORT,
+            },
+          ]
+        : []),
+    ],
   },
   { dependsOn: chartDependsOn, deletedWith: namespace },
 )
 
+if (args.consoleFqdn && args.useConsoleFork) {
+  Deployment.create(`${args.appName}-console`, {
+    namespace,
+
+    container: {
+      image: images["minio-console"].image,
+
+      environment: {
+        CONSOLE_MINIO_SERVER: `http://${args.appName}:9000`,
+        CONSOLE_MINIO_REGION: args.region,
+      },
+
+      port: {
+        containerPort: CONSOLE_PORT,
+        protocol: "TCP",
+      },
+    },
+
+    route: {
+      type: "http",
+      fqdn: args.consoleFqdn,
+      accessPoint: inputs.accessPoint!,
+    },
+  })
+}
+
 const endpoints = await toPromise(chart.service.endpoints)
+const l7Endpoints = endpoints.map(endpoint => l4EndpointToL7(endpoint, "http"))
 
 export default outputs({
-  s3: {
-    endpoints,
+  connection: {
+    endpoints: args.fqdn ? [parseEndpoint(`https://${args.fqdn}`, 7), ...l7Endpoints] : l7Endpoints,
     region: args.region,
-    accessKey: args.accessKey,
-    secretKey,
-    buckets: args.buckets,
+
+    credentials: {
+      username: "admin",
+      password: adminPassword,
+    },
   },
-  service: chart.service.entity,
+
+  deployment: chart.deployment.entity,
 
   $statusFields: {
     endpoints: endpoints.map(l4EndpointToString),

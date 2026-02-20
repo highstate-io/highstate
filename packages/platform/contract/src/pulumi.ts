@@ -1,6 +1,5 @@
 import { parse } from "yaml"
 import { z } from "zod"
-import { entityInclusionSchema } from "./entity"
 import {
   fileMetaSchema,
   HighstateSignature,
@@ -11,16 +10,28 @@ import {
 import { commonObjectMetaSchema } from "./meta"
 import { triggerInvocationSchema } from "./trigger"
 
-export type UnitInputReference = z.infer<typeof unitInputReference>
-
-export const unitInputReference = z.object({
+export const unitInputSourceSchema = z.object({
   ...instanceInputSchema.shape,
+})
+
+export type UnitInputSource = z.infer<typeof unitInputSourceSchema>
+
+export const unitInputValueSchema = z.object({
+  /**
+   * Inline resolved value passed to the unit.
+   *
+   * The backend is responsible for resolving the correct entity snapshot value
+   * and applying any inclusion transformations.
+   */
+  value: z.unknown(),
 
   /**
-   * The resolved inclusion needed to extract the input value.
+   * Optional provenance of the value.
    */
-  inclusion: entityInclusionSchema.optional(),
+  source: unitInputSourceSchema.optional(),
 })
+
+export type UnitInputValue = z.infer<typeof unitInputValueSchema>
 
 export const unitConfigSchema = z.object({
   /**
@@ -36,7 +47,7 @@ export const unitConfigSchema = z.object({
   /**
    * The record of input references for the unit.
    */
-  inputs: z.record(z.string(), unitInputReference.array()),
+  inputs: z.record(z.string(), unitInputValueSchema.array()),
 
   /**
    * The list of triggers that have been invoked for this unit.
@@ -47,11 +58,6 @@ export const unitConfigSchema = z.object({
    * The list of secret names that exists and provided to the unit.
    */
   secretNames: z.string().array(),
-
-  /**
-   * The map of instance ID to state ID in order to resolve instance references.
-   */
-  stateIdMap: z.record(instanceIdSchema, z.string()),
 
   /**
    * The base path for imports.

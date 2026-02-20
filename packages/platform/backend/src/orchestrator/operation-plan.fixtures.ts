@@ -197,6 +197,8 @@ export const operationPlanTest = test.extend<{
         libraryBackend,
         instanceStateService,
         projectModelService,
+        undefined,
+        undefined,
         logger,
       )
     }

@@ -1,6 +1,7 @@
 import type { Logger } from "pino"
 import type { ArtifactService } from "../artifact"
 import type {
+  EntitySnapshotService,
   InstanceLockService,
   InstanceStatePatch,
   InstanceStateService,
@@ -8,6 +9,7 @@ import type {
   ProjectModelService,
   SecretService,
   UnitExtraService,
+  UnitOutputService,
 } from "../business"
 import type { Operation, OperationUpdateInput, Project } from "../database"
 import type { LibraryBackend } from "../library"
@@ -18,7 +20,7 @@ import {
   parseInstanceId,
   type TriggerInvocation,
   type UnitConfig,
-  type UnitInputReference,
+  type UnitInputValue,
   type VersionedName,
 } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
@@ -57,6 +59,8 @@ export class RuntimeOperation {
     private readonly instanceStateService: InstanceStateService,
     private readonly projectModelService: ProjectModelService,
     private readonly unitExtraService: UnitExtraService,
+    private readonly entitySnapshotService: EntitySnapshotService,
+    private readonly unitOutputService: UnitOutputService,
     private readonly logger: Logger,
   ) {}
 
@@ -120,6 +124,8 @@ export class RuntimeOperation {
       this.libraryBackend,
       this.instanceStateService,
       this.projectModelService,
+      this.entitySnapshotService,
+      this.operation.startedAt,
       this.logger,
     )
 
@@ -299,6 +305,7 @@ export class RuntimeOperation {
 
       await this.runnerBackend.preview({
         projectId: this.project.id,
+        operationId: this.operation.id,
         libraryId: this.project.libraryId,
         stateId: state.id,
         instanceType: instance.type,
@@ -458,6 +465,7 @@ export class RuntimeOperation {
 
       await this.runnerBackend.update({
         projectId: this.project.id,
+        operationId: this.operation.id,
         libraryId: this.project.libraryId,
         stateId: state.id,
         instanceType: instance.type,
@@ -541,6 +549,7 @@ export class RuntimeOperation {
 
     await this.runnerBackend.update({
       projectId: this.project.id,
+      operationId: this.operation.id,
       stateId: state.id,
       libraryId: this.project.libraryId,
       instanceType: instance.type,
@@ -604,6 +613,7 @@ export class RuntimeOperation {
 
       await this.runnerBackend.destroy({
         projectId: this.project.id,
+        operationId: this.operation.id,
         stateId: state.id,
         libraryId: this.project.libraryId,
         instanceType: type,
@@ -639,6 +649,7 @@ export class RuntimeOperation {
 
       await this.runnerBackend.refresh({
         projectId: this.project.id,
+        operationId: this.operation.id,
         stateId: state.id,
         libraryId: this.project.libraryId,
         instanceType: type,
@@ -663,6 +674,7 @@ export class RuntimeOperation {
   ): Promise<void> {
     const stream = this.runnerBackend.watch({
       projectId: this.project.id,
+      operationId: this.operation.id,
       stateId: state.id,
       libraryId: this.project.libraryId,
       instanceType,
@@ -707,52 +719,75 @@ export class RuntimeOperation {
       instanceId: instance.id,
       args: instance.args ?? {},
       inputs: mapValues(resolvedInputs ?? {}, (input, inputName) =>
-        input.map(value => this.getUnitInputRef(inputName, value)),
+        input.flatMap(value => this.getUnitInputValues(inputName, value)),
       ),
       invokedTriggers,
       secretNames: Object.keys(secrets),
-      stateIdMap: this.context.getInstanceIdToStateIdMap(instance.id),
       importBasePath: this.libraryBackend.importPath,
     }
   }
 
-  private getUnitInputRef(inputName: string, input: ResolvedInstanceInput): UnitInputReference {
-    const instance = this.context.getInstance(input.input.instanceId)
-    const component = this.context.library.components[instance.type]
+  private getUnitInputValues(inputName: string, input: ResolvedInstanceInput): UnitInputValue[] {
+    const dependencyInstance = this.context.getInstance(input.input.instanceId)
+    const dependencyComponent = this.context.library.components[dependencyInstance.type]
 
-    const outputSpec = component.outputs[input.input.output]
+    const outputSpec = dependencyComponent.outputs[input.input.output]
     if (!outputSpec) {
       throw new Error(
-        `Output "${input.input.output}" is not defined on component "${instance.type}"`,
+        `Output "${input.input.output}" is not defined on component "${dependencyInstance.type}"`,
       )
     }
 
-    const entity = this.context.library.entities[outputSpec.type]
-    if (!entity) {
+    const outputEntity = this.context.library.entities[outputSpec.type]
+    if (!outputEntity) {
       throw new Error(`Entity type "${outputSpec.type}" is not defined in the library`)
     }
 
-    // if output type matches input type or extends it, return simple reference, no transformation needed
-    if (input.type === outputSpec.type || entity.extensions?.includes(input.type)) {
-      return {
-        instanceId: input.input.instanceId,
-        output: input.input.output,
-      }
+    const captured = this.context.getCapturedOutputValues(
+      input.input.instanceId,
+      input.input.output,
+    )
+
+    if (captured.length === 0) {
+      return []
+    }
+
+    // if output type matches input type or extends it, no transformation needed
+    if (input.type === outputSpec.type || outputEntity.extensions?.includes(input.type)) {
+      return captured.map(value => ({
+        value,
+        source: {
+          instanceId: input.input.instanceId,
+          output: input.input.output,
+        },
+      }))
     }
 
     // otherwise, find matching inclusion to perform transformation
-    const inclusion = entity.inclusions?.find(inc => inc.type === input.type)
+    const inclusion = outputEntity.inclusions?.find(inc => inc.type === input.type)
     if (!inclusion) {
       throw new Error(
-        `Cannot use output "${input.input.output}" of type "${outputSpec.type}" from instance "${input.input.instanceId}" for input "${inputName}" of type "${input.type}": no matching inclusion found in entity "${entity.type}"`,
+        `Cannot use output "${input.input.output}" of type "${outputSpec.type}" from instance "${input.input.instanceId}" for input "${inputName}" of type "${input.type}": no matching inclusion found in entity "${outputEntity.type}"`,
       )
     }
 
-    return {
-      instanceId: input.input.instanceId,
-      output: input.input.output,
-      inclusion,
-    }
+    return captured.map(value => {
+      if (typeof value !== "object" || value === null) {
+        throw new Error(
+          `Cannot extract field "${inclusion.field}" from non-object output "${input.input.output}" of instance "${input.input.instanceId}".`,
+        )
+      }
+
+      const extracted = (value as Record<string, unknown>)[inclusion.field]
+
+      return {
+        value: extracted as unknown,
+        source: {
+          instanceId: input.input.instanceId,
+          output: input.input.output,
+        },
+      }
+    })
   }
 
   private async handleUnitStateUpdate(
@@ -824,19 +859,45 @@ export class RuntimeOperation {
 
     const instance = this.context.getInstance(update.unitId)
 
-    const data: InstanceStatePatch = {
-      status: this.workset.getNextStableInstanceStatus(instance.id),
-      statusFields: update.statusFields ?? null,
+    if (update.rawOutputs && update.operationType !== "destroy") {
+      this.context.updateCapturedOutputValuesFromUnitOutputs({
+        instanceId: instance.id,
+        instanceType: instance.type,
+        outputs: update.rawOutputs,
+      })
     }
 
-    const artifactIds = update.exportedArtifactIds
-      ? Object.values(update.exportedArtifactIds).flat()
+    const parsed = update.rawOutputs
+      ? await this.unitOutputService.parseUnitOutputs({
+          libraryId: this.context.project.libraryId,
+          instanceType: instance.type,
+          outputs: update.rawOutputs,
+        })
+      : {
+          outputHash: null,
+          statusFields: null,
+          terminals: null,
+          pages: null,
+          triggers: null,
+          secrets: null,
+          workers: null,
+          exportedArtifactIds: null,
+          entitySnapshotPayload: null,
+        }
+
+    const data: InstanceStatePatch = {
+      status: this.workset.getNextStableInstanceStatus(instance.id),
+      statusFields: parsed.statusFields,
+    }
+
+    const artifactIds = parsed.exportedArtifactIds
+      ? Object.values(parsed.exportedArtifactIds).flat()
       : []
 
     if (update.operationType !== "destroy") {
       // давайте еще больше усложним и без того сложную штуку
       // set output hash before calculating input hash to capture up-to-date output hash for dependencies
-      state.outputHash = update.outputHash ?? null
+      state.outputHash = parsed.outputHash
 
       // recalculate the input and output hashes for the instance
       const { selfHash, inputHash, dependencyOutputHash } =
@@ -845,9 +906,9 @@ export class RuntimeOperation {
       data.selfHash = selfHash
       data.inputHash = inputHash
       data.dependencyOutputHash = dependencyOutputHash
-      data.outputHash = update.outputHash
+      data.outputHash = parsed.outputHash
 
-      data.exportedArtifactIds = update.exportedArtifactIds
+      data.exportedArtifactIds = parsed.exportedArtifactIds
 
       // also update the parent ID
       if (instance.parentId) {
@@ -883,15 +944,24 @@ export class RuntimeOperation {
       // also do not write unit extra data for non-last phases of the instance
       unitExtra: this.workset.isLastPhaseForInstance(instance.id)
         ? {
-            pages: update.pages ?? [],
-            terminals: update.terminals ?? [],
-            triggers: update.triggers ?? [],
-            workers: update.workers ?? [],
-            secrets: update.secrets ?? {},
+            pages: parsed.pages ?? [],
+            terminals: parsed.terminals ?? [],
+            triggers: parsed.triggers ?? [],
+            workers: parsed.workers ?? [],
+            secrets: parsed.secrets ?? {},
             artifactIds,
           }
         : undefined,
     })
+
+    if (update.operationType !== "destroy" && parsed.entitySnapshotPayload) {
+      await this.entitySnapshotService.persistUnitEntitySnapshots({
+        projectId: this.project.id,
+        operationId: this.operation.id,
+        stateId: state.id,
+        payload: parsed.entitySnapshotPayload,
+      })
+    }
 
     if (
       update.operationType === "destroy" &&

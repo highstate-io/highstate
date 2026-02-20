@@ -49,6 +49,7 @@
     "./units/existing-cluster": "./dist/units/existing-cluster/index.js",
     "./units/gateway-api": "./dist/units/gateway-api/index.js",
     "./units/reduced-access-cluster": "./dist/units/reduced-access-cluster/index.js",
+    "./impl/dynamic-endpoint-resolver": "./dist/impl/dynamic-endpoint-resolver.js",
     "./impl/gateway-route": "./dist/impl/gateway-route.js",
     "./impl/tls-certificate": "./dist/impl/tls-certificate.js"
   },
@@ -84,6 +85,7 @@
     "deepmerge-ts": "^7.1.5",
     "glob": "^11.0.1",
     "nano-spawn": "^0.2.0",
+    "get-port-please": "^3.1.2",
     "pkg-types": "^2.1.0",
     "remeda": "^2.21.0",
     "yaml": "^2.8.1"

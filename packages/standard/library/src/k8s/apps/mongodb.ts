@@ -1,6 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
+import { databaseEntity } from "../../databases/mongodb"
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -25,7 +25,7 @@ export const mongodb = defineUnit({
   },
 
   secrets: {
-    ...pick(sharedSecrets, ["rootPassword", "backupKey"]),
+    ...pick(sharedSecrets, ["adminPassword", "backupKey"]),
   },
 
   inputs: {
@@ -34,7 +34,7 @@ export const mongodb = defineUnit({
   },
 
   outputs: {
-    mongodb: databases.mongodbEntity,
+    database: databaseEntity,
     service: serviceEntity,
   },
 
@@ -60,12 +60,11 @@ export const mongodbDatabase = defineUnit({
   secrets: sharedDatabaseSecrets,
 
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "mongodb"]),
-    ...pick(optionalSharedInputs, ["namespace"]),
+    mongodb: databaseEntity,
   },
 
   outputs: {
-    mongodb: databases.mongodbEntity,
+    mongodb: databaseEntity,
   },
 
   meta: {

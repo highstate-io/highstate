@@ -1,6 +1,7 @@
 import { z } from "@highstate/contract"
 import { metadataSchema } from "../utils"
 import { addressEntity } from "./address"
+import { implementationReferenceSchema } from "../impl-ref"
 
 function createEndpointSchema<TLevel extends number, TShape extends z.core.$ZodShape>(
   level: TLevel,
@@ -32,6 +33,13 @@ function createEndpointSchema<TLevel extends number, TShape extends z.core.$ZodS
           "iana.scope": z.enum(["private", "global"]).optional(),
         }),
       ),
+
+      /**
+       * The implementation reference that will be used to resolve the endpoint at runtime.
+       *
+       * Used primarily to expose endpoints from private networks to the Pulumi program.
+       */
+      implRef: implementationReferenceSchema.optional(),
 
       ...shape,
     }),

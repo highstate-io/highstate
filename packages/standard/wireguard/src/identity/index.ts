@@ -28,6 +28,6 @@ export default outputs({
   $statusFields: {
     publicKey,
     endpoints: peer.endpoints.map(l4EndpointToString),
-    allowedIps: peer.allowedSubnets.map(subnetToString),
+    allowedSubnets: peer.allowedSubnets.map(subnetToString),
   },
 })

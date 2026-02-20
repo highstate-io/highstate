@@ -86,6 +86,7 @@ const endpoints = await toPromise(chart.service.endpoints)
 
 export default outputs({
   etcd: {
+    name: args.appName,
     endpoints,
   },
 

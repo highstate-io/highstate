@@ -18,6 +18,8 @@ describe("Operation - Update Failure", () => {
       instanceStateService,
       projectModelService,
       unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -60,6 +62,8 @@ describe("Operation - Update Failure", () => {
         instanceStateService,
         projectModelService,
         unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
         logger,
       )
 

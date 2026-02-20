@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
+  Object: 'Object',
   Project: 'Project',
   ProjectSpace: 'ProjectSpace',
   ProjectModelStorage: 'ProjectModelStorage',
@@ -88,6 +89,14 @@ export const LibraryScalarFieldEnum = {
 } as const
 
 export type LibraryScalarFieldEnum = (typeof LibraryScalarFieldEnum)[keyof typeof LibraryScalarFieldEnum]
+
+
+export const ObjectScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId'
+} as const
+
+export type ObjectScalarFieldEnum = (typeof ObjectScalarFieldEnum)[keyof typeof ObjectScalarFieldEnum]
 
 
 export const ProjectScalarFieldEnum = {

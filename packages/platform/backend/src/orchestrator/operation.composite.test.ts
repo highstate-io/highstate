@@ -18,6 +18,8 @@ describe("Operation - Composite", () => {
       instanceStateService,
       projectModelService,
       unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
       createComposite,
       createUnit,
       createDeployedUnitState,
@@ -79,6 +81,8 @@ describe("Operation - Composite", () => {
         instanceStateService,
         projectModelService,
         unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
         logger,
       )
 

@@ -50,6 +50,13 @@ export type GatewayRouteSpec = {
    * The TLS certificate to use for the route.
    */
   tlsCertificate?: Input<TlsCertificate | undefined>
+
+  /**
+   * The name or port of the target port on the backend endpoints to route traffic to.
+   *
+   * If not specified, the first port of the matching protocol will be used.
+   */
+  targetPort?: Input<number>
 } & (
   | {
       type: "http"
@@ -70,13 +77,6 @@ export type GatewayRouteSpec = {
     }
   | {
       type: "tcp" | "udp"
-
-      /**
-       * The name or port of the target port on the backend endpoints to route traffic to.
-       *
-       * If not specified, the first port of the matching protocol will be used.
-       */
-      targetPort?: Input<string | number>
 
       /**
        * The port to expose the route on.

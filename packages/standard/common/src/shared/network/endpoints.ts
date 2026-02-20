@@ -306,8 +306,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
       subnet: address.subnet,
     }
 
-    const withDynamic = syncDynamic(built)
-    const validated = validateEndpoint(withDynamic)
+    const validated = validateEndpoint(built)
 
     assertEndpointLevel(validated, minLevel)
     return validated as network.EndpointByMinLevel<TMinLevel>
@@ -379,8 +378,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
     }
   }
 
-  const withDynamic = syncDynamic(builtEndpoint)
-  const validated = validateEndpoint(withDynamic)
+  const validated = validateEndpoint(builtEndpoint)
 
   assertEndpointLevel(validated, minLevel)
   return validated as network.EndpointByMinLevel<TMinLevel>
@@ -523,13 +521,13 @@ export function addEndpointMetadata<
     )
   }
 
-  return syncDynamic({
+  return {
     ...endpoint,
     metadata: {
       ...endpoint.metadata,
       ...newMetadata,
     },
-  })
+  }
 }
 
 /**
@@ -557,16 +555,6 @@ export function mergeEndpoints<TEndpoint extends network.L3Endpoint>(
   return Array.from(mergedMap.values())
 }
 
-function syncDynamic<TEndpoint extends network.L3Endpoint>(endpoint: TEndpoint): TEndpoint {
-  return {
-    ...endpoint,
-    dynamic: {
-      type: "static",
-      endpoint: omit(endpoint, ["dynamic"]),
-    },
-  }
-}
-
 /**
  * Replaces the base (host) of an endpoint with another endpoint's base.
  *
@@ -586,23 +574,28 @@ function syncDynamic<TEndpoint extends network.L3Endpoint>(endpoint: TEndpoint):
  * @param base The endpoint to take the base properties from.
  * @returns The endpoint with the replaced base properties.
  */
-export function replaceEndpointBase<TEndpoint extends network.L3Endpoint>(
+export function rebaseEndpoint<TEndpoint extends network.L3Endpoint>(
   endpoint: TEndpoint,
   base: network.L3Endpoint,
 ): TEndpoint {
   if (base.type === "hostname") {
-    return syncDynamic({
+    return {
       ...omit(endpoint, ["type", "address", "subnet"]),
       type: "hostname",
       hostname: base.hostname,
-    } as TEndpoint)
+      port: base.port ?? endpoint.port,
+    } as TEndpoint
   }
 
-  return syncDynamic({
-    ...omit(endpoint, ["type", "hostname", "metadata"]),
+  return {
+    ...omit(endpoint, ["type", "hostname"]),
     type: base.type,
     address: base.address,
     subnet: base.subnet,
-    metadata: base.metadata ?? extractMetadata(base.address),
-  } as TEndpoint)
+    port: base.port ?? endpoint.port,
+    metadata: {
+      ...endpoint.metadata,
+      ...extractMetadata(base.address),
+    },
+  } as TEndpoint
 }

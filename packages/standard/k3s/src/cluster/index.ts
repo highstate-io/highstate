@@ -84,6 +84,7 @@ const agentTokenCommand = Command.receiveTextFile(
 for (const master of masters.slice(1)) {
   createNode(master, "server", {
     K3S_TOKEN: tokenCommand.stdout,
+    INSTALL_K3S_EXEC: `--node-ip=${l3EndpointToString(master.endpoints[0])}`,
     K3S_URL: `https://${l4EndpointToString(apiEndpoints[0])}`,
   })
 }
@@ -91,6 +92,7 @@ for (const master of masters.slice(1)) {
 for (const worker of workers) {
   createNode(worker, "agent", {
     K3S_TOKEN: agentTokenCommand.stdout,
+    INSTALL_K3S_EXEC: `--node-ip=${l3EndpointToString(worker.endpoints[0])}`,
     K3S_URL: `https://${l4EndpointToString(apiEndpoints[0])}`,
   })
 }

@@ -2,7 +2,7 @@ import { cloudflare } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
 import { getZones, Provider } from "@pulumi/cloudflare"
 
-const { instanceId, secrets, outputs } = forUnit(cloudflare.connection)
+const { secrets, outputs } = forUnit(cloudflare.connection)
 
 const provider = new Provider("cloudflare", { apiToken: secrets.apiToken })
 const { results: zones } = await getZones({}, { provider })
@@ -15,13 +15,13 @@ if (!zones.length) {
 
 export default outputs({
   dnsProvider: {
-    id: `cloudflare.${instanceId}`,
+    id: zones[0].id, // TODO: use stateId
     zones: zones.map(zone => zone.name),
 
     implRef: {
       package: "@highstate/cloudflare",
       data: {
-        zoneId: zones[0].id,
+        zoneIds: Object.fromEntries(zones.map(zone => [zone.name, zone.id])),
         apiToken: secrets.apiToken,
       },
     },

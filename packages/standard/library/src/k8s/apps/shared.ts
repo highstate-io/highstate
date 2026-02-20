@@ -12,17 +12,11 @@ import {
 } from "@highstate/contract"
 import { mapValues } from "remeda"
 import { accessPointEntity } from "../../common"
-import {
-  etcdEntity,
-  mariadbEntity,
-  mongodbEntity,
-  postgresqlEntity,
-  redisEntity,
-} from "../../databases"
 import { providerEntity } from "../../dns"
 import { repositoryEntity } from "../../restic"
 import { namespaceEntity, persistentVolumeClaimEntity } from "../resources"
 import { clusterEntity } from "../shared"
+import { etcd, mongodb, mysql, postgresql, redis } from "../../databases"
 
 export const sharedArgs = $args({
   /**
@@ -80,9 +74,9 @@ export function appName(defaultAppName: string) {
 
 export const sharedSecrets = $secrets({
   /**
-   * The root password for the database instance. If not provided, a random password will be generated.
+   * The admin password for the application. If not provided, a random password will be generated.
    */
-  rootPassword: z.string().optional(),
+  adminPassword: z.string().optional(),
 
   /**
    * The key to use for backup encryption. If not provided, a random key will be generated.
@@ -135,20 +129,20 @@ export const sharedInputs = $inputs({
   volume: {
     entity: persistentVolumeClaimEntity,
   },
-  mariadb: {
-    entity: mariadbEntity,
+  mariadbDatabase: {
+    entity: mysql.databaseEntity,
   },
-  postgresql: {
-    entity: postgresqlEntity,
+  postgresqlDatabase: {
+    entity: postgresql.databaseEntity,
   },
-  mongodb: {
-    entity: mongodbEntity,
+  mongodbDatabase: {
+    entity: mongodb.databaseEntity,
   },
-  redis: {
-    entity: redisEntity,
+  redisDatabase: {
+    entity: redis.databaseEntity,
   },
-  etcd: {
-    entity: etcdEntity,
+  etcdCluster: {
+    entity: etcd.clusterEntity,
   },
 })
 

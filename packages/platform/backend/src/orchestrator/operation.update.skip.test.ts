@@ -17,6 +17,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       instanceStateService,
       projectModelService,
       unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
       createUnit,
       createDeployedUnitState,
       createContext,
@@ -62,6 +64,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
         instanceStateService,
         projectModelService,
         unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
         logger,
       )
 

@@ -1,18 +1,11 @@
 import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
-import { toPatchArgs } from "../utils"
-
-const etcdArgs = {
-  endpoints: {
-    schema: z.string().array().default([]),
-  },
-}
 
 /**
- * Represents the etcd database instance.
+ * Represents an etcd cluster with endpoints to access it.
  */
-export const etcdEntity = defineEntity({
-  type: "databases.etcd.v1",
+export const clusterEntity = defineEntity({
+  type: "etcd.cluster.v1",
 
   includes: {
     endpoints: {
@@ -21,7 +14,12 @@ export const etcdEntity = defineEntity({
     },
   },
 
-  schema: z.unknown(),
+  schema: z.object({
+    /**
+     * The name of the etcd cluster.
+     */
+    name: z.string(),
+  }),
 
   meta: {
     color: "#0064bf",
@@ -29,14 +27,27 @@ export const etcdEntity = defineEntity({
 })
 
 /**
- * The existing etcd database instance.
+ * The existing etcd cluster hosted on one or multiple servers.
  */
-export const existingEtcd = defineUnit({
-  type: "databases.etcd.existing.v1",
+export const existingCluster = defineUnit({
+  type: "etcd.cluster.existing.v1",
 
-  args: etcdArgs,
+  args: {
+    /**
+     * The name of the existing etcd cluster.
+     */
+    clusterName: z.string(),
+
+    /**
+     * The endpoints to connect to the etcd cluster.
+     */
+    endpoints: z.string().array().default([]),
+  },
 
   inputs: {
+    /**
+     * The endpoints to connect to the etcd cluster.
+     */
     endpoints: {
       entity: l4EndpointEntity,
       multiple: true,
@@ -45,7 +56,7 @@ export const existingEtcd = defineUnit({
   },
 
   outputs: {
-    etcd: etcdEntity,
+    cluster: clusterEntity,
   },
 
   source: {
@@ -61,40 +72,5 @@ export const existingEtcd = defineUnit({
   },
 })
 
-/**
- * Patches some properties of the etcd database and outputs the updated database.
- */
-export const etcdPatch = defineUnit({
-  type: "databases.etcd-patch.v1",
-
-  args: toPatchArgs(etcdArgs),
-
-  inputs: {
-    etcd: etcdEntity,
-
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-      required: false,
-    },
-  },
-
-  outputs: {
-    etcd: etcdEntity,
-  },
-
-  source: {
-    package: "@highstate/common",
-    path: "units/databases/etcd-patch",
-  },
-
-  meta: {
-    title: "etcd Patch",
-    icon: "simple-icons:etcd",
-    secondaryIcon: "fluent:patch-20-filled",
-    category: "Databases",
-  },
-})
-
-export type Etcd = z.infer<typeof etcdEntity.schema>
-export type EtcdInput = EntityInput<typeof etcdEntity>
+export type Cluster = z.infer<typeof clusterEntity.schema>
+export type ClusterInput = EntityInput<typeof clusterEntity>

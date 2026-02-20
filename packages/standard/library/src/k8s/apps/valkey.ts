@@ -1,6 +1,5 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import { databases } from "../.."
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -10,6 +9,8 @@ import {
   sharedSecrets,
   source,
 } from "./shared"
+import { databaseEntity } from "../../databases/redis"
+import { statefulSetEntity } from "../workload"
 
 /**
  * The Valkey instance deployed on Kubernetes.
@@ -32,8 +33,8 @@ export const valkey = defineUnit({
   },
 
   outputs: {
-    redis: databases.redisEntity,
-    service: serviceEntity,
+    database: databaseEntity,
+    statefulSet: statefulSetEntity,
   },
 
   meta: {

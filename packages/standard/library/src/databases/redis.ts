@@ -1,13 +1,103 @@
 import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
-import { toPatchArgs } from "../utils"
-import { optionalSharedArgs, sharedArgs, sharedInputs } from "./shared"
+
+export const credentialsSchema = z.object({
+  /**
+   * The username used to authenticate against the database.
+   */
+  username: z.string().optional(),
+
+  /**
+   * The password used to authenticate against the database.
+   */
+  password: z.string().optional(),
+})
+
+export const databaseNumberSchema = z.number().nonnegative().max(15)
 
 /**
- * Represents the Redis database or virtual database behind it.
+ * Represents a connection to a Redis instance, including the endpoints and credentials.
  */
-export const redisEntity = defineEntity({
-  type: "databases.redis.v1",
+export const connectionEntity = defineEntity({
+  type: "redis.connection.v1",
+
+  includes: {
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+  },
+
+  schema: z.object({
+    /**
+     * The credentials for authenticating to the Redis instance.
+     */
+    credentials: credentialsSchema.optional(),
+  }),
+
+  meta: {
+    color: "#dc382d",
+  },
+})
+
+/**
+ * The existing Redis connection hosted on a server or a managed service.
+ */
+export const connection = defineUnit({
+  type: "redis.connection.existing.v1",
+
+  args: {
+    /**
+     * The username to authenticate with.
+     */
+    username: z.string().optional(),
+
+    /**
+     * The endpoints to connect to the database in form of `host:port`.
+     */
+    endpoints: z.string().array().default([]),
+  },
+
+  inputs: {
+    /**
+     * The endpoints to connect to the database.
+     */
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+  },
+
+  secrets: {
+    /**
+     * The password to authenticate with.
+     */
+    password: z.string().optional(),
+  },
+
+  outputs: {
+    connection: connectionEntity,
+  },
+
+  source: {
+    package: "@highstate/redis",
+    path: "units/connection",
+  },
+
+  meta: {
+    title: "Redis Connection",
+    icon: "simple-icons:redis",
+    secondaryIcon: "mdi:database",
+    category: "Databases",
+  },
+})
+
+/**
+ * Represents a Redis database with endpoints and configuration to access it.
+ */
+export const databaseEntity = defineEntity({
+  type: "redis.database.v1",
 
   includes: {
     endpoints: {
@@ -20,7 +110,12 @@ export const redisEntity = defineEntity({
     /**
      * The number of the database to use.
      */
-    database: z.number().default(0),
+    database: databaseNumberSchema.default(0),
+
+    /**
+     * The credentials that can be used to access the database.
+     */
+    credentials: credentialsSchema.optional(),
   }),
 
   meta: {
@@ -29,67 +124,44 @@ export const redisEntity = defineEntity({
 })
 
 /**
- * The existing Redis database or virtual database behind it.
+ * Selects a database on a Redis instance.
  */
-export const existingRedis = defineUnit({
-  type: "databases.redis.existing.v1",
+export const database = defineUnit({
+  type: "redis.database.v1",
 
-  args: sharedArgs,
-  inputs: sharedInputs,
-
-  outputs: {
-    redis: redisEntity,
+  args: {
+    /**
+     * The number of the database to use.
+     */
+    database: databaseNumberSchema.default(0),
   },
 
-  source: {
-    package: "@highstate/common",
-    path: "units/databases/existing-redis",
+  inputs: {
+    /**
+     * The connection to the Redis instance.
+     */
+    connection: connectionEntity,
+  },
+
+  outputs: {
+    database: databaseEntity,
   },
 
   meta: {
-    title: "Existing Redis Database",
+    title: "Redis Database",
     icon: "simple-icons:redis",
     secondaryIcon: "mdi:database",
     category: "Databases",
   },
-})
-
-/**
- * Patches some properties of the Redis database and outputs the updated database.
- */
-export const redisPatch = defineUnit({
-  type: "databases.redis-patch.v1",
-
-  args: {
-    ...toPatchArgs(optionalSharedArgs),
-
-    endpoints: {
-      ...sharedArgs.endpoints,
-      schema: z.string().array().default([]),
-    },
-  },
-
-  inputs: {
-    redis: redisEntity,
-    ...sharedInputs,
-  },
-
-  outputs: {
-    redis: redisEntity,
-  },
 
   source: {
-    package: "@highstate/common",
-    path: "units/databases/redis-patch",
-  },
-
-  meta: {
-    title: "Redis Patch",
-    icon: "simple-icons:redis",
-    secondaryIcon: "fluent:patch-20-filled",
-    category: "Databases",
+    package: "@highstate/redis",
+    path: "units/database",
   },
 })
 
-export type Redis = z.infer<typeof redisEntity.schema>
-export type RedisInput = EntityInput<typeof redisEntity>
+export type Connection = z.infer<typeof connectionEntity.schema>
+export type ConnectionInput = EntityInput<typeof connectionEntity>
+
+export type Database = z.infer<typeof databaseEntity.schema>
+export type DatabaseInput = EntityInput<typeof databaseEntity>

@@ -13,6 +13,7 @@
     "./feed": "./dist/feed/index.js",
     "./node": "./dist/node/index.js",
     "./node.k8s": "./dist/node.k8s/index.js",
+    "./node.feed.k8s": "./dist/node.feed.k8s/index.js",
     "./peer": "./dist/peer/index.js",
     "./peer-patch": "./dist/peer-patch/index.js"
   },
@@ -26,7 +27,7 @@
   },
   "scripts": {
     "build": "highstate build",
-    "update-images": "../../scripts/update-images.sh ./assets/images.json",
+    "update-images": "../../../scripts/update-images.sh ./assets/images.json",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"

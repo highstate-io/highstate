@@ -11,21 +11,11 @@ import {
   l7EndpointToString,
   mergeEndpoints,
   parseEndpoint,
-  replaceEndpointBase,
+  rebaseEndpoint,
 } from "./endpoints"
 import { subnetToString } from "./subnet"
 
 describe("endpoints", () => {
-  function expectValidDynamic(endpoint: network.L3Endpoint): void {
-    expect(endpoint.dynamic).toBeDefined()
-    expect(endpoint.dynamic!.type).toBe("static")
-
-    expect(endpoint.dynamic).toEqual({
-      type: "static",
-      endpoint: omit(endpoint, ["dynamic"]),
-    })
-  }
-
   it("parses IPv4 L3 endpoint and embeds address entity", () => {
     const endpoint = parseEndpoint("10.0.0.1")
 
@@ -40,7 +30,6 @@ describe("endpoints", () => {
     expect(l3EndpointToCidr(endpoint)).toBe("10.0.0.1/32")
 
     expect(network.l3EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
-    expectValidDynamic(endpoint)
   })
 
   it("parses hostname L3 endpoint", () => {
@@ -51,7 +40,6 @@ describe("endpoints", () => {
     expect(l3EndpointToString(endpoint)).toBe("example.com")
 
     expect(network.l3EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
-    expectValidDynamic(endpoint)
   })
 
   it("parses IPv6 L4 endpoint and formats with brackets", () => {
@@ -66,7 +54,6 @@ describe("endpoints", () => {
     expect(l4EndpointToFullString(endpoint)).toBe("tcp://[2001:db8::1]:6443")
 
     expect(network.l4EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
-    expectValidDynamic(endpoint)
   })
 
   it("parses L7 endpoint with app protocol", () => {
@@ -83,7 +70,6 @@ describe("endpoints", () => {
     expect(l7EndpointToString(endpoint)).toBe("https://10.0.0.2:8443/api")
 
     expect(network.l7EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
-    expectValidDynamic(endpoint)
   })
 
   it("returns object endpoints as-is", () => {
@@ -100,13 +86,6 @@ describe("endpoints", () => {
         },
       },
       metadata: {},
-      dynamic: {
-        type: "dynamic",
-        implRef: {
-          package: "test",
-          data: {},
-        },
-      },
     }
 
     const parsed = parseEndpoint(endpoint)
@@ -128,7 +107,6 @@ describe("endpoints", () => {
     expect(addressToCidr(endpoint.address!)).toBe("10.10.0.5/24")
 
     expect(network.l3EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
-    expectValidDynamic(endpoint)
   })
 
   describe("mergeEndpoints", () => {
@@ -185,7 +163,7 @@ describe("endpoints", () => {
       const endpoint = parseEndpoint("https://10.0.0.2:8443/api", 7)
       const base = parseEndpoint("10.0.0.9")
 
-      const replaced = replaceEndpointBase(endpoint, base)
+      const replaced = rebaseEndpoint(endpoint, base)
 
       expect(replaced.level).toBe(7)
       expect(replaced.type).toBe("ipv4")
@@ -195,15 +173,13 @@ describe("endpoints", () => {
       expect(replaced.appProtocol).toBe("https")
       expect(replaced.path).toBe("api")
       expect(replaced.metadata?.["iana.scope"]).toBe("private")
-
-      expectValidDynamic(replaced)
     })
 
     it("replaces hostname base from an L3 hostname base and keeps L7 properties", () => {
       const endpoint = parseEndpoint("https://example.com:8443/api", 7)
       const base = parseEndpoint("other.example")
 
-      const replaced = replaceEndpointBase(endpoint, base)
+      const replaced = rebaseEndpoint(endpoint, base)
 
       expect(replaced.level).toBe(7)
       expect(replaced.type).toBe("hostname")
@@ -212,38 +188,32 @@ describe("endpoints", () => {
       expect(replaced.protocol).toBe("tcp")
       expect(replaced.appProtocol).toBe("https")
       expect(replaced.path).toBe("api")
-
-      expectValidDynamic(replaced)
     })
 
     it("converts hostname endpoint to IP endpoint when base is IP", () => {
       const endpoint = parseEndpoint("https://example.com:8443/api", 7)
       const base = parseEndpoint("10.0.0.9")
 
-      const replaced = replaceEndpointBase(endpoint, base)
+      const replaced = rebaseEndpoint(endpoint, base)
 
       expect(replaced.level).toBe(7)
       expect(replaced.type).toBe("ipv4")
       expect(replaced.address?.value).toBe("10.0.0.9")
       expect(replaced.port).toBe(8443)
       expect(replaced.metadata?.["iana.scope"]).toBe("private")
-
-      expectValidDynamic(replaced)
     })
 
     it("converts IPv4 endpoint to IPv6 endpoint when base is IPv6", () => {
       const endpoint = parseEndpoint("10.0.0.1:6443", 4)
       const base = parseEndpoint("2001:db8::2")
 
-      const replaced = replaceEndpointBase(endpoint, base)
+      const replaced = rebaseEndpoint(endpoint, base)
 
       expect(replaced.level).toBe(4)
       expect(replaced.type).toBe("ipv6")
       expect(replaced.address?.value).toBe("2001:db8::2")
       expect(replaced.port).toBe(6443)
       expect(replaced.protocol).toBe("tcp")
-
-      expectValidDynamic(replaced)
     })
   })
 })

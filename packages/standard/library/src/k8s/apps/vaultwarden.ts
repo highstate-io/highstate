@@ -18,7 +18,7 @@ export const vaultwarden = defineUnit({
   },
 
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "mariadb"]),
+    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "mariadbDatabase"]),
   },
 
   meta: {

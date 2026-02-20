@@ -4,11 +4,6 @@ import { mapValues, pick } from "remeda"
 import { metadataSchema } from "../utils"
 import { addressEntity } from "./address"
 import {
-  dynamicL3EndpointEntity,
-  dynamicL4EndpointEntity,
-  dynamicL7EndpointEntity,
-} from "./dynamic-endpoint"
-import {
   l3EndpointSchema,
   l4EndpointSchema,
   type l4PortInfoSchema,
@@ -46,16 +41,6 @@ export const l3EndpointEntity = defineEntity({
       entity: addressEntity,
       required: false,
     },
-
-    /**
-     * The dynamic endpoint which statically resolves to this endpoint.
-     *
-     * Allows to use any static endpoint as a dynamic without extra units.
-     */
-    dynamic: {
-      entity: dynamicL3EndpointEntity,
-      required: false,
-    },
   },
 
   schema: l3EndpointSchema,
@@ -84,16 +69,6 @@ export const l4EndpointEntity = defineEntity({
   type: "network.l4-endpoint.v1",
 
   extends: { l3EndpointEntity },
-
-  includes: {
-    /**
-     * The dynamic endpoint which statically resolves to this endpoint.
-     *
-     * Allows to use any static endpoint as a dynamic without extra units.
-     */
-    dynamic: dynamicL4EndpointEntity,
-  },
-
   schema: l4EndpointSchema,
 
   meta: {
@@ -110,16 +85,6 @@ export const l7EndpointEntity = defineEntity({
   type: "network.l7-endpoint.v1",
 
   extends: { l4EndpointEntity },
-
-  includes: {
-    /**
-     * The dynamic endpoint which statically resolves to this endpoint.
-     *
-     * Allows to use any static endpoint as a dynamic without extra units.
-     */
-    dynamic: dynamicL7EndpointEntity,
-  },
-
   schema: l7EndpointSchema,
 
   meta: {

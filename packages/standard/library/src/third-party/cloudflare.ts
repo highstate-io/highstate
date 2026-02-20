@@ -3,9 +3,9 @@ import { providerEntity } from "../dns"
 
 export const providerDataSchema = z.object({
   /**
-   * The zone ID of the Cloudflare zone.
+   * The mapping of zone names to their corresponding Cloudflare zone IDs.
    */
-  zoneId: z.string(),
+  zoneIds: z.record(z.string(), z.string()),
 
   /**
    * The API token for the Cloudflare account.

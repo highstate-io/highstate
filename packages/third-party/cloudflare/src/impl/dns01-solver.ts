@@ -4,7 +4,7 @@ import { cloudflare } from "@highstate/library"
 export const createCloudflareDns01Solver = dns01SolverMediator.implement(
   cloudflare.providerDataSchema,
   ({ namespace }, data) => {
-    const secret = Secret.create(`cloudflare.${data.zoneId}`, {
+    const secret = Secret.create(`cloudflare.${data.zoneIds[Object.keys(data.zoneIds)[0]]}`, {
       namespace,
 
       stringData: {

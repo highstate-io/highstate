@@ -18,5 +18,15 @@
     "name": "ghcr.io/exeteres/wg-feed/server",
     "tag": "v0.2.0",
     "image": "ghcr.io/exeteres/wg-feed/server:v0.2.0@sha256:ebdd718fc1a28caecc9b0c7ce5d624dd1e5cdb08f7b276586d25009c74516661"
+  },
+  "minio-console": {
+    "name": "ghcr.io/huncrys/minio-console",
+    "tag": "latest",
+    "image": "ghcr.io/huncrys/minio-console:latest@sha256:b186ef392385b6e0a45ca2b91404a8e61a07794c8775189ae757e33703e013d7"
+  },
+  "refluxdb": {
+    "name": "ghcr.io/metrico/influxdb3-unlocked",
+    "tag": "latest",
+    "image": "ghcr.io/metrico/influxdb3-unlocked:latest@sha256:5cc4e82cdcf1d852e1df247a69d5d7274f7c27fa429734e8970fe24ac0380249"
   }
 }

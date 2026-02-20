@@ -1,6 +1,7 @@
 import type { InstanceId } from "@highstate/contract"
 import type { Logger } from "pino"
 import type {
+  EntitySnapshotService,
   InstanceLockService,
   InstanceStateService,
   OperationService,
@@ -8,6 +9,7 @@ import type {
   ProjectUnlockService,
   SecretService,
   UnitExtraService,
+  UnitOutputService,
 } from "../business"
 import type { ArtifactService } from "../business/artifact"
 import type { DatabaseManager, Operation, Project } from "../database"
@@ -37,6 +39,8 @@ export class OperationManager {
     private readonly instanceStateService: InstanceStateService,
     private readonly projectModelService: ProjectModelService,
     private readonly unitExtraService: UnitExtraService,
+    private readonly entitySnapshotService: EntitySnapshotService,
+    private readonly unitOutputService: UnitOutputService,
     private readonly database: DatabaseManager,
     private readonly logger: Logger,
   ) {
@@ -71,6 +75,8 @@ export class OperationManager {
       this.libraryBackend,
       this.instanceStateService,
       this.projectModelService,
+      undefined,
+      undefined,
       this.logger,
     )
 
@@ -141,6 +147,8 @@ export class OperationManager {
       this.instanceStateService,
       this.projectModelService,
       this.unitExtraService,
+      this.entitySnapshotService,
+      this.unitOutputService,
       this.logger.child({ operationId: operation.id }),
     )
 

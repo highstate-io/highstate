@@ -1,6 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
+import { databaseEntity } from "../../databases/mysql"
 import { serviceEntity } from "../service"
 import {
   appName,
@@ -24,7 +24,7 @@ export const mariadb = defineUnit({
   },
 
   secrets: {
-    ...pick(sharedSecrets, ["rootPassword", "backupKey"]),
+    ...pick(sharedSecrets, ["adminPassword", "backupKey"]),
   },
 
   inputs: {
@@ -33,7 +33,7 @@ export const mariadb = defineUnit({
   },
 
   outputs: {
-    mariadb: databases.mariadbEntity,
+    database: databaseEntity,
     service: serviceEntity,
   },
 
@@ -49,8 +49,6 @@ export const mariadb = defineUnit({
 
 /**
  * The virtual MariaDB database created on the MariaDB instance.
- *
- * Requires a Kubernetes cluster to place init jobs and secrets.
  */
 export const mariadbDatabase = defineUnit({
   type: "k8s.apps.mariadb.database.v1",
@@ -59,12 +57,11 @@ export const mariadbDatabase = defineUnit({
   secrets: sharedDatabaseSecrets,
 
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "mariadb"]),
-    ...pick(optionalSharedInputs, ["namespace"]),
+    mariadb: databaseEntity,
   },
 
   outputs: {
-    mariadb: databases.mariadbEntity,
+    mariadb: databaseEntity,
   },
 
   meta: {

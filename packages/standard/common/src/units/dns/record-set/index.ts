@@ -1,6 +1,6 @@
 import { dns } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { DnsRecordSet, mergeEndpoints, parseEndpoint, replaceEndpointBase } from "../../../shared"
+import { DnsRecordSet, mergeEndpoints, parseEndpoint, rebaseEndpoint } from "../../../shared"
 
 const { name, args, inputs, outputs } = forUnit(dns.recordSet)
 
@@ -17,7 +17,7 @@ new DnsRecordSet("record-set", {
 const base = parseEndpoint(args.recordName ?? name)
 
 export default outputs({
-  l3Endpoints: mergeEndpoints(l3Endpoints.map(endpoint => replaceEndpointBase(endpoint, base))),
-  l4Endpoints: mergeEndpoints(l4Endpoints.map(endpoint => replaceEndpointBase(endpoint, base))),
-  l7Endpoints: mergeEndpoints(l7Endpoints.map(endpoint => replaceEndpointBase(endpoint, base))),
+  l3Endpoints: mergeEndpoints(l3Endpoints.map(endpoint => rebaseEndpoint(endpoint, base))),
+  l4Endpoints: mergeEndpoints(l4Endpoints.map(endpoint => rebaseEndpoint(endpoint, base))),
+  l7Endpoints: mergeEndpoints(l7Endpoints.map(endpoint => rebaseEndpoint(endpoint, base))),
 })

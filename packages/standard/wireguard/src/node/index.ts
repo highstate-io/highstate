@@ -165,8 +165,6 @@ export default outputs({
       }
     : identity.peer,
 
-  endpoints,
-
   $statusFields: {
     interfaceName,
     ...(identity.peer.listenPort && endpoints.length > 0

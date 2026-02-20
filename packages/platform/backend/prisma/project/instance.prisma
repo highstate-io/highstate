@@ -166,4 +166,7 @@ model InstanceState {
 
     /// The user viewports associated with this instance.
     userViewports UserCompositeViewport[]
+
+    /// The entity snapshots associated with this instance.
+    entitySnapshots EntitySnapshot[]
 }

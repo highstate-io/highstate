@@ -54,6 +54,9 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Artifact: 'Artifact',
   InstanceCustomStatus: 'InstanceCustomStatus',
+  Entity: 'Entity',
+  EntitySnapshot: 'EntitySnapshot',
+  EntitySnapshotReference: 'EntitySnapshotReference',
   InstanceEvaluationState: 'InstanceEvaluationState',
   InstanceState: 'InstanceState',
   UserProjectViewport: 'UserProjectViewport',
@@ -129,6 +132,37 @@ export const InstanceCustomStatusScalarFieldEnum = {
 } as const
 
 export type InstanceCustomStatusScalarFieldEnum = (typeof InstanceCustomStatusScalarFieldEnum)[keyof typeof InstanceCustomStatusScalarFieldEnum]
+
+
+export const EntityScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  identity: 'identity'
+} as const
+
+export type EntityScalarFieldEnum = (typeof EntityScalarFieldEnum)[keyof typeof EntityScalarFieldEnum]
+
+
+export const EntitySnapshotScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  content: 'content',
+  entityId: 'entityId',
+  operationId: 'operationId',
+  stateId: 'stateId',
+  output: 'output',
+  createdAt: 'createdAt'
+} as const
+
+export type EntitySnapshotScalarFieldEnum = (typeof EntitySnapshotScalarFieldEnum)[keyof typeof EntitySnapshotScalarFieldEnum]
+
+
+export const EntitySnapshotReferenceScalarFieldEnum = {
+  fromId: 'fromId',
+  toId: 'toId'
+} as const
+
+export type EntitySnapshotReferenceScalarFieldEnum = (typeof EntitySnapshotReferenceScalarFieldEnum)[keyof typeof EntitySnapshotReferenceScalarFieldEnum]
 
 
 export const InstanceEvaluationStateScalarFieldEnum = {

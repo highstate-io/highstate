@@ -2,8 +2,8 @@ import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { portSchema } from "../../network"
 import { namespaceEntity } from "../resources"
-import { serviceEntity, serviceTypeSchema } from "../service"
-import { exposableWorkloadEntity } from "../workload"
+import { serviceTypeSchema } from "../service"
+import { workloadEntity } from "../workload"
 import { optionalSharedInputs, sharedInputs, source } from "./shared"
 
 export const databaseConfigKeySchema = z.enum([
@@ -124,6 +124,11 @@ export const workload = defineUnit({
     env: z.record(z.string(), environmentVariableSchema).default({}),
 
     /**
+     * The files to mount in the workload from a config map.
+     */
+    files: z.record(z.string(), z.string()).default({}),
+
+    /**
      * The configuration for the workload.
      *
      * If provided, the config map will be created.
@@ -198,16 +203,19 @@ export const workload = defineUnit({
     ...pick(optionalSharedInputs, [
       "accessPoint",
       "resticRepo",
-      "mariadb",
-      "postgresql",
-      "mongodb",
+      "mariadbDatabase",
+      "postgresqlDatabase",
+      "mongodbDatabase",
     ]),
+    workload: {
+      entity: workloadEntity,
+      required: false,
+    },
   },
 
   outputs: {
     namespace: namespaceEntity,
-    workload: exposableWorkloadEntity,
-    service: serviceEntity,
+    workload: workloadEntity,
   },
 
   meta: {

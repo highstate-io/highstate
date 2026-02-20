@@ -10,6 +10,7 @@
  */
 export type * from './models/UserWorkspaceLayout.ts'
 export type * from './models/Library.ts'
+export type * from './models/Object.ts'
 export type * from './models/Project.ts'
 export type * from './models/ProjectSpace.ts'
 export type * from './models/ProjectModelStorage.ts'

@@ -8,6 +8,7 @@ import {
   type VersionedName,
   versionedNameSchema,
 } from "./meta"
+import { cuidv2d } from "./uuidv2d"
 
 export const entityInclusionSchema = z.object({
   /**
@@ -243,6 +244,19 @@ type AddTypeInclusions<
           : TImplementedTypes
     }[keyof TImplements]
 
+type MakeEntitySchema<TSchema extends z.ZodType, TType extends VersionedName> = z.ZodIntersection<
+  TSchema,
+  z.ZodObject<{
+    $meta: z.ZodOptional<
+      z.ZodObject<
+        {
+          type: z.ZodLiteral<TType>
+        } & Omit<typeof entityMetaSchema.shape, "type">
+      >
+    >
+  }>
+>
+
 export function defineEntity<
   TType extends VersionedName,
   TSchema extends z.ZodType,
@@ -253,7 +267,7 @@ export function defineEntity<
 ): Entity<
   TType,
   Simplify<AddTypeInclusions<AddTypeExtensions<{ [K in TType]: true }, TExtends>, TImplements>>,
-  AddSchemaExtensions<AddSchemaInclusions<TSchema, TImplements>, TExtends>
+  MakeEntitySchema<AddSchemaExtensions<AddSchemaInclusions<TSchema, TImplements>, TExtends>, TType>
 > {
   try {
     entityModelSchema.shape.type.parse(options.type)
@@ -265,7 +279,9 @@ export function defineEntity<
     throw new Error("Entity schema is required")
   }
 
-  const includedEntities = Object.entries(options.includes ?? {}).map(([field, entityRef]) => {
+  const includedEntities: { entity: Entity; inclusion: EntityInclusion }[] = Object.entries(
+    options.includes ?? {},
+  ).map(([field, entityRef]) => {
     if (isEntityIncludeRef(entityRef)) {
       return {
         entity: entityRef.entity,
@@ -394,4 +410,88 @@ export function isAssignableTo(entity: EntityModel, target: VersionedName): bool
   }
 
   return entity.inclusions?.some(implementation => implementation.type === target) ?? false
+}
+
+export const entityMetaSchema = z.object({
+  /**
+   * The type of the entity.
+   */
+  type: versionedNameSchema,
+
+  /**
+   * The globally unique value of the entity used to produce the entity ID for non-anonymous entities.
+   */
+  identity: z.string().optional(),
+
+  /**
+   * The IDs of the entities to reference by this entity.
+   * Must already exist in the system (or be at least defined by this unit).
+   */
+  references: z.string().array().optional(),
+
+  ...objectMetaSchema.pick({
+    title: true,
+    description: true,
+    icon: true,
+    iconColor: true,
+  }).shape,
+})
+
+export type EntityMeta = z.infer<typeof entityMetaSchema>
+
+export const entityWithMetaSchema = z.object({
+  $meta: entityMetaSchema.optional(),
+})
+
+export type EntityWithMeta = z.infer<typeof entityWithMetaSchema>
+
+const entityIdCache = new WeakMap<EntityWithMeta, string>()
+const entityIdNamespace = "3cd37048-7c50-43a9-a2b9-ff7ff2b5ee79"
+
+/**
+ * Gets the unique ID of an entity based on its type and identity.
+ *
+ * The ID is generated using a hash of the entity's type and identity, and is cached for future retrievals.
+ *
+ * @param entity The entity to get the ID for.
+ * @returns The unique ID of the entity, or undefined if the entity is anonymous or does not have an identity.
+ */
+export function getEntityId(entity: EntityWithMeta): string | undefined {
+  const existingId = entityIdCache.get(entity)
+
+  if (existingId) {
+    return existingId
+  }
+
+  if (!entity.$meta) {
+    return undefined
+  }
+
+  const { type, identity } = entity.$meta
+
+  if (!identity) {
+    return undefined
+  }
+
+  const id = cuidv2d(entityIdNamespace, `${type}:${identity}`)
+  entityIdCache.set(entity, id)
+
+  return id
+}
+
+/**
+ * Gets the unique ID of an entity, throwing an error if the entity does not have an ID.
+ *
+ * @param entity The entity to get the ID for.
+ * @returns The unique ID of the entity.
+ * @throws Will throw an error if the entity does not have an ID.
+ */
+export function requireEntityId(entity: EntityWithMeta): string {
+  const id = getEntityId(entity)
+
+  if (!id) {
+    throw new Error("Entity does not have an ID")
+  }
+
+  return id
 }

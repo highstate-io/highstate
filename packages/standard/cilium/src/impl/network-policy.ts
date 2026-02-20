@@ -1,8 +1,9 @@
 import type { types as k8sTypes } from "@pulumi/kubernetes"
 import { cilium, type types } from "@highstate/cilium-crds"
-import { check } from "@highstate/contract"
+import { check, z } from "@highstate/contract"
 import {
   getNamespaceName,
+  getProvider,
   mapMetadata,
   mapSelectorLikeToSelector,
   mapServiceToLabelSelector,
@@ -11,7 +12,7 @@ import {
   type NormalizedRuleArgs,
   networkPolicyMediator,
 } from "@highstate/k8s"
-import { implementationReferenceSchema, k8s } from "@highstate/library"
+import { k8s } from "@highstate/library"
 import { ComponentResource, output, type ResourceOptions } from "@highstate/pulumi"
 import { map, mapKeys, pipe, uniqueBy } from "remeda"
 
@@ -38,7 +39,7 @@ class CiliumNetworkPolicy extends ComponentResource {
           egress: CiliumNetworkPolicy.createEgressRules(args),
         },
       },
-      { ...opts, parent: this },
+      { ...opts, parent: this, provider: getProvider(args.cluster) },
     )
   }
 
@@ -176,7 +177,7 @@ class CiliumNetworkPolicy extends ComponentResource {
             rules: {
               dns:
                 check(k8s.ciliumClusterMetadata, cluster.metadata) &&
-                cluster.metadata.cilium.allowForbiddenFqdnResolution
+                cluster.metadata["cilium.cni"].allowForbiddenFqdnResolution
                   ? [{ matchPattern: "*" }]
                   : fqdnRules,
             },
@@ -307,7 +308,8 @@ class CiliumNetworkPolicy extends ComponentResource {
 }
 
 export const createNetworkPolicy = networkPolicyMediator.implement(
-  implementationReferenceSchema,
+  //
+  z.object(),
   ({ name, args }) => {
     return new CiliumNetworkPolicy(name, args)
   },

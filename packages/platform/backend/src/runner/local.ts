@@ -18,23 +18,14 @@ import { EventEmitter, on } from "node:events"
 import { mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
-import { crc32 } from "node:zlib"
 import {
   getInstanceId,
   HighstateConfigKey,
   type InstanceId,
-  instanceStatusFieldSchema,
-  unitArtifactId,
   unitArtifactSchema,
-  unitPageSchema,
-  unitTerminalSchema,
-  unitTriggerSchema,
-  unitWorkerSchema,
 } from "@highstate/contract"
-import { encode } from "@msgpack/msgpack"
-import { sha256 } from "@noble/hashes/sha2"
 import { ensureDependencyInstalled } from "nypm"
-import { mapValues, omitBy } from "remeda"
+import { omitBy } from "remeda"
 import { z } from "zod"
 import { runWithRetryOnError } from "../common"
 import {
@@ -130,6 +121,7 @@ export class LocalRunnerBackend implements RunnerBackend {
         HIGHSTATE_CACHE_DIR: this.cacheDir,
         HIGHSTATE_TEMP_PATH: unitTempPath,
         PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
+        HIGHSTATE_PULUMI_COMMAND: preview ? "preview" : "update",
         ...options.envVars,
       }
 
@@ -208,7 +200,12 @@ export class LocalRunnerBackend implements RunnerBackend {
               })
 
               const outputs = await stack.outputs()
-              const completionUpdate = this.createCompletionStateUpdate("update", unitId, outputs)
+              const completionUpdate: TypedUnitStateUpdate<"completion"> = {
+                unitId,
+                type: "completion",
+                operationType: "update",
+                rawOutputs: outputs,
+              }
 
               if (!preview && outputs["$artifacts"]) {
                 const artifacts = z
@@ -223,18 +220,6 @@ export class LocalRunnerBackend implements RunnerBackend {
                   Object.values(artifacts).flat(),
                   childLogger,
                 )
-
-                completionUpdate.exportedArtifactIds = mapValues(artifacts, artifacts => {
-                  return artifacts.map(artifact => {
-                    if (artifact[unitArtifactId]) {
-                      return artifact[unitArtifactId]
-                    }
-
-                    throw new Error(
-                      `Failed to determine artifact ID for artifact with hash ${artifact.hash}`,
-                    )
-                  })
-                })
               } else if (preview && outputs["$artifacts"]) {
                 childLogger.debug({ msg: "skipping artifact persistence for preview" })
               }
@@ -315,6 +300,7 @@ export class LocalRunnerBackend implements RunnerBackend {
           envVars: {
             HIGHSTATE_CACHE_DIR: this.cacheDir,
             PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
+            HIGHSTATE_PULUMI_COMMAND: "destroy",
             ...(options.debug && { TF_LOG: "DEBUG" }),
           },
         },
@@ -343,6 +329,7 @@ export class LocalRunnerBackend implements RunnerBackend {
                   color: "always",
                   refresh: options.refresh,
                   remove: true,
+                  runProgram: true,
                   signal,
                   debug: options.debug,
 
@@ -496,51 +483,18 @@ export class LocalRunnerBackend implements RunnerBackend {
     }
   }
 
-  private createCompletionStateUpdate(
-    opType: "update" | "destroy" | "refresh",
-    unitId: InstanceId,
-    outputs: OutputMap,
-  ): TypedUnitStateUpdate<"completion"> {
-    const unitOutputs = omitBy(outputs, (_, key) => key.startsWith("$"))
-
-    return {
-      unitId,
-      type: "completion",
-      operationType: opType,
-
-      outputHash: crc32(sha256(encode(unitOutputs))),
-
-      statusFields: outputs["$statusFields"]
-        ? z.array(instanceStatusFieldSchema).parse(outputs["$statusFields"].value)
-        : null,
-
-      terminals: outputs["$terminals"]
-        ? z.array(unitTerminalSchema).parse(outputs["$terminals"].value)
-        : null,
-
-      pages: outputs["$pages"] ? z.array(unitPageSchema).parse(outputs["$pages"].value) : null,
-
-      triggers: outputs["$triggers"]
-        ? z.array(unitTriggerSchema).parse(outputs["$triggers"].value)
-        : null,
-
-      workers: outputs["$workers"]
-        ? z.array(unitWorkerSchema).parse(outputs["$workers"].value)
-        : null,
-
-      secrets: outputs["$secrets"]
-        ? z.record(z.string(), z.unknown()).parse(outputs["$secrets"].value)
-        : null,
-    }
-  }
-
   private async emitCompletionStateUpdate(
     opType: OperationType,
     unitId: InstanceId,
     stack: Stack,
   ): Promise<TypedUnitStateUpdate<"completion">> {
     const output = await stack.outputs()
-    const update = this.createCompletionStateUpdate(opType, unitId, output)
+    const update: TypedUnitStateUpdate<"completion"> = {
+      unitId,
+      type: "completion",
+      operationType: opType,
+      rawOutputs: output,
+    }
 
     return this.emitStateUpdate(update)
   }

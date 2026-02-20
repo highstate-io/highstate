@@ -15,7 +15,7 @@ export const wgFeedServer = defineUnit({
   },
 
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "etcd"]),
+    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "etcdCluster"]),
   },
 
   outputs: {

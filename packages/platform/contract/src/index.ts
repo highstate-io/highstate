@@ -3,10 +3,14 @@
 export {
   type Entity,
   type EntityModel,
+  type EntityMeta,
+  type EntityWithMeta,
   isEntity,
   isAssignableTo,
   defineEntity,
   entityModelSchema,
+  getEntityId,
+  requireEntityId,
 } from "./entity"
 
 export * from "./instance"
@@ -18,6 +22,7 @@ export * from "./page"
 export * from "./trigger"
 export * from "./worker"
 export * from "./compaction"
+export * from "./uuidv2d"
 
 export {
   // common utilities
