@@ -7,14 +7,13 @@ packages:
 
 ignoredBuiltDependencies:
   - "@parcel/watcher"
-  - "@prisma/client"
-  - "@prisma/engines"
   - "@pulumi/command"
   - "@pulumi/kubernetes"
   - "@swc/core"
   - "@tailwindcss/oxide"
   - classic-level
   - esbuild
+  - less
   - nx
   - prisma
   - protobufjs
@@ -24,3 +23,10 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - better-sqlite3
+  - "@prisma/engines"
+
+overrides:
+  "@prisma/adapter-libsql": 7.4.1
+  "@prisma/client": 7.4.1
+  "@prisma/driver-adapter-utils": 7.4.1
+  prisma: 7.4.1

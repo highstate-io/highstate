@@ -10,6 +10,7 @@
     "ci:prepare": "nx run @highstate/cli:build && pnpm install",
     "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image,typecheck",
     "ci:verify": "nx affected --base=origin/main -t test,biome:check,typecheck",
+    "dev:build": "nx run-many -t build --exclude @highstate/designer --exclude @highstate/docs",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
   "devDependencies": {

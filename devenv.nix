@@ -7,8 +7,8 @@
 
   prisma = inputs.prisma-utils.lib.prisma-factory {
     inherit pkgs;
-    hash = "sha256-dzjXzESZPHh3OvkqkPDzyaeRuoqSOe+8rysUsI6Bs8M=";
-    pnpmLock = ./pnpm-lock.yaml;
+    hash = "sha256-H3iZMOF0JJ2dUUGwhu3zPfRMX3gjWkhnJSHYSSsh8i4=";
+    versionString = "7.4.1-55ae170b1ced7fc6ed07a15f110549408c501bb3";
   };
 in {
   languages.javascript.enable = true;
