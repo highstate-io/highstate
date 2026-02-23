@@ -28,8 +28,8 @@ export function getServerConnection(
     host: l3EndpointToString(ssh.endpoints[0]),
     port: ssh.endpoints[0].port,
     user: ssh.user,
-    password: ssh.password,
-    privateKey: ssh.keyPair?.privateKey,
+    password: ssh.password?.value,
+    privateKey: ssh.keyPair?.privateKey.value,
     dialErrorLimit: 3,
     hostKey: ssh.hostKey,
   }))

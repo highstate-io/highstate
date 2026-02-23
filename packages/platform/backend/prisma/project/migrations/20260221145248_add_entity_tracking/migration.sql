@@ -2,18 +2,19 @@
 CREATE TABLE "Entity" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "type" TEXT NOT NULL,
-    "identity" TEXT
+    "identity" TEXT NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "EntitySnapshot" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "meta" JSONB NOT NULL,
+    "meta" JSONB,
     "content" JSONB NOT NULL,
     "entityId" TEXT NOT NULL,
     "operationId" TEXT NOT NULL,
     "stateId" TEXT NOT NULL,
-    "output" TEXT NOT NULL,
+    "referencedOutputs" JSONB NOT NULL,
+    "exportedOutputs" JSONB NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "EntitySnapshot_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES "Entity" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "EntitySnapshot_operationId_fkey" FOREIGN KEY ("operationId") REFERENCES "Operation" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -24,8 +25,24 @@ CREATE TABLE "EntitySnapshot" (
 CREATE TABLE "EntitySnapshotReference" (
     "fromId" TEXT NOT NULL,
     "toId" TEXT NOT NULL,
+    "group" TEXT NOT NULL,
 
-    PRIMARY KEY ("fromId", "toId"),
+    PRIMARY KEY ("fromId", "toId", "group"),
     CONSTRAINT "EntitySnapshotReference_fromId_fkey" FOREIGN KEY ("fromId") REFERENCES "EntitySnapshot" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "EntitySnapshotReference_toId_fkey" FOREIGN KEY ("toId") REFERENCES "EntitySnapshot" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- CreateIndex
+CREATE INDEX "EntitySnapshot_entityId_createdAt_idx" ON "EntitySnapshot"("entityId", "createdAt" DESC);
+
+-- CreateIndex
+CREATE INDEX "EntitySnapshot_operationId_idx" ON "EntitySnapshot"("operationId");
+
+-- CreateIndex
+CREATE INDEX "EntitySnapshot_stateId_createdAt_idx" ON "EntitySnapshot"("stateId", "createdAt" DESC);
+
+-- CreateIndex
+CREATE INDEX "EntitySnapshotReference_toId_idx" ON "EntitySnapshotReference"("toId");
+
+-- CreateIndex
+CREATE INDEX "EntitySnapshotReference_fromId_idx" ON "EntitySnapshotReference"("fromId");

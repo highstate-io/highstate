@@ -1,4 +1,5 @@
 import type {
+  EntityWithMeta,
   InstanceStatusField,
   UnitPage,
   UnitTerminal,
@@ -15,9 +16,9 @@ import {
   unitTriggerSchema,
   unitWorkerSchema,
 } from "@highstate/contract"
+import { getEntityId } from "@highstate/contract"
 import { encode } from "@msgpack/msgpack"
 import { sha256 } from "@noble/hashes/sha2"
-import { createId } from "@paralleldrive/cuid2"
 import { crc32 } from "node:zlib"
 import type { Logger } from "pino"
 import { mapValues, omitBy } from "remeda"
@@ -33,22 +34,29 @@ export type RawPulumiOutputs = Record<string, RawPulumiOutputValue>
 
 export type UnitEntitySnapshotPayload = {
   nodes: UnitEntitySnapshotNode[]
-  implicitReferences: { fromNodeId: string; toNodeId: string }[]
+  implicitReferences: UnitEntitySnapshotReference[]
+  explicitReferences: UnitEntitySnapshotReference[]
 }
 
 export type UnitEntitySnapshotNode = {
-  nodeId: string
+  entityId: string
   entityType: VersionedName
-  output: string
-  identity?: string
+  identity: string
   meta: {
-    title: string
+    title?: string
     description?: string
     icon?: string
     iconColor?: string
-  }
+  } | null
   content: Record<string, unknown>
-  explicitReferences: string[]
+  referencedOutputs: string[]
+  exportedOutputs: string[]
+}
+
+export type UnitEntitySnapshotReference = {
+  fromEntityId: string
+  toEntityId: string
+  group: string
 }
 
 export type ParsedUnitOutputs = {
@@ -60,6 +68,7 @@ export type ParsedUnitOutputs = {
   secrets: Record<string, unknown> | null
   workers: UnitWorker[] | null
   exportedArtifactIds: Record<string, string[]> | null
+  entitySnapshotError: string | null
   entitySnapshotPayload: UnitEntitySnapshotPayload | null
 }
 
@@ -114,12 +123,20 @@ export class UnitOutputService {
 
     const exportedArtifactIds = this.parseExportedArtifactIds(options.outputs)
 
-    const entitySnapshotPayload = await this.parseEntitySnapshotPayload({
-      libraryId: options.libraryId,
-      instanceType: options.instanceType,
-      unitOutputs,
-      signal: options.signal,
-    })
+    let entitySnapshotPayload: UnitEntitySnapshotPayload | null = null
+    let entitySnapshotError: string | null = null
+
+    try {
+      entitySnapshotPayload = await this.parseEntitySnapshotPayload({
+        libraryId: options.libraryId,
+        instanceType: options.instanceType,
+        unitOutputs,
+        signal: options.signal,
+      })
+    } catch (error) {
+      entitySnapshotError = error instanceof Error ? error.message : String(error)
+      entitySnapshotPayload = null
+    }
 
     return {
       outputHash,
@@ -130,6 +147,7 @@ export class UnitOutputService {
       secrets,
       workers,
       exportedArtifactIds,
+      entitySnapshotError,
       entitySnapshotPayload,
     }
   }
@@ -179,110 +197,192 @@ export class UnitOutputService {
       throw new Error(`Component "${options.instanceType}" is not defined in the library`)
     }
 
-    const nodes: UnitEntitySnapshotPayload["nodes"] = []
-    const implicitReferences: UnitEntitySnapshotPayload["implicitReferences"] = []
-    const nodeIdByObjectAndOutput = new WeakMap<object, Map<string, string>>()
-    const nodeIdByDeterministicKey = new Map<string, string>()
-
-    const getOrCreateNodeId = (
-      entityType: UnitEntitySnapshotPayload["nodes"][number]["entityType"],
-      output: string,
-      identity: string | undefined,
-      value: object,
-    ): string => {
-      if (identity) {
-        const key = `${entityType}:${identity}:${output}`
-        const existing = nodeIdByDeterministicKey.get(key)
-        if (existing) {
-          return existing
+    const nodeByEntityId = new Map<
+      string,
+      {
+        node: Omit<UnitEntitySnapshotNode, "exportedOutputs" | "referencedOutputs"> & {
+          exportedOutputs: Set<string>
+          referencedOutputs: Set<string>
         }
-
-        const created = createId()
-        nodeIdByDeterministicKey.set(key, created)
-        return created
+        entityModelInclusions: Array<{
+          type: VersionedName
+          required: boolean
+          multiple: boolean
+          field: string
+        }>
       }
+    >()
 
-      const outputMap = nodeIdByObjectAndOutput.get(value) ?? new Map<string, string>()
-      const existing = outputMap.get(output)
-      if (existing) {
-        return existing
-      }
+    const implicitReferencesByKey = new Map<string, UnitEntitySnapshotReference>()
+    const explicitReferencesByKey = new Map<string, UnitEntitySnapshotReference>()
 
-      const created = createId()
-      outputMap.set(output, created)
-      nodeIdByObjectAndOutput.set(value, outputMap)
-      return created
+    const isRecord = (value: unknown): value is Record<string, unknown> => {
+      return typeof value === "object" && value !== null && !Array.isArray(value)
     }
 
-    const collectEntityValue = async (
-      entityType: UnitEntitySnapshotPayload["nodes"][number]["entityType"],
+    function assertEntityWithMeta(
+      expectedType: VersionedName,
       output: string,
       value: unknown,
-    ): Promise<string> => {
-      if (typeof value !== "object" || value === null) {
-        throw new Error(`Expected entity value for type "${entityType}" to be an object`)
+    ): asserts value is EntityWithMeta {
+      if (!isRecord(value)) {
+        throw new Error(`Output "${output}" must be an object`)
       }
 
-      const record = value as Record<string, unknown>
-      const rawMeta = record.$meta
-      const meta =
-        typeof rawMeta === "object" && rawMeta !== null
-          ? (rawMeta as Record<string, unknown>)
-          : undefined
+      const meta = (value as Record<string, unknown>)["$meta"]
+      if (!isRecord(meta)) {
+        throw new Error(`Output "${output}" must include a "$meta" object`)
+      }
 
-      const identity = typeof meta?.identity === "string" ? meta.identity : undefined
-      const nodeId = getOrCreateNodeId(entityType, output, identity, value)
+      const metaType = meta["type"]
+      if (metaType !== expectedType) {
+        throw new Error(
+          `Output "${output}" has invalid "$meta.type": expected "${expectedType}", got "${String(metaType)}"`,
+        )
+      }
 
-      if (!nodes.some(n => n.nodeId === nodeId)) {
-        const { $meta: _ignoredMeta, ...content } = record
+      const metaIdentity = meta["identity"]
+      if (typeof metaIdentity !== "string" || metaIdentity.length === 0) {
+        throw new Error(
+          `Output "${output}" has invalid "$meta.identity": expected a non-empty string`,
+        )
+      }
+    }
 
-        nodes.push({
-          nodeId,
-          entityType,
-          output,
-          identity,
-          meta: {
-            title: typeof meta?.title === "string" ? meta.title : entityType,
-            ...(typeof meta?.description === "string" ? { description: meta.description } : {}),
-            ...(typeof meta?.icon === "string" ? { icon: meta.icon } : {}),
-            ...(typeof meta?.iconColor === "string" ? { iconColor: meta.iconColor } : {}),
-          },
-          content,
-          explicitReferences: Array.isArray(meta?.references)
-            ? meta.references.filter((x): x is string => typeof x === "string")
-            : [],
-        })
+    const normalizeSnapshotContent = (
+      entityType: VersionedName,
+      record: Record<string, unknown>,
+    ): Record<string, unknown> => {
+      const entityModel = library.entities[entityType]
+      if (!entityModel) {
+        throw new Error(`Entity type "${entityType}" is not defined in the library`)
+      }
 
-        const entityModel = library.entities[entityType]
+      const { $meta: _ignoredMeta, ...content } = record
+      for (const inclusion of entityModel.inclusions ?? []) {
+        delete (content as Record<string, unknown>)[inclusion.field]
+      }
+
+      return content
+    }
+
+    const collectEntityValue = async (options: {
+      expectedType: VersionedName
+      output: string
+      value: unknown
+      relation: "exported" | "referenced"
+      stack: string[]
+    }): Promise<string> => {
+      assertEntityWithMeta(options.expectedType, options.output, options.value)
+
+      const record = options.value as unknown as Record<string, unknown>
+
+      const entityWithMeta = options.value as EntityWithMeta
+      const { identity } = entityWithMeta.$meta
+      const meta = entityWithMeta.$meta
+
+      const entityId = getEntityId(entityWithMeta)
+      if (options.stack.includes(entityId)) {
+        throw new Error(
+          `Detected entity inclusion cycle while collecting output "${options.output}": "${entityId}"`,
+        )
+      }
+
+      const existing = nodeByEntityId.get(entityId)
+      if (!existing) {
+        const entityModel = library.entities[options.expectedType]
         if (!entityModel) {
-          throw new Error(`Entity type "${entityType}" is not defined in the library`)
+          throw new Error(`Entity type "${options.expectedType}" is not defined in the library`)
         }
 
-        for (const inclusion of entityModel.inclusions ?? []) {
-          const rawIncluded = record[inclusion.field]
-          if (rawIncluded === undefined || rawIncluded === null) {
-            continue
-          }
+        const normalizedContent = normalizeSnapshotContent(options.expectedType, record)
 
-          if (inclusion.multiple) {
-            if (!Array.isArray(rawIncluded)) {
-              throw new Error(
-                `Expected inclusion field "${inclusion.field}" on "${entityType}" to be an array`,
-              )
-            }
+        const snapshotMeta = {
+          ...(typeof meta.title === "string" ? { title: meta.title } : {}),
+          ...(typeof meta.description === "string" ? { description: meta.description } : {}),
+          ...(typeof meta.icon === "string" ? { icon: meta.icon } : {}),
+          ...(typeof meta.iconColor === "string" ? { iconColor: meta.iconColor } : {}),
+        }
 
-            for (const item of rawIncluded) {
-              const childNodeId = await collectEntityValue(inclusion.type, output, item)
-              implicitReferences.push({ fromNodeId: nodeId, toNodeId: childNodeId })
-            }
-          } else {
-            const childNodeId = await collectEntityValue(inclusion.type, output, rawIncluded)
-            implicitReferences.push({ fromNodeId: nodeId, toNodeId: childNodeId })
+        nodeByEntityId.set(entityId, {
+          node: {
+            entityId,
+            entityType: options.expectedType,
+            identity,
+            meta: Object.keys(snapshotMeta).length > 0 ? snapshotMeta : null,
+            content: normalizedContent,
+            referencedOutputs: new Set<string>(),
+            exportedOutputs: new Set<string>(),
+          },
+          entityModelInclusions: (entityModel.inclusions ?? []).map(i => ({
+            type: i.type,
+            required: i.required,
+            multiple: i.multiple,
+            field: i.field,
+          })),
+        })
+      }
+
+      const current = nodeByEntityId.get(entityId)!
+      if (options.relation === "exported") {
+        current.node.exportedOutputs.add(options.output)
+      } else {
+        current.node.referencedOutputs.add(options.output)
+      }
+
+      const rawReferences = meta.references
+      if (rawReferences) {
+        for (const [group, ids] of Object.entries(rawReferences)) {
+          for (const id of ids) {
+            explicitReferencesByKey.set(`${entityId}:${id}:${group}`, {
+              fromEntityId: entityId,
+              toEntityId: id,
+              group,
+            })
           }
         }
       }
 
-      return nodeId
+      for (const inclusion of current.entityModelInclusions) {
+        const rawIncluded = record[inclusion.field]
+        if (rawIncluded === undefined || rawIncluded === null) {
+          continue
+        }
+
+        if (inclusion.multiple) {
+          for (const item of rawIncluded as unknown[]) {
+            const childEntityId = await collectEntityValue({
+              expectedType: inclusion.type,
+              output: options.output,
+              value: item,
+              relation: "referenced",
+              stack: [...options.stack, entityId],
+            })
+
+            implicitReferencesByKey.set(`${entityId}:${childEntityId}:${inclusion.field}`, {
+              fromEntityId: entityId,
+              toEntityId: childEntityId,
+              group: inclusion.field,
+            })
+          }
+        } else {
+          const childEntityId = await collectEntityValue({
+            expectedType: inclusion.type,
+            output: options.output,
+            value: rawIncluded,
+            relation: "referenced",
+            stack: [...options.stack, entityId],
+          })
+
+          implicitReferencesByKey.set(`${entityId}:${childEntityId}:${inclusion.field}`, {
+            fromEntityId: entityId,
+            toEntityId: childEntityId,
+            group: inclusion.field,
+          })
+        }
+      }
+
+      return entityId
     }
 
     for (const outputName of unitOutputNames) {
@@ -302,17 +402,43 @@ export class UnitOutputService {
         }
 
         for (const item of outputValue) {
-          await collectEntityValue(outputSpec.type, outputName, item)
+          await collectEntityValue({
+            expectedType: outputSpec.type,
+            output: outputName,
+            value: item,
+            relation: "exported",
+            stack: [],
+          })
         }
       } else {
-        await collectEntityValue(outputSpec.type, outputName, outputValue)
+        await collectEntityValue({
+          expectedType: outputSpec.type,
+          output: outputName,
+          value: outputValue,
+          relation: "exported",
+          stack: [],
+        })
       }
     }
 
-    if (nodes.length === 0) {
+    if (nodeByEntityId.size === 0) {
       return null
     }
 
-    return { nodes, implicitReferences }
+    const nodes = Array.from(nodeByEntityId.values()).map(({ node }) => ({
+      entityId: node.entityId,
+      entityType: node.entityType,
+      identity: node.identity,
+      meta: node.meta,
+      content: node.content,
+      referencedOutputs: Array.from(node.referencedOutputs),
+      exportedOutputs: Array.from(node.exportedOutputs),
+    }))
+
+    return {
+      nodes,
+      implicitReferences: Array.from(implicitReferencesByKey.values()),
+      explicitReferences: Array.from(explicitReferencesByKey.values()),
+    }
   }
 }

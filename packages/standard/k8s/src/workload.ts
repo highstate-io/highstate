@@ -445,7 +445,12 @@ export abstract class Workload extends NamespacedResource {
         command: ["bash", "/welcome.sh"],
 
         files: {
-          "/kubeconfig": fileFromString("kubeconfig", this.cluster.kubeconfig, { isSecret: true }),
+          "/kubeconfig": fileFromString(
+            //
+            "kubeconfig",
+            this.cluster.kubeconfig.value,
+            { isSecret: true },
+          ),
 
           "/welcome.sh": fileFromString(
             "welcome.sh",
@@ -547,7 +552,9 @@ export abstract class Workload extends NamespacedResource {
         ]),
 
         files: {
-          "/kubeconfig": fileFromString("kubeconfig", this.cluster.kubeconfig, { isSecret: true }),
+          "/kubeconfig": fileFromString(
+            //
+            "kubeconfig", this.cluster.kubeconfig.value, { isSecret: true }),
           ...spec?.files,
         },
 

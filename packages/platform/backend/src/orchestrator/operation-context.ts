@@ -90,7 +90,10 @@ export class OperationContext {
     return this.resolvedInstanceInputs.get(instanceId)
   }
 
-  public getCapturedOutputValues(instanceId: InstanceId, output: string): Record<string, unknown>[] {
+  public getCapturedOutputValues(
+    instanceId: InstanceId,
+    output: string,
+  ): Record<string, unknown>[] {
     const key = `${instanceId}:${output}`
     return this.capturedOutputValueMap.get(key) ?? []
   }
@@ -298,10 +301,14 @@ export class OperationContext {
 
   private async captureEntitySnapshotsAtOperationStart(options: {
     projectId: string
-    captureTime: Date
     entitySnapshotService: EntitySnapshotService
   }): Promise<void> {
-    const keys: { stateId: string; output: string; instanceId: InstanceId }[] = []
+    const keys: {
+      stateId: string
+      output: string
+      instanceId: InstanceId
+      operationId?: string
+    }[] = []
 
     for (const [instanceId, inputs] of this.resolvedInstanceInputs.entries()) {
       for (const inputGroup of Object.values(inputs ?? {})) {
@@ -315,6 +322,7 @@ export class OperationContext {
             stateId: dependencyState.id,
             output: input.input.output,
             instanceId: input.input.instanceId,
+            operationId: dependencyState.lastOperationState?.operationId,
           })
         }
       }
@@ -324,11 +332,11 @@ export class OperationContext {
       return
     }
 
-    const captured = await options.entitySnapshotService.captureLatestSnapshotValues({
-      projectId: options.projectId,
-      captureTime: options.captureTime,
-      keys: keys.map(k => ({ stateId: k.stateId, output: k.output })),
-    })
+    const captured = await options.entitySnapshotService.reconstructLatestExportedOutputValues(
+      options.projectId,
+      keys.map(k => ({ stateId: k.stateId, output: k.output, operationId: k.operationId })),
+      this.library,
+    )
 
     for (const key of keys) {
       const snapshotValues = captured.get(`${key.stateId}:${key.output}`) ?? []
@@ -356,7 +364,6 @@ export class OperationContext {
     instanceStateService: InstanceStateService,
     projectModelService: ProjectModelService,
     entitySnapshotService: EntitySnapshotService | undefined,
-    captureTime: Date | undefined,
     logger: Logger,
   ): Promise<OperationContext> {
     const [{ instances, virtualInstances, hubs, ghostInstances }, project] =
@@ -464,10 +471,9 @@ export class OperationContext {
 
     await context.inputHashResolver.process()
 
-    if (entitySnapshotService && captureTime) {
+    if (entitySnapshotService) {
       await context.captureEntitySnapshotsAtOperationStart({
         projectId,
-        captureTime,
         entitySnapshotService,
       })
     }

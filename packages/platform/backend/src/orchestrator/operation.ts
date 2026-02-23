@@ -37,6 +37,7 @@ import {
 import { OperationContext } from "./operation-context"
 import { createOperationPlan } from "./operation-plan"
 import { OperationWorkset } from "./operation-workset"
+import { resolveUnitInputValues } from "./unit-input-values"
 
 export class RuntimeOperation {
   private readonly instancePromiseMap = new Map<InstanceId, Promise<void>>()
@@ -125,7 +126,6 @@ export class RuntimeOperation {
       this.instanceStateService,
       this.projectModelService,
       this.entitySnapshotService,
-      this.operation.startedAt,
       this.logger,
     )
 
@@ -297,7 +297,7 @@ export class RuntimeOperation {
       const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
       signal.throwIfAborted()
 
-      const config = this.prepareUnitConfig(instance, secrets)
+      const config = this.prepareUnitConfig(instance, state.id, secrets)
       const artifactIds = this.collectArtifactIdsForInstance(instance)
       const artifacts = await this.artifactService.getArtifactsByIds(this.project.id, artifactIds)
 
@@ -312,7 +312,6 @@ export class RuntimeOperation {
         instanceName: instance.name,
         config,
         refresh: this.operation.options.refresh,
-        secrets,
         artifacts,
         signal,
         forceSignal,
@@ -455,7 +454,7 @@ export class RuntimeOperation {
 
       signal.throwIfAborted()
 
-      const config = this.prepareUnitConfig(instance, secrets)
+      const config = this.prepareUnitConfig(instance, state.id, secrets)
 
       // collect artifacts authorized for this instance
       const artifactIds = this.collectArtifactIdsForInstance(instance)
@@ -473,7 +472,6 @@ export class RuntimeOperation {
         config,
         refresh: this.operation.options.refresh,
         deleteUnreachable: this.operation.options.deleteUnreachableResources,
-        secrets,
         artifacts,
         signal,
         forceSignal,
@@ -554,10 +552,9 @@ export class RuntimeOperation {
       libraryId: this.project.libraryId,
       instanceType: instance.type,
       instanceName: instance.name,
-      config: this.prepareUnitConfig(instance, secrets, invokedTriggers),
+      config: this.prepareUnitConfig(instance, state.id, secrets, invokedTriggers),
       refresh: this.operation.options.refresh,
       deleteUnreachable: this.operation.options.deleteUnreachableResources,
-      secrets,
       signal,
       forceSignal,
       debug: this.operation.options.debug,
@@ -685,10 +682,16 @@ export class RuntimeOperation {
     let update: UnitStateUpdate | undefined
 
     for await (update of stream) {
+      let handlerError: Error | null = null
+
       try {
-        await this.handleUnitStateUpdate(update, state)
+        handlerError = await this.handleUnitStateUpdate(update, state)
       } catch (error) {
         logger.error({ error }, "failed to handle unit state update")
+      }
+
+      if (handlerError) {
+        throw handlerError
       }
 
       if (update.type === "error") {
@@ -710,6 +713,7 @@ export class RuntimeOperation {
 
   private prepareUnitConfig(
     instance: InstanceModel,
+    stateId: string,
     secrets: Record<string, unknown>,
     invokedTriggers: TriggerInvocation[] = [],
   ): UnitConfig {
@@ -717,96 +721,49 @@ export class RuntimeOperation {
 
     return {
       instanceId: instance.id,
+      stateId,
       args: instance.args ?? {},
       inputs: mapValues(resolvedInputs ?? {}, (input, inputName) =>
         input.flatMap(value => this.getUnitInputValues(inputName, value)),
       ),
       invokedTriggers,
-      secretNames: Object.keys(secrets),
+      secretValues: secrets,
       importBasePath: this.libraryBackend.importPath,
     }
   }
 
   private getUnitInputValues(inputName: string, input: ResolvedInstanceInput): UnitInputValue[] {
     const dependencyInstance = this.context.getInstance(input.input.instanceId)
-    const dependencyComponent = this.context.library.components[dependencyInstance.type]
-
-    const outputSpec = dependencyComponent.outputs[input.input.output]
-    if (!outputSpec) {
-      throw new Error(
-        `Output "${input.input.output}" is not defined on component "${dependencyInstance.type}"`,
-      )
-    }
-
-    const outputEntity = this.context.library.entities[outputSpec.type]
-    if (!outputEntity) {
-      throw new Error(`Entity type "${outputSpec.type}" is not defined in the library`)
-    }
-
     const captured = this.context.getCapturedOutputValues(
       input.input.instanceId,
       input.input.output,
     )
 
-    if (captured.length === 0) {
-      return []
-    }
-
-    // if output type matches input type or extends it, no transformation needed
-    if (input.type === outputSpec.type || outputEntity.extensions?.includes(input.type)) {
-      return captured.map(value => ({
-        value,
-        source: {
-          instanceId: input.input.instanceId,
-          output: input.input.output,
-        },
-      }))
-    }
-
-    // otherwise, find matching inclusion to perform transformation
-    const inclusion = outputEntity.inclusions?.find(inc => inc.type === input.type)
-    if (!inclusion) {
-      throw new Error(
-        `Cannot use output "${input.input.output}" of type "${outputSpec.type}" from instance "${input.input.instanceId}" for input "${inputName}" of type "${input.type}": no matching inclusion found in entity "${outputEntity.type}"`,
-      )
-    }
-
-    return captured.map(value => {
-      if (typeof value !== "object" || value === null) {
-        throw new Error(
-          `Cannot extract field "${inclusion.field}" from non-object output "${input.input.output}" of instance "${input.input.instanceId}".`,
-        )
-      }
-
-      const extracted = (value as Record<string, unknown>)[inclusion.field]
-
-      return {
-        value: extracted as unknown,
-        source: {
-          instanceId: input.input.instanceId,
-          output: input.input.output,
-        },
-      }
+    return resolveUnitInputValues({
+      library: this.context.library,
+      inputName,
+      resolvedInput: input,
+      dependencyInstanceType: dependencyInstance.type,
+      captured,
     })
   }
 
   private async handleUnitStateUpdate(
     update: UnitStateUpdate,
     state: InstanceState,
-  ): Promise<void> {
+  ): Promise<Error | null> {
     switch (update.type) {
       case "message":
         this.handleUnitMessage(update, state)
-        return
+        return null
       case "progress":
         await this.handleUnitProgress(update)
-        return
+        return null
       case "error":
         await this.handleUnitError(update, state)
-        return
+        return null
       case "completion":
-        await this.handleUnitCompletion(update, state)
-        return
+        return await this.handleUnitCompletion(update, state)
     }
   }
 
@@ -846,7 +803,7 @@ export class RuntimeOperation {
   private async handleUnitCompletion(
     update: TypedUnitStateUpdate<"completion">,
     state: InstanceState,
-  ): Promise<void> {
+  ): Promise<Error | null> {
     if (this.operation.type === "preview") {
       await this.workset.updateState(update.unitId, {
         operationState: {
@@ -854,7 +811,7 @@ export class RuntimeOperation {
           finishedAt: new Date(),
         },
       })
-      return
+      return null
     }
 
     const instance = this.context.getInstance(update.unitId)
@@ -882,8 +839,32 @@ export class RuntimeOperation {
           secrets: null,
           workers: null,
           exportedArtifactIds: null,
+          entitySnapshotError: null,
           entitySnapshotPayload: null,
         }
+
+    if (parsed.entitySnapshotError) {
+      await this.operationService.appendLog(
+        this.project.id,
+        this.operation.id,
+        state.id,
+        `Failed to parse unit outputs: ${parsed.entitySnapshotError}`,
+      )
+
+      await this.workset.updateState(update.unitId, {
+        instanceState: {
+          status: "failed",
+        },
+        operationState: {
+          status: "failed",
+          finishedAt: new Date(),
+        },
+      })
+
+      return new Error(
+        `Failed to parse unit outputs for unit "${instance.id}": ${parsed.entitySnapshotError}`,
+      )
+    }
 
     const data: InstanceStatePatch = {
       status: this.workset.getNextStableInstanceStatus(instance.id),
@@ -970,6 +951,8 @@ export class RuntimeOperation {
     ) {
       this.instanceStateService.publishGhostInstanceDeletion(this.project.id, [instance.id])
     }
+
+    return null
   }
 
   private getInstancePromise(

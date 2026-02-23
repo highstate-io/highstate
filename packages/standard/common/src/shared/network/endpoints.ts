@@ -4,6 +4,7 @@ import { type InputArray, toPromise } from "@highstate/pulumi"
 import { filter, isNonNullish, map, omit, pipe, uniqueBy } from "remeda"
 import { doesAddressBelongToSubnet, parseAddress } from "./address"
 import { privateSubnets } from "./subnet"
+import { makeEntity } from "../utils"
 
 /**
  * The input L3, L4, or L7 endpoint for some service.
@@ -54,7 +55,7 @@ export function l3EndpointToString(l3Endpoint: network.L3Endpoint): string {
  * @param l4Endpoint The L4 endpoint object to stringify.
  * @returns The string representation of the L4 endpoint.
  */
-export function l4EndpointToString(l4Endpoint: network.L3Endpoint & { port: number }): string {
+export function l4EndpointToString(l4Endpoint: network.L4Endpoint): string {
   const host = l3EndpointToString(l4Endpoint)
   const wrappedHost = l4Endpoint.type === "ipv6" ? `[${host}]` : host
 
@@ -191,23 +192,86 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
         subnet: network.Subnet
       }
 
-  function validateEndpoint<TEndpoint extends network.L3Endpoint>(value: TEndpoint): TEndpoint {
-    const schema =
-      value.level === 7
-        ? network.l7EndpointEntity.schema
-        : value.level === 4
-          ? network.l4EndpointEntity.schema
-          : network.l3EndpointEntity.schema
+  type EndpointValue =
+    | Omit<network.L3Endpoint, "$meta">
+    | Omit<network.L4Endpoint, "$meta">
+    | Omit<network.L7Endpoint, "$meta">
 
-    const result = schema.safeParse(value)
-    if (!result.success) {
-      throw new Error(`Invalid endpoint "${endpointToString(value)}": ${result.error.message}`)
+  function endpointIdentity(value: EndpointValue): string {
+    if (value.level === 7) {
+      return `${value.protocol}:${l7EndpointToString(value as unknown as network.L7Endpoint)}`
     }
 
-    // Important: Zod strips unknown keys by default.
-    // We validate here, but return the original value to preserve fields
-    // that are not part of the schema (e.g., dynamic.endpoint mirroring).
-    return value
+    if (value.level === 4) {
+      return l4EndpointToFullString(value as unknown as network.L4Endpoint)
+    }
+
+    return l3EndpointToString(value as unknown as network.L3Endpoint)
+  }
+
+  function makeEndpoint(value: EndpointValue): network.L3Endpoint {
+    const identity = endpointIdentity(value)
+
+    if (value.level === 7) {
+      const built = makeEntity({
+        entity: network.l7EndpointEntity,
+        identity,
+        meta: {
+          title: identity,
+        },
+        value: value as Omit<network.L7Endpoint, "$meta">,
+      })
+
+      if (value.type !== "hostname") {
+        return {
+          ...(built as unknown as network.L3Endpoint),
+          address: value.address,
+          subnet: value.subnet,
+        } as network.L3Endpoint
+      }
+
+      return built
+    }
+
+    if (value.level === 4) {
+      const built = makeEntity({
+        entity: network.l4EndpointEntity,
+        identity,
+        meta: {
+          title: identity,
+        },
+        value: value as Omit<network.L4Endpoint, "$meta">,
+      })
+
+      if (value.type !== "hostname") {
+        return {
+          ...(built as unknown as network.L3Endpoint),
+          address: value.address,
+          subnet: value.subnet,
+        } as network.L3Endpoint
+      }
+
+      return built
+    }
+
+    const built = makeEntity({
+      entity: network.l3EndpointEntity,
+      identity,
+      meta: {
+        title: identity,
+      },
+      value: value as Omit<network.L3Endpoint, "$meta">,
+    })
+
+    if (value.type !== "hostname") {
+      return {
+        ...(built as unknown as network.L3Endpoint),
+        address: value.address,
+        subnet: value.subnet,
+      } as network.L3Endpoint
+    }
+
+    return built
   }
 
   function parseHostToL3(host: string): L3EndpointBase {
@@ -298,21 +362,105 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
   if (check(network.addressEntity.schema, endpoint)) {
     const address = endpoint
-    const built: network.L3Endpoint = {
+    const built = makeEndpoint({
       type: address.type,
       level: 3,
       metadata: extractMetadata(address),
       address,
       subnet: address.subnet,
-    }
+    })
 
-    const validated = validateEndpoint(built)
-
-    assertEndpointLevel(validated, minLevel)
-    return validated as network.EndpointByMinLevel<TMinLevel>
+    assertEndpointLevel(built, minLevel)
+    return built as network.EndpointByMinLevel<TMinLevel>
   }
 
   if (typeof endpoint !== "string") {
+    if (endpoint && typeof endpoint === "object") {
+      const input = endpoint as Record<string, unknown>
+
+      const level = input.level
+      const type = input.type
+
+      if (level === 3 || level === 4 || level === 7) {
+        if (type === "hostname") {
+          const hostname = input.hostname
+          if (typeof hostname !== "string" || !hostname.trim()) {
+            throw new Error("Invalid endpoint")
+          }
+
+          const metadata = (input.metadata ?? {}) as network.L3Endpoint["metadata"]
+
+          const built = makeEndpoint({
+            level,
+            type,
+            hostname: hostname.trim(),
+            metadata,
+            ...(level >= 4
+              ? {
+                  port: input.port as number,
+                  protocol: (input.protocol as network.L4Protocol) ?? "tcp",
+                }
+              : {}),
+            ...(level === 7
+              ? {
+                  appProtocol: input.appProtocol as string,
+                  path: input.path as string | undefined,
+                }
+              : {}),
+          } as EndpointValue)
+
+          assertEndpointLevel(built, minLevel)
+          return built as network.EndpointByMinLevel<TMinLevel>
+        }
+
+        if (type === "ipv4" || type === "ipv6") {
+          const addressInput = input.address as Record<string, unknown> | undefined
+          const addressValue = addressInput?.value
+
+          if (typeof addressValue !== "string" || !addressValue.trim()) {
+            throw new Error("Invalid endpoint")
+          }
+
+          const prefixLength =
+            typeof (addressInput?.subnet as Record<string, unknown> | undefined)?.prefixLength ===
+            "number"
+              ? ((addressInput?.subnet as Record<string, unknown>).prefixLength as number)
+              : type === "ipv4"
+                ? 32
+                : 128
+
+          const address = parseAddress(`${addressValue.trim()}/${prefixLength}`)
+          const metadata = {
+            ...extractMetadata(address),
+            ...((input.metadata ?? {}) as network.L3Endpoint["metadata"]),
+          }
+
+          const built = makeEndpoint({
+            level,
+            type: address.type,
+            metadata,
+            address,
+            subnet: address.subnet,
+            ...(level >= 4
+              ? {
+                  port: input.port as number,
+                  protocol: (input.protocol as network.L4Protocol) ?? "tcp",
+                }
+              : {}),
+            ...(level === 7
+              ? {
+                  appProtocol: input.appProtocol as string,
+                  path: input.path as string | undefined,
+                }
+              : {}),
+          } as EndpointValue)
+
+          assertEndpointLevel(built, minLevel)
+          return built as network.EndpointByMinLevel<TMinLevel>
+        }
+      }
+    }
+
     throw new Error("Invalid endpoint")
   }
 
@@ -336,52 +484,44 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
     const portNumber = port ?? 443
     const protocol: network.L4Protocol = udpAppProtocols.includes(appProtocol) ? "udp" : "tcp"
 
-    builtEndpoint =
-      l3Base.type === "hostname"
-        ? {
-            ...l3Base,
-            level: 7,
-            port: portNumber,
-            protocol,
-            appProtocol,
-            path: path || undefined,
-          }
+    builtEndpoint = makeEndpoint({
+      ...(l3Base.type === "hostname"
+        ? l3Base
         : {
             ...l3Base,
-            level: 7,
-            port: portNumber,
-            protocol,
-            appProtocol,
-            path: path || undefined,
-          }
+            address: l3Base.address,
+            subnet: l3Base.subnet,
+          }),
+      level: 7,
+      port: portNumber,
+      protocol,
+      appProtocol,
+      path: path || undefined,
+    })
   } else {
     const { host, port } = splitHostPort(endpointString)
     const l3Base = parseHostToL3(host)
 
     if (port !== undefined) {
-      builtEndpoint =
-        l3Base.type === "hostname"
-          ? {
-              ...l3Base,
-              level: 4,
-              port,
-              protocol: "tcp",
-            }
+      builtEndpoint = makeEndpoint({
+        ...(l3Base.type === "hostname"
+          ? l3Base
           : {
               ...l3Base,
-              level: 4,
-              port,
-              protocol: "tcp",
-            }
+              address: l3Base.address,
+              subnet: l3Base.subnet,
+            }),
+        level: 4,
+        port,
+        protocol: "tcp",
+      })
     } else {
-      builtEndpoint = l3Base
+      builtEndpoint = makeEndpoint(l3Base)
     }
   }
 
-  const validated = validateEndpoint(builtEndpoint)
-
-  assertEndpointLevel(validated, minLevel)
-  return validated as network.EndpointByMinLevel<TMinLevel>
+  assertEndpointLevel(builtEndpoint, minLevel)
+  return builtEndpoint as network.EndpointByMinLevel<TMinLevel>
 }
 
 /**
@@ -415,12 +555,23 @@ export function l3EndpointToL4(
 ): network.L4Endpoint {
   const parsed = parseEndpoint(l3Endpoint)
 
-  return {
-    ...parsed,
+  const value = {
+    ...(omit(parsed, ["$meta"]) as Omit<network.L3Endpoint, "$meta">),
     level: 4,
     port,
     protocol,
-  } as network.L4Endpoint
+  } as Omit<network.L4Endpoint, "$meta">
+
+  const identity = l4EndpointToFullString(value as unknown as network.L4Endpoint)
+
+  return makeEntity({
+    entity: network.l4EndpointEntity,
+    identity,
+    meta: {
+      title: identity,
+    },
+    value,
+  })
 }
 
 /**
@@ -438,12 +589,23 @@ export function l4EndpointToL7(
 ): network.L7Endpoint {
   const parsed = parseEndpoint(l4Endpoint, 4)
 
-  return {
-    ...parsed,
+  const value = {
+    ...(omit(parsed, ["$meta"]) as Omit<network.L4Endpoint, "$meta">),
     level: 7,
     appProtocol,
     path,
-  }
+  } as Omit<network.L7Endpoint, "$meta">
+
+  const identity = `${value.protocol}:${l7EndpointToString(value as unknown as network.L7Endpoint)}`
+
+  return makeEntity({
+    entity: network.l7EndpointEntity,
+    identity,
+    meta: {
+      title: identity,
+    },
+    value,
+  })
 }
 
 /**
@@ -578,24 +740,62 @@ export function rebaseEndpoint<TEndpoint extends network.L3Endpoint>(
   endpoint: TEndpoint,
   base: network.L3Endpoint,
 ): TEndpoint {
-  if (base.type === "hostname") {
-    return {
-      ...omit(endpoint, ["type", "address", "subnet"]),
-      type: "hostname",
-      hostname: base.hostname,
-      port: base.port ?? endpoint.port,
-    } as TEndpoint
-  }
+  const endpointValue = omit(endpoint, ["$meta"]) as unknown as Omit<network.L7Endpoint, "$meta">
 
-  return {
-    ...omit(endpoint, ["type", "hostname"]),
-    type: base.type,
-    address: base.address,
-    subnet: base.subnet,
-    port: base.port ?? endpoint.port,
-    metadata: {
-      ...endpoint.metadata,
-      ...extractMetadata(base.address),
-    },
-  } as TEndpoint
+  const rebasedValue: Omit<network.L7Endpoint, "$meta"> =
+    base.type === "hostname"
+      ? {
+          ...omit(endpointValue, ["type", "address", "subnet"]),
+          type: "hostname",
+          hostname: base.hostname,
+          port: base.port ?? endpointValue.port,
+        }
+      : {
+          ...omit(endpointValue, ["type", "hostname"]),
+          type: base.type,
+          address: base.address,
+          subnet: base.subnet,
+          port: base.port ?? endpointValue.port,
+          metadata: {
+            ...endpointValue.metadata,
+            ...extractMetadata(base.address),
+          },
+        }
+
+  const identity =
+    rebasedValue.level === 7
+      ? `${rebasedValue.protocol}:${l7EndpointToString(rebasedValue as unknown as network.L7Endpoint)}`
+      : rebasedValue.level === 4
+        ? l4EndpointToFullString(rebasedValue as unknown as network.L4Endpoint)
+        : l3EndpointToString(rebasedValue as unknown as network.L3Endpoint)
+
+  const rebuilt: network.L3Endpoint =
+    rebasedValue.level === 7
+      ? makeEntity({
+          entity: network.l7EndpointEntity,
+          identity,
+          meta: {
+            title: identity,
+          },
+          value: rebasedValue,
+        })
+      : rebasedValue.level === 4
+        ? makeEntity({
+            entity: network.l4EndpointEntity,
+            identity,
+            meta: {
+              title: identity,
+            },
+            value: rebasedValue,
+          })
+        : makeEntity({
+            entity: network.l3EndpointEntity,
+            identity,
+            meta: {
+              title: identity,
+            },
+            value: rebasedValue,
+          })
+
+  return rebuilt as unknown as TEndpoint
 }

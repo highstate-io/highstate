@@ -76,7 +76,6 @@ export class OperationManager {
       this.instanceStateService,
       this.projectModelService,
       undefined,
-      undefined,
       this.logger,
     )
 

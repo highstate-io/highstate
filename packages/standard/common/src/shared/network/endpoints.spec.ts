@@ -72,7 +72,7 @@ describe("endpoints", () => {
     expect(network.l7EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
   })
 
-  it("returns object endpoints as-is", () => {
+  it("coerces object endpoints into entities", () => {
     const endpoint: network.L3Endpoint = {
       level: 3,
       type: "ipv4",
@@ -90,9 +90,13 @@ describe("endpoints", () => {
 
     const parsed = parseEndpoint(endpoint)
 
-    expect(parsed).toBe(endpoint)
+    expect(parsed).not.toBe(endpoint)
     expect(parsed.type).toBe("ipv4")
-    expect(parsed.subnet).toBeUndefined()
+    expect(parsed.address?.value).toBe("10.9.0.1")
+    expect(parsed.subnet).toBeDefined()
+    expect(addressToCidr(parsed.address!)).toBe("10.9.0.1/24")
+
+    expect(network.l3EndpointEntity.schema.safeParse(parsed).success).toBe(true)
   })
 
   it("wraps network.Address input into L3 endpoint without reparsing", () => {

@@ -1,6 +1,7 @@
 import {
   addEndpointMetadata,
   l3EndpointToL4,
+  makeEntityOutput,
   mergeEndpoints,
   parseEndpoint,
   parseL4Protocol,
@@ -101,9 +102,13 @@ export abstract class Service extends NamespacedResource {
    * The Highstate service entity.
    */
   get entity(): Output<k8s.Service> {
-    return output({
-      ...this.entityBase,
-      endpoints: this.endpoints,
+    return makeEntityOutput({
+      entity: k8s.serviceEntity,
+      identity: this.metadata.uid,
+      value: {
+        ...this.entityBase,
+        endpoints: this.endpoints,
+      },
     })
   }
 

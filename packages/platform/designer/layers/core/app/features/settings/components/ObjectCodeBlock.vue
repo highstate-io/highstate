@@ -39,7 +39,7 @@ const formattedCode = computed(() => {
         <VueMonacoEditor
           :value="formattedCode"
           :language="language"
-          theme="vs-dark"
+          theme="dark-plus"
           class="editor"
           :options="{
             readOnly: true,

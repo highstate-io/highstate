@@ -3,6 +3,7 @@ import { network } from "@highstate/library"
 import { addressToCidr } from "./address"
 import { cidrBlockSize, ipToString, parseCidr, parseIp, subnetBaseFromCidr } from "./ip"
 import { subnetToString } from "./subnet"
+import { getCombinedIdentity, makeEntity } from "../utils"
 
 export type AddressSpaceArgs = {
   /**
@@ -64,7 +65,11 @@ export function createAddressSpace({
   const normalized = normalizeRanges(includedRanges, excludedRanges)
   const subnets = rangesToCanonicalSubnets(normalized)
 
-  return { subnets }
+  return makeEntity({
+    entity: network.addressSpaceEntity,
+    identity: getCombinedIdentity(subnets),
+    value: { subnets },
+  })
 }
 
 function resolveInputToRanges(input: InputAddressSpace): IpRange[] {
@@ -296,11 +301,17 @@ function rangesToCanonicalSubnets(ranges: IpRange[]): network.Subnet[] {
     for (const cidr of rangeToCidrs(range)) {
       const baseAddress = ipToString(cidr.family, cidr.base)
 
-      subnets.push({
-        type: cidr.family,
-        baseAddress,
-        prefixLength: cidr.prefix,
-      })
+      subnets.push(
+        makeEntity({
+          entity: network.subnetEntity,
+          identity: `${baseAddress}/${cidr.prefix}`,
+          value: {
+            type: cidr.family,
+            baseAddress,
+            prefixLength: cidr.prefix,
+          },
+        }),
+      )
     }
   }
 

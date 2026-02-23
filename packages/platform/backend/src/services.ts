@@ -9,6 +9,7 @@ import {
   GlobalSearchService,
   InstanceLockService,
   InstanceStateService,
+  ObjectRefIndexService,
   OperationService,
   ProjectModelService,
   ProjectService,
@@ -79,6 +80,7 @@ export type Services = {
   readonly backendUnlockService: BackendUnlockService
   readonly globalSearchService: GlobalSearchService
   readonly instanceLockService: InstanceLockService
+  readonly objectRefIndexService: ObjectRefIndexService
   readonly projectUnlockService: ProjectUnlockService
   readonly operationService: OperationService
   readonly instanceStateService: InstanceStateService
@@ -142,6 +144,7 @@ export async function createServices({
     backendUnlockService,
     globalSearchService,
     instanceLockService,
+    objectRefIndexService,
     projectUnlockService,
     operationService,
     secretService,
@@ -175,6 +178,11 @@ export async function createServices({
     logger,
   )
 
+  objectRefIndexService ??= new ObjectRefIndexService(
+    database,
+    logger.child({ service: "ObjectRefIndexService" }),
+  )
+
   pubsubBackend ??= createPubSubBackend(config, logger)
   pubsubManager ??= new PubSubManager(pubsubBackend, logger)
 
@@ -184,7 +192,7 @@ export async function createServices({
   libraryBackend ??= await createLibraryBackend(config, logger)
 
   artifactBackend ??= await createArtifactBackend(config, database, logger)
-  artifactService ??= new ArtifactService(database, artifactBackend, logger)
+  artifactService ??= new ArtifactService(database, artifactBackend, objectRefIndexService, logger)
 
   backendUnlockService ??= new BackendUnlockService(
     database,
@@ -201,6 +209,7 @@ export async function createServices({
     database,
     pubsubManager,
     libraryBackend,
+    objectRefIndexService,
     logger.child({ service: "SecretService" }),
   )
   sessionService ??= new TerminalSessionService(database)
@@ -231,18 +240,25 @@ export async function createServices({
     database,
     pubsubManager,
     projectUnlockBackend,
+    objectRefIndexService,
     config,
     logger.child({ service: "StateUnlockService" }),
   )
 
+  projectUnlockService.registerUnlockTask("sync-object-refs", async projectId => {
+    await objectRefIndexService.syncProject(projectId)
+  })
+
   operationService ??= new OperationService(
     database,
     pubsubManager,
+    objectRefIndexService,
     logger.child({ service: "OperationService" }),
   )
 
   entitySnapshotService ??= new EntitySnapshotService(
     database,
+    objectRefIndexService,
     logger.child({ service: "EntitySnapshotService" }),
   )
 
@@ -254,6 +270,7 @@ export async function createServices({
     database,
     pubsubManager,
     projectUnlockService,
+    objectRefIndexService,
     logger,
   )
 
@@ -287,6 +304,7 @@ export async function createServices({
     artifactService,
     unitExtraService,
     secretService,
+    objectRefIndexService,
     logger.child({ service: "InstanceService" }),
   )
 
@@ -305,6 +323,7 @@ export async function createServices({
     projectModelService,
     pubsubManager,
     projectUnlockService,
+    objectRefIndexService,
     logger,
   )
 
@@ -316,6 +335,7 @@ export async function createServices({
     projectModelBackends,
     libraryBackend,
     pubsubManager,
+    objectRefIndexService,
     logger.child({ service: "ProjectService" }),
   )
 
@@ -373,6 +393,7 @@ export async function createServices({
     backendUnlockService,
     globalSearchService,
     instanceLockService,
+    objectRefIndexService,
     projectUnlockService,
     operationService,
     instanceStateService,

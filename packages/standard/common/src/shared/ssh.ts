@@ -1,4 +1,4 @@
-import type { common, network, ssh } from "@highstate/library"
+import { common, type network, ssh } from "@highstate/library"
 import { stripNullish, text, type UnitTerminal } from "@highstate/contract"
 import {
   fileFromString,
@@ -14,26 +14,27 @@ import { randomBytes } from "micro-key-producer/utils.js"
 import * as images from "../../assets/images.json"
 import { Command } from "./command"
 import { l3EndpointToL4, l3EndpointToString } from "./network/endpoints"
+import { getCombinedIdentity, makeEntityOutput } from "./utils"
 
 export async function createSshTerminal(
-  credentials: Input<ssh.Connection>,
+  connection: Input<ssh.Connection>,
 ): Promise<Output<UnitTerminal>> {
-  const resolvedCredentials = await toPromise(credentials)
+  const resolvedConnection = await toPromise(connection)
 
   const command = ["ssh", "-tt", "-o", "UserKnownHostsFile=/known_hosts"]
 
   // TODO: select best endpoint based on the environment
-  const endpoint = resolvedCredentials.endpoints[0]
+  const endpoint = resolvedConnection.endpoints[0]
 
   command.push("-p", endpoint.port.toString())
 
-  if (resolvedCredentials.keyPair) {
+  if (resolvedConnection.keyPair) {
     command.push("-i", "/private_key")
   }
 
-  command.push(`${resolvedCredentials.user}@${l3EndpointToString(endpoint)}`)
+  command.push(`${resolvedConnection.user}@${l3EndpointToString(endpoint)}`)
 
-  if (resolvedCredentials.password) {
+  if (resolvedConnection.password) {
     command.unshift("sshpass", "-f", "/password")
   }
 
@@ -51,12 +52,12 @@ export async function createSshTerminal(
       command,
 
       files: stripNullish({
-        "/password": resolvedCredentials.password
-          ? fileFromString("password", resolvedCredentials.password, { isSecret: true })
+        "/password": resolvedConnection.password
+          ? fileFromString("password", resolvedConnection.password.value, { isSecret: true })
           : undefined,
 
-        "/private_key": resolvedCredentials.keyPair?.privateKey
-          ? fileFromString("private_key", resolvedCredentials.keyPair.privateKey, {
+        "/private_key": resolvedConnection.keyPair?.privateKey
+          ? fileFromString("private_key", resolvedConnection.keyPair.privateKey.value, {
               isSecret: true,
               mode: 0o600,
             })
@@ -64,7 +65,7 @@ export async function createSshTerminal(
 
         "/known_hosts": fileFromString(
           "known_hosts",
-          `${l3EndpointToString(endpoint)} ${resolvedCredentials.hostKey}`,
+          `${l3EndpointToString(endpoint)} ${resolvedConnection.hostKey}`,
           { mode: 0o644 },
         ),
       }),
@@ -84,11 +85,17 @@ export function createSshHostKeyFile(server: Input<common.Server>): Output<commo
       throw new Error("Server must have an SSH endpoint defined to create a host key file")
     }
 
-    return fileFromString(
-      `${server.hostname}-ssh-host-key`,
-      server.ssh.endpoints.map(ep => `${l3EndpointToString(ep)} ${server.ssh!.hostKey}`).join("\n"),
-      { mode: 0o644 },
-    )
+    return makeEntityOutput({
+      entity: common.fileEntity,
+      identity: server.ssh.hostKey,
+      value: fileFromString(
+        `${server.hostname}-ssh-host-key`,
+        server.ssh.endpoints
+          .map(ep => `${l3EndpointToString(ep)} ${server.ssh!.hostKey}`)
+          .join("\n"),
+        { mode: 0o644 },
+      ),
+    })
   })
 }
 
@@ -119,11 +126,18 @@ export function sshPrivateKeyToKeyPair(privateKeyString: Input<string>): Output<
 
     const { fingerprint, publicKey } = getKeys(privKey.slice(0, 32))
 
-    return output({
-      type: "ed25519" as const,
-      fingerprint,
-      publicKey,
-      privateKey: secret(privateKeyString),
+    return makeEntityOutput({
+      entity: ssh.keyPairEntity,
+      identity: fingerprint,
+      meta: {
+        title: fingerprint,
+      },
+      value: {
+        type: "ed25519" as const,
+        fingerprint,
+        publicKey,
+        privateKey: secret(privateKeyString),
+      },
     })
   })
 }
@@ -289,9 +303,13 @@ export async function createServerEntity({
   }
 
   if (!sshArgs.enabled) {
-    return output({
-      hostname: name,
-      endpoints,
+    return makeEntityOutput({
+      entity: common.serverEntity,
+      identity: getCombinedIdentity(endpoints),
+      value: {
+        hostname: name,
+        endpoints,
+      },
     })
   }
 
@@ -312,7 +330,7 @@ export async function createServerEntity({
     port: sshArgs.port,
     user: sshArgs.user,
     password: sshPassword,
-    privateKey: sshKeyPair ? output(sshKeyPair).privateKey : sshPrivateKey,
+    privateKey: sshKeyPair ? output(sshKeyPair).privateKey.value : sshPrivateKey,
     dialErrorLimit: 3,
   })
 
@@ -335,24 +353,36 @@ export async function createServerEntity({
   })
 
   const hostKey = await toPromise(hostKeyResult.stdout.apply(x => x.trim()))
+  const hostname = await toPromise(hostnameResult.stdout.apply(x => x.trim()))
+  const user = sshArgs.user ?? "root"
 
-  return output({
-    $meta: {
-      type: "common.server.v1",
-      identity: hostKey,
+  return makeEntityOutput({
+    entity: common.serverEntity,
+    identity: hostKey,
+    meta: {
+      title: hostname,
     },
-    endpoints,
-    hostname: hostnameResult.stdout.apply(x => x.trim()),
-    ssh: {
-      endpoints: [l3EndpointToL4(sshHost, sshArgs.port ?? 22)],
-      user: sshArgs.user ?? "root",
-      hostKey,
-      password: connection.password,
-      keyPair: sshKeyPair
-        ? sshKeyPair
-        : sshPrivateKey
-          ? sshPrivateKeyToKeyPair(sshPrivateKey)
-          : undefined,
+    value: {
+      endpoints,
+      hostname,
+      ssh: makeEntityOutput({
+        entity: ssh.connectionEntity,
+        identity: `${user}@${hostKey}`,
+        meta: {
+          title: `${user}@${hostname}`,
+        },
+        value: {
+          endpoints: [l3EndpointToL4(sshHost, sshArgs.port ?? 22)],
+          user,
+          hostKey,
+          password: connection.password,
+          keyPair: sshKeyPair
+            ? sshKeyPair
+            : sshPrivateKey
+              ? sshPrivateKeyToKeyPair(sshPrivateKey)
+              : undefined,
+        },
+      }),
     },
   })
 }

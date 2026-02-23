@@ -1,7 +1,13 @@
-import { Command, l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
+import {
+  Command,
+  l3EndpointToL4,
+  l3EndpointToString,
+  l4EndpointToString,
+  makeEntityOutput,
+} from "@highstate/common"
 import { text } from "@highstate/contract"
 import { createK8sTerminal } from "@highstate/k8s"
-import { type common, k3s } from "@highstate/library"
+import { k8s, type common, k3s } from "@highstate/library"
 import {
   fileFromString,
   forUnit,
@@ -155,8 +161,13 @@ kubeConfig.loadFromString(kubeconfig)
 const provider = new Provider(name, { kubeconfig: secret(kubeconfig) })
 const kubeSystem = core.v1.Namespace.get("kube-system", "kube-system", { provider })
 
-export default outputs({
-  k8sCluster: {
+const k8sCluster = makeEntityOutput({
+  entity: k8s.clusterEntity,
+  identity: kubeSystem.metadata.uid,
+  meta: {
+    title: name,
+  },
+  value: {
     id: kubeSystem.metadata.uid,
     connectionId: kubeSystem.metadata.uid,
     name,
@@ -176,6 +187,10 @@ export default outputs({
 
     kubeconfig: secret(kubeconfig),
   },
+})
+
+export default outputs({
+  k8sCluster,
 
   $terminals: [createK8sTerminal(kubeconfig)],
 

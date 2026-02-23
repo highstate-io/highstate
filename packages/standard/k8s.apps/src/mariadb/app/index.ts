@@ -4,6 +4,7 @@ import {
   generatePassword,
   l3EndpointToString,
   l4EndpointToString,
+  makeEntityOutput,
 } from "@highstate/common"
 import {
   Chart,
@@ -13,7 +14,7 @@ import {
   Secret,
   StatefulSet,
 } from "@highstate/k8s"
-import { k8s } from "@highstate/library"
+import { k8s, mysql } from "@highstate/library"
 import { forUnit, interpolate, type Output, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
 import { charts, createBootstrapServiceEndpoint } from "../../shared"
@@ -23,7 +24,7 @@ const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.m
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
-const rootPassword = getSecret("rootPassword", generatePassword)
+const adminPassword = getSecret("adminPassword", generatePassword)
 const backupKey = getSecret("backupKey", generateKey)
 
 const rootPasswordSecret = Secret.create(
@@ -32,7 +33,7 @@ const rootPasswordSecret = Secret.create(
     namespace,
 
     stringData: {
-      "mariadb-root-password": rootPassword,
+      "mariadb-root-password": adminPassword,
     },
   },
   { deletedWith: namespace },
@@ -140,12 +141,23 @@ const chart = new Chart(
 const endpoints = await toPromise(chart.service.endpoints)
 const workloads = await toPromise(chart.workloads)
 
-export default outputs({
-  mariadb: {
-    endpoints,
-    username: "root",
-    password: rootPassword,
+const connection = makeEntityOutput({
+  entity: mysql.connectionEntity,
+  identity: namespace.metadata.uid,
+  meta: {
+    title: args.appName,
   },
+  value: {
+    endpoints,
+    credentials: {
+      username: "root",
+      password: adminPassword,
+    },
+  },
+})
+
+export default outputs({
+  connection,
   service: chart.service.entity,
 
   $statusFields: {
@@ -168,7 +180,7 @@ export default outputs({
           icon: "simple-icons:mariadb",
           iconColor: "#f06292",
         },
-        ["mariadb", "-u", "root", interpolate`--password=${rootPassword}`],
+        ["mariadb", "-u", "root", interpolate`--password=${adminPassword}`],
       )
 
       terminals.push(terminal, statefulSet.terminal)

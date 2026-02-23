@@ -267,6 +267,7 @@ export enum HighstateSignature {
   Yaml = "c857cac5-caa6-4421-b82c-e561fbce6367",
   Id = "348d020e-0d9e-4ae7-9415-b91af99f5339",
   Ref = "6d7f9da0-9cb6-496d-b72e-cf85ee4d9cf8",
+  Secret = "240e5789-6ae4-4b22-b9d8-87169e8b4bab",
 }
 
 export const yamlValueSchema = z.object({
@@ -351,3 +352,39 @@ export const instanceStatusFieldSchema = z.object({
 
 export type InstanceStatusFieldValue = z.infer<typeof instanceStatusFieldValueSchema>
 export type InstanceStatusField = z.infer<typeof instanceStatusFieldSchema>
+
+export function secretSchema<TSchema extends z.ZodType>(
+  schema: TSchema,
+): z.ZodCodec<
+  z.ZodUnion<
+    [
+      z.ZodObject<{
+        [HighstateSignature.Secret]: z.ZodLiteral<true>
+        value: TSchema
+      }>,
+      TSchema,
+    ]
+  >,
+  z.ZodObject<{
+    [HighstateSignature.Secret]: z.ZodLiteral<true>
+    value: TSchema
+  }>
+> {
+  const secretType = z.object({
+    [HighstateSignature.Secret]: z.literal(true),
+    value: schema,
+  })
+
+  return z.codec(z.union([secretType, schema]), secretType, {
+    decode: value =>
+      typeof value === "object" && value !== null && HighstateSignature.Secret in value
+        ? (value as any)
+        : { [HighstateSignature.Secret]: true, value },
+    encode: value => value as any,
+  })
+}
+
+export type Secret<T> = {
+  [HighstateSignature.Secret]: true
+  value: T
+}

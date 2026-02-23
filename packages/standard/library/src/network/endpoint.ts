@@ -1,5 +1,12 @@
 import type { Simplify } from "type-fest"
-import { $args, defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  $args,
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { mapValues, pick } from "remeda"
 import { metadataSchema } from "../utils"
 import { addressEntity } from "./address"
@@ -47,6 +54,9 @@ export const l3EndpointEntity = defineEntity({
 
   meta: {
     color: "#4CAF50",
+    title: "L3 Endpoint",
+    icon: "mdi:network-outline",
+    iconColor: "#4CAF50",
   },
 })
 
@@ -73,6 +83,9 @@ export const l4EndpointEntity = defineEntity({
 
   meta: {
     color: "#2196F3",
+    title: "L4 Endpoint",
+    icon: "mdi:network-outline",
+    iconColor: "#2196F3",
   },
 })
 
@@ -89,6 +102,9 @@ export const l7EndpointEntity = defineEntity({
 
   meta: {
     color: "#FF9800",
+    title: "L7 Endpoint",
+    icon: "mdi:network-outline",
+    iconColor: "#FF9800",
   },
 })
 
@@ -296,13 +312,13 @@ export const endpointFilter = defineUnit({
   },
 })
 
-export type L3Endpoint = Simplify<z.infer<typeof l3EndpointEntity.schema>>
+export type L3Endpoint = Simplify<EntityValue<typeof l3EndpointEntity>>
 export type L3EndpointInput = EntityInput<typeof l3EndpointEntity>
-export type L4Endpoint = Simplify<z.infer<typeof l4EndpointEntity.schema>>
+export type L4Endpoint = Simplify<EntityValue<typeof l4EndpointEntity>>
 export type L4EndpointInput = EntityInput<typeof l4EndpointEntity>
 export type L4Protocol = z.infer<typeof l4ProtocolSchema>
 export type L4PortInfo = z.infer<typeof l4PortInfoSchema>
-export type L7Endpoint = Simplify<z.infer<typeof l7EndpointEntity.schema>>
+export type L7Endpoint = Simplify<EntityValue<typeof l7EndpointEntity>>
 export type L7EndpointInput = EntityInput<typeof l7EndpointEntity>
 export type L7AppInfo = z.infer<typeof l7AppInfoSchema>
 

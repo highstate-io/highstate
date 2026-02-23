@@ -5,6 +5,7 @@ import {
   defineUnit,
   type EntityInput,
   z,
+  type EntityValue,
 } from "@highstate/contract"
 import { l3EndpointEntity } from "../network"
 import * as ssh from "../ssh"
@@ -20,19 +21,37 @@ export const serverEntity = defineEntity({
   type: "common.server.v1",
 
   includes: {
+    /**
+     * The L3 endpoints of the server.
+     */
     endpoints: {
       entity: l3EndpointEntity,
       multiple: true,
     },
+
+    /**
+     * The SSH configuration for the server.
+     *
+     * If not specified, it will be assumed that the server is not accessible via SSH.
+     */
+    ssh: {
+      entity: ssh.connectionEntity,
+      required: false,
+    },
   },
 
   schema: z.object({
+    /**
+     * The hostname of the server.
+     */
     hostname: z.string(),
-    ssh: ssh.connectionSchema.optional(),
   }),
 
   meta: {
     color: "#009688",
+    title: "Server",
+    icon: "mdi:server",
+    iconColor: "#009688",
   },
 })
 
@@ -193,5 +212,5 @@ export const script = defineUnit({
   },
 })
 
-export type Server = z.infer<typeof serverEntity.schema>
+export type Server = EntityValue<typeof serverEntity>
 export type ServerInput = EntityInput<typeof serverEntity>

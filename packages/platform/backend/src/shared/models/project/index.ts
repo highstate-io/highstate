@@ -1,6 +1,7 @@
 export * from "./api-key"
 export * from "./artifact"
 export * from "./custom-status"
+export * from "./entity"
 export * from "./lock"
 export * from "./model"
 export * from "./operation"

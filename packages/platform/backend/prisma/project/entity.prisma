@@ -4,16 +4,14 @@
 model Entity {
     /// The CUIDv2 or CUIDv2d of the entity.
     ///
-    /// For non-anonymous entities, the ID is calculated by the backend as CUIDv2d(entityType, identity), where identity is a user-provided string value that is expected to be globally unique for each entity of the same type.
-    /// For anonymous entities, the ID is the same as its snapshot CUIDv2 which is the single snapshot of the entity.
+    /// The ID is calculated by the backend as CUIDv2d(entityType, identity), where identity is a user-provided string value that is expected to be globally unique for each entity of the same type.
     id String @id
 
     /// The type of the entity.
     type String
 
     /// The identity of the entity.
-    /// If null, the entity is considered anonymous and its ID is not deterministic.
-    identity String?
+    identity String
 
     /// The snapshots of the entity.
     snapshots EntitySnapshot[]
@@ -27,8 +25,8 @@ model EntitySnapshot {
 
     /// The metadata of the entity at the time of the snapshot.
     ///
-    /// [CommonObjectMeta]
-    meta Json
+    /// [EntityMeta]
+    meta Json?
 
     /// The content of the entity snapshot, which is opaque to the backend.
     content Json
@@ -42,8 +40,15 @@ model EntitySnapshot {
     /// The ID of the instance state produced this entity snapshot.
     stateId String
 
-    /// The name of the instance output produced this entity snapshot.
-    output String
+    /// The name of the instance outputs where this entity were referenced (including nested entities).
+    ///
+    /// ![string[]]
+    referencedOutputs Json
+
+    /// The name of the outputs that exported this entity directly.
+    ///
+    /// ![string[]]
+    exportedOutputs Json
 
     /// The time when the entity snapshot was created.
     createdAt DateTime @default(now())
@@ -64,6 +69,10 @@ model EntitySnapshot {
 
     /// The snapshots of entities that reference this entity snapshot.
     referencedBy EntitySnapshotReference[] @relation("EntitySnapshotReferencedBy")
+
+    @@index([entityId, createdAt(sort: Desc)])
+    @@index([operationId])
+    @@index([stateId, createdAt(sort: Desc)])
 }
 
 model EntitySnapshotReference {
@@ -73,11 +82,18 @@ model EntitySnapshotReference {
     /// The CUIDv2 of the referenced entity snapshot.
     toId String
 
+    /// The group of the references.
+    /// It can be either the exlicit group name provided by the entity explicit reference,
+    /// or name of the inclusion field of the parent entity for implicit references.
+    group String
+
     /// The entity snapshot that holds the reference.
     from EntitySnapshot @relation("EntitySnapshotReferences", fields: [fromId], references: [id])
 
     /// The entity snapshot that is referenced.
     to EntitySnapshot @relation("EntitySnapshotReferencedBy", fields: [toId], references: [id])
 
-    @@id([fromId, toId])
+    @@id([fromId, toId, group])
+    @@index([toId])
+    @@index([fromId])
 }

@@ -4,10 +4,12 @@ import type { OperationOptions } from "../shared"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, type MockedObject, vi } from "vitest"
 import { test } from "../test-utils"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { OperationService } from "./operation"
 
 const operationTest = test.extend<{
   pubsubManager: MockedObject<PubSubManager>
+  objectRefIndexService: MockedObject<ObjectRefIndexService>
   operationService: OperationService
 }>({
   pubsubManager: async ({}, use) => {
@@ -20,10 +22,19 @@ const operationTest = test.extend<{
     await use(pubsubManager)
   },
 
-  operationService: async ({ database, pubsubManager, logger }, use) => {
+  objectRefIndexService: async ({}, use) => {
+    const objectRefIndexService = vi.mockObject({
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ObjectRefIndexService)
+
+    await use(objectRefIndexService)
+  },
+
+  operationService: async ({ database, pubsubManager, objectRefIndexService, logger }, use) => {
     const service = new OperationService(
       database,
       pubsubManager,
+      objectRefIndexService,
       logger.child({ service: "OperationService" }),
     )
 
@@ -39,6 +50,7 @@ describe("createOperation", () => {
       projectDatabase,
       project,
       pubsubManager,
+      objectRefIndexService,
       createInstanceState,
       expect,
     }) => {
@@ -79,6 +91,8 @@ describe("createOperation", () => {
         type: "updated",
         operation,
       })
+
+      expect(objectRefIndexService.track).toHaveBeenCalledWith(project.id, [operation.id])
     },
   )
 })

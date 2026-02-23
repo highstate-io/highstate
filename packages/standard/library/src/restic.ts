@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { l3EndpointEntity, l4EndpointEntity } from "./network"
 
 export const repositoryEntity = defineEntity({
@@ -82,5 +88,5 @@ export const repository = defineUnit({
   },
 })
 
-export type Repository = z.infer<typeof repositoryEntity.schema>
+export type Repository = EntityValue<typeof repositoryEntity>
 export type RepositoryInput = EntityInput<typeof repositoryEntity>

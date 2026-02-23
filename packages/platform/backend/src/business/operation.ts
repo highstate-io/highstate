@@ -3,6 +3,7 @@ import type { Logger } from "pino"
 import type { DatabaseManager, Operation, OperationStatus, OperationUpdateInput } from "../database"
 import type { PubSubManager } from "../pubsub"
 import { ulid } from "ulid"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import {
   type OperationMeta,
   OperationNotFoundError,
@@ -14,6 +15,7 @@ export class OperationService {
   constructor(
     private readonly database: DatabaseManager,
     private readonly pubsubManager: PubSubManager,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {}
 
@@ -45,6 +47,8 @@ export class OperationService {
         startedAt: new Date(),
       },
     })
+
+    await this.objectRefIndexService.track(projectId, [operation.id])
 
     await this.pubsubManager.publish(["operation", projectId], {
       type: "updated",

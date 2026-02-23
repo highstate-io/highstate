@@ -3,7 +3,6 @@ import { z } from "zod"
 import {
   fileMetaSchema,
   HighstateSignature,
-  instanceIdSchema,
   instanceInputSchema,
   yamlValueSchema,
 } from "./instance"
@@ -40,6 +39,11 @@ export const unitConfigSchema = z.object({
   instanceId: z.string(),
 
   /**
+   * The state ID of the instance.
+   */
+  stateId: z.string(),
+
+  /**
    * The record of argument values for the unit.
    */
   args: z.record(z.string(), z.unknown()),
@@ -55,9 +59,11 @@ export const unitConfigSchema = z.object({
   invokedTriggers: triggerInvocationSchema.array(),
 
   /**
-   * The list of secret names that exists and provided to the unit.
+   * The record of secret values provided to the unit.
+   *
+   * It is stored in Pulumi stack config as a secret.
    */
-  secretNames: z.string().array(),
+  secretValues: z.record(z.string(), z.unknown()),
 
   /**
    * The base path for imports.
@@ -93,7 +99,6 @@ export function parseArgumentValue(value: unknown): unknown {
 
 export enum HighstateConfigKey {
   Config = "highstate",
-  Secrets = "highstate.secrets",
 }
 
 export const unitArtifactId = Symbol("unitArtifactId")

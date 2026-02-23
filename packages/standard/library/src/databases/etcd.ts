@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 
 /**
@@ -72,5 +78,5 @@ export const existingCluster = defineUnit({
   },
 })
 
-export type Cluster = z.infer<typeof clusterEntity.schema>
+export type Cluster = EntityValue<typeof clusterEntity>
 export type ClusterInput = EntityInput<typeof clusterEntity>

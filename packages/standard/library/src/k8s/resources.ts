@@ -1,5 +1,5 @@
 import type { Simplify, SimplifyDeep } from "type-fest"
-import { defineEntity, type EntityInput, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z, type EntityValue } from "@highstate/contract"
 
 /**
  * The generic metadata schema for Kubernetes resources.
@@ -137,27 +137,27 @@ export const secretEntity = defineEntity({
 })
 
 export type Metadata = z.infer<typeof metadataSchema>
-export type Resource = z.infer<typeof resourceEntity.schema>
+export type Resource = EntityValue<typeof resourceEntity>
 export type ResourceInput = EntityInput<typeof resourceEntity>
 
 export type NamespacedMetadata = z.infer<typeof namespacedMetadataSchema>
 
 export type NamespacedResource = SimplifyDeep<
-  z.infer<typeof namespacedResourceEntity.schema>,
+  EntityValue<typeof namespacedResourceEntity>,
   Record<string, string>
 >
 
 export type NamespacedResourceInput = EntityInput<typeof namespacedResourceEntity>
 
-export type Namespace = Simplify<z.infer<typeof namespaceEntity.schema>>
+export type Namespace = Simplify<EntityValue<typeof namespaceEntity>>
 export type NamespaceInput = EntityInput<typeof namespaceEntity>
-export type PersistentVolumeClaim = z.infer<typeof persistentVolumeClaimEntity.schema>
+export type PersistentVolumeClaim = EntityValue<typeof persistentVolumeClaimEntity>
 export type PersistentVolumeClaimInput = EntityInput<typeof persistentVolumeClaimEntity>
-export type Gateway = z.infer<typeof gatewayEntity.schema>
+export type Gateway = EntityValue<typeof gatewayEntity>
 export type GatewayInput = EntityInput<typeof gatewayEntity>
-export type Certificate = z.infer<typeof certificateEntity.schema>
+export type Certificate = EntityValue<typeof certificateEntity>
 export type CertificateInput = EntityInput<typeof certificateEntity>
-export type ConfigMap = z.infer<typeof configMapEntity.schema>
+export type ConfigMap = EntityValue<typeof configMapEntity>
 export type ConfigMapInput = EntityInput<typeof configMapEntity>
-export type Secret = z.infer<typeof secretEntity.schema>
+export type Secret = EntityValue<typeof secretEntity>
 export type SecretInput = EntityInput<typeof secretEntity>

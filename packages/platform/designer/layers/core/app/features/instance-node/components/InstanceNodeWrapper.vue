@@ -164,6 +164,7 @@ watch(
     :instance="data.instance"
     :component="component"
     :entities="libraryStore.library.entities"
+    :project-id="projectStore.projectId"
     :input-resolver-outputs="instancesStore.inputResolverOutputs"
     :input-resolver-dependent-map="instancesStore.inputResolverDependentMap"
     :is-valid-connection="canConnect"

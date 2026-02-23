@@ -29,16 +29,19 @@ export type AggregateEntitySnapshotReference = {
 export type EntitySnapshotReferenceMinAggregateOutputType = {
   fromId: string | null
   toId: string | null
+  group: string | null
 }
 
 export type EntitySnapshotReferenceMaxAggregateOutputType = {
   fromId: string | null
   toId: string | null
+  group: string | null
 }
 
 export type EntitySnapshotReferenceCountAggregateOutputType = {
   fromId: number
   toId: number
+  group: number
   _all: number
 }
 
@@ -46,16 +49,19 @@ export type EntitySnapshotReferenceCountAggregateOutputType = {
 export type EntitySnapshotReferenceMinAggregateInputType = {
   fromId?: true
   toId?: true
+  group?: true
 }
 
 export type EntitySnapshotReferenceMaxAggregateInputType = {
   fromId?: true
   toId?: true
+  group?: true
 }
 
 export type EntitySnapshotReferenceCountAggregateInputType = {
   fromId?: true
   toId?: true
+  group?: true
   _all?: true
 }
 
@@ -134,6 +140,7 @@ export type EntitySnapshotReferenceGroupByArgs<ExtArgs extends runtime.Types.Ext
 export type EntitySnapshotReferenceGroupByOutputType = {
   fromId: string
   toId: string
+  group: string
   _count: EntitySnapshotReferenceCountAggregateOutputType | null
   _min: EntitySnapshotReferenceMinAggregateOutputType | null
   _max: EntitySnapshotReferenceMaxAggregateOutputType | null
@@ -160,6 +167,7 @@ export type EntitySnapshotReferenceWhereInput = {
   NOT?: Prisma.EntitySnapshotReferenceWhereInput | Prisma.EntitySnapshotReferenceWhereInput[]
   fromId?: Prisma.StringFilter<"EntitySnapshotReference"> | string
   toId?: Prisma.StringFilter<"EntitySnapshotReference"> | string
+  group?: Prisma.StringFilter<"EntitySnapshotReference"> | string
   from?: Prisma.XOR<Prisma.EntitySnapshotScalarRelationFilter, Prisma.EntitySnapshotWhereInput>
   to?: Prisma.XOR<Prisma.EntitySnapshotScalarRelationFilter, Prisma.EntitySnapshotWhereInput>
 }
@@ -167,24 +175,27 @@ export type EntitySnapshotReferenceWhereInput = {
 export type EntitySnapshotReferenceOrderByWithRelationInput = {
   fromId?: Prisma.SortOrder
   toId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
   from?: Prisma.EntitySnapshotOrderByWithRelationInput
   to?: Prisma.EntitySnapshotOrderByWithRelationInput
 }
 
 export type EntitySnapshotReferenceWhereUniqueInput = Prisma.AtLeast<{
-  fromId_toId?: Prisma.EntitySnapshotReferenceFromIdToIdCompoundUniqueInput
+  fromId_toId_group?: Prisma.EntitySnapshotReferenceFromIdToIdGroupCompoundUniqueInput
   AND?: Prisma.EntitySnapshotReferenceWhereInput | Prisma.EntitySnapshotReferenceWhereInput[]
   OR?: Prisma.EntitySnapshotReferenceWhereInput[]
   NOT?: Prisma.EntitySnapshotReferenceWhereInput | Prisma.EntitySnapshotReferenceWhereInput[]
   fromId?: Prisma.StringFilter<"EntitySnapshotReference"> | string
   toId?: Prisma.StringFilter<"EntitySnapshotReference"> | string
+  group?: Prisma.StringFilter<"EntitySnapshotReference"> | string
   from?: Prisma.XOR<Prisma.EntitySnapshotScalarRelationFilter, Prisma.EntitySnapshotWhereInput>
   to?: Prisma.XOR<Prisma.EntitySnapshotScalarRelationFilter, Prisma.EntitySnapshotWhereInput>
-}, "fromId_toId">
+}, "fromId_toId_group">
 
 export type EntitySnapshotReferenceOrderByWithAggregationInput = {
   fromId?: Prisma.SortOrder
   toId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
   _count?: Prisma.EntitySnapshotReferenceCountOrderByAggregateInput
   _max?: Prisma.EntitySnapshotReferenceMaxOrderByAggregateInput
   _min?: Prisma.EntitySnapshotReferenceMinOrderByAggregateInput
@@ -196,9 +207,11 @@ export type EntitySnapshotReferenceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.EntitySnapshotReferenceScalarWhereWithAggregatesInput | Prisma.EntitySnapshotReferenceScalarWhereWithAggregatesInput[]
   fromId?: Prisma.StringWithAggregatesFilter<"EntitySnapshotReference"> | string
   toId?: Prisma.StringWithAggregatesFilter<"EntitySnapshotReference"> | string
+  group?: Prisma.StringWithAggregatesFilter<"EntitySnapshotReference"> | string
 }
 
 export type EntitySnapshotReferenceCreateInput = {
+  group: string
   from: Prisma.EntitySnapshotCreateNestedOneWithoutReferencesInput
   to: Prisma.EntitySnapshotCreateNestedOneWithoutReferencedByInput
 }
@@ -206,9 +219,11 @@ export type EntitySnapshotReferenceCreateInput = {
 export type EntitySnapshotReferenceUncheckedCreateInput = {
   fromId: string
   toId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceUpdateInput = {
+  group?: Prisma.StringFieldUpdateOperationsInput | string
   from?: Prisma.EntitySnapshotUpdateOneRequiredWithoutReferencesNestedInput
   to?: Prisma.EntitySnapshotUpdateOneRequiredWithoutReferencedByNestedInput
 }
@@ -216,20 +231,23 @@ export type EntitySnapshotReferenceUpdateInput = {
 export type EntitySnapshotReferenceUncheckedUpdateInput = {
   fromId?: Prisma.StringFieldUpdateOperationsInput | string
   toId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntitySnapshotReferenceCreateManyInput = {
   fromId: string
   toId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceUpdateManyMutationInput = {
-
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntitySnapshotReferenceUncheckedUpdateManyInput = {
   fromId?: Prisma.StringFieldUpdateOperationsInput | string
   toId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntitySnapshotReferenceListRelationFilter = {
@@ -242,24 +260,28 @@ export type EntitySnapshotReferenceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type EntitySnapshotReferenceFromIdToIdCompoundUniqueInput = {
+export type EntitySnapshotReferenceFromIdToIdGroupCompoundUniqueInput = {
   fromId: string
   toId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceCountOrderByAggregateInput = {
   fromId?: Prisma.SortOrder
   toId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
 }
 
 export type EntitySnapshotReferenceMaxOrderByAggregateInput = {
   fromId?: Prisma.SortOrder
   toId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
 }
 
 export type EntitySnapshotReferenceMinOrderByAggregateInput = {
   fromId?: Prisma.SortOrder
   toId?: Prisma.SortOrder
+  group?: Prisma.SortOrder
 }
 
 export type EntitySnapshotReferenceCreateNestedManyWithoutFromInput = {
@@ -347,11 +369,13 @@ export type EntitySnapshotReferenceUncheckedUpdateManyWithoutToNestedInput = {
 }
 
 export type EntitySnapshotReferenceCreateWithoutFromInput = {
+  group: string
   to: Prisma.EntitySnapshotCreateNestedOneWithoutReferencedByInput
 }
 
 export type EntitySnapshotReferenceUncheckedCreateWithoutFromInput = {
   toId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceCreateOrConnectWithoutFromInput = {
@@ -364,11 +388,13 @@ export type EntitySnapshotReferenceCreateManyFromInputEnvelope = {
 }
 
 export type EntitySnapshotReferenceCreateWithoutToInput = {
+  group: string
   from: Prisma.EntitySnapshotCreateNestedOneWithoutReferencesInput
 }
 
 export type EntitySnapshotReferenceUncheckedCreateWithoutToInput = {
   fromId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceCreateOrConnectWithoutToInput = {
@@ -402,6 +428,7 @@ export type EntitySnapshotReferenceScalarWhereInput = {
   NOT?: Prisma.EntitySnapshotReferenceScalarWhereInput | Prisma.EntitySnapshotReferenceScalarWhereInput[]
   fromId?: Prisma.StringFilter<"EntitySnapshotReference"> | string
   toId?: Prisma.StringFilter<"EntitySnapshotReference"> | string
+  group?: Prisma.StringFilter<"EntitySnapshotReference"> | string
 }
 
 export type EntitySnapshotReferenceUpsertWithWhereUniqueWithoutToInput = {
@@ -422,34 +449,42 @@ export type EntitySnapshotReferenceUpdateManyWithWhereWithoutToInput = {
 
 export type EntitySnapshotReferenceCreateManyFromInput = {
   toId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceCreateManyToInput = {
   fromId: string
+  group: string
 }
 
 export type EntitySnapshotReferenceUpdateWithoutFromInput = {
+  group?: Prisma.StringFieldUpdateOperationsInput | string
   to?: Prisma.EntitySnapshotUpdateOneRequiredWithoutReferencedByNestedInput
 }
 
 export type EntitySnapshotReferenceUncheckedUpdateWithoutFromInput = {
   toId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntitySnapshotReferenceUncheckedUpdateManyWithoutFromInput = {
   toId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntitySnapshotReferenceUpdateWithoutToInput = {
+  group?: Prisma.StringFieldUpdateOperationsInput | string
   from?: Prisma.EntitySnapshotUpdateOneRequiredWithoutReferencesNestedInput
 }
 
 export type EntitySnapshotReferenceUncheckedUpdateWithoutToInput = {
   fromId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntitySnapshotReferenceUncheckedUpdateManyWithoutToInput = {
   fromId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -457,6 +492,7 @@ export type EntitySnapshotReferenceUncheckedUpdateManyWithoutToInput = {
 export type EntitySnapshotReferenceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   fromId?: boolean
   toId?: boolean
+  group?: boolean
   from?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
   to?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["entitySnapshotReference"]>
@@ -464,6 +500,7 @@ export type EntitySnapshotReferenceSelect<ExtArgs extends runtime.Types.Extensio
 export type EntitySnapshotReferenceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   fromId?: boolean
   toId?: boolean
+  group?: boolean
   from?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
   to?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["entitySnapshotReference"]>
@@ -471,6 +508,7 @@ export type EntitySnapshotReferenceSelectCreateManyAndReturn<ExtArgs extends run
 export type EntitySnapshotReferenceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   fromId?: boolean
   toId?: boolean
+  group?: boolean
   from?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
   to?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["entitySnapshotReference"]>
@@ -478,9 +516,10 @@ export type EntitySnapshotReferenceSelectUpdateManyAndReturn<ExtArgs extends run
 export type EntitySnapshotReferenceSelectScalar = {
   fromId?: boolean
   toId?: boolean
+  group?: boolean
 }
 
-export type EntitySnapshotReferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"fromId" | "toId", ExtArgs["result"]["entitySnapshotReference"]>
+export type EntitySnapshotReferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"fromId" | "toId" | "group", ExtArgs["result"]["entitySnapshotReference"]>
 export type EntitySnapshotReferenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   from?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
   to?: boolean | Prisma.EntitySnapshotDefaultArgs<ExtArgs>
@@ -515,6 +554,12 @@ export type $EntitySnapshotReferencePayload<ExtArgs extends runtime.Types.Extens
      * The CUIDv2 of the referenced entity snapshot.
      */
     toId: string
+    /**
+     * The group of the references.
+     * It can be either the exlicit group name provided by the entity explicit reference,
+     * or name of the inclusion field of the parent entity for implicit references.
+     */
+    group: string
   }, ExtArgs["result"]["entitySnapshotReference"]>
   composites: {}
 }
@@ -942,6 +987,7 @@ export interface Prisma__EntitySnapshotReferenceClient<T, Null = never, ExtArgs 
 export interface EntitySnapshotReferenceFieldRefs {
   readonly fromId: Prisma.FieldRef<"EntitySnapshotReference", 'String'>
   readonly toId: Prisma.FieldRef<"EntitySnapshotReference", 'String'>
+  readonly group: Prisma.FieldRef<"EntitySnapshotReference", 'String'>
 }
     
 

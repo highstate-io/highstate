@@ -41,7 +41,9 @@ export class WorkerService {
     projectId: string,
     stateId: string,
     unitWorkers: UnitWorker[],
-  ): Promise<void> {
+  ): Promise<string[]> {
+    const objectIds = new Set<string>()
+
     // parse images first
     const parsedWorkers = unitWorkers.map(w => {
       const digest = extractDigestFromImage(w.image)
@@ -66,6 +68,13 @@ export class WorkerService {
     for (const worker of parsedWorkers) {
       const workerRecord = await this.ensureWorker(tx, worker.identity)
       const workerVersionRecord = await this.ensureWorkerVersion(tx, workerRecord, worker.digest)
+
+      objectIds.add(workerRecord.id)
+      objectIds.add(workerRecord.serviceAccountId)
+      objectIds.add(workerVersionRecord.id)
+      if (workerVersionRecord.apiKeyId) {
+        objectIds.add(workerVersionRecord.apiKeyId)
+      }
 
       const existing = existingRegistrations.find(r => r.name === worker.name)
       const stringifiedParams = JSON.stringify(worker.params)
@@ -145,6 +154,8 @@ export class WorkerService {
     void this.workerManager.syncWorkers(projectId)
 
     logger.info(`updated worker registrations for instance state "%s"`, stateId)
+
+    return Array.from(objectIds)
   }
 
   private async ensureWorker(tx: ProjectTransaction, identity: string): Promise<Worker> {

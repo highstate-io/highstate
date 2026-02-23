@@ -4,9 +4,11 @@ import {
   $outputs,
   defineEntity,
   defineUnit,
+  secretSchema,
   type EntityInput,
   genericNameSchema,
   z,
+  type EntityValue,
 } from "@highstate/contract"
 import { pick } from "remeda"
 import { fileEntity } from "./common"
@@ -117,11 +119,63 @@ export const peerEntity = defineEntity({
 
   includes: {
     /**
+     * The network to which the WireGuard peer belongs.
+     *
+     * Holds shared configuration for all identities, peers, and nodes.
+     */
+    network: {
+      entity: networkEntity,
+      required: false,
+    },
+
+    /**
+     * The addresses of the WireGuard interface.
+     */
+    addresses: {
+      entity: addressEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The list of DNS servers to setup for the interface connected to the WireGuard peer.
+     */
+    dns: {
+      entity: addressEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The allowed subnets of the WireGuard peer.
+     *
+     * Will be used to configure the `AllowedIPs` of the peer.
+     */
+    allowedSubnets: {
+      entity: subnetEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
      * The endpoints where the WireGuard peer can be reached.
      */
     endpoints: {
       entity: l4EndpointEntity,
       multiple: true,
+      required: false,
+    },
+
+    /**
+     * The peers which are relayed through this peer.
+     *
+     * All their allowed IPs will be added to this peer's allowed IPs
+     * and will be used to setup routing for all other peers except the relayed ones.
+     */
+    relayedPeers: {
+      entity: () => peerEntity,
+      multiple: true,
+      required: false,
     },
   },
 
@@ -130,25 +184,6 @@ export const peerEntity = defineEntity({
      * The name of the WireGuard peer.
      */
     name: genericNameSchema,
-
-    /**
-     * The network to which the WireGuard peer belongs.
-     *
-     * Holds shared configuration for all identities, peers, and nodes.
-     */
-    network: networkEntity.schema.optional(),
-
-    /**
-     * The addresses of the WireGuard interface.
-     */
-    addresses: addressEntity.schema.array(),
-
-    /**
-     * The allowed subnets of the WireGuard peer.
-     *
-     * Will be used to configure the `AllowedIPs` of the peer.
-     */
-    allowedSubnets: subnetEntity.schema.array(),
 
     /**
      * The public key of the WireGuard peer.
@@ -162,19 +197,14 @@ export const peerEntity = defineEntity({
      *
      * Will be ignored if both peers have `presharedKeyPart` set.
      */
-    presharedKey: z.string().optional(),
+    presharedKey: secretSchema(z.string()).optional(),
 
     /**
      * The pre-shared key part of the WireGuard peer.
      *
      * If both peers have `presharedKeyPart` set, their `presharedKey` will be calculated as sha256 of the two parts.
      */
-    presharedKeyPart: z.string().optional(),
-
-    /**
-     * The list of DNS servers to setup for the interface connected to the WireGuard peer.
-     */
-    dns: addressEntity.schema.array(),
+    presharedKeyPart: secretSchema(z.string()).optional(),
 
     /**
      * The port where the WireGuard peer is listening.
@@ -198,20 +228,13 @@ export const peerEntity = defineEntity({
      * Will be used in the config referencing this peer (not the peer itself).
      */
     feedMetadata: feedMetadataSchema.optional(),
-
-    /**
-     * The peers which are relayed through this peer.
-     *
-     * All their allowed IPs will be added to this peer's allowed IPs
-     * and will be used to setup routing for all other peers except the relayed ones.
-     */
-    get relayedPeers() {
-      return peerEntity.schema.array().optional()
-    },
   }),
 
   meta: {
     color: "#673AB7",
+    icon: "simple-icons:wireguard",
+    secondaryIcon: "mdi:badge-account-horizontal",
+    iconColor: "#88171a",
   },
 })
 
@@ -229,11 +252,14 @@ export const identityEntity = defineEntity({
     /**
      * The private key of the WireGuard identity.
      */
-    privateKey: z.string(),
+    privateKey: secretSchema(z.string()),
   }),
 
   meta: {
     color: "#F44336",
+    icon: "simple-icons:wireguard",
+    secondaryIcon: "mdi:account",
+    iconColor: "#88171a",
   },
 })
 
@@ -257,11 +283,11 @@ export const configEntity = defineEntity({
   }),
 })
 
-export type Network = z.infer<typeof networkEntity.schema>
-export type Identity = z.infer<typeof identityEntity.schema>
-export type Peer = z.infer<typeof peerEntity.schema>
+export type Network = EntityValue<typeof networkEntity>
+export type Identity = EntityValue<typeof identityEntity>
+export type Peer = EntityValue<typeof peerEntity>
 export type NodeExposePolicy = z.infer<typeof nodeExposePolicySchema>
-export type Config = z.infer<typeof configEntity.schema>
+export type Config = EntityValue<typeof configEntity>
 
 export type NetworkInput = EntityInput<typeof networkEntity>
 export type IdentityInput = EntityInput<typeof identityEntity>

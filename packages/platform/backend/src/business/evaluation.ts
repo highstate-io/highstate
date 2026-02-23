@@ -4,6 +4,7 @@ import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { isNonNullish } from "remeda"
 import { renderTree, type TreeNode } from "../common"
 import {
@@ -30,6 +31,7 @@ export class ProjectEvaluationSubsystem {
     private readonly projectModelService: ProjectModelService,
     private readonly pubsubManager: PubSubManager,
     private readonly projectUnlockService: ProjectUnlockService,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {
     this.projectUnlockService.registerUnlockTask(
@@ -135,7 +137,7 @@ export class ProjectEvaluationSubsystem {
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
 
-    await database.$transaction(async tx => {
+    const { stateIds } = await database.$transaction(async tx => {
       const previousVirtualStates = await tx.instanceState.findMany({
         where: { source: "virtual" },
         select: {
@@ -288,7 +290,13 @@ export class ProjectEvaluationSubsystem {
 
         deletedGhostInstanceIds: resolvedGhostInstanceIds,
       })
+
+      return { stateIds: Array.from(instanceIdToStateMap.values()).map(state => state.id) }
     })
+
+    if (stateIds.length > 0) {
+      await this.objectRefIndexService.track(projectId, stateIds)
+    }
   }
 
   private async trackUnlockedProject(projectId: string): Promise<void> {

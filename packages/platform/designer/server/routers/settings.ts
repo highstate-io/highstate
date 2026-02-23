@@ -4,6 +4,7 @@ import {
   apiKeyQuerySchema,
   artifactQuerySchema,
   collectionQuerySchema,
+  entityQuerySchema,
   pageQuerySchema,
   secretQuerySchema,
   serviceAccountQuerySchema,
@@ -163,6 +164,173 @@ export const settingsRouter = router({
     )
     .query(async ({ input, ctx }) => {
       return await ctx.settingsService.queryApiKeys(input.projectId, input.query)
+    }),
+
+  queryEntities: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        query: entityQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntities(input.projectId, input.query)
+    }),
+
+  getEntityDetails: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        entityId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.getEntityDetails(input.projectId, input.entityId)
+    }),
+
+  getEntitySnapshotDetails: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        snapshotId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const details = await ctx.settingsService.getEntitySnapshotDetails(
+        input.projectId,
+        input.snapshotId,
+      )
+
+      if (!details) {
+        return null
+      }
+
+      const project = await ctx.projectService.getProjectOrThrow(input.projectId)
+      const library = await ctx.libraryBackend.loadLibrary(project.libraryId)
+
+      const reconstructed = await (async () => {
+        try {
+          return await ctx.entitySnapshotService.reconstructSnapshotContent(
+            input.projectId,
+            input.snapshotId,
+            library,
+          )
+        } catch {
+          return null
+        }
+      })()
+
+      if (!reconstructed) {
+        return details
+      }
+
+      return {
+        ...details,
+        snapshot: {
+          ...details.snapshot,
+          content: reconstructed,
+        },
+      }
+    }),
+
+  queryEntitySnapshotsForEntity: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        entityId: z.string(),
+        excludeSnapshotId: z.string().optional(),
+        query: collectionQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntitySnapshotsForEntity(
+        input.projectId,
+        input.entityId,
+        input.query,
+        input.excludeSnapshotId,
+      )
+    }),
+
+  queryEntitySnapshotsForInstanceOperation: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        stateId: z.string(),
+        operationId: z.string(),
+        query: collectionQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntitySnapshotsForInstanceOperation(
+        input.projectId,
+        input.stateId,
+        input.operationId,
+        input.query,
+      )
+    }),
+
+  queryEntityOutgoingReferences: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        entityId: z.string(),
+        query: collectionQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntityOutgoingReferences(
+        input.projectId,
+        input.entityId,
+        input.query,
+      )
+    }),
+
+  queryEntitySnapshotOutgoingReferences: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        snapshotId: z.string(),
+        query: collectionQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntitySnapshotOutgoingReferences(
+        input.projectId,
+        input.snapshotId,
+        input.query,
+      )
+    }),
+
+  queryEntityIncomingReferences: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        entityId: z.string(),
+        query: collectionQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntityIncomingReferences(
+        input.projectId,
+        input.entityId,
+        input.query,
+      )
+    }),
+
+  queryEntitySnapshotIncomingReferences: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        snapshotId: z.string(),
+        query: collectionQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryEntitySnapshotIncomingReferences(
+        input.projectId,
+        input.snapshotId,
+        input.query,
+      )
     }),
 
   getTerminalDetails: publicProcedure

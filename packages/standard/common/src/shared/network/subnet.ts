@@ -4,6 +4,7 @@ import { type InputArray, toPromise } from "@highstate/pulumi"
 import { filter, isNonNullish, map, pipe, uniqueBy } from "remeda"
 import { doesAddressBelongToSubnet } from "./address"
 import { ipToString, type ParsedCidr, parseCidr, parseIp, subnetBaseFromCidr } from "./ip"
+import { makeEntity } from "../utils"
 
 export type InputSubnet = network.Subnet | network.Address | string
 
@@ -23,11 +24,15 @@ export function parseSubnet(subnet: InputSubnet): network.Subnet {
   if (check(network.addressEntity.schema, subnet)) {
     const prefixLength = subnet.type === "ipv4" ? 32 : 128
 
-    const result: network.Subnet = {
-      type: subnet.type,
-      baseAddress: subnet.value,
-      prefixLength,
-    }
+    const result = makeEntity({
+      entity: network.subnetEntity,
+      identity: `${subnet.value}/${prefixLength}`,
+      value: {
+        type: subnet.type,
+        baseAddress: subnet.value,
+        prefixLength,
+      },
+    })
 
     const validated = network.subnetEntity.schema.safeParse(result)
     if (!validated.success) {
@@ -56,11 +61,15 @@ export function parseSubnet(subnet: InputSubnet): network.Subnet {
   const subnetBase = subnetBaseFromCidr(parsed)
   const baseAddress = ipToString(parsed.type, subnetBase)
 
-  const result: network.Subnet = {
-    type: parsed.type,
-    baseAddress,
-    prefixLength: parsed.prefixLength,
-  }
+  const result = makeEntity({
+    entity: network.subnetEntity,
+    identity: `${baseAddress}/${parsed.prefixLength}`,
+    value: {
+      type: parsed.type,
+      baseAddress,
+      prefixLength: parsed.prefixLength,
+    },
+  })
 
   const validated = network.subnetEntity.schema.safeParse(result)
   if (!validated.success) {

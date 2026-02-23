@@ -38,7 +38,7 @@
     "@highstate/contract": "workspace:*",
     "@inquirer/prompts": "^7.8.6",
     "@msgpack/msgpack": "^3.1.2",
-    "@pulumi/pulumi": "3.198.0",
+    "@pulumi/pulumi": "3.220.0",
     "age-encryption": "^0.2.4",
     "ajv": "^8.17.1",
     "clipanion": "^4.0.0-rc.4",

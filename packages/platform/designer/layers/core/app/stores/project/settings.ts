@@ -97,6 +97,9 @@ export const useProjectSettingsStore = defineMultiStore({
       const apiKeys = useSettingsQuery(query =>
         $client.settings.queryApiKeys.query({ projectId, query }),
       )
+      const entities = useSettingsQuery(query =>
+        $client.settings.queryEntities.query({ projectId, query }),
+      )
       const unlockMethods = useSettingsQuery(query =>
         $client.settings.queryUnlockMethods.query({ projectId, query }),
       )
@@ -149,6 +152,20 @@ export const useProjectSettingsStore = defineMultiStore({
         })
       }
 
+      const getEntityDetails = async (entityId: string) => {
+        return await $client.settings.getEntityDetails.query({
+          projectId,
+          entityId,
+        })
+      }
+
+      const getEntitySnapshotDetails = async (snapshotId: string) => {
+        return await $client.settings.getEntitySnapshotDetails.query({
+          projectId,
+          snapshotId,
+        })
+      }
+
       const getPageDetails = async (pageId: string) => {
         return await $client.settings.getPageDetails.query({
           projectId,
@@ -190,6 +207,62 @@ export const useProjectSettingsStore = defineMultiStore({
           unlockMethodId,
         })
       }
+
+      const outgoingReferencesForEntity = (entityId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntityOutgoingReferences.query({
+            projectId,
+            entityId,
+            query,
+          }),
+        )
+
+      const outgoingReferencesForEntitySnapshot = (snapshotId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotOutgoingReferences.query({
+            projectId,
+            snapshotId,
+            query,
+          }),
+        )
+
+      const incomingReferencesForEntity = (entityId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntityIncomingReferences.query({
+            projectId,
+            entityId,
+            query,
+          }),
+        )
+
+      const incomingReferencesForEntitySnapshot = (snapshotId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotIncomingReferences.query({
+            projectId,
+            snapshotId,
+            query,
+          }),
+        )
+
+      const snapshotsForEntity = (entityId: string, excludeSnapshotId?: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotsForEntity.query({
+            projectId,
+            entityId,
+            excludeSnapshotId,
+            query,
+          }),
+        )
+
+      const entitySnapshotsForInstanceOperation = (stateId: string, operationId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotsForInstanceOperation.query({
+            projectId,
+            stateId,
+            operationId,
+            query,
+          }),
+        )
 
       const sessionsForTerminal = (terminalId: string) =>
         useSettingsQuery(query =>
@@ -297,6 +370,7 @@ export const useProjectSettingsStore = defineMultiStore({
         workers,
         serviceAccounts,
         apiKeys,
+        entities,
         unlockMethods,
         addUnlockMethod,
         removeUnlockMethod,
@@ -305,12 +379,20 @@ export const useProjectSettingsStore = defineMultiStore({
         getApiKeyDetails,
         getWorkerDetails,
         getWorkerVersionDetails,
+        getEntityDetails,
+        getEntitySnapshotDetails,
         getPageDetails,
         getSecretDetails,
         getArtifactDetails,
         getOperationDetails,
         getTriggerDetails,
         getUnlockMethodDetails,
+        outgoingReferencesForEntity,
+        outgoingReferencesForEntitySnapshot,
+        incomingReferencesForEntity,
+        incomingReferencesForEntitySnapshot,
+        snapshotsForEntity,
+        entitySnapshotsForInstanceOperation,
         sessionsForTerminal,
         apiKeysForServiceAccount,
         terminalsForServiceAccount,

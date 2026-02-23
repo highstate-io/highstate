@@ -10,6 +10,7 @@ import {
   PagesTable,
   TriggersTable,
   ArtifactsTable,
+  EntitySnapshotsTable,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { PreviewCanvas } from "#layers/core/app/features/canvas"
@@ -79,11 +80,19 @@ const pages = settingsStore.pagesForState(params.stateId)
 const triggers = settingsStore.triggersForState(params.stateId)
 const artifacts = settingsStore.artifactsForState(params.stateId)
 
+const lastOperationId = stateStore.instanceStates.get(instanceId)?.lastOperationState?.operationId
+const entitySnapshots = lastOperationId
+  ? settingsStore.entitySnapshotsForInstanceOperation(params.stateId, lastOperationId)
+  : null
+
 void terminals.load()
 void secrets.load()
 void pages.load()
 void triggers.load()
 void artifacts.load()
+if (entitySnapshots) {
+  void entitySnapshots.load()
+}
 
 // headers removed - now handled by table components
 </script>
@@ -234,6 +243,24 @@ void artifacts.load()
           :project-id="params.projectId"
           :data="artifacts.data.value"
           :loading="artifacts.isLoading.value"
+          hide-header
+        />
+      </RelatedDataPanel>
+
+      <RelatedDataPanel
+        v-if="entitySnapshots"
+        title="Entities"
+        icon="mdi-database"
+        :count="entitySnapshots.data.value.total"
+      >
+        <EntitySnapshotsTable
+          v-model:search="entitySnapshots.search.value"
+          v-model:sort-by="entitySnapshots.sortBy.value"
+          v-model:page="entitySnapshots.page.value"
+          v-model:items-per-page="entitySnapshots.itemsPerPage.value"
+          :project-id="params.projectId"
+          :data="entitySnapshots.data.value"
+          :loading="entitySnapshots.isLoading.value"
           hide-header
         />
       </RelatedDataPanel>

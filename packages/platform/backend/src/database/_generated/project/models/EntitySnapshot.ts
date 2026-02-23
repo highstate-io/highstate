@@ -32,7 +32,6 @@ export type EntitySnapshotMinAggregateOutputType = {
   entityId: string | null
   operationId: string | null
   stateId: string | null
-  output: string | null
   createdAt: Date | null
 }
 
@@ -41,7 +40,6 @@ export type EntitySnapshotMaxAggregateOutputType = {
   entityId: string | null
   operationId: string | null
   stateId: string | null
-  output: string | null
   createdAt: Date | null
 }
 
@@ -52,7 +50,8 @@ export type EntitySnapshotCountAggregateOutputType = {
   entityId: number
   operationId: number
   stateId: number
-  output: number
+  referencedOutputs: number
+  exportedOutputs: number
   createdAt: number
   _all: number
 }
@@ -63,7 +62,6 @@ export type EntitySnapshotMinAggregateInputType = {
   entityId?: true
   operationId?: true
   stateId?: true
-  output?: true
   createdAt?: true
 }
 
@@ -72,7 +70,6 @@ export type EntitySnapshotMaxAggregateInputType = {
   entityId?: true
   operationId?: true
   stateId?: true
-  output?: true
   createdAt?: true
 }
 
@@ -83,7 +80,8 @@ export type EntitySnapshotCountAggregateInputType = {
   entityId?: true
   operationId?: true
   stateId?: true
-  output?: true
+  referencedOutputs?: true
+  exportedOutputs?: true
   createdAt?: true
   _all?: true
 }
@@ -162,12 +160,13 @@ export type EntitySnapshotGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type EntitySnapshotGroupByOutputType = {
   id: string
-  meta:PrismaJson.CommonObjectMeta
+  meta:PrismaJson.EntityMeta | null
   content:unknown
   entityId: string
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt: Date
   _count: EntitySnapshotCountAggregateOutputType | null
   _min: EntitySnapshotMinAggregateOutputType | null
@@ -194,12 +193,13 @@ export type EntitySnapshotWhereInput = {
   OR?: Prisma.EntitySnapshotWhereInput[]
   NOT?: Prisma.EntitySnapshotWhereInput | Prisma.EntitySnapshotWhereInput[]
   id?: Prisma.StringFilter<"EntitySnapshot"> | string
-  meta?: Prisma.JsonFilter<"EntitySnapshot">
+  meta?: Prisma.JsonNullableFilter<"EntitySnapshot">
   content?: Prisma.JsonFilter<"EntitySnapshot">
   entityId?: Prisma.StringFilter<"EntitySnapshot"> | string
   operationId?: Prisma.StringFilter<"EntitySnapshot"> | string
   stateId?: Prisma.StringFilter<"EntitySnapshot"> | string
-  output?: Prisma.StringFilter<"EntitySnapshot"> | string
+  referencedOutputs?: Prisma.JsonFilter<"EntitySnapshot">
+  exportedOutputs?: Prisma.JsonFilter<"EntitySnapshot">
   createdAt?: Prisma.DateTimeFilter<"EntitySnapshot"> | Date | string
   entity?: Prisma.XOR<Prisma.EntityScalarRelationFilter, Prisma.EntityWhereInput>
   operation?: Prisma.XOR<Prisma.OperationScalarRelationFilter, Prisma.OperationWhereInput>
@@ -210,12 +210,13 @@ export type EntitySnapshotWhereInput = {
 
 export type EntitySnapshotOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  meta?: Prisma.SortOrder
+  meta?: Prisma.SortOrderInput | Prisma.SortOrder
   content?: Prisma.SortOrder
   entityId?: Prisma.SortOrder
   operationId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
-  output?: Prisma.SortOrder
+  referencedOutputs?: Prisma.SortOrder
+  exportedOutputs?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   entity?: Prisma.EntityOrderByWithRelationInput
   operation?: Prisma.OperationOrderByWithRelationInput
@@ -229,12 +230,13 @@ export type EntitySnapshotWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.EntitySnapshotWhereInput | Prisma.EntitySnapshotWhereInput[]
   OR?: Prisma.EntitySnapshotWhereInput[]
   NOT?: Prisma.EntitySnapshotWhereInput | Prisma.EntitySnapshotWhereInput[]
-  meta?: Prisma.JsonFilter<"EntitySnapshot">
+  meta?: Prisma.JsonNullableFilter<"EntitySnapshot">
   content?: Prisma.JsonFilter<"EntitySnapshot">
   entityId?: Prisma.StringFilter<"EntitySnapshot"> | string
   operationId?: Prisma.StringFilter<"EntitySnapshot"> | string
   stateId?: Prisma.StringFilter<"EntitySnapshot"> | string
-  output?: Prisma.StringFilter<"EntitySnapshot"> | string
+  referencedOutputs?: Prisma.JsonFilter<"EntitySnapshot">
+  exportedOutputs?: Prisma.JsonFilter<"EntitySnapshot">
   createdAt?: Prisma.DateTimeFilter<"EntitySnapshot"> | Date | string
   entity?: Prisma.XOR<Prisma.EntityScalarRelationFilter, Prisma.EntityWhereInput>
   operation?: Prisma.XOR<Prisma.OperationScalarRelationFilter, Prisma.OperationWhereInput>
@@ -245,12 +247,13 @@ export type EntitySnapshotWhereUniqueInput = Prisma.AtLeast<{
 
 export type EntitySnapshotOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  meta?: Prisma.SortOrder
+  meta?: Prisma.SortOrderInput | Prisma.SortOrder
   content?: Prisma.SortOrder
   entityId?: Prisma.SortOrder
   operationId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
-  output?: Prisma.SortOrder
+  referencedOutputs?: Prisma.SortOrder
+  exportedOutputs?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.EntitySnapshotCountOrderByAggregateInput
   _max?: Prisma.EntitySnapshotMaxOrderByAggregateInput
@@ -262,20 +265,22 @@ export type EntitySnapshotScalarWhereWithAggregatesInput = {
   OR?: Prisma.EntitySnapshotScalarWhereWithAggregatesInput[]
   NOT?: Prisma.EntitySnapshotScalarWhereWithAggregatesInput | Prisma.EntitySnapshotScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"EntitySnapshot"> | string
-  meta?: Prisma.JsonWithAggregatesFilter<"EntitySnapshot">
+  meta?: Prisma.JsonNullableWithAggregatesFilter<"EntitySnapshot">
   content?: Prisma.JsonWithAggregatesFilter<"EntitySnapshot">
   entityId?: Prisma.StringWithAggregatesFilter<"EntitySnapshot"> | string
   operationId?: Prisma.StringWithAggregatesFilter<"EntitySnapshot"> | string
   stateId?: Prisma.StringWithAggregatesFilter<"EntitySnapshot"> | string
-  output?: Prisma.StringWithAggregatesFilter<"EntitySnapshot"> | string
+  referencedOutputs?: Prisma.JsonWithAggregatesFilter<"EntitySnapshot">
+  exportedOutputs?: Prisma.JsonWithAggregatesFilter<"EntitySnapshot">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"EntitySnapshot"> | Date | string
 }
 
 export type EntitySnapshotCreateInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   entity: Prisma.EntityCreateNestedOneWithoutSnapshotsInput
   operation: Prisma.OperationCreateNestedOneWithoutEntitySnapshotsInput
@@ -286,12 +291,13 @@ export type EntitySnapshotCreateInput = {
 
 export type EntitySnapshotUncheckedCreateInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutFromInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutToInput
@@ -299,9 +305,10 @@ export type EntitySnapshotUncheckedCreateInput = {
 
 export type EntitySnapshotUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entity?: Prisma.EntityUpdateOneRequiredWithoutSnapshotsNestedInput
   operation?: Prisma.OperationUpdateOneRequiredWithoutEntitySnapshotsNestedInput
@@ -312,12 +319,13 @@ export type EntitySnapshotUpdateInput = {
 
 export type EntitySnapshotUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutFromNestedInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutToNestedInput
@@ -325,31 +333,34 @@ export type EntitySnapshotUncheckedUpdateInput = {
 
 export type EntitySnapshotCreateManyInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
 }
 
 export type EntitySnapshotUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EntitySnapshotUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -370,7 +381,8 @@ export type EntitySnapshotCountOrderByAggregateInput = {
   entityId?: Prisma.SortOrder
   operationId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
-  output?: Prisma.SortOrder
+  referencedOutputs?: Prisma.SortOrder
+  exportedOutputs?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -379,7 +391,6 @@ export type EntitySnapshotMaxOrderByAggregateInput = {
   entityId?: Prisma.SortOrder
   operationId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
-  output?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -388,7 +399,6 @@ export type EntitySnapshotMinOrderByAggregateInput = {
   entityId?: Prisma.SortOrder
   operationId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
-  output?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -553,9 +563,10 @@ export type EntitySnapshotUncheckedUpdateManyWithoutOperationNestedInput = {
 
 export type EntitySnapshotCreateWithoutEntityInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   operation: Prisma.OperationCreateNestedOneWithoutEntitySnapshotsInput
   state: Prisma.InstanceStateCreateNestedOneWithoutEntitySnapshotsInput
@@ -565,11 +576,12 @@ export type EntitySnapshotCreateWithoutEntityInput = {
 
 export type EntitySnapshotUncheckedCreateWithoutEntityInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutFromInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutToInput
@@ -605,20 +617,22 @@ export type EntitySnapshotScalarWhereInput = {
   OR?: Prisma.EntitySnapshotScalarWhereInput[]
   NOT?: Prisma.EntitySnapshotScalarWhereInput | Prisma.EntitySnapshotScalarWhereInput[]
   id?: Prisma.StringFilter<"EntitySnapshot"> | string
-  meta?: Prisma.JsonFilter<"EntitySnapshot">
+  meta?: Prisma.JsonNullableFilter<"EntitySnapshot">
   content?: Prisma.JsonFilter<"EntitySnapshot">
   entityId?: Prisma.StringFilter<"EntitySnapshot"> | string
   operationId?: Prisma.StringFilter<"EntitySnapshot"> | string
   stateId?: Prisma.StringFilter<"EntitySnapshot"> | string
-  output?: Prisma.StringFilter<"EntitySnapshot"> | string
+  referencedOutputs?: Prisma.JsonFilter<"EntitySnapshot">
+  exportedOutputs?: Prisma.JsonFilter<"EntitySnapshot">
   createdAt?: Prisma.DateTimeFilter<"EntitySnapshot"> | Date | string
 }
 
 export type EntitySnapshotCreateWithoutReferencesInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   entity: Prisma.EntityCreateNestedOneWithoutSnapshotsInput
   operation: Prisma.OperationCreateNestedOneWithoutEntitySnapshotsInput
@@ -628,12 +642,13 @@ export type EntitySnapshotCreateWithoutReferencesInput = {
 
 export type EntitySnapshotUncheckedCreateWithoutReferencesInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutToInput
 }
@@ -645,9 +660,10 @@ export type EntitySnapshotCreateOrConnectWithoutReferencesInput = {
 
 export type EntitySnapshotCreateWithoutReferencedByInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   entity: Prisma.EntityCreateNestedOneWithoutSnapshotsInput
   operation: Prisma.OperationCreateNestedOneWithoutEntitySnapshotsInput
@@ -657,12 +673,13 @@ export type EntitySnapshotCreateWithoutReferencedByInput = {
 
 export type EntitySnapshotUncheckedCreateWithoutReferencedByInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutFromInput
 }
@@ -685,9 +702,10 @@ export type EntitySnapshotUpdateToOneWithWhereWithoutReferencesInput = {
 
 export type EntitySnapshotUpdateWithoutReferencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entity?: Prisma.EntityUpdateOneRequiredWithoutSnapshotsNestedInput
   operation?: Prisma.OperationUpdateOneRequiredWithoutEntitySnapshotsNestedInput
@@ -697,12 +715,13 @@ export type EntitySnapshotUpdateWithoutReferencesInput = {
 
 export type EntitySnapshotUncheckedUpdateWithoutReferencesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutToNestedInput
 }
@@ -720,9 +739,10 @@ export type EntitySnapshotUpdateToOneWithWhereWithoutReferencedByInput = {
 
 export type EntitySnapshotUpdateWithoutReferencedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entity?: Prisma.EntityUpdateOneRequiredWithoutSnapshotsNestedInput
   operation?: Prisma.OperationUpdateOneRequiredWithoutEntitySnapshotsNestedInput
@@ -732,21 +752,23 @@ export type EntitySnapshotUpdateWithoutReferencedByInput = {
 
 export type EntitySnapshotUncheckedUpdateWithoutReferencedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutFromNestedInput
 }
 
 export type EntitySnapshotCreateWithoutStateInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   entity: Prisma.EntityCreateNestedOneWithoutSnapshotsInput
   operation: Prisma.OperationCreateNestedOneWithoutEntitySnapshotsInput
@@ -756,11 +778,12 @@ export type EntitySnapshotCreateWithoutStateInput = {
 
 export type EntitySnapshotUncheckedCreateWithoutStateInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   operationId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutFromInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutToInput
@@ -793,9 +816,10 @@ export type EntitySnapshotUpdateManyWithWhereWithoutStateInput = {
 
 export type EntitySnapshotCreateWithoutOperationInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   entity: Prisma.EntityCreateNestedOneWithoutSnapshotsInput
   state: Prisma.InstanceStateCreateNestedOneWithoutEntitySnapshotsInput
@@ -805,11 +829,12 @@ export type EntitySnapshotCreateWithoutOperationInput = {
 
 export type EntitySnapshotUncheckedCreateWithoutOperationInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutFromInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedCreateNestedManyWithoutToInput
@@ -842,19 +867,21 @@ export type EntitySnapshotUpdateManyWithWhereWithoutOperationInput = {
 
 export type EntitySnapshotCreateManyEntityInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   operationId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
 }
 
 export type EntitySnapshotUpdateWithoutEntityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operation?: Prisma.OperationUpdateOneRequiredWithoutEntitySnapshotsNestedInput
   state?: Prisma.InstanceStateUpdateOneRequiredWithoutEntitySnapshotsNestedInput
@@ -864,11 +891,12 @@ export type EntitySnapshotUpdateWithoutEntityInput = {
 
 export type EntitySnapshotUncheckedUpdateWithoutEntityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutFromNestedInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutToNestedInput
@@ -876,29 +904,32 @@ export type EntitySnapshotUncheckedUpdateWithoutEntityInput = {
 
 export type EntitySnapshotUncheckedUpdateManyWithoutEntityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EntitySnapshotCreateManyStateInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   operationId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
 }
 
 export type EntitySnapshotUpdateWithoutStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entity?: Prisma.EntityUpdateOneRequiredWithoutSnapshotsNestedInput
   operation?: Prisma.OperationUpdateOneRequiredWithoutEntitySnapshotsNestedInput
@@ -908,11 +939,12 @@ export type EntitySnapshotUpdateWithoutStateInput = {
 
 export type EntitySnapshotUncheckedUpdateWithoutStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutFromNestedInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutToNestedInput
@@ -920,29 +952,32 @@ export type EntitySnapshotUncheckedUpdateWithoutStateInput = {
 
 export type EntitySnapshotUncheckedUpdateManyWithoutStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   operationId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EntitySnapshotCreateManyOperationInput = {
   id?: string
-  meta:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content:unknown
   entityId: string
   stateId: string
-  output: string
+  referencedOutputs:(string[])
+  exportedOutputs:(string[])
   createdAt?: Date | string
 }
 
 export type EntitySnapshotUpdateWithoutOperationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entity?: Prisma.EntityUpdateOneRequiredWithoutSnapshotsNestedInput
   state?: Prisma.InstanceStateUpdateOneRequiredWithoutEntitySnapshotsNestedInput
@@ -952,11 +987,12 @@ export type EntitySnapshotUpdateWithoutOperationInput = {
 
 export type EntitySnapshotUncheckedUpdateWithoutOperationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   references?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutFromNestedInput
   referencedBy?: Prisma.EntitySnapshotReferenceUncheckedUpdateManyWithoutToNestedInput
@@ -964,11 +1000,12 @@ export type EntitySnapshotUncheckedUpdateWithoutOperationInput = {
 
 export type EntitySnapshotUncheckedUpdateManyWithoutOperationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
+  meta?:PrismaJson.EntityMeta | Prisma.NullableJsonNullValueInput
   content?:unknown
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
-  output?: Prisma.StringFieldUpdateOperationsInput | string
+  referencedOutputs?:(string[])
+  exportedOutputs?:(string[])
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1019,7 +1056,8 @@ export type EntitySnapshotSelect<ExtArgs extends runtime.Types.Extensions.Intern
   entityId?: boolean
   operationId?: boolean
   stateId?: boolean
-  output?: boolean
+  referencedOutputs?: boolean
+  exportedOutputs?: boolean
   createdAt?: boolean
   entity?: boolean | Prisma.EntityDefaultArgs<ExtArgs>
   operation?: boolean | Prisma.OperationDefaultArgs<ExtArgs>
@@ -1036,7 +1074,8 @@ export type EntitySnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   entityId?: boolean
   operationId?: boolean
   stateId?: boolean
-  output?: boolean
+  referencedOutputs?: boolean
+  exportedOutputs?: boolean
   createdAt?: boolean
   entity?: boolean | Prisma.EntityDefaultArgs<ExtArgs>
   operation?: boolean | Prisma.OperationDefaultArgs<ExtArgs>
@@ -1050,7 +1089,8 @@ export type EntitySnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   entityId?: boolean
   operationId?: boolean
   stateId?: boolean
-  output?: boolean
+  referencedOutputs?: boolean
+  exportedOutputs?: boolean
   createdAt?: boolean
   entity?: boolean | Prisma.EntityDefaultArgs<ExtArgs>
   operation?: boolean | Prisma.OperationDefaultArgs<ExtArgs>
@@ -1064,11 +1104,12 @@ export type EntitySnapshotSelectScalar = {
   entityId?: boolean
   operationId?: boolean
   stateId?: boolean
-  output?: boolean
+  referencedOutputs?: boolean
+  exportedOutputs?: boolean
   createdAt?: boolean
 }
 
-export type EntitySnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "content" | "entityId" | "operationId" | "stateId" | "output" | "createdAt", ExtArgs["result"]["entitySnapshot"]>
+export type EntitySnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "content" | "entityId" | "operationId" | "stateId" | "referencedOutputs" | "exportedOutputs" | "createdAt", ExtArgs["result"]["entitySnapshot"]>
 export type EntitySnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entity?: boolean | Prisma.EntityDefaultArgs<ExtArgs>
   operation?: boolean | Prisma.OperationDefaultArgs<ExtArgs>
@@ -1122,9 +1163,9 @@ export type $EntitySnapshotPayload<ExtArgs extends runtime.Types.Extensions.Inte
     /**
      * The metadata of the entity at the time of the snapshot.
      * 
-     * [CommonObjectMeta]
+     * [EntityMeta]
      */
-    meta:PrismaJson.CommonObjectMeta
+    meta:PrismaJson.EntityMeta | null
     /**
      * The content of the entity snapshot, which is opaque to the backend.
      */
@@ -1142,9 +1183,17 @@ export type $EntitySnapshotPayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     stateId: string
     /**
-     * The name of the instance output produced this entity snapshot.
+     * The name of the instance outputs where this entity were referenced (including nested entities).
+     * 
+     * ![string[]]
      */
-    output: string
+    referencedOutputs:(string[])
+    /**
+     * The name of the outputs that exported this entity directly.
+     * 
+     * ![string[]]
+     */
+    exportedOutputs:(string[])
     /**
      * The time when the entity snapshot was created.
      */
@@ -1583,7 +1632,8 @@ export interface EntitySnapshotFieldRefs {
   readonly entityId: Prisma.FieldRef<"EntitySnapshot", 'String'>
   readonly operationId: Prisma.FieldRef<"EntitySnapshot", 'String'>
   readonly stateId: Prisma.FieldRef<"EntitySnapshot", 'String'>
-  readonly output: Prisma.FieldRef<"EntitySnapshot", 'String'>
+  readonly referencedOutputs: Prisma.FieldRef<"EntitySnapshot", 'Json'>
+  readonly exportedOutputs: Prisma.FieldRef<"EntitySnapshot", 'Json'>
   readonly createdAt: Prisma.FieldRef<"EntitySnapshot", 'DateTime'>
 }
     

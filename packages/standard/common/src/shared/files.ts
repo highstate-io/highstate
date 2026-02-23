@@ -1,4 +1,4 @@
-import type { common, network } from "@highstate/library"
+import { common, type network } from "@highstate/library"
 import { createHash } from "node:crypto"
 import { createReadStream } from "node:fs"
 import { cp, mkdir, mkdtemp, rename, rm, stat, writeFile } from "node:fs/promises"
@@ -12,6 +12,7 @@ import { minimatch } from "minimatch"
 import * as tar from "tar"
 import unzipper from "unzipper"
 import { type InputL7Endpoint, l7EndpointToString, parseEndpoint } from "./network/endpoints"
+import { makeEntity } from "./utils"
 
 export type FolderPackOptions = {
   /**
@@ -335,17 +336,21 @@ export class MaterializedFile implements AsyncDisposable {
    * @returns A new MaterializedFile instance representing an empty file
    */
   static async create(name: string, content = "", mode?: number): Promise<MaterializedFile> {
-    const entity: common.File = {
-      meta: {
-        name,
-        mode,
-        size: 0,
+    const entity = makeEntity({
+      entity: common.fileEntity,
+      identity: name,
+      value: {
+        meta: {
+          name,
+          mode,
+          size: 0,
+        },
+        content: {
+          type: "embedded",
+          value: content,
+        },
       },
-      content: {
-        type: "embedded",
-        value: content,
-      },
-    }
+    })
 
     const materializedFile = new MaterializedFile(entity)
 
@@ -617,15 +622,21 @@ export class MaterializedFolder implements AsyncDisposable {
       }
 
       // return folder entity with artifact content using actual filesystem stats
-      return {
-        meta: newMeta,
-        content: {
-          [HighstateSignature.Artifact]: true,
-          type: "artifact",
-          hash: hashValue,
-          meta: await toPromise(this.artifactMeta),
+      return makeEntity({
+        entity: common.folderEntity,
+        identity: hashValue,
+        value: {
+          meta: newMeta,
+          files: [],
+          folders: [],
+          content: {
+            [HighstateSignature.Artifact]: true,
+            type: "artifact",
+            hash: hashValue,
+            meta: await toPromise(this.artifactMeta),
+          },
         },
-      }
+      })
     } finally {
       // clean up temporary archive
       try {
@@ -649,17 +660,21 @@ export class MaterializedFolder implements AsyncDisposable {
     mode?: number,
     parent?: MaterializedFolder,
   ): Promise<MaterializedFolder> {
-    const entity: common.Folder = {
-      meta: {
-        name,
-        mode,
+    const entity = makeEntity({
+      entity: common.folderEntity,
+      identity: name,
+      value: {
+        meta: {
+          name,
+          mode,
+        },
+        content: {
+          type: "embedded",
+          files: [],
+          folders: [],
+        },
       },
-      content: {
-        type: "embedded",
-        files: [],
-        folders: [],
-      },
-    }
+    })
 
     const materializedFolder = new MaterializedFolder(entity, parent)
 

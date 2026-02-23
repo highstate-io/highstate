@@ -142,7 +142,7 @@ export type EntityGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type EntityGroupByOutputType = {
   id: string
   type: string
-  identity: string | null
+  identity: string
   _count: EntityCountAggregateOutputType | null
   _min: EntityMinAggregateOutputType | null
   _max: EntityMaxAggregateOutputType | null
@@ -169,14 +169,14 @@ export type EntityWhereInput = {
   NOT?: Prisma.EntityWhereInput | Prisma.EntityWhereInput[]
   id?: Prisma.StringFilter<"Entity"> | string
   type?: Prisma.StringFilter<"Entity"> | string
-  identity?: Prisma.StringNullableFilter<"Entity"> | string | null
+  identity?: Prisma.StringFilter<"Entity"> | string
   snapshots?: Prisma.EntitySnapshotListRelationFilter
 }
 
 export type EntityOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  identity?: Prisma.SortOrderInput | Prisma.SortOrder
+  identity?: Prisma.SortOrder
   snapshots?: Prisma.EntitySnapshotOrderByRelationAggregateInput
 }
 
@@ -186,14 +186,14 @@ export type EntityWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.EntityWhereInput[]
   NOT?: Prisma.EntityWhereInput | Prisma.EntityWhereInput[]
   type?: Prisma.StringFilter<"Entity"> | string
-  identity?: Prisma.StringNullableFilter<"Entity"> | string | null
+  identity?: Prisma.StringFilter<"Entity"> | string
   snapshots?: Prisma.EntitySnapshotListRelationFilter
 }, "id">
 
 export type EntityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  identity?: Prisma.SortOrderInput | Prisma.SortOrder
+  identity?: Prisma.SortOrder
   _count?: Prisma.EntityCountOrderByAggregateInput
   _max?: Prisma.EntityMaxOrderByAggregateInput
   _min?: Prisma.EntityMinOrderByAggregateInput
@@ -205,53 +205,53 @@ export type EntityScalarWhereWithAggregatesInput = {
   NOT?: Prisma.EntityScalarWhereWithAggregatesInput | Prisma.EntityScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Entity"> | string
   type?: Prisma.StringWithAggregatesFilter<"Entity"> | string
-  identity?: Prisma.StringNullableWithAggregatesFilter<"Entity"> | string | null
+  identity?: Prisma.StringWithAggregatesFilter<"Entity"> | string
 }
 
 export type EntityCreateInput = {
   id: string
   type: string
-  identity?: string | null
+  identity: string
   snapshots?: Prisma.EntitySnapshotCreateNestedManyWithoutEntityInput
 }
 
 export type EntityUncheckedCreateInput = {
   id: string
   type: string
-  identity?: string | null
+  identity: string
   snapshots?: Prisma.EntitySnapshotUncheckedCreateNestedManyWithoutEntityInput
 }
 
 export type EntityUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  identity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identity?: Prisma.StringFieldUpdateOperationsInput | string
   snapshots?: Prisma.EntitySnapshotUpdateManyWithoutEntityNestedInput
 }
 
 export type EntityUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  identity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identity?: Prisma.StringFieldUpdateOperationsInput | string
   snapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutEntityNestedInput
 }
 
 export type EntityCreateManyInput = {
   id: string
   type: string
-  identity?: string | null
+  identity: string
 }
 
 export type EntityUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  identity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identity?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntityUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  identity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identity?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntityCountOrderByAggregateInput = {
@@ -294,13 +294,13 @@ export type EntityUpdateOneRequiredWithoutSnapshotsNestedInput = {
 export type EntityCreateWithoutSnapshotsInput = {
   id: string
   type: string
-  identity?: string | null
+  identity: string
 }
 
 export type EntityUncheckedCreateWithoutSnapshotsInput = {
   id: string
   type: string
-  identity?: string | null
+  identity: string
 }
 
 export type EntityCreateOrConnectWithoutSnapshotsInput = {
@@ -322,13 +322,13 @@ export type EntityUpdateToOneWithWhereWithoutSnapshotsInput = {
 export type EntityUpdateWithoutSnapshotsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  identity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identity?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EntityUncheckedUpdateWithoutSnapshotsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  identity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identity?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -408,8 +408,7 @@ export type $EntityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     /**
      * The CUIDv2 or CUIDv2d of the entity.
      * 
-     * For non-anonymous entities, the ID is calculated by the backend as CUIDv2d(entityType, identity), where identity is a user-provided string value that is expected to be globally unique for each entity of the same type.
-     * For anonymous entities, the ID is the same as its snapshot CUIDv2 which is the single snapshot of the entity.
+     * The ID is calculated by the backend as CUIDv2d(entityType, identity), where identity is a user-provided string value that is expected to be globally unique for each entity of the same type.
      */
     id: string
     /**
@@ -418,9 +417,8 @@ export type $EntityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     type: string
     /**
      * The identity of the entity.
-     * If null, the entity is considered anonymous and its ID is not deterministic.
      */
-    identity: string | null
+    identity: string
   }, ExtArgs["result"]["entity"]>
   composites: {}
 }

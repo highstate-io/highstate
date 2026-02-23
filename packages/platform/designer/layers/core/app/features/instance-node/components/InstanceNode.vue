@@ -37,6 +37,7 @@ const {
   inputResolverDependentMap,
   allInstances = new Map<string, InstanceModel>(),
   state,
+  projectId,
   ioType = "both",
   editable = false,
   ghost = false,
@@ -49,6 +50,7 @@ const {
   allInstances?: Map<string, InstanceModel>
 
   state?: InstanceState
+  projectId?: string
   instanceLock?: InstanceLockOutput
 
   loadingSecrets?: boolean
@@ -237,6 +239,8 @@ const overlayIconSize = computed(() =>
         :component="component"
         :instance="instance"
         :entities="entities"
+        :project-id="projectId"
+        :state-id="state?.id"
         :is-valid-connection="isValidConnection"
         :type="ioType"
         :mirror="ioMirror"

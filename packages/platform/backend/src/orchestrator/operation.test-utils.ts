@@ -373,6 +373,7 @@ export const operationTest = test.extend<{
         secrets: null,
         workers: null,
         exportedArtifactIds: null,
+        entitySnapshotError: null,
         entitySnapshotPayload: null,
       }),
     } as unknown as UnitOutputService)
@@ -382,7 +383,7 @@ export const operationTest = test.extend<{
 
   entitySnapshotService: async ({}, use) => {
     const entitySnapshotService = vi.mockObject({
-      captureLatestSnapshotValues: vi.fn().mockResolvedValue(new Map()),
+      reconstructLatestExportedOutputValues: vi.fn().mockResolvedValue(new Map()),
       persistUnitEntitySnapshots: vi.fn().mockResolvedValue(undefined),
     } as unknown as EntitySnapshotService)
 
@@ -593,7 +594,6 @@ export const operationTest = test.extend<{
         libraryBackend,
         instanceStateService,
         projectModelService,
-        undefined,
         undefined,
         logger,
       )

@@ -5,12 +5,13 @@ export {
   type EntityModel,
   type EntityMeta,
   type EntityWithMeta,
+  type EntityValue,
+  type EntityValueInput,
   isEntity,
   isAssignableTo,
   defineEntity,
   entityModelSchema,
   getEntityId,
-  requireEntityId,
 } from "./entity"
 
 export * from "./instance"

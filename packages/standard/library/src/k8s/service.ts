@@ -1,5 +1,5 @@
 import type { Simplify } from "type-fest"
-import { defineEntity, type EntityInput, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, z, type EntityValue } from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 import { namespacedResourceEntity } from "./resources"
 
@@ -73,5 +73,5 @@ export const serviceTypeSchema = z.enum(["NodePort", "LoadBalancer", "ClusterIP"
 export type EndpointServiceMetadata = z.infer<typeof serviceEndpointMetadataSchema>
 export type ServiceEndpoint = Simplify<z.infer<typeof serviceEndpointSchema>>
 export type ServiceType = z.infer<typeof serviceTypeSchema>
-export type Service = z.infer<typeof serviceEntity.schema>
+export type Service = EntityValue<typeof serviceEntity>
 export type ServiceInput = EntityInput<typeof serviceEntity>

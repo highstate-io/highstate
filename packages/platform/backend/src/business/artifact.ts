@@ -3,6 +3,7 @@ import type { Logger } from "pino"
 import type { ArtifactBackend } from "../artifact"
 import type { Artifact, DatabaseManager, ProjectTransaction } from "../database"
 import { createId } from "@paralleldrive/cuid2"
+import type { ObjectRefIndexService } from "./object-ref-index"
 
 export const artifactChunkSize = 1024 * 1024 // 1 MB
 
@@ -13,6 +14,7 @@ export class ArtifactService {
   constructor(
     private readonly database: DatabaseManager,
     private readonly artifactBackend: ArtifactBackend,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {}
 
@@ -53,7 +55,7 @@ export class ArtifactService {
       await this.artifactBackend.store(projectId, artifactId, artifactChunkSize, content)
     }
 
-    return await database.$transaction(async tx => {
+    const artifact = await database.$transaction(async tx => {
       // create or update the main artifact record
       const artifact = await tx.artifact.upsert({
         where: { id: artifactId },
@@ -73,6 +75,10 @@ export class ArtifactService {
 
       return artifact
     })
+
+    await this.objectRefIndexService.track(projectId, [artifact.id])
+
+    return artifact
   }
 
   /**

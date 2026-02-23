@@ -27,6 +27,49 @@ export type GlobalSearchHit = {
   meta: CommonObjectMeta
 }
 
+export type GlobalSearchTextProjectResult = {
+  projectId: string
+  hits: GlobalSearchHit[]
+}
+
+export type GlobalSearchTextResult = {
+  text: string
+  projects: GlobalSearchTextProjectResult[]
+}
+
+function normalizeSearchText(text: string): string {
+  return text.trim().toLowerCase()
+}
+
+function stringIncludesQuery(value: string | undefined, query: string): boolean {
+  if (!value) {
+    return false
+  }
+
+  return value.toLowerCase().includes(query)
+}
+
+function matchesCommonObjectMeta(meta: unknown, query: string): boolean {
+  const parsed = commonObjectMetaSchema.safeParse(meta)
+
+  if (parsed.success) {
+    return (
+      stringIncludesQuery(parsed.data.title, query) ||
+      stringIncludesQuery(parsed.data.description, query)
+    )
+  }
+
+  if (meta && typeof meta === "object") {
+    const title = "title" in meta && typeof meta.title === "string" ? meta.title : undefined
+    const description =
+      "description" in meta && typeof meta.description === "string" ? meta.description : undefined
+
+    return stringIncludesQuery(title, query) || stringIncludesQuery(description, query)
+  }
+
+  return false
+}
+
 function createSearchHits<TItem extends { id: string }>(
   kind: GlobalSearchObjectKind,
   items: TItem[],
@@ -346,6 +389,319 @@ const projectSearchResolvers: ProjectSearchResolver[] = [
   },
 ]
 
+type ProjectTextSearchResolver = (
+  database: ProjectDatabase,
+  text: string,
+  logger: Logger,
+) => Promise<GlobalSearchHit[]>
+
+const projectTextSearchResolvers: ProjectTextSearchResolver[] = [
+  async (database, text, logger) => {
+    const operations = await database.operation.findMany({
+      select: {
+        id: true,
+        meta: true,
+      },
+    })
+
+    const matches = operations.filter(
+      operation =>
+        stringIncludesQuery(operation.id, text) || matchesCommonObjectMeta(operation.meta, text),
+    )
+
+    return createSearchHits("operation", matches, operation => operation.meta, logger)
+  },
+  async (database, text, logger) => {
+    const states = await database.instanceState.findMany({
+      select: {
+        id: true,
+        instanceId: true,
+        status: true,
+      },
+    })
+
+    const matches = states.filter(
+      state =>
+        stringIncludesQuery(state.id, text) ||
+        stringIncludesQuery(state.instanceId, text) ||
+        stringIncludesQuery(`${state.status}`, text),
+    )
+
+    return createSearchHits(
+      "instanceState",
+      matches,
+      state => ({
+        title: state.instanceId,
+        description: `${state.status}`,
+      }),
+      logger,
+    )
+  },
+  async (database, text, logger) => {
+    const artifacts = await database.artifact.findMany({
+      select: {
+        id: true,
+        hash: true,
+        meta: true,
+      },
+    })
+
+    const matches = artifacts.filter(
+      artifact =>
+        stringIncludesQuery(artifact.id, text) ||
+        stringIncludesQuery(artifact.hash, text) ||
+        matchesCommonObjectMeta(artifact.meta, text),
+    )
+
+    return createSearchHits("artifact", matches, artifact => artifact.meta, logger)
+  },
+  async (database, text, logger) => {
+    const pages = await database.page.findMany({
+      select: {
+        id: true,
+        name: true,
+        meta: true,
+      },
+    })
+
+    const matches = pages.filter(
+      page =>
+        stringIncludesQuery(page.id, text) ||
+        stringIncludesQuery(page.name ?? undefined, text) ||
+        matchesCommonObjectMeta(page.meta, text),
+    )
+
+    return createSearchHits("page", matches, page => page.meta, logger)
+  },
+  async (database, text, logger) => {
+    const terminals = await database.terminal.findMany({
+      select: {
+        id: true,
+        name: true,
+        meta: true,
+      },
+    })
+
+    const matches = terminals.filter(
+      terminal =>
+        stringIncludesQuery(terminal.id, text) ||
+        stringIncludesQuery(terminal.name ?? undefined, text) ||
+        matchesCommonObjectMeta(terminal.meta, text),
+    )
+
+    return createSearchHits("terminal", matches, terminal => terminal.meta, logger)
+  },
+  async (database, text, logger) => {
+    const sessions = await database.terminalSession.findMany({
+      select: {
+        id: true,
+        terminal: {
+          select: {
+            name: true,
+            meta: true,
+          },
+        },
+      },
+    })
+
+    const matches = sessions.filter(
+      session =>
+        stringIncludesQuery(session.id, text) ||
+        stringIncludesQuery(session.terminal.name ?? undefined, text) ||
+        matchesCommonObjectMeta(session.terminal.meta, text),
+    )
+
+    return createSearchHits(
+      "terminalSession",
+      matches,
+      session => session.terminal.meta,
+      logger,
+    )
+  },
+  async (database, text, logger) => {
+    const secrets = await database.secret.findMany({
+      select: {
+        id: true,
+        name: true,
+        systemName: true,
+        meta: true,
+      },
+    })
+
+    const matches = secrets.filter(
+      secret =>
+        stringIncludesQuery(secret.id, text) ||
+        stringIncludesQuery(secret.name ?? undefined, text) ||
+        stringIncludesQuery(secret.systemName ?? undefined, text) ||
+        matchesCommonObjectMeta(secret.meta, text),
+    )
+
+    return createSearchHits("secret", matches, secret => secret.meta, logger)
+  },
+  async (database, text, logger) => {
+    const accounts = await database.serviceAccount.findMany({
+      select: {
+        id: true,
+        meta: true,
+      },
+    })
+
+    const matches = accounts.filter(
+      account =>
+        stringIncludesQuery(account.id, text) || matchesCommonObjectMeta(account.meta, text),
+    )
+
+    return createSearchHits("serviceAccount", matches, account => account.meta, logger)
+  },
+  async (database, text, logger) => {
+    const apiKeys = await database.apiKey.findMany({
+      select: {
+        id: true,
+        meta: true,
+      },
+    })
+
+    const matches = apiKeys.filter(
+      apiKey => stringIncludesQuery(apiKey.id, text) || matchesCommonObjectMeta(apiKey.meta, text),
+    )
+
+    return createSearchHits("apiKey", matches, apiKey => apiKey.meta, logger)
+  },
+  async (database, text, logger) => {
+    const triggers = await database.trigger.findMany({
+      select: {
+        id: true,
+        name: true,
+        meta: true,
+      },
+    })
+
+    const matches = triggers.filter(
+      trigger =>
+        stringIncludesQuery(trigger.id, text) ||
+        stringIncludesQuery(trigger.name, text) ||
+        matchesCommonObjectMeta(trigger.meta, text),
+    )
+
+    return createSearchHits("trigger", matches, trigger => trigger.meta, logger)
+  },
+  async (database, text, logger) => {
+    const unlockMethods = await database.unlockMethod.findMany({
+      select: {
+        id: true,
+        type: true,
+        recipient: true,
+        meta: true,
+      },
+    })
+
+    const matches = unlockMethods.filter(
+      unlockMethod =>
+        stringIncludesQuery(unlockMethod.id, text) ||
+        stringIncludesQuery(`${unlockMethod.type}`, text) ||
+        stringIncludesQuery(unlockMethod.recipient, text) ||
+        matchesCommonObjectMeta(unlockMethod.meta, text),
+    )
+
+    return createSearchHits(
+      "unlockMethod",
+      matches,
+      unlockMethod => unlockMethod.meta,
+      logger,
+    )
+  },
+  async (database, text, logger) => {
+    const workers = await database.worker.findMany({
+      select: {
+        id: true,
+        identity: true,
+        versions: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+          select: {
+            meta: true,
+          },
+        },
+      },
+    })
+
+    const matches = workers.filter(
+      worker =>
+        stringIncludesQuery(worker.id, text) ||
+        stringIncludesQuery(worker.identity, text) ||
+        matchesCommonObjectMeta(worker.versions[0]?.meta, text),
+    )
+
+    return createSearchHits("worker", matches, worker => worker.versions[0]?.meta, logger)
+  },
+  async (database, text, logger) => {
+    const versions = await database.workerVersion.findMany({
+      select: {
+        id: true,
+        digest: true,
+        meta: true,
+      },
+    })
+
+    const matches = versions.filter(
+      version =>
+        stringIncludesQuery(version.id, text) ||
+        stringIncludesQuery(version.digest, text) ||
+        matchesCommonObjectMeta(version.meta, text),
+    )
+
+    return createSearchHits("workerVersion", matches, version => version.meta, logger)
+  },
+  async (database, text, logger) => {
+    const snapshots = await database.entitySnapshot.findMany({
+      select: {
+        id: true,
+        entityId: true,
+        meta: true,
+      },
+    })
+
+    const matches = snapshots.filter(
+      snapshot =>
+        stringIncludesQuery(snapshot.id, text) ||
+        stringIncludesQuery(snapshot.entityId, text) ||
+        matchesCommonObjectMeta(snapshot.meta, text),
+    )
+
+    return createSearchHits("entitySnapshot", matches, snapshot => snapshot.meta, logger)
+  },
+  async (database, text, logger) => {
+    const entities = await database.entity.findMany({
+      select: {
+        id: true,
+        type: true,
+        identity: true,
+        snapshots: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+          select: {
+            meta: true,
+          },
+        },
+      },
+    })
+
+    const matches = entities.filter(
+      entity =>
+        stringIncludesQuery(entity.id, text) ||
+        stringIncludesQuery(entity.type, text) ||
+        stringIncludesQuery(entity.identity, text) ||
+        matchesCommonObjectMeta(entity.snapshots[0]?.meta, text),
+    )
+
+    return createSearchHits("entity", matches, entity => entity.snapshots[0]?.meta, logger)
+  },
+]
+
 export class GlobalSearchService {
   constructor(
     private readonly database: DatabaseManager,
@@ -437,6 +793,57 @@ export class GlobalSearchService {
     return uniqueIds.map(id => ({ id, projects: projectsById.get(id) ?? [] }))
   }
 
+  /**
+   * Searches for objects across all unlocked projects by a free-form text.
+   *
+   * It queries a curated set of collections within each unlocked project.
+   * Locked projects are skipped because their databases cannot be queried.
+   *
+   * @param text The text query to search for.
+   */
+  async searchByText(text: string): Promise<GlobalSearchTextResult> {
+    const normalizedText = normalizeSearchText(text)
+
+    if (normalizedText.length === 0) {
+      return { text, projects: [] }
+    }
+
+    const projects = await this.database.backend.project.findMany({
+      select: {
+        id: true,
+      },
+    })
+
+    const results: GlobalSearchTextProjectResult[] = []
+
+    for (const project of projects) {
+      const isUnlocked = await this.projectUnlockBackend.checkProjectUnlocked(project.id)
+
+      if (!isUnlocked) {
+        continue
+      }
+
+      try {
+        const projectDatabase = await this.database.forProject(project.id)
+        const hits = await this.searchInUnlockedProjectByText(projectDatabase, normalizedText)
+
+        if (hits.length === 0) {
+          continue
+        }
+
+        results.push({ projectId: project.id, hits })
+      } catch (error) {
+        this.logger.error(
+          { error, projectId: project.id },
+          'failed to search by text in unlocked project "%s"',
+          project.id,
+        )
+      }
+    }
+
+    return { text, projects: results }
+  }
+
   private async searchInUnlockedProject(
     database: ProjectDatabase,
     ids: string[],
@@ -461,5 +868,29 @@ export class GlobalSearchService {
     }
 
     return hitsById
+  }
+
+  private async searchInUnlockedProjectByText(
+    database: ProjectDatabase,
+    text: string,
+  ): Promise<GlobalSearchHit[]> {
+    const settled = await Promise.allSettled(
+      projectTextSearchResolvers.map(async r => await r(database, text, this.logger)),
+    )
+
+    const hitsByKey = new Map<string, GlobalSearchHit>()
+
+    for (const result of settled) {
+      if (result.status === "rejected") {
+        this.logger.debug({ error: result.reason, text }, "project text search resolver failed")
+        continue
+      }
+
+      for (const hit of result.value) {
+        hitsByKey.set(`${hit.kind}:${hit.id}`, hit)
+      }
+    }
+
+    return Array.from(hitsByKey.values())
   }
 }

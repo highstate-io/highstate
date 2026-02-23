@@ -12,6 +12,7 @@ import {
   sharedSecrets,
   source,
 } from "./shared"
+import { mysql } from "../../databases"
 
 /**
  * The MariaDB database deployed on Kubernetes.
@@ -33,7 +34,7 @@ export const mariadb = defineUnit({
   },
 
   outputs: {
-    database: databaseEntity,
+    connection: mysql.connectionEntity,
     service: serviceEntity,
   },
 

@@ -198,7 +198,6 @@ export const operationPlanTest = test.extend<{
         instanceStateService,
         projectModelService,
         undefined,
-        undefined,
         logger,
       )
     }

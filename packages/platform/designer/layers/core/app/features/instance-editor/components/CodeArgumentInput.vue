@@ -62,7 +62,7 @@ const handleModelChange = (value: string) => {
           v-else
           :value="currentValue"
           @update:value="handleModelChange"
-          theme="vs-dark"
+          theme="dark-plus"
           language="yaml"
           :path="`${instance.type}.${argument.name}`"
           :options="{ tabSize: 2 }"

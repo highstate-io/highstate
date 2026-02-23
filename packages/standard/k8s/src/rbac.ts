@@ -24,6 +24,7 @@ import {
   type NamespaceLike,
   type Resource,
 } from "./shared"
+import { HighstateSignature } from "@highstate/contract"
 
 export type ClusterAccessScopeArgs = {
   /**
@@ -185,9 +186,10 @@ export class ClusterAccessScope extends ComponentResource {
       kubeconfig,
       newToken: accessTokenSecret.getValue("token"),
       serviceAccount: serviceAccount.metadata.name,
-    }).apply(({ cluster, kubeconfig, newToken, serviceAccount }) => {
+      serviceAccountId: serviceAccount.metadata.uid,
+    }).apply(({ cluster, kubeconfig, newToken, serviceAccount, serviceAccountId }) => {
       const config = new KubeConfig()
-      config.loadFromString(kubeconfig)
+      config.loadFromString(kubeconfig.value)
 
       // clear all existing contexts and users
       config.users = []
@@ -205,7 +207,11 @@ export class ClusterAccessScope extends ComponentResource {
 
       return {
         ...cluster,
-        kubeconfig: stringify(JSON.parse(config.exportConfig())),
+        connectionId: serviceAccountId,
+        kubeconfig: {
+          [HighstateSignature.Secret]: true as const,
+          value: stringify(JSON.parse(config.exportConfig())),
+        },
       }
     })
   }

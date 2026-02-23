@@ -16,7 +16,6 @@ import {
   type TriggerInvocation,
   type Unit,
   type UnitArtifact,
-  type UnitConfig,
   type UnitInputValue,
   type UnitPage,
   type UnitTerminal,
@@ -88,6 +87,7 @@ interface UnitContext<
 > {
   args: TArgs
   instanceId: string
+  stateId: string
   type: string
   name: string
 
@@ -141,6 +141,7 @@ type OutputSpecToValue<T extends ComponentInputSpec> = T[2] extends true
     : NonNullable<z.input<T[0]["schema"]>> | undefined
 
 let instanceId: string | undefined
+let stateId: string | undefined
 let instanceName: string | undefined
 let importBaseUrl: URL | undefined
 
@@ -155,6 +156,20 @@ export function getUnitInstanceId(): string {
   }
 
   return instanceId
+}
+
+/**
+ * Returns the current unit instance state id.
+ *
+ * The state id is provided by the runner via Pulumi config.
+ * Only available after calling `forUnit` function.
+ */
+export function getUnitStateId(): string {
+  if (!stateId) {
+    throw new Error(`State id is not set. Did you call "forUnit" function?`)
+  }
+
+  return stateId
 }
 
 /**
@@ -183,7 +198,7 @@ export function getImportBaseUrl(): URL {
  * Returns a comment that can be used in resources to indicate that they are managed by Highstate.
  */
 export function getResourceComment(): string {
-  return `Managed by Highstate (${getUnitInstanceId()})`
+  return `Managed by Highstate [${getUnitStateId()}]`
 }
 
 function getOutputValue(
@@ -198,14 +213,12 @@ function getOutputValue(
   }
 
   const _validateValue = (entry: UnitInputValue) => {
-    return output(entry.value).apply(value => {
+    return output(pulumiSecret(entry.value as any)).apply(value => {
       const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
       const result = schema.safeParse(value)
 
       if (!result.success) {
-        throw new Error(
-          `Invalid value for input "${inputName}": ${z.prettifyError(result.error)}`,
-        )
+        throw new Error(`Invalid value for input "${inputName}": ${z.prettifyError(result.error)}`)
       }
 
       if (Array.isArray(value)) {
@@ -243,10 +256,6 @@ export function forUnit<
   const rawHSConfig = config.requireObject(HighstateConfigKey.Config)
   const hsConfig = unitConfigSchema.parse(rawHSConfig)
 
-  const rawHsSecrets = config
-    .requireSecretObject(HighstateConfigKey.Secrets)
-    .apply(secrets => z.record(z.string(), z.unknown()).parse(secrets))
-
   const args = mapValues(unit.model.args, (arg, argName) => {
     const value = parseArgumentValue(hsConfig.args[argName])
     const result = arg[runtimeSchema]!.safeParse(value)
@@ -259,7 +268,7 @@ export function forUnit<
   })
 
   const secrets = mapValues(unit.model.secrets, (secret, secretName) => {
-    const hasValue = hsConfig.secretNames.includes(secretName)
+    const hasValue = secretName in hsConfig.secretValues
 
     if (!hasValue && !secret.required) {
       return secret.schema.default ? pulumiSecret(secret.schema.default) : undefined
@@ -269,16 +278,15 @@ export function forUnit<
       throw new Error(`Secret "${secretName}" is required but not provided.`)
     }
 
-    return rawHsSecrets[secretName].apply(rawValue => {
-      const value = parseArgumentValue(rawValue)
-      const result = secret[runtimeSchema]!.safeParse(value)
+    const rawValue = hsConfig.secretValues[secretName]
+    const value = parseArgumentValue(rawValue)
+    const result = secret[runtimeSchema]!.safeParse(value)
 
-      if (!result.success) {
-        throw new Error(`Invalid secret "${secretName}": ${z.prettifyError(result.error)}`)
-      }
+    if (!result.success) {
+      throw new Error(`Invalid secret "${secretName}": ${z.prettifyError(result.error)}`)
+    }
 
-      return pulumiSecret(result.data)
-    })
+    return pulumiSecret(result.data)
   })
 
   const inputs = mapValues(unit.model.inputs, (input, inputName) => {
@@ -298,11 +306,13 @@ export function forUnit<
   const [type, name] = parseInstanceId(hsConfig.instanceId)
 
   instanceId = hsConfig.instanceId
+  stateId = hsConfig.stateId
   instanceName = name
   importBaseUrl = pathToFileURL(hsConfig.importBasePath)
 
   return {
     instanceId: hsConfig.instanceId,
+    stateId: hsConfig.stateId,
     type,
     name,
 

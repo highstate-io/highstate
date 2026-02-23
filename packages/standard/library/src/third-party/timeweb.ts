@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { serverOutputs, vmSecrets, vmSshArgs } from "../common"
 import * as ssh from "../ssh"
 
@@ -105,5 +111,5 @@ export const virtualMachine = defineUnit({
   },
 })
 
-export type Connection = z.infer<typeof connectionEntity.schema>
+export type Connection = EntityValue<typeof connectionEntity>
 export type ConnectionInput = EntityInput<typeof connectionEntity>

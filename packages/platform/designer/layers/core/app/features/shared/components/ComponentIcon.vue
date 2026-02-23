@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import type { ComponentModel } from "@highstate/contract"
 import { Icon } from "@iconify/vue"
 
 const { meta, size = 48 } = defineProps<{
-  meta: ComponentModel["meta"]
+  meta: {
+    icon?: string
+    iconColor?: string
+    secondaryIcon?: string
+    secondaryIconColor?: string
+  }
   size?: number | string
 }>()
 

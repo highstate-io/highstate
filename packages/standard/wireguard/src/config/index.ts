@@ -1,9 +1,10 @@
 import { text } from "@highstate/contract"
-import { wireguard } from "@highstate/library"
+import { common, wireguard } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { feedMetadataFromArgs, feedMetadataFromPeers, generateIdentityConfig } from "../shared"
+import { getCombinedIdentityOutput, makeEntityOutput } from "@highstate/common"
+import { generateIdentityConfig } from "../shared"
 
-const { name, inputs, args, outputs } = forUnit(wireguard.config)
+const { name, stateId, inputs, args, outputs } = forUnit(wireguard.config)
 
 const { identity, peers } = await toPromise(inputs)
 
@@ -14,19 +15,26 @@ const configContent = generateIdentityConfig({
   listen: args.listen,
 })
 
-export default outputs({
-  config: {
-    file: {
-      meta: {
-        name: `${name}.conf`,
-      },
-      content: {
-        type: "embedded",
-        value: configContent,
-      },
+const file = makeEntityOutput({
+  entity: common.fileEntity,
+  identity: stateId,
+  value: {
+    meta: {
+      name: `${name}.conf`,
     },
-    feedMetadata: feedMetadataFromArgs(args.feedMetadata) ?? feedMetadataFromPeers(peers),
+    content: {
+      type: "embedded",
+      value: configContent,
+    },
   },
+})
+
+export default outputs({
+  config: makeEntityOutput({
+    entity: wireguard.configEntity,
+    identity: getCombinedIdentityOutput([file]),
+    value: { file },
+  }),
   $pages: {
     index: {
       meta: {

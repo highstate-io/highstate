@@ -1,15 +1,23 @@
 import { ImplementationMediator } from "../impl-ref"
-import { z } from "@highstate/contract"
+import { getEntityId, z } from "@highstate/contract"
 import { network } from "@highstate/library"
 import { ResourceHook, toPromise, type Input, type InputArray } from "@highstate/pulumi"
-import { stableId } from "../utils"
 import { endpointToString } from "./endpoints"
 
 export type ResolvedEndpoint<TEndpoint extends network.L3Endpoint = network.L3Endpoint> =
   TEndpoint & {
     [Symbol.asyncDispose]: () => Promise<void>
-    beforeDeleteHooks: ResourceHook[]
-    afterDeleteHooks: ResourceHook[]
+    hooks: {
+      beforeCreate: ResourceHook[]
+      beforeUpdate: ResourceHook[]
+      beforeDelete: ResourceHook[]
+    }
+    allHooks: {
+      beforeCreate: ResourceHook[]
+      beforeUpdate: ResourceHook[]
+      beforeDelete: ResourceHook[]
+      afterDelete: ResourceHook[]
+    }
   }
 
 export const dynamicEndpointResolverMediator = new ImplementationMediator(
@@ -85,7 +93,7 @@ export async function resolveEndpoint<TEndpoint extends network.L3Endpoint>(
 
   // create hooks to setup and dispose the resolved endpoint for destroy operations
   const setupEndpointHook = new ResourceHook(
-    `setup-endpoint-${stableId(endpointToString(implRefEndpoint))}`,
+    `setup-endpoint-${getEntityId(implRefEndpoint)}`,
     async () => {
       if (process.env.HIGHSTATE_PULUMI_COMMAND !== "destroy") {
         // this hook is only needed for destroy operations
@@ -97,7 +105,7 @@ export async function resolveEndpoint<TEndpoint extends network.L3Endpoint>(
   )
 
   const disposeEndpointHook = new ResourceHook(
-    `dispose-endpoint-${stableId(endpointToString(implRefEndpoint))}`,
+    `dispose-endpoint-${getEntityId(implRefEndpoint)}`,
     async () => {
       if (process.env.HIGHSTATE_PULUMI_COMMAND !== "destroy") {
         // this hook is only needed for destroy operations

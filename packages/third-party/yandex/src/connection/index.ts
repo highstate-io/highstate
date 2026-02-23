@@ -1,7 +1,7 @@
-import type { Output } from "@highstate/pulumi"
 import { yandex } from "@highstate/library"
-import { forUnit, output, toPromise } from "@highstate/pulumi"
+import { forUnit, toPromise } from "@highstate/pulumi"
 import { getIamServiceAccount, getResourcemanagerFolder, Provider } from "@highstate/yandex-sdk"
+import { makeEntityOutput } from "@highstate/common"
 
 const { args, secrets, outputs } = forUnit(yandex.connection)
 
@@ -10,7 +10,7 @@ type ServiceAccountKeyFile = {
   service_account_id: string
 }
 
-const serviceAccountKeyFileString = await toPromise(secrets.serviceAccountKeyFile)
+const serviceAccountKeyFileString = await toPromise(secrets.authorizedKeyJson)
 const keyFileData: ServiceAccountKeyFile = JSON.parse(serviceAccountKeyFileString)
 const serviceAccountId = keyFileData.service_account_id
 
@@ -33,12 +33,20 @@ if (!folder.cloudId) {
   throw new Error("Could not determine cloud ID from folder")
 }
 
-const connection: Output<yandex.Connection> = output({
-  serviceAccountKeyFile: secrets.serviceAccountKeyFile,
-  cloudId: folder.cloudId,
-  defaultFolderId: serviceAccount.folderId,
-  defaultZone: args.region.defaultZone,
-  regionId: args.region.id,
+const connection = makeEntityOutput({
+  entity: yandex.connectionEntity,
+  identity: keyFileData.service_account_id,
+  meta: {
+    title: serviceAccount.name,
+    description: `Authorized as SA "${serviceAccount.name}" (ID: ${serviceAccount.id}) in folder "${folder.name}" (ID: ${folder.id})`,
+  },
+  value: {
+    authorizedKeyJson: secrets.authorizedKeyJson,
+    cloudId: folder.cloudId,
+    defaultFolderId: serviceAccount.folderId,
+    defaultZone: args.region.defaultZone,
+    regionId: args.region.id,
+  },
 })
 
 export default outputs({

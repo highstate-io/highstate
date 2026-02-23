@@ -6,6 +6,7 @@ import type { ProjectUnlockService } from "./project-unlock"
 import { defineComponent, defineUnit, getInstanceId, type InstanceModel } from "@highstate/contract"
 import { clone } from "remeda"
 import { describe, type MockedObject, vi } from "vitest"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { test } from "../test-utils"
 import { ProjectEvaluationSubsystem } from "./evaluation"
 
@@ -141,6 +142,9 @@ describe("ProjectEvaluationSubsystem", () => {
         projectModelService,
         pubsubManager,
         projectUnlockService,
+        vi.mockObject({
+          track: vi.fn().mockResolvedValue(undefined),
+        } as unknown as ObjectRefIndexService),
         logger,
       )
 

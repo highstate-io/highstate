@@ -1,4 +1,4 @@
-import { l4EndpointToString, subnetToString } from "@highstate/common"
+import { l4EndpointToString, makeEntityOutput, subnetToString } from "@highstate/common"
 import { wireguard } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
 import {
@@ -19,11 +19,17 @@ const presharedKeyPart = await toPromise(presharedKeyPartOutput)
 
 const peer = await createPeerEntity(name, args, resolvedInpus, publicKey, presharedKeyPart)
 
-export default outputs({
-  identity: {
+const identity = makeEntityOutput({
+  entity: wireguard.identityEntity,
+  identity: publicKey,
+  value: {
     peer,
     privateKey,
   },
+})
+
+export default outputs({
+  identity,
 
   $statusFields: {
     publicKey,

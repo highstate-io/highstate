@@ -7,6 +7,7 @@ import {
   type EntityInput,
   unitArtifactSchema,
   z,
+  type EntityValue,
 } from "@highstate/contract"
 import { l7EndpointEntity } from "../network"
 
@@ -51,15 +52,6 @@ export const folderMetaSchema = z.object({
 export const folderContentSchema = z.union([
   z.object({
     type: z.literal("embedded"),
-    files: fileEntity.schema.array(),
-    folders: z
-      .object({
-        meta: folderMetaSchema,
-        get content() {
-          return folderContentSchema
-        },
-      })
-      .array(),
   }),
   z.object({
     type: z.literal("artifact"),
@@ -77,6 +69,19 @@ export const folderContentSchema = z.union([
 
 export const folderEntity = defineEntity({
   type: "common.folder.v1",
+
+  includes: {
+    files: {
+      entity: fileEntity,
+      multiple: true,
+      required: false,
+    },
+    folders: {
+      entity: () => folderEntity,
+      multiple: true,
+      required: false,
+    },
+  },
 
   schema: z.object({
     meta: folderMetaSchema,
@@ -137,7 +142,7 @@ export const remoteFile = defineUnit({
   },
 })
 
-export type File = z.infer<typeof fileEntity.schema>
+export type File = EntityValue<typeof fileEntity>
 export type FileInput = EntityInput<typeof fileEntity>
 export type FileMeta = z.infer<typeof baseFileMetaSchema>
 export type FileContent = z.infer<typeof fileContentSchema>
@@ -147,7 +152,7 @@ export type ArtifactFile = Simplify<File & { content: { type: "artifact" } }>
 export type LocalFile = Simplify<File & { content: { type: "local" } }>
 export type RemoteFile = Simplify<File & { content: { type: "remote" } }>
 
-export type Folder = z.infer<typeof folderEntity.schema>
+export type Folder = EntityValue<typeof folderEntity>
 export type FolderInput = EntityInput<typeof folderEntity>
 export type FolderMeta = z.infer<typeof folderMetaSchema>
 export type FolderContent = z.infer<typeof folderContentSchema>
@@ -159,3 +164,18 @@ export type RemoteFolder = Simplify<Folder & { content: { type: "remote" } }>
 
 export type Checksum = z.infer<typeof checksumSchema>
 export type ChecksumAlgorithm = z.infer<typeof checksumAlgorithmSchema>
+
+const _folderTypeTest: Folder = {
+  $meta: {
+    type: "common.folder.v1",
+    identity: "_type-test",
+  },
+  meta: {
+    name: "root",
+  },
+  content: {
+    type: "embedded",
+  },
+  files: [],
+  folders: [],
+}

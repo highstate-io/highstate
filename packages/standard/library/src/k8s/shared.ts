@@ -1,4 +1,12 @@
-import { $args, defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  $args,
+  defineEntity,
+  defineUnit,
+  secretSchema,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { serverEntity } from "../common"
 import { implementationReferenceSchema } from "../impl-ref"
 import { addressEntity, l3EndpointEntity, l4EndpointEntity } from "../network"
@@ -79,20 +87,6 @@ export const clusterInfoProperties = {
   networkPolicyImplRef: implementationReferenceSchema.optional(),
 
   /**
-   * The endpoints of the API server.
-   *
-   * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-   *
-   * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
-   */
-  apiEndpoints: l4EndpointEntity.schema.array(),
-
-  /**
-   * The external IPs of the cluster nodes allowed to be used for external access.
-   */
-  externalIps: addressEntity.schema.array(),
-
-  /**
    * The extra quirks of the cluster to improve compatibility.
    */
   quirks: clusterQuirksSchema.optional(),
@@ -108,6 +102,18 @@ export const clusterEntity = defineEntity({
 
   includes: {
     /**
+     * The endpoints of the API server.
+     *
+     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
+     *
+     * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
+     */
+    apiEndpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+
+    /**
      * The endpoints of the cluster nodes.
      *
      * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
@@ -117,16 +123,33 @@ export const clusterEntity = defineEntity({
     endpoints: {
       entity: l3EndpointEntity,
       multiple: true,
+      required: false,
+    },
+
+    /**
+     * The external IPs of the cluster nodes allowed to be used for external access.
+     */
+    externalIps: {
+      entity: addressEntity,
+      multiple: true,
+      required: false,
     },
   },
 
   schema: z.object({
     ...clusterInfoProperties,
-    kubeconfig: z.string(),
+
+    /**
+     * The content of the kubeconfig to use for connecting to the cluster.
+     */
+    kubeconfig: secretSchema(z.string()),
   }),
 
   meta: {
     color: "#2196F3",
+    title: "K8S Cluster",
+    icon: "devicon:kubernetes",
+    iconColor: "#2196F3",
   },
 })
 
@@ -305,7 +328,7 @@ export const monitorWorkerParamsSchema = z.object({
   resources: namespacedResourceEntity.schema.array(),
 })
 
-export type Cluster = z.infer<typeof clusterEntity.schema>
+export type Cluster = EntityValue<typeof clusterEntity>
 export type ClusterInput = EntityInput<typeof clusterEntity>
 
 export type InternalIpsPolicy = z.infer<typeof internalIpsPolicySchema>

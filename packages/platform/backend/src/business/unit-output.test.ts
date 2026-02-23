@@ -42,7 +42,12 @@ describe("UnitOutputService", () => {
     const service = new UnitOutputService(libraryBackend, pino({ level: "silent" }))
 
     const baseOutputs = {
-      value: { value: { $meta: { identity: "id-1", title: "x" }, value: "hello" } },
+      value: {
+        value: {
+          $meta: { type: "test.entity.v1", identity: "id-1", title: "x" },
+          value: "hello",
+        },
+      },
       $statusFields: {
         value: [{ name: "status", meta: { title: "Status" }, value: "ok" }],
       },
@@ -73,7 +78,12 @@ describe("UnitOutputService", () => {
       instanceType: "component.v1",
       outputs: {
         ...baseOutputs,
-        value: { value: { $meta: { identity: "id-1", title: "x" }, value: "world" } },
+        value: {
+          value: {
+            $meta: { type: "test.entity.v1", identity: "id-1", title: "x" },
+            value: "world",
+          },
+        },
       },
     })
 
@@ -242,9 +252,14 @@ describe("UnitOutputService", () => {
 
     const service = new UnitOutputService(libraryBackend, pino({ level: "silent" }))
 
-    const anonymousChild = {
-      $meta: { title: "Anon child" },
+    const childOne = {
+      $meta: { type: "child.v1", identity: "child-1", title: "Child 1" },
       name: "child-1",
+    }
+
+    const childTwo = {
+      $meta: { type: "child.v1", identity: "child-2", title: "Child 2" },
+      name: "child-2",
     }
 
     const parsed = await service.parseUnitOutputs({
@@ -254,25 +269,33 @@ describe("UnitOutputService", () => {
         parent: {
           value: {
             $meta: {
-              // must not affect derived type
-              type: "child.v1",
+              type: "parent.v1",
               identity: "parent-1",
               title: "Parent Title",
-              references: ["external-ref", 123, null],
+              references: {
+                deps: ["external-ref"],
+              },
             },
             name: "p",
-            childOne: anonymousChild,
-            childTwo: anonymousChild,
-            children: [
-              anonymousChild,
-              { $meta: { identity: "child-2", title: "Child 2" }, name: "c2" },
-            ],
+            childOne: childOne,
+            childTwo: childTwo,
+            children: [childOne, childTwo],
           },
         },
         parents: {
           value: [
-            { $meta: { identity: "dup", title: "First" }, name: "x" },
-            { $meta: { identity: "dup", title: "Second" }, name: "y" },
+            {
+              $meta: { type: "parent.v1", identity: "dup", title: "First" },
+              name: "x",
+              childOne: childOne,
+              childTwo: childTwo,
+            },
+            {
+              $meta: { type: "parent.v1", identity: "dup", title: "Second" },
+              name: "y",
+              childOne: childOne,
+              childTwo: childTwo,
+            },
           ],
         },
       },
@@ -288,26 +311,89 @@ describe("UnitOutputService", () => {
     expect(parentNodes).toHaveLength(2)
     expect(childNodes).toHaveLength(2)
 
-    const parent = nodes.find(n => n.output === "parent")
+    const parent = nodes.find(n => n.entityType === "parent.v1" && n.identity === "parent-1")
     expect(parent?.entityType).toBe("parent.v1")
     expect(parent?.identity).toBe("parent-1")
-    expect(parent?.explicitReferences).toEqual(["external-ref"])
-    expect(parent?.meta.title).toBe("Parent Title")
+    expect(payload?.explicitReferences).toEqual([
+      { fromEntityId: parent!.entityId, toEntityId: "external-ref", group: "deps" },
+    ])
+    expect(parent?.meta?.title).toBe("Parent Title")
     expect(parent?.content).not.toHaveProperty("$meta")
+    expect(parent?.content).not.toHaveProperty("childOne")
+    expect(parent?.content).not.toHaveProperty("childTwo")
+    expect(parent?.content).not.toHaveProperty("children")
+    expect(parent?.exportedOutputs).toEqual(["parent"])
 
-    const duplicateParents = nodes.filter(n => n.output === "parents" && n.identity === "dup")
+    const child1 = nodes.find(n => n.entityType === "child.v1" && n.identity === "child-1")
+    const child2 = nodes.find(n => n.entityType === "child.v1" && n.identity === "child-2")
+    expect(child1?.referencedOutputs).toEqual(expect.arrayContaining(["parent", "parents"]))
+    expect(child1?.exportedOutputs).toEqual([])
+    expect(child2?.referencedOutputs).toEqual(expect.arrayContaining(["parent", "parents"]))
+    expect(child2?.exportedOutputs).toEqual([])
+
+    const duplicateParents = nodes.filter(n => n.entityType === "parent.v1" && n.identity === "dup")
     expect(duplicateParents).toHaveLength(1)
+    expect(duplicateParents[0]?.exportedOutputs).toEqual(["parents"])
 
-    const anonChildNodes = nodes.filter(
-      n => n.output === "parent" && n.entityType === "child.v1" && !n.identity,
-    )
-    expect(anonChildNodes).toHaveLength(1)
-
-    const anonChildNodeId = anonChildNodes[0]?.nodeId
     const implicitFromParent = payload!.implicitReferences.filter(
-      r => r.fromNodeId === parent?.nodeId,
+      r => r.fromEntityId === parent!.entityId,
     )
-    const implicitToAnonChild = implicitFromParent.filter(r => r.toNodeId === anonChildNodeId)
-    expect(implicitToAnonChild.length).toBeGreaterThanOrEqual(2)
+    expect(implicitFromParent).toEqual(
+      expect.arrayContaining([
+        { fromEntityId: parent!.entityId, toEntityId: child1!.entityId, group: "childOne" },
+        { fromEntityId: parent!.entityId, toEntityId: child2!.entityId, group: "childTwo" },
+        { fromEntityId: parent!.entityId, toEntityId: child1!.entityId, group: "children" },
+        { fromEntityId: parent!.entityId, toEntityId: child2!.entityId, group: "children" },
+      ]),
+    )
+  })
+
+  test("keeps entity snapshot meta null when no UI meta fields are provided", async () => {
+    const entity = defineEntity({
+      type: "test.entity.v1",
+      schema: z.object({ value: z.string() }),
+    })
+
+    const unit = defineUnit({
+      type: "component.v1",
+      outputs: {
+        value: entity,
+      },
+      source: {
+        package: "@test/units",
+        path: "unit",
+      },
+    })
+
+    const libraryBackend = vi.mockObject({
+      loadLibrary: vi.fn().mockResolvedValue({
+        components: {
+          "component.v1": unit.model,
+        },
+        entities: {
+          "test.entity.v1": entity.model,
+        },
+      }),
+    } as unknown as LibraryBackend)
+
+    const service = new UnitOutputService(libraryBackend, pino({ level: "silent" }))
+
+    const parsed = await service.parseUnitOutputs({
+      libraryId: "lib",
+      instanceType: "component.v1",
+      outputs: {
+        value: {
+          value: {
+            $meta: { type: "test.entity.v1", identity: "id-1" },
+            value: "hello",
+          },
+        },
+      },
+    })
+
+    const payload = parsed.entitySnapshotPayload
+    expect(payload).not.toBeNull()
+    expect(payload!.nodes).toHaveLength(1)
+    expect(payload!.nodes[0]?.meta).toBeNull()
   })
 })

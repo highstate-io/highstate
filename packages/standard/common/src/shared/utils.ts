@@ -1,7 +1,28 @@
 import type { Metadata, MetadataContainer, BooleanPatch } from "@highstate/library"
-import { cuidv2d, HighstateSignature, type EntityWithMeta } from "@highstate/contract"
+import {
+  cuidv2d,
+  getEntityId,
+  HighstateSignature,
+  z,
+  type Entity,
+  type EntityValueInput,
+  type EntityMeta,
+  type EntityWithMeta,
+  type VersionedName,
+  type EntityValue,
+} from "@highstate/contract"
 import { compile } from "filter-expression"
 import { createHash } from "node:crypto"
+import {
+  output,
+  toPromise,
+  type DeepInput,
+  type Output,
+  type Input,
+  type InputArray,
+  type Unwrap,
+} from "@highstate/pulumi"
+import type { T } from "vitest/dist/chunks/environment.d.cL3nLXbE.js"
 
 /**
  * Filter a list of items using a filter expression.
@@ -142,4 +163,81 @@ export function parseSizeString(size: string): number {
   }
 
   return Math.round(value * units[unit])
+}
+
+export type MakeEntityOptions<TEntity extends Entity> = {
+  entity: TEntity
+  identity: string
+  meta?: Omit<EntityMeta, "type" | "identity">
+  value: Omit<EntityValueInput<TEntity>, "$meta">
+}
+
+export function makeEntity<TEntity extends Entity>({
+  entity,
+  identity,
+  meta,
+  value,
+}: MakeEntityOptions<TEntity>): EntityValue<TEntity> {
+  const built = {
+    ...(value as Record<string, unknown>),
+    $meta: {
+      type: entity.type,
+      identity,
+      ...meta,
+    },
+  }
+
+  return entity.schema.parse(built) as EntityValue<TEntity>
+}
+
+type CommonEntityMeta = Omit<EntityMeta, "type" | "identity">
+
+export type MakeEntityAsyncOptions<TEntity extends Entity> = {
+  entity: TEntity
+  identity: Input<string>
+  meta?: { [K in keyof CommonEntityMeta]?: Input<CommonEntityMeta[K]> }
+  value: {
+    [K in keyof Omit<EntityValueInput<TEntity>, "$meta">]: DeepInput<EntityValueInput<TEntity>[K]>
+  }
+}
+
+export function makeEntityOutput<TEntity extends Entity>({
+  entity,
+  identity,
+  meta,
+  value,
+}: MakeEntityAsyncOptions<TEntity>): Output<EntityValue<TEntity>> {
+  return output({
+    ...value,
+    $meta: {
+      type: entity.type,
+      identity,
+      ...meta,
+    },
+  }).apply(built => entity.schema.parse(built)) as Output<EntityValue<TEntity>>
+}
+
+export function makeEntityAsync<TEntity extends Entity>(
+  options: MakeEntityAsyncOptions<TEntity>,
+): Promise<EntityValue<TEntity>> {
+  return toPromise(makeEntityOutput(options)) as Promise<EntityValue<TEntity>>
+}
+
+/**
+ * Get the combined identity based on the ids of the given entities.
+ *
+ * This function can be used for entities that do not have their own identity but are defined by the combination of other entities (e.g. a server defined by its network endpoints).
+ */
+export function getCombinedIdentity(entities: EntityWithMeta[]): string {
+  const sortedIds = entities.map(getEntityId).sort() // sort to ensure consistent identity regardless of the order of entities
+
+  return sortedIds.join(":")
+}
+
+export function getCombinedIdentityOutput(entities: InputArray<EntityWithMeta>): Output<string> {
+  return output(entities).apply(getCombinedIdentity)
+}
+
+export function getCombinedIdentityAsync(entities: EntityWithMeta[]): Promise<string> {
+  return toPromise(getCombinedIdentityOutput(entities))
 }

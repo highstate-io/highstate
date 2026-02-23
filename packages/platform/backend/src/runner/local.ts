@@ -88,8 +88,7 @@ export class LocalRunnerBackend implements RunnerBackend {
 
   private async updateWorker(options: UnitUpdateOptions, preview: boolean): Promise<void> {
     const configMap: ConfigMap = {
-      [HighstateConfigKey.Config]: { value: JSON.stringify(options.config) },
-      [HighstateConfigKey.Secrets]: { value: JSON.stringify(options.secrets), secret: true },
+      [HighstateConfigKey.Config]: { value: JSON.stringify(options.config), secret: true },
     }
 
     const unitId = LocalRunnerBackend.getInstanceId(options)

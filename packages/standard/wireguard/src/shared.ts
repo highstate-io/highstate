@@ -1,4 +1,4 @@
-import type { k8s, network, wireguard } from "@highstate/library"
+import { type k8s, type network, wireguard } from "@highstate/library"
 import {
   addressToCidr,
   createAddressSpace,
@@ -6,6 +6,7 @@ import {
   type InputAddressSpace,
   l3EndpointToL4,
   l4EndpointToString,
+  makeEntity,
   parseAddress,
   parseEndpoint,
   parseSubnets,
@@ -79,8 +80,8 @@ function generatePeerConfig(
 
   if (identity.peer.presharedKeyPart && peer.presharedKeyPart) {
     const presharedKey = combinePresharedKeyParts(
-      identity.peer.presharedKeyPart,
-      peer.presharedKeyPart,
+      identity.peer.presharedKeyPart.value,
+      peer.presharedKeyPart.value,
     )
 
     lines.push(`PresharedKey = ${presharedKey}`)
@@ -279,19 +280,23 @@ export async function createPeerEntity(
   const addresses = args.addresses.map(parseAddress)
   const allowedSubnets = await calculateAllowedSubnets(args, inputs, addresses)
 
-  return {
-    name: args.peerName ?? name,
-    endpoints,
-    allowedSubnets,
-    dns: args.dns.map(parseAddress),
-    publicKey,
-    addresses,
-    network: inputs.network,
-    presharedKeyPart,
-    listenPort: args.listenPort ?? 51820,
-    persistentKeepalive: args.persistentKeepalive,
-    feedMetadata: feedMetadataFromArgs(args.feedMetadata),
-  }
+  return makeEntity({
+    entity: wireguard.peerEntity,
+    identity: publicKey,
+    value: {
+      name: args.peerName ?? name,
+      endpoints,
+      allowedSubnets,
+      dns: args.dns.map(parseAddress),
+      publicKey,
+      addresses,
+      network: inputs.network,
+      presharedKeyPart,
+      listenPort: args.listenPort ?? 51820,
+      persistentKeepalive: args.persistentKeepalive,
+      feedMetadata: feedMetadataFromArgs(args.feedMetadata),
+    },
+  })
 }
 
 export function shouldExpose(

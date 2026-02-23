@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { l4EndpointEntity } from "../network"
 
 export const credentialsSchema = z.object({
@@ -160,8 +166,8 @@ export const database = defineUnit({
   },
 })
 
-export type Connection = z.infer<typeof connectionEntity.schema>
+export type Connection = EntityValue<typeof connectionEntity>
 export type ConnectionInput = EntityInput<typeof connectionEntity>
 
-export type Database = z.infer<typeof databaseEntity.schema>
+export type Database = EntityValue<typeof databaseEntity>
 export type DatabaseInput = EntityInput<typeof databaseEntity>

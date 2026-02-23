@@ -120,11 +120,6 @@ export type UnitUpdateOptions = UnitOptions & {
   config: UnitConfig
 
   /**
-   * The secret values to pass to the unit.
-   */
-  secrets: Record<string, unknown>
-
-  /**
    * Artifact required by this instance.
    */
   artifacts?: Artifact[]

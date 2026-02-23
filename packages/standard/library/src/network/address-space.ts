@@ -1,8 +1,14 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { l3EndpointEntity } from "./endpoint"
 import { subnetEntity } from "./subnet"
 
-export type AddressSpace = z.infer<typeof addressSpaceEntity.schema>
+export type AddressSpace = EntityValue<typeof addressSpaceEntity>
 export type AddressSpaceInput = EntityInput<typeof addressSpaceEntity>
 
 /**

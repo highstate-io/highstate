@@ -12,6 +12,8 @@ export async function createMonitorWorker(
 ): Promise<Output<Unwrap<UnitWorker>>> {
   const scope = new ClusterAccessScope("monitor", {
     rule: {
+      apiGroups: ["", "apps"],
+      resources: ["deployment","statefulset", "services"],
       verbs: ["get", "list", "watch"],
     },
 
@@ -24,7 +26,7 @@ export async function createMonitorWorker(
     image: images["worker.k8s-monitor"].image,
 
     params: {
-      kubeconfig: scope.cluster.kubeconfig,
+      kubeconfig: scope.cluster.kubeconfig.value,
       resources: output(resources).apply(resources => resources.map(r => r.entity)),
     } satisfies DeepInput<k8s.MonitorWorkerParams>,
   })

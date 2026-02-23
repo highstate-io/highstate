@@ -7,7 +7,7 @@ export async function createProvider(connection: Input<yandex.Connection>): Prom
   return await toPromise(
     output(connection).apply(connection => {
       return new Provider(connection.cloudId, {
-        serviceAccountKeyFile: connection.serviceAccountKeyFile,
+        serviceAccountKeyFile: connection.authorizedKeyJson.value,
         cloudId: connection.cloudId,
         folderId: connection.defaultFolderId,
         zone: connection.defaultZone,

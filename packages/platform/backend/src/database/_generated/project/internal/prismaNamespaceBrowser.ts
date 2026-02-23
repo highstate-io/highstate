@@ -150,7 +150,8 @@ export const EntitySnapshotScalarFieldEnum = {
   entityId: 'entityId',
   operationId: 'operationId',
   stateId: 'stateId',
-  output: 'output',
+  referencedOutputs: 'referencedOutputs',
+  exportedOutputs: 'exportedOutputs',
   createdAt: 'createdAt'
 } as const
 
@@ -159,7 +160,8 @@ export type EntitySnapshotScalarFieldEnum = (typeof EntitySnapshotScalarFieldEnu
 
 export const EntitySnapshotReferenceScalarFieldEnum = {
   fromId: 'fromId',
-  toId: 'toId'
+  toId: 'toId',
+  group: 'group'
 } as const
 
 export type EntitySnapshotReferenceScalarFieldEnum = (typeof EntitySnapshotReferenceScalarFieldEnum)[keyof typeof EntitySnapshotReferenceScalarFieldEnum]

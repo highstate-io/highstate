@@ -1,4 +1,11 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  secretSchema,
+  type EntityInput,
+  z,
+  type EntityValue,
+} from "@highstate/contract"
 import { serverOutputs, vmSecrets, vmSshArgs } from "../common"
 import * as ssh from "../ssh"
 
@@ -7,9 +14,9 @@ export const connectionEntity = defineEntity({
 
   schema: z.object({
     /**
-     * The service account key file content (JSON).
+     * The JSON of the authorized key for the service account.
      */
-    serviceAccountKeyFile: z.string().optional(),
+    authorizedKeyJson: secretSchema(z.string()),
 
     /**
      * The ID of the cloud.
@@ -34,6 +41,9 @@ export const connectionEntity = defineEntity({
 
   meta: {
     color: "#0080ff",
+    title: "YC Connection",
+    icon: "simple-icons:yandexcloud",
+    iconColor: "#0080ff",
   },
 })
 
@@ -81,16 +91,16 @@ export const connection = defineUnit({
 
   secrets: {
     /**
-     * The service account key file content (JSON).
+     * The JSON of the authorized key for the service account.
      *
      * Important: service account must have `iam.serviceAccounts.user` role to work properly.
      *
      * See [Creating an authorized key](https://yandex.cloud/en/docs/iam/operations/authentication/manage-authorized-keys#create-authorized-key) for details.
      */
-    serviceAccountKeyFile: {
+    authorizedKeyJson: {
       schema: z.string().meta({ language: "json" }),
       meta: {
-        title: "Service Account Key File",
+        title: "Authorized Key JSON",
       },
     },
   },
@@ -210,7 +220,7 @@ export const imageEntity = defineEntity({
   }),
 
   meta: {
-    title: "Yandex Cloud Image",
+    title: "YC Image",
     icon: "simple-icons:yandexcloud",
     iconColor: "#0080ff",
     secondaryIcon: "mage:compact-disk-fill",
@@ -386,11 +396,11 @@ export const virtualMachine = defineUnit({
   },
 })
 
-export type Connection = z.infer<typeof connectionEntity.schema>
+export type Connection = EntityValue<typeof connectionEntity>
 export type ConnectionInput = EntityInput<typeof connectionEntity>
 
-export type Disk = z.infer<typeof diskEntity.schema>
+export type Disk = EntityValue<typeof diskEntity>
 export type DiskInput = EntityInput<typeof diskEntity>
 
-export type Image = z.infer<typeof imageEntity.schema>
+export type Image = EntityValue<typeof imageEntity>
 export type ImageInput = EntityInput<typeof imageEntity>
