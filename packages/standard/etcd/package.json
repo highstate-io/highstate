@@ -1,6 +1,6 @@
 {
   "name": "@highstate/etcd",
-  "version": "0.14.2",
+  "version": "0.20.0",
   "type": "module",
   "files": [
     "dist"
@@ -9,7 +9,7 @@
     "./units/connection": "./dist/units/connection/index.js",
     "./units/namespace": "./dist/units/namespace/index.js",
     ".": {
-      "default":"./dist/shared/index.js",
+      "default": "./dist/shared/index.js",
       "types": "./src/shared/index.ts"
     }
   },

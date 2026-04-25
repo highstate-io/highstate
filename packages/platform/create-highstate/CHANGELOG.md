@@ -1,3 +1,13 @@
+## 0.20.0 (2026-04-25)
+
+### 🚀 Features
+
+- big epic update ([439cd95](https://github.com/highstate-io/highstate/commit/439cd95))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.19.1 (2026-02-04)
 
 This was a version bump only for create-highstate to align it with other projects, there were no code changes.
