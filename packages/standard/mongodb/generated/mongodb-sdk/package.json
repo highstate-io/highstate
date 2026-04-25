@@ -1,0 +1,31 @@
+{
+  "name": "@highstate/mongodb-sdk",
+  "version": "0.19.1",
+  "description": "A Pulumi provider dynamically bridged from mongodb.",
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  },
+  "main": "bin/index.js",
+  "scripts": {
+    "build": "tsc && cp package.json bin/package.json"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "3.220.0",
+    "@types/node": "^18",
+    "async-mutex": "^0.5.0",
+    "typescript": "^5.7.2"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "terraform-provider",
+    "version": "0.7.0",
+    "parameterization": {
+      "name": "mongodb",
+      "version": "2.0.4",
+      "value": "eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkudGVycmFmb3JtLmlvL2ZlbGdlbC9tb25nb2RiIiwidmVyc2lvbiI6IjIuMC40In19"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

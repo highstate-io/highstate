@@ -1,13 +1,15 @@
 export * from "./code-server"
 export * from "./etcd"
+export * from "./grafana"
 export * from "./grocy"
 export * from "./hubble"
-export * from "./kubernetes-dashboard"
 export * from "./mariadb"
-export * from "./maybe"
+export * from "./matrix-stack"
 export * from "./minio"
 export * from "./mongodb"
+export * from "./portal"
 export * from "./postgresql"
+export * from "./refluxdb"
 export * from "./remnawave"
 export {
   appName,

@@ -1,6 +1,7 @@
 import type { InputEndpoint } from "@highstate/common"
 import type { Input, InputArray, InputRecord } from "@highstate/pulumi"
 import type { ContainerEnvironment, ContainerVolumeMount, WorkloadVolume } from "../container"
+import { images } from ".."
 
 export type ScriptDistribution = "alpine" | "ubuntu"
 
@@ -94,7 +95,7 @@ const emptyDistributionEnvironment = {
 export const emptyScriptEnvironment: ResolvedScriptEnvironment = {
   alpine: {
     ...emptyDistributionEnvironment,
-    image: "alpine@sha256:a8560b36e8b8210634f77d9f7f9efd7ffa463e380b75e2e74aff4511df3ef88c",
+    image: images.alpine.image,
     allowedEndpoints: [
       //
       "tcp://dl-cdn.alpinelinux.org:443",
@@ -104,7 +105,7 @@ export const emptyScriptEnvironment: ResolvedScriptEnvironment = {
 
   ubuntu: {
     ...emptyDistributionEnvironment,
-    image: "ubuntu@sha256:72297848456d5d37d1262630108ab308d3e9ec7ed1c3286a32fe09856619a782",
+    image: images.ubuntu.image,
     allowedEndpoints: [
       //
       "tcp://archive.ubuntu.com:80",

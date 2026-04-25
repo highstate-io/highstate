@@ -34,10 +34,19 @@ export class OrganizationmanagerOsLoginSettings extends pulumi.CustomResource {
         return obj['__pulumiType'] === OrganizationmanagerOsLoginSettings.__pulumiType;
     }
 
+    /**
+     * The organization to manage it's OsLogin Settings.
+     */
     declare public readonly organizationId: pulumi.Output<string>;
     declare public readonly organizationmanagerOsLoginSettingsId: pulumi.Output<string>;
+    /**
+     * SSH Certificate settings.
+     */
     declare public readonly sshCertificateSettings: pulumi.Output<outputs.OrganizationmanagerOsLoginSettingsSshCertificateSettings | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.OrganizationmanagerOsLoginSettingsTimeouts | undefined>;
+    /**
+     * Users SSH key settings.
+     */
     declare public readonly userSshKeySettings: pulumi.Output<outputs.OrganizationmanagerOsLoginSettingsUserSshKeySettings | undefined>;
 
     /**
@@ -78,10 +87,19 @@ export class OrganizationmanagerOsLoginSettings extends pulumi.CustomResource {
  * Input properties used for looking up and filtering OrganizationmanagerOsLoginSettings resources.
  */
 export interface OrganizationmanagerOsLoginSettingsState {
+    /**
+     * The organization to manage it's OsLogin Settings.
+     */
     organizationId?: pulumi.Input<string>;
     organizationmanagerOsLoginSettingsId?: pulumi.Input<string>;
+    /**
+     * SSH Certificate settings.
+     */
     sshCertificateSettings?: pulumi.Input<inputs.OrganizationmanagerOsLoginSettingsSshCertificateSettings>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerOsLoginSettingsTimeouts>;
+    /**
+     * Users SSH key settings.
+     */
     userSshKeySettings?: pulumi.Input<inputs.OrganizationmanagerOsLoginSettingsUserSshKeySettings>;
 }
 
@@ -89,9 +107,18 @@ export interface OrganizationmanagerOsLoginSettingsState {
  * The set of arguments for constructing a OrganizationmanagerOsLoginSettings resource.
  */
 export interface OrganizationmanagerOsLoginSettingsArgs {
+    /**
+     * The organization to manage it's OsLogin Settings.
+     */
     organizationId: pulumi.Input<string>;
     organizationmanagerOsLoginSettingsId?: pulumi.Input<string>;
+    /**
+     * SSH Certificate settings.
+     */
     sshCertificateSettings?: pulumi.Input<inputs.OrganizationmanagerOsLoginSettingsSshCertificateSettings>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerOsLoginSettingsTimeouts>;
+    /**
+     * Users SSH key settings.
+     */
     userSshKeySettings?: pulumi.Input<inputs.OrganizationmanagerOsLoginSettingsUserSshKeySettings>;
 }

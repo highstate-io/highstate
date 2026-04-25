@@ -2,7 +2,6 @@ import { endpointToString, parseEndpoint } from "@highstate/common"
 import { Deployment, Namespace } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
-import { join, map } from "remeda"
 import { images } from "../shared"
 
 const { args, inputs, outputs } = forUnit(k8s.apps.wgFeedServer)
@@ -21,7 +20,7 @@ Deployment.create(args.appName, {
     },
 
     environment: {
-      ETCD_ENDPOINTS: inputs.etcd.endpoints.apply(map(endpointToString)).apply(join(", ")),
+      ETCD_ENDPOINTS: inputs.etcd.endpoints.map(endpointToString).join(", "),
     },
   },
 

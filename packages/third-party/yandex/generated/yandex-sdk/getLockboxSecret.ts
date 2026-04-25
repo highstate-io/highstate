@@ -40,6 +40,7 @@ export interface GetLockboxSecretResult {
     readonly kmsKeyId: string;
     readonly labels: {[key: string]: string};
     readonly name: string;
+    readonly passwordPayloadSpecifications: outputs.GetLockboxSecretPasswordPayloadSpecification[];
     readonly secretId?: string;
     readonly status: string;
 }

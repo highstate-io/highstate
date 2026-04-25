@@ -1,6 +1,6 @@
 import { Command, MaterializedFile } from "@highstate/common"
-import { sops } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { common, sops } from "@highstate/library"
+import { forUnit, makeEntity, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { isNonNullish } from "remeda"
 
 const { name, inputs, secrets, outputs } = forUnit(sops.secrets)
@@ -30,26 +30,41 @@ const ageKeys = await toPromise(
     }),
 )
 
-const dataFile = await MaterializedFile.create(
-  "data.json",
-  JSON.stringify(secretsData, null, 2),
-  0o600,
-)
-
-// encrypt secrets using sops
-const encryptCommand = new Command("sops-encrypt", {
-  host: "local",
-  create: `sops encrypt --age ${ageKeys.join(",")} ${dataFile.path}`,
-})
-
-export default outputs({
-  file: {
+const file = makeEntity({
+  entity: common.fileEntity,
+  identity: name,
+  value: {
     meta: {
       name: `${name}.json`,
     },
     content: {
       type: "embedded",
-      value: encryptCommand.stdout,
+      value: JSON.stringify(secretsData, null, 2),
     },
   },
+})
+
+const dataFile = MaterializedFile.for(file)
+
+// encrypt secrets using sops
+const encryptCommand = new Command("sops-encrypt", {
+  host: "local",
+  create: `sops encrypt --age ${ageKeys.join(",")} ${dataFile.path}`,
+  files: [dataFile],
+})
+
+export default outputs({
+  file: makeEntityOutput({
+    entity: common.fileEntity,
+    identity: name,
+    value: {
+      meta: {
+        name: `${name}.json`,
+      },
+      content: {
+        type: "embedded",
+        value: encryptCommand.stdout,
+      },
+    },
+  }),
 })

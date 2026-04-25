@@ -34,12 +34,36 @@ export class DatatransferEndpoint extends pulumi.CustomResource {
         return obj['__pulumiType'] === DatatransferEndpoint.__pulumiType;
     }
 
+    /**
+     * Identifier of the endpoint to return. To get the endpoint ID, make an [EndpointService.List] request.
+     */
     declare public readonly datatransferEndpointId: pulumi.Output<string>;
+    /**
+     * Description of the endpoint.
+     */
     declare public readonly description: pulumi.Output<string>;
+    /**
+     * Identifier of the endpoint to return. To get the endpoint ID, make an [EndpointService.List] request.
+     */
+    declare public readonly endpointId: pulumi.Output<string>;
+    /**
+     * ID of the folder to create the endpoint in. To get the folder ID, make a
+     * [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Endpoint labels as `key:value` pairs. For details about the concept, see documentation.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the endpoint. The name must be unique within the folder.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly settings: pulumi.Output<outputs.DatatransferEndpointSettings | undefined>;
+    /**
+     * DataTransfer Endpoint Settings block
+     */
+    declare public readonly settings: pulumi.Output<outputs.DatatransferEndpointSetting[] | undefined>;
+    declare public readonly timeouts: pulumi.Output<outputs.DatatransferEndpointTimeouts | undefined>;
 
     /**
      * Create a DatatransferEndpoint resource with the given unique name, arguments, and options.
@@ -56,18 +80,22 @@ export class DatatransferEndpoint extends pulumi.CustomResource {
             const state = argsOrState as DatatransferEndpointState | undefined;
             resourceInputs["datatransferEndpointId"] = state?.datatransferEndpointId;
             resourceInputs["description"] = state?.description;
+            resourceInputs["endpointId"] = state?.endpointId;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["settings"] = state?.settings;
+            resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as DatatransferEndpointArgs | undefined;
             resourceInputs["datatransferEndpointId"] = args?.datatransferEndpointId;
             resourceInputs["description"] = args?.description;
+            resourceInputs["endpointId"] = args?.endpointId;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["settings"] = args?.settings;
+            resourceInputs["timeouts"] = args?.timeouts;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(DatatransferEndpoint.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -78,22 +106,70 @@ export class DatatransferEndpoint extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DatatransferEndpoint resources.
  */
 export interface DatatransferEndpointState {
+    /**
+     * Identifier of the endpoint to return. To get the endpoint ID, make an [EndpointService.List] request.
+     */
     datatransferEndpointId?: pulumi.Input<string>;
+    /**
+     * Description of the endpoint.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Identifier of the endpoint to return. To get the endpoint ID, make an [EndpointService.List] request.
+     */
+    endpointId?: pulumi.Input<string>;
+    /**
+     * ID of the folder to create the endpoint in. To get the folder ID, make a
+     * [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Endpoint labels as `key:value` pairs. For details about the concept, see documentation.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the endpoint. The name must be unique within the folder.
+     */
     name?: pulumi.Input<string>;
-    settings?: pulumi.Input<inputs.DatatransferEndpointSettings>;
+    /**
+     * DataTransfer Endpoint Settings block
+     */
+    settings?: pulumi.Input<pulumi.Input<inputs.DatatransferEndpointSetting>[]>;
+    timeouts?: pulumi.Input<inputs.DatatransferEndpointTimeouts>;
 }
 
 /**
  * The set of arguments for constructing a DatatransferEndpoint resource.
  */
 export interface DatatransferEndpointArgs {
+    /**
+     * Identifier of the endpoint to return. To get the endpoint ID, make an [EndpointService.List] request.
+     */
     datatransferEndpointId?: pulumi.Input<string>;
+    /**
+     * Description of the endpoint.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Identifier of the endpoint to return. To get the endpoint ID, make an [EndpointService.List] request.
+     */
+    endpointId?: pulumi.Input<string>;
+    /**
+     * ID of the folder to create the endpoint in. To get the folder ID, make a
+     * [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Endpoint labels as `key:value` pairs. For details about the concept, see documentation.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the endpoint. The name must be unique within the folder.
+     */
     name?: pulumi.Input<string>;
-    settings?: pulumi.Input<inputs.DatatransferEndpointSettings>;
+    /**
+     * DataTransfer Endpoint Settings block
+     */
+    settings?: pulumi.Input<pulumi.Input<inputs.DatatransferEndpointSetting>[]>;
+    timeouts?: pulumi.Input<inputs.DatatransferEndpointTimeouts>;
 }

@@ -11,8 +11,6 @@ export function getMdbPostgresqlCluster(args?: GetMdbPostgresqlClusterArgs, opts
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getMdbPostgresqlCluster:getMdbPostgresqlCluster", {
         "clusterId": args.clusterId,
-        "deletionProtection": args.deletionProtection,
-        "description": args.description,
         "folderId": args.folderId,
         "id": args.id,
         "name": args.name,
@@ -24,8 +22,6 @@ export function getMdbPostgresqlCluster(args?: GetMdbPostgresqlClusterArgs, opts
  */
 export interface GetMdbPostgresqlClusterArgs {
     clusterId?: string;
-    deletionProtection?: boolean;
-    description?: string;
     folderId?: string;
     id?: string;
     name?: string;
@@ -35,12 +31,13 @@ export interface GetMdbPostgresqlClusterArgs {
  * A collection of values returned by getMdbPostgresqlCluster.
  */
 export interface GetMdbPostgresqlClusterResult {
-    readonly clusterId: string;
+    readonly clusterId?: string;
     readonly configs: outputs.GetMdbPostgresqlClusterConfig[];
     readonly createdAt: string;
     readonly databases: outputs.GetMdbPostgresqlClusterDatabase[];
     readonly deletionProtection: boolean;
-    readonly description?: string;
+    readonly description: string;
+    readonly diskEncryptionKeyId: string;
     readonly environment: string;
     readonly folderId: string;
     readonly health: string;
@@ -49,7 +46,7 @@ export interface GetMdbPostgresqlClusterResult {
     readonly id: string;
     readonly labels: {[key: string]: string};
     readonly maintenanceWindows: outputs.GetMdbPostgresqlClusterMaintenanceWindow[];
-    readonly name: string;
+    readonly name?: string;
     readonly networkId: string;
     readonly securityGroupIds: string[];
     readonly status: string;
@@ -60,8 +57,6 @@ export function getMdbPostgresqlClusterOutput(args?: GetMdbPostgresqlClusterOutp
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getMdbPostgresqlCluster:getMdbPostgresqlCluster", {
         "clusterId": args.clusterId,
-        "deletionProtection": args.deletionProtection,
-        "description": args.description,
         "folderId": args.folderId,
         "id": args.id,
         "name": args.name,
@@ -73,8 +68,6 @@ export function getMdbPostgresqlClusterOutput(args?: GetMdbPostgresqlClusterOutp
  */
 export interface GetMdbPostgresqlClusterOutputArgs {
     clusterId?: pulumi.Input<string>;
-    deletionProtection?: pulumi.Input<boolean>;
-    description?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
     name?: pulumi.Input<string>;

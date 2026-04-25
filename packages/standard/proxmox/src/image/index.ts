@@ -1,6 +1,12 @@
 import { l7EndpointToString } from "@highstate/common"
 import { type common, proxmox } from "@highstate/library"
-import { forUnit, output, toPromise } from "@highstate/pulumi"
+import {
+  forUnit,
+  getCombinedIdentityOutput,
+  makeEntityOutput,
+  output,
+  toPromise,
+} from "@highstate/pulumi"
 import { download } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
@@ -65,7 +71,14 @@ function getNameByUrl(url: string): [name: string, extension: string] {
 }
 
 export default outputs({
-  image: {
-    id: file.id,
-  },
+  image: makeEntityOutput({
+    entity: proxmox.imageEntity,
+    identity: getCombinedIdentityOutput([inputs.proxmoxCluster, file.id]),
+    meta: {
+      title: file.fileName,
+    },
+    value: {
+      id: file.id,
+    },
+  }),
 })

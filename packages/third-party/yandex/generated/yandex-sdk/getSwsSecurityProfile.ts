@@ -33,6 +33,8 @@ export interface GetSwsSecurityProfileArgs {
  * A collection of values returned by getSwsSecurityProfile.
  */
 export interface GetSwsSecurityProfileResult {
+    readonly advancedRateLimiterProfileId: string;
+    readonly analyzeRequestBodies: outputs.GetSwsSecurityProfileAnalyzeRequestBody[];
     readonly captchaId: string;
     readonly cloudId: string;
     readonly createdAt: string;

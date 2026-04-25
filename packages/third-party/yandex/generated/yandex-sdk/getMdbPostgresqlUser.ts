@@ -10,12 +10,8 @@ export function getMdbPostgresqlUser(args: GetMdbPostgresqlUserArgs, opts?: pulu
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getMdbPostgresqlUser:getMdbPostgresqlUser", {
         "clusterId": args.clusterId,
-        "connLimit": args.connLimit,
-        "deletionProtection": args.deletionProtection,
         "id": args.id,
-        "login": args.login,
         "name": args.name,
-        "settings": args.settings,
     }, opts, utilities.getPackage());
 }
 
@@ -24,39 +20,34 @@ export function getMdbPostgresqlUser(args: GetMdbPostgresqlUserArgs, opts?: pulu
  */
 export interface GetMdbPostgresqlUserArgs {
     clusterId: string;
-    connLimit?: number;
-    deletionProtection?: string;
     id?: string;
-    login?: boolean;
     name: string;
-    settings?: {[key: string]: string};
 }
 
 /**
  * A collection of values returned by getMdbPostgresqlUser.
  */
 export interface GetMdbPostgresqlUserResult {
+    readonly authMethod: string;
     readonly clusterId: string;
-    readonly connLimit?: number;
-    readonly deletionProtection?: string;
+    readonly connLimit: number;
+    readonly connectionManager: {[key: string]: string};
+    readonly deletionProtection: string;
     readonly grants: string[];
     readonly id: string;
-    readonly login?: boolean;
+    readonly login: boolean;
     readonly name: string;
     readonly password: string;
     readonly permissions: outputs.GetMdbPostgresqlUserPermission[];
     readonly settings: {[key: string]: string};
+    readonly userPasswordEncryption: string;
 }
 export function getMdbPostgresqlUserOutput(args: GetMdbPostgresqlUserOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetMdbPostgresqlUserResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getMdbPostgresqlUser:getMdbPostgresqlUser", {
         "clusterId": args.clusterId,
-        "connLimit": args.connLimit,
-        "deletionProtection": args.deletionProtection,
         "id": args.id,
-        "login": args.login,
         "name": args.name,
-        "settings": args.settings,
     }, opts, utilities.getPackage());
 }
 
@@ -65,10 +56,6 @@ export function getMdbPostgresqlUserOutput(args: GetMdbPostgresqlUserOutputArgs,
  */
 export interface GetMdbPostgresqlUserOutputArgs {
     clusterId: pulumi.Input<string>;
-    connLimit?: pulumi.Input<number>;
-    deletionProtection?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
-    login?: pulumi.Input<boolean>;
     name: pulumi.Input<string>;
-    settings?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }

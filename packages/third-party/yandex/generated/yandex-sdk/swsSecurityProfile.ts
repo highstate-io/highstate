@@ -34,14 +34,50 @@ export class SwsSecurityProfile extends pulumi.CustomResource {
         return obj['__pulumiType'] === SwsSecurityProfile.__pulumiType;
     }
 
+    /**
+     * Advanced rate limiter profile ID to use with this security profile. Set empty to use default.
+     */
+    declare public readonly advancedRateLimiterProfileId: pulumi.Output<string | undefined>;
+    /**
+     * Analyze request body.
+     */
+    declare public readonly analyzeRequestBody: pulumi.Output<outputs.SwsSecurityProfileAnalyzeRequestBody | undefined>;
+    /**
+     * Captcha ID to use with this security profile. Set empty to use default.
+     */
     declare public readonly captchaId: pulumi.Output<string | undefined>;
+    /**
+     * The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+     */
     declare public readonly cloudId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Action to perform if none of rules matched. Possible values: `ALLOW` or `DENY`.
+     */
     declare public readonly defaultAction: pulumi.Output<string | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * List of security rules. > Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be
+     * specified.
+     */
     declare public readonly securityRules: pulumi.Output<outputs.SwsSecurityProfileSecurityRule[] | undefined>;
     declare public readonly swsSecurityProfileId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.SwsSecurityProfileTimeouts | undefined>;
@@ -59,6 +95,8 @@ export class SwsSecurityProfile extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as SwsSecurityProfileState | undefined;
+            resourceInputs["advancedRateLimiterProfileId"] = state?.advancedRateLimiterProfileId;
+            resourceInputs["analyzeRequestBody"] = state?.analyzeRequestBody;
             resourceInputs["captchaId"] = state?.captchaId;
             resourceInputs["cloudId"] = state?.cloudId;
             resourceInputs["createdAt"] = state?.createdAt;
@@ -72,6 +110,8 @@ export class SwsSecurityProfile extends pulumi.CustomResource {
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as SwsSecurityProfileArgs | undefined;
+            resourceInputs["advancedRateLimiterProfileId"] = args?.advancedRateLimiterProfileId;
+            resourceInputs["analyzeRequestBody"] = args?.analyzeRequestBody;
             resourceInputs["captchaId"] = args?.captchaId;
             resourceInputs["cloudId"] = args?.cloudId;
             resourceInputs["defaultAction"] = args?.defaultAction;
@@ -93,14 +133,50 @@ export class SwsSecurityProfile extends pulumi.CustomResource {
  * Input properties used for looking up and filtering SwsSecurityProfile resources.
  */
 export interface SwsSecurityProfileState {
+    /**
+     * Advanced rate limiter profile ID to use with this security profile. Set empty to use default.
+     */
+    advancedRateLimiterProfileId?: pulumi.Input<string>;
+    /**
+     * Analyze request body.
+     */
+    analyzeRequestBody?: pulumi.Input<inputs.SwsSecurityProfileAnalyzeRequestBody>;
+    /**
+     * Captcha ID to use with this security profile. Set empty to use default.
+     */
     captchaId?: pulumi.Input<string>;
+    /**
+     * The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Action to perform if none of rules matched. Possible values: `ALLOW` or `DENY`.
+     */
     defaultAction?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * List of security rules. > Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be
+     * specified.
+     */
     securityRules?: pulumi.Input<pulumi.Input<inputs.SwsSecurityProfileSecurityRule>[]>;
     swsSecurityProfileId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.SwsSecurityProfileTimeouts>;
@@ -110,13 +186,46 @@ export interface SwsSecurityProfileState {
  * The set of arguments for constructing a SwsSecurityProfile resource.
  */
 export interface SwsSecurityProfileArgs {
+    /**
+     * Advanced rate limiter profile ID to use with this security profile. Set empty to use default.
+     */
+    advancedRateLimiterProfileId?: pulumi.Input<string>;
+    /**
+     * Analyze request body.
+     */
+    analyzeRequestBody?: pulumi.Input<inputs.SwsSecurityProfileAnalyzeRequestBody>;
+    /**
+     * Captcha ID to use with this security profile. Set empty to use default.
+     */
     captchaId?: pulumi.Input<string>;
+    /**
+     * The `Cloud ID` which resource belongs to. If it is not provided, the default provider `cloud-id` is used.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * Action to perform if none of rules matched. Possible values: `ALLOW` or `DENY`.
+     */
     defaultAction?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * List of security rules. > Exactly one rule specifier: `smart_protection` or `rule_condition` or `waf` should be
+     * specified.
+     */
     securityRules?: pulumi.Input<pulumi.Input<inputs.SwsSecurityProfileSecurityRule>[]>;
     swsSecurityProfileId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.SwsSecurityProfileTimeouts>;

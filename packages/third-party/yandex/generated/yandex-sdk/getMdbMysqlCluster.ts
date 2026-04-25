@@ -14,6 +14,7 @@ export function getMdbMysqlCluster(args?: GetMdbMysqlClusterArgs, opts?: pulumi.
         "clusterId": args.clusterId,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "folderId": args.folderId,
         "id": args.id,
         "labels": args.labels,
@@ -30,6 +31,7 @@ export interface GetMdbMysqlClusterArgs {
     clusterId?: string;
     deletionProtection?: boolean;
     description?: string;
+    diskEncryptionKeyId?: string;
     folderId?: string;
     id?: string;
     labels?: {[key: string]: string};
@@ -49,6 +51,8 @@ export interface GetMdbMysqlClusterResult {
     readonly databases: outputs.GetMdbMysqlClusterDatabase[];
     readonly deletionProtection: boolean;
     readonly description?: string;
+    readonly diskEncryptionKeyId: string;
+    readonly diskSizeAutoscalings: outputs.GetMdbMysqlClusterDiskSizeAutoscaling[];
     readonly environment: string;
     readonly folderId: string;
     readonly health: string;
@@ -75,6 +79,7 @@ export function getMdbMysqlClusterOutput(args?: GetMdbMysqlClusterOutputArgs, op
         "clusterId": args.clusterId,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "folderId": args.folderId,
         "id": args.id,
         "labels": args.labels,
@@ -91,6 +96,7 @@ export interface GetMdbMysqlClusterOutputArgs {
     clusterId?: pulumi.Input<string>;
     deletionProtection?: pulumi.Input<boolean>;
     description?: pulumi.Input<string>;
+    diskEncryptionKeyId?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;

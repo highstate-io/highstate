@@ -1,13 +1,14 @@
 import type { UnitTerminal } from "@highstate/contract"
-import type { k8s } from "@highstate/library"
 import type { Container } from "./container"
 import type { NetworkPolicy } from "./network-policy"
 import { getOrCreate } from "@highstate/contract"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -19,6 +20,7 @@ import { omit } from "remeda"
 import { Namespace } from "./namespace"
 import { commonExtraArgs, getProvider, mapMetadata, type ScopedResourceArgs } from "./shared"
 import {
+  filterPatchOwnedContainersInTemplate,
   getWorkloadComponents,
   Workload,
   type WorkloadArgs,
@@ -96,7 +98,17 @@ export abstract class CronJob extends Workload {
    * The Highstate cron job entity.
    */
   get entity(): Output<k8s.CronJob> {
-    return output(this.entityBase)
+    return makeEntityOutput({
+      entity: k8s.cronJobEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+        spec: this.spec.jobTemplate.spec,
+      },
+    })
   }
 
   protected getTerminalMeta(): Output<UnitTerminal["meta"]> {
@@ -313,7 +325,7 @@ class CronJobPatch extends CronJob {
         {
           metadata: mapMetadata(args, name),
           spec: output({ args, podTemplate }).apply(({ args, podTemplate }) => {
-            return deepmerge(
+            const spec = deepmerge(
               {
                 jobTemplate: {
                   spec: {
@@ -323,7 +335,16 @@ class CronJobPatch extends CronJob {
                 schedule: args.schedule!,
               } satisfies types.input.batch.v1.CronJobSpec,
               omit(args, cronJobExtraArgs) as types.input.batch.v1.CronJobSpec,
-            )
+            ) as Unwrap<types.input.batch.v1.CronJobSpec>
+
+            if (spec.jobTemplate?.spec?.template) {
+              spec.jobTemplate.spec.template = filterPatchOwnedContainersInTemplate(
+                spec.jobTemplate.spec.template,
+                podTemplate,
+              )
+            }
+
+            return spec
           }),
         },
         {

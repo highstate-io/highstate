@@ -1,4 +1,4 @@
-import type { common } from "@highstate/library"
+import type { common, MetadataKey } from "@highstate/library"
 import { getOrCreate, z } from "@highstate/contract"
 import {
   ComponentResource,
@@ -34,12 +34,9 @@ export type TlsCertificateSpec = {
   dnsNames?: InputArray<string>
 
   /**
-   * The native data to pass to the implementation.
-   *
-   * This is used for data which implementation may natively understand
-   * and may use this data to create certificates using native resources.
+   * The extra metadata to pass to the TLS certificate implementation.
    */
-  nativeData?: unknown
+  metadata?: Input<Record<MetadataKey, Input<unknown>>>
 }
 
 export type TlsCertificateArgs = TlsCertificateSpec & {

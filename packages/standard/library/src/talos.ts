@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  z,
+} from "@highstate/contract"
 import { clusterInputs, clusterOutputs, scheduleOnMastersPolicyArgs } from "./k8s/shared"
 
 export const clusterEntity = defineEntity({
@@ -103,5 +109,5 @@ export const cluster = defineUnit({
   },
 })
 
-export type Cluster = z.infer<typeof clusterEntity.schema>
+export type Cluster = EntityValue<typeof clusterEntity>
 export type ClusterInput = EntityInput<typeof clusterEntity>

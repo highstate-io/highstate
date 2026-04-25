@@ -46,10 +46,10 @@ message RemoveCustomStatusRequest {
 
 service InstanceService {
   // Updates the custom status of an instance.
-  rpc updateCustomStatus(UpdateCustomStatusRequest)
+  rpc UpdateCustomStatus(UpdateCustomStatusRequest)
       returns (google.protobuf.Empty);
 
   // Removes a custom status from an instance.
-  rpc removeCustomStatus(RemoveCustomStatusRequest)
+  rpc RemoveCustomStatus(RemoveCustomStatusRequest)
       returns (google.protobuf.Empty);
 }

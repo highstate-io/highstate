@@ -34,14 +34,38 @@ export class IotCoreRegistry extends pulumi.CustomResource {
         return obj['__pulumiType'] === IotCoreRegistry.__pulumiType;
     }
 
+    /**
+     * A set of certificate's fingerprints for the IoT Core Registry.
+     */
     declare public readonly certificates: pulumi.Output<string[] | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
     declare public readonly iotCoreRegistryId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Options for logging for IoT Core Registry.
+     */
     declare public readonly logOptions: pulumi.Output<outputs.IotCoreRegistryLogOptions | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * A set of passwords's id for the IoT Core Registry.
+     */
     declare public readonly passwords: pulumi.Output<string[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.IotCoreRegistryTimeouts | undefined>;
 
@@ -92,14 +116,38 @@ export class IotCoreRegistry extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IotCoreRegistry resources.
  */
 export interface IotCoreRegistryState {
+    /**
+     * A set of certificate's fingerprints for the IoT Core Registry.
+     */
     certificates?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
     iotCoreRegistryId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging for IoT Core Registry.
+     */
     logOptions?: pulumi.Input<inputs.IotCoreRegistryLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of passwords's id for the IoT Core Registry.
+     */
     passwords?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.IotCoreRegistryTimeouts>;
 }
@@ -108,13 +156,34 @@ export interface IotCoreRegistryState {
  * The set of arguments for constructing a IotCoreRegistry resource.
  */
 export interface IotCoreRegistryArgs {
+    /**
+     * A set of certificate's fingerprints for the IoT Core Registry.
+     */
     certificates?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
     iotCoreRegistryId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging for IoT Core Registry.
+     */
     logOptions?: pulumi.Input<inputs.IotCoreRegistryLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of passwords's id for the IoT Core Registry.
+     */
     passwords?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.IotCoreRegistryTimeouts>;
 }

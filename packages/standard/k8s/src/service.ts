@@ -6,12 +6,13 @@ import {
   parseL4Protocol,
 } from "@highstate/common"
 import { check, getOrCreate } from "@highstate/contract"
-import { k8s, type network } from "@highstate/library"
+import { type ImplementationReference, k8s, type network } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   normalize,
   type Output,
   output,
@@ -101,9 +102,16 @@ export abstract class Service extends NamespacedResource {
    * The Highstate service entity.
    */
   get entity(): Output<k8s.Service> {
-    return output({
-      ...this.entityBase,
-      endpoints: this.endpoints,
+    return makeEntityOutput({
+      entity: k8s.serviceEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+        endpoints: this.endpoints,
+      },
     })
   }
 
@@ -230,6 +238,8 @@ export abstract class Service extends NamespacedResource {
 
   /**
    * Returns the endpoints of the service including both internal and external endpoints.
+   *
+   * Also includes an `implRef` for port-forwarding if the namespace was created with port-forwarding enabled.
    */
   get endpoints(): Output<k8s.ServiceEndpoint[]> {
     return output({
@@ -237,7 +247,8 @@ export abstract class Service extends NamespacedResource {
       metadata: this.metadata,
       spec: this.spec,
       status: this.status,
-    }).apply(({ cluster, metadata, spec, status }) => {
+      portForwardCluster: this.namespace.portForwardCluster,
+    }).apply(({ cluster, metadata, spec, status, portForwardCluster }) => {
       function createMetadata(isInternal: boolean): k8s.EndpointServiceMetadata {
         return {
           "k8s.service": {
@@ -252,6 +263,15 @@ export abstract class Service extends NamespacedResource {
         }
       }
 
+      const implRef: ImplementationReference | undefined = portForwardCluster
+        ? {
+            package: "@highstate/k8s",
+            data: {
+              cluster: portForwardCluster,
+            },
+          }
+        : undefined
+
       const internalHosts = spec.clusterIPs.length
         ? [...spec.clusterIPs, `${metadata.name}.${metadata.namespace}.svc.cluster.local`]
         : []
@@ -263,6 +283,7 @@ export abstract class Service extends NamespacedResource {
             parseEndpoint,
             endpoint => l3EndpointToL4(endpoint, port.port, parseL4Protocol(port.protocol)),
             endpoint => addEndpointMetadata(endpoint, createMetadata(true)),
+            endpoint => (implRef ? { ...endpoint, implRef } : endpoint),
           ),
         ),
       )
@@ -282,8 +303,9 @@ export abstract class Service extends NamespacedResource {
           pipe(
             ip,
             parseEndpoint,
-            endpoint => l3EndpointToL4(endpoint, port.port, parseL4Protocol(port.protocol)),
+            endpoint => l3EndpointToL4(endpoint, port.nodePort, parseL4Protocol(port.protocol)),
             endpoint => addEndpointMetadata(endpoint, createMetadata(false)),
+            endpoint => (implRef ? { ...endpoint, implRef } : endpoint),
           ),
         ),
       )

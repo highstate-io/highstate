@@ -6,7 +6,17 @@
   },
   "worker.k8s-monitor": {
     "name": "ghcr.io/highstate-io/highstate/worker.k8s-monitor",
+    "tag": "debug",
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:debug@sha256:808eccda739d1e963d345a92612f3ca64ecf64de71a6010daa0e1fffbfc7aa5c"
+  },
+  "alpine": {
+    "name": "alpine",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:1a3743611f1ae0dce76e6eceede827271f426992aac60ab5fdf4ad5e2948e2cd"
+    "image": "alpine:latest@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659"
+  },
+  "ubuntu": {
+    "name": "ubuntu",
+    "tag": "latest",
+    "image": "ubuntu:latest@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b"
   }
 }

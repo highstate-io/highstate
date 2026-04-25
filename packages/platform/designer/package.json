@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
     "build": "nuxt build",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "build-libavoid": "bash ./scripts/build-libavoid.sh"
   },
   "files": [
     ".output"
@@ -59,7 +60,6 @@
     "flexsearch": "^0.8.158",
     "highlight.js": "^11.11.1",
     "js-base64": "^3.7.7",
-    "libavoid-js": "^0.4.2",
     "marked": "^15.0.7",
     "marked-highlight": "^2.2.1",
     "monaco-editor": "^0.52.2",

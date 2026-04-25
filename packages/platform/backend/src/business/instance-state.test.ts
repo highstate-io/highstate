@@ -2,6 +2,7 @@ import type { InstanceId, InstanceModel } from "@highstate/contract"
 import type { ArtifactService } from "../artifact"
 import type { PubSubManager } from "../pubsub"
 import type { RunnerBackend } from "../runner"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectService } from "./project"
 import type { SecretService } from "./secret"
 import type { UnitExtraService } from "./unit-extra"
@@ -21,6 +22,7 @@ const instanceStateTest = test.extend<{
   artifactService: MockedObject<ArtifactService>
   unitExtraService: MockedObject<UnitExtraService>
   secretService: MockedObject<SecretService>
+  objectRefIndexService: MockedObject<ObjectRefIndexService>
   instanceStateService: InstanceStateService
 }>({
   pubsubManager: async ({}, use) => {
@@ -52,6 +54,7 @@ const instanceStateTest = test.extend<{
   workerService: async ({}, use) => {
     const workerService = vi.mockObject({
       cleanupWorkerUsageAndSync: vi.fn().mockResolvedValue(undefined),
+      updateUnitRegistrations: vi.fn().mockResolvedValue([]),
     } as unknown as WorkerService)
 
     await use(workerService)
@@ -76,8 +79,17 @@ const instanceStateTest = test.extend<{
   },
 
   secretService: async ({}, use) => {
-    const secretService = vi.mockObject({} as unknown as SecretService)
+    const secretService = vi.mockObject({
+      updateInstanceSecretsCore: vi.fn().mockResolvedValue({ secretNames: [], secretIds: [] }),
+    } as unknown as SecretService)
     await use(secretService)
+  },
+
+  objectRefIndexService: async ({}, use) => {
+    const objectRefIndexService = vi.mockObject({
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ObjectRefIndexService)
+    await use(objectRefIndexService)
   },
 
   instanceStateService: async (
@@ -89,6 +101,7 @@ const instanceStateTest = test.extend<{
       artifactService,
       unitExtraService,
       secretService,
+      objectRefIndexService,
       logger,
     },
     use,
@@ -101,6 +114,7 @@ const instanceStateTest = test.extend<{
       artifactService,
       unitExtraService,
       secretService,
+      objectRefIndexService,
       logger.child({ service: "InstanceStateService" }),
     )
 

@@ -34,41 +34,125 @@ export class MdbMysqlCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbMysqlCluster.__pulumiType;
     }
 
+    /**
+     * Access policy to the MySQL cluster.
+     */
     declare public readonly access: pulumi.Output<outputs.MdbMysqlClusterAccess | undefined>;
     /**
+     * Deprecated field. You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.
+     * Regenerate hosts after changing the assign_public_ip parameter.
+     *
      * @deprecated Deprecated
      */
     declare public readonly allowRegenerationHost: pulumi.Output<boolean | undefined>;
+    /**
+     * The period in days during which backups are stored.
+     */
     declare public readonly backupRetainPeriodDays: pulumi.Output<number>;
+    /**
+     * Time to start the daily backup, in the UTC.
+     */
     declare public readonly backupWindowStart: pulumi.Output<outputs.MdbMysqlClusterBackupWindowStart | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
+     * To manage databases, please switch to using a separate resource type `yandex_mdb_mysql_databases`.
+     *
      * @deprecated Deprecated
      */
     declare public readonly databases: pulumi.Output<outputs.MdbMysqlClusterDatabase[] | undefined>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any
+     * exists.
+     */
+    declare public readonly diskEncryptionKeyId: pulumi.Output<string>;
+    /**
+     * Cluster disk size autoscaling settings.
+     */
+    declare public readonly diskSizeAutoscaling: pulumi.Output<outputs.MdbMysqlClusterDiskSizeAutoscaling | undefined>;
+    /**
+     * Deployment environment of the MySQL cluster.
+     */
     declare public readonly environment: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Aggregated health of the cluster.
+     */
     declare public /*out*/ readonly health: pulumi.Output<string>;
+    /**
+     * A list of host group IDs to place VMs of the cluster on.
+     */
     declare public readonly hostGroupIds: pulumi.Output<string[]>;
+    /**
+     * A host of the MySQL cluster.
+     */
     declare public readonly hosts: pulumi.Output<outputs.MdbMysqlClusterHost[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Maintenance policy of the MySQL cluster.
+     */
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbMysqlClusterMaintenanceWindow | undefined>;
     declare public readonly mdbMysqlClusterId: pulumi.Output<string>;
+    /**
+     * MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto
+     * specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).
+     */
     declare public readonly mysqlConfig: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * Cluster performance diagnostics settings. [YC
+     * Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics).
+     */
     declare public readonly performanceDiagnostics: pulumi.Output<outputs.MdbMysqlClusterPerformanceDiagnostics | undefined>;
+    /**
+     * Resources allocated to hosts of the MySQL cluster.
+     */
     declare public readonly resources: pulumi.Output<outputs.MdbMysqlClusterResources>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     declare public readonly restore: pulumi.Output<outputs.MdbMysqlClusterRestore | undefined>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * Status of the cluster.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbMysqlClusterTimeouts | undefined>;
     /**
+     * To manage users, please switch to using a separate resource type `yandex.MdbMysqlUser`.
+     *
      * @deprecated Deprecated
      */
     declare public readonly users: pulumi.Output<outputs.MdbMysqlClusterUser[] | undefined>;
+    /**
+     * Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).
+     */
     declare public readonly version: pulumi.Output<string>;
 
     /**
@@ -92,6 +176,8 @@ export class MdbMysqlCluster extends pulumi.CustomResource {
             resourceInputs["databases"] = state?.databases;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskEncryptionKeyId"] = state?.diskEncryptionKeyId;
+            resourceInputs["diskSizeAutoscaling"] = state?.diskSizeAutoscaling;
             resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["health"] = state?.health;
@@ -135,6 +221,8 @@ export class MdbMysqlCluster extends pulumi.CustomResource {
             resourceInputs["databases"] = args?.databases;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskEncryptionKeyId"] = args?.diskEncryptionKeyId;
+            resourceInputs["diskSizeAutoscaling"] = args?.diskSizeAutoscaling;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["hostGroupIds"] = args?.hostGroupIds;
@@ -165,41 +253,125 @@ export class MdbMysqlCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbMysqlCluster resources.
  */
 export interface MdbMysqlClusterState {
+    /**
+     * Access policy to the MySQL cluster.
+     */
     access?: pulumi.Input<inputs.MdbMysqlClusterAccess>;
     /**
+     * Deprecated field. You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.
+     * Regenerate hosts after changing the assign_public_ip parameter.
+     *
      * @deprecated Deprecated
      */
     allowRegenerationHost?: pulumi.Input<boolean>;
+    /**
+     * The period in days during which backups are stored.
+     */
     backupRetainPeriodDays?: pulumi.Input<number>;
+    /**
+     * Time to start the daily backup, in the UTC.
+     */
     backupWindowStart?: pulumi.Input<inputs.MdbMysqlClusterBackupWindowStart>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
     /**
+     * To manage databases, please switch to using a separate resource type `yandex_mdb_mysql_databases`.
+     *
      * @deprecated Deprecated
      */
     databases?: pulumi.Input<pulumi.Input<inputs.MdbMysqlClusterDatabase>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any
+     * exists.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Cluster disk size autoscaling settings.
+     */
+    diskSizeAutoscaling?: pulumi.Input<inputs.MdbMysqlClusterDiskSizeAutoscaling>;
+    /**
+     * Deployment environment of the MySQL cluster.
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Aggregated health of the cluster.
+     */
     health?: pulumi.Input<string>;
+    /**
+     * A list of host group IDs to place VMs of the cluster on.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A host of the MySQL cluster.
+     */
     hosts?: pulumi.Input<pulumi.Input<inputs.MdbMysqlClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy of the MySQL cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbMysqlClusterMaintenanceWindow>;
     mdbMysqlClusterId?: pulumi.Input<string>;
+    /**
+     * MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto
+     * specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).
+     */
     mysqlConfig?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * Cluster performance diagnostics settings. [YC
+     * Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics).
+     */
     performanceDiagnostics?: pulumi.Input<inputs.MdbMysqlClusterPerformanceDiagnostics>;
+    /**
+     * Resources allocated to hosts of the MySQL cluster.
+     */
     resources?: pulumi.Input<inputs.MdbMysqlClusterResources>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     restore?: pulumi.Input<inputs.MdbMysqlClusterRestore>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Status of the cluster.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbMysqlClusterTimeouts>;
     /**
+     * To manage users, please switch to using a separate resource type `yandex.MdbMysqlUser`.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbMysqlClusterUser>[]>;
+    /**
+     * Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).
+     */
     version?: pulumi.Input<string>;
 }
 
@@ -207,37 +379,112 @@ export interface MdbMysqlClusterState {
  * The set of arguments for constructing a MdbMysqlCluster resource.
  */
 export interface MdbMysqlClusterArgs {
+    /**
+     * Access policy to the MySQL cluster.
+     */
     access?: pulumi.Input<inputs.MdbMysqlClusterAccess>;
     /**
+     * Deprecated field. You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.
+     * Regenerate hosts after changing the assign_public_ip parameter.
+     *
      * @deprecated Deprecated
      */
     allowRegenerationHost?: pulumi.Input<boolean>;
+    /**
+     * The period in days during which backups are stored.
+     */
     backupRetainPeriodDays?: pulumi.Input<number>;
+    /**
+     * Time to start the daily backup, in the UTC.
+     */
     backupWindowStart?: pulumi.Input<inputs.MdbMysqlClusterBackupWindowStart>;
     /**
+     * To manage databases, please switch to using a separate resource type `yandex_mdb_mysql_databases`.
+     *
      * @deprecated Deprecated
      */
     databases?: pulumi.Input<pulumi.Input<inputs.MdbMysqlClusterDatabase>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key for cluster disk encryption. Restoring without an encryption key will disable encryption if any
+     * exists.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Cluster disk size autoscaling settings.
+     */
+    diskSizeAutoscaling?: pulumi.Input<inputs.MdbMysqlClusterDiskSizeAutoscaling>;
+    /**
+     * Deployment environment of the MySQL cluster.
+     */
     environment: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A list of host group IDs to place VMs of the cluster on.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A host of the MySQL cluster.
+     */
     hosts: pulumi.Input<pulumi.Input<inputs.MdbMysqlClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy of the MySQL cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbMysqlClusterMaintenanceWindow>;
     mdbMysqlClusterId?: pulumi.Input<string>;
+    /**
+     * MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto
+     * specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).
+     */
     mysqlConfig?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * Cluster performance diagnostics settings. [YC
+     * Documentation](https://yandex.cloud/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics).
+     */
     performanceDiagnostics?: pulumi.Input<inputs.MdbMysqlClusterPerformanceDiagnostics>;
+    /**
+     * Resources allocated to hosts of the MySQL cluster.
+     */
     resources: pulumi.Input<inputs.MdbMysqlClusterResources>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     restore?: pulumi.Input<inputs.MdbMysqlClusterRestore>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.MdbMysqlClusterTimeouts>;
     /**
+     * To manage users, please switch to using a separate resource type `yandex.MdbMysqlUser`.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbMysqlClusterUser>[]>;
+    /**
+     * Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).
+     */
     version: pulumi.Input<string>;
 }

@@ -1,15 +1,16 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: здесь орать запрещено */
 
 import type { IsEmptyObject } from "type-fest"
+import { join } from "node:path"
 import { pathToFileURL } from "node:url"
 import {
   type ComponentInput,
   type ComponentInputSpec,
   camelCaseToHumanReadable,
-  compact,
-  decompact,
+  type EntityValue,
+  type EntityValueInput,
   HighstateConfigKey,
-  type InstanceInput,
+  HighstateSignature,
   type InstanceStatusField,
   type InstanceStatusFieldValue,
   type PartialKeys,
@@ -19,8 +20,7 @@ import {
   type TriggerInvocation,
   type Unit,
   type UnitArtifact,
-  type UnitConfig,
-  type UnitInputReference,
+  type UnitInputValue,
   type UnitPage,
   type UnitTerminal,
   type UnitTrigger,
@@ -36,10 +36,10 @@ import {
   type Output,
   output,
   secret as pulumiSecret,
-  StackReference,
   type Unwrap,
 } from "@pulumi/pulumi"
-import { mapValues } from "remeda"
+import { isPlainObject, mapValues } from "remeda"
+import { getHasResourceHooks } from "./resource-hooks"
 import { type DeepInput, toPromise } from "./utils"
 
 type StatusField<TArgName extends string = string> = Omit<
@@ -92,6 +92,7 @@ interface UnitContext<
 > {
   args: TArgs
   instanceId: string
+  stateId: string
   type: string
   name: string
 
@@ -112,6 +113,12 @@ interface UnitContext<
     factory: () => Input<NonNullable<TSecrets[K]>>,
   ): Output<NonNullable<TSecrets[K]>>
 
+  setSecret<K extends keyof TSecrets>(
+    this: void,
+    name: K,
+    value: Input<NonNullable<TSecrets[K]>>,
+  ): void
+
   inputs: TInputs
   invokedTriggers: TriggerInvocation[]
 
@@ -123,24 +130,22 @@ interface UnitContext<
 
 // z.output since the values are validated/transformed and passed to the user
 type InputSpecToWrappedValue<T extends ComponentInputSpec> = T[2] extends true
-  ? // we have to wrap the array in Output since we don't know how many items will be returned by each multiple input
-    Output<NonNullable<z.output<T[0]["schema"]>>[]>
+  ? NonNullable<EntityValue<T[0]>>[]
   : T[1] extends true
-    ? Output<NonNullable<z.output<T[0]["schema"]>>>
-    : Output<NonNullable<z.output<T[0]["schema"]>>> | undefined
+    ? NonNullable<EntityValue<T[0]>>
+    : NonNullable<EntityValue<T[0]>> | undefined
 
 // z.input since the values are passed from the user and should be validated/transformed before returning from the unit
 type OutputSpecToValue<T extends ComponentInputSpec> = T[2] extends true
   ? T[1] extends true
-    ? NonNullable<z.input<T[0]["schema"]>>[]
-    : NonNullable<z.input<T[0]["schema"]>>[] | undefined
+    ? NonNullable<EntityValueInput<T[0]>>[]
+    : NonNullable<EntityValueInput<T[0]>>[] | undefined
   : T[1] extends true
-    ? NonNullable<z.input<T[0]["schema"]>>
-    : NonNullable<z.input<T[0]["schema"]>> | undefined
-
-const stackRefMap = new Map<string, StackReference>()
+    ? NonNullable<EntityValueInput<T[0]>>
+    : NonNullable<EntityValueInput<T[0]>> | undefined
 
 let instanceId: string | undefined
+let stateId: string | undefined
 let instanceName: string | undefined
 let importBaseUrl: URL | undefined
 
@@ -155,6 +160,20 @@ export function getUnitInstanceId(): string {
   }
 
   return instanceId
+}
+
+/**
+ * Returns the current unit instance state id.
+ *
+ * The state id is provided by the runner via Pulumi config.
+ * Only available after calling `forUnit` function.
+ */
+export function getUnitStateId(): string {
+  if (!stateId) {
+    throw new Error(`State id is not set. Did you call "forUnit" function?`)
+  }
+
+  return stateId
 }
 
 /**
@@ -183,78 +202,38 @@ export function getImportBaseUrl(): URL {
  * Returns a comment that can be used in resources to indicate that they are managed by Highstate.
  */
 export function getResourceComment(): string {
-  return `Managed by Highstate (${getUnitInstanceId()})`
+  return `Managed by Highstate [${getUnitStateId()}]`
 }
 
-function getStackRef(config: UnitConfig, input: InstanceInput) {
-  const [instanceType] = parseInstanceId(input.instanceId)
-  const stateId = config.stateIdMap[input.instanceId]
-  if (!stateId) {
-    throw new Error(`State ID for instance "${input.instanceId}" not found in the unit config.`)
-  }
-
-  const key = `organization/${instanceType}/${stateId}`
-  let stackRef = stackRefMap.get(key)
-
-  if (!stackRef) {
-    stackRef = new StackReference(key)
-    stackRefMap.set(key, stackRef)
-  }
-
-  return stackRef
-}
-
-function getOutput(
-  config: UnitConfig,
+function getInputValue(
   unit: Unit,
   inputName: string,
   input: ComponentInput,
-  refs: UnitInputReference[],
+  entries: UnitInputValue[],
 ) {
   const entity = unit.entities.get(input.type)
   if (!entity) {
     throw new Error(`Entity "${input.type}" not found in the unit "${unit.model.type}".`)
   }
 
-  const _getOutput = (ref: UnitInputReference) => {
-    const value = getStackRef(config, ref).requireOutput(ref.output)
+  const values = entries.flatMap(entry => {
+    const value = parseArgumentValue(entry.value)
+    const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
+    const result = schema.safeParse(value)
 
-    return value.apply(value => {
-      if (ref.inclusion) {
-        if (value === null || value === undefined || typeof value !== "object") {
-          throw new Error(
-            `Cannot extract field "${ref.inclusion.field}" from non-object output "${ref.output}" of instance "${ref.instanceId}".`,
-          )
-        }
+    if (!result.success) {
+      throw new Error(`Invalid value for input "${inputName}": ${z.prettifyError(result.error)}`)
+    }
 
-        value = (value as Record<string, unknown>)[ref.inclusion.field]
-      }
+    if (Array.isArray(result.data)) {
+      return result.data
+    }
 
-      const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
-      const result = schema.safeParse(value)
-
-      if (!result.success) {
-        throw new Error(
-          `Invalid output "${ref.output}" from "${ref.instanceId}" for input "${inputName}": ${result.error.message}`,
-        )
-      }
-
-      if (Array.isArray(value)) {
-        return value
-      }
-
-      return input.multiple ? [value] : value
-    })
-  }
-
-  const _getDecompactedOutput = (ref: UnitInputReference) => {
-    return _getOutput(ref).apply(decompact)
-  }
-
-  const values = output(refs.map(_getDecompactedOutput)).apply(values => values.flat())
+    return input.multiple ? [result.data] : [result.data]
+  })
 
   if (!input.multiple) {
-    return values.apply(values => values[0])
+    return values[0]
   }
 
   return values
@@ -278,10 +257,6 @@ export function forUnit<
   const rawHSConfig = config.requireObject(HighstateConfigKey.Config)
   const hsConfig = unitConfigSchema.parse(rawHSConfig)
 
-  const rawHsSecrets = config
-    .requireSecretObject(HighstateConfigKey.Secrets)
-    .apply(secrets => z.record(z.string(), z.unknown()).parse(secrets))
-
   const args = mapValues(unit.model.args, (arg, argName) => {
     const value = parseArgumentValue(hsConfig.args[argName])
     const result = arg[runtimeSchema]!.safeParse(value)
@@ -294,7 +269,7 @@ export function forUnit<
   })
 
   const secrets = mapValues(unit.model.secrets, (secret, secretName) => {
-    const hasValue = hsConfig.secretNames.includes(secretName)
+    const hasValue = secretName in hsConfig.secretValues
 
     if (!hasValue && !secret.required) {
       return secret.schema.default ? pulumiSecret(secret.schema.default) : undefined
@@ -304,16 +279,15 @@ export function forUnit<
       throw new Error(`Secret "${secretName}" is required but not provided.`)
     }
 
-    return rawHsSecrets[secretName].apply(rawValue => {
-      const value = parseArgumentValue(rawValue)
-      const result = secret[runtimeSchema]!.safeParse(value)
+    const rawValue = hsConfig.secretValues[secretName]
+    const value = parseArgumentValue(rawValue)
+    const result = secret[runtimeSchema]!.safeParse(value)
 
-      if (!result.success) {
-        throw new Error(`Invalid secret "${secretName}": ${z.prettifyError(result.error)}`)
-      }
+    if (!result.success) {
+      throw new Error(`Invalid secret "${secretName}": ${z.prettifyError(result.error)}`)
+    }
 
-      return pulumiSecret(result.data)
-    })
+    return pulumiSecret(result.data)
   })
 
   const inputs = mapValues(unit.model.inputs, (input, inputName) => {
@@ -321,23 +295,25 @@ export function forUnit<
 
     if (!value) {
       if (input.multiple) {
-        return output([])
+        return []
       }
 
       return undefined
     }
 
-    return getOutput(hsConfig, unit as unknown as Unit, inputName, input, value)
+    return getInputValue(unit as unknown as Unit, inputName, input, value)
   })
 
   const [type, name] = parseInstanceId(hsConfig.instanceId)
 
   instanceId = hsConfig.instanceId
+  stateId = hsConfig.stateId
   instanceName = name
   importBaseUrl = pathToFileURL(hsConfig.importBasePath)
 
   return {
     instanceId: hsConfig.instanceId,
+    stateId: hsConfig.stateId,
     type,
     name,
 
@@ -360,26 +336,32 @@ export function forUnit<
       return value
     }) as any,
 
+    setSecret: ((name: keyof TSecrets, value: Input<NonNullable<TSecrets[keyof TSecrets]>>) => {
+      secrets[name as string] = pulumiSecret(value)
+    }) as any,
+
     outputs: async (outputs: any = {}) => {
-      const result: any = mapValues(outputs, (outputValue, outputName) => {
+      const resolvedOutputs = await toPromise(outputs)
+
+      const result: any = mapValues(resolvedOutputs, (outputValue, outputName) => {
         if (outputName === "$statusFields") {
-          return output(outputValue).apply(mapStatusFields)
+          return mapStatusFields(outputValue)
         }
 
         if (outputName === "$pages") {
-          return output(outputValue).apply(mapPages)
+          return mapPages(outputValue)
         }
 
         if (outputName === "$terminals") {
-          return output(outputValue).apply(mapTerminals)
+          return mapTerminals(outputValue)
         }
 
         if (outputName === "$triggers") {
-          return output(outputValue).apply(mapTriggers)
+          return mapTriggers(outputValue)
         }
 
         if (outputName === "$workers") {
-          return output(outputValue).apply(mapWorkers)
+          return mapWorkers(outputValue)
         }
 
         if (outputName.startsWith("$")) {
@@ -400,24 +382,19 @@ export function forUnit<
           )
         }
 
-        return output(outputValue).apply(value => {
-          const schema = outputModel.multiple ? entity.schema.array() : entity.schema
-          const result = schema.safeParse(value)
+        const schema = outputModel.multiple ? entity.schema.array() : entity.schema
+        const result = schema.safeParse(outputValue)
 
-          if (!result.success) {
-            throw new Error(
-              `Invalid value for output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
-                result.error,
-              )}`,
-            )
-          }
+        if (!result.success) {
+          throw new Error(
+            `Invalid value for output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
+              result.error,
+            )}`,
+          )
+        }
 
-          return compact(result.data)
-        })
+        return result.data
       })
-
-      // wait for all outputs to resolve before collecting secrets and artifacts
-      await Promise.all(Object.values(result).map(o => toPromise(o)))
 
       result.$secrets = secrets
 
@@ -435,9 +412,62 @@ export function forUnit<
         result.$artifacts = artifactsMap
       }
 
-      return result
+      result.$hasResourceHooks = getHasResourceHooks()
+
+      return wrapHighstateSecretValues(result)
     },
   }
+}
+
+function wrapHighstateSecretValues<T>(data: T): T {
+  const cache = new WeakMap<object, unknown>()
+
+  const traverse = (value: unknown): unknown => {
+    if (value === null || value === undefined || typeof value !== "object") {
+      return value
+    }
+
+    if (Array.isArray(value)) {
+      const cached = cache.get(value)
+      if (cached) {
+        return cached
+      }
+
+      const mapped: unknown[] = []
+      cache.set(value, mapped)
+
+      for (const item of value) {
+        mapped.push(traverse(item))
+      }
+
+      return mapped
+    }
+
+    if (!isPlainObject(value)) {
+      return value
+    }
+
+    const cached = cache.get(value)
+    if (cached) {
+      return cached
+    }
+
+    const record = value as Record<string, unknown>
+    const mapped: Record<string, unknown> = {}
+    cache.set(value, mapped)
+
+    for (const [key, nestedValue] of Object.entries(record)) {
+      mapped[key] = traverse(nestedValue)
+    }
+
+    if (record[HighstateSignature.Secret] === true && "value" in record) {
+      return pulumiSecret(mapped)
+    }
+
+    return mapped
+  }
+
+  return traverse(data) as T
 }
 
 function mapStatusFields(status: Unwrap<ExtraOutputs["$statusFields"]>): InstanceStatusField[] {
@@ -599,4 +629,14 @@ function extractObjectsFromValue<TSchema extends z.ZodType>(
 
   traverse(data)
   return result
+}
+
+/**
+ * Returns a temporary file path for the current unit instance.
+ *
+ * The format is `/tmp/highstate/{stateId}`.
+ * This directory does not change between different runs of the same unit instance.
+ */
+export function getUnitTempPath(): string {
+  return join("/tmp/highstate", getUnitStateId())
 }

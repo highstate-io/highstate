@@ -2,19 +2,20 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-export function getKmsAsymmetricEncryptionKey(args: GetKmsAsymmetricEncryptionKeyArgs, opts?: pulumi.InvokeOptions): Promise<GetKmsAsymmetricEncryptionKeyResult> {
+export function getKmsAsymmetricEncryptionKey(args?: GetKmsAsymmetricEncryptionKeyArgs, opts?: pulumi.InvokeOptions): Promise<GetKmsAsymmetricEncryptionKeyResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getKmsAsymmetricEncryptionKey:getKmsAsymmetricEncryptionKey", {
         "asymmetricEncryptionKeyId": args.asymmetricEncryptionKeyId,
         "deletionProtection": args.deletionProtection,
-        "description": args.description,
         "encryptionAlgorithm": args.encryptionAlgorithm,
         "folderId": args.folderId,
         "id": args.id,
-        "labels": args.labels,
-        "name": args.name,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -22,14 +23,12 @@ export function getKmsAsymmetricEncryptionKey(args: GetKmsAsymmetricEncryptionKe
  * A collection of arguments for invoking getKmsAsymmetricEncryptionKey.
  */
 export interface GetKmsAsymmetricEncryptionKeyArgs {
-    asymmetricEncryptionKeyId: string;
+    asymmetricEncryptionKeyId?: string;
     deletionProtection?: boolean;
-    description?: string;
     encryptionAlgorithm?: string;
     folderId?: string;
     id?: string;
-    labels?: {[key: string]: string};
-    name?: string;
+    timeouts?: inputs.GetKmsAsymmetricEncryptionKeyTimeouts;
 }
 
 /**
@@ -38,26 +37,26 @@ export interface GetKmsAsymmetricEncryptionKeyArgs {
 export interface GetKmsAsymmetricEncryptionKeyResult {
     readonly asymmetricEncryptionKeyId: string;
     readonly createdAt: string;
-    readonly deletionProtection?: boolean;
-    readonly description?: string;
-    readonly encryptionAlgorithm?: string;
+    readonly deletionProtection: boolean;
+    readonly description: string;
+    readonly encryptionAlgorithm: string;
     readonly folderId: string;
     readonly id: string;
-    readonly labels?: {[key: string]: string};
-    readonly name?: string;
+    readonly labels: {[key: string]: string};
+    readonly name: string;
     readonly status: string;
+    readonly timeouts?: outputs.GetKmsAsymmetricEncryptionKeyTimeouts;
 }
-export function getKmsAsymmetricEncryptionKeyOutput(args: GetKmsAsymmetricEncryptionKeyOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetKmsAsymmetricEncryptionKeyResult> {
+export function getKmsAsymmetricEncryptionKeyOutput(args?: GetKmsAsymmetricEncryptionKeyOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetKmsAsymmetricEncryptionKeyResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getKmsAsymmetricEncryptionKey:getKmsAsymmetricEncryptionKey", {
         "asymmetricEncryptionKeyId": args.asymmetricEncryptionKeyId,
         "deletionProtection": args.deletionProtection,
-        "description": args.description,
         "encryptionAlgorithm": args.encryptionAlgorithm,
         "folderId": args.folderId,
         "id": args.id,
-        "labels": args.labels,
-        "name": args.name,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -65,12 +64,10 @@ export function getKmsAsymmetricEncryptionKeyOutput(args: GetKmsAsymmetricEncryp
  * A collection of arguments for invoking getKmsAsymmetricEncryptionKey.
  */
 export interface GetKmsAsymmetricEncryptionKeyOutputArgs {
-    asymmetricEncryptionKeyId: pulumi.Input<string>;
+    asymmetricEncryptionKeyId?: pulumi.Input<string>;
     deletionProtection?: pulumi.Input<boolean>;
-    description?: pulumi.Input<string>;
     encryptionAlgorithm?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
-    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-    name?: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.GetKmsAsymmetricEncryptionKeyTimeoutsArgs>;
 }

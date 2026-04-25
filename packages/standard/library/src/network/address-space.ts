@@ -1,8 +1,13 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
-import { l3EndpointEntity } from "./endpoint"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  z,
+} from "@highstate/contract"
 import { subnetEntity } from "./subnet"
 
-export type AddressSpace = z.infer<typeof addressSpaceEntity.schema>
+export type AddressSpace = EntityValue<typeof addressSpaceEntity>
 export type AddressSpaceInput = EntityInput<typeof addressSpaceEntity>
 
 /**
@@ -18,6 +23,7 @@ export const addressSpaceEntity = defineEntity({
     subnets: {
       entity: subnetEntity,
       multiple: true,
+      required: false,
     },
   },
 
@@ -25,6 +31,9 @@ export const addressSpaceEntity = defineEntity({
 
   meta: {
     color: "#3F51B5",
+    title: "Address Space",
+    icon: "mdi:network",
+    iconColor: "#3F51B5",
   },
 })
 
@@ -57,19 +66,19 @@ export const addressSpace = defineUnit({
 
   inputs: {
     /**
-     * The endpoints to include in the address space.
+     * The subnets to include in the address space.
      */
     included: {
-      entity: l3EndpointEntity,
+      entity: subnetEntity,
       multiple: true,
       required: false,
     },
 
     /**
-     * The endpoints to exclude from the `included` list.
+     * The subnets to exclude from the `included` list.
      */
     excluded: {
-      entity: l3EndpointEntity,
+      entity: subnetEntity,
       multiple: true,
       required: false,
     },

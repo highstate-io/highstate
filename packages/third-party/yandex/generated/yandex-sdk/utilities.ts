@@ -110,8 +110,8 @@ export async function getPackage() : Promise<string | undefined> {
 			const monitor = runtime.getMonitor();
 			const params = new resproto.Parameterization();
 			params.setName("yandex");
-			params.setVersion("0.127.0");
-			params.setValue(Uint8Array.from(atob("eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkub3BlbnRvZnUub3JnL3lhbmRleC1jbG91ZC95YW5kZXgiLCJ2ZXJzaW9uIjoiMC4xMjcuMCJ9fQ=="), c => c.charCodeAt(0)));
+			params.setVersion("0.196.0");
+			params.setValue(Uint8Array.from(atob("eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkudGVycmFmb3JtLmlvL3lhbmRleC1jbG91ZC95YW5kZXgiLCJ2ZXJzaW9uIjoiMC4xOTYuMCJ9fQ=="), c => c.charCodeAt(0)));
 
 			const req = new resproto.RegisterPackageRequest();
 			req.setName("terraform-provider");

@@ -34,11 +34,33 @@ export class ContainerRegistry extends pulumi.CustomResource {
         return obj['__pulumiType'] === ContainerRegistry.__pulumiType;
     }
 
+    /**
+     * ID of the Registry resource to return. To get the registry ID use a [RegistryService.List] request.
+     */
     declare public readonly containerRegistryId: pulumi.Output<string>;
+    /**
+     * Output only. Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * ID of the folder that the registry belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Resource labels as `key:value` pairs. Maximum of 64 per resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the registry.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the Registry resource to return. To get the registry ID use a [RegistryService.List] request.
+     */
+    declare public readonly registryId: pulumi.Output<string>;
+    /**
+     * Output only. Status of the registry.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ContainerRegistryTimeouts | undefined>;
 
@@ -60,6 +82,7 @@ export class ContainerRegistry extends pulumi.CustomResource {
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
+            resourceInputs["registryId"] = state?.registryId;
             resourceInputs["status"] = state?.status;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
@@ -68,6 +91,7 @@ export class ContainerRegistry extends pulumi.CustomResource {
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
+            resourceInputs["registryId"] = args?.registryId;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
@@ -81,11 +105,33 @@ export class ContainerRegistry extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ContainerRegistry resources.
  */
 export interface ContainerRegistryState {
+    /**
+     * ID of the Registry resource to return. To get the registry ID use a [RegistryService.List] request.
+     */
     containerRegistryId?: pulumi.Input<string>;
+    /**
+     * Output only. Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the registry belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `key:value` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the registry.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the Registry resource to return. To get the registry ID use a [RegistryService.List] request.
+     */
+    registryId?: pulumi.Input<string>;
+    /**
+     * Output only. Status of the registry.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRegistryTimeouts>;
 }
@@ -94,9 +140,25 @@ export interface ContainerRegistryState {
  * The set of arguments for constructing a ContainerRegistry resource.
  */
 export interface ContainerRegistryArgs {
+    /**
+     * ID of the Registry resource to return. To get the registry ID use a [RegistryService.List] request.
+     */
     containerRegistryId?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the registry belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `key:value` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the registry.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the Registry resource to return. To get the registry ID use a [RegistryService.List] request.
+     */
+    registryId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRegistryTimeouts>;
 }

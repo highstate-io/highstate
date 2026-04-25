@@ -3,7 +3,7 @@ import { noop } from "./abbreviations"
 noop()
 
 export * as common from "./common"
-export * as databases from "./databases"
+export * from "./databases"
 export * as distributions from "./distributions"
 export * as dns from "./dns"
 export * as git from "./git"

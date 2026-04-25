@@ -34,12 +34,34 @@ export class LoadtestingAgent extends pulumi.CustomResource {
         return obj['__pulumiType'] === LoadtestingAgent.__pulumiType;
     }
 
+    /**
+     * The template for creating new compute instance running load testing agent.
+     */
     declare public readonly computeInstance: pulumi.Output<outputs.LoadtestingAgentComputeInstance>;
+    /**
+     * Compute Instance ID.
+     */
     declare public /*out*/ readonly computeInstanceId: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
     declare public readonly loadtestingAgentId: pulumi.Output<string>;
+    /**
+     * The logging settings of the load testing agent.
+     */
+    declare public readonly logSettings: pulumi.Output<outputs.LoadtestingAgentLogSettings | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.LoadtestingAgentTimeouts | undefined>;
 
@@ -62,6 +84,7 @@ export class LoadtestingAgent extends pulumi.CustomResource {
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["loadtestingAgentId"] = state?.loadtestingAgentId;
+            resourceInputs["logSettings"] = state?.logSettings;
             resourceInputs["name"] = state?.name;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
@@ -74,6 +97,7 @@ export class LoadtestingAgent extends pulumi.CustomResource {
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["loadtestingAgentId"] = args?.loadtestingAgentId;
+            resourceInputs["logSettings"] = args?.logSettings;
             resourceInputs["name"] = args?.name;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["computeInstanceId"] = undefined /*out*/;
@@ -87,12 +111,34 @@ export class LoadtestingAgent extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LoadtestingAgent resources.
  */
 export interface LoadtestingAgentState {
+    /**
+     * The template for creating new compute instance running load testing agent.
+     */
     computeInstance?: pulumi.Input<inputs.LoadtestingAgentComputeInstance>;
+    /**
+     * Compute Instance ID.
+     */
     computeInstanceId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     loadtestingAgentId?: pulumi.Input<string>;
+    /**
+     * The logging settings of the load testing agent.
+     */
+    logSettings?: pulumi.Input<inputs.LoadtestingAgentLogSettings>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LoadtestingAgentTimeouts>;
 }
@@ -101,11 +147,30 @@ export interface LoadtestingAgentState {
  * The set of arguments for constructing a LoadtestingAgent resource.
  */
 export interface LoadtestingAgentArgs {
+    /**
+     * The template for creating new compute instance running load testing agent.
+     */
     computeInstance: pulumi.Input<inputs.LoadtestingAgentComputeInstance>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     loadtestingAgentId?: pulumi.Input<string>;
+    /**
+     * The logging settings of the load testing agent.
+     */
+    logSettings?: pulumi.Input<inputs.LoadtestingAgentLogSettings>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LoadtestingAgentTimeouts>;
 }

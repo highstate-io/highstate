@@ -32,7 +32,13 @@ export class BillingCloudBinding extends pulumi.CustomResource {
         return obj['__pulumiType'] === BillingCloudBinding.__pulumiType;
     }
 
+    /**
+     * The ID of billing account to bind cloud to.
+     */
     declare public readonly billingAccountId: pulumi.Output<string>;
+    /**
+     * Service Instance ID.
+     */
     declare public readonly cloudId: pulumi.Output<string>;
 
     /**
@@ -70,7 +76,13 @@ export class BillingCloudBinding extends pulumi.CustomResource {
  * Input properties used for looking up and filtering BillingCloudBinding resources.
  */
 export interface BillingCloudBindingState {
+    /**
+     * The ID of billing account to bind cloud to.
+     */
     billingAccountId?: pulumi.Input<string>;
+    /**
+     * Service Instance ID.
+     */
     cloudId?: pulumi.Input<string>;
 }
 
@@ -78,6 +90,12 @@ export interface BillingCloudBindingState {
  * The set of arguments for constructing a BillingCloudBinding resource.
  */
 export interface BillingCloudBindingArgs {
+    /**
+     * The ID of billing account to bind cloud to.
+     */
     billingAccountId: pulumi.Input<string>;
+    /**
+     * Service Instance ID.
+     */
     cloudId: pulumi.Input<string>;
 }

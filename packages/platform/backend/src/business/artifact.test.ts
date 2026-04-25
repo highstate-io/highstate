@@ -1,4 +1,5 @@
 import type { ArtifactBackend } from "../artifact"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, type MockedObject, vi } from "vitest"
 import { test } from "../test-utils"
@@ -10,6 +11,7 @@ const createContent = async function* (text: string): AsyncIterable<Uint8Array> 
 
 const artifactTest = test.extend<{
   artifactBackend: MockedObject<ArtifactBackend>
+  objectRefIndexService: MockedObject<ObjectRefIndexService>
   artifactService: ArtifactService
 }>({
   artifactBackend: async ({}, use) => {
@@ -22,10 +24,19 @@ const artifactTest = test.extend<{
     await use(artifactBackend)
   },
 
-  artifactService: async ({ database, artifactBackend, logger }, use) => {
+  objectRefIndexService: async ({}, use) => {
+    const objectRefIndexService = vi.mockObject({
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ObjectRefIndexService)
+
+    await use(objectRefIndexService)
+  },
+
+  artifactService: async ({ database, artifactBackend, objectRefIndexService, logger }, use) => {
     const service = new ArtifactService(
       database,
       artifactBackend,
+      objectRefIndexService,
       logger.child({ service: "ArtifactService" }),
     )
 
@@ -36,7 +47,14 @@ const artifactTest = test.extend<{
 describe("store", () => {
   artifactTest(
     "stores new artifact successfully",
-    async ({ artifactService, projectDatabase, project, artifactBackend, expect }) => {
+    async ({
+      artifactService,
+      projectDatabase,
+      project,
+      artifactBackend,
+      objectRefIndexService,
+      expect,
+    }) => {
       // arrange
       const hash = createId()
       const size = 1024
@@ -71,6 +89,8 @@ describe("store", () => {
         artifactChunkSize,
         expect.any(Object),
       )
+
+      expect(objectRefIndexService.track).toHaveBeenCalledWith(project.id, [artifact.id])
 
       // verify artifact was created with reference
       const dbArtifact = await projectDatabase.artifact.findUnique({

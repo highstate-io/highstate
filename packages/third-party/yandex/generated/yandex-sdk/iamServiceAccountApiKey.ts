@@ -34,21 +34,59 @@ export class IamServiceAccountApiKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === IamServiceAccountApiKey.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The encrypted secret key, base64 encoded. This is only populated when `pgp_key` is supplied.
+     */
     declare public /*out*/ readonly encryptedSecretKey: pulumi.Output<string>;
+    /**
+     * The key will be no longer valid after expiration timestamp.
+     */
+    declare public readonly expiresAt: pulumi.Output<string | undefined>;
     declare public readonly iamServiceAccountApiKeyId: pulumi.Output<string>;
+    /**
+     * The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.
+     */
     declare public /*out*/ readonly keyFingerprint: pulumi.Output<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     declare public readonly outputToLockbox: pulumi.Output<outputs.IamServiceAccountApiKeyOutputToLockbox | undefined>;
     /**
-     * version generated, that will contain the sensitive outputs
+     * ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when
+     * `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when
+     * `output_to_lockbox` is removed.
      */
     declare public /*out*/ readonly outputToLockboxVersionId: pulumi.Output<string>;
+    /**
+     * An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase
+     * username in the form `keybase:keybaseusername`.
+     */
     declare public readonly pgpKey: pulumi.Output<string | undefined>;
+    /**
+     * The scope of the key. Use `lifecycle {ignore_changes = [scope]}` directive to avoid false changes on apply.
+     *
+     * @deprecated Deprecated
+     */
+    declare public readonly scope: pulumi.Output<string | undefined>;
+    /**
+     * The list of scopes of the key.
+     */
+    declare public readonly scopes: pulumi.Output<string[]>;
+    /**
+     * The secret key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.
+     */
     declare public /*out*/ readonly secretKey: pulumi.Output<string>;
+    /**
+     * ID of the service account to an API key for.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string>;
 
     /**
@@ -67,11 +105,14 @@ export class IamServiceAccountApiKey extends pulumi.CustomResource {
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
             resourceInputs["encryptedSecretKey"] = state?.encryptedSecretKey;
+            resourceInputs["expiresAt"] = state?.expiresAt;
             resourceInputs["iamServiceAccountApiKeyId"] = state?.iamServiceAccountApiKeyId;
             resourceInputs["keyFingerprint"] = state?.keyFingerprint;
             resourceInputs["outputToLockbox"] = state?.outputToLockbox;
             resourceInputs["outputToLockboxVersionId"] = state?.outputToLockboxVersionId;
             resourceInputs["pgpKey"] = state?.pgpKey;
+            resourceInputs["scope"] = state?.scope;
+            resourceInputs["scopes"] = state?.scopes;
             resourceInputs["secretKey"] = state?.secretKey;
             resourceInputs["serviceAccountId"] = state?.serviceAccountId;
         } else {
@@ -80,9 +121,12 @@ export class IamServiceAccountApiKey extends pulumi.CustomResource {
                 throw new Error("Missing required property 'serviceAccountId'");
             }
             resourceInputs["description"] = args?.description;
+            resourceInputs["expiresAt"] = args?.expiresAt;
             resourceInputs["iamServiceAccountApiKeyId"] = args?.iamServiceAccountApiKeyId;
             resourceInputs["outputToLockbox"] = args?.outputToLockbox;
             resourceInputs["pgpKey"] = args?.pgpKey;
+            resourceInputs["scope"] = args?.scope;
+            resourceInputs["scopes"] = args?.scopes;
             resourceInputs["serviceAccountId"] = args?.serviceAccountId;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["encryptedSecretKey"] = undefined /*out*/;
@@ -101,21 +145,59 @@ export class IamServiceAccountApiKey extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IamServiceAccountApiKey resources.
  */
 export interface IamServiceAccountApiKeyState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The encrypted secret key, base64 encoded. This is only populated when `pgp_key` is supplied.
+     */
     encryptedSecretKey?: pulumi.Input<string>;
+    /**
+     * The key will be no longer valid after expiration timestamp.
+     */
+    expiresAt?: pulumi.Input<string>;
     iamServiceAccountApiKeyId?: pulumi.Input<string>;
+    /**
+     * The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.
+     */
     keyFingerprint?: pulumi.Input<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     outputToLockbox?: pulumi.Input<inputs.IamServiceAccountApiKeyOutputToLockbox>;
     /**
-     * version generated, that will contain the sensitive outputs
+     * ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when
+     * `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when
+     * `output_to_lockbox` is removed.
      */
     outputToLockboxVersionId?: pulumi.Input<string>;
+    /**
+     * An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase
+     * username in the form `keybase:keybaseusername`.
+     */
     pgpKey?: pulumi.Input<string>;
+    /**
+     * The scope of the key. Use `lifecycle {ignore_changes = [scope]}` directive to avoid false changes on apply.
+     *
+     * @deprecated Deprecated
+     */
+    scope?: pulumi.Input<string>;
+    /**
+     * The list of scopes of the key.
+     */
+    scopes?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The secret key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.
+     */
     secretKey?: pulumi.Input<string>;
+    /**
+     * ID of the service account to an API key for.
+     */
     serviceAccountId?: pulumi.Input<string>;
 }
 
@@ -123,12 +205,36 @@ export interface IamServiceAccountApiKeyState {
  * The set of arguments for constructing a IamServiceAccountApiKey resource.
  */
 export interface IamServiceAccountApiKeyArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The key will be no longer valid after expiration timestamp.
+     */
+    expiresAt?: pulumi.Input<string>;
     iamServiceAccountApiKeyId?: pulumi.Input<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     outputToLockbox?: pulumi.Input<inputs.IamServiceAccountApiKeyOutputToLockbox>;
+    /**
+     * An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase
+     * username in the form `keybase:keybaseusername`.
+     */
     pgpKey?: pulumi.Input<string>;
+    /**
+     * The scope of the key. Use `lifecycle {ignore_changes = [scope]}` directive to avoid false changes on apply.
+     *
+     * @deprecated Deprecated
+     */
+    scope?: pulumi.Input<string>;
+    /**
+     * The list of scopes of the key.
+     */
+    scopes?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * ID of the service account to an API key for.
+     */
     serviceAccountId: pulumi.Input<string>;
 }

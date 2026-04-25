@@ -1,10 +1,11 @@
 import { createAddressSpace, l4EndpointToString, subnetToString } from "@highstate/common"
-import { ExposableWorkload, Namespace, NetworkPolicy, Secret, Workload } from "@highstate/k8s"
-import { wireguard } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { Namespace, NetworkPolicy, Secret, Workload } from "@highstate/k8s"
+import { k8s, wireguard } from "@highstate/library"
+import { forUnit, getCombinedIdentityOutput, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { deepmerge } from "deepmerge-ts"
+import { isNonNullish } from "remeda"
 import * as images from "../../assets/images.json"
-import { generateIdentityConfig, isExitNode, shouldExpose } from "../shared"
+import { generateIdentityConfig, getNextAvailablePort, isExitNode, shouldExpose } from "../shared"
 
 const { args, inputs, outputs } = forUnit(wireguard.nodeK8s)
 
@@ -13,9 +14,36 @@ const { identity, peers } = await toPromise(inputs)
 const identityName = identity.peer.name.replaceAll(".", "-")
 const appName = args.appName ?? `wg-${identityName}`
 
+const existingWorkloads = [
+  inputs.workload,
+  inputs.downstreamInterface?.workload,
+  inputs.fallbackInterface?.workload,
+].filter(isNonNullish)
+
+for (const workload of existingWorkloads) {
+  if (workload.clusterId !== inputs.k8sCluster.id) {
+    throw new Error(
+      "All provided workloads must be in the same cluster as specified in inputs.k8sCluster",
+    )
+  }
+
+  if (workload.metadata.namespace !== existingWorkloads[0].metadata.namespace) {
+    throw new Error("All provided workloads must be in the same namespace")
+  }
+}
+
+const occupiedPorts = existingWorkloads.flatMap(workload =>
+  workload.spec.template.spec.containers.flatMap(
+    container => container.ports?.map(port => port.containerPort) ?? [],
+  ),
+)
+
+const containerPort = getNextAvailablePort(occupiedPorts, 51820)
+const priority = (100000 - containerPort) % 100 // each next interface gets lower priority
+
 const namespace = Namespace.createOrPatch(appName, {
   cluster: inputs.k8sCluster,
-  resource: inputs.workload ?? inputs.interface?.workload,
+  resource: existingWorkloads[0],
 
   metadata: {
     labels: {
@@ -23,8 +51,6 @@ const namespace = Namespace.createOrPatch(appName, {
     },
   },
 })
-
-const downstreamInterface = await toPromise(inputs.interface)
 
 const preUp: string[] = []
 
@@ -46,34 +72,30 @@ for (const restrictedCidr of args.forwardRestrictedSubnets) {
   preDown.push(`iptables -D FORWARD -d ${restrictedCidr} -j DROP`)
 }
 
-if (downstreamInterface) {
+if (inputs.downstreamInterface) {
   // wait until the interface is up
-  preUp.push(`while ! ip link show ${downstreamInterface.name} | grep -q 'UP' ; do sleep 1; done`)
-
-  // remove the default rule to route all non-encapsulated traffic to upstream wireguard interface
-  postUp.push("ip rule del not from all fwmark 0xca6c lookup 51820")
-
-  // add a rule to route all downstream traffic to the upstream wireguard interface
-  postUp.push("ip rule add from all fwmark 0x1 lookup 51820")
-
-  // mark all downstream traffic with 0x1
-  postUp.push(
-    `iptables -t mangle -A PREROUTING -i ${downstreamInterface.name} -j MARK --set-mark 0x1`,
+  preUp.push(
+    `while ! ip link show ${inputs.downstreamInterface.name} | grep -q 'UP' ; do echo "waiting for downstream interface ${inputs.downstreamInterface.name} to be up..."; sleep 1; done`,
   )
 
-  // remove the rule to route all downstream traffic to the upstream wireguard interface
-  preDown.push(
-    `iptables -t mangle -D PREROUTING -i ${downstreamInterface.name} -j MARK --set-mark 0x1`,
+  // add a rule to route all downstream traffic to the upstream wireguard interface
+  postUp.push(
+    `ip rule add iif ${inputs.downstreamInterface.name} lookup ${containerPort} priority ${priority}`,
   )
 
   // remove the rule to route all non-encapsulated traffic to upstream wireguard interface
-  preDown.push("ip rule del from all fwmark 0x1 lookup 51820")
+  preDown.push(
+    `ip rule del iif ${inputs.downstreamInterface.name} lookup ${containerPort} priority ${priority}`,
+  )
+
+  // if fallback interface is provided, create default entry for it in routing table
+  if (inputs.fallbackInterface) {
+    preUp.push(`ip route add default dev ${inputs.fallbackInterface.name} table ${containerPort}`)
+    preDown.push(`ip route del default dev ${inputs.fallbackInterface.name} table ${containerPort}`)
+  }
 }
 
 const interfaceName = identityName.substring(0, 15) // linux kernel limit
-
-// if there is a workload, we will use a different port to prevent potential conflicts
-const containerPort = (inputs.workload ?? inputs.interface?.workload) ? 51821 : 51820
 
 const configSecret = Secret.create(appName, {
   namespace,
@@ -87,6 +109,8 @@ const configSecret = Secret.create(appName, {
       postUp,
       preDown,
       cluster: await toPromise(inputs.k8sCluster),
+      network: identity.peer.network,
+      table: inputs.downstreamInterface ? containerPort : undefined, // use the same table number as its port to avoid conflicts
     }),
   },
 })
@@ -96,7 +120,7 @@ const workload = await toPromise(
     defaultType: "Deployment",
     namespace,
 
-    existing: inputs.workload ?? inputs.interface?.workload,
+    existing: inputs.workload ?? inputs.downstreamInterface?.workload,
 
     container: deepmerge(
       {
@@ -134,17 +158,16 @@ const workload = await toPromise(
             port: identity.peer.listenPort ?? 51820,
             targetPort: containerPort,
             protocol: "UDP",
-            nodePort: args.external ? identity.peer.listenPort : undefined,
           },
         }
       : undefined,
   }),
 )
 
-if (shouldExpose(identity, args.exposePolicy) && workload instanceof ExposableWorkload) {
+if (shouldExpose(identity, args.exposePolicy)) {
   new NetworkPolicy("allow-wireguard-ingress", {
     namespace,
-    selector: workload.spec.selector,
+    selector: workload.selector,
 
     description: "Allow encapsulated WireGuard traffic to the node from anywhere.",
 
@@ -154,10 +177,10 @@ if (shouldExpose(identity, args.exposePolicy) && workload instanceof ExposableWo
   })
 }
 
-if (isExitNode(identity.peer) && workload instanceof ExposableWorkload) {
+if (isExitNode(identity.peer)) {
   new NetworkPolicy("allow-all-egress", {
     namespace,
-    selector: workload.spec.selector,
+    selector: workload.selector,
 
     description: "Allow all egress traffic from the WireGuard node since it is an exit node.",
 
@@ -173,10 +196,10 @@ const pureAllowedSpace = createAddressSpace({
 })
 
 // allow egress to the subnets that are not part of the peer's addresses
-if (pureAllowedSpace.subnets.length > 0 && workload instanceof ExposableWorkload) {
+if (pureAllowedSpace.subnets.length > 0) {
   new NetworkPolicy("allow-egress-to-allowed-subnets", {
     namespace,
-    selector: workload.spec.selector,
+    selector: workload.selector,
 
     description: "Allow egress traffic from the WireGuard node to its allowed subnets.",
 
@@ -186,23 +209,21 @@ if (pureAllowedSpace.subnets.length > 0 && workload instanceof ExposableWorkload
   })
 }
 
-if (workload instanceof ExposableWorkload) {
-  for (const peer of peers) {
-    if (!peer.endpoints.length) {
-      continue
-    }
-
-    new NetworkPolicy(`allow-egress-to-peer-${peer.name}`, {
-      namespace,
-      selector: workload.spec.selector,
-
-      description: `Allow egress traffic from the WireGuard node to the endpoints of the peer "${peer.name}".`,
-
-      egressRule: {
-        toEndpoints: peer.endpoints,
-      },
-    })
+for (const peer of peers) {
+  if (!peer.endpoints.length) {
+    continue
   }
+
+  new NetworkPolicy(`allow-egress-to-peer-${peer.name}`, {
+    namespace,
+    selector: workload.selector,
+
+    description: `Allow egress traffic from the WireGuard node to the endpoints of the peer "${peer.name}".`,
+
+    egressRule: {
+      toEndpoints: peer.endpoints,
+    },
+  })
 }
 
 if (args.allowClusterPods) {
@@ -213,18 +234,23 @@ if (args.allowClusterPods) {
 }
 
 const endpoints = await toPromise(
-  workload instanceof ExposableWorkload
-    ? workload.optionalService.apply(service => service?.endpoints!)
-    : [],
+  workload.optionalService.apply(service => service?.endpoints ?? []),
 )
 
 export default outputs({
   workload: workload.entity,
 
-  interface: {
-    name: interfaceName,
-    workload: workload.entity,
-  },
+  interface: makeEntityOutput({
+    entity: k8s.networkInterfaceEntity,
+    identity: getCombinedIdentityOutput([workload.entity, interfaceName]),
+    meta: {
+      title: interfaceName,
+    },
+    value: {
+      name: interfaceName,
+      workload: workload.entity,
+    },
+  }),
 
   peer: {
     ...identity.peer,

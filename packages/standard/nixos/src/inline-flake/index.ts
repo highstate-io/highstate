@@ -4,11 +4,9 @@ import { Command, MaterializedFile, MaterializedFolder } from "@highstate/common
 import { text } from "@highstate/contract"
 import { MaterializedRepository } from "@highstate/git"
 import { nixos } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { forUnit } from "@highstate/pulumi"
 
 const { name, args, inputs, outputs } = forUnit(nixos.inlineFlake)
-
-const { folders, files } = await toPromise(inputs)
 
 const flakeRepo = await MaterializedRepository.create(args.flakeName ?? name)
 
@@ -32,7 +30,7 @@ const hasFlake = async (folder: MaterializedFolder) => {
   }
 }
 
-for (const inputFolder of folders ?? []) {
+for (const inputFolder of inputs.folders) {
   const folder = await MaterializedFolder.open(inputFolder, flakeRepo.folder)
 
   if (await hasFlake(folder)) {
@@ -40,7 +38,7 @@ for (const inputFolder of folders ?? []) {
   }
 }
 
-for (const inputFile of files ?? []) {
+for (const inputFile of inputs.files ?? []) {
   await MaterializedFile.open(inputFile, flakeRepo.folder)
 }
 

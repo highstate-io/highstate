@@ -16,6 +16,11 @@ export function getMdbMongodbCluster(args?: GetMdbMongodbClusterArgs, opts?: pul
         "databases": args.databases,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
+        "diskSizeAutoscalingMongocfg": args.diskSizeAutoscalingMongocfg,
+        "diskSizeAutoscalingMongod": args.diskSizeAutoscalingMongod,
+        "diskSizeAutoscalingMongoinfra": args.diskSizeAutoscalingMongoinfra,
+        "diskSizeAutoscalingMongos": args.diskSizeAutoscalingMongos,
         "environment": args.environment,
         "folderId": args.folderId,
         "health": args.health,
@@ -51,6 +56,11 @@ export interface GetMdbMongodbClusterArgs {
     databases?: inputs.GetMdbMongodbClusterDatabase[];
     deletionProtection?: boolean;
     description?: string;
+    diskEncryptionKeyId?: string;
+    diskSizeAutoscalingMongocfg?: inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongocfg;
+    diskSizeAutoscalingMongod?: inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongod;
+    diskSizeAutoscalingMongoinfra?: inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongoinfra;
+    diskSizeAutoscalingMongos?: inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongos;
     environment?: string;
     folderId?: string;
     health?: string;
@@ -91,6 +101,11 @@ export interface GetMdbMongodbClusterResult {
     readonly databases?: outputs.GetMdbMongodbClusterDatabase[];
     readonly deletionProtection: boolean;
     readonly description?: string;
+    readonly diskEncryptionKeyId: string;
+    readonly diskSizeAutoscalingMongocfg?: outputs.GetMdbMongodbClusterDiskSizeAutoscalingMongocfg;
+    readonly diskSizeAutoscalingMongod?: outputs.GetMdbMongodbClusterDiskSizeAutoscalingMongod;
+    readonly diskSizeAutoscalingMongoinfra?: outputs.GetMdbMongodbClusterDiskSizeAutoscalingMongoinfra;
+    readonly diskSizeAutoscalingMongos?: outputs.GetMdbMongodbClusterDiskSizeAutoscalingMongos;
     readonly environment?: string;
     readonly folderId: string;
     readonly health: string;
@@ -127,6 +142,11 @@ export function getMdbMongodbClusterOutput(args?: GetMdbMongodbClusterOutputArgs
         "databases": args.databases,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
+        "diskSizeAutoscalingMongocfg": args.diskSizeAutoscalingMongocfg,
+        "diskSizeAutoscalingMongod": args.diskSizeAutoscalingMongod,
+        "diskSizeAutoscalingMongoinfra": args.diskSizeAutoscalingMongoinfra,
+        "diskSizeAutoscalingMongos": args.diskSizeAutoscalingMongos,
         "environment": args.environment,
         "folderId": args.folderId,
         "health": args.health,
@@ -162,6 +182,11 @@ export interface GetMdbMongodbClusterOutputArgs {
     databases?: pulumi.Input<pulumi.Input<inputs.GetMdbMongodbClusterDatabaseArgs>[]>;
     deletionProtection?: pulumi.Input<boolean>;
     description?: pulumi.Input<string>;
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    diskSizeAutoscalingMongocfg?: pulumi.Input<inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongocfgArgs>;
+    diskSizeAutoscalingMongod?: pulumi.Input<inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongodArgs>;
+    diskSizeAutoscalingMongoinfra?: pulumi.Input<inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongoinfraArgs>;
+    diskSizeAutoscalingMongos?: pulumi.Input<inputs.GetMdbMongodbClusterDiskSizeAutoscalingMongosArgs>;
     environment?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     health?: pulumi.Input<string>;

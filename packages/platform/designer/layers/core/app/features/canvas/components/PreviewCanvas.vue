@@ -40,11 +40,16 @@ const init = async (canvasStore: CanvasStore) => {
 
   for (const instance of instances) {
     const component = components[instance.type]
-    setInputResolverInput(`instance:${instance.id}`, { kind: "instance", instance, component })
+    setInputResolverInput(`instance:${instance.id}`, {
+      kind: "instance",
+      instance,
+      component,
+      entities,
+    })
   }
 
   for (const hub of hubs) {
-    setInputResolverInput(`hub:${hub.id}`, { kind: "hub", hub })
+    setInputResolverInput(`hub:${hub.id}`, { kind: "hub", hub, entities })
   }
 
   const promises = [dispatchInitialInputResolverNodes()]

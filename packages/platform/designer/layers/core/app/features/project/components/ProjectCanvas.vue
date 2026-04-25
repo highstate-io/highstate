@@ -14,6 +14,7 @@ import { getComponentTypeFromDragData, isHubDragData } from "#layers/core/app/fe
 const canvasStore = useCanvasStore()
 const projectPanelStore = useProjectPanelStore()
 const { projectStore, instancesStore, libraryStore } = useProjectStores()
+const logger = globalLogger.child({ feature: "project-canvas-focus" })
 
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
@@ -24,7 +25,83 @@ if (projectStore.initializing) {
 }
 
 await projectPanelStore.initialize()
-onMounted(projectPanelStore.placeNodes)
+
+const focusInstanceInCanvas = async (instanceId: string) => {
+  logger.debug({ instanceId }, "focus requested")
+
+  await until(canvasStore.vueFlowStore.areNodesInitialized).toBe(true)
+  await waitFor(
+    () => {
+      const nodeId = canvasStore.nodeFactory.instanceIdToNodeIdMap.get(instanceId)
+      if (!nodeId) {
+        return false
+      }
+
+      return Boolean(canvasStore.vueFlowStore.findNode(nodeId))
+    },
+    20,
+    50,
+  )
+
+  const nodeId = canvasStore.nodeFactory.instanceIdToNodeIdMap.get(instanceId)
+  if (!nodeId) {
+    logger.debug({ instanceId }, "focus failed: node id not found in instance map")
+    return false
+  }
+
+  const node = canvasStore.vueFlowStore.findNode(nodeId)
+  if (!node) {
+    logger.debug({ instanceId, nodeId }, "focus failed: vue-flow node not found")
+    return false
+  }
+
+  const nodeCenterX = node.position.x + node.dimensions.width / 2
+  const nodeCenterY = node.position.y + node.dimensions.height / 2
+  const currentZoom = canvasStore.vueFlowStore.viewport.value.zoom
+
+  await canvasStore.vueFlowStore.setCenter(nodeCenterX, nodeCenterY, {
+    zoom: currentZoom,
+    duration: 300,
+  })
+
+  logger.debug({ instanceId, nodeId, nodeCenterX, nodeCenterY }, "focus success")
+
+  return true
+}
+
+const waitFor = async (predicate: () => boolean, attempts: number, delayMs: number) => {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (predicate()) {
+      return
+    }
+
+    await new Promise(resolve => setTimeout(resolve, delayMs))
+  }
+}
+
+onMounted(() => {
+  projectPanelStore.placeNodes()
+})
+
+watch(
+  () => projectPanelStore.instanceFocusRequest,
+  async request => {
+    if (!request) {
+      return
+    }
+
+    logger.debug({ request }, "focus request changed")
+
+    const focused = await focusInstanceInCanvas(request.instanceId)
+    if (!focused) {
+      logger.debug({ request }, "focus request kept for retry because focus did not succeed")
+      return
+    }
+
+    projectPanelStore.clearInstanceFocusRequest(request.requestId)
+  },
+  { immediate: true },
+)
 
 const onDragOver = (event: DragEvent) => {
   event.preventDefault()

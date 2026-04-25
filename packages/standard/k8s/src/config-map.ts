@@ -1,15 +1,16 @@
-import type { k8s } from "@highstate/library"
 import { getOrCreate } from "@highstate/contract"
-import { toPromise } from "@highstate/pulumi"
-import { core, type types } from "@pulumi/kubernetes"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
-} from "@pulumi/pulumi"
+  toPromise,
+} from "@highstate/pulumi"
+import { core, type types } from "@pulumi/kubernetes"
 import { Namespace } from "./namespace"
 import { getProvider, mapMetadata, NamespacedResource, type ScopedResourceArgs } from "./shared"
 
@@ -51,7 +52,16 @@ export abstract class ConfigMap extends NamespacedResource {
    * The Highstate config map entity.
    */
   get entity(): Output<k8s.ConfigMap> {
-    return output(this.entityBase)
+    return makeEntityOutput({
+      entity: k8s.configMapEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+      },
+    })
   }
 
   /**

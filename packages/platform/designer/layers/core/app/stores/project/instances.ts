@@ -23,6 +23,8 @@ export const useProjectInstancesStore = defineMultiStore({
       const hubs = shallowReactive(new Map<string, HubModel>())
       const instanceNameSet = shallowReactive(new Set<string>())
       const ghostInstanceIds = shallowReactive(new Set<string>())
+      const virtualInstanceIds = shallowReactive(new Set<string>())
+      const residentInstanceIds = shallowReactive(new Set<string>())
 
       const totalInstanceCount = ref(0)
       const resolvedInstanceCount = ref(0)
@@ -52,6 +54,45 @@ export const useProjectInstancesStore = defineMultiStore({
         component: ComponentModel
         resolvedInputs: Record<string, ResolvedInstanceInput[]>
       }>()
+
+      const pendingInstanceUpdatedEvents = new Map<
+        string,
+        {
+          instance: InstanceModel
+          component: ComponentModel
+          resolvedInputs: Record<string, ResolvedInstanceInput[]>
+        }
+      >()
+      let pendingInstanceUpdatedFlushTimer: ReturnType<typeof setTimeout> | null = null
+
+      const scheduleInstanceUpdatedFlush = () => {
+        if (pendingInstanceUpdatedFlushTimer) {
+          return
+        }
+
+        pendingInstanceUpdatedFlushTimer = setTimeout(() => {
+          pendingInstanceUpdatedFlushTimer = null
+
+          let processed = 0
+          for (const [instanceId, payload] of pendingInstanceUpdatedEvents) {
+            pendingInstanceUpdatedEvents.delete(instanceId)
+            triggerInstanceUpdated(payload)
+
+            if (resolvedInstanceCount.value < totalInstanceCount.value) {
+              resolvedInstanceCount.value++
+            }
+
+            processed++
+            if (processed >= 64) {
+              break
+            }
+          }
+
+          if (pendingInstanceUpdatedEvents.size > 0) {
+            scheduleInstanceUpdatedFlush()
+          }
+        }, 0)
+      }
 
       const { on: onInstanceDeleted, trigger: triggerInstanceDeleted } = createEventHook<string>()
 
@@ -87,15 +128,13 @@ export const useProjectInstancesStore = defineMultiStore({
           return
         }
 
-        triggerInstanceUpdated({
+        pendingInstanceUpdatedEvents.set(output.instance.id, {
           instance: output.instance,
           component: output.component,
           resolvedInputs: output.resolvedInputs,
         })
 
-        if (resolvedInstanceCount.value < totalInstanceCount.value) {
-          resolvedInstanceCount.value++
-        }
+        scheduleInstanceUpdatedFlush()
       })
 
       const updateInstanceStateCore = (instance: InstanceModel) => {
@@ -110,6 +149,7 @@ export const useProjectInstancesStore = defineMultiStore({
           kind: "instance",
           instance,
           component,
+          entities: libraryStore.library.entities,
         })
       }
 
@@ -134,6 +174,8 @@ export const useProjectInstancesStore = defineMultiStore({
 
         instances.delete(instanceId)
         ghostInstanceIds.delete(instanceId)
+        virtualInstanceIds.delete(instanceId)
+        residentInstanceIds.delete(instanceId)
         instanceNameSet.delete(existingInstance.name)
       }
 
@@ -147,6 +189,7 @@ export const useProjectInstancesStore = defineMultiStore({
         setInputResolverInput(`hub:${hub.id}`, {
           kind: "hub",
           hub,
+          entities: libraryStore.library.entities,
         })
 
         hubs.set(hub.id, hub)
@@ -171,6 +214,10 @@ export const useProjectInstancesStore = defineMultiStore({
         await libraryStore.library.ensureUnitSourceHashesLoaded(Array.from(unitTypes.values()))
 
         for (const instance of projectModel.instances) {
+          residentInstanceIds.add(instance.id)
+          ghostInstanceIds.delete(instance.id)
+          virtualInstanceIds.delete(instance.id)
+
           updateInstanceState(instance)
           addComponentInstance(instance)
           instanceNameSet.add(instance.name)
@@ -182,15 +229,72 @@ export const useProjectInstancesStore = defineMultiStore({
         }
 
         for (const compositeInstance of projectModel.virtualInstances) {
+          if (!residentInstanceIds.has(compositeInstance.id)) {
+            virtualInstanceIds.add(compositeInstance.id)
+          }
+          ghostInstanceIds.delete(compositeInstance.id)
+
           updateVirtualInstanceState(compositeInstance)
         }
 
         for (const ghostInstance of projectModel.ghostInstances ?? []) {
+          residentInstanceIds.delete(ghostInstance.id)
           ghostInstanceIds.add(ghostInstance.id)
+          virtualInstanceIds.delete(ghostInstance.id)
+
           updateInstanceState(ghostInstance)
           addComponentInstance(ghostInstance)
           instanceNameSet.add(ghostInstance.name)
         }
+
+        const refreshAllResolverNodes = () => {
+          for (const instance of instances.values()) {
+            updateInstanceStateCore(instance)
+          }
+
+          for (const hub of hubs.values()) {
+            updateHubState(hub)
+          }
+        }
+
+        const { off: stopWatchingComponentUpdates } = libraryStore.library.onComponentUpdated(() => {
+          if (initializationPhase.value !== "ready") {
+            return
+          }
+
+          refreshAllResolverNodes()
+        })
+
+        const { off: stopWatchingEntityUpdates } = libraryStore.library.onEntityUpdated(() => {
+          if (initializationPhase.value !== "ready") {
+            return
+          }
+
+          refreshAllResolverNodes()
+        })
+
+        const { off: stopWatchingComponentRemovals } = libraryStore.library.onComponentRemoved(
+          () => {
+            if (initializationPhase.value !== "ready") {
+              return
+            }
+
+            refreshAllResolverNodes()
+          },
+        )
+
+        const { off: stopWatchingEntityRemovals } = libraryStore.library.onEntityRemoved(() => {
+          if (initializationPhase.value !== "ready") {
+            return
+          }
+
+          refreshAllResolverNodes()
+        })
+
+        onDeactivated(stopWatchingComponentUpdates)
+        onDeactivated(stopWatchingEntityUpdates)
+        onDeactivated(stopWatchingComponentRemovals)
+        onDeactivated(stopWatchingEntityRemovals)
 
         const { unsubscribe: stopWatchingCompositeInstances } =
           $client.project.watchProjectNodes.subscribe(
@@ -201,6 +305,10 @@ export const useProjectInstancesStore = defineMultiStore({
 
                 for (const virtualInstance of event.updatedVirtualInstances ?? []) {
                   promotedVirtualInstanceIds.add(virtualInstance.id)
+                  if (!residentInstanceIds.has(virtualInstance.id)) {
+                    virtualInstanceIds.add(virtualInstance.id)
+                  }
+                  ghostInstanceIds.delete(virtualInstance.id)
 
                   const unitTypes = new Set<string>()
                   populateInstanceUnitTypes(unitTypes, virtualInstance)
@@ -213,6 +321,12 @@ export const useProjectInstancesStore = defineMultiStore({
                 }
 
                 for (const virtualInstanceId of event.deletedVirtualInstanceIds ?? []) {
+                  virtualInstanceIds.delete(virtualInstanceId)
+
+                  if (residentInstanceIds.has(virtualInstanceId)) {
+                    continue
+                  }
+
                   removeInstanceLocally(virtualInstanceId)
                 }
 
@@ -223,7 +337,9 @@ export const useProjectInstancesStore = defineMultiStore({
                 for (const ghostInstance of event.updatedGhostInstances ?? []) {
                   const existingInstance = instances.get(ghostInstance.id)
 
+                  residentInstanceIds.delete(ghostInstance.id)
                   ghostInstanceIds.add(ghostInstance.id)
+                  virtualInstanceIds.delete(ghostInstance.id)
 
                   if (!existingInstance) {
                     addComponentInstance(ghostInstance)
@@ -238,13 +354,24 @@ export const useProjectInstancesStore = defineMultiStore({
                 }
 
                 for (const ghostInstanceId of event.deletedGhostInstanceIds ?? []) {
+                  const wasGhostInstance = ghostInstanceIds.has(ghostInstanceId)
                   ghostInstanceIds.delete(ghostInstanceId)
 
                   if (promotedVirtualInstanceIds.has(ghostInstanceId)) {
                     continue
                   }
 
+                  if (virtualInstanceIds.has(ghostInstanceId)) {
+                    continue
+                  }
+
                   if (!instances.has(ghostInstanceId)) {
+                    continue
+                  }
+
+                  // Resident instances may temporarily appear in ghost events.
+                  // Keep them in the local map and only clear ghost marker.
+                  if (!wasGhostInstance) {
                     continue
                   }
 
@@ -276,11 +403,15 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const updateVirtualInstanceState = (instance: InstanceModel) => {
-        const topLevelInstance = instances.get(instance.id)
-        if (topLevelInstance) {
-          topLevelInstance.outputs = instance.outputs
-          topLevelInstance.resolvedOutputs = instance.resolvedOutputs
-          updateInstanceStateCore(topLevelInstance)
+        const residentInstance = residentInstanceIds.has(instance.id)
+          ? instances.get(instance.id)
+          : undefined
+
+        if (residentInstance) {
+          residentInstance.resolvedInputs = instance.resolvedInputs
+          residentInstance.outputs = instance.outputs
+          residentInstance.resolvedOutputs = instance.resolvedOutputs
+          updateInstanceStateCore(residentInstance)
         } else {
           updateInstanceState(instance)
           addComponentInstance(instance)
@@ -651,6 +782,10 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const createBlueprintInstance = async (instance: InstanceModel) => {
+        residentInstanceIds.add(instance.id)
+        ghostInstanceIds.delete(instance.id)
+        virtualInstanceIds.delete(instance.id)
+
         updateInstanceState(instance)
         instanceNameSet.add(instance.name)
         addComponentInstance(instance)
@@ -710,6 +845,9 @@ export const useProjectInstancesStore = defineMultiStore({
         if (instance.name !== newName) {
           const oldName = instance.name
           const newInstanceId = getInstanceId(instance.type, newName)
+          const wasResident = residentInstanceIds.has(instanceId)
+          const wasGhost = ghostInstanceIds.has(instanceId)
+          const wasVirtual = virtualInstanceIds.has(instanceId)
 
           triggerInstanceNameChanged({
             oldName,
@@ -724,6 +862,21 @@ export const useProjectInstancesStore = defineMultiStore({
           instance.name = newName
 
           updateInstanceState(instance)
+
+          if (wasResident) {
+            residentInstanceIds.delete(instanceId)
+            residentInstanceIds.add(newInstanceId)
+          }
+
+          if (wasGhost) {
+            ghostInstanceIds.delete(instanceId)
+            ghostInstanceIds.add(newInstanceId)
+          }
+
+          if (wasVirtual) {
+            virtualInstanceIds.delete(instanceId)
+            virtualInstanceIds.add(newInstanceId)
+          }
 
           for (const targetInstance of instances.values()) {
             if (targetInstance.id === instance.id) {
@@ -959,6 +1112,8 @@ export const useProjectInstancesStore = defineMultiStore({
         inputResolverInputs,
         inputResolverOutputs,
         instanceNameSet,
+        virtualInstanceIds,
+        residentInstanceIds,
 
         totalInstanceCount,
         resolvedInstanceCount,

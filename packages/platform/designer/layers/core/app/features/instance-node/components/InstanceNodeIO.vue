@@ -8,6 +8,8 @@ const { type = "both" } = defineProps<{
   instance: InstanceModel
   component: ComponentModel
   entities: Record<string, EntityModel | undefined>
+  projectId?: string
+  stateId?: string
   type?: "inputs" | "outputs" | "both"
   mirror?: boolean
   isValidConnection?: ValidConnectionFunc
@@ -27,6 +29,8 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :project-id="projectId"
+        :state-id="stateId"
         :is-valid-connection="isValidConnection"
         type="inputs"
         :resolved-inputs="resolvedInputs"
@@ -43,9 +47,12 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :project-id="projectId"
+        :state-id="stateId"
         :is-valid-connection="isValidConnection"
         type="outputs"
         :used-outputs="usedOutputs"
+        :resolved-inputs="resolvedInputs"
         side="right"
         :force-show-all-handles="forceShowAllHandles"
         :prevent-show-all-handles="preventShowAllHandles"
@@ -58,9 +65,12 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :project-id="projectId"
+        :state-id="stateId"
         :is-valid-connection="isValidConnection"
         type="outputs"
         :used-outputs="usedOutputs"
+        :resolved-inputs="resolvedInputs"
         side="left"
         :force-show-all-handles="forceShowAllHandles"
         :prevent-show-all-handles="preventShowAllHandles"
@@ -73,6 +83,8 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :project-id="projectId"
+        :state-id="stateId"
         :is-valid-connection="isValidConnection"
         type="inputs"
         side="right"

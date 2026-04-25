@@ -50,6 +50,12 @@ export type UserWorkspaceLayout = Prisma.UserWorkspaceLayoutModel
  */
 export type Library = Prisma.LibraryModel
 /**
+ * Model Object
+ * The object allows to track arbitrary object across multiple projects and search them globally by their IDs.
+ * This also allow to correlate different entities across different projects.
+ */
+export type Object = Prisma.ObjectModel
+/**
  * Model Project
  * 
  */

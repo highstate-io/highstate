@@ -12,6 +12,7 @@ export function getMdbMongodbUser(args: GetMdbMongodbUserArgs, opts?: pulumi.Inv
         "clusterId": args.clusterId,
         "name": args.name,
         "permissions": args.permissions,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -22,6 +23,7 @@ export interface GetMdbMongodbUserArgs {
     clusterId: string;
     name: string;
     permissions?: inputs.GetMdbMongodbUserPermission[];
+    timeouts?: inputs.GetMdbMongodbUserTimeouts;
 }
 
 /**
@@ -33,6 +35,7 @@ export interface GetMdbMongodbUserResult {
     readonly name: string;
     readonly password: string;
     readonly permissions?: outputs.GetMdbMongodbUserPermission[];
+    readonly timeouts?: outputs.GetMdbMongodbUserTimeouts;
 }
 export function getMdbMongodbUserOutput(args: GetMdbMongodbUserOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetMdbMongodbUserResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
@@ -40,6 +43,7 @@ export function getMdbMongodbUserOutput(args: GetMdbMongodbUserOutputArgs, opts?
         "clusterId": args.clusterId,
         "name": args.name,
         "permissions": args.permissions,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -50,4 +54,5 @@ export interface GetMdbMongodbUserOutputArgs {
     clusterId: pulumi.Input<string>;
     name: pulumi.Input<string>;
     permissions?: pulumi.Input<pulumi.Input<inputs.GetMdbMongodbUserPermissionArgs>[]>;
+    timeouts?: pulumi.Input<inputs.GetMdbMongodbUserTimeoutsArgs>;
 }

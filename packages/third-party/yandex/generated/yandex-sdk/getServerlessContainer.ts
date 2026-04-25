@@ -14,7 +14,10 @@ export function getServerlessContainer(args?: GetServerlessContainerArgs, opts?:
         "containerId": args.containerId,
         "folderId": args.folderId,
         "id": args.id,
+        "metadataOptions": args.metadataOptions,
+        "mounts": args.mounts,
         "name": args.name,
+        "runtime": args.runtime,
         "secrets": args.secrets,
         "storageMounts": args.storageMounts,
     }, opts, utilities.getPackage());
@@ -28,8 +31,14 @@ export interface GetServerlessContainerArgs {
     containerId?: string;
     folderId?: string;
     id?: string;
+    metadataOptions?: inputs.GetServerlessContainerMetadataOptions;
+    mounts?: inputs.GetServerlessContainerMount[];
     name?: string;
+    runtime?: inputs.GetServerlessContainerRuntime;
     secrets?: inputs.GetServerlessContainerSecret[];
+    /**
+     * @deprecated Deprecated
+     */
     storageMounts?: inputs.GetServerlessContainerStorageMount[];
 }
 
@@ -37,6 +46,7 @@ export interface GetServerlessContainerArgs {
  * A collection of values returned by getServerlessContainer.
  */
 export interface GetServerlessContainerResult {
+    readonly asyncInvocations: outputs.GetServerlessContainerAsyncInvocation[];
     readonly concurrency: number;
     readonly connectivity?: outputs.GetServerlessContainerConnectivity;
     readonly containerId?: string;
@@ -51,10 +61,16 @@ export interface GetServerlessContainerResult {
     readonly labels: {[key: string]: string};
     readonly logOptions: outputs.GetServerlessContainerLogOption[];
     readonly memory: number;
+    readonly metadataOptions?: outputs.GetServerlessContainerMetadataOptions;
+    readonly mounts?: outputs.GetServerlessContainerMount[];
     readonly name?: string;
     readonly revisionId: string;
+    readonly runtime?: outputs.GetServerlessContainerRuntime;
     readonly secrets?: outputs.GetServerlessContainerSecret[];
     readonly serviceAccountId: string;
+    /**
+     * @deprecated Deprecated
+     */
     readonly storageMounts?: outputs.GetServerlessContainerStorageMount[];
     readonly url: string;
 }
@@ -66,7 +82,10 @@ export function getServerlessContainerOutput(args?: GetServerlessContainerOutput
         "containerId": args.containerId,
         "folderId": args.folderId,
         "id": args.id,
+        "metadataOptions": args.metadataOptions,
+        "mounts": args.mounts,
         "name": args.name,
+        "runtime": args.runtime,
         "secrets": args.secrets,
         "storageMounts": args.storageMounts,
     }, opts, utilities.getPackage());
@@ -80,7 +99,13 @@ export interface GetServerlessContainerOutputArgs {
     containerId?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
+    metadataOptions?: pulumi.Input<inputs.GetServerlessContainerMetadataOptionsArgs>;
+    mounts?: pulumi.Input<pulumi.Input<inputs.GetServerlessContainerMountArgs>[]>;
     name?: pulumi.Input<string>;
+    runtime?: pulumi.Input<inputs.GetServerlessContainerRuntimeArgs>;
     secrets?: pulumi.Input<pulumi.Input<inputs.GetServerlessContainerSecretArgs>[]>;
+    /**
+     * @deprecated Deprecated
+     */
     storageMounts?: pulumi.Input<pulumi.Input<inputs.GetServerlessContainerStorageMountArgs>[]>;
 }

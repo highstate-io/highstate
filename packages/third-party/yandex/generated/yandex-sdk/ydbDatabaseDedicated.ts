@@ -34,27 +34,88 @@ export class YdbDatabaseDedicated extends pulumi.CustomResource {
         return obj['__pulumiType'] === YdbDatabaseDedicated.__pulumiType;
     }
 
+    /**
+     * Whether public IP addresses should be assigned to the Yandex Database cluster.
+     */
     declare public readonly assignPublicIps: pulumi.Output<boolean | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Full database path of the Yandex Database cluster. Useful for SDK configuration.
+     */
     declare public /*out*/ readonly databasePath: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Location for the Yandex Database cluster.
+     */
     declare public readonly location: pulumi.Output<outputs.YdbDatabaseDedicatedLocation | undefined>;
+    /**
+     * Location ID for the Yandex Database cluster.
+     */
     declare public readonly locationId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.
+     */
     declare public readonly resourcePresetId: pulumi.Output<string>;
+    /**
+     * Scaling policy for the Yandex Database cluster.
+     */
     declare public readonly scalePolicy: pulumi.Output<outputs.YdbDatabaseDedicatedScalePolicy>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
+    declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
     declare public readonly sleepAfter: pulumi.Output<number | undefined>;
+    /**
+     * Status of the Yandex Database cluster.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * A list of storage configuration options for the Yandex Database cluster.
+     */
     declare public readonly storageConfig: pulumi.Output<outputs.YdbDatabaseDedicatedStorageConfig>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     declare public readonly subnetIds: pulumi.Output<string[]>;
     declare public readonly timeouts: pulumi.Output<outputs.YdbDatabaseDedicatedTimeouts | undefined>;
+    /**
+     * Whether TLS is enabled for the Yandex Database cluster. Useful for SDK configuration.
+     */
     declare public /*out*/ readonly tlsEnabled: pulumi.Output<boolean>;
+    /**
+     * API endpoint of the Yandex Database cluster. Useful for SDK configuration.
+     */
     declare public /*out*/ readonly ydbApiEndpoint: pulumi.Output<string>;
     declare public readonly ydbDatabaseDedicatedId: pulumi.Output<string>;
+    /**
+     * Full endpoint of the Yandex Database cluster.
+     */
     declare public /*out*/ readonly ydbFullEndpoint: pulumi.Output<string>;
 
     /**
@@ -83,6 +144,7 @@ export class YdbDatabaseDedicated extends pulumi.CustomResource {
             resourceInputs["networkId"] = state?.networkId;
             resourceInputs["resourcePresetId"] = state?.resourcePresetId;
             resourceInputs["scalePolicy"] = state?.scalePolicy;
+            resourceInputs["securityGroupIds"] = state?.securityGroupIds;
             resourceInputs["sleepAfter"] = state?.sleepAfter;
             resourceInputs["status"] = state?.status;
             resourceInputs["storageConfig"] = state?.storageConfig;
@@ -120,6 +182,7 @@ export class YdbDatabaseDedicated extends pulumi.CustomResource {
             resourceInputs["networkId"] = args?.networkId;
             resourceInputs["resourcePresetId"] = args?.resourcePresetId;
             resourceInputs["scalePolicy"] = args?.scalePolicy;
+            resourceInputs["securityGroupIds"] = args?.securityGroupIds;
             resourceInputs["sleepAfter"] = args?.sleepAfter;
             resourceInputs["storageConfig"] = args?.storageConfig;
             resourceInputs["subnetIds"] = args?.subnetIds;
@@ -141,27 +204,88 @@ export class YdbDatabaseDedicated extends pulumi.CustomResource {
  * Input properties used for looking up and filtering YdbDatabaseDedicated resources.
  */
 export interface YdbDatabaseDedicatedState {
+    /**
+     * Whether public IP addresses should be assigned to the Yandex Database cluster.
+     */
     assignPublicIps?: pulumi.Input<boolean>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Full database path of the Yandex Database cluster. Useful for SDK configuration.
+     */
     databasePath?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Location for the Yandex Database cluster.
+     */
     location?: pulumi.Input<inputs.YdbDatabaseDedicatedLocation>;
+    /**
+     * Location ID for the Yandex Database cluster.
+     */
     locationId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.
+     */
     resourcePresetId?: pulumi.Input<string>;
+    /**
+     * Scaling policy for the Yandex Database cluster.
+     */
     scalePolicy?: pulumi.Input<inputs.YdbDatabaseDedicatedScalePolicy>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
+    securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     sleepAfter?: pulumi.Input<number>;
+    /**
+     * Status of the Yandex Database cluster.
+     */
     status?: pulumi.Input<string>;
+    /**
+     * A list of storage configuration options for the Yandex Database cluster.
+     */
     storageConfig?: pulumi.Input<inputs.YdbDatabaseDedicatedStorageConfig>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     subnetIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.YdbDatabaseDedicatedTimeouts>;
+    /**
+     * Whether TLS is enabled for the Yandex Database cluster. Useful for SDK configuration.
+     */
     tlsEnabled?: pulumi.Input<boolean>;
+    /**
+     * API endpoint of the Yandex Database cluster. Useful for SDK configuration.
+     */
     ydbApiEndpoint?: pulumi.Input<string>;
     ydbDatabaseDedicatedId?: pulumi.Input<string>;
+    /**
+     * Full endpoint of the Yandex Database cluster.
+     */
     ydbFullEndpoint?: pulumi.Input<string>;
 }
 
@@ -169,19 +293,62 @@ export interface YdbDatabaseDedicatedState {
  * The set of arguments for constructing a YdbDatabaseDedicated resource.
  */
 export interface YdbDatabaseDedicatedArgs {
+    /**
+     * Whether public IP addresses should be assigned to the Yandex Database cluster.
+     */
     assignPublicIps?: pulumi.Input<boolean>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Location for the Yandex Database cluster.
+     */
     location?: pulumi.Input<inputs.YdbDatabaseDedicatedLocation>;
+    /**
+     * Location ID for the Yandex Database cluster.
+     */
     locationId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * The Yandex Database cluster preset. Available presets can be obtained via `yc ydb resource-preset list` command.
+     */
     resourcePresetId: pulumi.Input<string>;
+    /**
+     * Scaling policy for the Yandex Database cluster.
+     */
     scalePolicy: pulumi.Input<inputs.YdbDatabaseDedicatedScalePolicy>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
+    securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     sleepAfter?: pulumi.Input<number>;
+    /**
+     * A list of storage configuration options for the Yandex Database cluster.
+     */
     storageConfig: pulumi.Input<inputs.YdbDatabaseDedicatedStorageConfig>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     subnetIds: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.YdbDatabaseDedicatedTimeouts>;
     ydbDatabaseDedicatedId?: pulumi.Input<string>;

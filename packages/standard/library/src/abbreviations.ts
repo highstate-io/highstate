@@ -28,9 +28,12 @@ registerKnownAbbreviations([
   "CNI",
   "CSI",
   "MariaDB",
+  "MySQL",
   "PostgreSQL",
   "MongoDB",
   "etcd",
+  "MAS", // Matrix Authentication Service
+  "LC", // Locale
 ])
 
 export const noop = () => {}

@@ -34,19 +34,68 @@ export class CdnResource extends pulumi.CustomResource {
         return obj['__pulumiType'] === CdnResource.__pulumiType;
     }
 
+    /**
+     * Flag to create Resource either in active or disabled state. `True` - the content from CDN is available to clients.
+     */
     declare public readonly active: pulumi.Output<boolean | undefined>;
     declare public readonly cdnResourceId: pulumi.Output<string>;
+    /**
+     * CDN endpoint CNAME, must be unique among resources.
+     */
     declare public readonly cname: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * CDN Resource settings and options to tune CDN edge behavior.
+     */
     declare public readonly options: pulumi.Output<outputs.CdnResourceOptions | undefined>;
-    declare public readonly originGroupId: pulumi.Output<number | undefined>;
+    /**
+     * The ID of a specific origin group.
+     */
+    declare public readonly originGroupId: pulumi.Output<string | undefined>;
+    /**
+     * The name of a specific origin group.
+     */
     declare public readonly originGroupName: pulumi.Output<string | undefined>;
+    /**
+     * Protocol of origin resource. `http` or `https`.
+     */
     declare public readonly originProtocol: pulumi.Output<string | undefined>;
+    /**
+     * Provider CNAME of CDN resource, computed value for read and update operations.
+     */
     declare public /*out*/ readonly providerCname: pulumi.Output<string>;
+    /**
+     * CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+     */
+    declare public readonly providerType: pulumi.Output<string | undefined>;
+    /**
+     * List of secondary hostname strings.
+     */
     declare public readonly secondaryHostnames: pulumi.Output<string[] | undefined>;
+    /**
+     * Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers. Specify location id to
+     * enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding
+     */
+    declare public readonly shielding: pulumi.Output<string | undefined>;
+    /**
+     * SSL certificate of CDN resource.
+     */
     declare public readonly sslCertificate: pulumi.Output<outputs.CdnResourceSslCertificate | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.CdnResourceTimeouts | undefined>;
+    /**
+     * Last update timestamp. Computed value for read and update operations.
+     */
     declare public readonly updatedAt: pulumi.Output<string>;
 
     /**
@@ -56,7 +105,7 @@ export class CdnResource extends pulumi.CustomResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args?: CdnResourceArgs, opts?: pulumi.CustomResourceOptions)
+    constructor(name: string, args: CdnResourceArgs, opts?: pulumi.CustomResourceOptions)
     constructor(name: string, argsOrState?: CdnResourceArgs | CdnResourceState, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
@@ -67,26 +116,35 @@ export class CdnResource extends pulumi.CustomResource {
             resourceInputs["cname"] = state?.cname;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["labels"] = state?.labels;
             resourceInputs["options"] = state?.options;
             resourceInputs["originGroupId"] = state?.originGroupId;
             resourceInputs["originGroupName"] = state?.originGroupName;
             resourceInputs["originProtocol"] = state?.originProtocol;
             resourceInputs["providerCname"] = state?.providerCname;
+            resourceInputs["providerType"] = state?.providerType;
             resourceInputs["secondaryHostnames"] = state?.secondaryHostnames;
+            resourceInputs["shielding"] = state?.shielding;
             resourceInputs["sslCertificate"] = state?.sslCertificate;
             resourceInputs["timeouts"] = state?.timeouts;
             resourceInputs["updatedAt"] = state?.updatedAt;
         } else {
             const args = argsOrState as CdnResourceArgs | undefined;
+            if (args?.cname === undefined && !opts.urn) {
+                throw new Error("Missing required property 'cname'");
+            }
             resourceInputs["active"] = args?.active;
             resourceInputs["cdnResourceId"] = args?.cdnResourceId;
             resourceInputs["cname"] = args?.cname;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["labels"] = args?.labels;
             resourceInputs["options"] = args?.options;
             resourceInputs["originGroupId"] = args?.originGroupId;
             resourceInputs["originGroupName"] = args?.originGroupName;
             resourceInputs["originProtocol"] = args?.originProtocol;
+            resourceInputs["providerType"] = args?.providerType;
             resourceInputs["secondaryHostnames"] = args?.secondaryHostnames;
+            resourceInputs["shielding"] = args?.shielding;
             resourceInputs["sslCertificate"] = args?.sslCertificate;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["updatedAt"] = args?.updatedAt;
@@ -102,19 +160,68 @@ export class CdnResource extends pulumi.CustomResource {
  * Input properties used for looking up and filtering CdnResource resources.
  */
 export interface CdnResourceState {
+    /**
+     * Flag to create Resource either in active or disabled state. `True` - the content from CDN is available to clients.
+     */
     active?: pulumi.Input<boolean>;
     cdnResourceId?: pulumi.Input<string>;
+    /**
+     * CDN endpoint CNAME, must be unique among resources.
+     */
     cname?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * CDN Resource settings and options to tune CDN edge behavior.
+     */
     options?: pulumi.Input<inputs.CdnResourceOptions>;
-    originGroupId?: pulumi.Input<number>;
+    /**
+     * The ID of a specific origin group.
+     */
+    originGroupId?: pulumi.Input<string>;
+    /**
+     * The name of a specific origin group.
+     */
     originGroupName?: pulumi.Input<string>;
+    /**
+     * Protocol of origin resource. `http` or `https`.
+     */
     originProtocol?: pulumi.Input<string>;
+    /**
+     * Provider CNAME of CDN resource, computed value for read and update operations.
+     */
     providerCname?: pulumi.Input<string>;
+    /**
+     * CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+     */
+    providerType?: pulumi.Input<string>;
+    /**
+     * List of secondary hostname strings.
+     */
     secondaryHostnames?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers. Specify location id to
+     * enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding
+     */
+    shielding?: pulumi.Input<string>;
+    /**
+     * SSL certificate of CDN resource.
+     */
     sslCertificate?: pulumi.Input<inputs.CdnResourceSslCertificate>;
     timeouts?: pulumi.Input<inputs.CdnResourceTimeouts>;
+    /**
+     * Last update timestamp. Computed value for read and update operations.
+     */
     updatedAt?: pulumi.Input<string>;
 }
 
@@ -122,16 +229,59 @@ export interface CdnResourceState {
  * The set of arguments for constructing a CdnResource resource.
  */
 export interface CdnResourceArgs {
+    /**
+     * Flag to create Resource either in active or disabled state. `True` - the content from CDN is available to clients.
+     */
     active?: pulumi.Input<boolean>;
     cdnResourceId?: pulumi.Input<string>;
-    cname?: pulumi.Input<string>;
+    /**
+     * CDN endpoint CNAME, must be unique among resources.
+     */
+    cname: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * CDN Resource settings and options to tune CDN edge behavior.
+     */
     options?: pulumi.Input<inputs.CdnResourceOptions>;
-    originGroupId?: pulumi.Input<number>;
+    /**
+     * The ID of a specific origin group.
+     */
+    originGroupId?: pulumi.Input<string>;
+    /**
+     * The name of a specific origin group.
+     */
     originGroupName?: pulumi.Input<string>;
+    /**
+     * Protocol of origin resource. `http` or `https`.
+     */
     originProtocol?: pulumi.Input<string>;
+    /**
+     * CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+     */
+    providerType?: pulumi.Input<string>;
+    /**
+     * List of secondary hostname strings.
+     */
     secondaryHostnames?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Shielding is a Cloud CDN feature that helps reduce the load on content origins from CDN servers. Specify location id to
+     * enable shielding. See https://yandex.cloud/en/docs/cdn/operations/resources/enable-shielding
+     */
+    shielding?: pulumi.Input<string>;
+    /**
+     * SSL certificate of CDN resource.
+     */
     sslCertificate?: pulumi.Input<inputs.CdnResourceSslCertificate>;
     timeouts?: pulumi.Input<inputs.CdnResourceTimeouts>;
+    /**
+     * Last update timestamp. Computed value for read and update operations.
+     */
     updatedAt?: pulumi.Input<string>;
 }

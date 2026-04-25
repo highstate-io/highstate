@@ -34,20 +34,58 @@ export class VpcSecurityGroupRule extends pulumi.CustomResource {
         return obj['__pulumiType'] === VpcSecurityGroupRule.__pulumiType;
     }
 
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The resource description.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * Direction of the Security group rule. Can be `ingress` (inbound network traffic to the VPC network) or `egress`
+     * (outbound network traffic from the VPC network).
+     */
     declare public readonly direction: pulumi.Output<string>;
-    declare public readonly fromPort: pulumi.Output<number | undefined>;
+    /**
+     * Minimum port number. Applicable for TCP and UDP protocols.
+     */
+    declare public readonly fromPort: pulumi.Output<number>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
-    declare public readonly port: pulumi.Output<number | undefined>;
-    declare public readonly predefinedTarget: pulumi.Output<string | undefined>;
+    /**
+     * Port number (if applied to a single port).
+     */
+    declare public readonly port: pulumi.Output<number>;
+    /**
+     * Special-purpose targets. The `self_security_group` target refers to this particular security group. The
+     * `loadbalancer_healthchecks` target represents [NLB health check
+     * nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
+     */
+    declare public readonly predefinedTarget: pulumi.Output<string>;
+    /**
+     * Specific network protocol. Can be one of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
+     */
     declare public readonly protocol: pulumi.Output<string | undefined>;
+    /**
+     * The id of target security group which rule belongs to.
+     */
     declare public readonly securityGroupBinding: pulumi.Output<string>;
-    declare public readonly securityGroupId: pulumi.Output<string | undefined>;
+    /**
+     * Target security group ID for this Security group rule.
+     */
+    declare public readonly securityGroupId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.VpcSecurityGroupRuleTimeouts | undefined>;
-    declare public readonly toPort: pulumi.Output<number | undefined>;
-    declare public readonly v4CidrBlocks: pulumi.Output<string[] | undefined>;
-    declare public readonly v6CidrBlocks: pulumi.Output<string[] | undefined>;
-    declare public readonly vpcSecurityGroupRuleId: pulumi.Output<string>;
+    /**
+     * Maximum port number. Applicable for TCP and UDP protocols.
+     */
+    declare public readonly toPort: pulumi.Output<number>;
+    /**
+     * The list of IPv4 CIDR prefixes for this Security group rule.
+     */
+    declare public readonly v4CidrBlocks: pulumi.Output<string[]>;
+    /**
+     * The list of IPv6 CIDR prefixes for this Security group rule. Not supported yet.
+     */
+    declare public readonly v6CidrBlocks: pulumi.Output<string[]>;
 
     /**
      * Create a VpcSecurityGroupRule resource with the given unique name, arguments, and options.
@@ -75,7 +113,6 @@ export class VpcSecurityGroupRule extends pulumi.CustomResource {
             resourceInputs["toPort"] = state?.toPort;
             resourceInputs["v4CidrBlocks"] = state?.v4CidrBlocks;
             resourceInputs["v6CidrBlocks"] = state?.v6CidrBlocks;
-            resourceInputs["vpcSecurityGroupRuleId"] = state?.vpcSecurityGroupRuleId;
         } else {
             const args = argsOrState as VpcSecurityGroupRuleArgs | undefined;
             if (args?.direction === undefined && !opts.urn) {
@@ -97,7 +134,6 @@ export class VpcSecurityGroupRule extends pulumi.CustomResource {
             resourceInputs["toPort"] = args?.toPort;
             resourceInputs["v4CidrBlocks"] = args?.v4CidrBlocks;
             resourceInputs["v6CidrBlocks"] = args?.v6CidrBlocks;
-            resourceInputs["vpcSecurityGroupRuleId"] = args?.vpcSecurityGroupRuleId;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(VpcSecurityGroupRule.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -108,38 +144,114 @@ export class VpcSecurityGroupRule extends pulumi.CustomResource {
  * Input properties used for looking up and filtering VpcSecurityGroupRule resources.
  */
 export interface VpcSecurityGroupRuleState {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Direction of the Security group rule. Can be `ingress` (inbound network traffic to the VPC network) or `egress`
+     * (outbound network traffic from the VPC network).
+     */
     direction?: pulumi.Input<string>;
+    /**
+     * Minimum port number. Applicable for TCP and UDP protocols.
+     */
     fromPort?: pulumi.Input<number>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Port number (if applied to a single port).
+     */
     port?: pulumi.Input<number>;
+    /**
+     * Special-purpose targets. The `self_security_group` target refers to this particular security group. The
+     * `loadbalancer_healthchecks` target represents [NLB health check
+     * nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
+     */
     predefinedTarget?: pulumi.Input<string>;
+    /**
+     * Specific network protocol. Can be one of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
+     */
     protocol?: pulumi.Input<string>;
+    /**
+     * The id of target security group which rule belongs to.
+     */
     securityGroupBinding?: pulumi.Input<string>;
+    /**
+     * Target security group ID for this Security group rule.
+     */
     securityGroupId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.VpcSecurityGroupRuleTimeouts>;
+    /**
+     * Maximum port number. Applicable for TCP and UDP protocols.
+     */
     toPort?: pulumi.Input<number>;
+    /**
+     * The list of IPv4 CIDR prefixes for this Security group rule.
+     */
     v4CidrBlocks?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The list of IPv6 CIDR prefixes for this Security group rule. Not supported yet.
+     */
     v6CidrBlocks?: pulumi.Input<pulumi.Input<string>[]>;
-    vpcSecurityGroupRuleId?: pulumi.Input<string>;
 }
 
 /**
  * The set of arguments for constructing a VpcSecurityGroupRule resource.
  */
 export interface VpcSecurityGroupRuleArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Direction of the Security group rule. Can be `ingress` (inbound network traffic to the VPC network) or `egress`
+     * (outbound network traffic from the VPC network).
+     */
     direction: pulumi.Input<string>;
+    /**
+     * Minimum port number. Applicable for TCP and UDP protocols.
+     */
     fromPort?: pulumi.Input<number>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Port number (if applied to a single port).
+     */
     port?: pulumi.Input<number>;
+    /**
+     * Special-purpose targets. The `self_security_group` target refers to this particular security group. The
+     * `loadbalancer_healthchecks` target represents [NLB health check
+     * nodes](https://yandex.cloud/docs/network-load-balancer/concepts/health-check).
+     */
     predefinedTarget?: pulumi.Input<string>;
+    /**
+     * Specific network protocol. Can be one of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
+     */
     protocol?: pulumi.Input<string>;
+    /**
+     * The id of target security group which rule belongs to.
+     */
     securityGroupBinding: pulumi.Input<string>;
+    /**
+     * Target security group ID for this Security group rule.
+     */
     securityGroupId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.VpcSecurityGroupRuleTimeouts>;
+    /**
+     * Maximum port number. Applicable for TCP and UDP protocols.
+     */
     toPort?: pulumi.Input<number>;
+    /**
+     * The list of IPv4 CIDR prefixes for this Security group rule.
+     */
     v4CidrBlocks?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The list of IPv6 CIDR prefixes for this Security group rule. Not supported yet.
+     */
     v6CidrBlocks?: pulumi.Input<pulumi.Input<string>[]>;
-    vpcSecurityGroupRuleId?: pulumi.Input<string>;
 }

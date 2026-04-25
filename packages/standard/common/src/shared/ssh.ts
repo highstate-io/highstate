@@ -1,8 +1,13 @@
-import type { common, network, ssh } from "@highstate/library"
-import { stripNullish, type UnitTerminal } from "@highstate/contract"
+import { stripNullish, text, type UnitTerminal } from "@highstate/contract"
+import { common, type network, ssh } from "@highstate/library"
 import {
-  fileFromString,
+  getCombinedIdentity,
   type Input,
+  makeEntity,
+  makeEntityAsync,
+  makeEntityOutput,
+  makeFile,
+  makeSecret,
   type Output,
   output,
   secret,
@@ -15,29 +20,25 @@ import * as images from "../../assets/images.json"
 import { Command } from "./command"
 import { l3EndpointToL4, l3EndpointToString } from "./network/endpoints"
 
-export async function createSshTerminal(
-  credentials: Input<ssh.Connection>,
-): Promise<Output<UnitTerminal>> {
-  const resolvedCredentials = await toPromise(credentials)
-
+export function createSshTerminal(connection: ssh.Connection): UnitTerminal {
   const command = ["ssh", "-tt", "-o", "UserKnownHostsFile=/known_hosts"]
 
   // TODO: select best endpoint based on the environment
-  const endpoint = resolvedCredentials.endpoints[0]
+  const endpoint = connection.endpoints[0]
 
   command.push("-p", endpoint.port.toString())
 
-  if (resolvedCredentials.keyPair) {
+  if (connection.keyPair) {
     command.push("-i", "/private_key")
   }
 
-  command.push(`${resolvedCredentials.user}@${l3EndpointToString(endpoint)}`)
+  command.push(`${connection.user}@${l3EndpointToString(endpoint)}`)
 
-  if (resolvedCredentials.password) {
+  if (connection.password) {
     command.unshift("sshpass", "-f", "/password")
   }
 
-  return output({
+  return {
     name: "ssh",
 
     meta: {
@@ -51,44 +52,53 @@ export async function createSshTerminal(
       command,
 
       files: stripNullish({
-        "/password": resolvedCredentials.password
-          ? fileFromString("password", resolvedCredentials.password, { isSecret: true })
+        "/password": connection.password
+          ? makeFile({
+              name: "password",
+              content: connection.password.value,
+              isSecret: true,
+            })
           : undefined,
 
-        "/private_key": resolvedCredentials.keyPair?.privateKey
-          ? fileFromString("private_key", resolvedCredentials.keyPair.privateKey, {
+        "/private_key": connection.keyPair?.privateKey
+          ? makeFile({
+              name: "private_key",
+              content: connection.keyPair.privateKey.value,
               isSecret: true,
               mode: 0o600,
             })
           : undefined,
 
-        "/known_hosts": fileFromString(
-          "known_hosts",
-          `${l3EndpointToString(endpoint)} ${resolvedCredentials.hostKey}`,
-          { mode: 0o644 },
-        ),
+        "/known_hosts": makeFile({
+          name: "known_hosts",
+          content: `${l3EndpointToString(endpoint)} ${connection.hostKey}`,
+          mode: 0o644,
+        }),
       }),
     },
-  })
+  }
 }
 
 /**
  * Creates a file containing the SSH host key(s) of all endpoints of the given server.
  *
  * @param server The server entity to create the host key file for.
- * @returns An Output of the created file entity.
+ * @returns The created file entity.
  */
-export function createSshHostKeyFile(server: Input<common.Server>): Output<common.File> {
-  return output(server).apply(server => {
-    if (!server.ssh) {
-      throw new Error("Server must have an SSH endpoint defined to create a host key file")
-    }
+export function createSshHostKeyFile(server: common.Server): common.File {
+  if (!server.ssh) {
+    throw new Error("Server must have an SSH endpoint defined to create a host key file")
+  }
 
-    return fileFromString(
-      `${server.hostname}-ssh-host-key`,
-      server.ssh.endpoints.map(ep => `${l3EndpointToString(ep)} ${server.ssh!.hostKey}`).join("\n"),
-      { mode: 0o644 },
-    )
+  return makeFile({
+    name: `${server.hostname}-ssh-host-key`,
+    identity: getCombinedIdentity(["ssh-host-key", server.hostname, server.ssh]),
+
+    content: server.ssh.endpoints
+      .map(ep => `${l3EndpointToString(ep)} ${server.ssh!.hostKey}`)
+      .join("\n"),
+
+    mode: 0o644,
   })
 }
 
@@ -108,23 +118,28 @@ export function generateSshPrivateKey(): Output<string> {
  * Converts a private SSH key string to a KeyPair object.
  *
  * @param privateKeyString The private key string to convert.
- * @returns An Output of the KeyPair object.
+ * @returns The KeyPair object.
  */
-export function sshPrivateKeyToKeyPair(privateKeyString: Input<string>): Output<ssh.KeyPair> {
-  return output(privateKeyString).apply(privateKeyString => {
-    const privateKeyStruct = PrivateExport.decode(privateKeyString)
+export function sshPrivateKeyToKeyPair(privateKeyString: string): ssh.KeyPair {
+  const privateKeyStruct = PrivateExport.decode(privateKeyString)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const privKey = privateKeyStruct.keys[0].privKey.privKey as Uint8Array
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const privKey = privateKeyStruct.keys[0].privKey.privKey as Uint8Array
 
-    const { fingerprint, publicKey } = getKeys(privKey.slice(0, 32))
+  const { fingerprint, publicKey } = getKeys(privKey.slice(0, 32))
 
-    return output({
+  return makeEntity({
+    entity: ssh.keyPairEntity,
+    identity: fingerprint,
+    meta: {
+      title: `ed25519 ${fingerprint.slice(0, 12)}`,
+    },
+    value: {
       type: "ed25519" as const,
       fingerprint,
       publicKey,
-      privateKey: secret(privateKeyString),
-    })
+      privateKey: makeSecret(privateKeyString),
+    },
   })
 }
 
@@ -132,24 +147,24 @@ export type ServerOptions = {
   /**
    * The local name of the server to namespace resources.
    */
-  name: string
+  name: Input<string>
 
   /**
    * The fallback hostname to use if the server cannot be determined.
    *
    * If not provided, the `name` will be used as the fallback hostname.
    */
-  fallbackHostname?: string
+  fallbackHostname?: Input<string>
 
   /**
    * The L3 endpoints of the server.
    */
-  endpoints: network.L3Endpoint[]
+  endpoints: Input<network.L3Endpoint[]>
 
   /**
    * The arguments for the SSH connection.
    */
-  sshArgs?: Partial<ssh.Args>
+  sshArgs?: Input<Partial<ssh.Args>>
 
   /**
    * The password for the SSH connection.
@@ -174,7 +189,7 @@ export type ServerOptions = {
    *
    * By default, this is equal to `!waitForSsh`, so when `waitForSsh` is true, no extra ping is performed.
    */
-  waitForPing?: boolean
+  waitForPing?: Input<boolean>
 
   /**
    * The interval in seconds to wait between ping attempts.
@@ -182,7 +197,7 @@ export type ServerOptions = {
    * Only used if `waitForPing` is true.
    * By default, it will wait 5 seconds between attempts.
    */
-  pingInterval?: number
+  pingInterval?: Input<number>
 
   /**
    * The timeout in seconds to wait for the server to respond to a ping command.
@@ -190,7 +205,7 @@ export type ServerOptions = {
    * Only used if `waitForPing` is true.
    * By default, it will wait 5 minutes (300 seconds) before timing out.
    */
-  pingTimeout?: number
+  pingTimeout?: Input<number>
 
   /**
    * Whether to wait for the SSH service to be available before returning.
@@ -199,7 +214,7 @@ export type ServerOptions = {
    *
    * By default, this is true if `sshArgs.enabled` is true, otherwise false.
    */
-  waitForSsh?: boolean
+  waitForSsh?: Input<boolean>
 
   /**
    * The interval in seconds to wait between SSH connection attempts.
@@ -207,7 +222,7 @@ export type ServerOptions = {
    * Only used if `waitForSsh` is true.
    * By default, it will wait 5 seconds between attempts.
    */
-  sshCheckInterval?: number
+  sshCheckInterval?: Input<number>
 
   /**
    * The timeout in seconds to wait for the SSH service to respond.
@@ -215,19 +230,19 @@ export type ServerOptions = {
    * Only used if `waitForSsh` is true.
    * By default, it will wait 5 minutes (300 seconds) before timing out.
    */
-  sshCheckTimeout?: number
+  sshCheckTimeout?: Input<number>
 }
 
 export type ServerBundle = {
   /**
    * The server entity created with the provided options.
    */
-  server: Output<common.Server>
+  server: common.Server
 
   /**
    * The SSH terminal created for the server.
    */
-  terminal?: Output<UnitTerminal>
+  terminal?: UnitTerminal
 }
 
 /**
@@ -255,28 +270,26 @@ export async function createServerBundle(options: ServerOptions): Promise<Server
  * @param options The options for creating the server entity.
  * @returns A promise that resolves to the created server entity.
  */
-export async function createServerEntity({
-  name,
-  fallbackHostname,
-  endpoints,
-  sshArgs = { enabled: true, port: 22, user: "root" },
-  sshPassword,
-  sshPrivateKey,
-  sshKeyPair,
-  pingInterval,
-  pingTimeout,
-  waitForPing,
-  waitForSsh,
-  sshCheckInterval,
-  sshCheckTimeout,
-}: ServerOptions): Promise<Output<common.Server>> {
+export async function createServerEntity(options: ServerOptions): Promise<common.Server> {
+  const {
+    name,
+    fallbackHostname = name,
+    endpoints,
+    sshArgs = { enabled: true, port: 22, user: "root" },
+    sshPassword,
+    sshPrivateKey,
+    sshKeyPair,
+    pingInterval,
+    pingTimeout,
+    waitForPing = !sshArgs.enabled,
+    waitForSsh = sshArgs.enabled,
+    sshCheckInterval,
+    sshCheckTimeout,
+  } = await toPromise(options)
+
   if (endpoints.length === 0) {
     throw new Error("At least one L3 endpoint is required to create a server entity")
   }
-
-  fallbackHostname ??= name
-  waitForSsh ??= sshArgs.enabled
-  waitForPing ??= !waitForSsh
 
   if (waitForPing) {
     await Command.waitFor(`${name}.ping`, {
@@ -284,14 +297,21 @@ export async function createServerEntity({
       create: `ping -c 1 ${l3EndpointToString(endpoints[0])}`,
       timeout: pingTimeout ?? 300,
       interval: pingInterval ?? 5,
-      triggers: [Date.now()],
+      updateTriggers: [Date.now()],
     }).wait()
   }
 
   if (!sshArgs.enabled) {
-    return output({
-      hostname: name,
-      endpoints,
+    return await makeEntityAsync({
+      entity: common.serverEntity,
+      identity: getCombinedIdentity(endpoints),
+      meta: {
+        title: name,
+      },
+      value: {
+        hostname: fallbackHostname,
+        endpoints,
+      },
     })
   }
 
@@ -303,7 +323,7 @@ export async function createServerEntity({
       create: `nc -zv ${sshHost} ${sshArgs.port}`,
       timeout: sshCheckTimeout ?? 300,
       interval: sshCheckInterval ?? 5,
-      triggers: [Date.now()],
+      updateTriggers: [Date.now()],
     }).wait()
   }
 
@@ -312,35 +332,59 @@ export async function createServerEntity({
     port: sshArgs.port,
     user: sshArgs.user,
     password: sshPassword,
-    privateKey: sshKeyPair ? output(sshKeyPair).privateKey : sshPrivateKey,
+    privateKey: sshKeyPair ? output(sshKeyPair).privateKey.value : sshPrivateKey,
     dialErrorLimit: 3,
   })
 
-  const hostnameResult = new remote.Command("hostname", {
+  const hostnameResult = new remote.Command(`${name}.hostname`, {
     connection,
-    create: "hostname",
-    triggers: [Date.now()],
+    addPreviousOutputInEnv: false,
+    create: text`
+      # ${Date.now()}
+      hostname
+    `,
   })
 
-  const hostKeyResult = new remote.Command("host-key", {
+  const hostKeyResult = new remote.Command(`${name}.host-key`, {
     connection,
-    create: "cat /etc/ssh/ssh_host_ed25519_key.pub",
-    triggers: [Date.now()],
+    addPreviousOutputInEnv: false,
+    create: text`
+      # ${Date.now()}
+      cat /etc/ssh/ssh_host_ed25519_key.pub
+    `,
   })
 
-  return output({
-    endpoints,
-    hostname: hostnameResult.stdout.apply(x => x.trim()),
-    ssh: {
-      endpoints: [l3EndpointToL4(sshHost, sshArgs.port ?? 22)],
-      user: sshArgs.user ?? "root",
-      hostKey: hostKeyResult.stdout.apply(x => x.trim()),
-      password: connection.password,
-      keyPair: sshKeyPair
-        ? sshKeyPair
-        : sshPrivateKey
-          ? sshPrivateKeyToKeyPair(sshPrivateKey)
-          : undefined,
+  const hostKey = await toPromise(hostKeyResult.stdout.apply(x => x.trim()))
+  const hostname = await toPromise(hostnameResult.stdout.apply(x => x.trim()))
+  const user = sshArgs.user ?? "root"
+
+  return await makeEntityAsync({
+    entity: common.serverEntity,
+    identity: hostKey,
+    meta: {
+      title: hostname,
+    },
+    value: {
+      endpoints,
+      hostname,
+      ssh: makeEntityOutput({
+        entity: ssh.connectionEntity,
+        identity: `${user}@${hostKey}`,
+        meta: {
+          title: `${user}@${hostname}`,
+        },
+        value: {
+          endpoints: [l3EndpointToL4(sshHost, sshArgs.port ?? 22)],
+          user,
+          hostKey,
+          password: connection.password,
+          keyPair: sshKeyPair
+            ? sshKeyPair
+            : sshPrivateKey
+              ? sshPrivateKeyToKeyPair(sshPrivateKey)
+              : undefined,
+        },
+      }),
     },
   })
 }

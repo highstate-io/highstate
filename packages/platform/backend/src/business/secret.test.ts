@@ -1,8 +1,9 @@
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { defineEntity, defineUnit, z } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
-import { describe, vi } from "vitest"
+import { describe, type MockedObject, vi } from "vitest"
 import { InstanceStateNotFoundError, InvalidInstanceKindError, SystemSecretNames } from "../shared"
 import { test } from "../test-utils"
 import { SecretService } from "./secret"
@@ -10,6 +11,7 @@ import { SecretService } from "./secret"
 const secretTest = test.extend<{
   pubsubManager: PubSubManager
   libraryBackend: LibraryBackend
+  objectRefIndexService: MockedObject<ObjectRefIndexService>
   secretService: SecretService
 }>({
   pubsubManager: async ({}, use) => {
@@ -94,11 +96,23 @@ const secretTest = test.extend<{
     await use(libraryBackend)
   },
 
-  secretService: async ({ database, pubsubManager, libraryBackend, logger }, use) => {
+  objectRefIndexService: async ({}, use) => {
+    const objectRefIndexService = vi.mockObject({
+      track: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ObjectRefIndexService)
+
+    await use(objectRefIndexService)
+  },
+
+  secretService: async (
+    { database, pubsubManager, libraryBackend, objectRefIndexService, logger },
+    use,
+  ) => {
     const service = new SecretService(
       database,
       pubsubManager,
       libraryBackend,
+      objectRefIndexService,
       logger.child({ service: "SecretService" }),
     )
 
@@ -452,6 +466,25 @@ describe("getInstanceSecretValues", () => {
 })
 
 describe("getPulumiPassword", () => {
+  secretTest(
+    "tracks created pulumi password secret",
+    async ({ secretService, database, createProject, objectRefIndexService, expect }) => {
+      const otherProject = await createProject(`aa-${createId()}`)
+
+      const password = await secretService.getPulumiPassword(otherProject.id)
+      expect(password).toBeTypeOf("string")
+
+      const otherProjectDatabase = await database.forProject(otherProject.id)
+      const secret = await otherProjectDatabase.secret.findUnique({
+        where: { systemName: SystemSecretNames.PulumiPassword },
+        select: { id: true },
+      })
+
+      expect(secret).toBeDefined()
+      expect(objectRefIndexService.track).toHaveBeenCalledWith(otherProject.id, [secret!.id])
+    },
+  )
+
   secretTest(
     "returns existing Pulumi password",
     async ({ secretService, projectDatabase, project, expect }) => {

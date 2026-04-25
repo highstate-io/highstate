@@ -10,13 +10,16 @@ export function getMdbGreenplumCluster(args?: GetMdbGreenplumClusterArgs, opts?:
     args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getMdbGreenplumCluster:getMdbGreenplumCluster", {
+        "backgroundActivities": args.backgroundActivities,
         "clusterId": args.clusterId,
         "folderId": args.folderId,
         "greenplumConfig": args.greenplumConfig,
         "id": args.id,
+        "masterHostGroupIds": args.masterHostGroupIds,
         "name": args.name,
         "poolerConfig": args.poolerConfig,
         "pxfConfigs": args.pxfConfigs,
+        "segmentHostGroupIds": args.segmentHostGroupIds,
     }, opts, utilities.getPackage());
 }
 
@@ -24,13 +27,16 @@ export function getMdbGreenplumCluster(args?: GetMdbGreenplumClusterArgs, opts?:
  * A collection of arguments for invoking getMdbGreenplumCluster.
  */
 export interface GetMdbGreenplumClusterArgs {
+    backgroundActivities?: inputs.GetMdbGreenplumClusterBackgroundActivity[];
     clusterId?: string;
     folderId?: string;
     greenplumConfig?: {[key: string]: string};
     id?: string;
+    masterHostGroupIds?: string[];
     name?: string;
     poolerConfig?: inputs.GetMdbGreenplumClusterPoolerConfig;
     pxfConfigs?: inputs.GetMdbGreenplumClusterPxfConfig[];
+    segmentHostGroupIds?: string[];
 }
 
 /**
@@ -39,6 +45,7 @@ export interface GetMdbGreenplumClusterArgs {
 export interface GetMdbGreenplumClusterResult {
     readonly accesses: outputs.GetMdbGreenplumClusterAccess[];
     readonly assignPublicIp: boolean;
+    readonly backgroundActivities?: outputs.GetMdbGreenplumClusterBackgroundActivity[];
     readonly backupWindowStarts: outputs.GetMdbGreenplumClusterBackupWindowStart[];
     readonly cloudStorages: outputs.GetMdbGreenplumClusterCloudStorage[];
     readonly clusterId: string;
@@ -51,8 +58,10 @@ export interface GetMdbGreenplumClusterResult {
     readonly health: string;
     readonly id: string;
     readonly labels: {[key: string]: string};
+    readonly loggings: outputs.GetMdbGreenplumClusterLogging[];
     readonly maintenanceWindows: outputs.GetMdbGreenplumClusterMaintenanceWindow[];
     readonly masterHostCount: number;
+    readonly masterHostGroupIds: string[];
     readonly masterHosts: outputs.GetMdbGreenplumClusterMasterHost[];
     readonly masterSubclusters: outputs.GetMdbGreenplumClusterMasterSubcluster[];
     readonly name: string;
@@ -61,9 +70,11 @@ export interface GetMdbGreenplumClusterResult {
     readonly pxfConfigs?: outputs.GetMdbGreenplumClusterPxfConfig[];
     readonly securityGroupIds: string[];
     readonly segmentHostCount: number;
+    readonly segmentHostGroupIds: string[];
     readonly segmentHosts: outputs.GetMdbGreenplumClusterSegmentHost[];
     readonly segmentInHost: number;
     readonly segmentSubclusters: outputs.GetMdbGreenplumClusterSegmentSubcluster[];
+    readonly serviceAccountId: string;
     readonly status: string;
     readonly subnetId: string;
     readonly userName: string;
@@ -74,13 +85,16 @@ export function getMdbGreenplumClusterOutput(args?: GetMdbGreenplumClusterOutput
     args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getMdbGreenplumCluster:getMdbGreenplumCluster", {
+        "backgroundActivities": args.backgroundActivities,
         "clusterId": args.clusterId,
         "folderId": args.folderId,
         "greenplumConfig": args.greenplumConfig,
         "id": args.id,
+        "masterHostGroupIds": args.masterHostGroupIds,
         "name": args.name,
         "poolerConfig": args.poolerConfig,
         "pxfConfigs": args.pxfConfigs,
+        "segmentHostGroupIds": args.segmentHostGroupIds,
     }, opts, utilities.getPackage());
 }
 
@@ -88,11 +102,14 @@ export function getMdbGreenplumClusterOutput(args?: GetMdbGreenplumClusterOutput
  * A collection of arguments for invoking getMdbGreenplumCluster.
  */
 export interface GetMdbGreenplumClusterOutputArgs {
+    backgroundActivities?: pulumi.Input<pulumi.Input<inputs.GetMdbGreenplumClusterBackgroundActivityArgs>[]>;
     clusterId?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     greenplumConfig?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     id?: pulumi.Input<string>;
+    masterHostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     name?: pulumi.Input<string>;
     poolerConfig?: pulumi.Input<inputs.GetMdbGreenplumClusterPoolerConfigArgs>;
     pxfConfigs?: pulumi.Input<pulumi.Input<inputs.GetMdbGreenplumClusterPxfConfigArgs>[]>;
+    segmentHostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
 }

@@ -2,12 +2,27 @@
 
 import type { Simplify } from "type-fest"
 import type { Entity, implementedTypes } from "./entity"
-import type { OptionalEmptyRecords, OptionalUndefinedFields, PartialKeys } from "./utils"
+import type { OptionalEmptyRecords, PartialKeys } from "./utils"
 import { isNonNullish, mapValues, pickBy, uniqueBy } from "remeda"
 import { z } from "zod"
-import { boundaryInput, boundaryInputs, registerInstance } from "./evaluation"
+import { boundaryInput, registerInstance } from "./evaluation"
 import { camelCaseToHumanReadable } from "./i18n"
-import { type InstanceId, type InstanceInput, type InstanceInputGroup, inputKey } from "./instance"
+import {
+  type EntityInput,
+  type InstanceId,
+  type InstanceInput,
+  inputKey,
+  type MultipleInput,
+  type RequiredInput,
+  type RequiredMultipleInput,
+  type RuntimeInput,
+} from "./instance"
+import {
+  createDeepOutputAccessor,
+  createInput,
+  createMultipleInputAccessor,
+  createNonProvidedInput,
+} from "./instance-input"
 import {
   fieldNameSchema,
   genericNameSchema,
@@ -78,6 +93,13 @@ export const componentInputSchema = z.object({
   type: versionedNameSchema,
 
   /**
+   * The input name this output type is derived from.
+   *
+   * If set, the output uses the referenced input as its fallback type source.
+   */
+  fromInput: fieldNameSchema.optional(),
+
+  /**
    * Whether the input is required.
    */
   required: z.boolean(),
@@ -107,33 +129,75 @@ export type FullComponentInputOptions = {
 
 export type ComponentInputOptions = Entity | FullComponentInputOptions
 
+export type FromInputComponentOutputOptions<TInputName extends string = string> = {
+  fromInput: TInputName
+  meta?: PartialKeys<ComponentInput["meta"], "title">
+}
+
+export type ComponentOutputOptions<
+  TInputs extends Record<string, ComponentInputOptions> = Record<string, ComponentInputOptions>,
+> = ComponentInputOptions | FromInputComponentOutputOptions<Extract<keyof TInputs, string>>
+
 type ComponentInputOptionsToOutputRef<T extends ComponentInputOptions> = T extends Entity
-  ? InstanceInput<T[typeof implementedTypes]>
+  ? EntityInput<T>
   : T extends FullComponentInputOptions
-    ? T["required"] extends false
-      ? T["multiple"] extends true
-        ? InstanceInput<T["entity"][typeof implementedTypes]>[] | undefined
-        : InstanceInput<T["entity"][typeof implementedTypes]> | undefined
-      : T["multiple"] extends true
-        ? InstanceInput<T["entity"][typeof implementedTypes]>[]
-        : InstanceInput<T["entity"][typeof implementedTypes]>
+    ? T["multiple"] extends true
+      ? RequiredMultipleInput<EntityInput<T["entity"]>>
+      : EntityInput<T["entity"]>
     : never
+
+type MultipleInputConstructorValue<TEntity extends Entity> =
+  | MultipleInput<EntityInput<TEntity>>
+  | EntityInput<TEntity>[]
+  | InstanceInput[]
+  | Array<MultipleInput<EntityInput<TEntity>> | EntityInput<TEntity>[] | InstanceInput[]>
 
 /**
  * The type-level specification of a component input hold by the component model.
  */
-export type ComponentInputSpec = [entity: Entity, required: boolean, multiple: boolean]
+export type ComponentInputSpec<TEntity extends Entity = Entity> = [
+  entity: TEntity,
+  required: boolean,
+  multiple: boolean,
+]
 
 export type ComponentInputOptionsToSpec<T extends ComponentInputOptions> = T extends Entity
-  ? [T, true, false] // [Entity, required, multiple]
+  ? [T, true, false]
   : T extends FullComponentInputOptions
     ? T["required"] extends false
       ? T["multiple"] extends true
-        ? [T["entity"], false, true]
-        : [T["entity"], false, false]
+        ? ComponentInputSpec<T["entity"]> extends infer Spec
+          ? Spec extends ComponentInputSpec
+            ? [Spec[0], false, true]
+            : never
+          : never
+        : ComponentInputSpec<T["entity"]> extends infer Spec
+          ? Spec extends ComponentInputSpec
+            ? [Spec[0], false, false]
+            : never
+          : never
       : T["multiple"] extends true
-        ? [T["entity"], true, true]
-        : [T["entity"], true, false]
+        ? ComponentInputSpec<T["entity"]> extends infer Spec
+          ? Spec extends ComponentInputSpec
+            ? [Spec[0], true, true]
+            : never
+          : never
+        : ComponentInputSpec<T["entity"]> extends infer Spec
+          ? Spec extends ComponentInputSpec
+            ? [Spec[0], true, false]
+            : never
+          : never
+    : never
+
+export type ComponentOutputOptionsToSpec<
+  TOutput extends ComponentOutputOptions<TInputs>,
+  TInputs extends Record<string, ComponentInputOptions>,
+> = TOutput extends FromInputComponentOutputOptions<infer TInputName>
+  ? TInputName extends keyof TInputs
+    ? ComponentInputOptionsToSpec<TInputs[TInputName]>
+    : never
+  : TOutput extends ComponentInputOptions
+    ? ComponentInputOptionsToSpec<TOutput>
     : never
 
 export type ComponentInputOptionsMapToSpecMap<T extends Record<string, ComponentInputOptions>> =
@@ -141,14 +205,23 @@ export type ComponentInputOptionsMapToSpecMap<T extends Record<string, Component
     ? Record<string, never>
     : { [K in keyof T]: ComponentInputOptionsToSpec<T[K]> }
 
-type ComponentInputMapToValue<T extends Record<string, ComponentInputOptions>> =
-  OptionalUndefinedFields<{
-    [K in keyof T]: ComponentInputOptionsToOutputRef<T[K]>
-  }>
+type ComponentInputMapToValue<T extends Record<string, ComponentInputOptions>> = {
+  [K in keyof T]: ComponentInputOptionsToOutputRef<T[K]>
+}
 
-type ComponentInputMapToReturnType<T extends Record<string, ComponentInputOptions>> =
-  // biome-ignore lint/suspicious/noConfusingVoidType: this is return type
-  T extends Record<string, never> ? void : ComponentInputMapToValue<T>
+type ComponentOutputMapToCreateOutputValue<
+  TOutputs extends Record<string, ComponentOutputOptions<TInputs>>,
+  TInputs extends Record<string, ComponentInputOptions>,
+> = {
+  [K in keyof TOutputs]: InputSpecToInputRef<ComponentOutputOptionsToSpec<TOutputs[K], TInputs>>
+}
+
+type ComponentOutputMapToReturnType<
+  TOutputs extends Record<string, ComponentOutputOptions<TInputs>>,
+  TInputs extends Record<string, ComponentInputOptions>,
+> = TOutputs extends Record<string, never> // biome-ignore lint/suspicious/noConfusingVoidType: this is return type
+  ? void
+  : Partial<ComponentOutputMapToCreateOutputValue<TOutputs, TInputs>>
 
 export type ComponentParams<
   TArgs extends Record<string, ComponentArgumentOptions>,
@@ -174,7 +247,7 @@ export type ComponentOptions<
   TType extends VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions>,
   TInputs extends Record<string, ComponentInputOptions>,
-  TOutputs extends Record<string, ComponentInputOptions>,
+  TOutputs extends Record<string, ComponentOutputOptions<TInputs>>,
 > = {
   /**
    * The type of the component.
@@ -215,7 +288,9 @@ export type ComponentOptions<
    * Their names are not automatically prefixed with the component name,
    * so you must prefix them manually if needed or guarantee uniqueness in another way.
    */
-  create: (params: ComponentParams<TArgs, TInputs>) => ComponentInputMapToReturnType<TOutputs>
+  create: (
+    params: ComponentParams<TArgs, TInputs>,
+  ) => ComponentOutputMapToReturnType<TOutputs, TInputs>
 
   /**
    * For internal use only.
@@ -290,25 +365,117 @@ export type ComponentModel = z.infer<typeof componentModelSchema>
 
 type InputSpecToInputRef<T extends ComponentInputSpec> = T[1] extends true
   ? T[2] extends true
-    ? InstanceInput<T[0][typeof implementedTypes]>[]
-    : InstanceInput<T[0][typeof implementedTypes]>
+    ? MultipleInputConstructorValue<T[0]>
+    : EntityInput<T[0]> | InstanceInput
   : T[2] extends true
-    ? InstanceInput<T[0][typeof implementedTypes]>[] | undefined
-    : InstanceInput<T[0][typeof implementedTypes]> | undefined
+    ? MultipleInputConstructorValue<T[0]>
+    : EntityInput<T[0]> | InstanceInput
 
-type InputSpecToOutputRef<T extends ComponentInputSpec> = T[2] extends true
-  ? InstanceInput<T[0][typeof implementedTypes]>[]
-  : InstanceInput<T[0][typeof implementedTypes]>
+type InputSpecToUnitOutputRef<T extends ComponentInputSpec> = T[2] extends true
+  ? RequiredMultipleInput<EntityInput<T[0]>>
+  : RequiredInput<EntityInput<T[0]>>
+
+type InputSpecToCompositeOutputRef<T extends ComponentInputSpec> = T[2] extends true
+  ? RequiredMultipleInput<EntityInput<T[0]>>
+  : EntityInput<T[0]>
 
 export type InputSpecMapToInputRefMap<TInputs extends Record<string, ComponentInputSpec>> =
   TInputs extends Record<string, [string, never, never]>
     ? Record<string, never>
-    : { [K in keyof TInputs]: InputSpecToInputRef<TInputs[K]> }
+    : {
+        [K in keyof TInputs as TInputs[K][1] extends true ? K : never]-?: InputSpecToInputRef<
+          TInputs[K]
+        >
+      } & {
+        [K in keyof TInputs as TInputs[K][1] extends true ? never : K]?: InputSpecToInputRef<
+          TInputs[K]
+        >
+      }
 
-export type OutputRefMap<TInputs extends Record<string, ComponentInputSpec>> =
-  TInputs extends Record<string, [string, never, never]>
-    ? Record<string, never>
-    : { [K in keyof TInputs]: InputSpecToOutputRef<TInputs[K]> }
+export type OutputRefMap<
+  TInputs extends Record<string, ComponentInputSpec>,
+  TKind extends ComponentKind = "composite",
+> = TInputs extends Record<string, [string, never, never]>
+  ? Record<string, never>
+  : {
+      [K in keyof TInputs]: TKind extends "unit"
+        ? InputSpecToUnitOutputRef<TInputs[K]>
+        : InputSpecToCompositeOutputRef<TInputs[K]>
+    }
+
+type StaticOutputRefByKind<
+  TOutputSpec extends ComponentInputSpec,
+  TKind extends ComponentKind,
+> = TKind extends "unit"
+  ? InputSpecToUnitOutputRef<TOutputSpec>
+  : InputSpecToCompositeOutputRef<TOutputSpec>
+
+type ResolveForwardedOutputRef<
+  TForwardedInputName extends string,
+  TCallInputs extends Record<string, unknown>,
+  TFallbackSpec extends ComponentInputSpec,
+  TKind extends ComponentKind,
+> = TForwardedInputName extends keyof TCallInputs
+  ? NonNullable<TCallInputs[TForwardedInputName]>
+  : StaticOutputRefByKind<TFallbackSpec, TKind>
+
+type ResolveOutputRefForCall<
+  TOutputOption,
+  TCallInputs extends Record<string, unknown>,
+  TFallbackSpec extends ComponentInputSpec,
+  TKind extends ComponentKind,
+> = TOutputOption extends FromInputComponentOutputOptions<infer TInputName>
+  ? ResolveForwardedOutputRef<TInputName, TCallInputs, TFallbackSpec, TKind>
+  : StaticOutputRefByKind<TFallbackSpec, TKind>
+
+type ResolveOutputRefMapForCall<
+  TOutputSpecs extends Record<string, ComponentInputSpec>,
+  TOutputOptions extends Record<string, ComponentOutputOptions<TInputOptions>>,
+  TInputOptions extends Record<string, ComponentInputOptions>,
+  TCallInputs extends Record<string, unknown>,
+  TKind extends ComponentKind,
+> = {
+  [K in keyof TOutputSpecs]: K extends keyof TOutputOptions
+    ? [TOutputOptions[K]] extends [never]
+      ? StaticOutputRefByKind<TOutputSpecs[K], TKind>
+      : ResolveOutputRefForCall<TOutputOptions[K], TCallInputs, TOutputSpecs[K], TKind>
+    : StaticOutputRefByKind<TOutputSpecs[K], TKind>
+}
+
+type IncludesAllExpectedTypes<
+  TProvided extends Record<string, unknown>,
+  TExpected extends Record<string, unknown>,
+> = Exclude<keyof TExpected, keyof TProvided> extends never ? true : false
+
+type ExtractProvidedInputTypes<TValue> = TValue extends RuntimeInput<infer TTypes, any>
+  ? TTypes
+  : TValue extends Array<infer TItem>
+    ? ExtractProvidedInputTypes<TItem>
+    : never
+
+type ValidateProvidedInputValue<TValue, TExpectedSpec extends ComponentInputSpec> = [
+  ExtractProvidedInputTypes<TValue>,
+] extends [never]
+  ? TValue
+  : ExtractProvidedInputTypes<TValue> extends infer TProvidedTypes
+    ? TProvidedTypes extends Record<string, unknown>
+      ? IncludesAllExpectedTypes<
+          TProvidedTypes,
+          TExpectedSpec[0][typeof implementedTypes]
+        > extends true
+        ? TValue
+        : never
+      : never
+    : never
+
+type ValidateCallInputs<
+  TCallInputs extends Record<string, unknown>,
+  TInputSpecs extends Record<string, ComponentInputSpec>,
+> = {
+  [K in keyof TCallInputs]: K extends keyof TInputSpecs
+    ? ValidateProvidedInputValue<TCallInputs[K], TInputSpecs[K]>
+    : TCallInputs[K]
+}
 
 export const originalCreate = Symbol("originalCreate")
 export const kind = Symbol("kind")
@@ -318,6 +485,12 @@ export type Component<
   TArgs extends Record<string, z.ZodType> = Record<string, never>,
   TInputs extends Record<string, ComponentInputSpec> = Record<string, never>,
   TOutputs extends Record<string, ComponentInputSpec> = Record<string, never>,
+  TKind extends ComponentKind = "composite",
+  TInputOptions extends Record<string, ComponentInputOptions> = Record<string, never>,
+  TOutputOptions extends Record<string, ComponentOutputOptions<TInputOptions>> = Record<
+    string,
+    never
+  >,
 > = {
   /**
    * The type of the component.
@@ -334,12 +507,14 @@ export type Component<
    */
   entities: Map<string, Entity>
 
-  (
+  <TCallInputs extends InputSpecMapToInputRefMap<TInputs> = InputSpecMapToInputRefMap<TInputs>>(
     context: InputComponentParams<
       { [K in keyof TArgs]: z.input<TArgs[K]> },
       InputSpecMapToInputRefMap<TInputs>
-    >,
-  ): OutputRefMap<TOutputs>
+    > & {
+      inputs?: ValidateCallInputs<TCallInputs, TInputs>
+    },
+  ): ResolveOutputRefMapForCall<TOutputs, TOutputOptions, TInputOptions, TCallInputs, TKind>
 
   /**
    * The original create function.
@@ -353,14 +528,18 @@ export function defineComponent<
   TType extends VersionedName = VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions> = Record<string, never>,
   TInputs extends Record<string, ComponentInputOptions> = Record<string, never>,
-  TOutputs extends Record<string, ComponentInputOptions> = Record<string, never>,
+  TOutputs extends Record<string, ComponentOutputOptions<TInputs>> = Record<string, never>,
+  TKind extends ComponentKind = "composite",
 >(
-  options: ComponentOptions<TType, TArgs, TInputs, TOutputs>,
+  options: ComponentOptions<TType, TArgs, TInputs, TOutputs> & { [kind]?: TKind },
 ): Component<
   TType,
   { [K in keyof TArgs]: ComponentArgumentOptionsToSchema<TArgs[K]> },
   { [K in keyof TInputs]: ComponentInputOptionsToSpec<TInputs[K]> },
-  { [K in keyof TOutputs]: ComponentInputOptionsToSpec<TOutputs[K]> }
+  { [K in keyof TOutputs]: ComponentOutputOptionsToSpec<TOutputs[K], TInputs> },
+  TKind,
+  TInputs,
+  TOutputs
 > {
   try {
     componentModelSchema.shape.type.parse(options.type)
@@ -374,13 +553,14 @@ export function defineComponent<
 
   const entities = new Map<string, Entity>()
   const mapInput = createInputMapper(entities)
+  const mapOutput = createOutputMapper(options.inputs, entities)
 
   const model: ComponentModel = {
     type: options.type,
     kind: options[kind] ?? "composite",
     args: mapValues(options.args ?? {}, mapArgument),
     inputs: mapValues(options.inputs ?? {}, mapInput),
-    outputs: mapValues(options.outputs ?? {}, mapInput),
+    outputs: mapValues(options.outputs ?? {}, mapOutput),
     meta: {
       ...options.meta,
       title: options.meta?.title || camelCaseToHumanReadable(parseVersionedName(options.type)[0]),
@@ -392,43 +572,45 @@ export function defineComponent<
     definitionHash: null!,
   }
 
-  function create(
-    params: InputComponentParams<any, Record<string, InstanceInput | InstanceInputGroup>>,
-  ): any {
+  type RuntimeCreateInputGroup =
+    | RuntimeInput
+    | InstanceInput
+    | (Array<RuntimeCreateInputGroup> & Partial<{ [boundaryInput]: InstanceInput }>)
+
+  function create(params: InputComponentParams<any, Record<string, RuntimeCreateInputGroup>>): any {
     const { name, args = {}, inputs } = params
     const instanceId = getInstanceId(options.type, name)
 
-    const flatInputs: Record<string, InstanceInputGroup> = {}
+    const flatInputs: Record<string, RuntimeInput[]> = {}
     const tracedInputs: Record<string, InstanceInput[]> = {}
+    const runtimeInputKey = (input: RuntimeInput): string => {
+      if (input.provided) {
+        return inputKey(input)
+      }
+
+      return `missing:${input[boundaryInput].instanceId}:${input[boundaryInput].output}`
+    }
 
     for (const [key, inputGroup] of Object.entries(inputs ?? {})) {
+      if (!(key in model.inputs)) {
+        continue
+      }
+
       if (!inputGroup) {
         continue
       }
 
       if (!Array.isArray(inputGroup)) {
-        if (inputGroup[boundaryInput]) {
-          tracedInputs[key] = [inputGroup[boundaryInput]]
-        }
-
-        flatInputs[key] = [inputGroup]
+        const normalizedInput = normalizeIncomingInput(inputGroup, key)
+        tracedInputs[key] = [normalizedInput[boundaryInput]]
+        flatInputs[key] = [normalizedInput]
         continue
       }
 
-      // merge "boundaryInputs" attached to array with "boundaryInput"s attached to individual items
-      const group: InstanceInput[] = [...(inputGroup[boundaryInputs] ?? [])]
-      const inputs: InstanceInput[] = []
-
-      for (const item of inputGroup.flat(1)) {
-        if (item[boundaryInput]) {
-          group.push(item[boundaryInput])
-        }
-
-        inputs.push(item)
-      }
+      const { group, inputs } = normalizeIncomingInputGroup(inputGroup, key)
 
       tracedInputs[key] = uniqueBy(group, inputKey)
-      flatInputs[key] = uniqueBy(inputs, inputKey)
+      flatInputs[key] = uniqueBy(inputs, runtimeInputKey)
     }
 
     return registerInstance(
@@ -440,38 +622,43 @@ export function defineComponent<
         name,
         args,
         inputs: tracedInputs,
-        resolvedInputs: mapValues(flatInputs, inputs =>
-          inputs.filter(input => !("provided" in input && input.provided === false)),
-        ),
+        resolvedInputs: mapValues(flatInputs, inputs => {
+          return inputs
+            .filter(input => input.provided)
+            .map(input => ({
+              instanceId: input.instanceId,
+              output: input.output,
+              ...(input.path ? { path: input.path } : {}),
+            }))
+        }),
       },
       () => {
         const markedInputs = mapValues(model.inputs, (componentInput, key) => {
           if (!componentInput.multiple) {
-            // for single component use first available input and attach boundaryInput
-            // technically, caller can pass multiple inputs or array of inputs ignoring the TypeScript restriction,
-            // but we don't care about that
             const input = flatInputs[key]?.[0]
 
-            if (input) {
-              // return the input with boundaryInput attached
-              // the input can also be "OptionalInstanceInput" with "provided: false", but this is still correct
-              return { ...input, [boundaryInput]: { instanceId: instanceId, output: key } }
+            if (input?.provided) {
+              return createDeepOutputAccessor({
+                ...input,
+                [boundaryInput]: { instanceId: instanceId, output: key },
+              })
             }
 
-            // create a new "not provided" input with boundaryInput attached
-            return { provided: false, [boundaryInput]: { instanceId: instanceId, output: key } }
+            return createNonProvidedInput({ instanceId: instanceId, output: key })
           }
 
-          // then handle array of inputs
-          // caller can provide array of array which will be flattened with boundaryInputs preserved
-          // regardless of the number of inputs, we always attach boundaryInputs to the whole array
-          const inputs = flatInputs[key] ?? []
-          inputs[boundaryInputs] = [{ instanceId, output: key }]
+          const inputs = (flatInputs[key] ?? []).filter(isProvidedRuntimeInput).map(input =>
+            createDeepOutputAccessor({
+              ...input,
+              [boundaryInput]: { instanceId: instanceId, output: key },
+            }),
+          )
 
-          return inputs
+          const multipleBoundary = { instanceId, output: key }
+          return createMultipleInputAccessor(inputs, multipleBoundary)
         })
 
-        const outputs: Record<string, InstanceInput[]> =
+        const outputs: Record<string, RuntimeInput | MultipleInput | null | undefined> =
           options.create({
             id: instanceId,
             name,
@@ -479,9 +666,74 @@ export function defineComponent<
             inputs: markedInputs as any,
           }) ?? {}
 
-        return mapValues(pickBy(outputs, isNonNullish), outputs => [outputs].flat(2))
+        const normalizedOutputs = normalizeCreateOutputs(outputs, model, instanceId)
+
+        return withDeepOutputAccessors(normalizedOutputs, model, instanceId)
       },
     )
+
+    function normalizeIncomingInput(
+      input: RuntimeInput | InstanceInput,
+      inputName: string,
+    ): RuntimeInput {
+      if (isStableInstanceInput(input)) {
+        return createInput(input)
+      }
+
+      const runtimeInput = input as RuntimeInput
+
+      if (runtimeInput.provided) {
+        const inputBoundary = runtimeInput[boundaryInput] ?? {
+          instanceId: runtimeInput.instanceId,
+          output: runtimeInput.output,
+          ...(runtimeInput.path ? { path: runtimeInput.path } : {}),
+        }
+
+        return createInput(runtimeInput, { boundary: inputBoundary })
+      }
+
+      return createNonProvidedInput(
+        runtimeInput[boundaryInput] ?? { instanceId, output: inputName },
+      )
+    }
+
+    function normalizeIncomingInputGroup(
+      inputGroup: RuntimeCreateInputGroup,
+      inputName: string,
+    ): { group: InstanceInput[]; inputs: RuntimeInput[] } {
+      const group: InstanceInput[] = []
+      const inputs: RuntimeInput[] = []
+
+      const visit = (value: RuntimeCreateInputGroup): void => {
+        if (Array.isArray(value)) {
+          const arrayBoundary = (value as Partial<{ [boundaryInput]: InstanceInput }>)[
+            boundaryInput
+          ]
+
+          if (arrayBoundary) {
+            group.push(arrayBoundary)
+          }
+
+          for (const item of value) {
+            if (!item) {
+              continue
+            }
+
+            visit(item)
+          }
+
+          return
+        }
+
+        const normalizedInput = normalizeIncomingInput(value, inputName)
+        group.push(normalizedInput[boundaryInput])
+        inputs.push(normalizedInput)
+      }
+
+      visit(inputGroup)
+
+      return { group, inputs }
+    }
   }
 
   try {
@@ -524,6 +776,131 @@ function processArgs(
   }
 
   return validatedArgs
+}
+
+function withDeepOutputAccessors(
+  outputs: Record<string, RuntimeInput[]>,
+  model: ComponentModel,
+  instanceId: InstanceId,
+): Record<string, RuntimeInput | MultipleInput> {
+  return mapValues(outputs, (outputGroup, outputName) => {
+    const outputSpec = model.outputs[outputName]
+    if (!outputSpec) {
+      return outputGroup[0]!
+    }
+
+    const normalizedOutputs = outputGroup.map(output => createDeepOutputAccessor(output))
+
+    if (outputSpec.multiple) {
+      return createMultipleInputAccessor(normalizedOutputs, {
+        instanceId,
+        output: outputName,
+      })
+    }
+
+    return normalizedOutputs[0]!
+  })
+}
+
+function isProvidedRuntimeInput(input: RuntimeInput): input is RequiredInput {
+  return input.provided
+}
+
+function normalizeCreateOutputGroup(
+  outputGroup: RuntimeInput | InstanceInput | Array<RuntimeInput | InstanceInput>,
+  instanceId: InstanceId,
+  outputName: string,
+): RuntimeInput[] {
+  return [outputGroup]
+    .flat(2)
+    .filter(isNonNullish)
+    .map(output => {
+      if (isStableInstanceInput(output)) {
+        return createInput(output)
+      }
+
+      const runtimeOutput = output as RuntimeInput
+
+      if (runtimeOutput.provided) {
+        const stableBoundary = runtimeOutput[boundaryInput] ?? {
+          instanceId: runtimeOutput.instanceId,
+          output: runtimeOutput.output,
+          ...(runtimeOutput.path ? { path: runtimeOutput.path } : {}),
+        }
+
+        return createInput(runtimeOutput, { boundary: stableBoundary })
+      }
+
+      return createNonProvidedInput(
+        runtimeOutput[boundaryInput] ?? { instanceId, output: outputName },
+      )
+    })
+}
+
+function normalizeCreateOutputs(
+  outputs: Record<string, RuntimeInput | MultipleInput | null | undefined>,
+  model: ComponentModel,
+  instanceId: InstanceId,
+): Record<string, RuntimeInput[]> {
+  const normalizedOutputs: Record<string, RuntimeInput[]> = {}
+
+  for (const [outputName, outputSpec] of Object.entries(model.outputs)) {
+    const outputGroup = outputs[outputName]
+
+    if (!isNonNullish(outputGroup)) {
+      if (model.kind === "unit") {
+        throw new Error(`Unit output "${outputName}" in instance "${instanceId}" must be provided`)
+      }
+
+      normalizedOutputs[outputName] = outputSpec.multiple
+        ? []
+        : [createNonProvidedInput({ instanceId, output: outputName })]
+      continue
+    }
+
+    const normalizedGroup = normalizeCreateOutputGroup(outputGroup, instanceId, outputName)
+
+    if (outputSpec.multiple && normalizedGroup.some(output => !output.provided)) {
+      throw new Error(
+        `Multiple output "${outputName}" in instance "${instanceId}" cannot contain non-provided items`,
+      )
+    }
+
+    if (model.kind === "unit") {
+      if (normalizedGroup.length === 0 || normalizedGroup.some(output => !output.provided)) {
+        throw new Error(`Unit output "${outputName}" in instance "${instanceId}" must be provided`)
+      }
+    }
+
+    normalizedOutputs[outputName] =
+      outputSpec.multiple || normalizedGroup.length > 0
+        ? normalizedGroup
+        : [createNonProvidedInput({ instanceId, output: outputName })]
+  }
+
+  for (const [outputName, outputGroup] of Object.entries(pickBy(outputs, isNonNullish))) {
+    if (!(outputName in model.outputs) || outputName in normalizedOutputs) {
+      continue
+    }
+
+    normalizedOutputs[outputName] = normalizeCreateOutputGroup(outputGroup, instanceId, outputName)
+  }
+
+  return normalizedOutputs
+}
+
+function isStableInstanceInput(value: unknown): value is InstanceInput {
+  if (!value || typeof value !== "object") {
+    return false
+  }
+
+  if ("provided" in value) {
+    return false
+  }
+
+  const input = value as Partial<InstanceInput>
+
+  return typeof input.instanceId === "string" && typeof input.output === "string"
 }
 
 /**
@@ -602,6 +979,44 @@ export function createInputMapper(entities: Map<string, Entity>) {
   }
 }
 
+function isFromInputOutputOptions(
+  value: ComponentOutputOptions,
+): value is FromInputComponentOutputOptions {
+  return typeof value === "object" && value !== null && "fromInput" in value
+}
+
+function createOutputMapper(
+  inputs: Record<string, ComponentInputOptions> | undefined,
+  entities: Map<string, Entity>,
+) {
+  const mapInput = createInputMapper(entities)
+
+  return (value: ComponentOutputOptions, key: string): ComponentInput => {
+    if (!isFromInputOutputOptions(value)) {
+      return mapInput(value, key)
+    }
+
+    const sourceInput = inputs?.[value.fromInput]
+    if (!sourceInput) {
+      throw new Error(
+        `Output "${key}" references missing input "${value.fromInput}" via fromInput.`,
+      )
+    }
+
+    const mappedInput = mapInput(sourceInput, value.fromInput)
+
+    return {
+      ...mappedInput,
+      fromInput: value.fromInput,
+      meta: {
+        ...mappedInput.meta,
+        ...value.meta,
+        title: value.meta?.title || camelCaseToHumanReadable(key),
+      },
+    }
+  }
+}
+
 /**
  * Formats the instance id from the instance type and instance name.
  *
@@ -635,6 +1050,26 @@ function toFullComponentInputOptions<T extends Record<string, ComponentInputOpti
   return mapValues(inputs, input => ("entity" in input ? input : { entity: input })) as any
 }
 
+type ToFullComponentOutputOptions<T extends Record<string, ComponentOutputOptions>> = Simplify<{
+  [K in keyof T]: T[K] extends Entity ? { entity: T[K] } : T[K]
+}>
+
+function toFullComponentOutputOptions<T extends Record<string, ComponentOutputOptions>>(
+  outputs: T,
+): ToFullComponentOutputOptions<T> {
+  return mapValues(outputs, output => {
+    if (typeof output !== "object" || output === null) {
+      return { entity: output }
+    }
+
+    if ("entity" in output || "fromInput" in output) {
+      return output
+    }
+
+    return { entity: output }
+  }) as any
+}
+
 /**
  * The helper marker for component arguments.
  *
@@ -662,10 +1097,10 @@ export function $inputs<T extends Record<string, ComponentInputOptions>>(
  *
  * Helps validating outputs types and gives the compiler a hint for generating `meta` fields.
  */
-export function $outputs<T extends Record<string, ComponentInputOptions>>(
+export function $outputs<T extends Record<string, ComponentOutputOptions>>(
   outputs: T,
-): ToFullComponentInputOptions<T> {
-  return toFullComponentInputOptions(outputs)
+): ToFullComponentOutputOptions<T> {
+  return toFullComponentOutputOptions(outputs)
 }
 
 /**

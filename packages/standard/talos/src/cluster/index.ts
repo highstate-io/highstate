@@ -1,18 +1,33 @@
-import type { Input } from "@highstate/pulumi"
 import { readFile } from "node:fs/promises"
 import { l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { RenderedChart } from "@highstate/k8s"
-import { type common, talos } from "@highstate/library"
-import { all, fileFromString, forUnit, type Output, output, toPromise } from "@highstate/pulumi"
+import { common, k8s, talos } from "@highstate/library"
+import {
+  all,
+  forUnit,
+  type Input,
+  makeEntityOutput,
+  makeFileOutput,
+  type Output,
+  output,
+  toPromise,
+} from "@highstate/pulumi"
 import { KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
 import { cluster, machine } from "@pulumiverse/talos"
 import { uniqueBy } from "remeda"
 
-const { name, args, inputs, outputs } = forUnit(talos.cluster)
+const {
+  name,
+  args,
+  inputs: { masters, workers },
+  outputs,
+} = forUnit(talos.cluster)
 
-const { masters, workers } = await toPromise(inputs)
+if (!masters.length) {
+  throw new Error("At least one master node is required.")
+}
 
 const cni = args.cni ?? "cilium"
 const csi = args.csi ?? "local-path-provisioner"
@@ -116,49 +131,45 @@ const apiEndpoint = `https://${l3EndpointToString(masters[0].endpoints[0])}:6443
 const masterConfig = getConfiguration("controlplane")
 const workerConfig = getConfiguration("worker")
 
-const masterApplies = inputs.masters.apply(masters => {
-  if (!masters.length) {
-    throw new Error("At least one master node is required.")
-  }
-
-  return masters.map(master => {
-    return new machine.ConfigurationApply(
-      master.hostname,
-      getConfigurationApplyArgs(master, masterConfig.machineConfiguration),
-    )
-  })
+const masterApplies = masters.map(master => {
+  return new machine.ConfigurationApply(
+    master.hostname,
+    getConfigurationApplyArgs(master, masterConfig.machineConfiguration),
+  )
 })
+
+const masterNodes = masterApplies.map(masterApply => masterApply.node)
 
 const bootstrap = new machine.Bootstrap(
   "bootstrap",
   {
     clientConfiguration: secrets.clientConfiguration,
-    node: masterApplies[0].node,
+    node: masterApplies[0]!.node,
   },
   { dependsOn: masterApplies },
 )
 
-const workerApplies = inputs.workers.apply(workers => {
-  return workers.map(worker => {
-    return new machine.ConfigurationApply(
-      worker.hostname,
-      getConfigurationApplyArgs(worker, workerConfig.machineConfiguration),
-      { dependsOn: bootstrap },
-    )
-  })
+const workerApplies = workers.map(worker => {
+  return new machine.ConfigurationApply(
+    worker.hostname,
+    getConfigurationApplyArgs(worker, workerConfig.machineConfiguration),
+    { dependsOn: bootstrap },
+  )
 })
+
+const workerNodes = workerApplies.map(workerApply => workerApply.node)
 
 // Check the health of the cluster and export the kubeconfig
 const kubeconfig = all([
   cluster.getKubeconfigOutput({
     clientConfiguration: secrets.clientConfiguration,
-    node: masterApplies[0].node,
+    node: masterApplies[0]!.node,
   }),
   cluster.getHealthOutput({
     clientConfiguration: secrets.clientConfiguration,
-    endpoints: masterApplies.apply(masterApplies => masterApplies.map(x => x.node)),
-    controlPlaneNodes: masterApplies.apply(masterApplies => masterApplies.map(x => x.node)),
-    workerNodes: workerApplies.apply(workerApplies => workerApplies.map(x => x.node)),
+    endpoints: masterNodes,
+    controlPlaneNodes: masterNodes,
+    workerNodes,
   }),
 ]).apply(([kubeconfig]) => kubeconfig.kubeconfigRaw)
 
@@ -166,7 +177,7 @@ const clientConfiguration = output({
   context: clusterName,
   contexts: {
     [clusterName]: {
-      endpoints: masterApplies.apply(masterApplies => masterApplies.map(x => x.node)),
+      endpoints: masterNodes,
       ca: secrets.clientConfiguration.caCertificate,
       crt: secrets.clientConfiguration.clientCertificate,
       key: secrets.clientConfiguration.clientKey,
@@ -247,34 +258,65 @@ const apiEndpoints = uniqueBy(
 )
 
 export default outputs({
-  k8sCluster: {
-    id: kubeSystem.metadata.uid,
-    connectionId: kubeSystem.metadata.uid,
-
-    name: clusterName,
-
-    externalIps: endpoints
-      .filter(endpoint => endpoint.type !== "hostname")
-      .map(endpoint => endpoint.address),
-
-    endpoints,
-    apiEndpoints,
-
-    quirks: {
-      tunDevicePolicy: {
-        type: "plugin",
-        resourceName: "squat.ai/tun",
-        resourceValue: "1",
-      },
+  k8sCluster: makeEntityOutput({
+    entity: k8s.clusterEntity,
+    identity: kubeSystem.metadata.uid,
+    meta: {
+      title: clusterName,
     },
+    value: {
+      id: kubeSystem.metadata.uid,
+      connectionId: kubeSystem.metadata.uid,
 
-    kubeconfig,
-  },
+      name: clusterName,
 
-  talosCluster: {
-    clientConfiguration,
-    machineSecrets,
-  },
+      externalIps: endpoints
+        .filter(endpoint => endpoint.type !== "hostname")
+        .map(endpoint => endpoint.address),
+
+      endpoints,
+      apiEndpoints,
+
+      quirks: {
+        tunDevicePolicy: {
+          type: "plugin",
+          resourceName: "squat.ai/tun",
+          resourceValue: "1",
+        },
+      },
+
+      kubeconfig: makeEntityOutput({
+        entity: common.fileEntity,
+        identity: `${name}:kubeconfig`,
+        meta: {
+          title: "kubeconfig",
+        },
+        value: {
+          content: {
+            type: "embedded-secret",
+            value: kubeconfig,
+          },
+          meta: {
+            name: "kubeconfig",
+            contentType: "text/yaml",
+            mode: 0o600,
+          },
+        },
+      }),
+    },
+  }),
+
+  talosCluster: makeEntityOutput({
+    entity: talos.clusterEntity,
+    identity: `${name}:talos-cluster`,
+    meta: {
+      title: clusterName,
+    },
+    value: {
+      clientConfiguration,
+      machineSecrets,
+    },
+  }),
 
   $terminals: {
     management: {
@@ -289,23 +331,24 @@ export default outputs({
         command: ["bash", "/welcome.sh"],
 
         files: {
-          "/kubeconfig": fileFromString("kubeconfig", kubeconfig),
-          "/talosconfig": fileFromString("talosconfig", clientConfiguration),
-          "/secrets": fileFromString("secrets", machineSecrets),
+          "/kubeconfig": makeFileOutput({ name: "kubeconfig", content: kubeconfig }),
+          "/talosconfig": makeFileOutput({ name: "talosconfig", content: clientConfiguration }),
+          "/secrets": makeFileOutput({ name: "secrets", content: machineSecrets }),
 
-          "/welcome.sh": fileFromString(
-            "welcome.sh",
-            text`
-            echo "Connecting to the cluster..."
-            kubectl cluster-info
+          "/welcome.sh": makeFileOutput({
+            name: "welcome.sh",
 
-            echo "Use 'kubectl' and 'helm' to manage the cluster."
-            echo "Use 'talosctl' to manage the Talos side of the cluster."
-            echo
+            content: text`
+              echo "Connecting to the cluster..."
+              kubectl cluster-info
 
-            exec bash
-          `,
-          ),
+              echo "Use 'kubectl', 'helm' or 'k9s' to manage the cluster."
+              echo "Use 'talosctl' to manage the Talos side of the cluster."
+              echo
+
+              exec bash
+            `,
+          }),
         },
 
         env: {

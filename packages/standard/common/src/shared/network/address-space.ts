@@ -1,5 +1,6 @@
 import { check } from "@highstate/contract"
 import { network } from "@highstate/library"
+import { getCombinedIdentity, makeEntity } from "@highstate/pulumi"
 import { addressToCidr } from "./address"
 import { cidrBlockSize, ipToString, parseCidr, parseIp, subnetBaseFromCidr } from "./ip"
 import { subnetToString } from "./subnet"
@@ -63,17 +64,27 @@ export function createAddressSpace({
 
   const normalized = normalizeRanges(includedRanges, excludedRanges)
   const subnets = rangesToCanonicalSubnets(normalized)
+  const identity = getCombinedIdentity(subnets)
+  const title =
+    subnets.length === 1
+      ? subnetToString(subnets[0]!)
+      : subnets.length > 1
+        ? `${subnets.length} subnets`
+        : "Empty address space"
 
-  return { subnets }
+  return makeEntity({
+    entity: network.addressSpaceEntity,
+    identity,
+    meta: {
+      title,
+    },
+    value: { subnets },
+  })
 }
 
 function resolveInputToRanges(input: InputAddressSpace): IpRange[] {
   if (typeof input === "string") {
     return [rangeFromString(input)]
-  }
-
-  if (check(network.addressSpaceEntity.schema, input)) {
-    return input.subnets.flatMap(subnet => [rangeFromCidr(subnetToString(subnet))])
   }
 
   if (check(network.subnetEntity.schema, input)) {
@@ -108,6 +119,10 @@ function resolveInputToRanges(input: InputAddressSpace): IpRange[] {
     }
 
     throw new Error("Invalid L3 endpoint: missing address information")
+  }
+
+  if (check(network.addressSpaceEntity.schema, input)) {
+    return input.subnets.flatMap(subnet => [rangeFromCidr(subnetToString(subnet))])
   }
 
   throw new Error("Unsupported address space input")
@@ -296,11 +311,20 @@ function rangesToCanonicalSubnets(ranges: IpRange[]): network.Subnet[] {
     for (const cidr of rangeToCidrs(range)) {
       const baseAddress = ipToString(cidr.family, cidr.base)
 
-      subnets.push({
-        type: cidr.family,
-        baseAddress,
-        prefixLength: cidr.prefix,
-      })
+      subnets.push(
+        makeEntity({
+          entity: network.subnetEntity,
+          identity: `${baseAddress}/${cidr.prefix}`,
+          meta: {
+            title: `${baseAddress}/${cidr.prefix}`,
+          },
+          value: {
+            type: cidr.family,
+            baseAddress,
+            prefixLength: cidr.prefix,
+          },
+        }),
+      )
     }
   }
 

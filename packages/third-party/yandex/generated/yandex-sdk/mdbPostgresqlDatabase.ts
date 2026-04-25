@@ -34,14 +34,38 @@ export class MdbPostgresqlDatabase extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbPostgresqlDatabase.__pulumiType;
     }
 
+    /**
+     * The ID of the PostgreSQL cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<string | undefined>;
+    /**
+     * Set of database extensions.
+     */
     declare public readonly extensions: pulumi.Output<outputs.MdbPostgresqlDatabaseExtension[] | undefined>;
+    /**
+     * POSIX locale for string sorting order. Forbidden to change in an existing database.
+     */
     declare public readonly lcCollate: pulumi.Output<string | undefined>;
+    /**
+     * POSIX locale for character classification. Forbidden to change in an existing database.
+     */
     declare public readonly lcType: pulumi.Output<string | undefined>;
     declare public readonly mdbPostgresqlDatabaseId: pulumi.Output<string>;
+    /**
+     * The name of the PostgreSQL database.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+     */
     declare public readonly owner: pulumi.Output<string>;
+    /**
+     * Name of the template database.
+     */
     declare public readonly templateDb: pulumi.Output<string | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbPostgresqlDatabaseTimeouts | undefined>;
 
@@ -96,14 +120,38 @@ export class MdbPostgresqlDatabase extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbPostgresqlDatabase resources.
  */
 export interface MdbPostgresqlDatabaseState {
+    /**
+     * The ID of the PostgreSQL cluster.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<string>;
+    /**
+     * Set of database extensions.
+     */
     extensions?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlDatabaseExtension>[]>;
+    /**
+     * POSIX locale for string sorting order. Forbidden to change in an existing database.
+     */
     lcCollate?: pulumi.Input<string>;
+    /**
+     * POSIX locale for character classification. Forbidden to change in an existing database.
+     */
     lcType?: pulumi.Input<string>;
     mdbPostgresqlDatabaseId?: pulumi.Input<string>;
+    /**
+     * The name of the PostgreSQL database.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+     */
     owner?: pulumi.Input<string>;
+    /**
+     * Name of the template database.
+     */
     templateDb?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbPostgresqlDatabaseTimeouts>;
 }
@@ -112,14 +160,38 @@ export interface MdbPostgresqlDatabaseState {
  * The set of arguments for constructing a MdbPostgresqlDatabase resource.
  */
 export interface MdbPostgresqlDatabaseArgs {
+    /**
+     * The ID of the PostgreSQL cluster.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<string>;
+    /**
+     * Set of database extensions.
+     */
     extensions?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlDatabaseExtension>[]>;
+    /**
+     * POSIX locale for string sorting order. Forbidden to change in an existing database.
+     */
     lcCollate?: pulumi.Input<string>;
+    /**
+     * POSIX locale for character classification. Forbidden to change in an existing database.
+     */
     lcType?: pulumi.Input<string>;
     mdbPostgresqlDatabaseId?: pulumi.Input<string>;
+    /**
+     * The name of the PostgreSQL database.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
+     */
     owner: pulumi.Input<string>;
+    /**
+     * Name of the template database.
+     */
     templateDb?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbPostgresqlDatabaseTimeouts>;
 }

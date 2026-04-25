@@ -1,5 +1,5 @@
 import { yandex } from "@highstate/library"
-import { forUnit, getResourceComment } from "@highstate/pulumi"
+import { forUnit, getResourceComment, makeEntityOutput } from "@highstate/pulumi"
 import { ComputeDisk } from "@highstate/yandex-sdk"
 import { createProvider } from "../provider"
 
@@ -22,9 +22,14 @@ const disk = new ComputeDisk(
 )
 
 export default outputs({
-  disk: {
-    id: disk.id,
-  },
+  disk: makeEntityOutput({
+    entity: yandex.diskEntity,
+    identity: disk.id,
+    value: {
+      id: disk.id,
+    },
+  }),
+
   $statusFields: {
     id: disk.id,
   },

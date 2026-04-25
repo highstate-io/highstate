@@ -7,8 +7,8 @@ import {
   parseEndpoint,
   parseEndpoints,
 } from "@highstate/common"
-import { type ImplementationReference, k8s } from "@highstate/library"
-import { forUnit, secret, toPromise } from "@highstate/pulumi"
+import { common, type ImplementationReference, k8s } from "@highstate/library"
+import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { AppsV1Api, KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
 import { createK8sTerminal, detectExternalIps } from "../../cluster"
@@ -47,7 +47,7 @@ if (args.autoDetectExternalIps) {
 }
 
 // calculate endpoints
-let endpoints = await parseEndpoints(args.endpoints, inputs.endpoints)
+let endpoints = parseEndpoints([...args.endpoints, ...inputs.endpoints])
 
 if (args.useExternalIpsAsEndpoints) {
   const ipEndpoints = externalIps.map(ip => parseEndpoint(ip))
@@ -55,7 +55,7 @@ if (args.useExternalIpsAsEndpoints) {
 }
 
 // calculate api endpoints
-let apiEndpoints = await parseEndpoints(args.apiEndpoints, inputs.endpoints, 4)
+let apiEndpoints = parseEndpoints([...args.apiEndpoints, ...inputs.endpoints], 4)
 
 if (args.useKubeconfigApiEndpoint) {
   const configEndpoint = parseEndpoint(kubeConfig.clusters[0].server.replace("https://", ""), 4)
@@ -65,17 +65,38 @@ if (args.useKubeconfigApiEndpoint) {
 const kubeSystem = core.v1.Namespace.get("kube-system", "kube-system", { provider })
 
 export default outputs({
-  k8sCluster: {
-    id: kubeSystem.metadata.uid,
-    connectionId: kubeSystem.metadata.uid,
-    name,
-    networkPolicyImplRef,
-    externalIps,
-    endpoints,
-    apiEndpoints,
-    quirks: args.quirks,
-    kubeconfig: secret(kubeconfigContent),
-  },
+  k8sCluster: makeEntityOutput({
+    entity: k8s.clusterEntity,
+    identity: kubeSystem.metadata.uid,
+    value: {
+      id: kubeSystem.metadata.uid,
+      connectionId: kubeSystem.metadata.uid,
+      name,
+      networkPolicyImplRef,
+      externalIps,
+      endpoints,
+      apiEndpoints,
+      quirks: args.quirks,
+      kubeconfig: makeEntityOutput({
+        entity: common.fileEntity,
+        identity: `${name}:kubeconfig`,
+        meta: {
+          title: "Kubeconfig",
+        },
+        value: {
+          content: {
+            type: "embedded-secret",
+            value: kubeconfigContent,
+          },
+          meta: {
+            name: "kubeconfig",
+            contentType: "text/yaml",
+            mode: 0o600,
+          },
+        },
+      }),
+    },
+  }),
 
   $terminals: [createK8sTerminal(kubeconfigContent)],
 

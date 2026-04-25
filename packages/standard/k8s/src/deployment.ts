@@ -1,14 +1,15 @@
 import type { AccessPointRoute } from "@highstate/common"
-import type { k8s } from "@highstate/library"
 import type { Container } from "./container"
 import type { NetworkPolicy } from "./network-policy"
 import type { Service } from "./service"
 import { getOrCreate, type UnitTerminal } from "@highstate/contract"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -20,14 +21,15 @@ import { omit } from "remeda"
 import { Namespace } from "./namespace"
 import { getProvider, mapMetadata } from "./shared"
 import {
-  ExposableWorkload,
-  type ExposableWorkloadArgs,
-  exposableWorkloadExtraArgs,
-  getExposableWorkloadComponents,
+  filterPatchOwnedContainersInTemplate,
+  getWorkloadServiceComponents,
+  Workload,
+  type WorkloadServiceArgs,
   type WorkloadTerminalArgs,
+  workloadServiceExtraArgs,
 } from "./workload"
 
-export type DeploymentArgs = Omit<ExposableWorkloadArgs, "existing"> &
+export type DeploymentArgs = Omit<WorkloadServiceArgs, "existing"> &
   Omit<Partial<types.input.apps.v1.DeploymentSpec>, "template"> & {
     template?: {
       metadata?: types.input.meta.v1.ObjectMeta
@@ -42,7 +44,7 @@ export type CreateOrGetDeploymentArgs = DeploymentArgs & {
   existing: Input<k8s.Deployment> | undefined
 }
 
-export abstract class Deployment extends ExposableWorkload {
+export abstract class Deployment extends Workload {
   static readonly apiVersion = "apps/v1"
   static readonly kind = "Deployment"
 
@@ -107,10 +109,17 @@ export abstract class Deployment extends ExposableWorkload {
   get entity(): Output<k8s.Deployment> {
     const service = this._service.apply(service => service?.entity)
 
-    return output({
-      ...this.entityBase,
-      service,
-      endpoints: service.apply(svc => output(svc?.endpoints ?? [])),
+    return makeEntityOutput({
+      entity: k8s.deploymentEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+        service,
+        spec: this.spec,
+      },
     })
   }
 
@@ -249,7 +258,7 @@ export abstract class Deployment extends ExposableWorkload {
 class CreatedDeployment extends Deployment {
   constructor(name: string, args: DeploymentArgs, opts?: ComponentResourceOptions) {
     const { labels, podTemplate, networkPolicy, containers, service, routes } =
-      getExposableWorkloadComponents(name, args, () => this, opts)
+      getWorkloadServiceComponents(name, args, () => this, opts)
 
     const deployment = output(args.namespace).cluster.apply(cluster => {
       return new apps.v1.Deployment(
@@ -262,7 +271,7 @@ class CreatedDeployment extends Deployment {
                 template: podTemplate,
                 selector: { matchLabels: labels },
               },
-              omit(args, exposableWorkloadExtraArgs),
+              omit(args, workloadServiceExtraArgs),
             ) as types.input.apps.v1.DeploymentSpec
           }),
         },
@@ -295,7 +304,7 @@ class CreatedDeployment extends Deployment {
 class DeploymentPatch extends Deployment {
   constructor(name: string, args: DeploymentArgs, opts?: ComponentResourceOptions) {
     const { podTemplate, networkPolicy, containers, service, routes } =
-      getExposableWorkloadComponents(name, args, () => this, opts, true)
+      getWorkloadServiceComponents(name, args, () => this, opts, true)
 
     const deployment = output(args.namespace).cluster.apply(cluster => {
       return new apps.v1.DeploymentPatch(
@@ -303,10 +312,16 @@ class DeploymentPatch extends Deployment {
         {
           metadata: mapMetadata(args, name),
           spec: output({ args, podTemplate }).apply(({ args, podTemplate }) => {
-            return deepmerge(
+            const spec = deepmerge(
               { template: podTemplate },
-              omit(args, exposableWorkloadExtraArgs),
-            ) as types.input.apps.v1.DeploymentSpec
+              omit(args, workloadServiceExtraArgs),
+            ) as Unwrap<types.input.apps.v1.DeploymentSpec>
+
+            if (spec.template) {
+              spec.template = filterPatchOwnedContainersInTemplate(spec.template, podTemplate)
+            }
+
+            return spec
           }),
         },
         {

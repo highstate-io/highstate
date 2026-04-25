@@ -1,7 +1,7 @@
 import type { k8s, network } from "@highstate/library"
 import { isPrivateAddress, parseAddress } from "@highstate/common"
 import { text, type UnitTerminal } from "@highstate/contract"
-import { fileFromString, type Input, type Output, output } from "@highstate/pulumi"
+import { type Input, makeFileOutput, type Output, output } from "@highstate/pulumi"
 import { CoreV1Api, type KubeConfig } from "@kubernetes/client-node"
 import { images } from "./shared"
 
@@ -54,20 +54,24 @@ export function createK8sTerminal(kubeconfig: Input<string>): Output<UnitTermina
       command: ["bash", "/welcome.sh"],
 
       files: {
-        "/kubeconfig": fileFromString("kubeconfig", kubeconfig, { isSecret: true }),
+        "/kubeconfig": makeFileOutput({
+          name: "kubeconfig",
+          content: kubeconfig,
+          isSecret: true,
+        }),
 
-        "/welcome.sh": fileFromString(
-          "welcome.sh",
-          text`
+        "/welcome.sh": makeFileOutput({
+          name: "welcome.sh",
+          content: text`
             echo "Connecting to the cluster..."
             kubectl cluster-info
 
-            echo "Use 'kubectl' and 'helm' to manage the cluster."
+            echo "Use 'kubectl', 'helm' or 'k9s' to manage the cluster."
             echo
 
             exec bash
           `,
-        ),
+        }),
       },
 
       env: {

@@ -1,14 +1,15 @@
 import type { AccessPointRoute } from "@highstate/common"
-import type { k8s } from "@highstate/library"
 import type { Container } from "./container"
 import type { NetworkPolicy } from "./network-policy"
 import type { Service } from "./service"
 import { getOrCreate, type UnitTerminal } from "@highstate/contract"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -20,14 +21,15 @@ import { omit } from "remeda"
 import { Namespace } from "./namespace"
 import { getProvider, mapMetadata } from "./shared"
 import {
-  ExposableWorkload,
-  type ExposableWorkloadArgs,
-  exposableWorkloadExtraArgs,
-  getExposableWorkloadComponents,
+  filterPatchOwnedContainersInTemplate,
+  getWorkloadServiceComponents,
+  Workload,
+  type WorkloadServiceArgs,
   type WorkloadTerminalArgs,
+  workloadServiceExtraArgs,
 } from "./workload"
 
-export type StatefulSetArgs = Omit<ExposableWorkloadArgs, "existing"> &
+export type StatefulSetArgs = Omit<WorkloadServiceArgs, "existing"> &
   Omit<Partial<types.input.apps.v1.StatefulSetSpec>, "template"> & {
     template?: {
       metadata?: types.input.meta.v1.ObjectMeta
@@ -42,7 +44,7 @@ export type CreateOrGetStatefulSetArgs = StatefulSetArgs & {
   existing: Input<k8s.StatefulSet> | undefined
 }
 
-export abstract class StatefulSet extends ExposableWorkload {
+export abstract class StatefulSet extends Workload {
   static apiVersion = "apps/v1"
   static kind = "StatefulSet"
 
@@ -95,10 +97,17 @@ export abstract class StatefulSet extends ExposableWorkload {
    * The Highstate stateful set entity.
    */
   get entity(): Output<k8s.StatefulSet> {
-    return output({
-      ...this.entityBase,
-      service: this.service.entity,
-      endpoints: this.service.endpoints,
+    return makeEntityOutput({
+      entity: k8s.statefulSetEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+        service: this.service.entity,
+        spec: this.spec,
+      },
     })
   }
 
@@ -250,7 +259,7 @@ export abstract class StatefulSet extends ExposableWorkload {
 class CreatedStatefulSet extends StatefulSet {
   constructor(name: string, args: StatefulSetArgs, opts?: ComponentResourceOptions) {
     const { labels, podTemplate, networkPolicy, containers, service, routes } =
-      getExposableWorkloadComponents(
+      getWorkloadServiceComponents(
         name,
         {
           ...args,
@@ -275,7 +284,7 @@ class CreatedStatefulSet extends StatefulSet {
                   template: podTemplate,
                   selector: { matchLabels: labels },
                 },
-                omit(args, exposableWorkloadExtraArgs),
+                omit(args, workloadServiceExtraArgs),
               ) as types.input.apps.v1.StatefulSetSpec
             },
           ),
@@ -312,7 +321,7 @@ class CreatedStatefulSet extends StatefulSet {
 class StatefulSetPatch extends StatefulSet {
   constructor(name: string, args: StatefulSetArgs, opts?: ComponentResourceOptions) {
     const { podTemplate, networkPolicy, containers, service, routes } =
-      getExposableWorkloadComponents(name, args, () => this, opts, true)
+      getWorkloadServiceComponents(name, args, () => this, opts, true)
 
     const statefulSet = output(args.namespace).cluster.apply(cluster => {
       return new apps.v1.StatefulSetPatch(
@@ -320,10 +329,16 @@ class StatefulSetPatch extends StatefulSet {
         {
           metadata: mapMetadata(args, name),
           spec: output({ args, podTemplate }).apply(({ args, podTemplate }) => {
-            return deepmerge(
+            const spec = deepmerge(
               { template: podTemplate },
-              omit(args, exposableWorkloadExtraArgs),
-            ) as types.input.apps.v1.StatefulSetSpec
+              omit(args, workloadServiceExtraArgs),
+            ) as Unwrap<types.input.apps.v1.StatefulSetSpec>
+
+            if (spec.template) {
+              spec.template = filterPatchOwnedContainersInTemplate(spec.template, podTemplate)
+            }
+
+            return spec
           }),
         },
         {

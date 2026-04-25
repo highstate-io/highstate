@@ -34,10 +34,22 @@ export class MdbKafkaUser extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbKafkaUser.__pulumiType;
     }
 
+    /**
+     * The ID of the Kafka cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
     declare public readonly mdbKafkaUserId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The password of the user.
+     */
     declare public readonly password: pulumi.Output<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     declare public readonly permissions: pulumi.Output<outputs.MdbKafkaUserPermission[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbKafkaUserTimeouts | undefined>;
 
@@ -86,10 +98,22 @@ export class MdbKafkaUser extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbKafkaUser resources.
  */
 export interface MdbKafkaUserState {
+    /**
+     * The ID of the Kafka cluster.
+     */
     clusterId?: pulumi.Input<string>;
     mdbKafkaUserId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
     password?: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbKafkaUserPermission>[]>;
     timeouts?: pulumi.Input<inputs.MdbKafkaUserTimeouts>;
 }
@@ -98,10 +122,22 @@ export interface MdbKafkaUserState {
  * The set of arguments for constructing a MdbKafkaUser resource.
  */
 export interface MdbKafkaUserArgs {
+    /**
+     * The ID of the Kafka cluster.
+     */
     clusterId: pulumi.Input<string>;
     mdbKafkaUserId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
     password: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbKafkaUserPermission>[]>;
     timeouts?: pulumi.Input<inputs.MdbKafkaUserTimeouts>;
 }

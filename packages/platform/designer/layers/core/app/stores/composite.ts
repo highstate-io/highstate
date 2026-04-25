@@ -61,13 +61,34 @@ export const useCompositeStore = defineMultiStore({
           nodeFactory.instanceIdToNodeIdMap.set(currentInstance.id, instanceNode.id)
 
           for (const [outputKey, output] of Object.entries(currentInstance.outputs)) {
+            const resolvedOutputCount = currentInstance.resolvedOutputs?.[outputKey]?.length ?? 0
+            const projectionUnresolved = resolvedOutputCount === 0
+
             for (const item of output) {
               const instance = instancesStore.instances.get(item.instanceId)
               if (!instance) {
                 continue
               }
 
-              nodeFactory.createEdgeForInstanceOutput(instance, outputKey, item)
+              const projection = instance.parentId === currentInstance.id
+              logger.debug(
+                {
+                  currentInstanceId: currentInstance.id,
+                  sourceInstanceId: instance.id,
+                  outputKey,
+                  sourceOutput: item.output,
+                  sourceParentId: instance.parentId,
+                  projection,
+                  resolvedOutputCount,
+                  projectionUnresolved,
+                },
+                "creating edge to composite output node",
+              )
+
+              nodeFactory.createEdgeForInstanceOutput(instance, outputKey, item, {
+                projection,
+                projectionUnresolved,
+              })
             }
           }
         }

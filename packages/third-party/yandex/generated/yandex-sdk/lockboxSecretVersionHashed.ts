@@ -34,28 +34,94 @@ export class LockboxSecretVersionHashed extends pulumi.CustomResource {
         return obj['__pulumiType'] === LockboxSecretVersionHashed.__pulumiType;
     }
 
+    /**
+     * The Yandex Cloud Lockbox secret version description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key1: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key10: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key2: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key3: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key4: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key5: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key6: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key7: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key8: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly key9: pulumi.Output<string | undefined>;
     declare public readonly lockboxSecretVersionHashedId: pulumi.Output<string>;
+    /**
+     * The Yandex Cloud Lockbox secret ID where to add the version.
+     */
     declare public readonly secretId: pulumi.Output<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue1: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue10: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue2: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue3: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue4: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue5: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue6: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue7: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue8: pulumi.Output<string | undefined>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     declare public readonly textValue9: pulumi.Output<string | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.LockboxSecretVersionHashedTimeouts | undefined>;
 
@@ -137,28 +203,94 @@ export class LockboxSecretVersionHashed extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LockboxSecretVersionHashed resources.
  */
 export interface LockboxSecretVersionHashedState {
+    /**
+     * The Yandex Cloud Lockbox secret version description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key1?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key10?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key2?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key3?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key4?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key5?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key6?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key7?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key8?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key9?: pulumi.Input<string>;
     lockboxSecretVersionHashedId?: pulumi.Input<string>;
+    /**
+     * The Yandex Cloud Lockbox secret ID where to add the version.
+     */
     secretId?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue1?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue10?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue2?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue3?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue4?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue5?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue6?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue7?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue8?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue9?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LockboxSecretVersionHashedTimeouts>;
 }
@@ -167,28 +299,94 @@ export interface LockboxSecretVersionHashedState {
  * The set of arguments for constructing a LockboxSecretVersionHashed resource.
  */
 export interface LockboxSecretVersionHashedArgs {
+    /**
+     * The Yandex Cloud Lockbox secret version description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key1?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key10?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key2?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key3?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key4?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key5?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key6?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key7?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key8?: pulumi.Input<string>;
+    /**
+     * Each of the entry keys in the Yandex Cloud Lockbox secret version.
+     */
     key9?: pulumi.Input<string>;
     lockboxSecretVersionHashedId?: pulumi.Input<string>;
+    /**
+     * The Yandex Cloud Lockbox secret ID where to add the version.
+     */
     secretId: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue1?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue10?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue2?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue3?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue4?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue5?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue6?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue7?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue8?: pulumi.Input<string>;
+    /**
+     * Each of the entry values in the Yandex Cloud Lockbox secret version.
+     */
     textValue9?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LockboxSecretVersionHashedTimeouts>;
 }

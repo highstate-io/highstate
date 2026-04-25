@@ -5,6 +5,16 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
+export { AirflowClusterArgs, AirflowClusterState } from "./airflowCluster";
+export type AirflowCluster = import("./airflowCluster").AirflowCluster;
+export const AirflowCluster: typeof import("./airflowCluster").AirflowCluster = null as any;
+utilities.lazyLoad(exports, ["AirflowCluster"], () => require("./airflowCluster"));
+
+export { AirflowClusterIamBindingArgs, AirflowClusterIamBindingState } from "./airflowClusterIamBinding";
+export type AirflowClusterIamBinding = import("./airflowClusterIamBinding").AirflowClusterIamBinding;
+export const AirflowClusterIamBinding: typeof import("./airflowClusterIamBinding").AirflowClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["AirflowClusterIamBinding"], () => require("./airflowClusterIamBinding"));
+
 export { AlbBackendGroupArgs, AlbBackendGroupState } from "./albBackendGroup";
 export type AlbBackendGroup = import("./albBackendGroup").AlbBackendGroup;
 export const AlbBackendGroup: typeof import("./albBackendGroup").AlbBackendGroup = null as any;
@@ -65,10 +75,50 @@ export type CdnResource = import("./cdnResource").CdnResource;
 export const CdnResource: typeof import("./cdnResource").CdnResource = null as any;
 utilities.lazyLoad(exports, ["CdnResource"], () => require("./cdnResource"));
 
+export { CloudDesktopsDesktopArgs, CloudDesktopsDesktopState } from "./cloudDesktopsDesktop";
+export type CloudDesktopsDesktop = import("./cloudDesktopsDesktop").CloudDesktopsDesktop;
+export const CloudDesktopsDesktop: typeof import("./cloudDesktopsDesktop").CloudDesktopsDesktop = null as any;
+utilities.lazyLoad(exports, ["CloudDesktopsDesktop"], () => require("./cloudDesktopsDesktop"));
+
+export { CloudDesktopsDesktopGroupArgs, CloudDesktopsDesktopGroupState } from "./cloudDesktopsDesktopGroup";
+export type CloudDesktopsDesktopGroup = import("./cloudDesktopsDesktopGroup").CloudDesktopsDesktopGroup;
+export const CloudDesktopsDesktopGroup: typeof import("./cloudDesktopsDesktopGroup").CloudDesktopsDesktopGroup = null as any;
+utilities.lazyLoad(exports, ["CloudDesktopsDesktopGroup"], () => require("./cloudDesktopsDesktopGroup"));
+
+export { CloudregistryLifecyclePolicyArgs, CloudregistryLifecyclePolicyState } from "./cloudregistryLifecyclePolicy";
+export type CloudregistryLifecyclePolicy = import("./cloudregistryLifecyclePolicy").CloudregistryLifecyclePolicy;
+export const CloudregistryLifecyclePolicy: typeof import("./cloudregistryLifecyclePolicy").CloudregistryLifecyclePolicy = null as any;
+utilities.lazyLoad(exports, ["CloudregistryLifecyclePolicy"], () => require("./cloudregistryLifecyclePolicy"));
+
+export { CloudregistryRegistryArgs, CloudregistryRegistryState } from "./cloudregistryRegistry";
+export type CloudregistryRegistry = import("./cloudregistryRegistry").CloudregistryRegistry;
+export const CloudregistryRegistry: typeof import("./cloudregistryRegistry").CloudregistryRegistry = null as any;
+utilities.lazyLoad(exports, ["CloudregistryRegistry"], () => require("./cloudregistryRegistry"));
+
+export { CloudregistryRegistryIamBindingArgs, CloudregistryRegistryIamBindingState } from "./cloudregistryRegistryIamBinding";
+export type CloudregistryRegistryIamBinding = import("./cloudregistryRegistryIamBinding").CloudregistryRegistryIamBinding;
+export const CloudregistryRegistryIamBinding: typeof import("./cloudregistryRegistryIamBinding").CloudregistryRegistryIamBinding = null as any;
+utilities.lazyLoad(exports, ["CloudregistryRegistryIamBinding"], () => require("./cloudregistryRegistryIamBinding"));
+
+export { CloudregistryRegistryIpPermissionArgs, CloudregistryRegistryIpPermissionState } from "./cloudregistryRegistryIpPermission";
+export type CloudregistryRegistryIpPermission = import("./cloudregistryRegistryIpPermission").CloudregistryRegistryIpPermission;
+export const CloudregistryRegistryIpPermission: typeof import("./cloudregistryRegistryIpPermission").CloudregistryRegistryIpPermission = null as any;
+utilities.lazyLoad(exports, ["CloudregistryRegistryIpPermission"], () => require("./cloudregistryRegistryIpPermission"));
+
 export { CmCertificateArgs, CmCertificateState } from "./cmCertificate";
 export type CmCertificate = import("./cmCertificate").CmCertificate;
 export const CmCertificate: typeof import("./cmCertificate").CmCertificate = null as any;
 utilities.lazyLoad(exports, ["CmCertificate"], () => require("./cmCertificate"));
+
+export { CmCertificateIamBindingArgs, CmCertificateIamBindingState } from "./cmCertificateIamBinding";
+export type CmCertificateIamBinding = import("./cmCertificateIamBinding").CmCertificateIamBinding;
+export const CmCertificateIamBinding: typeof import("./cmCertificateIamBinding").CmCertificateIamBinding = null as any;
+utilities.lazyLoad(exports, ["CmCertificateIamBinding"], () => require("./cmCertificateIamBinding"));
+
+export { CmCertificateIamMemberArgs, CmCertificateIamMemberState } from "./cmCertificateIamMember";
+export type CmCertificateIamMember = import("./cmCertificateIamMember").CmCertificateIamMember;
+export const CmCertificateIamMember: typeof import("./cmCertificateIamMember").CmCertificateIamMember = null as any;
+utilities.lazyLoad(exports, ["CmCertificateIamMember"], () => require("./cmCertificateIamMember"));
 
 export { ComputeDiskArgs, ComputeDiskState } from "./computeDisk";
 export type ComputeDisk = import("./computeDisk").ComputeDisk;
@@ -165,6 +215,11 @@ export type ComputeSnapshotScheduleIamBinding = import("./computeSnapshotSchedul
 export const ComputeSnapshotScheduleIamBinding: typeof import("./computeSnapshotScheduleIamBinding").ComputeSnapshotScheduleIamBinding = null as any;
 utilities.lazyLoad(exports, ["ComputeSnapshotScheduleIamBinding"], () => require("./computeSnapshotScheduleIamBinding"));
 
+export { ConnectionmanagerConnectionArgs, ConnectionmanagerConnectionState } from "./connectionmanagerConnection";
+export type ConnectionmanagerConnection = import("./connectionmanagerConnection").ConnectionmanagerConnection;
+export const ConnectionmanagerConnection: typeof import("./connectionmanagerConnection").ConnectionmanagerConnection = null as any;
+utilities.lazyLoad(exports, ["ConnectionmanagerConnection"], () => require("./connectionmanagerConnection"));
+
 export { ContainerRegistryArgs, ContainerRegistryState } from "./containerRegistry";
 export type ContainerRegistry = import("./containerRegistry").ContainerRegistry;
 export const ContainerRegistry: typeof import("./containerRegistry").ContainerRegistry = null as any;
@@ -195,10 +250,25 @@ export type ContainerRepositoryLifecyclePolicy = import("./containerRepositoryLi
 export const ContainerRepositoryLifecyclePolicy: typeof import("./containerRepositoryLifecyclePolicy").ContainerRepositoryLifecyclePolicy = null as any;
 utilities.lazyLoad(exports, ["ContainerRepositoryLifecyclePolicy"], () => require("./containerRepositoryLifecyclePolicy"));
 
+export { DatacatalogCatalogArgs, DatacatalogCatalogState } from "./datacatalogCatalog";
+export type DatacatalogCatalog = import("./datacatalogCatalog").DatacatalogCatalog;
+export const DatacatalogCatalog: typeof import("./datacatalogCatalog").DatacatalogCatalog = null as any;
+utilities.lazyLoad(exports, ["DatacatalogCatalog"], () => require("./datacatalogCatalog"));
+
+export { DatalensConnectionArgs, DatalensConnectionState } from "./datalensConnection";
+export type DatalensConnection = import("./datalensConnection").DatalensConnection;
+export const DatalensConnection: typeof import("./datalensConnection").DatalensConnection = null as any;
+utilities.lazyLoad(exports, ["DatalensConnection"], () => require("./datalensConnection"));
+
 export { DataprocClusterArgs, DataprocClusterState } from "./dataprocCluster";
 export type DataprocCluster = import("./dataprocCluster").DataprocCluster;
 export const DataprocCluster: typeof import("./dataprocCluster").DataprocCluster = null as any;
 utilities.lazyLoad(exports, ["DataprocCluster"], () => require("./dataprocCluster"));
+
+export { DataprocClusterIamBindingArgs, DataprocClusterIamBindingState } from "./dataprocClusterIamBinding";
+export type DataprocClusterIamBinding = import("./dataprocClusterIamBinding").DataprocClusterIamBinding;
+export const DataprocClusterIamBinding: typeof import("./dataprocClusterIamBinding").DataprocClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["DataprocClusterIamBinding"], () => require("./dataprocClusterIamBinding"));
 
 export { DatasphereCommunityArgs, DatasphereCommunityState } from "./datasphereCommunity";
 export type DatasphereCommunity = import("./datasphereCommunity").DatasphereCommunity;
@@ -265,6 +335,11 @@ export type FunctionTrigger = import("./functionTrigger").FunctionTrigger;
 export const FunctionTrigger: typeof import("./functionTrigger").FunctionTrigger = null as any;
 utilities.lazyLoad(exports, ["FunctionTrigger"], () => require("./functionTrigger"));
 
+export { GetAirflowClusterArgs, GetAirflowClusterResult, GetAirflowClusterOutputArgs } from "./getAirflowCluster";
+export const getAirflowCluster: typeof import("./getAirflowCluster").getAirflowCluster = null as any;
+export const getAirflowClusterOutput: typeof import("./getAirflowCluster").getAirflowClusterOutput = null as any;
+utilities.lazyLoad(exports, ["getAirflowCluster","getAirflowClusterOutput"], () => require("./getAirflowCluster"));
+
 export { GetAlbBackendGroupArgs, GetAlbBackendGroupResult, GetAlbBackendGroupOutputArgs } from "./getAlbBackendGroup";
 export const getAlbBackendGroup: typeof import("./getAlbBackendGroup").getAlbBackendGroup = null as any;
 export const getAlbBackendGroupOutput: typeof import("./getAlbBackendGroup").getAlbBackendGroupOutput = null as any;
@@ -324,6 +399,36 @@ export { GetClientConfigArgs, GetClientConfigResult, GetClientConfigOutputArgs }
 export const getClientConfig: typeof import("./getClientConfig").getClientConfig = null as any;
 export const getClientConfigOutput: typeof import("./getClientConfig").getClientConfigOutput = null as any;
 utilities.lazyLoad(exports, ["getClientConfig","getClientConfigOutput"], () => require("./getClientConfig"));
+
+export { GetCloudDesktopsDesktopArgs, GetCloudDesktopsDesktopResult, GetCloudDesktopsDesktopOutputArgs } from "./getCloudDesktopsDesktop";
+export const getCloudDesktopsDesktop: typeof import("./getCloudDesktopsDesktop").getCloudDesktopsDesktop = null as any;
+export const getCloudDesktopsDesktopOutput: typeof import("./getCloudDesktopsDesktop").getCloudDesktopsDesktopOutput = null as any;
+utilities.lazyLoad(exports, ["getCloudDesktopsDesktop","getCloudDesktopsDesktopOutput"], () => require("./getCloudDesktopsDesktop"));
+
+export { GetCloudDesktopsDesktopGroupArgs, GetCloudDesktopsDesktopGroupResult, GetCloudDesktopsDesktopGroupOutputArgs } from "./getCloudDesktopsDesktopGroup";
+export const getCloudDesktopsDesktopGroup: typeof import("./getCloudDesktopsDesktopGroup").getCloudDesktopsDesktopGroup = null as any;
+export const getCloudDesktopsDesktopGroupOutput: typeof import("./getCloudDesktopsDesktopGroup").getCloudDesktopsDesktopGroupOutput = null as any;
+utilities.lazyLoad(exports, ["getCloudDesktopsDesktopGroup","getCloudDesktopsDesktopGroupOutput"], () => require("./getCloudDesktopsDesktopGroup"));
+
+export { GetCloudDesktopsImageArgs, GetCloudDesktopsImageResult, GetCloudDesktopsImageOutputArgs } from "./getCloudDesktopsImage";
+export const getCloudDesktopsImage: typeof import("./getCloudDesktopsImage").getCloudDesktopsImage = null as any;
+export const getCloudDesktopsImageOutput: typeof import("./getCloudDesktopsImage").getCloudDesktopsImageOutput = null as any;
+utilities.lazyLoad(exports, ["getCloudDesktopsImage","getCloudDesktopsImageOutput"], () => require("./getCloudDesktopsImage"));
+
+export { GetCloudregistryLifecyclePolicyArgs, GetCloudregistryLifecyclePolicyResult, GetCloudregistryLifecyclePolicyOutputArgs } from "./getCloudregistryLifecyclePolicy";
+export const getCloudregistryLifecyclePolicy: typeof import("./getCloudregistryLifecyclePolicy").getCloudregistryLifecyclePolicy = null as any;
+export const getCloudregistryLifecyclePolicyOutput: typeof import("./getCloudregistryLifecyclePolicy").getCloudregistryLifecyclePolicyOutput = null as any;
+utilities.lazyLoad(exports, ["getCloudregistryLifecyclePolicy","getCloudregistryLifecyclePolicyOutput"], () => require("./getCloudregistryLifecyclePolicy"));
+
+export { GetCloudregistryRegistryArgs, GetCloudregistryRegistryResult, GetCloudregistryRegistryOutputArgs } from "./getCloudregistryRegistry";
+export const getCloudregistryRegistry: typeof import("./getCloudregistryRegistry").getCloudregistryRegistry = null as any;
+export const getCloudregistryRegistryOutput: typeof import("./getCloudregistryRegistry").getCloudregistryRegistryOutput = null as any;
+utilities.lazyLoad(exports, ["getCloudregistryRegistry","getCloudregistryRegistryOutput"], () => require("./getCloudregistryRegistry"));
+
+export { GetCloudregistryRegistryIpPermissionArgs, GetCloudregistryRegistryIpPermissionResult, GetCloudregistryRegistryIpPermissionOutputArgs } from "./getCloudregistryRegistryIpPermission";
+export const getCloudregistryRegistryIpPermission: typeof import("./getCloudregistryRegistryIpPermission").getCloudregistryRegistryIpPermission = null as any;
+export const getCloudregistryRegistryIpPermissionOutput: typeof import("./getCloudregistryRegistryIpPermission").getCloudregistryRegistryIpPermissionOutput = null as any;
+utilities.lazyLoad(exports, ["getCloudregistryRegistryIpPermission","getCloudregistryRegistryIpPermissionOutput"], () => require("./getCloudregistryRegistryIpPermission"));
 
 export { GetCmCertificateArgs, GetCmCertificateResult, GetCmCertificateOutputArgs } from "./getCmCertificate";
 export const getCmCertificate: typeof import("./getCmCertificate").getCmCertificate = null as any;
@@ -385,6 +490,11 @@ export const getComputeSnapshotSchedule: typeof import("./getComputeSnapshotSche
 export const getComputeSnapshotScheduleOutput: typeof import("./getComputeSnapshotSchedule").getComputeSnapshotScheduleOutput = null as any;
 utilities.lazyLoad(exports, ["getComputeSnapshotSchedule","getComputeSnapshotScheduleOutput"], () => require("./getComputeSnapshotSchedule"));
 
+export { GetConnectionmanagerConnectionArgs, GetConnectionmanagerConnectionResult, GetConnectionmanagerConnectionOutputArgs } from "./getConnectionmanagerConnection";
+export const getConnectionmanagerConnection: typeof import("./getConnectionmanagerConnection").getConnectionmanagerConnection = null as any;
+export const getConnectionmanagerConnectionOutput: typeof import("./getConnectionmanagerConnection").getConnectionmanagerConnectionOutput = null as any;
+utilities.lazyLoad(exports, ["getConnectionmanagerConnection","getConnectionmanagerConnectionOutput"], () => require("./getConnectionmanagerConnection"));
+
 export { GetContainerRegistryArgs, GetContainerRegistryResult, GetContainerRegistryOutputArgs } from "./getContainerRegistry";
 export const getContainerRegistry: typeof import("./getContainerRegistry").getContainerRegistry = null as any;
 export const getContainerRegistryOutput: typeof import("./getContainerRegistry").getContainerRegistryOutput = null as any;
@@ -405,6 +515,16 @@ export const getContainerRepositoryLifecyclePolicy: typeof import("./getContaine
 export const getContainerRepositoryLifecyclePolicyOutput: typeof import("./getContainerRepositoryLifecyclePolicy").getContainerRepositoryLifecyclePolicyOutput = null as any;
 utilities.lazyLoad(exports, ["getContainerRepositoryLifecyclePolicy","getContainerRepositoryLifecyclePolicyOutput"], () => require("./getContainerRepositoryLifecyclePolicy"));
 
+export { GetDatacatalogCatalogArgs, GetDatacatalogCatalogResult, GetDatacatalogCatalogOutputArgs } from "./getDatacatalogCatalog";
+export const getDatacatalogCatalog: typeof import("./getDatacatalogCatalog").getDatacatalogCatalog = null as any;
+export const getDatacatalogCatalogOutput: typeof import("./getDatacatalogCatalog").getDatacatalogCatalogOutput = null as any;
+utilities.lazyLoad(exports, ["getDatacatalogCatalog","getDatacatalogCatalogOutput"], () => require("./getDatacatalogCatalog"));
+
+export { GetDatalensConnectionArgs, GetDatalensConnectionResult, GetDatalensConnectionOutputArgs } from "./getDatalensConnection";
+export const getDatalensConnection: typeof import("./getDatalensConnection").getDatalensConnection = null as any;
+export const getDatalensConnectionOutput: typeof import("./getDatalensConnection").getDatalensConnectionOutput = null as any;
+utilities.lazyLoad(exports, ["getDatalensConnection","getDatalensConnectionOutput"], () => require("./getDatalensConnection"));
+
 export { GetDataprocClusterArgs, GetDataprocClusterResult, GetDataprocClusterOutputArgs } from "./getDataprocCluster";
 export const getDataprocCluster: typeof import("./getDataprocCluster").getDataprocCluster = null as any;
 export const getDataprocClusterOutput: typeof import("./getDataprocCluster").getDataprocClusterOutput = null as any;
@@ -419,6 +539,16 @@ export { GetDatasphereProjectArgs, GetDatasphereProjectResult, GetDatasphereProj
 export const getDatasphereProject: typeof import("./getDatasphereProject").getDatasphereProject = null as any;
 export const getDatasphereProjectOutput: typeof import("./getDatasphereProject").getDatasphereProjectOutput = null as any;
 utilities.lazyLoad(exports, ["getDatasphereProject","getDatasphereProjectOutput"], () => require("./getDatasphereProject"));
+
+export { GetDatatransferEndpointArgs, GetDatatransferEndpointResult, GetDatatransferEndpointOutputArgs } from "./getDatatransferEndpoint";
+export const getDatatransferEndpoint: typeof import("./getDatatransferEndpoint").getDatatransferEndpoint = null as any;
+export const getDatatransferEndpointOutput: typeof import("./getDatatransferEndpoint").getDatatransferEndpointOutput = null as any;
+utilities.lazyLoad(exports, ["getDatatransferEndpoint","getDatatransferEndpointOutput"], () => require("./getDatatransferEndpoint"));
+
+export { GetDatatransferTransferArgs, GetDatatransferTransferResult, GetDatatransferTransferOutputArgs } from "./getDatatransferTransfer";
+export const getDatatransferTransfer: typeof import("./getDatatransferTransfer").getDatatransferTransfer = null as any;
+export const getDatatransferTransferOutput: typeof import("./getDatatransferTransfer").getDatatransferTransferOutput = null as any;
+utilities.lazyLoad(exports, ["getDatatransferTransfer","getDatatransferTransferOutput"], () => require("./getDatatransferTransfer"));
 
 export { GetDnsZoneArgs, GetDnsZoneResult, GetDnsZoneOutputArgs } from "./getDnsZone";
 export const getDnsZone: typeof import("./getDnsZone").getDnsZone = null as any;
@@ -440,6 +570,16 @@ export const getFunctionTrigger: typeof import("./getFunctionTrigger").getFuncti
 export const getFunctionTriggerOutput: typeof import("./getFunctionTrigger").getFunctionTriggerOutput = null as any;
 utilities.lazyLoad(exports, ["getFunctionTrigger","getFunctionTriggerOutput"], () => require("./getFunctionTrigger"));
 
+export { GetGitlabInstanceArgs, GetGitlabInstanceResult, GetGitlabInstanceOutputArgs } from "./getGitlabInstance";
+export const getGitlabInstance: typeof import("./getGitlabInstance").getGitlabInstance = null as any;
+export const getGitlabInstanceOutput: typeof import("./getGitlabInstance").getGitlabInstanceOutput = null as any;
+utilities.lazyLoad(exports, ["getGitlabInstance","getGitlabInstanceOutput"], () => require("./getGitlabInstance"));
+
+export { GetIamOauthClientArgs, GetIamOauthClientResult, GetIamOauthClientOutputArgs } from "./getIamOauthClient";
+export const getIamOauthClient: typeof import("./getIamOauthClient").getIamOauthClient = null as any;
+export const getIamOauthClientOutput: typeof import("./getIamOauthClient").getIamOauthClientOutput = null as any;
+utilities.lazyLoad(exports, ["getIamOauthClient","getIamOauthClientOutput"], () => require("./getIamOauthClient"));
+
 export { GetIamPolicyArgs, GetIamPolicyResult, GetIamPolicyOutputArgs } from "./getIamPolicy";
 export const getIamPolicy: typeof import("./getIamPolicy").getIamPolicy = null as any;
 export const getIamPolicyOutput: typeof import("./getIamPolicy").getIamPolicyOutput = null as any;
@@ -455,10 +595,25 @@ export const getIamServiceAccount: typeof import("./getIamServiceAccount").getIa
 export const getIamServiceAccountOutput: typeof import("./getIamServiceAccount").getIamServiceAccountOutput = null as any;
 utilities.lazyLoad(exports, ["getIamServiceAccount","getIamServiceAccountOutput"], () => require("./getIamServiceAccount"));
 
+export { GetIamServiceAgentArgs, GetIamServiceAgentResult, GetIamServiceAgentOutputArgs } from "./getIamServiceAgent";
+export const getIamServiceAgent: typeof import("./getIamServiceAgent").getIamServiceAgent = null as any;
+export const getIamServiceAgentOutput: typeof import("./getIamServiceAgent").getIamServiceAgentOutput = null as any;
+utilities.lazyLoad(exports, ["getIamServiceAgent","getIamServiceAgentOutput"], () => require("./getIamServiceAgent"));
+
 export { GetIamUserArgs, GetIamUserResult, GetIamUserOutputArgs } from "./getIamUser";
 export const getIamUser: typeof import("./getIamUser").getIamUser = null as any;
 export const getIamUserOutput: typeof import("./getIamUser").getIamUserOutput = null as any;
 utilities.lazyLoad(exports, ["getIamUser","getIamUserOutput"], () => require("./getIamUser"));
+
+export { GetIamWorkloadIdentityFederatedCredentialArgs, GetIamWorkloadIdentityFederatedCredentialResult, GetIamWorkloadIdentityFederatedCredentialOutputArgs } from "./getIamWorkloadIdentityFederatedCredential";
+export const getIamWorkloadIdentityFederatedCredential: typeof import("./getIamWorkloadIdentityFederatedCredential").getIamWorkloadIdentityFederatedCredential = null as any;
+export const getIamWorkloadIdentityFederatedCredentialOutput: typeof import("./getIamWorkloadIdentityFederatedCredential").getIamWorkloadIdentityFederatedCredentialOutput = null as any;
+utilities.lazyLoad(exports, ["getIamWorkloadIdentityFederatedCredential","getIamWorkloadIdentityFederatedCredentialOutput"], () => require("./getIamWorkloadIdentityFederatedCredential"));
+
+export { GetIamWorkloadIdentityOidcFederationArgs, GetIamWorkloadIdentityOidcFederationResult, GetIamWorkloadIdentityOidcFederationOutputArgs } from "./getIamWorkloadIdentityOidcFederation";
+export const getIamWorkloadIdentityOidcFederation: typeof import("./getIamWorkloadIdentityOidcFederation").getIamWorkloadIdentityOidcFederation = null as any;
+export const getIamWorkloadIdentityOidcFederationOutput: typeof import("./getIamWorkloadIdentityOidcFederation").getIamWorkloadIdentityOidcFederationOutput = null as any;
+utilities.lazyLoad(exports, ["getIamWorkloadIdentityOidcFederation","getIamWorkloadIdentityOidcFederationOutput"], () => require("./getIamWorkloadIdentityOidcFederation"));
 
 export { GetIotCoreBrokerArgs, GetIotCoreBrokerResult, GetIotCoreBrokerOutputArgs } from "./getIotCoreBroker";
 export const getIotCoreBroker: typeof import("./getIotCoreBroker").getIotCoreBroker = null as any;
@@ -535,15 +690,40 @@ export const getMdbClickhouseCluster: typeof import("./getMdbClickhouseCluster")
 export const getMdbClickhouseClusterOutput: typeof import("./getMdbClickhouseCluster").getMdbClickhouseClusterOutput = null as any;
 utilities.lazyLoad(exports, ["getMdbClickhouseCluster","getMdbClickhouseClusterOutput"], () => require("./getMdbClickhouseCluster"));
 
-export { GetMdbElasticsearchClusterArgs, GetMdbElasticsearchClusterResult, GetMdbElasticsearchClusterOutputArgs } from "./getMdbElasticsearchCluster";
-export const getMdbElasticsearchCluster: typeof import("./getMdbElasticsearchCluster").getMdbElasticsearchCluster = null as any;
-export const getMdbElasticsearchClusterOutput: typeof import("./getMdbElasticsearchCluster").getMdbElasticsearchClusterOutput = null as any;
-utilities.lazyLoad(exports, ["getMdbElasticsearchCluster","getMdbElasticsearchClusterOutput"], () => require("./getMdbElasticsearchCluster"));
+export { GetMdbClickhouseClusterV2Args, GetMdbClickhouseClusterV2Result, GetMdbClickhouseClusterV2OutputArgs } from "./getMdbClickhouseClusterV2";
+export const getMdbClickhouseClusterV2: typeof import("./getMdbClickhouseClusterV2").getMdbClickhouseClusterV2 = null as any;
+export const getMdbClickhouseClusterV2Output: typeof import("./getMdbClickhouseClusterV2").getMdbClickhouseClusterV2Output = null as any;
+utilities.lazyLoad(exports, ["getMdbClickhouseClusterV2","getMdbClickhouseClusterV2Output"], () => require("./getMdbClickhouseClusterV2"));
+
+export { GetMdbClickhouseDatabaseArgs, GetMdbClickhouseDatabaseResult, GetMdbClickhouseDatabaseOutputArgs } from "./getMdbClickhouseDatabase";
+export const getMdbClickhouseDatabase: typeof import("./getMdbClickhouseDatabase").getMdbClickhouseDatabase = null as any;
+export const getMdbClickhouseDatabaseOutput: typeof import("./getMdbClickhouseDatabase").getMdbClickhouseDatabaseOutput = null as any;
+utilities.lazyLoad(exports, ["getMdbClickhouseDatabase","getMdbClickhouseDatabaseOutput"], () => require("./getMdbClickhouseDatabase"));
+
+export { GetMdbClickhouseUserArgs, GetMdbClickhouseUserResult, GetMdbClickhouseUserOutputArgs } from "./getMdbClickhouseUser";
+export const getMdbClickhouseUser: typeof import("./getMdbClickhouseUser").getMdbClickhouseUser = null as any;
+export const getMdbClickhouseUserOutput: typeof import("./getMdbClickhouseUser").getMdbClickhouseUserOutput = null as any;
+utilities.lazyLoad(exports, ["getMdbClickhouseUser","getMdbClickhouseUserOutput"], () => require("./getMdbClickhouseUser"));
 
 export { GetMdbGreenplumClusterArgs, GetMdbGreenplumClusterResult, GetMdbGreenplumClusterOutputArgs } from "./getMdbGreenplumCluster";
 export const getMdbGreenplumCluster: typeof import("./getMdbGreenplumCluster").getMdbGreenplumCluster = null as any;
 export const getMdbGreenplumClusterOutput: typeof import("./getMdbGreenplumCluster").getMdbGreenplumClusterOutput = null as any;
 utilities.lazyLoad(exports, ["getMdbGreenplumCluster","getMdbGreenplumClusterOutput"], () => require("./getMdbGreenplumCluster"));
+
+export { GetMdbGreenplumClusterV2Args, GetMdbGreenplumClusterV2Result, GetMdbGreenplumClusterV2OutputArgs } from "./getMdbGreenplumClusterV2";
+export const getMdbGreenplumClusterV2: typeof import("./getMdbGreenplumClusterV2").getMdbGreenplumClusterV2 = null as any;
+export const getMdbGreenplumClusterV2Output: typeof import("./getMdbGreenplumClusterV2").getMdbGreenplumClusterV2Output = null as any;
+utilities.lazyLoad(exports, ["getMdbGreenplumClusterV2","getMdbGreenplumClusterV2Output"], () => require("./getMdbGreenplumClusterV2"));
+
+export { GetMdbGreenplumResourceGroupArgs, GetMdbGreenplumResourceGroupResult, GetMdbGreenplumResourceGroupOutputArgs } from "./getMdbGreenplumResourceGroup";
+export const getMdbGreenplumResourceGroup: typeof import("./getMdbGreenplumResourceGroup").getMdbGreenplumResourceGroup = null as any;
+export const getMdbGreenplumResourceGroupOutput: typeof import("./getMdbGreenplumResourceGroup").getMdbGreenplumResourceGroupOutput = null as any;
+utilities.lazyLoad(exports, ["getMdbGreenplumResourceGroup","getMdbGreenplumResourceGroupOutput"], () => require("./getMdbGreenplumResourceGroup"));
+
+export { GetMdbGreenplumUserArgs, GetMdbGreenplumUserResult, GetMdbGreenplumUserOutputArgs } from "./getMdbGreenplumUser";
+export const getMdbGreenplumUser: typeof import("./getMdbGreenplumUser").getMdbGreenplumUser = null as any;
+export const getMdbGreenplumUserOutput: typeof import("./getMdbGreenplumUser").getMdbGreenplumUserOutput = null as any;
+utilities.lazyLoad(exports, ["getMdbGreenplumUser","getMdbGreenplumUserOutput"], () => require("./getMdbGreenplumUser"));
 
 export { GetMdbKafkaClusterArgs, GetMdbKafkaClusterResult, GetMdbKafkaClusterOutputArgs } from "./getMdbKafkaCluster";
 export const getMdbKafkaCluster: typeof import("./getMdbKafkaCluster").getMdbKafkaCluster = null as any;
@@ -590,6 +770,11 @@ export const getMdbMysqlDatabase: typeof import("./getMdbMysqlDatabase").getMdbM
 export const getMdbMysqlDatabaseOutput: typeof import("./getMdbMysqlDatabase").getMdbMysqlDatabaseOutput = null as any;
 utilities.lazyLoad(exports, ["getMdbMysqlDatabase","getMdbMysqlDatabaseOutput"], () => require("./getMdbMysqlDatabase"));
 
+export { GetMdbMysqlDatabaseV2Args, GetMdbMysqlDatabaseV2Result, GetMdbMysqlDatabaseV2OutputArgs } from "./getMdbMysqlDatabaseV2";
+export const getMdbMysqlDatabaseV2: typeof import("./getMdbMysqlDatabaseV2").getMdbMysqlDatabaseV2 = null as any;
+export const getMdbMysqlDatabaseV2Output: typeof import("./getMdbMysqlDatabaseV2").getMdbMysqlDatabaseV2Output = null as any;
+utilities.lazyLoad(exports, ["getMdbMysqlDatabaseV2","getMdbMysqlDatabaseV2Output"], () => require("./getMdbMysqlDatabaseV2"));
+
 export { GetMdbMysqlUserArgs, GetMdbMysqlUserResult, GetMdbMysqlUserOutputArgs } from "./getMdbMysqlUser";
 export const getMdbMysqlUser: typeof import("./getMdbMysqlUser").getMdbMysqlUser = null as any;
 export const getMdbMysqlUserOutput: typeof import("./getMdbMysqlUser").getMdbMysqlUserOutput = null as any;
@@ -620,15 +805,25 @@ export const getMdbRedisCluster: typeof import("./getMdbRedisCluster").getMdbRed
 export const getMdbRedisClusterOutput: typeof import("./getMdbRedisCluster").getMdbRedisClusterOutput = null as any;
 utilities.lazyLoad(exports, ["getMdbRedisCluster","getMdbRedisClusterOutput"], () => require("./getMdbRedisCluster"));
 
-export { GetMdbSqlserverClusterArgs, GetMdbSqlserverClusterResult, GetMdbSqlserverClusterOutputArgs } from "./getMdbSqlserverCluster";
-export const getMdbSqlserverCluster: typeof import("./getMdbSqlserverCluster").getMdbSqlserverCluster = null as any;
-export const getMdbSqlserverClusterOutput: typeof import("./getMdbSqlserverCluster").getMdbSqlserverClusterOutput = null as any;
-utilities.lazyLoad(exports, ["getMdbSqlserverCluster","getMdbSqlserverClusterOutput"], () => require("./getMdbSqlserverCluster"));
+export { GetMdbRedisClusterV2Args, GetMdbRedisClusterV2Result, GetMdbRedisClusterV2OutputArgs } from "./getMdbRedisClusterV2";
+export const getMdbRedisClusterV2: typeof import("./getMdbRedisClusterV2").getMdbRedisClusterV2 = null as any;
+export const getMdbRedisClusterV2Output: typeof import("./getMdbRedisClusterV2").getMdbRedisClusterV2Output = null as any;
+utilities.lazyLoad(exports, ["getMdbRedisClusterV2","getMdbRedisClusterV2Output"], () => require("./getMdbRedisClusterV2"));
+
+export { GetMdbRedisUserArgs, GetMdbRedisUserResult, GetMdbRedisUserOutputArgs } from "./getMdbRedisUser";
+export const getMdbRedisUser: typeof import("./getMdbRedisUser").getMdbRedisUser = null as any;
+export const getMdbRedisUserOutput: typeof import("./getMdbRedisUser").getMdbRedisUserOutput = null as any;
+utilities.lazyLoad(exports, ["getMdbRedisUser","getMdbRedisUserOutput"], () => require("./getMdbRedisUser"));
 
 export { GetMessageQueueArgs, GetMessageQueueResult, GetMessageQueueOutputArgs } from "./getMessageQueue";
 export const getMessageQueue: typeof import("./getMessageQueue").getMessageQueue = null as any;
 export const getMessageQueueOutput: typeof import("./getMessageQueue").getMessageQueueOutput = null as any;
 utilities.lazyLoad(exports, ["getMessageQueue","getMessageQueueOutput"], () => require("./getMessageQueue"));
+
+export { GetMetastoreClusterArgs, GetMetastoreClusterResult, GetMetastoreClusterOutputArgs } from "./getMetastoreCluster";
+export const getMetastoreCluster: typeof import("./getMetastoreCluster").getMetastoreCluster = null as any;
+export const getMetastoreClusterOutput: typeof import("./getMetastoreCluster").getMetastoreClusterOutput = null as any;
+utilities.lazyLoad(exports, ["getMetastoreCluster","getMetastoreClusterOutput"], () => require("./getMetastoreCluster"));
 
 export { GetMonitoringDashboardArgs, GetMonitoringDashboardResult, GetMonitoringDashboardOutputArgs } from "./getMonitoringDashboard";
 export const getMonitoringDashboard: typeof import("./getMonitoringDashboard").getMonitoringDashboard = null as any;
@@ -639,6 +834,36 @@ export { GetOrganizationmanagerGroupArgs, GetOrganizationmanagerGroupResult, Get
 export const getOrganizationmanagerGroup: typeof import("./getOrganizationmanagerGroup").getOrganizationmanagerGroup = null as any;
 export const getOrganizationmanagerGroupOutput: typeof import("./getOrganizationmanagerGroup").getOrganizationmanagerGroupOutput = null as any;
 utilities.lazyLoad(exports, ["getOrganizationmanagerGroup","getOrganizationmanagerGroupOutput"], () => require("./getOrganizationmanagerGroup"));
+
+export { GetOrganizationmanagerIdpApplicationOauthApplicationArgs, GetOrganizationmanagerIdpApplicationOauthApplicationResult, GetOrganizationmanagerIdpApplicationOauthApplicationOutputArgs } from "./getOrganizationmanagerIdpApplicationOauthApplication";
+export const getOrganizationmanagerIdpApplicationOauthApplication: typeof import("./getOrganizationmanagerIdpApplicationOauthApplication").getOrganizationmanagerIdpApplicationOauthApplication = null as any;
+export const getOrganizationmanagerIdpApplicationOauthApplicationOutput: typeof import("./getOrganizationmanagerIdpApplicationOauthApplication").getOrganizationmanagerIdpApplicationOauthApplicationOutput = null as any;
+utilities.lazyLoad(exports, ["getOrganizationmanagerIdpApplicationOauthApplication","getOrganizationmanagerIdpApplicationOauthApplicationOutput"], () => require("./getOrganizationmanagerIdpApplicationOauthApplication"));
+
+export { GetOrganizationmanagerIdpApplicationSamlApplicationArgs, GetOrganizationmanagerIdpApplicationSamlApplicationResult, GetOrganizationmanagerIdpApplicationSamlApplicationOutputArgs } from "./getOrganizationmanagerIdpApplicationSamlApplication";
+export const getOrganizationmanagerIdpApplicationSamlApplication: typeof import("./getOrganizationmanagerIdpApplicationSamlApplication").getOrganizationmanagerIdpApplicationSamlApplication = null as any;
+export const getOrganizationmanagerIdpApplicationSamlApplicationOutput: typeof import("./getOrganizationmanagerIdpApplicationSamlApplication").getOrganizationmanagerIdpApplicationSamlApplicationOutput = null as any;
+utilities.lazyLoad(exports, ["getOrganizationmanagerIdpApplicationSamlApplication","getOrganizationmanagerIdpApplicationSamlApplicationOutput"], () => require("./getOrganizationmanagerIdpApplicationSamlApplication"));
+
+export { GetOrganizationmanagerIdpApplicationSamlSignatureCertificateArgs, GetOrganizationmanagerIdpApplicationSamlSignatureCertificateResult, GetOrganizationmanagerIdpApplicationSamlSignatureCertificateOutputArgs } from "./getOrganizationmanagerIdpApplicationSamlSignatureCertificate";
+export const getOrganizationmanagerIdpApplicationSamlSignatureCertificate: typeof import("./getOrganizationmanagerIdpApplicationSamlSignatureCertificate").getOrganizationmanagerIdpApplicationSamlSignatureCertificate = null as any;
+export const getOrganizationmanagerIdpApplicationSamlSignatureCertificateOutput: typeof import("./getOrganizationmanagerIdpApplicationSamlSignatureCertificate").getOrganizationmanagerIdpApplicationSamlSignatureCertificateOutput = null as any;
+utilities.lazyLoad(exports, ["getOrganizationmanagerIdpApplicationSamlSignatureCertificate","getOrganizationmanagerIdpApplicationSamlSignatureCertificateOutput"], () => require("./getOrganizationmanagerIdpApplicationSamlSignatureCertificate"));
+
+export { GetOrganizationmanagerIdpUserArgs, GetOrganizationmanagerIdpUserResult, GetOrganizationmanagerIdpUserOutputArgs } from "./getOrganizationmanagerIdpUser";
+export const getOrganizationmanagerIdpUser: typeof import("./getOrganizationmanagerIdpUser").getOrganizationmanagerIdpUser = null as any;
+export const getOrganizationmanagerIdpUserOutput: typeof import("./getOrganizationmanagerIdpUser").getOrganizationmanagerIdpUserOutput = null as any;
+utilities.lazyLoad(exports, ["getOrganizationmanagerIdpUser","getOrganizationmanagerIdpUserOutput"], () => require("./getOrganizationmanagerIdpUser"));
+
+export { GetOrganizationmanagerIdpUserpoolArgs, GetOrganizationmanagerIdpUserpoolResult, GetOrganizationmanagerIdpUserpoolOutputArgs } from "./getOrganizationmanagerIdpUserpool";
+export const getOrganizationmanagerIdpUserpool: typeof import("./getOrganizationmanagerIdpUserpool").getOrganizationmanagerIdpUserpool = null as any;
+export const getOrganizationmanagerIdpUserpoolOutput: typeof import("./getOrganizationmanagerIdpUserpool").getOrganizationmanagerIdpUserpoolOutput = null as any;
+utilities.lazyLoad(exports, ["getOrganizationmanagerIdpUserpool","getOrganizationmanagerIdpUserpoolOutput"], () => require("./getOrganizationmanagerIdpUserpool"));
+
+export { GetOrganizationmanagerMfaEnforcementArgs, GetOrganizationmanagerMfaEnforcementResult, GetOrganizationmanagerMfaEnforcementOutputArgs } from "./getOrganizationmanagerMfaEnforcement";
+export const getOrganizationmanagerMfaEnforcement: typeof import("./getOrganizationmanagerMfaEnforcement").getOrganizationmanagerMfaEnforcement = null as any;
+export const getOrganizationmanagerMfaEnforcementOutput: typeof import("./getOrganizationmanagerMfaEnforcement").getOrganizationmanagerMfaEnforcementOutput = null as any;
+utilities.lazyLoad(exports, ["getOrganizationmanagerMfaEnforcement","getOrganizationmanagerMfaEnforcementOutput"], () => require("./getOrganizationmanagerMfaEnforcement"));
 
 export { GetOrganizationmanagerOsLoginSettingsArgs, GetOrganizationmanagerOsLoginSettingsResult, GetOrganizationmanagerOsLoginSettingsOutputArgs } from "./getOrganizationmanagerOsLoginSettings";
 export const getOrganizationmanagerOsLoginSettings: typeof import("./getOrganizationmanagerOsLoginSettings").getOrganizationmanagerOsLoginSettings = null as any;
@@ -675,15 +900,65 @@ export const getServerlessContainer: typeof import("./getServerlessContainer").g
 export const getServerlessContainerOutput: typeof import("./getServerlessContainer").getServerlessContainerOutput = null as any;
 utilities.lazyLoad(exports, ["getServerlessContainer","getServerlessContainerOutput"], () => require("./getServerlessContainer"));
 
+export { GetServerlessEventrouterBusArgs, GetServerlessEventrouterBusResult, GetServerlessEventrouterBusOutputArgs } from "./getServerlessEventrouterBus";
+export const getServerlessEventrouterBus: typeof import("./getServerlessEventrouterBus").getServerlessEventrouterBus = null as any;
+export const getServerlessEventrouterBusOutput: typeof import("./getServerlessEventrouterBus").getServerlessEventrouterBusOutput = null as any;
+utilities.lazyLoad(exports, ["getServerlessEventrouterBus","getServerlessEventrouterBusOutput"], () => require("./getServerlessEventrouterBus"));
+
+export { GetServerlessEventrouterConnectorArgs, GetServerlessEventrouterConnectorResult, GetServerlessEventrouterConnectorOutputArgs } from "./getServerlessEventrouterConnector";
+export const getServerlessEventrouterConnector: typeof import("./getServerlessEventrouterConnector").getServerlessEventrouterConnector = null as any;
+export const getServerlessEventrouterConnectorOutput: typeof import("./getServerlessEventrouterConnector").getServerlessEventrouterConnectorOutput = null as any;
+utilities.lazyLoad(exports, ["getServerlessEventrouterConnector","getServerlessEventrouterConnectorOutput"], () => require("./getServerlessEventrouterConnector"));
+
+export { GetServerlessEventrouterRuleArgs, GetServerlessEventrouterRuleResult, GetServerlessEventrouterRuleOutputArgs } from "./getServerlessEventrouterRule";
+export const getServerlessEventrouterRule: typeof import("./getServerlessEventrouterRule").getServerlessEventrouterRule = null as any;
+export const getServerlessEventrouterRuleOutput: typeof import("./getServerlessEventrouterRule").getServerlessEventrouterRuleOutput = null as any;
+utilities.lazyLoad(exports, ["getServerlessEventrouterRule","getServerlessEventrouterRuleOutput"], () => require("./getServerlessEventrouterRule"));
+
 export { GetSmartcaptchaCaptchaArgs, GetSmartcaptchaCaptchaResult, GetSmartcaptchaCaptchaOutputArgs } from "./getSmartcaptchaCaptcha";
 export const getSmartcaptchaCaptcha: typeof import("./getSmartcaptchaCaptcha").getSmartcaptchaCaptcha = null as any;
 export const getSmartcaptchaCaptchaOutput: typeof import("./getSmartcaptchaCaptcha").getSmartcaptchaCaptchaOutput = null as any;
 utilities.lazyLoad(exports, ["getSmartcaptchaCaptcha","getSmartcaptchaCaptchaOutput"], () => require("./getSmartcaptchaCaptcha"));
 
+export { GetSparkClusterArgs, GetSparkClusterResult, GetSparkClusterOutputArgs } from "./getSparkCluster";
+export const getSparkCluster: typeof import("./getSparkCluster").getSparkCluster = null as any;
+export const getSparkClusterOutput: typeof import("./getSparkCluster").getSparkClusterOutput = null as any;
+utilities.lazyLoad(exports, ["getSparkCluster","getSparkClusterOutput"], () => require("./getSparkCluster"));
+
+export { GetSwsAdvancedRateLimiterProfileArgs, GetSwsAdvancedRateLimiterProfileResult, GetSwsAdvancedRateLimiterProfileOutputArgs } from "./getSwsAdvancedRateLimiterProfile";
+export const getSwsAdvancedRateLimiterProfile: typeof import("./getSwsAdvancedRateLimiterProfile").getSwsAdvancedRateLimiterProfile = null as any;
+export const getSwsAdvancedRateLimiterProfileOutput: typeof import("./getSwsAdvancedRateLimiterProfile").getSwsAdvancedRateLimiterProfileOutput = null as any;
+utilities.lazyLoad(exports, ["getSwsAdvancedRateLimiterProfile","getSwsAdvancedRateLimiterProfileOutput"], () => require("./getSwsAdvancedRateLimiterProfile"));
+
 export { GetSwsSecurityProfileArgs, GetSwsSecurityProfileResult, GetSwsSecurityProfileOutputArgs } from "./getSwsSecurityProfile";
 export const getSwsSecurityProfile: typeof import("./getSwsSecurityProfile").getSwsSecurityProfile = null as any;
 export const getSwsSecurityProfileOutput: typeof import("./getSwsSecurityProfile").getSwsSecurityProfileOutput = null as any;
 utilities.lazyLoad(exports, ["getSwsSecurityProfile","getSwsSecurityProfileOutput"], () => require("./getSwsSecurityProfile"));
+
+export { GetSwsWafProfileArgs, GetSwsWafProfileResult, GetSwsWafProfileOutputArgs } from "./getSwsWafProfile";
+export const getSwsWafProfile: typeof import("./getSwsWafProfile").getSwsWafProfile = null as any;
+export const getSwsWafProfileOutput: typeof import("./getSwsWafProfile").getSwsWafProfileOutput = null as any;
+utilities.lazyLoad(exports, ["getSwsWafProfile","getSwsWafProfileOutput"], () => require("./getSwsWafProfile"));
+
+export { GetSwsWafRuleSetDescriptorArgs, GetSwsWafRuleSetDescriptorResult, GetSwsWafRuleSetDescriptorOutputArgs } from "./getSwsWafRuleSetDescriptor";
+export const getSwsWafRuleSetDescriptor: typeof import("./getSwsWafRuleSetDescriptor").getSwsWafRuleSetDescriptor = null as any;
+export const getSwsWafRuleSetDescriptorOutput: typeof import("./getSwsWafRuleSetDescriptor").getSwsWafRuleSetDescriptorOutput = null as any;
+utilities.lazyLoad(exports, ["getSwsWafRuleSetDescriptor","getSwsWafRuleSetDescriptorOutput"], () => require("./getSwsWafRuleSetDescriptor"));
+
+export { GetTrinoAccessControlArgs, GetTrinoAccessControlResult, GetTrinoAccessControlOutputArgs } from "./getTrinoAccessControl";
+export const getTrinoAccessControl: typeof import("./getTrinoAccessControl").getTrinoAccessControl = null as any;
+export const getTrinoAccessControlOutput: typeof import("./getTrinoAccessControl").getTrinoAccessControlOutput = null as any;
+utilities.lazyLoad(exports, ["getTrinoAccessControl","getTrinoAccessControlOutput"], () => require("./getTrinoAccessControl"));
+
+export { GetTrinoCatalogArgs, GetTrinoCatalogResult, GetTrinoCatalogOutputArgs } from "./getTrinoCatalog";
+export const getTrinoCatalog: typeof import("./getTrinoCatalog").getTrinoCatalog = null as any;
+export const getTrinoCatalogOutput: typeof import("./getTrinoCatalog").getTrinoCatalogOutput = null as any;
+utilities.lazyLoad(exports, ["getTrinoCatalog","getTrinoCatalogOutput"], () => require("./getTrinoCatalog"));
+
+export { GetTrinoClusterArgs, GetTrinoClusterResult, GetTrinoClusterOutputArgs } from "./getTrinoCluster";
+export const getTrinoCluster: typeof import("./getTrinoCluster").getTrinoCluster = null as any;
+export const getTrinoClusterOutput: typeof import("./getTrinoCluster").getTrinoClusterOutput = null as any;
+utilities.lazyLoad(exports, ["getTrinoCluster","getTrinoClusterOutput"], () => require("./getTrinoCluster"));
 
 export { GetVpcAddressArgs, GetVpcAddressResult, GetVpcAddressOutputArgs } from "./getVpcAddress";
 export const getVpcAddress: typeof import("./getVpcAddress").getVpcAddress = null as any;
@@ -699,6 +974,11 @@ export { GetVpcNetworkArgs, GetVpcNetworkResult, GetVpcNetworkOutputArgs } from 
 export const getVpcNetwork: typeof import("./getVpcNetwork").getVpcNetwork = null as any;
 export const getVpcNetworkOutput: typeof import("./getVpcNetwork").getVpcNetworkOutput = null as any;
 utilities.lazyLoad(exports, ["getVpcNetwork","getVpcNetworkOutput"], () => require("./getVpcNetwork"));
+
+export { GetVpcPrivateEndpointArgs, GetVpcPrivateEndpointResult, GetVpcPrivateEndpointOutputArgs } from "./getVpcPrivateEndpoint";
+export const getVpcPrivateEndpoint: typeof import("./getVpcPrivateEndpoint").getVpcPrivateEndpoint = null as any;
+export const getVpcPrivateEndpointOutput: typeof import("./getVpcPrivateEndpoint").getVpcPrivateEndpointOutput = null as any;
+utilities.lazyLoad(exports, ["getVpcPrivateEndpoint","getVpcPrivateEndpointOutput"], () => require("./getVpcPrivateEndpoint"));
 
 export { GetVpcRouteTableArgs, GetVpcRouteTableResult, GetVpcRouteTableOutputArgs } from "./getVpcRouteTable";
 export const getVpcRouteTable: typeof import("./getVpcRouteTable").getVpcRouteTable = null as any;
@@ -729,6 +1009,26 @@ export { GetYdbDatabaseServerlessArgs, GetYdbDatabaseServerlessResult, GetYdbDat
 export const getYdbDatabaseServerless: typeof import("./getYdbDatabaseServerless").getYdbDatabaseServerless = null as any;
 export const getYdbDatabaseServerlessOutput: typeof import("./getYdbDatabaseServerless").getYdbDatabaseServerlessOutput = null as any;
 utilities.lazyLoad(exports, ["getYdbDatabaseServerless","getYdbDatabaseServerlessOutput"], () => require("./getYdbDatabaseServerless"));
+
+export { GetYtsaurusClusterArgs, GetYtsaurusClusterResult, GetYtsaurusClusterOutputArgs } from "./getYtsaurusCluster";
+export const getYtsaurusCluster: typeof import("./getYtsaurusCluster").getYtsaurusCluster = null as any;
+export const getYtsaurusClusterOutput: typeof import("./getYtsaurusCluster").getYtsaurusClusterOutput = null as any;
+utilities.lazyLoad(exports, ["getYtsaurusCluster","getYtsaurusClusterOutput"], () => require("./getYtsaurusCluster"));
+
+export { GitlabInstanceArgs, GitlabInstanceState } from "./gitlabInstance";
+export type GitlabInstance = import("./gitlabInstance").GitlabInstance;
+export const GitlabInstance: typeof import("./gitlabInstance").GitlabInstance = null as any;
+utilities.lazyLoad(exports, ["GitlabInstance"], () => require("./gitlabInstance"));
+
+export { IamOauthClientArgs, IamOauthClientState } from "./iamOauthClient";
+export type IamOauthClient = import("./iamOauthClient").IamOauthClient;
+export const IamOauthClient: typeof import("./iamOauthClient").IamOauthClient = null as any;
+utilities.lazyLoad(exports, ["IamOauthClient"], () => require("./iamOauthClient"));
+
+export { IamOauthClientSecretArgs, IamOauthClientSecretState } from "./iamOauthClientSecret";
+export type IamOauthClientSecret = import("./iamOauthClientSecret").IamOauthClientSecret;
+export const IamOauthClientSecret: typeof import("./iamOauthClientSecret").IamOauthClientSecret = null as any;
+utilities.lazyLoad(exports, ["IamOauthClientSecret"], () => require("./iamOauthClientSecret"));
 
 export { IamServiceAccountArgs, IamServiceAccountState } from "./iamServiceAccount";
 export type IamServiceAccount = import("./iamServiceAccount").IamServiceAccount;
@@ -765,6 +1065,21 @@ export type IamServiceAccountStaticAccessKey = import("./iamServiceAccountStatic
 export const IamServiceAccountStaticAccessKey: typeof import("./iamServiceAccountStaticAccessKey").IamServiceAccountStaticAccessKey = null as any;
 utilities.lazyLoad(exports, ["IamServiceAccountStaticAccessKey"], () => require("./iamServiceAccountStaticAccessKey"));
 
+export { IamWorkloadIdentityFederatedCredentialArgs, IamWorkloadIdentityFederatedCredentialState } from "./iamWorkloadIdentityFederatedCredential";
+export type IamWorkloadIdentityFederatedCredential = import("./iamWorkloadIdentityFederatedCredential").IamWorkloadIdentityFederatedCredential;
+export const IamWorkloadIdentityFederatedCredential: typeof import("./iamWorkloadIdentityFederatedCredential").IamWorkloadIdentityFederatedCredential = null as any;
+utilities.lazyLoad(exports, ["IamWorkloadIdentityFederatedCredential"], () => require("./iamWorkloadIdentityFederatedCredential"));
+
+export { IamWorkloadIdentityOidcFederationArgs, IamWorkloadIdentityOidcFederationState } from "./iamWorkloadIdentityOidcFederation";
+export type IamWorkloadIdentityOidcFederation = import("./iamWorkloadIdentityOidcFederation").IamWorkloadIdentityOidcFederation;
+export const IamWorkloadIdentityOidcFederation: typeof import("./iamWorkloadIdentityOidcFederation").IamWorkloadIdentityOidcFederation = null as any;
+utilities.lazyLoad(exports, ["IamWorkloadIdentityOidcFederation"], () => require("./iamWorkloadIdentityOidcFederation"));
+
+export { IamWorkloadIdentityOidcFederationIamBindingArgs, IamWorkloadIdentityOidcFederationIamBindingState } from "./iamWorkloadIdentityOidcFederationIamBinding";
+export type IamWorkloadIdentityOidcFederationIamBinding = import("./iamWorkloadIdentityOidcFederationIamBinding").IamWorkloadIdentityOidcFederationIamBinding;
+export const IamWorkloadIdentityOidcFederationIamBinding: typeof import("./iamWorkloadIdentityOidcFederationIamBinding").IamWorkloadIdentityOidcFederationIamBinding = null as any;
+utilities.lazyLoad(exports, ["IamWorkloadIdentityOidcFederationIamBinding"], () => require("./iamWorkloadIdentityOidcFederationIamBinding"));
+
 export { IotCoreBrokerArgs, IotCoreBrokerState } from "./iotCoreBroker";
 export type IotCoreBroker = import("./iotCoreBroker").IotCoreBroker;
 export const IotCoreBroker: typeof import("./iotCoreBroker").IotCoreBroker = null as any;
@@ -790,6 +1105,11 @@ export type KmsAsymmetricEncryptionKeyIamBinding = import("./kmsAsymmetricEncryp
 export const KmsAsymmetricEncryptionKeyIamBinding: typeof import("./kmsAsymmetricEncryptionKeyIamBinding").KmsAsymmetricEncryptionKeyIamBinding = null as any;
 utilities.lazyLoad(exports, ["KmsAsymmetricEncryptionKeyIamBinding"], () => require("./kmsAsymmetricEncryptionKeyIamBinding"));
 
+export { KmsAsymmetricEncryptionKeyIamMemberArgs, KmsAsymmetricEncryptionKeyIamMemberState } from "./kmsAsymmetricEncryptionKeyIamMember";
+export type KmsAsymmetricEncryptionKeyIamMember = import("./kmsAsymmetricEncryptionKeyIamMember").KmsAsymmetricEncryptionKeyIamMember;
+export const KmsAsymmetricEncryptionKeyIamMember: typeof import("./kmsAsymmetricEncryptionKeyIamMember").KmsAsymmetricEncryptionKeyIamMember = null as any;
+utilities.lazyLoad(exports, ["KmsAsymmetricEncryptionKeyIamMember"], () => require("./kmsAsymmetricEncryptionKeyIamMember"));
+
 export { KmsAsymmetricSignatureKeyArgs, KmsAsymmetricSignatureKeyState } from "./kmsAsymmetricSignatureKey";
 export type KmsAsymmetricSignatureKey = import("./kmsAsymmetricSignatureKey").KmsAsymmetricSignatureKey;
 export const KmsAsymmetricSignatureKey: typeof import("./kmsAsymmetricSignatureKey").KmsAsymmetricSignatureKey = null as any;
@@ -799,6 +1119,11 @@ export { KmsAsymmetricSignatureKeyIamBindingArgs, KmsAsymmetricSignatureKeyIamBi
 export type KmsAsymmetricSignatureKeyIamBinding = import("./kmsAsymmetricSignatureKeyIamBinding").KmsAsymmetricSignatureKeyIamBinding;
 export const KmsAsymmetricSignatureKeyIamBinding: typeof import("./kmsAsymmetricSignatureKeyIamBinding").KmsAsymmetricSignatureKeyIamBinding = null as any;
 utilities.lazyLoad(exports, ["KmsAsymmetricSignatureKeyIamBinding"], () => require("./kmsAsymmetricSignatureKeyIamBinding"));
+
+export { KmsAsymmetricSignatureKeyIamMemberArgs, KmsAsymmetricSignatureKeyIamMemberState } from "./kmsAsymmetricSignatureKeyIamMember";
+export type KmsAsymmetricSignatureKeyIamMember = import("./kmsAsymmetricSignatureKeyIamMember").KmsAsymmetricSignatureKeyIamMember;
+export const KmsAsymmetricSignatureKeyIamMember: typeof import("./kmsAsymmetricSignatureKeyIamMember").KmsAsymmetricSignatureKeyIamMember = null as any;
+utilities.lazyLoad(exports, ["KmsAsymmetricSignatureKeyIamMember"], () => require("./kmsAsymmetricSignatureKeyIamMember"));
 
 export { KmsSecretCiphertextArgs, KmsSecretCiphertextState } from "./kmsSecretCiphertext";
 export type KmsSecretCiphertext = import("./kmsSecretCiphertext").KmsSecretCiphertext;
@@ -815,10 +1140,30 @@ export type KmsSymmetricKeyIamBinding = import("./kmsSymmetricKeyIamBinding").Km
 export const KmsSymmetricKeyIamBinding: typeof import("./kmsSymmetricKeyIamBinding").KmsSymmetricKeyIamBinding = null as any;
 utilities.lazyLoad(exports, ["KmsSymmetricKeyIamBinding"], () => require("./kmsSymmetricKeyIamBinding"));
 
+export { KmsSymmetricKeyIamMemberArgs, KmsSymmetricKeyIamMemberState } from "./kmsSymmetricKeyIamMember";
+export type KmsSymmetricKeyIamMember = import("./kmsSymmetricKeyIamMember").KmsSymmetricKeyIamMember;
+export const KmsSymmetricKeyIamMember: typeof import("./kmsSymmetricKeyIamMember").KmsSymmetricKeyIamMember = null as any;
+utilities.lazyLoad(exports, ["KmsSymmetricKeyIamMember"], () => require("./kmsSymmetricKeyIamMember"));
+
 export { KubernetesClusterArgs, KubernetesClusterState } from "./kubernetesCluster";
 export type KubernetesCluster = import("./kubernetesCluster").KubernetesCluster;
 export const KubernetesCluster: typeof import("./kubernetesCluster").KubernetesCluster = null as any;
 utilities.lazyLoad(exports, ["KubernetesCluster"], () => require("./kubernetesCluster"));
+
+export { KubernetesClusterIamBindingArgs, KubernetesClusterIamBindingState } from "./kubernetesClusterIamBinding";
+export type KubernetesClusterIamBinding = import("./kubernetesClusterIamBinding").KubernetesClusterIamBinding;
+export const KubernetesClusterIamBinding: typeof import("./kubernetesClusterIamBinding").KubernetesClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["KubernetesClusterIamBinding"], () => require("./kubernetesClusterIamBinding"));
+
+export { KubernetesClusterIamMemberArgs, KubernetesClusterIamMemberState } from "./kubernetesClusterIamMember";
+export type KubernetesClusterIamMember = import("./kubernetesClusterIamMember").KubernetesClusterIamMember;
+export const KubernetesClusterIamMember: typeof import("./kubernetesClusterIamMember").KubernetesClusterIamMember = null as any;
+utilities.lazyLoad(exports, ["KubernetesClusterIamMember"], () => require("./kubernetesClusterIamMember"));
+
+export { KubernetesMarketplaceHelmReleaseArgs, KubernetesMarketplaceHelmReleaseState } from "./kubernetesMarketplaceHelmRelease";
+export type KubernetesMarketplaceHelmRelease = import("./kubernetesMarketplaceHelmRelease").KubernetesMarketplaceHelmRelease;
+export const KubernetesMarketplaceHelmRelease: typeof import("./kubernetesMarketplaceHelmRelease").KubernetesMarketplaceHelmRelease = null as any;
+utilities.lazyLoad(exports, ["KubernetesMarketplaceHelmRelease"], () => require("./kubernetesMarketplaceHelmRelease"));
 
 export { KubernetesNodeGroupArgs, KubernetesNodeGroupState } from "./kubernetesNodeGroup";
 export type KubernetesNodeGroup = import("./kubernetesNodeGroup").KubernetesNodeGroup;
@@ -850,6 +1195,11 @@ export type LockboxSecretIamBinding = import("./lockboxSecretIamBinding").Lockbo
 export const LockboxSecretIamBinding: typeof import("./lockboxSecretIamBinding").LockboxSecretIamBinding = null as any;
 utilities.lazyLoad(exports, ["LockboxSecretIamBinding"], () => require("./lockboxSecretIamBinding"));
 
+export { LockboxSecretIamMemberArgs, LockboxSecretIamMemberState } from "./lockboxSecretIamMember";
+export type LockboxSecretIamMember = import("./lockboxSecretIamMember").LockboxSecretIamMember;
+export const LockboxSecretIamMember: typeof import("./lockboxSecretIamMember").LockboxSecretIamMember = null as any;
+utilities.lazyLoad(exports, ["LockboxSecretIamMember"], () => require("./lockboxSecretIamMember"));
+
 export { LockboxSecretVersionArgs, LockboxSecretVersionState } from "./lockboxSecretVersion";
 export type LockboxSecretVersion = import("./lockboxSecretVersion").LockboxSecretVersion;
 export const LockboxSecretVersion: typeof import("./lockboxSecretVersion").LockboxSecretVersion = null as any;
@@ -870,20 +1220,60 @@ export type MdbClickhouseCluster = import("./mdbClickhouseCluster").MdbClickhous
 export const MdbClickhouseCluster: typeof import("./mdbClickhouseCluster").MdbClickhouseCluster = null as any;
 utilities.lazyLoad(exports, ["MdbClickhouseCluster"], () => require("./mdbClickhouseCluster"));
 
-export { MdbElasticsearchClusterArgs, MdbElasticsearchClusterState } from "./mdbElasticsearchCluster";
-export type MdbElasticsearchCluster = import("./mdbElasticsearchCluster").MdbElasticsearchCluster;
-export const MdbElasticsearchCluster: typeof import("./mdbElasticsearchCluster").MdbElasticsearchCluster = null as any;
-utilities.lazyLoad(exports, ["MdbElasticsearchCluster"], () => require("./mdbElasticsearchCluster"));
+export { MdbClickhouseClusterIamBindingArgs, MdbClickhouseClusterIamBindingState } from "./mdbClickhouseClusterIamBinding";
+export type MdbClickhouseClusterIamBinding = import("./mdbClickhouseClusterIamBinding").MdbClickhouseClusterIamBinding;
+export const MdbClickhouseClusterIamBinding: typeof import("./mdbClickhouseClusterIamBinding").MdbClickhouseClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbClickhouseClusterIamBinding"], () => require("./mdbClickhouseClusterIamBinding"));
+
+export { MdbClickhouseClusterV2Args, MdbClickhouseClusterV2State } from "./mdbClickhouseClusterV2";
+export type MdbClickhouseClusterV2 = import("./mdbClickhouseClusterV2").MdbClickhouseClusterV2;
+export const MdbClickhouseClusterV2: typeof import("./mdbClickhouseClusterV2").MdbClickhouseClusterV2 = null as any;
+utilities.lazyLoad(exports, ["MdbClickhouseClusterV2"], () => require("./mdbClickhouseClusterV2"));
+
+export { MdbClickhouseDatabaseArgs, MdbClickhouseDatabaseState } from "./mdbClickhouseDatabase";
+export type MdbClickhouseDatabase = import("./mdbClickhouseDatabase").MdbClickhouseDatabase;
+export const MdbClickhouseDatabase: typeof import("./mdbClickhouseDatabase").MdbClickhouseDatabase = null as any;
+utilities.lazyLoad(exports, ["MdbClickhouseDatabase"], () => require("./mdbClickhouseDatabase"));
+
+export { MdbClickhouseUserArgs, MdbClickhouseUserState } from "./mdbClickhouseUser";
+export type MdbClickhouseUser = import("./mdbClickhouseUser").MdbClickhouseUser;
+export const MdbClickhouseUser: typeof import("./mdbClickhouseUser").MdbClickhouseUser = null as any;
+utilities.lazyLoad(exports, ["MdbClickhouseUser"], () => require("./mdbClickhouseUser"));
 
 export { MdbGreenplumClusterArgs, MdbGreenplumClusterState } from "./mdbGreenplumCluster";
 export type MdbGreenplumCluster = import("./mdbGreenplumCluster").MdbGreenplumCluster;
 export const MdbGreenplumCluster: typeof import("./mdbGreenplumCluster").MdbGreenplumCluster = null as any;
 utilities.lazyLoad(exports, ["MdbGreenplumCluster"], () => require("./mdbGreenplumCluster"));
 
+export { MdbGreenplumClusterIamBindingArgs, MdbGreenplumClusterIamBindingState } from "./mdbGreenplumClusterIamBinding";
+export type MdbGreenplumClusterIamBinding = import("./mdbGreenplumClusterIamBinding").MdbGreenplumClusterIamBinding;
+export const MdbGreenplumClusterIamBinding: typeof import("./mdbGreenplumClusterIamBinding").MdbGreenplumClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbGreenplumClusterIamBinding"], () => require("./mdbGreenplumClusterIamBinding"));
+
+export { MdbGreenplumClusterV2Args, MdbGreenplumClusterV2State } from "./mdbGreenplumClusterV2";
+export type MdbGreenplumClusterV2 = import("./mdbGreenplumClusterV2").MdbGreenplumClusterV2;
+export const MdbGreenplumClusterV2: typeof import("./mdbGreenplumClusterV2").MdbGreenplumClusterV2 = null as any;
+utilities.lazyLoad(exports, ["MdbGreenplumClusterV2"], () => require("./mdbGreenplumClusterV2"));
+
+export { MdbGreenplumResourceGroupArgs, MdbGreenplumResourceGroupState } from "./mdbGreenplumResourceGroup";
+export type MdbGreenplumResourceGroup = import("./mdbGreenplumResourceGroup").MdbGreenplumResourceGroup;
+export const MdbGreenplumResourceGroup: typeof import("./mdbGreenplumResourceGroup").MdbGreenplumResourceGroup = null as any;
+utilities.lazyLoad(exports, ["MdbGreenplumResourceGroup"], () => require("./mdbGreenplumResourceGroup"));
+
+export { MdbGreenplumUserArgs, MdbGreenplumUserState } from "./mdbGreenplumUser";
+export type MdbGreenplumUser = import("./mdbGreenplumUser").MdbGreenplumUser;
+export const MdbGreenplumUser: typeof import("./mdbGreenplumUser").MdbGreenplumUser = null as any;
+utilities.lazyLoad(exports, ["MdbGreenplumUser"], () => require("./mdbGreenplumUser"));
+
 export { MdbKafkaClusterArgs, MdbKafkaClusterState } from "./mdbKafkaCluster";
 export type MdbKafkaCluster = import("./mdbKafkaCluster").MdbKafkaCluster;
 export const MdbKafkaCluster: typeof import("./mdbKafkaCluster").MdbKafkaCluster = null as any;
 utilities.lazyLoad(exports, ["MdbKafkaCluster"], () => require("./mdbKafkaCluster"));
+
+export { MdbKafkaClusterIamBindingArgs, MdbKafkaClusterIamBindingState } from "./mdbKafkaClusterIamBinding";
+export type MdbKafkaClusterIamBinding = import("./mdbKafkaClusterIamBinding").MdbKafkaClusterIamBinding;
+export const MdbKafkaClusterIamBinding: typeof import("./mdbKafkaClusterIamBinding").MdbKafkaClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbKafkaClusterIamBinding"], () => require("./mdbKafkaClusterIamBinding"));
 
 export { MdbKafkaConnectorArgs, MdbKafkaConnectorState } from "./mdbKafkaConnector";
 export type MdbKafkaConnector = import("./mdbKafkaConnector").MdbKafkaConnector;
@@ -905,6 +1295,11 @@ export type MdbMongodbCluster = import("./mdbMongodbCluster").MdbMongodbCluster;
 export const MdbMongodbCluster: typeof import("./mdbMongodbCluster").MdbMongodbCluster = null as any;
 utilities.lazyLoad(exports, ["MdbMongodbCluster"], () => require("./mdbMongodbCluster"));
 
+export { MdbMongodbClusterIamBindingArgs, MdbMongodbClusterIamBindingState } from "./mdbMongodbClusterIamBinding";
+export type MdbMongodbClusterIamBinding = import("./mdbMongodbClusterIamBinding").MdbMongodbClusterIamBinding;
+export const MdbMongodbClusterIamBinding: typeof import("./mdbMongodbClusterIamBinding").MdbMongodbClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbMongodbClusterIamBinding"], () => require("./mdbMongodbClusterIamBinding"));
+
 export { MdbMongodbDatabaseArgs, MdbMongodbDatabaseState } from "./mdbMongodbDatabase";
 export type MdbMongodbDatabase = import("./mdbMongodbDatabase").MdbMongodbDatabase;
 export const MdbMongodbDatabase: typeof import("./mdbMongodbDatabase").MdbMongodbDatabase = null as any;
@@ -920,10 +1315,25 @@ export type MdbMysqlCluster = import("./mdbMysqlCluster").MdbMysqlCluster;
 export const MdbMysqlCluster: typeof import("./mdbMysqlCluster").MdbMysqlCluster = null as any;
 utilities.lazyLoad(exports, ["MdbMysqlCluster"], () => require("./mdbMysqlCluster"));
 
+export { MdbMysqlClusterIamBindingArgs, MdbMysqlClusterIamBindingState } from "./mdbMysqlClusterIamBinding";
+export type MdbMysqlClusterIamBinding = import("./mdbMysqlClusterIamBinding").MdbMysqlClusterIamBinding;
+export const MdbMysqlClusterIamBinding: typeof import("./mdbMysqlClusterIamBinding").MdbMysqlClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbMysqlClusterIamBinding"], () => require("./mdbMysqlClusterIamBinding"));
+
+export { MdbMysqlClusterV2Args, MdbMysqlClusterV2State } from "./mdbMysqlClusterV2";
+export type MdbMysqlClusterV2 = import("./mdbMysqlClusterV2").MdbMysqlClusterV2;
+export const MdbMysqlClusterV2: typeof import("./mdbMysqlClusterV2").MdbMysqlClusterV2 = null as any;
+utilities.lazyLoad(exports, ["MdbMysqlClusterV2"], () => require("./mdbMysqlClusterV2"));
+
 export { MdbMysqlDatabaseArgs, MdbMysqlDatabaseState } from "./mdbMysqlDatabase";
 export type MdbMysqlDatabase = import("./mdbMysqlDatabase").MdbMysqlDatabase;
 export const MdbMysqlDatabase: typeof import("./mdbMysqlDatabase").MdbMysqlDatabase = null as any;
 utilities.lazyLoad(exports, ["MdbMysqlDatabase"], () => require("./mdbMysqlDatabase"));
+
+export { MdbMysqlDatabaseV2Args, MdbMysqlDatabaseV2State } from "./mdbMysqlDatabaseV2";
+export type MdbMysqlDatabaseV2 = import("./mdbMysqlDatabaseV2").MdbMysqlDatabaseV2;
+export const MdbMysqlDatabaseV2: typeof import("./mdbMysqlDatabaseV2").MdbMysqlDatabaseV2 = null as any;
+utilities.lazyLoad(exports, ["MdbMysqlDatabaseV2"], () => require("./mdbMysqlDatabaseV2"));
 
 export { MdbMysqlUserArgs, MdbMysqlUserState } from "./mdbMysqlUser";
 export type MdbMysqlUser = import("./mdbMysqlUser").MdbMysqlUser;
@@ -935,10 +1345,25 @@ export type MdbOpensearchCluster = import("./mdbOpensearchCluster").MdbOpensearc
 export const MdbOpensearchCluster: typeof import("./mdbOpensearchCluster").MdbOpensearchCluster = null as any;
 utilities.lazyLoad(exports, ["MdbOpensearchCluster"], () => require("./mdbOpensearchCluster"));
 
+export { MdbOpensearchClusterIamBindingArgs, MdbOpensearchClusterIamBindingState } from "./mdbOpensearchClusterIamBinding";
+export type MdbOpensearchClusterIamBinding = import("./mdbOpensearchClusterIamBinding").MdbOpensearchClusterIamBinding;
+export const MdbOpensearchClusterIamBinding: typeof import("./mdbOpensearchClusterIamBinding").MdbOpensearchClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbOpensearchClusterIamBinding"], () => require("./mdbOpensearchClusterIamBinding"));
+
 export { MdbPostgresqlClusterArgs, MdbPostgresqlClusterState } from "./mdbPostgresqlCluster";
 export type MdbPostgresqlCluster = import("./mdbPostgresqlCluster").MdbPostgresqlCluster;
 export const MdbPostgresqlCluster: typeof import("./mdbPostgresqlCluster").MdbPostgresqlCluster = null as any;
 utilities.lazyLoad(exports, ["MdbPostgresqlCluster"], () => require("./mdbPostgresqlCluster"));
+
+export { MdbPostgresqlClusterIamBindingArgs, MdbPostgresqlClusterIamBindingState } from "./mdbPostgresqlClusterIamBinding";
+export type MdbPostgresqlClusterIamBinding = import("./mdbPostgresqlClusterIamBinding").MdbPostgresqlClusterIamBinding;
+export const MdbPostgresqlClusterIamBinding: typeof import("./mdbPostgresqlClusterIamBinding").MdbPostgresqlClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbPostgresqlClusterIamBinding"], () => require("./mdbPostgresqlClusterIamBinding"));
+
+export { MdbPostgresqlClusterV2Args, MdbPostgresqlClusterV2State } from "./mdbPostgresqlClusterV2";
+export type MdbPostgresqlClusterV2 = import("./mdbPostgresqlClusterV2").MdbPostgresqlClusterV2;
+export const MdbPostgresqlClusterV2: typeof import("./mdbPostgresqlClusterV2").MdbPostgresqlClusterV2 = null as any;
+utilities.lazyLoad(exports, ["MdbPostgresqlClusterV2"], () => require("./mdbPostgresqlClusterV2"));
 
 export { MdbPostgresqlDatabaseArgs, MdbPostgresqlDatabaseState } from "./mdbPostgresqlDatabase";
 export type MdbPostgresqlDatabase = import("./mdbPostgresqlDatabase").MdbPostgresqlDatabase;
@@ -955,15 +1380,60 @@ export type MdbRedisCluster = import("./mdbRedisCluster").MdbRedisCluster;
 export const MdbRedisCluster: typeof import("./mdbRedisCluster").MdbRedisCluster = null as any;
 utilities.lazyLoad(exports, ["MdbRedisCluster"], () => require("./mdbRedisCluster"));
 
-export { MdbSqlserverClusterArgs, MdbSqlserverClusterState } from "./mdbSqlserverCluster";
-export type MdbSqlserverCluster = import("./mdbSqlserverCluster").MdbSqlserverCluster;
-export const MdbSqlserverCluster: typeof import("./mdbSqlserverCluster").MdbSqlserverCluster = null as any;
-utilities.lazyLoad(exports, ["MdbSqlserverCluster"], () => require("./mdbSqlserverCluster"));
+export { MdbRedisClusterIamBindingArgs, MdbRedisClusterIamBindingState } from "./mdbRedisClusterIamBinding";
+export type MdbRedisClusterIamBinding = import("./mdbRedisClusterIamBinding").MdbRedisClusterIamBinding;
+export const MdbRedisClusterIamBinding: typeof import("./mdbRedisClusterIamBinding").MdbRedisClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbRedisClusterIamBinding"], () => require("./mdbRedisClusterIamBinding"));
+
+export { MdbRedisClusterV2Args, MdbRedisClusterV2State } from "./mdbRedisClusterV2";
+export type MdbRedisClusterV2 = import("./mdbRedisClusterV2").MdbRedisClusterV2;
+export const MdbRedisClusterV2: typeof import("./mdbRedisClusterV2").MdbRedisClusterV2 = null as any;
+utilities.lazyLoad(exports, ["MdbRedisClusterV2"], () => require("./mdbRedisClusterV2"));
+
+export { MdbRedisUserArgs, MdbRedisUserState } from "./mdbRedisUser";
+export type MdbRedisUser = import("./mdbRedisUser").MdbRedisUser;
+export const MdbRedisUser: typeof import("./mdbRedisUser").MdbRedisUser = null as any;
+utilities.lazyLoad(exports, ["MdbRedisUser"], () => require("./mdbRedisUser"));
+
+export { MdbShardedPostgresqlClusterArgs, MdbShardedPostgresqlClusterState } from "./mdbShardedPostgresqlCluster";
+export type MdbShardedPostgresqlCluster = import("./mdbShardedPostgresqlCluster").MdbShardedPostgresqlCluster;
+export const MdbShardedPostgresqlCluster: typeof import("./mdbShardedPostgresqlCluster").MdbShardedPostgresqlCluster = null as any;
+utilities.lazyLoad(exports, ["MdbShardedPostgresqlCluster"], () => require("./mdbShardedPostgresqlCluster"));
+
+export { MdbShardedPostgresqlClusterIamBindingArgs, MdbShardedPostgresqlClusterIamBindingState } from "./mdbShardedPostgresqlClusterIamBinding";
+export type MdbShardedPostgresqlClusterIamBinding = import("./mdbShardedPostgresqlClusterIamBinding").MdbShardedPostgresqlClusterIamBinding;
+export const MdbShardedPostgresqlClusterIamBinding: typeof import("./mdbShardedPostgresqlClusterIamBinding").MdbShardedPostgresqlClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MdbShardedPostgresqlClusterIamBinding"], () => require("./mdbShardedPostgresqlClusterIamBinding"));
+
+export { MdbShardedPostgresqlDatabaseArgs, MdbShardedPostgresqlDatabaseState } from "./mdbShardedPostgresqlDatabase";
+export type MdbShardedPostgresqlDatabase = import("./mdbShardedPostgresqlDatabase").MdbShardedPostgresqlDatabase;
+export const MdbShardedPostgresqlDatabase: typeof import("./mdbShardedPostgresqlDatabase").MdbShardedPostgresqlDatabase = null as any;
+utilities.lazyLoad(exports, ["MdbShardedPostgresqlDatabase"], () => require("./mdbShardedPostgresqlDatabase"));
+
+export { MdbShardedPostgresqlShardArgs, MdbShardedPostgresqlShardState } from "./mdbShardedPostgresqlShard";
+export type MdbShardedPostgresqlShard = import("./mdbShardedPostgresqlShard").MdbShardedPostgresqlShard;
+export const MdbShardedPostgresqlShard: typeof import("./mdbShardedPostgresqlShard").MdbShardedPostgresqlShard = null as any;
+utilities.lazyLoad(exports, ["MdbShardedPostgresqlShard"], () => require("./mdbShardedPostgresqlShard"));
+
+export { MdbShardedPostgresqlUserArgs, MdbShardedPostgresqlUserState } from "./mdbShardedPostgresqlUser";
+export type MdbShardedPostgresqlUser = import("./mdbShardedPostgresqlUser").MdbShardedPostgresqlUser;
+export const MdbShardedPostgresqlUser: typeof import("./mdbShardedPostgresqlUser").MdbShardedPostgresqlUser = null as any;
+utilities.lazyLoad(exports, ["MdbShardedPostgresqlUser"], () => require("./mdbShardedPostgresqlUser"));
 
 export { MessageQueueArgs, MessageQueueState } from "./messageQueue";
 export type MessageQueue = import("./messageQueue").MessageQueue;
 export const MessageQueue: typeof import("./messageQueue").MessageQueue = null as any;
 utilities.lazyLoad(exports, ["MessageQueue"], () => require("./messageQueue"));
+
+export { MetastoreClusterArgs, MetastoreClusterState } from "./metastoreCluster";
+export type MetastoreCluster = import("./metastoreCluster").MetastoreCluster;
+export const MetastoreCluster: typeof import("./metastoreCluster").MetastoreCluster = null as any;
+utilities.lazyLoad(exports, ["MetastoreCluster"], () => require("./metastoreCluster"));
+
+export { MetastoreClusterIamBindingArgs, MetastoreClusterIamBindingState } from "./metastoreClusterIamBinding";
+export type MetastoreClusterIamBinding = import("./metastoreClusterIamBinding").MetastoreClusterIamBinding;
+export const MetastoreClusterIamBinding: typeof import("./metastoreClusterIamBinding").MetastoreClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["MetastoreClusterIamBinding"], () => require("./metastoreClusterIamBinding"));
 
 export { MonitoringDashboardArgs, MonitoringDashboardState } from "./monitoringDashboard";
 export type MonitoringDashboard = import("./monitoringDashboard").MonitoringDashboard;
@@ -980,10 +1450,70 @@ export type OrganizationmanagerGroupIamMember = import("./organizationmanagerGro
 export const OrganizationmanagerGroupIamMember: typeof import("./organizationmanagerGroupIamMember").OrganizationmanagerGroupIamMember = null as any;
 utilities.lazyLoad(exports, ["OrganizationmanagerGroupIamMember"], () => require("./organizationmanagerGroupIamMember"));
 
+export { OrganizationmanagerGroupMappingArgs, OrganizationmanagerGroupMappingState } from "./organizationmanagerGroupMapping";
+export type OrganizationmanagerGroupMapping = import("./organizationmanagerGroupMapping").OrganizationmanagerGroupMapping;
+export const OrganizationmanagerGroupMapping: typeof import("./organizationmanagerGroupMapping").OrganizationmanagerGroupMapping = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerGroupMapping"], () => require("./organizationmanagerGroupMapping"));
+
+export { OrganizationmanagerGroupMappingItemArgs, OrganizationmanagerGroupMappingItemState } from "./organizationmanagerGroupMappingItem";
+export type OrganizationmanagerGroupMappingItem = import("./organizationmanagerGroupMappingItem").OrganizationmanagerGroupMappingItem;
+export const OrganizationmanagerGroupMappingItem: typeof import("./organizationmanagerGroupMappingItem").OrganizationmanagerGroupMappingItem = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerGroupMappingItem"], () => require("./organizationmanagerGroupMappingItem"));
+
 export { OrganizationmanagerGroupMembershipArgs, OrganizationmanagerGroupMembershipState } from "./organizationmanagerGroupMembership";
 export type OrganizationmanagerGroupMembership = import("./organizationmanagerGroupMembership").OrganizationmanagerGroupMembership;
 export const OrganizationmanagerGroupMembership: typeof import("./organizationmanagerGroupMembership").OrganizationmanagerGroupMembership = null as any;
 utilities.lazyLoad(exports, ["OrganizationmanagerGroupMembership"], () => require("./organizationmanagerGroupMembership"));
+
+export { OrganizationmanagerIdpApplicationOauthApplicationArgs, OrganizationmanagerIdpApplicationOauthApplicationState } from "./organizationmanagerIdpApplicationOauthApplication";
+export type OrganizationmanagerIdpApplicationOauthApplication = import("./organizationmanagerIdpApplicationOauthApplication").OrganizationmanagerIdpApplicationOauthApplication;
+export const OrganizationmanagerIdpApplicationOauthApplication: typeof import("./organizationmanagerIdpApplicationOauthApplication").OrganizationmanagerIdpApplicationOauthApplication = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpApplicationOauthApplication"], () => require("./organizationmanagerIdpApplicationOauthApplication"));
+
+export { OrganizationmanagerIdpApplicationOauthApplicationAssignmentArgs, OrganizationmanagerIdpApplicationOauthApplicationAssignmentState } from "./organizationmanagerIdpApplicationOauthApplicationAssignment";
+export type OrganizationmanagerIdpApplicationOauthApplicationAssignment = import("./organizationmanagerIdpApplicationOauthApplicationAssignment").OrganizationmanagerIdpApplicationOauthApplicationAssignment;
+export const OrganizationmanagerIdpApplicationOauthApplicationAssignment: typeof import("./organizationmanagerIdpApplicationOauthApplicationAssignment").OrganizationmanagerIdpApplicationOauthApplicationAssignment = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpApplicationOauthApplicationAssignment"], () => require("./organizationmanagerIdpApplicationOauthApplicationAssignment"));
+
+export { OrganizationmanagerIdpApplicationSamlApplicationArgs, OrganizationmanagerIdpApplicationSamlApplicationState } from "./organizationmanagerIdpApplicationSamlApplication";
+export type OrganizationmanagerIdpApplicationSamlApplication = import("./organizationmanagerIdpApplicationSamlApplication").OrganizationmanagerIdpApplicationSamlApplication;
+export const OrganizationmanagerIdpApplicationSamlApplication: typeof import("./organizationmanagerIdpApplicationSamlApplication").OrganizationmanagerIdpApplicationSamlApplication = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpApplicationSamlApplication"], () => require("./organizationmanagerIdpApplicationSamlApplication"));
+
+export { OrganizationmanagerIdpApplicationSamlApplicationAssignmentArgs, OrganizationmanagerIdpApplicationSamlApplicationAssignmentState } from "./organizationmanagerIdpApplicationSamlApplicationAssignment";
+export type OrganizationmanagerIdpApplicationSamlApplicationAssignment = import("./organizationmanagerIdpApplicationSamlApplicationAssignment").OrganizationmanagerIdpApplicationSamlApplicationAssignment;
+export const OrganizationmanagerIdpApplicationSamlApplicationAssignment: typeof import("./organizationmanagerIdpApplicationSamlApplicationAssignment").OrganizationmanagerIdpApplicationSamlApplicationAssignment = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpApplicationSamlApplicationAssignment"], () => require("./organizationmanagerIdpApplicationSamlApplicationAssignment"));
+
+export { OrganizationmanagerIdpApplicationSamlSignatureCertificateArgs, OrganizationmanagerIdpApplicationSamlSignatureCertificateState } from "./organizationmanagerIdpApplicationSamlSignatureCertificate";
+export type OrganizationmanagerIdpApplicationSamlSignatureCertificate = import("./organizationmanagerIdpApplicationSamlSignatureCertificate").OrganizationmanagerIdpApplicationSamlSignatureCertificate;
+export const OrganizationmanagerIdpApplicationSamlSignatureCertificate: typeof import("./organizationmanagerIdpApplicationSamlSignatureCertificate").OrganizationmanagerIdpApplicationSamlSignatureCertificate = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpApplicationSamlSignatureCertificate"], () => require("./organizationmanagerIdpApplicationSamlSignatureCertificate"));
+
+export { OrganizationmanagerIdpUserArgs, OrganizationmanagerIdpUserState } from "./organizationmanagerIdpUser";
+export type OrganizationmanagerIdpUser = import("./organizationmanagerIdpUser").OrganizationmanagerIdpUser;
+export const OrganizationmanagerIdpUser: typeof import("./organizationmanagerIdpUser").OrganizationmanagerIdpUser = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpUser"], () => require("./organizationmanagerIdpUser"));
+
+export { OrganizationmanagerIdpUserpoolArgs, OrganizationmanagerIdpUserpoolState } from "./organizationmanagerIdpUserpool";
+export type OrganizationmanagerIdpUserpool = import("./organizationmanagerIdpUserpool").OrganizationmanagerIdpUserpool;
+export const OrganizationmanagerIdpUserpool: typeof import("./organizationmanagerIdpUserpool").OrganizationmanagerIdpUserpool = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpUserpool"], () => require("./organizationmanagerIdpUserpool"));
+
+export { OrganizationmanagerIdpUserpoolDomainArgs, OrganizationmanagerIdpUserpoolDomainState } from "./organizationmanagerIdpUserpoolDomain";
+export type OrganizationmanagerIdpUserpoolDomain = import("./organizationmanagerIdpUserpoolDomain").OrganizationmanagerIdpUserpoolDomain;
+export const OrganizationmanagerIdpUserpoolDomain: typeof import("./organizationmanagerIdpUserpoolDomain").OrganizationmanagerIdpUserpoolDomain = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerIdpUserpoolDomain"], () => require("./organizationmanagerIdpUserpoolDomain"));
+
+export { OrganizationmanagerMfaEnforcementArgs, OrganizationmanagerMfaEnforcementState } from "./organizationmanagerMfaEnforcement";
+export type OrganizationmanagerMfaEnforcement = import("./organizationmanagerMfaEnforcement").OrganizationmanagerMfaEnforcement;
+export const OrganizationmanagerMfaEnforcement: typeof import("./organizationmanagerMfaEnforcement").OrganizationmanagerMfaEnforcement = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerMfaEnforcement"], () => require("./organizationmanagerMfaEnforcement"));
+
+export { OrganizationmanagerMfaEnforcementAudienceArgs, OrganizationmanagerMfaEnforcementAudienceState } from "./organizationmanagerMfaEnforcementAudience";
+export type OrganizationmanagerMfaEnforcementAudience = import("./organizationmanagerMfaEnforcementAudience").OrganizationmanagerMfaEnforcementAudience;
+export const OrganizationmanagerMfaEnforcementAudience: typeof import("./organizationmanagerMfaEnforcementAudience").OrganizationmanagerMfaEnforcementAudience = null as any;
+utilities.lazyLoad(exports, ["OrganizationmanagerMfaEnforcementAudience"], () => require("./organizationmanagerMfaEnforcementAudience"));
 
 export { OrganizationmanagerOrganizationIamBindingArgs, OrganizationmanagerOrganizationIamBindingState } from "./organizationmanagerOrganizationIamBinding";
 export type OrganizationmanagerOrganizationIamBinding = import("./organizationmanagerOrganizationIamBinding").OrganizationmanagerOrganizationIamBinding;
@@ -1065,25 +1595,95 @@ export type ServerlessContainerIamBinding = import("./serverlessContainerIamBind
 export const ServerlessContainerIamBinding: typeof import("./serverlessContainerIamBinding").ServerlessContainerIamBinding = null as any;
 utilities.lazyLoad(exports, ["ServerlessContainerIamBinding"], () => require("./serverlessContainerIamBinding"));
 
+export { ServerlessEventrouterBusArgs, ServerlessEventrouterBusState } from "./serverlessEventrouterBus";
+export type ServerlessEventrouterBus = import("./serverlessEventrouterBus").ServerlessEventrouterBus;
+export const ServerlessEventrouterBus: typeof import("./serverlessEventrouterBus").ServerlessEventrouterBus = null as any;
+utilities.lazyLoad(exports, ["ServerlessEventrouterBus"], () => require("./serverlessEventrouterBus"));
+
+export { ServerlessEventrouterConnectorArgs, ServerlessEventrouterConnectorState } from "./serverlessEventrouterConnector";
+export type ServerlessEventrouterConnector = import("./serverlessEventrouterConnector").ServerlessEventrouterConnector;
+export const ServerlessEventrouterConnector: typeof import("./serverlessEventrouterConnector").ServerlessEventrouterConnector = null as any;
+utilities.lazyLoad(exports, ["ServerlessEventrouterConnector"], () => require("./serverlessEventrouterConnector"));
+
+export { ServerlessEventrouterRuleArgs, ServerlessEventrouterRuleState } from "./serverlessEventrouterRule";
+export type ServerlessEventrouterRule = import("./serverlessEventrouterRule").ServerlessEventrouterRule;
+export const ServerlessEventrouterRule: typeof import("./serverlessEventrouterRule").ServerlessEventrouterRule = null as any;
+utilities.lazyLoad(exports, ["ServerlessEventrouterRule"], () => require("./serverlessEventrouterRule"));
+
 export { SmartcaptchaCaptchaArgs, SmartcaptchaCaptchaState } from "./smartcaptchaCaptcha";
 export type SmartcaptchaCaptcha = import("./smartcaptchaCaptcha").SmartcaptchaCaptcha;
 export const SmartcaptchaCaptcha: typeof import("./smartcaptchaCaptcha").SmartcaptchaCaptcha = null as any;
 utilities.lazyLoad(exports, ["SmartcaptchaCaptcha"], () => require("./smartcaptchaCaptcha"));
+
+export { SparkClusterArgs, SparkClusterState } from "./sparkCluster";
+export type SparkCluster = import("./sparkCluster").SparkCluster;
+export const SparkCluster: typeof import("./sparkCluster").SparkCluster = null as any;
+utilities.lazyLoad(exports, ["SparkCluster"], () => require("./sparkCluster"));
+
+export { SparkClusterIamBindingArgs, SparkClusterIamBindingState } from "./sparkClusterIamBinding";
+export type SparkClusterIamBinding = import("./sparkClusterIamBinding").SparkClusterIamBinding;
+export const SparkClusterIamBinding: typeof import("./sparkClusterIamBinding").SparkClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["SparkClusterIamBinding"], () => require("./sparkClusterIamBinding"));
 
 export { StorageBucketArgs, StorageBucketState } from "./storageBucket";
 export type StorageBucket = import("./storageBucket").StorageBucket;
 export const StorageBucket: typeof import("./storageBucket").StorageBucket = null as any;
 utilities.lazyLoad(exports, ["StorageBucket"], () => require("./storageBucket"));
 
+export { StorageBucketGrantArgs, StorageBucketGrantState } from "./storageBucketGrant";
+export type StorageBucketGrant = import("./storageBucketGrant").StorageBucketGrant;
+export const StorageBucketGrant: typeof import("./storageBucketGrant").StorageBucketGrant = null as any;
+utilities.lazyLoad(exports, ["StorageBucketGrant"], () => require("./storageBucketGrant"));
+
+export { StorageBucketIamBindingArgs, StorageBucketIamBindingState } from "./storageBucketIamBinding";
+export type StorageBucketIamBinding = import("./storageBucketIamBinding").StorageBucketIamBinding;
+export const StorageBucketIamBinding: typeof import("./storageBucketIamBinding").StorageBucketIamBinding = null as any;
+utilities.lazyLoad(exports, ["StorageBucketIamBinding"], () => require("./storageBucketIamBinding"));
+
+export { StorageBucketPolicyArgs, StorageBucketPolicyState } from "./storageBucketPolicy";
+export type StorageBucketPolicy = import("./storageBucketPolicy").StorageBucketPolicy;
+export const StorageBucketPolicy: typeof import("./storageBucketPolicy").StorageBucketPolicy = null as any;
+utilities.lazyLoad(exports, ["StorageBucketPolicy"], () => require("./storageBucketPolicy"));
+
 export { StorageObjectArgs, StorageObjectState } from "./storageObject";
 export type StorageObject = import("./storageObject").StorageObject;
 export const StorageObject: typeof import("./storageObject").StorageObject = null as any;
 utilities.lazyLoad(exports, ["StorageObject"], () => require("./storageObject"));
 
+export { SwsAdvancedRateLimiterProfileArgs, SwsAdvancedRateLimiterProfileState } from "./swsAdvancedRateLimiterProfile";
+export type SwsAdvancedRateLimiterProfile = import("./swsAdvancedRateLimiterProfile").SwsAdvancedRateLimiterProfile;
+export const SwsAdvancedRateLimiterProfile: typeof import("./swsAdvancedRateLimiterProfile").SwsAdvancedRateLimiterProfile = null as any;
+utilities.lazyLoad(exports, ["SwsAdvancedRateLimiterProfile"], () => require("./swsAdvancedRateLimiterProfile"));
+
 export { SwsSecurityProfileArgs, SwsSecurityProfileState } from "./swsSecurityProfile";
 export type SwsSecurityProfile = import("./swsSecurityProfile").SwsSecurityProfile;
 export const SwsSecurityProfile: typeof import("./swsSecurityProfile").SwsSecurityProfile = null as any;
 utilities.lazyLoad(exports, ["SwsSecurityProfile"], () => require("./swsSecurityProfile"));
+
+export { SwsWafProfileArgs, SwsWafProfileState } from "./swsWafProfile";
+export type SwsWafProfile = import("./swsWafProfile").SwsWafProfile;
+export const SwsWafProfile: typeof import("./swsWafProfile").SwsWafProfile = null as any;
+utilities.lazyLoad(exports, ["SwsWafProfile"], () => require("./swsWafProfile"));
+
+export { TrinoAccessControlArgs, TrinoAccessControlState } from "./trinoAccessControl";
+export type TrinoAccessControl = import("./trinoAccessControl").TrinoAccessControl;
+export const TrinoAccessControl: typeof import("./trinoAccessControl").TrinoAccessControl = null as any;
+utilities.lazyLoad(exports, ["TrinoAccessControl"], () => require("./trinoAccessControl"));
+
+export { TrinoCatalogArgs, TrinoCatalogState } from "./trinoCatalog";
+export type TrinoCatalog = import("./trinoCatalog").TrinoCatalog;
+export const TrinoCatalog: typeof import("./trinoCatalog").TrinoCatalog = null as any;
+utilities.lazyLoad(exports, ["TrinoCatalog"], () => require("./trinoCatalog"));
+
+export { TrinoClusterArgs, TrinoClusterState } from "./trinoCluster";
+export type TrinoCluster = import("./trinoCluster").TrinoCluster;
+export const TrinoCluster: typeof import("./trinoCluster").TrinoCluster = null as any;
+utilities.lazyLoad(exports, ["TrinoCluster"], () => require("./trinoCluster"));
+
+export { TrinoClusterIamBindingArgs, TrinoClusterIamBindingState } from "./trinoClusterIamBinding";
+export type TrinoClusterIamBinding = import("./trinoClusterIamBinding").TrinoClusterIamBinding;
+export const TrinoClusterIamBinding: typeof import("./trinoClusterIamBinding").TrinoClusterIamBinding = null as any;
+utilities.lazyLoad(exports, ["TrinoClusterIamBinding"], () => require("./trinoClusterIamBinding"));
 
 export { VpcAddressArgs, VpcAddressState } from "./vpcAddress";
 export type VpcAddress = import("./vpcAddress").VpcAddress;
@@ -1104,6 +1704,11 @@ export { VpcNetworkArgs, VpcNetworkState } from "./vpcNetwork";
 export type VpcNetwork = import("./vpcNetwork").VpcNetwork;
 export const VpcNetwork: typeof import("./vpcNetwork").VpcNetwork = null as any;
 utilities.lazyLoad(exports, ["VpcNetwork"], () => require("./vpcNetwork"));
+
+export { VpcPrivateEndpointArgs, VpcPrivateEndpointState } from "./vpcPrivateEndpoint";
+export type VpcPrivateEndpoint = import("./vpcPrivateEndpoint").VpcPrivateEndpoint;
+export const VpcPrivateEndpoint: typeof import("./vpcPrivateEndpoint").VpcPrivateEndpoint = null as any;
+utilities.lazyLoad(exports, ["VpcPrivateEndpoint"], () => require("./vpcPrivateEndpoint"));
 
 export { VpcRouteTableArgs, VpcRouteTableState } from "./vpcRouteTable";
 export type VpcRouteTable = import("./vpcRouteTable").VpcRouteTable;
@@ -1160,6 +1765,41 @@ export type YdbTopic = import("./ydbTopic").YdbTopic;
 export const YdbTopic: typeof import("./ydbTopic").YdbTopic = null as any;
 utilities.lazyLoad(exports, ["YdbTopic"], () => require("./ydbTopic"));
 
+export { YqMonitoringConnectionArgs, YqMonitoringConnectionState } from "./yqMonitoringConnection";
+export type YqMonitoringConnection = import("./yqMonitoringConnection").YqMonitoringConnection;
+export const YqMonitoringConnection: typeof import("./yqMonitoringConnection").YqMonitoringConnection = null as any;
+utilities.lazyLoad(exports, ["YqMonitoringConnection"], () => require("./yqMonitoringConnection"));
+
+export { YqObjectStorageBindingArgs, YqObjectStorageBindingState } from "./yqObjectStorageBinding";
+export type YqObjectStorageBinding = import("./yqObjectStorageBinding").YqObjectStorageBinding;
+export const YqObjectStorageBinding: typeof import("./yqObjectStorageBinding").YqObjectStorageBinding = null as any;
+utilities.lazyLoad(exports, ["YqObjectStorageBinding"], () => require("./yqObjectStorageBinding"));
+
+export { YqObjectStorageConnectionArgs, YqObjectStorageConnectionState } from "./yqObjectStorageConnection";
+export type YqObjectStorageConnection = import("./yqObjectStorageConnection").YqObjectStorageConnection;
+export const YqObjectStorageConnection: typeof import("./yqObjectStorageConnection").YqObjectStorageConnection = null as any;
+utilities.lazyLoad(exports, ["YqObjectStorageConnection"], () => require("./yqObjectStorageConnection"));
+
+export { YqYdbConnectionArgs, YqYdbConnectionState } from "./yqYdbConnection";
+export type YqYdbConnection = import("./yqYdbConnection").YqYdbConnection;
+export const YqYdbConnection: typeof import("./yqYdbConnection").YqYdbConnection = null as any;
+utilities.lazyLoad(exports, ["YqYdbConnection"], () => require("./yqYdbConnection"));
+
+export { YqYdsBindingArgs, YqYdsBindingState } from "./yqYdsBinding";
+export type YqYdsBinding = import("./yqYdsBinding").YqYdsBinding;
+export const YqYdsBinding: typeof import("./yqYdsBinding").YqYdsBinding = null as any;
+utilities.lazyLoad(exports, ["YqYdsBinding"], () => require("./yqYdsBinding"));
+
+export { YqYdsConnectionArgs, YqYdsConnectionState } from "./yqYdsConnection";
+export type YqYdsConnection = import("./yqYdsConnection").YqYdsConnection;
+export const YqYdsConnection: typeof import("./yqYdsConnection").YqYdsConnection = null as any;
+utilities.lazyLoad(exports, ["YqYdsConnection"], () => require("./yqYdsConnection"));
+
+export { YtsaurusClusterArgs, YtsaurusClusterState } from "./ytsaurusCluster";
+export type YtsaurusCluster = import("./ytsaurusCluster").YtsaurusCluster;
+export const YtsaurusCluster: typeof import("./ytsaurusCluster").YtsaurusCluster = null as any;
+utilities.lazyLoad(exports, ["YtsaurusCluster"], () => require("./ytsaurusCluster"));
+
 
 // Export sub-modules:
 import * as config from "./config";
@@ -1174,6 +1814,10 @@ const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "yandex:index/airflowCluster:AirflowCluster":
+                return new AirflowCluster(name, <any>undefined, { urn })
+            case "yandex:index/airflowClusterIamBinding:AirflowClusterIamBinding":
+                return new AirflowClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/albBackendGroup:AlbBackendGroup":
                 return new AlbBackendGroup(name, <any>undefined, { urn })
             case "yandex:index/albHttpRouter:AlbHttpRouter":
@@ -1198,8 +1842,24 @@ const _module = {
                 return new CdnOriginGroup(name, <any>undefined, { urn })
             case "yandex:index/cdnResource:CdnResource":
                 return new CdnResource(name, <any>undefined, { urn })
+            case "yandex:index/cloudDesktopsDesktop:CloudDesktopsDesktop":
+                return new CloudDesktopsDesktop(name, <any>undefined, { urn })
+            case "yandex:index/cloudDesktopsDesktopGroup:CloudDesktopsDesktopGroup":
+                return new CloudDesktopsDesktopGroup(name, <any>undefined, { urn })
+            case "yandex:index/cloudregistryLifecyclePolicy:CloudregistryLifecyclePolicy":
+                return new CloudregistryLifecyclePolicy(name, <any>undefined, { urn })
+            case "yandex:index/cloudregistryRegistry:CloudregistryRegistry":
+                return new CloudregistryRegistry(name, <any>undefined, { urn })
+            case "yandex:index/cloudregistryRegistryIamBinding:CloudregistryRegistryIamBinding":
+                return new CloudregistryRegistryIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/cloudregistryRegistryIpPermission:CloudregistryRegistryIpPermission":
+                return new CloudregistryRegistryIpPermission(name, <any>undefined, { urn })
             case "yandex:index/cmCertificate:CmCertificate":
                 return new CmCertificate(name, <any>undefined, { urn })
+            case "yandex:index/cmCertificateIamBinding:CmCertificateIamBinding":
+                return new CmCertificateIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/cmCertificateIamMember:CmCertificateIamMember":
+                return new CmCertificateIamMember(name, <any>undefined, { urn })
             case "yandex:index/computeDisk:ComputeDisk":
                 return new ComputeDisk(name, <any>undefined, { urn })
             case "yandex:index/computeDiskIamBinding:ComputeDiskIamBinding":
@@ -1238,6 +1898,8 @@ const _module = {
                 return new ComputeSnapshotSchedule(name, <any>undefined, { urn })
             case "yandex:index/computeSnapshotScheduleIamBinding:ComputeSnapshotScheduleIamBinding":
                 return new ComputeSnapshotScheduleIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/connectionmanagerConnection:ConnectionmanagerConnection":
+                return new ConnectionmanagerConnection(name, <any>undefined, { urn })
             case "yandex:index/containerRegistry:ContainerRegistry":
                 return new ContainerRegistry(name, <any>undefined, { urn })
             case "yandex:index/containerRegistryIamBinding:ContainerRegistryIamBinding":
@@ -1250,8 +1912,14 @@ const _module = {
                 return new ContainerRepositoryIamBinding(name, <any>undefined, { urn })
             case "yandex:index/containerRepositoryLifecyclePolicy:ContainerRepositoryLifecyclePolicy":
                 return new ContainerRepositoryLifecyclePolicy(name, <any>undefined, { urn })
+            case "yandex:index/datacatalogCatalog:DatacatalogCatalog":
+                return new DatacatalogCatalog(name, <any>undefined, { urn })
+            case "yandex:index/datalensConnection:DatalensConnection":
+                return new DatalensConnection(name, <any>undefined, { urn })
             case "yandex:index/dataprocCluster:DataprocCluster":
                 return new DataprocCluster(name, <any>undefined, { urn })
+            case "yandex:index/dataprocClusterIamBinding:DataprocClusterIamBinding":
+                return new DataprocClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/datasphereCommunity:DatasphereCommunity":
                 return new DatasphereCommunity(name, <any>undefined, { urn })
             case "yandex:index/datasphereCommunityIamBinding:DatasphereCommunityIamBinding":
@@ -1278,6 +1946,12 @@ const _module = {
                 return new FunctionScalingPolicy(name, <any>undefined, { urn })
             case "yandex:index/functionTrigger:FunctionTrigger":
                 return new FunctionTrigger(name, <any>undefined, { urn })
+            case "yandex:index/gitlabInstance:GitlabInstance":
+                return new GitlabInstance(name, <any>undefined, { urn })
+            case "yandex:index/iamOauthClient:IamOauthClient":
+                return new IamOauthClient(name, <any>undefined, { urn })
+            case "yandex:index/iamOauthClientSecret:IamOauthClientSecret":
+                return new IamOauthClientSecret(name, <any>undefined, { urn })
             case "yandex:index/iamServiceAccount:IamServiceAccount":
                 return new IamServiceAccount(name, <any>undefined, { urn })
             case "yandex:index/iamServiceAccountApiKey:IamServiceAccountApiKey":
@@ -1292,6 +1966,12 @@ const _module = {
                 return new IamServiceAccountKey(name, <any>undefined, { urn })
             case "yandex:index/iamServiceAccountStaticAccessKey:IamServiceAccountStaticAccessKey":
                 return new IamServiceAccountStaticAccessKey(name, <any>undefined, { urn })
+            case "yandex:index/iamWorkloadIdentityFederatedCredential:IamWorkloadIdentityFederatedCredential":
+                return new IamWorkloadIdentityFederatedCredential(name, <any>undefined, { urn })
+            case "yandex:index/iamWorkloadIdentityOidcFederation:IamWorkloadIdentityOidcFederation":
+                return new IamWorkloadIdentityOidcFederation(name, <any>undefined, { urn })
+            case "yandex:index/iamWorkloadIdentityOidcFederationIamBinding:IamWorkloadIdentityOidcFederationIamBinding":
+                return new IamWorkloadIdentityOidcFederationIamBinding(name, <any>undefined, { urn })
             case "yandex:index/iotCoreBroker:IotCoreBroker":
                 return new IotCoreBroker(name, <any>undefined, { urn })
             case "yandex:index/iotCoreDevice:IotCoreDevice":
@@ -1302,18 +1982,30 @@ const _module = {
                 return new KmsAsymmetricEncryptionKey(name, <any>undefined, { urn })
             case "yandex:index/kmsAsymmetricEncryptionKeyIamBinding:KmsAsymmetricEncryptionKeyIamBinding":
                 return new KmsAsymmetricEncryptionKeyIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/kmsAsymmetricEncryptionKeyIamMember:KmsAsymmetricEncryptionKeyIamMember":
+                return new KmsAsymmetricEncryptionKeyIamMember(name, <any>undefined, { urn })
             case "yandex:index/kmsAsymmetricSignatureKey:KmsAsymmetricSignatureKey":
                 return new KmsAsymmetricSignatureKey(name, <any>undefined, { urn })
             case "yandex:index/kmsAsymmetricSignatureKeyIamBinding:KmsAsymmetricSignatureKeyIamBinding":
                 return new KmsAsymmetricSignatureKeyIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/kmsAsymmetricSignatureKeyIamMember:KmsAsymmetricSignatureKeyIamMember":
+                return new KmsAsymmetricSignatureKeyIamMember(name, <any>undefined, { urn })
             case "yandex:index/kmsSecretCiphertext:KmsSecretCiphertext":
                 return new KmsSecretCiphertext(name, <any>undefined, { urn })
             case "yandex:index/kmsSymmetricKey:KmsSymmetricKey":
                 return new KmsSymmetricKey(name, <any>undefined, { urn })
             case "yandex:index/kmsSymmetricKeyIamBinding:KmsSymmetricKeyIamBinding":
                 return new KmsSymmetricKeyIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/kmsSymmetricKeyIamMember:KmsSymmetricKeyIamMember":
+                return new KmsSymmetricKeyIamMember(name, <any>undefined, { urn })
             case "yandex:index/kubernetesCluster:KubernetesCluster":
                 return new KubernetesCluster(name, <any>undefined, { urn })
+            case "yandex:index/kubernetesClusterIamBinding:KubernetesClusterIamBinding":
+                return new KubernetesClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/kubernetesClusterIamMember:KubernetesClusterIamMember":
+                return new KubernetesClusterIamMember(name, <any>undefined, { urn })
+            case "yandex:index/kubernetesMarketplaceHelmRelease:KubernetesMarketplaceHelmRelease":
+                return new KubernetesMarketplaceHelmRelease(name, <any>undefined, { urn })
             case "yandex:index/kubernetesNodeGroup:KubernetesNodeGroup":
                 return new KubernetesNodeGroup(name, <any>undefined, { urn })
             case "yandex:index/lbNetworkLoadBalancer:LbNetworkLoadBalancer":
@@ -1326,6 +2018,8 @@ const _module = {
                 return new LockboxSecret(name, <any>undefined, { urn })
             case "yandex:index/lockboxSecretIamBinding:LockboxSecretIamBinding":
                 return new LockboxSecretIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/lockboxSecretIamMember:LockboxSecretIamMember":
+                return new LockboxSecretIamMember(name, <any>undefined, { urn })
             case "yandex:index/lockboxSecretVersion:LockboxSecretVersion":
                 return new LockboxSecretVersion(name, <any>undefined, { urn })
             case "yandex:index/lockboxSecretVersionHashed:LockboxSecretVersionHashed":
@@ -1334,12 +2028,28 @@ const _module = {
                 return new LoggingGroup(name, <any>undefined, { urn })
             case "yandex:index/mdbClickhouseCluster:MdbClickhouseCluster":
                 return new MdbClickhouseCluster(name, <any>undefined, { urn })
-            case "yandex:index/mdbElasticsearchCluster:MdbElasticsearchCluster":
-                return new MdbElasticsearchCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbClickhouseClusterIamBinding:MdbClickhouseClusterIamBinding":
+                return new MdbClickhouseClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/mdbClickhouseClusterV2:MdbClickhouseClusterV2":
+                return new MdbClickhouseClusterV2(name, <any>undefined, { urn })
+            case "yandex:index/mdbClickhouseDatabase:MdbClickhouseDatabase":
+                return new MdbClickhouseDatabase(name, <any>undefined, { urn })
+            case "yandex:index/mdbClickhouseUser:MdbClickhouseUser":
+                return new MdbClickhouseUser(name, <any>undefined, { urn })
             case "yandex:index/mdbGreenplumCluster:MdbGreenplumCluster":
                 return new MdbGreenplumCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbGreenplumClusterIamBinding:MdbGreenplumClusterIamBinding":
+                return new MdbGreenplumClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/mdbGreenplumClusterV2:MdbGreenplumClusterV2":
+                return new MdbGreenplumClusterV2(name, <any>undefined, { urn })
+            case "yandex:index/mdbGreenplumResourceGroup:MdbGreenplumResourceGroup":
+                return new MdbGreenplumResourceGroup(name, <any>undefined, { urn })
+            case "yandex:index/mdbGreenplumUser:MdbGreenplumUser":
+                return new MdbGreenplumUser(name, <any>undefined, { urn })
             case "yandex:index/mdbKafkaCluster:MdbKafkaCluster":
                 return new MdbKafkaCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbKafkaClusterIamBinding:MdbKafkaClusterIamBinding":
+                return new MdbKafkaClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/mdbKafkaConnector:MdbKafkaConnector":
                 return new MdbKafkaConnector(name, <any>undefined, { urn })
             case "yandex:index/mdbKafkaTopic:MdbKafkaTopic":
@@ -1348,38 +2058,94 @@ const _module = {
                 return new MdbKafkaUser(name, <any>undefined, { urn })
             case "yandex:index/mdbMongodbCluster:MdbMongodbCluster":
                 return new MdbMongodbCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbMongodbClusterIamBinding:MdbMongodbClusterIamBinding":
+                return new MdbMongodbClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/mdbMongodbDatabase:MdbMongodbDatabase":
                 return new MdbMongodbDatabase(name, <any>undefined, { urn })
             case "yandex:index/mdbMongodbUser:MdbMongodbUser":
                 return new MdbMongodbUser(name, <any>undefined, { urn })
             case "yandex:index/mdbMysqlCluster:MdbMysqlCluster":
                 return new MdbMysqlCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbMysqlClusterIamBinding:MdbMysqlClusterIamBinding":
+                return new MdbMysqlClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/mdbMysqlClusterV2:MdbMysqlClusterV2":
+                return new MdbMysqlClusterV2(name, <any>undefined, { urn })
             case "yandex:index/mdbMysqlDatabase:MdbMysqlDatabase":
                 return new MdbMysqlDatabase(name, <any>undefined, { urn })
+            case "yandex:index/mdbMysqlDatabaseV2:MdbMysqlDatabaseV2":
+                return new MdbMysqlDatabaseV2(name, <any>undefined, { urn })
             case "yandex:index/mdbMysqlUser:MdbMysqlUser":
                 return new MdbMysqlUser(name, <any>undefined, { urn })
             case "yandex:index/mdbOpensearchCluster:MdbOpensearchCluster":
                 return new MdbOpensearchCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbOpensearchClusterIamBinding:MdbOpensearchClusterIamBinding":
+                return new MdbOpensearchClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/mdbPostgresqlCluster:MdbPostgresqlCluster":
                 return new MdbPostgresqlCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbPostgresqlClusterIamBinding:MdbPostgresqlClusterIamBinding":
+                return new MdbPostgresqlClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/mdbPostgresqlClusterV2:MdbPostgresqlClusterV2":
+                return new MdbPostgresqlClusterV2(name, <any>undefined, { urn })
             case "yandex:index/mdbPostgresqlDatabase:MdbPostgresqlDatabase":
                 return new MdbPostgresqlDatabase(name, <any>undefined, { urn })
             case "yandex:index/mdbPostgresqlUser:MdbPostgresqlUser":
                 return new MdbPostgresqlUser(name, <any>undefined, { urn })
             case "yandex:index/mdbRedisCluster:MdbRedisCluster":
                 return new MdbRedisCluster(name, <any>undefined, { urn })
-            case "yandex:index/mdbSqlserverCluster:MdbSqlserverCluster":
-                return new MdbSqlserverCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbRedisClusterIamBinding:MdbRedisClusterIamBinding":
+                return new MdbRedisClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/mdbRedisClusterV2:MdbRedisClusterV2":
+                return new MdbRedisClusterV2(name, <any>undefined, { urn })
+            case "yandex:index/mdbRedisUser:MdbRedisUser":
+                return new MdbRedisUser(name, <any>undefined, { urn })
+            case "yandex:index/mdbShardedPostgresqlCluster:MdbShardedPostgresqlCluster":
+                return new MdbShardedPostgresqlCluster(name, <any>undefined, { urn })
+            case "yandex:index/mdbShardedPostgresqlClusterIamBinding:MdbShardedPostgresqlClusterIamBinding":
+                return new MdbShardedPostgresqlClusterIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/mdbShardedPostgresqlDatabase:MdbShardedPostgresqlDatabase":
+                return new MdbShardedPostgresqlDatabase(name, <any>undefined, { urn })
+            case "yandex:index/mdbShardedPostgresqlShard:MdbShardedPostgresqlShard":
+                return new MdbShardedPostgresqlShard(name, <any>undefined, { urn })
+            case "yandex:index/mdbShardedPostgresqlUser:MdbShardedPostgresqlUser":
+                return new MdbShardedPostgresqlUser(name, <any>undefined, { urn })
             case "yandex:index/messageQueue:MessageQueue":
                 return new MessageQueue(name, <any>undefined, { urn })
+            case "yandex:index/metastoreCluster:MetastoreCluster":
+                return new MetastoreCluster(name, <any>undefined, { urn })
+            case "yandex:index/metastoreClusterIamBinding:MetastoreClusterIamBinding":
+                return new MetastoreClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/monitoringDashboard:MonitoringDashboard":
                 return new MonitoringDashboard(name, <any>undefined, { urn })
             case "yandex:index/organizationmanagerGroup:OrganizationmanagerGroup":
                 return new OrganizationmanagerGroup(name, <any>undefined, { urn })
             case "yandex:index/organizationmanagerGroupIamMember:OrganizationmanagerGroupIamMember":
                 return new OrganizationmanagerGroupIamMember(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerGroupMapping:OrganizationmanagerGroupMapping":
+                return new OrganizationmanagerGroupMapping(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerGroupMappingItem:OrganizationmanagerGroupMappingItem":
+                return new OrganizationmanagerGroupMappingItem(name, <any>undefined, { urn })
             case "yandex:index/organizationmanagerGroupMembership:OrganizationmanagerGroupMembership":
                 return new OrganizationmanagerGroupMembership(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpApplicationOauthApplication:OrganizationmanagerIdpApplicationOauthApplication":
+                return new OrganizationmanagerIdpApplicationOauthApplication(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpApplicationOauthApplicationAssignment:OrganizationmanagerIdpApplicationOauthApplicationAssignment":
+                return new OrganizationmanagerIdpApplicationOauthApplicationAssignment(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpApplicationSamlApplication:OrganizationmanagerIdpApplicationSamlApplication":
+                return new OrganizationmanagerIdpApplicationSamlApplication(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpApplicationSamlApplicationAssignment:OrganizationmanagerIdpApplicationSamlApplicationAssignment":
+                return new OrganizationmanagerIdpApplicationSamlApplicationAssignment(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpApplicationSamlSignatureCertificate:OrganizationmanagerIdpApplicationSamlSignatureCertificate":
+                return new OrganizationmanagerIdpApplicationSamlSignatureCertificate(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpUser:OrganizationmanagerIdpUser":
+                return new OrganizationmanagerIdpUser(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpUserpool:OrganizationmanagerIdpUserpool":
+                return new OrganizationmanagerIdpUserpool(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerIdpUserpoolDomain:OrganizationmanagerIdpUserpoolDomain":
+                return new OrganizationmanagerIdpUserpoolDomain(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerMfaEnforcement:OrganizationmanagerMfaEnforcement":
+                return new OrganizationmanagerMfaEnforcement(name, <any>undefined, { urn })
+            case "yandex:index/organizationmanagerMfaEnforcementAudience:OrganizationmanagerMfaEnforcementAudience":
+                return new OrganizationmanagerMfaEnforcementAudience(name, <any>undefined, { urn })
             case "yandex:index/organizationmanagerOrganizationIamBinding:OrganizationmanagerOrganizationIamBinding":
                 return new OrganizationmanagerOrganizationIamBinding(name, <any>undefined, { urn })
             case "yandex:index/organizationmanagerOrganizationIamMember:OrganizationmanagerOrganizationIamMember":
@@ -1410,14 +2176,42 @@ const _module = {
                 return new ServerlessContainer(name, <any>undefined, { urn })
             case "yandex:index/serverlessContainerIamBinding:ServerlessContainerIamBinding":
                 return new ServerlessContainerIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/serverlessEventrouterBus:ServerlessEventrouterBus":
+                return new ServerlessEventrouterBus(name, <any>undefined, { urn })
+            case "yandex:index/serverlessEventrouterConnector:ServerlessEventrouterConnector":
+                return new ServerlessEventrouterConnector(name, <any>undefined, { urn })
+            case "yandex:index/serverlessEventrouterRule:ServerlessEventrouterRule":
+                return new ServerlessEventrouterRule(name, <any>undefined, { urn })
             case "yandex:index/smartcaptchaCaptcha:SmartcaptchaCaptcha":
                 return new SmartcaptchaCaptcha(name, <any>undefined, { urn })
+            case "yandex:index/sparkCluster:SparkCluster":
+                return new SparkCluster(name, <any>undefined, { urn })
+            case "yandex:index/sparkClusterIamBinding:SparkClusterIamBinding":
+                return new SparkClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/storageBucket:StorageBucket":
                 return new StorageBucket(name, <any>undefined, { urn })
+            case "yandex:index/storageBucketGrant:StorageBucketGrant":
+                return new StorageBucketGrant(name, <any>undefined, { urn })
+            case "yandex:index/storageBucketIamBinding:StorageBucketIamBinding":
+                return new StorageBucketIamBinding(name, <any>undefined, { urn })
+            case "yandex:index/storageBucketPolicy:StorageBucketPolicy":
+                return new StorageBucketPolicy(name, <any>undefined, { urn })
             case "yandex:index/storageObject:StorageObject":
                 return new StorageObject(name, <any>undefined, { urn })
+            case "yandex:index/swsAdvancedRateLimiterProfile:SwsAdvancedRateLimiterProfile":
+                return new SwsAdvancedRateLimiterProfile(name, <any>undefined, { urn })
             case "yandex:index/swsSecurityProfile:SwsSecurityProfile":
                 return new SwsSecurityProfile(name, <any>undefined, { urn })
+            case "yandex:index/swsWafProfile:SwsWafProfile":
+                return new SwsWafProfile(name, <any>undefined, { urn })
+            case "yandex:index/trinoAccessControl:TrinoAccessControl":
+                return new TrinoAccessControl(name, <any>undefined, { urn })
+            case "yandex:index/trinoCatalog:TrinoCatalog":
+                return new TrinoCatalog(name, <any>undefined, { urn })
+            case "yandex:index/trinoCluster:TrinoCluster":
+                return new TrinoCluster(name, <any>undefined, { urn })
+            case "yandex:index/trinoClusterIamBinding:TrinoClusterIamBinding":
+                return new TrinoClusterIamBinding(name, <any>undefined, { urn })
             case "yandex:index/vpcAddress:VpcAddress":
                 return new VpcAddress(name, <any>undefined, { urn })
             case "yandex:index/vpcDefaultSecurityGroup:VpcDefaultSecurityGroup":
@@ -1426,6 +2220,8 @@ const _module = {
                 return new VpcGateway(name, <any>undefined, { urn })
             case "yandex:index/vpcNetwork:VpcNetwork":
                 return new VpcNetwork(name, <any>undefined, { urn })
+            case "yandex:index/vpcPrivateEndpoint:VpcPrivateEndpoint":
+                return new VpcPrivateEndpoint(name, <any>undefined, { urn })
             case "yandex:index/vpcRouteTable:VpcRouteTable":
                 return new VpcRouteTable(name, <any>undefined, { urn })
             case "yandex:index/vpcSecurityGroup:VpcSecurityGroup":
@@ -1448,11 +2244,27 @@ const _module = {
                 return new YdbTableIndex(name, <any>undefined, { urn })
             case "yandex:index/ydbTopic:YdbTopic":
                 return new YdbTopic(name, <any>undefined, { urn })
+            case "yandex:index/yqMonitoringConnection:YqMonitoringConnection":
+                return new YqMonitoringConnection(name, <any>undefined, { urn })
+            case "yandex:index/yqObjectStorageBinding:YqObjectStorageBinding":
+                return new YqObjectStorageBinding(name, <any>undefined, { urn })
+            case "yandex:index/yqObjectStorageConnection:YqObjectStorageConnection":
+                return new YqObjectStorageConnection(name, <any>undefined, { urn })
+            case "yandex:index/yqYdbConnection:YqYdbConnection":
+                return new YqYdbConnection(name, <any>undefined, { urn })
+            case "yandex:index/yqYdsBinding:YqYdsBinding":
+                return new YqYdsBinding(name, <any>undefined, { urn })
+            case "yandex:index/yqYdsConnection:YqYdsConnection":
+                return new YqYdsConnection(name, <any>undefined, { urn })
+            case "yandex:index/ytsaurusCluster:YtsaurusCluster":
+                return new YtsaurusCluster(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }
     },
 };
+pulumi.runtime.registerResourceModule("yandex", "index/airflowCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/airflowClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/albBackendGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/albHttpRouter", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/albLoadBalancer", _module)
@@ -1465,7 +2277,15 @@ pulumi.runtime.registerResourceModule("yandex", "index/backupPolicyBindings", _m
 pulumi.runtime.registerResourceModule("yandex", "index/billingCloudBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/cdnOriginGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/cdnResource", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cloudDesktopsDesktop", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cloudDesktopsDesktopGroup", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cloudregistryLifecyclePolicy", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cloudregistryRegistry", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cloudregistryRegistryIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cloudregistryRegistryIpPermission", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/cmCertificate", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cmCertificateIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/cmCertificateIamMember", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/computeDisk", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/computeDiskIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/computeDiskPlacementGroup", _module)
@@ -1485,13 +2305,17 @@ pulumi.runtime.registerResourceModule("yandex", "index/computeSnapshot", _module
 pulumi.runtime.registerResourceModule("yandex", "index/computeSnapshotIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/computeSnapshotSchedule", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/computeSnapshotScheduleIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/connectionmanagerConnection", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/containerRegistry", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/containerRegistryIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/containerRegistryIpPermission", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/containerRepository", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/containerRepositoryIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/containerRepositoryLifecyclePolicy", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/datacatalogCatalog", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/datalensConnection", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/dataprocCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/dataprocClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/datasphereCommunity", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/datasphereCommunityIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/datasphereProject", _module)
@@ -1505,6 +2329,9 @@ pulumi.runtime.registerResourceModule("yandex", "index/function", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/functionIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/functionScalingPolicy", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/functionTrigger", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/gitlabInstance", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/iamOauthClient", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/iamOauthClientSecret", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccount", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccountApiKey", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccountIamBinding", _module)
@@ -1512,50 +2339,96 @@ pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccountIamMembe
 pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccountIamPolicy", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccountKey", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iamServiceAccountStaticAccessKey", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/iamWorkloadIdentityFederatedCredential", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/iamWorkloadIdentityOidcFederation", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/iamWorkloadIdentityOidcFederationIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iotCoreBroker", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iotCoreDevice", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/iotCoreRegistry", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsAsymmetricEncryptionKey", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsAsymmetricEncryptionKeyIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/kmsAsymmetricEncryptionKeyIamMember", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsAsymmetricSignatureKey", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsAsymmetricSignatureKeyIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/kmsAsymmetricSignatureKeyIamMember", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsSecretCiphertext", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsSymmetricKey", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kmsSymmetricKeyIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/kmsSymmetricKeyIamMember", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kubernetesCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/kubernetesClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/kubernetesClusterIamMember", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/kubernetesMarketplaceHelmRelease", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/kubernetesNodeGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/lbNetworkLoadBalancer", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/lbTargetGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/loadtestingAgent", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/lockboxSecret", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/lockboxSecretIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/lockboxSecretIamMember", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/lockboxSecretVersion", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/lockboxSecretVersionHashed", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/loggingGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbClickhouseCluster", _module)
-pulumi.runtime.registerResourceModule("yandex", "index/mdbElasticsearchCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbClickhouseClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbClickhouseClusterV2", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbClickhouseDatabase", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbClickhouseUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbGreenplumCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbGreenplumClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbGreenplumClusterV2", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbGreenplumResourceGroup", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbGreenplumUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbKafkaCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbKafkaClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbKafkaConnector", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbKafkaTopic", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbKafkaUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbMongodbCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbMongodbClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbMongodbDatabase", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbMongodbUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbMysqlCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbMysqlClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbMysqlClusterV2", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbMysqlDatabase", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbMysqlDatabaseV2", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbMysqlUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbOpensearchCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbOpensearchClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbPostgresqlCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbPostgresqlClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbPostgresqlClusterV2", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbPostgresqlDatabase", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbPostgresqlUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/mdbRedisCluster", _module)
-pulumi.runtime.registerResourceModule("yandex", "index/mdbSqlserverCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbRedisClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbRedisClusterV2", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbRedisUser", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbShardedPostgresqlCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbShardedPostgresqlClusterIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbShardedPostgresqlDatabase", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbShardedPostgresqlShard", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/mdbShardedPostgresqlUser", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/messageQueue", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/metastoreCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/metastoreClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/monitoringDashboard", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerGroupIamMember", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerGroupMapping", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerGroupMappingItem", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerGroupMembership", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpApplicationOauthApplication", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpApplicationOauthApplicationAssignment", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpApplicationSamlApplication", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpApplicationSamlApplicationAssignment", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpApplicationSamlSignatureCertificate", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpUser", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpUserpool", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerIdpUserpoolDomain", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerMfaEnforcement", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerMfaEnforcementAudience", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerOrganizationIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerOrganizationIamMember", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/organizationmanagerOsLoginSettings", _module)
@@ -1571,14 +2444,29 @@ pulumi.runtime.registerResourceModule("yandex", "index/resourcemanagerFolderIamM
 pulumi.runtime.registerResourceModule("yandex", "index/resourcemanagerFolderIamPolicy", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/serverlessContainer", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/serverlessContainerIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/serverlessEventrouterBus", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/serverlessEventrouterConnector", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/serverlessEventrouterRule", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/smartcaptchaCaptcha", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/sparkCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/sparkClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/storageBucket", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/storageBucketGrant", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/storageBucketIamBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/storageBucketPolicy", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/storageObject", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/swsAdvancedRateLimiterProfile", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/swsSecurityProfile", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/swsWafProfile", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/trinoAccessControl", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/trinoCatalog", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/trinoCluster", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/trinoClusterIamBinding", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcAddress", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcDefaultSecurityGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcGateway", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcNetwork", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/vpcPrivateEndpoint", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcRouteTable", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcSecurityGroup", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/vpcSecurityGroupRule", _module)
@@ -1590,6 +2478,13 @@ pulumi.runtime.registerResourceModule("yandex", "index/ydbTable", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/ydbTableChangefeed", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/ydbTableIndex", _module)
 pulumi.runtime.registerResourceModule("yandex", "index/ydbTopic", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/yqMonitoringConnection", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/yqObjectStorageBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/yqObjectStorageConnection", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/yqYdbConnection", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/yqYdsBinding", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/yqYdsConnection", _module)
+pulumi.runtime.registerResourceModule("yandex", "index/ytsaurusCluster", _module)
 pulumi.runtime.registerResourcePackage("yandex", {
     version: utilities.getVersion(),
     constructProvider: (name: string, type: string, urn: string): pulumi.ProviderResource => {

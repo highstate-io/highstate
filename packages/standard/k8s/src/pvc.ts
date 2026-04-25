@@ -1,10 +1,11 @@
-import type { k8s } from "@highstate/library"
 import { getOrCreate } from "@highstate/contract"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -73,7 +74,16 @@ export abstract class PersistentVolumeClaim extends NamespacedResource {
    * The Highstate PVC entity.
    */
   get entity(): Output<k8s.PersistentVolumeClaim> {
-    return output(this.entityBase)
+    return makeEntityOutput({
+      entity: k8s.persistentVolumeClaimEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+      },
+    })
   }
 
   /**

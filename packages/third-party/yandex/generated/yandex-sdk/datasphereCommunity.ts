@@ -34,12 +34,27 @@ export class DatasphereCommunity extends pulumi.CustomResource {
         return obj['__pulumiType'] === DatasphereCommunity.__pulumiType;
     }
 
+    /**
+     * Billing account ID to associated with community
+     */
     declare public readonly billingAccountId: pulumi.Output<string | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Creator account ID of the Datasphere Community
+     */
     declare public /*out*/ readonly createdBy: pulumi.Output<string>;
     declare public readonly description: pulumi.Output<string>;
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Organization ID where community would be created
+     */
     declare public readonly organizationId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.DatasphereCommunityTimeouts | undefined>;
 
@@ -84,12 +99,27 @@ export class DatasphereCommunity extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DatasphereCommunity resources.
  */
 export interface DatasphereCommunityState {
+    /**
+     * Billing account ID to associated with community
+     */
     billingAccountId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Creator account ID of the Datasphere Community
+     */
     createdBy?: pulumi.Input<string>;
     description?: pulumi.Input<string>;
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Organization ID where community would be created
+     */
     organizationId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.DatasphereCommunityTimeouts>;
 }
@@ -98,10 +128,19 @@ export interface DatasphereCommunityState {
  * The set of arguments for constructing a DatasphereCommunity resource.
  */
 export interface DatasphereCommunityArgs {
+    /**
+     * Billing account ID to associated with community
+     */
     billingAccountId?: pulumi.Input<string>;
     description?: pulumi.Input<string>;
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Organization ID where community would be created
+     */
     organizationId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.DatasphereCommunityTimeouts>;
 }

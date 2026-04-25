@@ -24,6 +24,7 @@ const { projectId, workerId, data, loading, hideHeader, height } = defineProps<{
 
 const emit = defineEmits<{
   viewLogs: [versionId: string]
+  restartVersion: [versionId: string]
 }>()
 
 const search = defineModel<string>("search")
@@ -66,11 +67,7 @@ const headers = [
 
     <!-- Enabled Column -->
     <template #item.enabled="{ item }">
-      <VChip
-        size="small"
-        :color="item.enabled ? 'success' : 'secondary'"
-        class="text-uppercase"
-      >
+      <VChip size="small" :color="item.enabled ? 'success' : 'secondary'" class="text-uppercase">
         {{ item.enabled ? "Enabled" : "Disabled" }}
       </VChip>
     </template>
@@ -85,6 +82,13 @@ const headers = [
             workerId: workerId,
             versionId: item.id,
           }"
+        />
+        <TableItemAction
+          icon="mdi-restart"
+          tooltip="Restart Worker Version"
+          variant="text"
+          size="small"
+          @click="emit('restartVersion', item.id)"
         />
         <TableItemAction
           icon="mdi-console"

@@ -1,179 +1,197 @@
-import type { databases } from "@highstate/library"
-import { l3EndpointToString } from "@highstate/common"
+import type { UnitTerminal } from "@highstate/contract"
 import {
-  createScriptContainer,
-  Job,
-  NetworkPolicy,
-  requireBestEndpoint,
-  type ScopedResourceArgs,
-  ScriptBundle,
+  generateKey,
+  generatePassword,
+  l3EndpointToString,
+  l4EndpointToString,
+} from "@highstate/common"
+import {
+  Chart,
+  createMonitorWorker,
+  KubeCommand,
+  Namespace,
+  PersistentVolumeClaim,
   Secret,
+  StatefulSet,
 } from "@highstate/k8s"
+import { k8s, postgresql } from "@highstate/library"
 import {
-  ComponentResource,
-  type ComponentResourceOptions,
-  type Input,
-  interpolate,
+  forUnit,
+  makeEntityOutput,
+  makeSecretOutput,
   type Output,
-  output,
+  toPromise,
 } from "@highstate/pulumi"
-import { baseEnvironment, initEnvironment } from "./scripts"
+import { BackupJobPair } from "@highstate/restic"
+import { charts, createBootstrapServiceEndpoint } from "../shared"
+import { backupEnvironment, baseEnvironment } from "./scripts"
 
-export type PostgreSQLDatabaseArgs = ScopedResourceArgs & {
-  /**
-   * The PostgreSQL instance to create the database in.
-   */
-  postgresql: Input<databases.PostgreSQL>
+const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.postgresql)
 
-  /**
-   * The name of the database to create.
-   *
-   * By default, the database name is the same as the name of the resource.
-   */
-  database?: Input<string>
+const namespace = Namespace.create(args.namespace ?? args.appName, { cluster: inputs.k8sCluster })
 
-  /**
-   * The name of the user to create.
-   *
-   * By default, the user name is the same as the database name.
-   */
-  username?: Input<string>
+const adminPassword = getSecret("adminPassword", generatePassword)
+const backupKey = getSecret("backupKey", generateKey)
 
-  /**
-   * The password of the user.
-   */
-  password: Input<string>
-}
+const adminPasswordSecret = Secret.create(
+  `${args.appName}-admin-password`,
+  {
+    namespace,
 
-export class PostgreSQLDatabase extends ComponentResource {
-  /**
-   * The secret to store the root password.
-   */
-  readonly rootPassword: Secret
+    stringData: {
+      "postgres-password": adminPassword,
+    },
+  },
+  { deletedWith: namespace },
+)
 
-  /**
-   * The secret to store the database credentials.
-   */
-  readonly credentials: Secret
+const dataVolumeClaim = PersistentVolumeClaim.create(
+  `${args.appName}-data`,
+  { namespace },
+  { deletedWith: namespace },
+)
 
-  /**
-   * The script bundle used to create the database.
-   */
-  readonly scriptBundle: ScriptBundle
+const serviceEndpoint = createBootstrapServiceEndpoint(namespace, args.appName, 5432)
 
-  /**
-   * The job to create the database.
-   */
-  readonly initJob: Job
-
-  /**
-   * The network policy to allow access to the database from the namespace.
-   * If the namespace is equal to the namespace of the PostgreSQL instance,
-   * the policy will not be created.
-   */
-  readonly networkPolicy: Output<NetworkPolicy | undefined>
-
-  constructor(name: string, args: PostgreSQLDatabaseArgs, opts?: ComponentResourceOptions) {
-    super("highstate:apps:PostgreSQLDatabase", name, args, opts)
-
-    this.rootPassword = Secret.create(
-      `${name}-postgresql-root-password`,
+const backupJobPair = inputs.resticRepo
+  ? new BackupJobPair(
+      args.appName,
       {
-        namespace: args.namespace,
+        namespace,
 
-        stringData: {
-          "postgres-password": output(args.postgresql).apply(p => p.password ?? ""),
-        },
-      },
-      { ...opts, parent: this },
-    )
+        resticRepo: inputs.resticRepo,
+        backupKey,
 
-    const database = args.database ?? name
-    const username = args.username ?? database
-
-    const endpoint = output({
-      cluster: output(args.namespace).cluster,
-      endpoints: output(args.postgresql).endpoints,
-    }).apply(({ endpoints, cluster }) => requireBestEndpoint(endpoints, cluster))
-
-    const host = endpoint.apply(l3EndpointToString)
-    const port = endpoint.apply(ep => ep.port?.toString() ?? "")
-
-    this.credentials = Secret.create(
-      `${name}-postgresql-credentials`,
-      {
-        namespace: args.namespace,
-
-        stringData: {
-          host,
-          port,
-          database,
-          username,
-          password: args.password,
-          url: interpolate`postgresql://${username}:${args.password}@${host}:${port}/${database}`,
-        },
-      },
-      { ...opts, parent: this },
-    )
-
-    this.scriptBundle = new ScriptBundle(
-      `${name}-postgresql-scripts`,
-      {
-        namespace: args.namespace,
-
-        distribution: "alpine",
-        environments: [baseEnvironment, initEnvironment],
+        environments: [baseEnvironment, backupEnvironment],
 
         environment: {
           environment: {
             PGPASSWORD: {
-              secret: this.rootPassword,
+              secret: adminPasswordSecret,
               key: "postgres-password",
             },
-            DATABASE_HOST: {
-              secret: this.credentials,
-              key: "host",
-            },
-            DATABASE_PORT: {
-              secret: this.credentials,
-              key: "port",
-            },
-            DATABASE_NAME: {
-              secret: this.credentials,
-              key: "database",
-            },
-            DATABASE_USER: {
-              secret: this.credentials,
-              key: "username",
-            },
-            DATABASE_PASSWORD: {
-              secret: this.credentials,
-              key: "password",
-            },
+            DATABASE_HOST: serviceEndpoint.apply(l3EndpointToString),
+            DATABASE_PORT: "5432",
           },
         },
+
+        restoreContainer: {
+          volume: dataVolumeClaim,
+
+          volumeMount: {
+            volume: dataVolumeClaim,
+            mountPath: "/data",
+            subPath: "18/docker",
+          },
+        },
+
+        allowedEndpoints: [serviceEndpoint],
       },
-      { ...opts, parent: this },
+      { dependsOn: dataVolumeClaim, deletedWith: namespace },
     )
+  : undefined
 
-    this.initJob = Job.create(
-      `${name}-postgresql-init`,
-      {
-        namespace: args.namespace,
+const chart = new Chart(
+  args.appName,
+  {
+    namespace,
 
-        container: createScriptContainer({
-          bundle: this.scriptBundle,
-          main: "init-database.sh",
-        }),
+    chart: charts.postgresql,
+
+    values: {
+      fullnameOverride: args.appName,
+      nameOverride: args.appName,
+
+      auth: {
+        existingSecret: adminPasswordSecret.metadata.name,
       },
-      { ...opts, parent: this },
-    )
 
-    this.networkPolicy = output({
-      namespace: args.namespace,
-      endpoints: output(args.postgresql).endpoints,
-    }).apply(async ({ namespace, endpoints }) =>
-      NetworkPolicy.allowEgressToBestEndpoint(namespace, endpoints),
-    )
-  }
-}
+      config: {
+        pgHbaConfig: [
+          "local all         all           peer",
+          "host  all         all 0.0.0.0/0 scram-sha-256",
+          "host  replication all 0.0.0.0/0 scram-sha-256",
+        ].join("\n"),
+      },
+
+      persistence: {
+        existingClaim: dataVolumeClaim.metadata.name,
+      },
+    },
+
+    service: {
+      external: args.external,
+    },
+  },
+  { dependsOn: backupJobPair, deletedWith: namespace },
+)
+
+const endpoints = await toPromise(chart.service.endpoints)
+const workloads = await toPromise(chart.workloads)
+
+const systemIdCommand = KubeCommand.execInto(`${args.appName}-system-id`, {
+  workload: chart.statefulSet,
+  create: 'psql -tc "select to_hex(system_identifier) from pg_control_system();"',
+})
+
+const connection = makeEntityOutput({
+  entity: postgresql.connectionEntity,
+  identity: systemIdCommand.stdout.apply(s => s.trim()),
+  meta: {
+    title: args.appName,
+  },
+  value: {
+    endpoints,
+    insecure: true,
+    credentials: {
+      type: "password",
+      username: "postgres",
+      password: makeSecretOutput(adminPassword),
+    },
+  },
+})
+
+export default outputs({
+  connection,
+  statefulSet: chart.statefulSet.entity,
+
+  $statusFields: {
+    endpoints: endpoints.map(l4EndpointToString),
+  },
+
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
+
+  $terminals: chart.workloads.apply(workloads => {
+    const terminals: Output<UnitTerminal>[] = []
+
+    const statefulSet = workloads.find(wl => wl instanceof StatefulSet)
+    if (statefulSet) {
+      const terminal = statefulSet.createTerminal(
+        "client",
+        {
+          title: "PostgreSQL Client",
+          globalTitle: `PostgreSQL Client | ${args.appName}`,
+          description: "Connect to the PostgreSQL database via Kubernetes.",
+          icon: "simple-icons:postgresql",
+          iconColor: "#336791",
+        },
+        ["psql", "-U", "postgres", "-d", "postgres"],
+        {
+          env: {
+            PGPASSWORD: adminPassword,
+          },
+        },
+      )
+
+      terminals.push(terminal, ...statefulSet.terminals)
+    }
+
+    if (backupJobPair) {
+      terminals.push(...backupJobPair.terminals)
+    }
+
+    return [...terminals]
+  }),
+
+  $workers: [await createMonitorWorker(namespace, [chart.service, ...workloads])],
+})

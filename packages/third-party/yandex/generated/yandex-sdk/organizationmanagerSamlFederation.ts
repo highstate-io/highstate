@@ -34,18 +34,59 @@ export class OrganizationmanagerSamlFederation extends pulumi.CustomResource {
         return obj['__pulumiType'] === OrganizationmanagerSamlFederation.__pulumiType;
     }
 
+    /**
+     * Add new users automatically on successful authentication. The user will get the `resource-manager.clouds.member` role
+     * automatically, but you need to grant other roles to them. If the value is `false`, users who aren't added to the cloud
+     * can't log in, even if they have authenticated on your server.
+     */
     declare public readonly autoCreateAccountOnLogin: pulumi.Output<boolean>;
+    /**
+     * Use case-insensitive name IDs.
+     */
     declare public readonly caseInsensitiveNameIds: pulumi.Output<boolean>;
+    /**
+     * The lifetime of a Browser cookie in seconds. If the cookie is still valid, the management console authenticates the user
+     * immediately and redirects them to the home page. The default value is `8h`.
+     */
     declare public readonly cookieMaxAge: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The ID of the IdP server to be used for authentication. The IdP server also responds to IAM with this ID after the user
+     * authenticates.
+     */
     declare public readonly issuer: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The organization to attach this SAML Federation to.
+     */
     declare public readonly organizationId: pulumi.Output<string>;
     declare public readonly organizationmanagerSamlFederationId: pulumi.Output<string>;
+    /**
+     * Federation security settings.
+     */
     declare public readonly securitySettings: pulumi.Output<outputs.OrganizationmanagerSamlFederationSecuritySettings | undefined>;
+    /**
+     * Single sign-on endpoint binding type. Most Identity Providers support the `POST` binding type. SAML Binding is a mapping
+     * of a SAML protocol message onto standard messaging formats and/or communications protocols.
+     */
     declare public readonly ssoBinding: pulumi.Output<string>;
+    /**
+     * Single sign-on (SSO) endpoint URL. Specify the link to the IdP login page here.
+     */
     declare public readonly ssoUrl: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.OrganizationmanagerSamlFederationTimeouts | undefined>;
 
@@ -114,18 +155,59 @@ export class OrganizationmanagerSamlFederation extends pulumi.CustomResource {
  * Input properties used for looking up and filtering OrganizationmanagerSamlFederation resources.
  */
 export interface OrganizationmanagerSamlFederationState {
+    /**
+     * Add new users automatically on successful authentication. The user will get the `resource-manager.clouds.member` role
+     * automatically, but you need to grant other roles to them. If the value is `false`, users who aren't added to the cloud
+     * can't log in, even if they have authenticated on your server.
+     */
     autoCreateAccountOnLogin?: pulumi.Input<boolean>;
+    /**
+     * Use case-insensitive name IDs.
+     */
     caseInsensitiveNameIds?: pulumi.Input<boolean>;
+    /**
+     * The lifetime of a Browser cookie in seconds. If the cookie is still valid, the management console authenticates the user
+     * immediately and redirects them to the home page. The default value is `8h`.
+     */
     cookieMaxAge?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The ID of the IdP server to be used for authentication. The IdP server also responds to IAM with this ID after the user
+     * authenticates.
+     */
     issuer?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The organization to attach this SAML Federation to.
+     */
     organizationId?: pulumi.Input<string>;
     organizationmanagerSamlFederationId?: pulumi.Input<string>;
+    /**
+     * Federation security settings.
+     */
     securitySettings?: pulumi.Input<inputs.OrganizationmanagerSamlFederationSecuritySettings>;
+    /**
+     * Single sign-on endpoint binding type. Most Identity Providers support the `POST` binding type. SAML Binding is a mapping
+     * of a SAML protocol message onto standard messaging formats and/or communications protocols.
+     */
     ssoBinding?: pulumi.Input<string>;
+    /**
+     * Single sign-on (SSO) endpoint URL. Specify the link to the IdP login page here.
+     */
     ssoUrl?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerSamlFederationTimeouts>;
 }
@@ -134,17 +216,55 @@ export interface OrganizationmanagerSamlFederationState {
  * The set of arguments for constructing a OrganizationmanagerSamlFederation resource.
  */
 export interface OrganizationmanagerSamlFederationArgs {
+    /**
+     * Add new users automatically on successful authentication. The user will get the `resource-manager.clouds.member` role
+     * automatically, but you need to grant other roles to them. If the value is `false`, users who aren't added to the cloud
+     * can't log in, even if they have authenticated on your server.
+     */
     autoCreateAccountOnLogin?: pulumi.Input<boolean>;
+    /**
+     * Use case-insensitive name IDs.
+     */
     caseInsensitiveNameIds?: pulumi.Input<boolean>;
+    /**
+     * The lifetime of a Browser cookie in seconds. If the cookie is still valid, the management console authenticates the user
+     * immediately and redirects them to the home page. The default value is `8h`.
+     */
     cookieMaxAge?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The ID of the IdP server to be used for authentication. The IdP server also responds to IAM with this ID after the user
+     * authenticates.
+     */
     issuer: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The organization to attach this SAML Federation to.
+     */
     organizationId: pulumi.Input<string>;
     organizationmanagerSamlFederationId?: pulumi.Input<string>;
+    /**
+     * Federation security settings.
+     */
     securitySettings?: pulumi.Input<inputs.OrganizationmanagerSamlFederationSecuritySettings>;
+    /**
+     * Single sign-on endpoint binding type. Most Identity Providers support the `POST` binding type. SAML Binding is a mapping
+     * of a SAML protocol message onto standard messaging formats and/or communications protocols.
+     */
     ssoBinding: pulumi.Input<string>;
+    /**
+     * Single sign-on (SSO) endpoint URL. Specify the link to the IdP login page here.
+     */
     ssoUrl: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerSamlFederationTimeouts>;
 }

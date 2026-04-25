@@ -6,6 +6,7 @@ import type {
 } from "@highstate/backend/shared"
 import type { ComponentModel, InstanceModel } from "@highstate/contract"
 import { ComponentIcon } from "#layers/core/app/features/shared"
+import { getVisibleOperationOptions } from "#layers/core/app/features/instance-context-menu"
 import OperationPlanTree from "./OperationPlanTree.vue"
 import OperationOptions from "./OperationOptions.vue"
 
@@ -25,7 +26,11 @@ const firstInstance = computed(() => instances[0])
 const options = ref<OperationOptionsType>({
   forceUpdateDependencies: false,
   ignoreDependencies: false,
+  ignoreChangedDependencies: false,
   forceUpdateChildren: false,
+  onlyDestroyGhosts: false,
+  firstDestroyGhosts: false,
+  ignoreGhosts: false,
   destroyDependentInstances: false,
   invokeDestroyTriggers: true,
   deleteUnreachableResources: false,
@@ -41,6 +46,9 @@ const planError = ref<string | null>(null)
 
 const operationTitle = ref("")
 const operationDescription = ref("")
+const isCompositeTargetsOnly = computed(() =>
+  instances.every(instance => instance.kind === "composite"),
+)
 
 watch(
   [() => operation, () => instances],
@@ -142,8 +150,17 @@ const phaseCounts = computed(() => {
   }
 })
 
-const formatInstanceCount = (count: number) =>
-  `${count} instance${count === 1 ? "" : "s"}`
+const activeWarnings = computed(() => {
+  const warningMessages = getVisibleOperationOptions(operation, {
+    compositeTargetsOnly: isCompositeTargetsOnly.value,
+  })
+    .filter(config => Boolean(config.warning) && Boolean(options.value[config.key]))
+    .map(config => config.warning as string)
+
+  return [...new Set(warningMessages)]
+})
+
+const formatInstanceCount = (count: number) => `${count} instance${count === 1 ? "" : "s"}`
 
 const opText = computed(() => {
   switch (operation) {
@@ -311,7 +328,11 @@ const title = computed(() => {
                 </p>
               </div>
               <div class="options-scrollable">
-                <OperationOptions v-model:options="options" :operation="operation" />
+                <OperationOptions
+                  v-model:options="options"
+                  :operation="operation"
+                  :composite-targets-only="isCompositeTargetsOnly"
+                />
               </div>
             </VCol>
 
@@ -337,6 +358,18 @@ const title = computed(() => {
               </div>
               <div class="plan-scrollable">
                 <OperationPlanTree :phases="operationPlan" />
+              </div>
+
+              <div v-if="activeWarnings.length > 0" class="plan-warnings">
+                <VAlert
+                  v-for="warning in activeWarnings"
+                  :key="warning"
+                  density="compact"
+                  type="warning"
+                  variant="outlined"
+                >
+                  {{ warning }}
+                </VAlert>
               </div>
             </VCol>
           </VRow>
@@ -394,6 +427,11 @@ const title = computed(() => {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+}
+
+.plan-warnings {
+  flex: 0 0 auto;
+  margin-top: 12px;
 }
 
 @media (max-width: 960px) {

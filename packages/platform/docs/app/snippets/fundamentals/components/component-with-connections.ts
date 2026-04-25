@@ -1,5 +1,5 @@
 import { defineUnit, z } from "@highstate/contract"
-import { common, databases, k8s } from "@highstate/library"
+import { common, k8s, mysql } from "@highstate/library"
 
 export const blogApp = defineUnit({
   type: "acme.blog-app.v1",
@@ -14,7 +14,7 @@ export const blogApp = defineUnit({
     // this blog needs a Kubernetes cluster to deploy to
     cluster: k8s.clusterEntity,
     // and a database to store posts
-    database: databases.mariadbEntity,
+    database: mysql.connectionEntity,
   },
 
   outputs: {

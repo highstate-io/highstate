@@ -34,10 +34,23 @@ export class KmsSecretCiphertext extends pulumi.CustomResource {
         return obj['__pulumiType'] === KmsSecretCiphertext.__pulumiType;
     }
 
+    /**
+     * Additional authenticated data (AAD context), optional. If specified, this data will be required for decryption with the
+     * `SymmetricDecryptRequest`.
+     */
     declare public readonly aadContext: pulumi.Output<string | undefined>;
+    /**
+     * Resulting CipherText, encoded with `standard` base64 alphabet as defined in RFC 4648 section 4.
+     */
     declare public /*out*/ readonly ciphertext: pulumi.Output<string>;
+    /**
+     * ID of the symmetric KMS key to use for encryption.
+     */
     declare public readonly keyId: pulumi.Output<string>;
     declare public readonly kmsSecretCiphertextId: pulumi.Output<string>;
+    /**
+     * Plaintext to be encrypted.
+     */
     declare public readonly plaintext: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.KmsSecretCiphertextTimeouts | undefined>;
 
@@ -86,10 +99,23 @@ export class KmsSecretCiphertext extends pulumi.CustomResource {
  * Input properties used for looking up and filtering KmsSecretCiphertext resources.
  */
 export interface KmsSecretCiphertextState {
+    /**
+     * Additional authenticated data (AAD context), optional. If specified, this data will be required for decryption with the
+     * `SymmetricDecryptRequest`.
+     */
     aadContext?: pulumi.Input<string>;
+    /**
+     * Resulting CipherText, encoded with `standard` base64 alphabet as defined in RFC 4648 section 4.
+     */
     ciphertext?: pulumi.Input<string>;
+    /**
+     * ID of the symmetric KMS key to use for encryption.
+     */
     keyId?: pulumi.Input<string>;
     kmsSecretCiphertextId?: pulumi.Input<string>;
+    /**
+     * Plaintext to be encrypted.
+     */
     plaintext?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KmsSecretCiphertextTimeouts>;
 }
@@ -98,9 +124,19 @@ export interface KmsSecretCiphertextState {
  * The set of arguments for constructing a KmsSecretCiphertext resource.
  */
 export interface KmsSecretCiphertextArgs {
+    /**
+     * Additional authenticated data (AAD context), optional. If specified, this data will be required for decryption with the
+     * `SymmetricDecryptRequest`.
+     */
     aadContext?: pulumi.Input<string>;
+    /**
+     * ID of the symmetric KMS key to use for encryption.
+     */
     keyId: pulumi.Input<string>;
     kmsSecretCiphertextId?: pulumi.Input<string>;
+    /**
+     * Plaintext to be encrypted.
+     */
     plaintext: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KmsSecretCiphertextTimeouts>;
 }

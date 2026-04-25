@@ -49,6 +49,14 @@ export type GraphResolverOutput =
       dependents: string[] | undefined
     }
   | {
+      type: "dependent-set-batch"
+      resolverId: string
+      items: Array<{
+        nodeId: string
+        dependents: string[] | undefined
+      }>
+    }
+  | {
       type: "ready"
     }
   | {
@@ -65,9 +73,84 @@ type GraphResolverState = {
   resolver: GraphResolver<unknown, unknown>
   abortController: AbortController
   logger: Logger
+  isProcessing: boolean
+  processRequested: boolean
+  pendingOutputs: Map<string, OutputItem>
+  pendingDependentSets: Map<string, string[] | undefined>
+  flushTimer: ReturnType<typeof setTimeout> | null
 }
 
 const resolvers = new Map<string, GraphResolverState>()
+
+const OUTPUT_CHUNK_SIZE = 128
+
+const flushOutputs = (port: MessagePort, resolverId: string, state: GraphResolverState) => {
+  if (state.pendingOutputs.size === 0) {
+    return
+  }
+
+  const items = Array.from(state.pendingOutputs.values())
+  state.pendingOutputs.clear()
+
+  for (let i = 0; i < items.length; i += OUTPUT_CHUNK_SIZE) {
+    postMessage(port, {
+      type: "outputs",
+      resolverId,
+      items: items.slice(i, i + OUTPUT_CHUNK_SIZE),
+    })
+  }
+}
+
+const scheduleFlush = (port: MessagePort, resolverId: string, state: GraphResolverState) => {
+  if (state.flushTimer) {
+    return
+  }
+
+  state.flushTimer = setTimeout(() => {
+    state.flushTimer = null
+
+    flushOutputs(port, resolverId, state)
+
+    if (state.pendingDependentSets.size > 0) {
+      const items = Array.from(state.pendingDependentSets.entries()).map(([nodeId, dependents]) => ({
+        nodeId,
+        dependents,
+      }))
+
+      postMessage(port, {
+        type: "dependent-set-batch",
+        resolverId,
+        items,
+      })
+      state.pendingDependentSets.clear()
+    }
+  }, 0)
+}
+
+const requestProcess = (port: MessagePort, state: GraphResolverState) => {
+  if (state.isProcessing) {
+    state.processRequested = true
+    return
+  }
+
+  state.isProcessing = true
+
+  const signal = state.abortController.signal
+
+  void state.resolver
+    .process(signal)
+    .catch(error => {
+      state.logger.error({ error }, "failed to process resolver updates")
+    })
+    .finally(() => {
+      state.isProcessing = false
+
+      if (state.processRequested) {
+        state.processRequested = false
+        requestProcess(port, state)
+      }
+    })
+}
 
 const createGraphResolver = async (
   port: MessagePort,
@@ -87,22 +170,25 @@ const createGraphResolver = async (
   })
 
   const outputHandler: ResolverOutputHandler<unknown> = (id, value) => {
-    postMessage(port, {
-      type: "outputs",
-      resolverId,
-      items: [{ nodeId: id, output: value }],
-    })
+    const state = resolvers.get(resolverId)
+    if (!state) {
+      return
+    }
+
+    state.pendingOutputs.set(id, { nodeId: id, output: value })
+    scheduleFlush(port, resolverId, state)
   }
 
   let dependentSetHandler: DependentSetHandler | undefined
   if (syncDependentMap) {
     dependentSetHandler = (id, dependents) => {
-      postMessage(port, {
-        type: "dependent-set",
-        resolverId,
-        nodeId: id,
-        dependents: dependents && Array.from(dependents),
-      })
+      const state = resolvers.get(resolverId)
+      if (!state) {
+        return
+      }
+
+      state.pendingDependentSets.set(id, dependents && Array.from(dependents))
+      scheduleFlush(port, resolverId, state)
     }
   }
 
@@ -118,10 +204,38 @@ const createGraphResolver = async (
     resolver,
     logger,
     abortController: new AbortController(),
+    isProcessing: false,
+    processRequested: false,
+    pendingOutputs: new Map(),
+    pendingDependentSets: new Map(),
+    flushTimer: null,
   })
 
   resolver.addAllNodesToWorkset()
   await resolver.process()
+
+  const createdState = resolvers.get(resolverId)
+  if (createdState) {
+    if (createdState.flushTimer) {
+      clearTimeout(createdState.flushTimer)
+      createdState.flushTimer = null
+    }
+
+    flushOutputs(port, resolverId, createdState)
+
+    if (createdState.pendingDependentSets.size > 0) {
+      const items = Array.from(createdState.pendingDependentSets.entries()).map(
+        ([nodeId, dependents]) => ({ nodeId, dependents }),
+      )
+
+      postMessage(port, {
+        type: "dependent-set-batch",
+        resolverId,
+        items,
+      })
+      createdState.pendingDependentSets.clear()
+    }
+  }
 
   postMessage(port, { type: "resolver-ready", resolverId })
 }
@@ -131,31 +245,36 @@ const invalidateInput = (state: GraphResolverState, key: string, node: unknown) 
   state.abortController = new AbortController()
 
   state.nodes.set(key, node)
+
   state.resolver.invalidate(key)
-  state.resolver.process(state.abortController.signal)
 }
 
-const updateInput = (resolverId: string, nodeId: string, node: unknown) => {
+const updateInput = (port: MessagePort, resolverId: string, nodeId: string, node: unknown) => {
   const state = resolvers.get(resolverId)
   if (!state) {
     throw new Error(`Unknown state: ${resolverId}`)
   }
 
-  state.nodes.set(nodeId, node)
   invalidateInput(state, nodeId, node)
+  requestProcess(port, state)
 }
 
-const deleteInput = (resolverId: string, nodeId: string) => {
+const deleteInput = (port: MessagePort, resolverId: string, nodeId: string) => {
   const state = resolvers.get(resolverId)
   if (!state) {
     throw new Error(`Unknown state: ${resolverId}`)
   }
 
-  state.nodes.delete(nodeId)
   invalidateInput(state, nodeId, undefined)
+  requestProcess(port, state)
 }
 
 const disposeResolver = (resolverId: string) => {
+  const state = resolvers.get(resolverId)
+  if (state?.flushTimer) {
+    clearTimeout(state.flushTimer)
+  }
+
   resolvers.delete(resolverId)
 }
 
@@ -172,11 +291,11 @@ const disposeResolver = (resolverId: string) => {
         break
       }
       case "update-input": {
-        updateInput(data.resolverId, data.nodeId, data.node)
+        updateInput(port, data.resolverId, data.nodeId, data.node)
         break
       }
       case "delete-input": {
-        deleteInput(data.resolverId, data.nodeId)
+        deleteInput(port, data.resolverId, data.nodeId)
         break
       }
       case "dispose-resolver": {

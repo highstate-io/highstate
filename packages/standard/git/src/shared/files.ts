@@ -1,5 +1,6 @@
 import type { CommonObjectMeta } from "@highstate/contract"
 import type { common } from "@highstate/library"
+import { randomUUID } from "node:crypto"
 import { glob, readFile, stat } from "node:fs/promises"
 import { dirname, extname, join } from "node:path"
 import {
@@ -7,9 +8,12 @@ import {
   getNameByEndpoint,
   type InputL7Endpoint,
   l7EndpointToString,
+  type MaterializationAction,
   MaterializedFolder,
   parseEndpoint,
 } from "@highstate/common"
+import { common as entities } from "@highstate/library"
+import { getCombinedIdentity, makeEntity } from "@highstate/pulumi"
 import { type SimpleGit, simpleGit } from "simple-git"
 
 export type RepositoryPackOptions = FolderPackOptions & {
@@ -44,20 +48,55 @@ export type RepositoryPackOptions = FolderPackOptions & {
  * and checking out branches.
  */
 export class MaterializedRepository implements AsyncDisposable {
-  private _path!: string
-  private _folder!: MaterializedFolder
-  private _git!: SimpleGit
+  private _path?: string
+  private readonly _folder: MaterializedFolder
+  private _git?: SimpleGit
+  private _rootRef?: AsyncDisposable
 
   constructor(
     readonly entity: common.Folder,
     private readonly parent?: MaterializedRepository | MaterializedFolder,
-  ) {}
+  ) {
+    const { folder, isCloneSource } = this._materializeFolder()
+    this._folder = folder
+    this._path = folder.path
+
+    folder.onMaterialized(async () => {
+      if (isCloneSource) {
+        await this._cloneRepository()
+
+        const remoteContent = this.entity.content
+        if (remoteContent.type === "remote") {
+          this.artifactMeta.description = `Cloned from "${l7EndpointToString(remoteContent.endpoint)}".`
+        }
+      } else {
+        await this._initializeGitIfNeeded()
+      }
+
+      this.artifactMeta.title = "Git Repository"
+      this.artifactMeta.icon = "simple-icons:git"
+      this.artifactMeta.iconColor = "#f1502f"
+
+      this._git = simpleGit(this.path)
+
+      await this.git.addConfig("user.name", "Highstate")
+      await this.git.addConfig("user.email", "highstate@highstate.io")
+    })
+  }
 
   get path(): string {
+    if (!this._path) {
+      throw new Error("MaterializedRepository is not opened")
+    }
+
     return this._path
   }
 
   get git(): SimpleGit {
+    if (!this._git) {
+      throw new Error("MaterializedRepository is not opened")
+    }
+
     return this._git
   }
 
@@ -86,76 +125,62 @@ export class MaterializedRepository implements AsyncDisposable {
   }
 
   /**
-   * Opens the repository by handling different content types and git-specific operations.
+   * Opens the materialized repository and returns a reference that keeps it open.
    */
-  private async _open(): Promise<void> {
+  async open(): Promise<AsyncDisposable> {
+    return await this.folder.open()
+  }
+
+  /**
+   * Sets the action to be performed when the repository is materialized.
+   */
+  onMaterialized(action: MaterializationAction): void {
+    this.folder.onMaterialized(action)
+  }
+
+  private _materializeFolder(): { folder: MaterializedFolder; isCloneSource: boolean } {
+    const parent = this.getParent()
     const folderContent = this.entity.content
+    const isCloneSource =
+      folderContent.type === "remote" &&
+      this._shouldCloneAsGitRepo(l7EndpointToString(folderContent.endpoint))
 
-    switch (folderContent.type) {
-      case "embedded": {
-        // for embedded content, use MaterializedFolder to handle the files
-        this._folder = await MaterializedFolder.open(this.entity, this.getParent())
-        this._path = this._folder.path
+    const folderEntity = isCloneSource ? this._makeEmptyFolderEntity() : this.entity
 
-        // initialize git repository if it's not already one
-        await this._initializeGitIfNeeded()
-        break
-      }
-      case "local": {
-        // for local content, first materialize the folder then handle git operations
-        this._folder = await MaterializedFolder.open(this.entity, this.getParent())
-        this._path = this._folder.path
-
-        // check if it's already a git repository, if not initialize it
-        await this._initializeGitIfNeeded()
-        break
-      }
-      case "remote": {
-        const url = l7EndpointToString(folderContent.endpoint)
-
-        // check if remote path should be cloned as git repo
-        if (this._shouldCloneAsGitRepo(url)) {
-          // create empty folder and materialize it for cloning
-          this._folder = await MaterializedFolder.create(
-            this.entity.meta.name,
-            undefined,
-            this.getParent(),
-          )
-
-          this.artifactMeta.description = `Cloned from "${url}".`
-
-          this._path = this._folder.path
-          await this._cloneRepository()
-        } else {
-          // use MaterializedFolder for non-git remote content
-          this._folder = await MaterializedFolder.open(this.entity, this.getParent())
-          this._path = this._folder.path
-          await this._initializeGitIfNeeded()
-        }
-        break
-      }
-      case "artifact": {
-        // for artifact content, use MaterializedFolder to extract and then handle git operations
-        this._folder = await MaterializedFolder.open(this.entity, this.getParent())
-        this._path = this._folder.path
-
-        // initialize git repository if needed
-        await this._initializeGitIfNeeded()
-        break
+    if (!parent) {
+      return {
+        folder: MaterializedFolder.for(
+          folderEntity,
+          `git-repository-${this.entity.$meta.identity}`,
+        ),
+        isCloneSource,
       }
     }
 
-    // set artifact metadata
-    this.artifactMeta.title = "Git Repository"
-    this.artifactMeta.icon = "simple-icons:git"
-    this.artifactMeta.iconColor = "#f1502f"
+    return {
+      // @ts-expect-error bypass constructor visibility for nested folder materialization
+      folder: new MaterializedFolder(folderEntity, undefined, parent),
+      isCloneSource,
+    }
+  }
 
-    // initialize git instance
-    this._git = simpleGit(this._path)
-
-    // set up user
-    await this.git.addConfig("user.name", "Highstate")
-    await this.git.addConfig("user.email", "highstate@highstate.io")
+  private _makeEmptyFolderEntity(): common.Folder {
+    return makeEntity({
+      entity: entities.folderEntity,
+      identity: `${this.entity.$meta.identity}:materialized-repository:${randomUUID()}`,
+      meta: {
+        title: this.entity.meta.name,
+      },
+      value: {
+        meta: {
+          name: this.entity.meta.name,
+          mode: this.entity.meta.mode,
+        },
+        content: {
+          type: "embedded",
+        },
+      },
+    })
   }
 
   /**
@@ -171,7 +196,7 @@ export class MaterializedRepository implements AsyncDisposable {
 
     try {
       const git = simpleGit()
-      await git.clone(url, this._path)
+      await git.clone(url, this.path)
     } catch (error) {
       throw new Error(
         `Failed to clone repository: ${error instanceof Error ? error.message : String(error)}`,
@@ -183,7 +208,7 @@ export class MaterializedRepository implements AsyncDisposable {
    * Initializes a git repository if the directory is not already a git repository.
    */
   private async _initializeGitIfNeeded(): Promise<void> {
-    const gitDir = join(this._folder.path, ".git")
+    const gitDir = join(this.folder.path, ".git")
 
     try {
       await stat(gitDir)
@@ -194,7 +219,7 @@ export class MaterializedRepository implements AsyncDisposable {
     }
 
     try {
-      const git = simpleGit(this._folder.path)
+      const git = simpleGit(this.folder.path)
       await git.init()
     } catch (error) {
       throw new Error(
@@ -205,8 +230,12 @@ export class MaterializedRepository implements AsyncDisposable {
 
   async [Symbol.asyncDispose](): Promise<void> {
     try {
-      // dispose the embedded folder
-      await this._folder[Symbol.asyncDispose]()
+      if (this._rootRef) {
+        await this._rootRef[Symbol.asyncDispose]()
+        this._rootRef = undefined
+      }
+
+      this._git = undefined
     } catch (error) {
       // ignore errors during cleanup
       console.warn("failed to clean up materialized repository:", error)
@@ -222,6 +251,8 @@ export class MaterializedRepository implements AsyncDisposable {
     includeGit,
     includeIgnored,
   }: RepositoryPackOptions = {}): Promise<common.ArtifactFolder> {
+    await using _ = await this.open()
+
     const excludePatterns = [...(exclude ?? []), ...(includeGit ? [] : [".git"])]
 
     if (!includeIgnored) {
@@ -229,7 +260,7 @@ export class MaterializedRepository implements AsyncDisposable {
       excludePatterns.push(...gitIgnorePatterns)
     }
 
-    return await this._folder.pack({
+    return await this.folder.pack({
       include,
       exclude: excludePatterns,
     })
@@ -237,10 +268,10 @@ export class MaterializedRepository implements AsyncDisposable {
 
   private async getGitIgnorePatterns(): Promise<string[]> {
     const result: string[] = []
-    const gitIgnoreFiles = glob(".gitignore", { cwd: this._folder.path })
+    const gitIgnoreFiles = glob(".gitignore", { cwd: this.folder.path })
 
     for await (const file of gitIgnoreFiles) {
-      const filePath = join(this._folder.path, file)
+      const filePath = join(this.folder.path, file)
       try {
         const relativePrefix = dirname(file)
 
@@ -282,21 +313,28 @@ export class MaterializedRepository implements AsyncDisposable {
   ): Promise<MaterializedRepository> {
     const parsedEndpoint = parseEndpoint(endpoint, 7)
 
-    const entity: common.Folder = {
+    const entity = makeEntity({
+      entity: entities.folderEntity,
+      identity: getCombinedIdentity(["git", endpoint]),
       meta: {
-        name: name ?? getNameByEndpoint(parsedEndpoint),
-        mode,
+        title: name ?? getNameByEndpoint(parsedEndpoint),
       },
-      content: {
-        type: "remote",
-        endpoint: parsedEndpoint,
+      value: {
+        meta: {
+          name: name ?? getNameByEndpoint(parsedEndpoint),
+          mode,
+        },
+        content: {
+          type: "remote",
+          endpoint: parsedEndpoint,
+        },
       },
-    }
+    })
 
     const materializedRepo = new MaterializedRepository(entity)
 
     try {
-      await materializedRepo._open()
+      materializedRepo._rootRef = await materializedRepo.open()
     } catch (error) {
       await materializedRepo[Symbol.asyncDispose]()
       throw error
@@ -313,22 +351,27 @@ export class MaterializedRepository implements AsyncDisposable {
    * @returns A new MaterializedRepository instance representing an empty repository
    */
   static async create(name: string, mode?: number): Promise<MaterializedRepository> {
-    const entity: common.Folder = {
+    const entity = makeEntity({
+      entity: entities.folderEntity,
+      identity: getCombinedIdentity(["git", "empty", name]),
       meta: {
-        name,
-        mode,
+        title: name,
       },
-      content: {
-        type: "embedded",
-        files: [],
-        folders: [],
+      value: {
+        meta: {
+          name,
+          mode,
+        },
+        content: {
+          type: "embedded",
+        },
       },
-    }
+    })
 
     const materializedRepo = new MaterializedRepository(entity)
 
     try {
-      await materializedRepo._open()
+      materializedRepo._rootRef = await materializedRepo.open()
     } catch (error) {
       await materializedRepo[Symbol.asyncDispose]()
       throw error
@@ -343,6 +386,7 @@ export class MaterializedRepository implements AsyncDisposable {
    * @param repository The repository entity to materialize
    * @returns A new MaterializedRepository instance
    */
+  // biome-ignore lint/suspicious/useAdjacentOverloadSignatures: class intentionally provides both instance and static open APIs
   static async open(
     repository: common.Folder,
     parent?: MaterializedRepository | MaterializedFolder,
@@ -350,7 +394,7 @@ export class MaterializedRepository implements AsyncDisposable {
     const materializedRepo = new MaterializedRepository(repository, parent)
 
     try {
-      await materializedRepo._open()
+      materializedRepo._rootRef = await materializedRepo.open()
     } catch (error) {
       await materializedRepo[Symbol.asyncDispose]()
       throw error

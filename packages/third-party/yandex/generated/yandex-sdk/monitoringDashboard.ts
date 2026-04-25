@@ -35,37 +35,37 @@ export class MonitoringDashboard extends pulumi.CustomResource {
     }
 
     /**
-     * Dashboard ID
+     * Dashboard ID.
      */
     declare public /*out*/ readonly dashboardId: pulumi.Output<string>;
     /**
-     * Dashboard description
+     * The resource description.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
-     * Folder ID
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
      */
     declare public readonly folderId: pulumi.Output<string>;
     /**
-     * Dashboard labels
+     * A set of key/value label pairs which assigned to resource.
      */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
     declare public readonly monitoringDashboardId: pulumi.Output<string>;
     /**
-     * Dashboard name, used as local identifier in folder_id
+     * The resource name.
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * Dashboard parametrization
+     * Dashboard parametrization.
      */
     declare public readonly parametrizations: pulumi.Output<outputs.MonitoringDashboardParametrization[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.MonitoringDashboardTimeouts | undefined>;
     /**
-     * Dashboard title
+     * Dashboard title.
      */
     declare public readonly title: pulumi.Output<string | undefined>;
     /**
-     * Widgets
+     * Widgets.
      */
     declare public readonly widgets: pulumi.Output<outputs.MonitoringDashboardWidget[] | undefined>;
 
@@ -115,37 +115,37 @@ export class MonitoringDashboard extends pulumi.CustomResource {
  */
 export interface MonitoringDashboardState {
     /**
-     * Dashboard ID
+     * Dashboard ID.
      */
     dashboardId?: pulumi.Input<string>;
     /**
-     * Dashboard description
+     * The resource description.
      */
     description?: pulumi.Input<string>;
     /**
-     * Folder ID
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
      */
     folderId?: pulumi.Input<string>;
     /**
-     * Dashboard labels
+     * A set of key/value label pairs which assigned to resource.
      */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     monitoringDashboardId?: pulumi.Input<string>;
     /**
-     * Dashboard name, used as local identifier in folder_id
+     * The resource name.
      */
     name?: pulumi.Input<string>;
     /**
-     * Dashboard parametrization
+     * Dashboard parametrization.
      */
     parametrizations?: pulumi.Input<pulumi.Input<inputs.MonitoringDashboardParametrization>[]>;
     timeouts?: pulumi.Input<inputs.MonitoringDashboardTimeouts>;
     /**
-     * Dashboard title
+     * Dashboard title.
      */
     title?: pulumi.Input<string>;
     /**
-     * Widgets
+     * Widgets.
      */
     widgets?: pulumi.Input<pulumi.Input<inputs.MonitoringDashboardWidget>[]>;
 }
@@ -155,33 +155,33 @@ export interface MonitoringDashboardState {
  */
 export interface MonitoringDashboardArgs {
     /**
-     * Dashboard description
+     * The resource description.
      */
     description?: pulumi.Input<string>;
     /**
-     * Folder ID
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
      */
     folderId?: pulumi.Input<string>;
     /**
-     * Dashboard labels
+     * A set of key/value label pairs which assigned to resource.
      */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     monitoringDashboardId?: pulumi.Input<string>;
     /**
-     * Dashboard name, used as local identifier in folder_id
+     * The resource name.
      */
     name?: pulumi.Input<string>;
     /**
-     * Dashboard parametrization
+     * Dashboard parametrization.
      */
     parametrizations?: pulumi.Input<pulumi.Input<inputs.MonitoringDashboardParametrization>[]>;
     timeouts?: pulumi.Input<inputs.MonitoringDashboardTimeouts>;
     /**
-     * Dashboard title
+     * Dashboard title.
      */
     title?: pulumi.Input<string>;
     /**
-     * Widgets
+     * Widgets.
      */
     widgets?: pulumi.Input<pulumi.Input<inputs.MonitoringDashboardWidget>[]>;
 }

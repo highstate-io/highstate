@@ -37,6 +37,10 @@ jobs:
         with:
           install: true
 
+      - name: Compute git variables
+        id: git
+        run: echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
       - name: Build and push terminal.base
         id: build-base
         uses: docker/build-push-action@v6
@@ -44,7 +48,9 @@ jobs:
           context: ./docker
           file: ./docker/terminal.base.dockerfile
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}/terminal.base:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/terminal.base:latest
+            ${{ env.IMAGE_PREFIX }}/terminal.base:${{ steps.git.outputs.short_sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -56,7 +62,9 @@ jobs:
           context: ./docker
           file: ./docker/terminal.kubectl.dockerfile
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}/terminal.kubectl:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/terminal.kubectl:latest
+            ${{ env.IMAGE_PREFIX }}/terminal.kubectl:${{ steps.git.outputs.short_sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -70,7 +78,9 @@ jobs:
           context: ./docker
           file: ./docker/terminal.restic.dockerfile
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}/terminal.restic:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/terminal.restic:latest
+            ${{ env.IMAGE_PREFIX }}/terminal.restic:${{ steps.git.outputs.short_sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -84,7 +94,9 @@ jobs:
           context: ./docker
           file: ./docker/terminal.ssh.dockerfile
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}/terminal.ssh:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/terminal.ssh:latest
+            ${{ env.IMAGE_PREFIX }}/terminal.ssh:${{ steps.git.outputs.short_sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -98,7 +110,9 @@ jobs:
           context: ./docker
           file: ./docker/terminal.talosctl.dockerfile
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}/terminal.talosctl:latest
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/terminal.talosctl:latest
+            ${{ env.IMAGE_PREFIX }}/terminal.talosctl:${{ steps.git.outputs.short_sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max

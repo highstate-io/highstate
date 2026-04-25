@@ -1,11 +1,10 @@
 import type { UnitTerminal } from "@highstate/contract"
-import type { Output } from "@highstate/pulumi"
 import { createServerBundle, parseEndpoint } from "@highstate/common"
 import { type common, proxmox, type ssh } from "@highstate/library"
-import { forUnit, output, toPromise } from "@highstate/pulumi"
+import { forUnit, makeEntityOutput, output, toPromise } from "@highstate/pulumi"
 import { cluster, Provider, storage } from "@muhlba91/pulumi-proxmoxve"
 
-const { name, args, secrets, inputs, outputs } = forUnit(proxmox.connection)
+const { stateId, name, args, secrets, inputs, outputs } = forUnit(proxmox.connection)
 
 const provider = await toPromise(
   output({ args, secrets }).apply(({ args, secrets }) => {
@@ -14,7 +13,7 @@ const provider = await toPromise(
       insecure: args.insecure,
 
       username: args.username,
-      password: secrets.sshPassword,
+      password: secrets.password,
 
       apiToken: secrets.apiToken,
     })
@@ -43,9 +42,9 @@ if (!datastores.datastoreIds.includes(datastoreId)) {
 
 const endpoint = parseEndpoint(args.endpoint, 7)
 
-let serverEntity: Output<common.Server> | undefined
-let sshCredentials: Output<ssh.Connection | undefined> | undefined
-let nodeTerminal: Output<UnitTerminal> | undefined
+let serverEntity: common.Server | undefined
+let sshCredentials: ssh.Connection | undefined
+let nodeTerminal: UnitTerminal | undefined
 
 if (inputs.sshKeyPair || secrets.sshPassword || secrets.sshPrivateKey) {
   const { server, terminal } = await createServerBundle({
@@ -62,15 +61,19 @@ if (inputs.sshKeyPair || secrets.sshPassword || secrets.sshPrivateKey) {
   nodeTerminal = terminal
 }
 
-const proxmoxCluster: Output<proxmox.Cluster> = output({
-  endpoint,
-  insecure: args.insecure,
-  username: args.username,
-  defaultNodeName: nodeName,
-  defaultDatastoreId: datastoreId,
-  password: secrets.sshPassword,
-  apiToken: secrets.apiToken,
-  ssh: sshCredentials,
+const proxmoxCluster = makeEntityOutput({
+  entity: proxmox.clusterEntity,
+  identity: stateId,
+  value: {
+    endpoint,
+    insecure: args.insecure,
+    username: args.username,
+    defaultNodeName: nodeName,
+    defaultDatastoreId: datastoreId,
+    password: secrets.password,
+    apiToken: secrets.apiToken,
+    ssh: sshCredentials,
+  },
 })
 
 export default outputs({

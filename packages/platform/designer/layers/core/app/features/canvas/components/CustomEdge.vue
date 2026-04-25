@@ -65,7 +65,20 @@ const entityTypes = computed<{
     const component = components[inputInstance.type]
     const componentInput = component.inputs[inputKey]
 
-    return { all: componentInput ? [componentInput.type] : [] }
+    const resolved = getResolvedInstanceInputs(inputResolverOutputs, inputInstance.id)
+    const visible = unique((resolved[inputKey] ?? []).map(input => input.type))
+
+    if (visible.length > 0) {
+      return {
+        all: visible,
+        visible,
+      }
+    }
+
+    return {
+      all: componentInput ? [componentInput.type] : [],
+      visible,
+    }
   }
 
   if (outputHub && inputInstance && inputKey) {
@@ -93,6 +106,15 @@ const entityTypes = computed<{
 
   if (outputInstance && inputHub) {
     // hub: direct output
+    const resolvedTypes = getResolvedHubInputs(inputResolverOutputs, inputHub.id)
+      .filter(
+        input => input.input.instanceId === outputInstance.id && input.input.output === outputKey,
+      )
+      .map(input => input.type)
+
+    if (resolvedTypes.length > 0) {
+      return { all: unique(resolvedTypes) }
+    }
 
     const component = components[outputInstance.type]
     const componentOutput = component.outputs[outputKey]
@@ -186,18 +208,30 @@ const shouldShowHubGhostLane = computed(() => {
   return hubReservedGhostLane.value
 })
 
+if (data.isOutputProjection) {
+  globalLogger.debug(
+    {
+      source,
+      target,
+      sourceHandleId,
+      targetHandleId,
+      isOutputProjection: data.isOutputProjection,
+      isOutputProjectionUnresolved: data.isOutputProjectionUnresolved,
+    },
+    "rendering projection edge in CustomEdge",
+  )
+}
+
 const hubGhostLaneEnabled = computed(() => {
   return shouldShowHubGhostLane.value && hubLaneTypes.value.length > 0
 })
 
 const showGhostLine = computed(() => {
-  if (!outputHub) {
-    return false
+  if (entityTypes.value.visible) {
+    return entityTypes.value.visible.length === 0
   }
 
-  return entityTypes.value.visible
-    ? entityTypes.value.visible.length === 0
-    : entityTypes.value.all.length === 0
+  return outputHub ? entityTypes.value.all.length === 0 : false
 })
 
 const lineCount = computed(() => {
@@ -254,6 +288,10 @@ const isPendingTypedHubToComponentInput = computed(() => {
 })
 
 const getStrokeColor = (index: number) => {
+  if (data.isOutputProjection && data.isOutputProjectionUnresolved) {
+    return "#9E9E9E"
+  }
+
   if (isTypedHubToComponentInput.value) {
     if (isPendingTypedHubToComponentInput.value) {
       return "#9E9E9E"

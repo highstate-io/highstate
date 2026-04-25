@@ -35,8 +35,17 @@ export class ContainerRegistryIpPermission extends pulumi.CustomResource {
     }
 
     declare public readonly containerRegistryIpPermissionId: pulumi.Output<string>;
+    /**
+     * List of configured CIDRs, from which `pull` is allowed.
+     */
     declare public readonly pulls: pulumi.Output<string[] | undefined>;
+    /**
+     * List of configured CIDRs, from which `push` is allowed.
+     */
     declare public readonly pushes: pulumi.Output<string[] | undefined>;
+    /**
+     * The ID of the registry that ip restrictions applied to.
+     */
     declare public readonly registryId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ContainerRegistryIpPermissionTimeouts | undefined>;
 
@@ -79,8 +88,17 @@ export class ContainerRegistryIpPermission extends pulumi.CustomResource {
  */
 export interface ContainerRegistryIpPermissionState {
     containerRegistryIpPermissionId?: pulumi.Input<string>;
+    /**
+     * List of configured CIDRs, from which `pull` is allowed.
+     */
     pulls?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * List of configured CIDRs, from which `push` is allowed.
+     */
     pushes?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of the registry that ip restrictions applied to.
+     */
     registryId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRegistryIpPermissionTimeouts>;
 }
@@ -90,8 +108,17 @@ export interface ContainerRegistryIpPermissionState {
  */
 export interface ContainerRegistryIpPermissionArgs {
     containerRegistryIpPermissionId?: pulumi.Input<string>;
+    /**
+     * List of configured CIDRs, from which `pull` is allowed.
+     */
     pulls?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * List of configured CIDRs, from which `push` is allowed.
+     */
     pushes?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of the registry that ip restrictions applied to.
+     */
     registryId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRegistryIpPermissionTimeouts>;
 }

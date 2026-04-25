@@ -31,6 +31,7 @@ export interface GetLbNetworkLoadBalancerArgs {
  * A collection of values returned by getLbNetworkLoadBalancer.
  */
 export interface GetLbNetworkLoadBalancerResult {
+    readonly allowZonalShift: boolean;
     readonly attachedTargetGroups: outputs.GetLbNetworkLoadBalancerAttachedTargetGroup[];
     readonly createdAt: string;
     readonly deletionProtection: boolean;

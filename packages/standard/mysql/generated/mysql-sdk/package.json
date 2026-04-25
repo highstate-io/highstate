@@ -1,0 +1,31 @@
+{
+  "name": "@highstate/mysql-sdk",
+  "version": "0.19.1",
+  "description": "A Pulumi provider dynamically bridged from mysql.",
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  },
+  "main": "bin/index.js",
+  "scripts": {
+    "build": "tsc && cp package.json bin/package.json"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "3.220.0",
+    "@types/node": "^18",
+    "async-mutex": "^0.5.0",
+    "typescript": "^5.7.2"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "terraform-provider",
+    "version": "0.7.0",
+    "parameterization": {
+      "name": "mysql",
+      "version": "3.0.93",
+      "value": "eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkub3BlbnRvZnUub3JnL3BldG9qdS9teXNxbCIsInZlcnNpb24iOiIzLjAuOTMifX0="
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

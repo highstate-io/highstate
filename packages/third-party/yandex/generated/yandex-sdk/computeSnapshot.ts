@@ -35,13 +35,42 @@ export class ComputeSnapshot extends pulumi.CustomResource {
     }
 
     declare public readonly computeSnapshotId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Size of the disk when the snapshot was created, specified in GB.
+     */
     declare public /*out*/ readonly diskSize: pulumi.Output<number>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this snapshot is used as a boot disk
+     * source. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    declare public readonly hardwareGeneration: pulumi.Output<outputs.ComputeSnapshotHardwareGeneration | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the disk to create a snapshot from.
+     */
     declare public readonly sourceDiskId: pulumi.Output<string>;
+    /**
+     * Size of the snapshot, specified in GB.
+     */
     declare public /*out*/ readonly storageSize: pulumi.Output<number>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeSnapshotTimeouts | undefined>;
 
@@ -63,6 +92,7 @@ export class ComputeSnapshot extends pulumi.CustomResource {
             resourceInputs["description"] = state?.description;
             resourceInputs["diskSize"] = state?.diskSize;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["hardwareGeneration"] = state?.hardwareGeneration;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["sourceDiskId"] = state?.sourceDiskId;
@@ -76,6 +106,7 @@ export class ComputeSnapshot extends pulumi.CustomResource {
             resourceInputs["computeSnapshotId"] = args?.computeSnapshotId;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["hardwareGeneration"] = args?.hardwareGeneration;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["sourceDiskId"] = args?.sourceDiskId;
@@ -94,13 +125,42 @@ export class ComputeSnapshot extends pulumi.CustomResource {
  */
 export interface ComputeSnapshotState {
     computeSnapshotId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Size of the disk when the snapshot was created, specified in GB.
+     */
     diskSize?: pulumi.Input<number>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this snapshot is used as a boot disk
+     * source. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    hardwareGeneration?: pulumi.Input<inputs.ComputeSnapshotHardwareGeneration>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the disk to create a snapshot from.
+     */
     sourceDiskId?: pulumi.Input<string>;
+    /**
+     * Size of the snapshot, specified in GB.
+     */
     storageSize?: pulumi.Input<number>;
     timeouts?: pulumi.Input<inputs.ComputeSnapshotTimeouts>;
 }
@@ -110,10 +170,30 @@ export interface ComputeSnapshotState {
  */
 export interface ComputeSnapshotArgs {
     computeSnapshotId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this snapshot is used as a boot disk
+     * source. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    hardwareGeneration?: pulumi.Input<inputs.ComputeSnapshotHardwareGeneration>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the disk to create a snapshot from.
+     */
     sourceDiskId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeSnapshotTimeouts>;
 }

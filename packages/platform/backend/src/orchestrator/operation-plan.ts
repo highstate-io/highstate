@@ -35,9 +35,39 @@ export function createOperationPlan(
   requestedInstanceIds: string[],
   options: OperationOptions,
 ): OperationPhase[] {
+  const enabledGhostStrategies = [
+    options.onlyDestroyGhosts,
+    options.firstDestroyGhosts,
+    options.ignoreGhosts,
+  ].filter(Boolean).length
+
+  if (enabledGhostStrategies > 1) {
+    throw new Error(
+      "Operation options are invalid: only one of onlyDestroyGhosts, firstDestroyGhosts, ignoreGhosts can be enabled.",
+    )
+  }
+
+  if (type !== "update" && enabledGhostStrategies > 0) {
+    throw new Error(
+      "Operation options are invalid: onlyDestroyGhosts, firstDestroyGhosts and ignoreGhosts are supported only for update operations.",
+    )
+  }
+
+  if (options.forceUpdateDependencies && options.ignoreChangedDependencies) {
+    throw new Error(
+      "Operation options are invalid: forceUpdateDependencies and ignoreChangedDependencies cannot both be enabled.",
+    )
+  }
+
   if (options.forceUpdateDependencies && options.ignoreDependencies) {
     throw new Error(
       "Operation options are invalid: forceUpdateDependencies and ignoreDependencies cannot both be enabled.",
+    )
+  }
+
+  if (options.ignoreChangedDependencies && options.ignoreDependencies) {
+    throw new Error(
+      "Operation options are invalid: ignoreChangedDependencies and ignoreDependencies cannot both be enabled.",
     )
   }
 
@@ -123,7 +153,14 @@ function processInstance(
   options: OperationOptions,
   operationType: OperationType,
 ): void {
-  const instance = context.getInstance(instanceId)
+  const instance =
+    operationType === "destroy"
+      ? context.tryGetInstanceForDestroy(instanceId)
+      : context.tryGetInstance(instanceId)
+
+  if (!instance) {
+    throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
+  }
 
   // update composite classification
   updateCompositeClassification(instance, workState, context)
@@ -140,7 +177,7 @@ function processInstance(
   }
 
   // propagate to related instances
-  propagateToRelated(instance, workState)
+  propagateToRelated(instance, workState, context)
 }
 
 function updateCompositeClassification(
@@ -171,7 +208,11 @@ function updateCompositeClassification(
         // check if this dependency is external to this composite
         const requiredBy = workState.dependencyRequiredBy.get(child.id)
         if (requiredBy) {
-          const requiredByInstance = context.getInstance(requiredBy)
+          const requiredByInstance = context.tryGetInstance(requiredBy)
+          if (!requiredByInstance) {
+            continue
+          }
+
           // if the requiring instance is not a child of this composite, it's external
           if (requiredByInstance.parentId !== instance.id) {
             hasExternalDependencyChildren = true
@@ -234,7 +275,12 @@ function processUpdateInclusions(
         continue
       }
 
-      const shouldInclude = options.forceUpdateDependencies || isOutdated(depInstance, context)
+      const dependencyState = context.getState(depInstance.id)
+
+      const shouldInclude =
+        options.forceUpdateDependencies ||
+        (!options.ignoreChangedDependencies && isOutdated(depInstance, context)) ||
+        isFailedOrUndeployedState(dependencyState)
 
       if (shouldInclude && !workState.included.has(depInstance.id)) {
         include(depInstance.id, "dependency", workState, {
@@ -276,7 +322,7 @@ function processRefreshInclusions(
   if (workState.included.has(instance.id)) {
     const dependencies = context.getDependencies(instance.id)
     for (const depInstance of dependencies) {
-      if (options.ignoreDependencies) {
+      if (options.ignoreDependencies || options.ignoreChangedDependencies) {
         continue
       }
 
@@ -290,6 +336,10 @@ function processRefreshInclusions(
       }
     }
   }
+}
+
+function isFailedOrUndeployedState(state: InstanceState): boolean {
+  return state.status === "failed" || state.status === "undeployed"
 }
 
 function processDestroyInclusions(
@@ -324,21 +374,16 @@ function processDestroyInclusions(
   }
 }
 
-function propagateToRelated(instance: InstanceModel, workState: WorkState): void {
-  // check if this instance should propagate upward
-  // composites included as "parent_composite" should not propagate upward (compositional boundary)
-  if (instance.kind === "composite") {
-    const inclusionReason = workState.included.get(instance.id)
-    if (inclusionReason === "parent_composite") {
-      // compositional boundary - don't propagate upward
-      return
-    }
-  }
-
+function propagateToRelated(
+  instance: InstanceModel,
+  workState: WorkState,
+  context: OperationContext,
+): void {
   // propagate upward to parent if instance is included
   if (
     workState.included.has(instance.id) &&
     instance.parentId &&
+    context.tryGetInstance(instance.parentId) &&
     !workState.included.has(instance.parentId)
   ) {
     include(instance.parentId, "parent_composite", workState, {
@@ -361,7 +406,11 @@ function findSubstantiveAncestor(
       return currentId
     }
 
-    const instance = context.getInstance(currentId)
+    const instance = context.tryGetInstance(currentId)
+    if (!instance) {
+      return null
+    }
+
     currentId = instance.parentId
   }
 
@@ -436,11 +485,7 @@ function createOrderedPhases(
       // include parent composites only if they have children needing updates
       if (inclusionReason === "parent_composite") {
         const children = context.getInstanceChildren(id)
-        return children.some(
-          child =>
-            workState.included.has(child.id) &&
-            workState.included.get(child.id) !== "parent_composite",
-        )
+        return children.some(child => workState.included.has(child.id))
       }
 
       // include other types (dependency, composite_child, etc.)
@@ -448,68 +493,50 @@ function createOrderedPhases(
     })
 
     const updateInstances = topologicalSort(instancesNeedingUpdate, context, false)
-      .map(id => createPhaseInstance(id, context, workState))
+      .map(id => createPhaseInstance(id, context, type, workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
 
-    if (updateInstances.length > 0) {
-      const phaseType = type === "refresh" ? "refresh" : "update"
-      phases.push({ type: phaseType, instances: updateInstances })
+    const phaseType = type === "refresh" ? "refresh" : "update"
+    const updatePhase =
+      updateInstances.length > 0 ? ({ type: phaseType, instances: updateInstances } as const) : null
+
+    const ghostDestroyPhase =
+      type !== "refresh" && !options.ignoreGhosts
+        ? createGhostDestroyPhase(context, includedIds, workState)
+        : null
+
+    if (type === "update" && options.onlyDestroyGhosts) {
+      if (ghostDestroyPhase) {
+        phases.push(ghostDestroyPhase)
+      }
+
+      return phases
     }
 
-    // handle ghost cleanup for updates (but not for refresh operations)
-    if (type !== "refresh") {
-      const compositesNeedingGhostCleanup = new Set<InstanceId>()
-      for (const instanceId of includedIds) {
-        const instance = context.getInstance(instanceId)
-        if (instance.kind !== "composite") continue
-
-        const compositeType = workState.compositeTypes.get(instanceId)
-        if (compositeType !== "substantive") continue
-
-        // check if this composite has ghost children
-        const children = context.getInstanceChildren(instanceId)
-        const hasGhostChildren = children.some(child => {
-          const state = context.getState(child.id)
-          return isVirtualGhostInstance(state)
-        })
-
-        if (hasGhostChildren) {
-          compositesNeedingGhostCleanup.add(instanceId)
-        }
+    if (type === "update" && options.firstDestroyGhosts) {
+      if (ghostDestroyPhase) {
+        phases.push(ghostDestroyPhase)
       }
-      const ghostInstances = findGhostCleanup(context, compositesNeedingGhostCleanup)
 
-      if (ghostInstances.length > 0) {
-        const ghostInstanceMap = new Map<InstanceId, OperationPhaseInstance>(
-          ghostInstances.map(instance => [instance.id, instance]),
-        )
-
-        const sortedGhosts = topologicalSort(
-          ghostInstances.map(g => g.id),
-          context,
-          true,
-        )
-          .map(id => {
-            const ghostInstance = ghostInstanceMap.get(id)
-
-            if (ghostInstance?.message === "ghost cleanup") {
-              return ghostInstance
-            }
-
-            return createPhaseInstance(id, context, workState)
-          })
-          .filter((instance): instance is OperationPhaseInstance => instance !== null)
-
-        if (sortedGhosts.length > 0) {
-          phases.push({ type: "destroy", instances: sortedGhosts })
-        }
+      if (updatePhase) {
+        phases.push(updatePhase)
       }
+
+      return phases
+    }
+
+    if (updatePhase) {
+      phases.push(updatePhase)
+    }
+
+    if (ghostDestroyPhase) {
+      phases.push(ghostDestroyPhase)
     }
   }
 
   if (type === "destroy") {
     const destroyInstances = topologicalSort(includedIds, context, true)
-      .map(id => createPhaseInstance(id, context, workState))
+      .map(id => createPhaseInstance(id, context, type, workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
 
     if (destroyInstances.length > 0) {
@@ -519,11 +546,11 @@ function createOrderedPhases(
 
   if (type === "recreate") {
     const destroyInstances = topologicalSort(includedIds, context, true)
-      .map(id => createPhaseInstance(id, context, workState))
+      .map(id => createPhaseInstance(id, context, type, workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
 
     const updateInstances = topologicalSort(includedIds, context, false)
-      .map(id => createPhaseInstance(id, context, workState))
+      .map(id => createPhaseInstance(id, context, type, workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
 
     if (destroyInstances.length > 0) {
@@ -537,12 +564,101 @@ function createOrderedPhases(
   return phases
 }
 
+function createGhostDestroyPhase(
+  context: OperationContext,
+  includedIds: InstanceId[],
+  workState: WorkState,
+): OperationPhase | null {
+  const compositesNeedingGhostCleanup = new Set<InstanceId>()
+
+  for (const instanceId of includedIds) {
+    const instance = context.getInstance(instanceId)
+    if (instance.kind !== "composite") continue
+
+    const compositeType = workState.compositeTypes.get(instanceId)
+    if (compositeType !== "substantive") continue
+
+    if (hasGhostDescendant(instanceId, context)) {
+      compositesNeedingGhostCleanup.add(instanceId)
+    }
+  }
+
+  const ghostInstances = findGhostCleanup(context, compositesNeedingGhostCleanup)
+  if (ghostInstances.length === 0) {
+    return null
+  }
+
+  const ghostInstanceMap = new Map<InstanceId, OperationPhaseInstance>(
+    ghostInstances.map(instance => [instance.id, instance]),
+  )
+
+  const sortedGhosts = topologicalSort(
+    ghostInstances.map(g => g.id),
+    context,
+    true,
+  )
+    .map(id => {
+      const ghostInstance = ghostInstanceMap.get(id)
+
+      if (ghostInstance?.message === "ghost cleanup") {
+        return ghostInstance
+      }
+
+      return createPhaseInstance(id, context, "update", workState)
+    })
+    .filter((instance): instance is OperationPhaseInstance => instance !== null)
+
+  if (sortedGhosts.length === 0) {
+    return null
+  }
+
+  return { type: "destroy", instances: sortedGhosts }
+}
+
+function hasGhostDescendant(instanceId: InstanceId, context: OperationContext): boolean {
+  const queue = context.getInstanceChildren(instanceId).map(child => child.id)
+
+  while (queue.length > 0) {
+    const childId = queue.shift()!
+    const child = context.getInstance(childId)
+    const childState = context.getState(child.id)
+
+    if (isVirtualGhostInstance(childState)) {
+      return true
+    }
+
+    if (child.kind === "composite") {
+      queue.push(...context.getInstanceChildren(child.id).map(instance => instance.id))
+    }
+  }
+
+  return false
+}
+
 function createPhaseInstance(
   instanceId: InstanceId,
   context: OperationContext,
+  operationType: OperationType,
   workState?: WorkState,
 ): OperationPhaseInstance | null {
-  const instance = context.getInstance(instanceId)
+  const state = context.getState(instanceId)
+  const instance =
+    operationType === "destroy"
+      ? context.tryGetInstanceForDestroy(instanceId)
+      : context.tryGetInstance(instanceId)
+
+  if (!instance) {
+    return null
+  }
+
+  if (
+    operationType !== "destroy" &&
+    instance.kind === "composite" &&
+    !hasUnitDescendant(instanceId, context)
+  ) {
+    return null
+  }
+
   let message = "included in operation" // fallback
 
   if (workState) {
@@ -550,7 +666,7 @@ function createPhaseInstance(
     const requiredBy = workState.dependencyRequiredBy.get(instanceId)
     const triggeringChild = workState.childTriggeringParent.get(instanceId)
     const forceFlag = workState.forceFlags.get(instanceId)
-    const instanceState = context.getState(instanceId)
+    const instanceState = state
 
     message = generateContextualMessage(
       context,
@@ -565,9 +681,32 @@ function createPhaseInstance(
 
   return {
     id: instanceId,
-    parentId: instance.parentId,
+    parentId: instance.parentId ?? state.parentInstanceId ?? undefined,
     message,
   }
+}
+
+function hasUnitDescendant(instanceId: InstanceId, context: OperationContext): boolean {
+  const queue = context.getInstanceChildren(instanceId).map(child => child.id)
+  const visited = new Set<InstanceId>()
+
+  while (queue.length > 0) {
+    const childId = queue.pop()!
+
+    if (visited.has(childId)) {
+      continue
+    }
+    visited.add(childId)
+
+    const child = context.getInstance(childId)
+    if (child.kind === "unit") {
+      return true
+    }
+
+    queue.push(...context.getInstanceChildren(childId).map(instance => instance.id))
+  }
+
+  return false
 }
 
 function generateContextualMessage(
@@ -586,7 +725,10 @@ function generateContextualMessage(
     if (state.status === "failed") return "failed"
     if (state.status === "undeployed") return "undeployed"
 
-    const instance = context.getInstance(instanceId)
+    const instance = context.tryGetInstance(instanceId)
+    if (!instance) {
+      return "up-to-date"
+    }
 
     // composites are containers and cannot be changed/outdated
     if (instance.kind === "composite") {
@@ -654,32 +796,84 @@ function findGhostCleanup(
   context: OperationContext,
   compositesNeedingGhostCleanup: Set<InstanceId>,
 ): OperationPhaseInstance[] {
-  const ghosts: OperationPhaseInstance[] = []
+  const requiredCompositeIds = new Set<InstanceId>()
+  const ghostIds = new Set<InstanceId>()
 
-  // find ghost instances and their parent composites that need cleanup
+  function collectGhostsInSubtree(rootCompositeId: InstanceId): void {
+    const queue: InstanceId[] = [rootCompositeId]
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!
+      const children = context.getInstanceChildren(currentId)
+
+      for (const child of children) {
+        const childState = context.getState(child.id)
+
+        if (child.kind === "composite") {
+          queue.push(child.id)
+        }
+
+        if (!isVirtualGhostInstance(childState)) {
+          continue
+        }
+
+        ghostIds.add(child.id)
+
+        // Include the full composite chain from the ghost parent up to the cleanup root,
+        // otherwise destroy-phase parent state recalculation may target non-participating composites.
+        let parentId = child.parentId
+        while (parentId) {
+          const parent = context.tryGetInstance(parentId)
+          if (!parent || parent.kind !== "composite") {
+            break
+          }
+
+          requiredCompositeIds.add(parentId)
+
+          if (parentId === rootCompositeId) {
+            break
+          }
+
+          parentId = parent.parentId
+        }
+      }
+    }
+  }
+
   for (const instanceId of compositesNeedingGhostCleanup) {
     const instance = context.getInstance(instanceId)
     if (instance.kind !== "composite") continue
 
-    // add the composite itself for destroy if needed
+    requiredCompositeIds.add(instanceId)
+    collectGhostsInSubtree(instanceId)
+  }
+
+  const ghosts: OperationPhaseInstance[] = []
+
+  for (const compositeId of requiredCompositeIds) {
+    const composite = context.tryGetInstance(compositeId)
+    if (!composite) {
+      continue
+    }
+
     ghosts.push({
-      id: instanceId,
-      parentId: instance.parentId,
+      id: compositeId,
+      parentId: composite.parentId,
       message: "included in operation",
     })
+  }
 
-    // find ghost children
-    const children = context.getInstanceChildren(instanceId)
-    for (const child of children) {
-      const state = context.getState(child.id)
-      if (isVirtualGhostInstance(state)) {
-        ghosts.push({
-          id: child.id,
-          parentId: child.parentId,
-          message: "ghost cleanup",
-        })
-      }
+  for (const ghostId of ghostIds) {
+    const ghost = context.tryGetInstance(ghostId)
+    if (!ghost) {
+      continue
     }
+
+    ghosts.push({
+      id: ghostId,
+      parentId: ghost.parentId,
+      message: "ghost cleanup",
+    })
   }
 
   return ghosts

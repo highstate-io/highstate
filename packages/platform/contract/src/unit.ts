@@ -13,6 +13,8 @@ import {
   type ComponentInputSpec,
   type ComponentModel,
   type ComponentOptions,
+  type ComponentOutputOptions,
+  type ComponentOutputOptionsToSpec,
   componentArgumentSchema,
   componentModelSchema,
   defineComponent,
@@ -22,6 +24,7 @@ import {
   type ToFullComponentArgumentOptions,
   toFullComponentArgumentOptions,
 } from "./component"
+import { boundaryInput } from "./evaluation"
 
 export const componentSecretSchema = componentArgumentSchema.extend({
   /**
@@ -48,7 +51,7 @@ type UnitOptions<
   TType extends VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions>,
   TInputs extends Record<string, ComponentInputOptions>,
-  TOutputs extends Record<string, ComponentInputOptions>,
+  TOutputs extends Record<string, ComponentOutputOptions<TInputs>>,
   TSecrets extends Record<string, ComponentSecretOptions>,
 > = Omit<ComponentOptions<TType, TArgs, TInputs, TOutputs>, "create"> & {
   source: UnitSource
@@ -97,7 +100,12 @@ export type Unit<
   TInputs extends Record<string, ComponentInputSpec> = Record<string, never>,
   TOutputs extends Record<string, ComponentInputSpec> = Record<string, never>,
   TSecrets extends Record<string, unknown> = Record<string, never>,
-> = Component<TType, TArgs, TInputs, TOutputs> & {
+  TInputOptions extends Record<string, ComponentInputOptions> = Record<string, never>,
+  TOutputOptions extends Record<string, ComponentOutputOptions<TInputOptions>> = Record<
+    string,
+    never
+  >,
+> = Component<TType, TArgs, TInputs, TOutputs, "unit", TInputOptions, TOutputOptions> & {
   /**
    * Holds the type of the unit secrets.
    *
@@ -115,7 +123,7 @@ export function defineUnit<
   TType extends VersionedName = VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions> = Record<string, never>,
   TInputs extends Record<string, ComponentInputOptions> = Record<string, never>,
-  TOutputs extends Record<string, ComponentInputOptions> = Record<string, never>,
+  TOutputs extends Record<string, ComponentOutputOptions<TInputs>> = Record<string, never>,
   TSecrets extends Record<string, ComponentSecretOptions> = Record<string, never>,
 >(
   options: UnitOptions<TType, TArgs, TInputs, TOutputs, TSecrets>,
@@ -123,26 +131,34 @@ export function defineUnit<
   TType,
   { [K in keyof TArgs]: ComponentArgumentOptionsToSchema<TArgs[K]> },
   { [K in keyof TInputs]: ComponentInputOptionsToSpec<TInputs[K]> },
-  { [K in keyof TOutputs]: ComponentInputOptionsToSpec<TOutputs[K]> },
-  { [K in keyof TSecrets]: ComponentArgumentOptionsToSchema<TSecrets[K]> }
+  { [K in keyof TOutputs]: ComponentOutputOptionsToSpec<TOutputs[K], TInputs> },
+  { [K in keyof TSecrets]: ComponentArgumentOptionsToSchema<TSecrets[K]> },
+  TInputs,
+  TOutputs
 > {
   if (!options.source) {
     throw new Error("Unit source is required")
   }
 
-  const component = defineComponent<TType, TArgs, TInputs, TOutputs>({
+  const component = defineComponent<TType, TArgs, TInputs, TOutputs, "unit">({
     ...options,
     [kind]: "unit",
 
     create({ id }) {
-      const outputs: Record<string, InstanceInput[]> = {}
+      const outputs: Record<
+        string,
+        InstanceInput & { provided: true; [boundaryInput]: InstanceInput }
+      > = {}
       for (const key in options.outputs ?? {}) {
-        outputs[key] = [
-          {
+        outputs[key] = {
+          provided: true,
+          instanceId: id,
+          output: key,
+          [boundaryInput]: {
             instanceId: id,
             output: key,
           },
-        ]
+        }
       }
 
       return outputs as any

@@ -1,7 +1,7 @@
-import { defineEntity, type EntityInput, z } from "@highstate/contract"
+import { defineEntity, type EntityInput, type EntityValue, z } from "@highstate/contract"
 import { addressTypeSchema, subnetEntity } from "./subnet"
 
-export type Address = z.infer<typeof addressEntity.schema>
+export type Address = EntityValue<typeof addressEntity>
 export type AddressInput = EntityInput<typeof addressEntity>
 
 export const addressEntity = defineEntity({
@@ -12,6 +12,12 @@ export const addressEntity = defineEntity({
      * The subnet to which the address belongs.
      */
     subnet: subnetEntity,
+
+    /**
+     * The subnet containing the single address.
+     * Can be used to provide address entity where subnet entity is expected.
+     */
+    asSubnet: subnetEntity,
   },
 
   schema: z.object({
@@ -31,4 +37,9 @@ export const addressEntity = defineEntity({
      */
     value: z.string(),
   }),
+
+  meta: {
+    title: "Address",
+    icon: "mdi:ip",
+  },
 })

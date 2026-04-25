@@ -35,22 +35,79 @@ export class ComputeImage extends pulumi.CustomResource {
     }
 
     declare public readonly computeImageId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The name of the image family to which this image belongs.
+     */
     declare public readonly family: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this image is used for creating a boot
+     * disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    declare public readonly hardwareGeneration: pulumi.Output<outputs.ComputeImageHardwareGeneration | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Minimum size in GB of the disk that will be created from this image.
+     */
     declare public readonly minDiskSize: pulumi.Output<number>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Operating system type that is contained in the image. Possible values: `LINUX`, `WINDOWS`.
+     */
     declare public readonly osType: pulumi.Output<string>;
+    /**
+     * Optimize the image to create a disk.
+     */
     declare public readonly pooled: pulumi.Output<boolean>;
+    /**
+     * License IDs that indicate which licenses are attached to this image.
+     */
     declare public readonly productIds: pulumi.Output<string[]>;
+    /**
+     * The size of the image, specified in GB.
+     */
     declare public /*out*/ readonly size: pulumi.Output<number>;
+    /**
+     * The ID of a disk to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     declare public readonly sourceDisk: pulumi.Output<string>;
+    /**
+     * The name of the family to use as the source of the new image. The ID of the latest image is taken from the
+     * `standard-images` folder. Changing the family forces a new resource to be created.
+     */
     declare public readonly sourceFamily: pulumi.Output<string>;
+    /**
+     * The ID of an existing image to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     declare public readonly sourceImage: pulumi.Output<string>;
+    /**
+     * The ID of a snapshot to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     declare public readonly sourceSnapshot: pulumi.Output<string>;
+    /**
+     * The URL to use as the source of the image. Changing this URL forces a new resource to be created.
+     */
     declare public readonly sourceUrl: pulumi.Output<string>;
+    /**
+     * The status of the image.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeImageTimeouts | undefined>;
 
@@ -72,6 +129,7 @@ export class ComputeImage extends pulumi.CustomResource {
             resourceInputs["description"] = state?.description;
             resourceInputs["family"] = state?.family;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["hardwareGeneration"] = state?.hardwareGeneration;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["minDiskSize"] = state?.minDiskSize;
             resourceInputs["name"] = state?.name;
@@ -92,6 +150,7 @@ export class ComputeImage extends pulumi.CustomResource {
             resourceInputs["description"] = args?.description;
             resourceInputs["family"] = args?.family;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["hardwareGeneration"] = args?.hardwareGeneration;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["minDiskSize"] = args?.minDiskSize;
             resourceInputs["name"] = args?.name;
@@ -118,22 +177,79 @@ export class ComputeImage extends pulumi.CustomResource {
  */
 export interface ComputeImageState {
     computeImageId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The name of the image family to which this image belongs.
+     */
     family?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this image is used for creating a boot
+     * disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    hardwareGeneration?: pulumi.Input<inputs.ComputeImageHardwareGeneration>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Minimum size in GB of the disk that will be created from this image.
+     */
     minDiskSize?: pulumi.Input<number>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Operating system type that is contained in the image. Possible values: `LINUX`, `WINDOWS`.
+     */
     osType?: pulumi.Input<string>;
+    /**
+     * Optimize the image to create a disk.
+     */
     pooled?: pulumi.Input<boolean>;
+    /**
+     * License IDs that indicate which licenses are attached to this image.
+     */
     productIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The size of the image, specified in GB.
+     */
     size?: pulumi.Input<number>;
+    /**
+     * The ID of a disk to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     sourceDisk?: pulumi.Input<string>;
+    /**
+     * The name of the family to use as the source of the new image. The ID of the latest image is taken from the
+     * `standard-images` folder. Changing the family forces a new resource to be created.
+     */
     sourceFamily?: pulumi.Input<string>;
+    /**
+     * The ID of an existing image to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     sourceImage?: pulumi.Input<string>;
+    /**
+     * The ID of a snapshot to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     sourceSnapshot?: pulumi.Input<string>;
+    /**
+     * The URL to use as the source of the image. Changing this URL forces a new resource to be created.
+     */
     sourceUrl?: pulumi.Input<string>;
+    /**
+     * The status of the image.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeImageTimeouts>;
 }
@@ -143,19 +259,67 @@ export interface ComputeImageState {
  */
 export interface ComputeImageArgs {
     computeImageId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The name of the image family to which this image belongs.
+     */
     family?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this image is used for creating a boot
+     * disk. Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    hardwareGeneration?: pulumi.Input<inputs.ComputeImageHardwareGeneration>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Minimum size in GB of the disk that will be created from this image.
+     */
     minDiskSize?: pulumi.Input<number>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Operating system type that is contained in the image. Possible values: `LINUX`, `WINDOWS`.
+     */
     osType?: pulumi.Input<string>;
+    /**
+     * Optimize the image to create a disk.
+     */
     pooled?: pulumi.Input<boolean>;
+    /**
+     * License IDs that indicate which licenses are attached to this image.
+     */
     productIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of a disk to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     sourceDisk?: pulumi.Input<string>;
+    /**
+     * The name of the family to use as the source of the new image. The ID of the latest image is taken from the
+     * `standard-images` folder. Changing the family forces a new resource to be created.
+     */
     sourceFamily?: pulumi.Input<string>;
+    /**
+     * The ID of an existing image to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     sourceImage?: pulumi.Input<string>;
+    /**
+     * The ID of a snapshot to use as the source of the image. Changing this ID forces a new resource to be created.
+     */
     sourceSnapshot?: pulumi.Input<string>;
+    /**
+     * The URL to use as the source of the image. Changing this URL forces a new resource to be created.
+     */
     sourceUrl?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeImageTimeouts>;
 }

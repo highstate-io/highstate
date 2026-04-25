@@ -34,28 +34,119 @@ export class BackupPolicy extends pulumi.CustomResource {
         return obj['__pulumiType'] === BackupPolicy.__pulumiType;
     }
 
+    /**
+     * The name of generated archives. Default `[Machine Name]-[Plan ID]-[Unique ID]a`.
+     */
     declare public readonly archiveName: pulumi.Output<string | undefined>;
     declare public readonly backupPolicyId: pulumi.Output<string>;
+    /**
+     * Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`.
+     * Default `DO_NOT_USE`.
+     */
     declare public readonly cbt: pulumi.Output<string | undefined>;
+    /**
+     * Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.
+     */
     declare public readonly compression: pulumi.Output<string | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * If this field is true, it means that the policy is enabled.
+     */
     declare public /*out*/ readonly enabled: pulumi.Output<boolean>;
+    /**
+     * If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are
+     * compared to those stored in the backup.
+     */
     declare public readonly fastBackupEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * File filters to specify masks of files to backup or to exclude of backuping.
+     */
+    declare public readonly fileFilters: pulumi.Output<outputs.BackupPolicyFileFilters | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`,
+     * `VERSION_11`, `VERSION_12`.
+     */
     declare public readonly format: pulumi.Output<string | undefined>;
+    /**
+     * LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not
+     * enough free space), the software will create the snapshot itself.
+     */
+    declare public readonly lvmSnapshottingEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
+     */
     declare public readonly multiVolumeSnapshottingEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Time windows for performance limitations of backup. Default `false`.
+     */
     declare public readonly performanceWindowEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+     *
+     * @deprecated Deprecated
+     */
     declare public readonly preserveFileSecuritySettings: pulumi.Output<boolean | undefined>;
+    /**
+     * If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+     *
+     * @deprecated Deprecated
+     */
     declare public readonly quiesceSnapshottingEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * Amount of reattempts that should be performed while trying to make backup at the host.
+     */
     declare public readonly reattempts: pulumi.Output<outputs.BackupPolicyReattempts>;
+    /**
+     * Retention policy for backups. Allows to setup backups lifecycle.
+     */
     declare public readonly retention: pulumi.Output<outputs.BackupPolicyRetention>;
+    /**
+     * Schedule settings for creating backups on the host.
+     */
     declare public readonly scheduling: pulumi.Output<outputs.BackupPolicyScheduling>;
+    /**
+     * A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including
+     * those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk
+     * or volume.
+     */
+    declare public readonly sectorBySector: pulumi.Output<boolean | undefined>;
+    /**
+     * If true, a user interaction will be avoided when possible. Default `true`.
+     */
     declare public readonly silentModeEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
+     */
     declare public readonly splittingBytes: pulumi.Output<string | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.BackupPolicyTimeouts | undefined>;
+    /**
+     * The update timestamp of the resource.
+     */
     declare public /*out*/ readonly updatedAt: pulumi.Output<string>;
+    /**
+     * Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is
+     * because not only the data physically contained in the backup copy is verified, but all data restored when it is
+     * selected. This option requires access to previously created backup copies.
+     */
+    declare public readonly validationEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * Amount of reattempts that should be performed while trying to make snapshot.
+     */
     declare public readonly vmSnapshotReattempts: pulumi.Output<outputs.BackupPolicyVmSnapshotReattempts>;
+    /**
+     * Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
+     */
     declare public readonly vssProvider: pulumi.Output<string | undefined>;
 
     /**
@@ -78,8 +169,10 @@ export class BackupPolicy extends pulumi.CustomResource {
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["enabled"] = state?.enabled;
             resourceInputs["fastBackupEnabled"] = state?.fastBackupEnabled;
+            resourceInputs["fileFilters"] = state?.fileFilters;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["format"] = state?.format;
+            resourceInputs["lvmSnapshottingEnabled"] = state?.lvmSnapshottingEnabled;
             resourceInputs["multiVolumeSnapshottingEnabled"] = state?.multiVolumeSnapshottingEnabled;
             resourceInputs["name"] = state?.name;
             resourceInputs["performanceWindowEnabled"] = state?.performanceWindowEnabled;
@@ -88,10 +181,12 @@ export class BackupPolicy extends pulumi.CustomResource {
             resourceInputs["reattempts"] = state?.reattempts;
             resourceInputs["retention"] = state?.retention;
             resourceInputs["scheduling"] = state?.scheduling;
+            resourceInputs["sectorBySector"] = state?.sectorBySector;
             resourceInputs["silentModeEnabled"] = state?.silentModeEnabled;
             resourceInputs["splittingBytes"] = state?.splittingBytes;
             resourceInputs["timeouts"] = state?.timeouts;
             resourceInputs["updatedAt"] = state?.updatedAt;
+            resourceInputs["validationEnabled"] = state?.validationEnabled;
             resourceInputs["vmSnapshotReattempts"] = state?.vmSnapshotReattempts;
             resourceInputs["vssProvider"] = state?.vssProvider;
         } else {
@@ -113,8 +208,10 @@ export class BackupPolicy extends pulumi.CustomResource {
             resourceInputs["cbt"] = args?.cbt;
             resourceInputs["compression"] = args?.compression;
             resourceInputs["fastBackupEnabled"] = args?.fastBackupEnabled;
+            resourceInputs["fileFilters"] = args?.fileFilters;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["format"] = args?.format;
+            resourceInputs["lvmSnapshottingEnabled"] = args?.lvmSnapshottingEnabled;
             resourceInputs["multiVolumeSnapshottingEnabled"] = args?.multiVolumeSnapshottingEnabled;
             resourceInputs["name"] = args?.name;
             resourceInputs["performanceWindowEnabled"] = args?.performanceWindowEnabled;
@@ -123,9 +220,11 @@ export class BackupPolicy extends pulumi.CustomResource {
             resourceInputs["reattempts"] = args?.reattempts;
             resourceInputs["retention"] = args?.retention;
             resourceInputs["scheduling"] = args?.scheduling;
+            resourceInputs["sectorBySector"] = args?.sectorBySector;
             resourceInputs["silentModeEnabled"] = args?.silentModeEnabled;
             resourceInputs["splittingBytes"] = args?.splittingBytes;
             resourceInputs["timeouts"] = args?.timeouts;
+            resourceInputs["validationEnabled"] = args?.validationEnabled;
             resourceInputs["vmSnapshotReattempts"] = args?.vmSnapshotReattempts;
             resourceInputs["vssProvider"] = args?.vssProvider;
             resourceInputs["createdAt"] = undefined /*out*/;
@@ -141,28 +240,119 @@ export class BackupPolicy extends pulumi.CustomResource {
  * Input properties used for looking up and filtering BackupPolicy resources.
  */
 export interface BackupPolicyState {
+    /**
+     * The name of generated archives. Default `[Machine Name]-[Plan ID]-[Unique ID]a`.
+     */
     archiveName?: pulumi.Input<string>;
     backupPolicyId?: pulumi.Input<string>;
+    /**
+     * Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`.
+     * Default `DO_NOT_USE`.
+     */
     cbt?: pulumi.Input<string>;
+    /**
+     * Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.
+     */
     compression?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * If this field is true, it means that the policy is enabled.
+     */
     enabled?: pulumi.Input<boolean>;
+    /**
+     * If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are
+     * compared to those stored in the backup.
+     */
     fastBackupEnabled?: pulumi.Input<boolean>;
+    /**
+     * File filters to specify masks of files to backup or to exclude of backuping.
+     */
+    fileFilters?: pulumi.Input<inputs.BackupPolicyFileFilters>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`,
+     * `VERSION_11`, `VERSION_12`.
+     */
     format?: pulumi.Input<string>;
+    /**
+     * LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not
+     * enough free space), the software will create the snapshot itself.
+     */
+    lvmSnapshottingEnabled?: pulumi.Input<boolean>;
+    /**
+     * If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
+     */
     multiVolumeSnapshottingEnabled?: pulumi.Input<boolean>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time windows for performance limitations of backup. Default `false`.
+     */
     performanceWindowEnabled?: pulumi.Input<boolean>;
+    /**
+     * If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+     *
+     * @deprecated Deprecated
+     */
     preserveFileSecuritySettings?: pulumi.Input<boolean>;
+    /**
+     * If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+     *
+     * @deprecated Deprecated
+     */
     quiesceSnapshottingEnabled?: pulumi.Input<boolean>;
+    /**
+     * Amount of reattempts that should be performed while trying to make backup at the host.
+     */
     reattempts?: pulumi.Input<inputs.BackupPolicyReattempts>;
+    /**
+     * Retention policy for backups. Allows to setup backups lifecycle.
+     */
     retention?: pulumi.Input<inputs.BackupPolicyRetention>;
+    /**
+     * Schedule settings for creating backups on the host.
+     */
     scheduling?: pulumi.Input<inputs.BackupPolicyScheduling>;
+    /**
+     * A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including
+     * those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk
+     * or volume.
+     */
+    sectorBySector?: pulumi.Input<boolean>;
+    /**
+     * If true, a user interaction will be avoided when possible. Default `true`.
+     */
     silentModeEnabled?: pulumi.Input<boolean>;
+    /**
+     * Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
+     */
     splittingBytes?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.BackupPolicyTimeouts>;
+    /**
+     * The update timestamp of the resource.
+     */
     updatedAt?: pulumi.Input<string>;
+    /**
+     * Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is
+     * because not only the data physically contained in the backup copy is verified, but all data restored when it is
+     * selected. This option requires access to previously created backup copies.
+     */
+    validationEnabled?: pulumi.Input<boolean>;
+    /**
+     * Amount of reattempts that should be performed while trying to make snapshot.
+     */
     vmSnapshotReattempts?: pulumi.Input<inputs.BackupPolicyVmSnapshotReattempts>;
+    /**
+     * Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
+     */
     vssProvider?: pulumi.Input<string>;
 }
 
@@ -170,24 +360,106 @@ export interface BackupPolicyState {
  * The set of arguments for constructing a BackupPolicy resource.
  */
 export interface BackupPolicyArgs {
+    /**
+     * The name of generated archives. Default `[Machine Name]-[Plan ID]-[Unique ID]a`.
+     */
     archiveName?: pulumi.Input<string>;
     backupPolicyId?: pulumi.Input<string>;
+    /**
+     * Configuration of Changed Block Tracking. Available values are: `USE_IF_ENABLED`, `ENABLED_AND_USE`, `DO_NOT_USE`.
+     * Default `DO_NOT_USE`.
+     */
     cbt?: pulumi.Input<string>;
+    /**
+     * Archive compression level. Affects CPU. Available values: `NORMAL`, `HIGH`, `MAX`, `OFF`. Default: `NORMAL`.
+     */
     compression?: pulumi.Input<string>;
+    /**
+     * If true, determines whether a file has changed by the file size and timestamp. Otherwise, the entire file contents are
+     * compared to those stored in the backup.
+     */
     fastBackupEnabled?: pulumi.Input<boolean>;
+    /**
+     * File filters to specify masks of files to backup or to exclude of backuping.
+     */
+    fileFilters?: pulumi.Input<inputs.BackupPolicyFileFilters>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Format of the backup. It's strongly recommend to leave this option empty or `AUTO`. Available values: `AUTO`,
+     * `VERSION_11`, `VERSION_12`.
+     */
     format?: pulumi.Input<string>;
+    /**
+     * LVM will be used to create the volume snapshot. If LVM fails to create a snapshot (for example, because there is not
+     * enough free space), the software will create the snapshot itself.
+     */
+    lvmSnapshottingEnabled?: pulumi.Input<boolean>;
+    /**
+     * If true, snapshots of multiple volumes will be taken simultaneously. Default `true`.
+     */
     multiVolumeSnapshottingEnabled?: pulumi.Input<boolean>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time windows for performance limitations of backup. Default `false`.
+     */
     performanceWindowEnabled?: pulumi.Input<boolean>;
+    /**
+     * If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+     *
+     * @deprecated Deprecated
+     */
     preserveFileSecuritySettings?: pulumi.Input<boolean>;
+    /**
+     * If true, a quiesced snapshot of the virtual machine will be taken. Default `true`.
+     *
+     * @deprecated Deprecated
+     */
     quiesceSnapshottingEnabled?: pulumi.Input<boolean>;
+    /**
+     * Amount of reattempts that should be performed while trying to make backup at the host.
+     */
     reattempts: pulumi.Input<inputs.BackupPolicyReattempts>;
+    /**
+     * Retention policy for backups. Allows to setup backups lifecycle.
+     */
     retention: pulumi.Input<inputs.BackupPolicyRetention>;
+    /**
+     * Schedule settings for creating backups on the host.
+     */
     scheduling: pulumi.Input<inputs.BackupPolicyScheduling>;
+    /**
+     * A sector-by-sector backup of a disk or volume creates a backup copy of all sectors of the disk or volume, including
+     * those that do not contain data. Therefore, the size of such a backup copy will be equal to the size of the original disk
+     * or volume.
+     */
+    sectorBySector?: pulumi.Input<boolean>;
+    /**
+     * If true, a user interaction will be avoided when possible. Default `true`.
+     */
     silentModeEnabled?: pulumi.Input<boolean>;
+    /**
+     * Determines the size to split backups. It's better to leave this option unchanged. Default `9223372036854775807`.
+     */
     splittingBytes?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.BackupPolicyTimeouts>;
+    /**
+     * Validation is a time-consuming process, even with incremental or differential backups of small amounts of data. This is
+     * because not only the data physically contained in the backup copy is verified, but all data restored when it is
+     * selected. This option requires access to previously created backup copies.
+     */
+    validationEnabled?: pulumi.Input<boolean>;
+    /**
+     * Amount of reattempts that should be performed while trying to make snapshot.
+     */
     vmSnapshotReattempts: pulumi.Input<inputs.BackupPolicyVmSnapshotReattempts>;
+    /**
+     * Settings for the volume shadow copy service. Available values are: `NATIVE`, `TARGET_SYSTEM_DEFINED`. Default `NATIVE`.
+     */
     vssProvider?: pulumi.Input<string>;
 }

@@ -34,23 +34,90 @@ export class SmartcaptchaCaptcha extends pulumi.CustomResource {
         return obj['__pulumiType'] === SmartcaptchaCaptcha.__pulumiType;
     }
 
-    declare public readonly allowedSites: pulumi.Output<string[] | undefined>;
-    declare public readonly challengeType: pulumi.Output<string | undefined>;
+    /**
+     * List of allowed host names, see [Domain
+     * validation](https://www.terraform.io/docs/smartcaptcha/concepts/domain-validation).
+     */
+    declare public readonly allowedSites: pulumi.Output<string[]>;
+    /**
+     * ID of the Captcha resource to return.
+     */
+    declare public readonly captchaId: pulumi.Output<string>;
+    /**
+     * Additional task type of the captcha.
+     */
+    declare public readonly challengeType: pulumi.Output<string>;
+    /**
+     * Client key of the captcha, see [CAPTCHA keys](https://www.terraform.io/docs/smartcaptcha/concepts/keys).
+     */
     declare public /*out*/ readonly clientKey: pulumi.Output<string>;
+    /**
+     * ID of the cloud that the captcha belongs to.
+     */
     declare public readonly cloudId: pulumi.Output<string>;
-    declare public readonly complexity: pulumi.Output<string | undefined>;
+    /**
+     * Complexity of the captcha.
+     */
+    declare public readonly complexity: pulumi.Output<string>;
+    /**
+     * Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
+    /**
+     * Determines whether captcha is protected from being deleted.
+     */
+    declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * Optional description of the captcha.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * If true, Yandex team won't be able to read internal data.
+     */
+    declare public readonly disallowDataProcessing: pulumi.Output<boolean>;
+    /**
+     * ID of the folder that the captcha belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Resource labels as `key:value` pairs.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the captcha. The name is unique within the folder. 3-63 characters long.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * List of variants to use in security_rules
+     */
     declare public readonly overrideVariants: pulumi.Output<outputs.SmartcaptchaCaptchaOverrideVariant[] | undefined>;
-    declare public readonly preCheckType: pulumi.Output<string | undefined>;
+    /**
+     * Basic check type of the captcha.
+     */
+    declare public readonly preCheckType: pulumi.Output<string>;
+    /**
+     * List of security rules.
+     */
     declare public readonly securityRules: pulumi.Output<outputs.SmartcaptchaCaptchaSecurityRule[] | undefined>;
+    /**
+     * ID of the Captcha resource to return.
+     */
     declare public readonly smartcaptchaCaptchaId: pulumi.Output<string>;
-    declare public readonly styleJson: pulumi.Output<string | undefined>;
+    /**
+     * JSON with variables to define the captcha appearance. For more details see generated JSON in cloud console.
+     */
+    declare public readonly styleJson: pulumi.Output<string>;
+    /**
+     * Determines that the captcha is currently in restricted mode, see [SmartCaptcha restricted
+     * mode](https://www.terraform.io/docs/smartcaptcha/concepts/restricted-mode).
+     */
     declare public /*out*/ readonly suspend: pulumi.Output<boolean>;
     declare public readonly timeouts: pulumi.Output<outputs.SmartcaptchaCaptchaTimeouts | undefined>;
-    declare public readonly turnOffHostnameCheck: pulumi.Output<boolean | undefined>;
+    /**
+     * Turn off host name check, see [Domain
+     * validation](https://www.terraform.io/docs/smartcaptcha/concepts/domain-validation).
+     */
+    declare public readonly turnOffHostnameCheck: pulumi.Output<boolean>;
 
     /**
      * Create a SmartcaptchaCaptcha resource with the given unique name, arguments, and options.
@@ -66,13 +133,17 @@ export class SmartcaptchaCaptcha extends pulumi.CustomResource {
         if (opts.id) {
             const state = argsOrState as SmartcaptchaCaptchaState | undefined;
             resourceInputs["allowedSites"] = state?.allowedSites;
+            resourceInputs["captchaId"] = state?.captchaId;
             resourceInputs["challengeType"] = state?.challengeType;
             resourceInputs["clientKey"] = state?.clientKey;
             resourceInputs["cloudId"] = state?.cloudId;
             resourceInputs["complexity"] = state?.complexity;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
+            resourceInputs["description"] = state?.description;
+            resourceInputs["disallowDataProcessing"] = state?.disallowDataProcessing;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["overrideVariants"] = state?.overrideVariants;
             resourceInputs["preCheckType"] = state?.preCheckType;
@@ -85,11 +156,15 @@ export class SmartcaptchaCaptcha extends pulumi.CustomResource {
         } else {
             const args = argsOrState as SmartcaptchaCaptchaArgs | undefined;
             resourceInputs["allowedSites"] = args?.allowedSites;
+            resourceInputs["captchaId"] = args?.captchaId;
             resourceInputs["challengeType"] = args?.challengeType;
             resourceInputs["cloudId"] = args?.cloudId;
             resourceInputs["complexity"] = args?.complexity;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
+            resourceInputs["description"] = args?.description;
+            resourceInputs["disallowDataProcessing"] = args?.disallowDataProcessing;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["overrideVariants"] = args?.overrideVariants;
             resourceInputs["preCheckType"] = args?.preCheckType;
@@ -111,22 +186,89 @@ export class SmartcaptchaCaptcha extends pulumi.CustomResource {
  * Input properties used for looking up and filtering SmartcaptchaCaptcha resources.
  */
 export interface SmartcaptchaCaptchaState {
+    /**
+     * List of allowed host names, see [Domain
+     * validation](https://www.terraform.io/docs/smartcaptcha/concepts/domain-validation).
+     */
     allowedSites?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * ID of the Captcha resource to return.
+     */
+    captchaId?: pulumi.Input<string>;
+    /**
+     * Additional task type of the captcha.
+     */
     challengeType?: pulumi.Input<string>;
+    /**
+     * Client key of the captcha, see [CAPTCHA keys](https://www.terraform.io/docs/smartcaptcha/concepts/keys).
+     */
     clientKey?: pulumi.Input<string>;
+    /**
+     * ID of the cloud that the captcha belongs to.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * Complexity of the captcha.
+     */
     complexity?: pulumi.Input<string>;
+    /**
+     * Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Determines whether captcha is protected from being deleted.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * Optional description of the captcha.
+     */
+    description?: pulumi.Input<string>;
+    /**
+     * If true, Yandex team won't be able to read internal data.
+     */
+    disallowDataProcessing?: pulumi.Input<boolean>;
+    /**
+     * ID of the folder that the captcha belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `key:value` pairs.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the captcha. The name is unique within the folder. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * List of variants to use in security_rules
+     */
     overrideVariants?: pulumi.Input<pulumi.Input<inputs.SmartcaptchaCaptchaOverrideVariant>[]>;
+    /**
+     * Basic check type of the captcha.
+     */
     preCheckType?: pulumi.Input<string>;
+    /**
+     * List of security rules.
+     */
     securityRules?: pulumi.Input<pulumi.Input<inputs.SmartcaptchaCaptchaSecurityRule>[]>;
+    /**
+     * ID of the Captcha resource to return.
+     */
     smartcaptchaCaptchaId?: pulumi.Input<string>;
+    /**
+     * JSON with variables to define the captcha appearance. For more details see generated JSON in cloud console.
+     */
     styleJson?: pulumi.Input<string>;
+    /**
+     * Determines that the captcha is currently in restricted mode, see [SmartCaptcha restricted
+     * mode](https://www.terraform.io/docs/smartcaptcha/concepts/restricted-mode).
+     */
     suspend?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.SmartcaptchaCaptchaTimeouts>;
+    /**
+     * Turn off host name check, see [Domain
+     * validation](https://www.terraform.io/docs/smartcaptcha/concepts/domain-validation).
+     */
     turnOffHostnameCheck?: pulumi.Input<boolean>;
 }
 
@@ -134,18 +276,75 @@ export interface SmartcaptchaCaptchaState {
  * The set of arguments for constructing a SmartcaptchaCaptcha resource.
  */
 export interface SmartcaptchaCaptchaArgs {
+    /**
+     * List of allowed host names, see [Domain
+     * validation](https://www.terraform.io/docs/smartcaptcha/concepts/domain-validation).
+     */
     allowedSites?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * ID of the Captcha resource to return.
+     */
+    captchaId?: pulumi.Input<string>;
+    /**
+     * Additional task type of the captcha.
+     */
     challengeType?: pulumi.Input<string>;
+    /**
+     * ID of the cloud that the captcha belongs to.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * Complexity of the captcha.
+     */
     complexity?: pulumi.Input<string>;
+    /**
+     * Determines whether captcha is protected from being deleted.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * Optional description of the captcha.
+     */
+    description?: pulumi.Input<string>;
+    /**
+     * If true, Yandex team won't be able to read internal data.
+     */
+    disallowDataProcessing?: pulumi.Input<boolean>;
+    /**
+     * ID of the folder that the captcha belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `key:value` pairs.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the captcha. The name is unique within the folder. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * List of variants to use in security_rules
+     */
     overrideVariants?: pulumi.Input<pulumi.Input<inputs.SmartcaptchaCaptchaOverrideVariant>[]>;
+    /**
+     * Basic check type of the captcha.
+     */
     preCheckType?: pulumi.Input<string>;
+    /**
+     * List of security rules.
+     */
     securityRules?: pulumi.Input<pulumi.Input<inputs.SmartcaptchaCaptchaSecurityRule>[]>;
+    /**
+     * ID of the Captcha resource to return.
+     */
     smartcaptchaCaptchaId?: pulumi.Input<string>;
+    /**
+     * JSON with variables to define the captcha appearance. For more details see generated JSON in cloud console.
+     */
     styleJson?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.SmartcaptchaCaptchaTimeouts>;
+    /**
+     * Turn off host name check, see [Domain
+     * validation](https://www.terraform.io/docs/smartcaptcha/concepts/domain-validation).
+     */
     turnOffHostnameCheck?: pulumi.Input<boolean>;
 }

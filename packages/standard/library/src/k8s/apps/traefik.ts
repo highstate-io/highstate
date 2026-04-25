@@ -23,6 +23,11 @@ export const traefik = defineUnit({
     className: z.string().default("traefik"),
 
     /**
+     * The node selector to apply to all Traefik pods.
+     */
+    nodeSelector: z.record(z.string(), z.string()).default({}),
+
+    /**
      * Whether to create and enable reconciliation for Traefik CRDs.
      */
     enableTraefikCrds: z.boolean().default(true),

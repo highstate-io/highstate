@@ -35,18 +35,65 @@ export class AlbLoadBalancer extends pulumi.CustomResource {
     }
 
     declare public readonly albLoadBalancerId: pulumi.Output<string>;
+    /**
+     * Allocation zones for the Load Balancer instance.
+     */
     declare public readonly allocationPolicy: pulumi.Output<outputs.AlbLoadBalancerAllocationPolicy>;
+    /**
+     * Specifies whether application load balancer is available to zonal shift
+     */
+    declare public readonly allowZonalShift: pulumi.Output<boolean | undefined>;
+    /**
+     * Scaling settings of the application load balancer.
+     */
+    declare public readonly autoScalePolicy: pulumi.Output<outputs.AlbLoadBalancerAutoScalePolicy | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * List of listeners for the Load Balancer.
+     */
     declare public readonly listeners: pulumi.Output<outputs.AlbLoadBalancerListener[] | undefined>;
+    /**
+     * Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+     */
     declare public /*out*/ readonly logGroupId: pulumi.Output<string>;
+    /**
+     * Cloud Logging settings.
+     */
     declare public readonly logOptions: pulumi.Output<outputs.AlbLoadBalancerLogOptions | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * The region ID where Load Balancer is located at.
+     */
     declare public readonly regionId: pulumi.Output<string | undefined>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * Status of the Load Balancer.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.AlbLoadBalancerTimeouts | undefined>;
 
@@ -65,6 +112,8 @@ export class AlbLoadBalancer extends pulumi.CustomResource {
             const state = argsOrState as AlbLoadBalancerState | undefined;
             resourceInputs["albLoadBalancerId"] = state?.albLoadBalancerId;
             resourceInputs["allocationPolicy"] = state?.allocationPolicy;
+            resourceInputs["allowZonalShift"] = state?.allowZonalShift;
+            resourceInputs["autoScalePolicy"] = state?.autoScalePolicy;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
             resourceInputs["folderId"] = state?.folderId;
@@ -88,6 +137,8 @@ export class AlbLoadBalancer extends pulumi.CustomResource {
             }
             resourceInputs["albLoadBalancerId"] = args?.albLoadBalancerId;
             resourceInputs["allocationPolicy"] = args?.allocationPolicy;
+            resourceInputs["allowZonalShift"] = args?.allowZonalShift;
+            resourceInputs["autoScalePolicy"] = args?.autoScalePolicy;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
@@ -112,18 +163,65 @@ export class AlbLoadBalancer extends pulumi.CustomResource {
  */
 export interface AlbLoadBalancerState {
     albLoadBalancerId?: pulumi.Input<string>;
+    /**
+     * Allocation zones for the Load Balancer instance.
+     */
     allocationPolicy?: pulumi.Input<inputs.AlbLoadBalancerAllocationPolicy>;
+    /**
+     * Specifies whether application load balancer is available to zonal shift
+     */
+    allowZonalShift?: pulumi.Input<boolean>;
+    /**
+     * Scaling settings of the application load balancer.
+     */
+    autoScalePolicy?: pulumi.Input<inputs.AlbLoadBalancerAutoScalePolicy>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * List of listeners for the Load Balancer.
+     */
     listeners?: pulumi.Input<pulumi.Input<inputs.AlbLoadBalancerListener>[]>;
+    /**
+     * Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+     */
     logGroupId?: pulumi.Input<string>;
+    /**
+     * Cloud Logging settings.
+     */
     logOptions?: pulumi.Input<inputs.AlbLoadBalancerLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * The region ID where Load Balancer is located at.
+     */
     regionId?: pulumi.Input<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Status of the Load Balancer.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.AlbLoadBalancerTimeouts>;
 }
@@ -133,15 +231,53 @@ export interface AlbLoadBalancerState {
  */
 export interface AlbLoadBalancerArgs {
     albLoadBalancerId?: pulumi.Input<string>;
+    /**
+     * Allocation zones for the Load Balancer instance.
+     */
     allocationPolicy: pulumi.Input<inputs.AlbLoadBalancerAllocationPolicy>;
+    /**
+     * Specifies whether application load balancer is available to zonal shift
+     */
+    allowZonalShift?: pulumi.Input<boolean>;
+    /**
+     * Scaling settings of the application load balancer.
+     */
+    autoScalePolicy?: pulumi.Input<inputs.AlbLoadBalancerAutoScalePolicy>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * List of listeners for the Load Balancer.
+     */
     listeners?: pulumi.Input<pulumi.Input<inputs.AlbLoadBalancerListener>[]>;
+    /**
+     * Cloud Logging settings.
+     */
     logOptions?: pulumi.Input<inputs.AlbLoadBalancerLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * The region ID where Load Balancer is located at.
+     */
     regionId?: pulumi.Input<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.AlbLoadBalancerTimeouts>;
 }

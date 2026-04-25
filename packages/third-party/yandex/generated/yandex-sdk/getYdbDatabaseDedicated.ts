@@ -48,6 +48,7 @@ export interface GetYdbDatabaseDedicatedResult {
     readonly networkId: string;
     readonly resourcePresetId: string;
     readonly scalePolicies: outputs.GetYdbDatabaseDedicatedScalePolicy[];
+    readonly securityGroupIds: string[];
     readonly status: string;
     readonly storageConfigs: outputs.GetYdbDatabaseDedicatedStorageConfig[];
     readonly subnetIds: string[];

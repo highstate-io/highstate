@@ -1,16 +1,31 @@
-import type { common, network } from "@highstate/library"
 import { createHash } from "node:crypto"
 import { createReadStream } from "node:fs"
-import { cp, mkdir, mkdtemp, rename, rm, stat, writeFile } from "node:fs/promises"
-import { tmpdir } from "node:os"
+import { cp, mkdir, rename, rm, stat, writeFile } from "node:fs/promises"
 import { basename, dirname, extname, join } from "node:path"
 import { Readable } from "node:stream"
 import { pipeline } from "node:stream/promises"
-import { type CommonObjectMeta, HighstateSignature } from "@highstate/contract"
-import { asset, type Input, toPromise } from "@highstate/pulumi"
+import {
+  type CommonObjectMeta,
+  cuidv2d,
+  getEntityId,
+  getOrCreate,
+  HighstateSignature,
+  isSecret,
+} from "@highstate/contract"
+import { common, type network } from "@highstate/library"
+import {
+  asset,
+  type FileOptions,
+  getUnitTempPath,
+  makeEntity,
+  makeFileAsync,
+  toPromise,
+} from "@highstate/pulumi"
+import { createId } from "@paralleldrive/cuid2"
 import { minimatch } from "minimatch"
 import * as tar from "tar"
 import unzipper from "unzipper"
+import { emptyLifetimeScope, getOrCreateLifetimeScope, LifetimeScopeContainer } from "./lifetime"
 import { type InputL7Endpoint, l7EndpointToString, parseEndpoint } from "./network/endpoints"
 
 export type FolderPackOptions = {
@@ -39,10 +54,6 @@ export function assetFromFile(file: common.File): asset.Asset {
     return new asset.RemoteAsset(l7EndpointToString(file.content.endpoint))
   }
 
-  if (file.content.type === "local") {
-    return new asset.FileAsset(file.content.path)
-  }
-
   if (file.content.type === "artifact") {
     throw new Error(
       "Artifact-based files cannot be converted to Pulumi assets directly. Use MaterializedFile instead.",
@@ -55,7 +66,9 @@ export function assetFromFile(file: common.File): asset.Asset {
     )
   }
 
-  return new asset.StringAsset(file.content.value)
+  return new asset.StringAsset(
+    isSecret(file.content.value) ? file.content.value.value : file.content.value,
+  )
 }
 
 /**
@@ -81,11 +94,11 @@ export function archiveFromFolder(folder: common.Folder): asset.Archive {
 
   const files: Record<string, asset.Asset> = {}
 
-  for (const file of folder.content.files) {
+  for (const file of folder.files) {
     files[file.meta.name] = assetFromFile(file)
   }
 
-  for (const subfolder of folder.content.folders) {
+  for (const subfolder of folder.folders) {
     files[subfolder.meta.name] = archiveFromFolder(subfolder)
   }
 
@@ -155,46 +168,148 @@ function detectArchiveType(fileName: string, contentType?: string): "tar" | "zip
   return null
 }
 
+const materializationNamespace = "ba1fd72c-85e3-4e4a-9047-2700262a933f"
+
+const materializedFiles = new Map<string, MaterializedFile>()
+const materializedFolders = new Map<string, MaterializedFolder>()
+
+function getMaterializationId(entity: common.File | common.Folder, instance = "default"): string {
+  return cuidv2d(materializationNamespace, `${getEntityId(entity)}:${instance}`)
+}
+
+export type MaterializationAction = () => Promise<void> | void
+
+async function runMaterializationActions(
+  entity: common.File | common.Folder,
+  actions: MaterializationAction[],
+): Promise<void> {
+  for (const action of actions) {
+    try {
+      await action()
+    } catch (error) {
+      console.error(`error executing materialization action for file "${entity.meta.name}":`, error)
+
+      throw new Error(`Failed to execute materialization action for file "${entity.meta.name}"`)
+    }
+  }
+}
+
 /**
  * The `MaterializedFile` class represents a file entity that has been materialized
  * to a local filesystem path.
  *
  * It handles creating a temporary directory, writing the file content to that directory,
  * and cleaning up the temporary files when disposed.
- *
- * For improved cleanup reliability, the class will use HIGHSTATE_TEMP_PATH as the base
- * directory for temporary files if available, allowing for centralized cleanup by the runner.
  */
-export class MaterializedFile implements AsyncDisposable {
-  private _tmpPath?: string
-  private _path!: string
-  private _disposed = false
-
+export class MaterializedFile extends LifetimeScopeContainer {
   readonly artifactMeta: CommonObjectMeta
 
-  constructor(
+  readonly _materializationPath?: string
+  readonly _materializationActions: MaterializationAction[] = []
+  private _rootRef?: AsyncDisposable
+
+  /**
+   * The stable path of the materialized file on the local filesystem.
+   *
+   * If parentId is provided, it is calculated as `{parent.path}/{entity.meta.name}`.
+   *
+   * If file is materialized independently without a parent folder, the path is calculated as `/tmp/highstate/{stateId}/files/{materializationId}/{fileName}`.
+   * The location does not change between invocations of the unit for the same file entity, parent folder and instance name.
+   */
+  readonly path: string
+
+  private constructor(
+    /**
+     * The Highstate file entity that this materialized file represents.
+     */
     readonly entity: common.File,
+
+    /**
+     * The stable ID for this materialized file instance.
+     *
+     * If parentId is provided, this will be `undefined` since the materialization is scoped to the parent folder and does not need a separate ID.
+     *
+     * If no parentId is provided, it is calculated as `cuidv2d("ba1fd72c-85e3-4e4a-9047-2700262a933f", "{entityId}:{instance}")`.
+     */
+    readonly materializationId?: string,
+
+    /**
+     * The parent folder to materialize the file in. If not provided, the file will be materialized in an independent temporary directory.
+     */
     readonly parent?: MaterializedFolder,
   ) {
+    if (materializationId && parent) {
+      throw new Error("Materialization ID must not be provided for files with a parent folder")
+    }
+
+    if (!materializationId && !parent) {
+      throw new Error("Materialization ID must be provided for files without a parent folder")
+    }
+
+    // create lifetime scope if materializationId is provided, otherwise use empty scope since the lifetime will be managed by the parent folder
+    const scope = materializationId
+      ? getOrCreateLifetimeScope(
+          `materialized-file-${materializationId}`,
+          () => this._open(),
+          () => this._dispose(),
+        )
+      : emptyLifetimeScope
+
+    super(scope)
+
     this.artifactMeta = {
-      title: `Materialized file "${entity.meta.name}"`,
+      title: entity.$meta.title ?? `Materialized file "${entity.meta.name}"`,
+      description: entity.$meta.description,
+      icon: entity.$meta.icon,
+      iconColor: entity.$meta.iconColor,
+    }
+
+    this._materializationPath = parent
+      ? undefined
+      : join(getUnitTempPath(), "files", materializationId!)
+
+    this.path = parent
+      ? join(parent.path, entity.meta.name)
+      : join(this._materializationPath!, entity.meta.name)
+  }
+
+  /**
+   * Opens the materialized file and returns a reference that ensures the file stays materialized while it's in use.
+   *
+   * Example usage:
+   * ```
+   * await using _ = await file.open()
+   * // do something with the file until the end of the scope
+   * // it will be automatically disposed if no more references to it exist
+   * ```
+   */
+  async open() {
+    return this.scope.ref()
+  }
+
+  async [Symbol.asyncDispose](): Promise<void> {
+    if (this._rootRef) {
+      await this._rootRef[Symbol.asyncDispose]()
+      this._rootRef = undefined
     }
   }
 
-  get path(): string {
-    return this._path
+  /**
+   * Sets the action to be performed when the file is materialized.
+   *
+   * Must be called before calling `open()` or before passing `hooks` to other resources, otherwise the action might not be executed.
+   *
+   * Also note that multiple code parts may set materialization actions for the same file.
+   * If actions must be isolated, consider passing different `instance` values when creating materialized file.
+   */
+  onMaterialized(action: MaterializationAction): void {
+    this._materializationActions.push(action)
   }
 
   private async _open(): Promise<void> {
-    if (this.parent) {
-      // if the parent folder is provided, the file path is relative to the parent folder
-      this._path = join(this.parent.path, this.entity.meta.name)
-    } else {
-      // otherwise, the file path is in a temporary directory
-      // use HIGHSTATE_TEMP_PATH as base if available for better cleanup reliability
-      const tempBase = process.env.HIGHSTATE_TEMP_PATH || tmpdir()
-      this._tmpPath = await mkdtemp(join(tempBase, "highstate-file-"))
-      this._path = join(this._tmpPath, this.entity.meta.name)
+    if (this._materializationPath) {
+      // ensure the materialization directory exists before writing the file
+      await mkdir(this._materializationPath, { recursive: true })
     }
 
     switch (this.entity.content.type) {
@@ -203,11 +318,15 @@ export class MaterializedFile implements AsyncDisposable {
           ? Buffer.from(this.entity.content.value, "base64")
           : this.entity.content.value
 
-        await writeFile(this._path, content, { mode: this.entity.meta.mode })
+        await writeFile(this.path, content, { mode: this.entity.meta.mode })
         break
       }
-      case "local": {
-        await cp(this.entity.content.path, this._path, { mode: this.entity.meta.mode })
+      case "embedded-secret": {
+        const content = this.entity.content.isBinary
+          ? Buffer.from(this.entity.content.value.value, "base64")
+          : this.entity.content.value.value
+
+        await writeFile(this.path, content, { mode: this.entity.meta.mode })
         break
       }
       case "remote": {
@@ -215,7 +334,7 @@ export class MaterializedFile implements AsyncDisposable {
         if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`)
 
         const arrayBuffer = await response.arrayBuffer()
-        await writeFile(this._path, Buffer.from(arrayBuffer), { mode: this.entity.meta.mode })
+        await writeFile(this.path, Buffer.from(arrayBuffer), { mode: this.entity.meta.mode })
 
         break
       }
@@ -231,23 +350,23 @@ export class MaterializedFile implements AsyncDisposable {
 
         // extract the tgz file directly to the target path
         const readStream = createReadStream(tgzPath)
-        await unarchiveFromStream(readStream, dirname(this._path), "tar")
+        await unarchiveFromStream(readStream, dirname(this.path), "tar")
         break
       }
     }
+
+    // execute materialization actions
+    await runMaterializationActions(this.entity, this._materializationActions)
   }
 
-  async [Symbol.asyncDispose](): Promise<void> {
-    if (this._disposed) return
-    this._disposed = true
-
+  private async _dispose(): Promise<void> {
     try {
-      if (this._tmpPath) {
-        // clear the whole temporary directory if it was created
-        await rm(this._tmpPath, { recursive: true, force: true })
+      if (this._materializationPath) {
+        // clear the whole materialization directory if it was created
+        await rm(this._materializationPath, { recursive: true, force: true })
       } else {
         // otherwise, just remove the file
-        await rm(this._path, { force: true })
+        await rm(this.path, { force: true })
       }
     } catch (error) {
       // ignore errors during cleanup, as the file might have been already removed
@@ -263,27 +382,28 @@ export class MaterializedFile implements AsyncDisposable {
    * Creates a tgz archive of the file and stores it in HIGHSTATE_ARTIFACT_WRITE_PATH where it will be collected by Highstate.
    */
   async pack(): Promise<common.ArtifactFile> {
+    await using _ = await this.open()
+
     const writeDir = process.env.HIGHSTATE_ARTIFACT_WRITE_PATH
     if (!writeDir) {
       throw new Error("HIGHSTATE_ARTIFACT_WRITE_PATH environment variable is not set")
     }
 
     // read actual file stats from filesystem
-    const fileStats = await stat(this._path)
+    const fileStats = await stat(this.path)
 
     // create tgz archive of the file
-    const tempBase = process.env.HIGHSTATE_TEMP_PATH || tmpdir()
-    const tempArchivePath = join(tempBase, `highstate-pack-${Date.now()}.tgz`)
+    const tempArchivePath = join(getUnitTempPath(), `pack-${createId()}.tgz`)
 
     try {
       await tar.create(
         {
           gzip: true,
           file: tempArchivePath,
-          cwd: dirname(this._path),
+          cwd: dirname(this.path),
           noMtime: true, // to reproduce the same archive every time
         },
-        [basename(this._path)],
+        [basename(this.path)],
       )
 
       // calculate hash of the archive
@@ -307,15 +427,22 @@ export class MaterializedFile implements AsyncDisposable {
       }
 
       // return file entity with artifact content using actual filesystem stats
-      return {
-        meta: newMeta,
-        content: {
-          type: "artifact",
-          [HighstateSignature.Artifact]: true,
-          hash: hashValue,
-          meta: await toPromise(this.artifactMeta),
+      return makeEntity({
+        entity: common.fileEntity,
+        identity: this.entity.$meta.identity,
+        meta: {
+          title: this.entity.meta.name,
         },
-      }
+        value: {
+          meta: newMeta,
+          content: {
+            type: "artifact" as const,
+            [HighstateSignature.Artifact]: true,
+            hash: hashValue,
+            meta: await toPromise(this.artifactMeta),
+          },
+        },
+      }) as common.ArtifactFile
     } finally {
       // clean up temporary archive
       try {
@@ -327,30 +454,54 @@ export class MaterializedFile implements AsyncDisposable {
   }
 
   /**
-   * Creates an empty materialized file with the given name.
+   * Returns a materialized file instance for the given file entity.
+   * For each combination of (file, instance) the same materialized file instance will be returned.
    *
-   * @param name The name of the file to create
-   * @param content Optional initial content of the file (default is empty string)
-   * @param mode Optional file mode (permissions)
-   * @returns A new MaterializedFile instance representing an empty file
+   * @param file The file entity to materialize.
+   * @param instance Optional instance name to differentiate multiple materializations of the same file. Can be used to isolate different operations on the same file. By default, "default".
    */
-  static async create(name: string, content = "", mode?: number): Promise<MaterializedFile> {
-    const entity: common.File = {
-      meta: {
-        name,
-        mode,
-        size: 0,
-      },
-      content: {
-        type: "embedded",
-        value: content,
-      },
+  static for(file: common.File, instance?: string): MaterializedFile {
+    const materializationId = getMaterializationId(file, instance)
+
+    return getOrCreate(
+      materializedFiles,
+      materializationId,
+      () => new MaterializedFile(file, materializationId),
+    )
+  }
+
+  /**
+   * Opens a materialized file and returns the materialized instance.
+   *
+   * @param file The file entity to materialize.
+   * @param parent Optional parent folder for nested materialization.
+   * @param instance Optional instance name when materializing without parent.
+   */
+  // biome-ignore lint/suspicious/useAdjacentOverloadSignatures: class intentionally provides both instance and static open APIs
+  static async open(
+    file: common.File,
+    parent?: MaterializedFolder,
+    instance?: string,
+  ): Promise<MaterializedFile> {
+    if (parent) {
+      const materializedFile = new MaterializedFile(file, undefined, parent)
+
+      try {
+        await materializedFile._open()
+      } catch (error) {
+        await materializedFile._dispose()
+        throw error
+      }
+
+      return materializedFile
     }
 
-    const materializedFile = new MaterializedFile(entity)
+    const materializedFile = MaterializedFile.for(file, instance)
 
     try {
-      await materializedFile._open()
+      if (!materializedFile._rootRef) {
+        materializedFile._rootRef = await materializedFile.open()
+      }
     } catch (error) {
       await materializedFile[Symbol.asyncDispose]()
       throw error
@@ -359,21 +510,21 @@ export class MaterializedFile implements AsyncDisposable {
     return materializedFile
   }
 
-  static async open(
-    file: Input<common.File>,
+  /**
+   * Creates and opens a materialized file from makeFile-compatible options.
+   *
+   * @param options The file options with the same shape as makeFile.
+   * @param parent Optional parent folder for nested materialization.
+   * @param instance Optional instance name when materializing without parent.
+   */
+  static async create(
+    options: FileOptions,
     parent?: MaterializedFolder,
+    instance?: string,
   ): Promise<MaterializedFile> {
-    const resolvedFile = await toPromise(file)
-    const materializedFile = new MaterializedFile(resolvedFile, parent)
+    const file = await makeFileAsync(options)
 
-    try {
-      await materializedFile._open()
-    } catch (error) {
-      await materializedFile[Symbol.asyncDispose]()
-      throw error
-    }
-
-    return materializedFile
+    return await MaterializedFile.open(file, parent, instance)
   }
 }
 
@@ -383,57 +534,122 @@ export class MaterializedFile implements AsyncDisposable {
  *
  * It handles creating a temporary directory, copying the folder content to that directory,
  * and cleaning up the temporary files when disposed.
- *
- * For improved cleanup reliability, the class will use HIGHSTATE_TEMP_PATH as the base
- * directory for temporary files if available, allowing for centralized cleanup by the runner.
  */
-export class MaterializedFolder implements AsyncDisposable {
-  private _tmpPath?: string
-  private _path!: string
-  private _disposed = false
-
-  private readonly _disposables: AsyncDisposable[] = []
-
+export class MaterializedFolder extends LifetimeScopeContainer {
   readonly artifactMeta: CommonObjectMeta
 
-  constructor(
+  readonly _materializationPath?: string
+  readonly _materializationActions: MaterializationAction[] = []
+  private _rootRef?: AsyncDisposable
+
+  /**
+   * The stable path of the materialized folder on the local filesystem.
+   *
+   * If parentId is provided, it is calculated as `{parent.path}/{entity.meta.name}`.
+   *
+   * If folder is materialized independently without a parent folder, the path is calculated as `/tmp/highstate/{stateId}/folders/{materializationId}/{folderName}`.
+   * The location does not change between invocations of the unit for the same folder entity, parent folder and instance name.
+   */
+  readonly path: string
+
+  private constructor(
+    /**
+     * The Highstate folder entity that this materialized folder represents.
+     */
     readonly entity: common.Folder,
+
+    /**
+     * The stable ID for this materialized folder instance. Must be provided if the folder is materialized independently without a parent folder.
+     * If parentId is provided, this will be `undefined` since the materialization is scoped to the parent folder and does not need a separate ID.
+     */
+    readonly materializationId?: string,
+
+    /**
+     * The parent folder to materialize the folder in. If not provided, the folder will be materialized in an independent temporary directory.
+     */
     readonly parent?: MaterializedFolder,
   ) {
+    if (materializationId && parent) {
+      throw new Error("Materialization ID must not be provided for folders with a parent folder")
+    }
+
+    if (!materializationId && !parent) {
+      throw new Error("Materialization ID must be provided for folders without a parent folder")
+    }
+
+    // create lifetime scope if materializationId is provided, otherwise use empty scope since the lifetime will be managed by the parent folder
+    const scope = materializationId
+      ? getOrCreateLifetimeScope(
+          `materialized-folder-${materializationId}`,
+          () => this._open(),
+          () => this._dispose(),
+        )
+      : emptyLifetimeScope
+
+    super(scope)
+
     this.artifactMeta = {
-      title: `Materialized folder "${entity.meta.name}"`,
+      title: entity.$meta.title ?? `Materialized folder "${entity.meta.name}"`,
+      description: entity.$meta.description,
+      icon: entity.$meta.icon,
+      iconColor: entity.$meta.iconColor,
+    }
+
+    this._materializationPath = parent
+      ? undefined
+      : join(getUnitTempPath(), "folders", materializationId!)
+
+    this.path = parent ? join(parent.path, entity.meta.name) : this._materializationPath!
+  }
+
+  /**
+   * Opens the materialized folder and returns a reference that ensures the folder stays materialized while it's in use.
+   *
+   * Example usage:
+   * ```
+   * await using _ = await folder.open()
+   * // do something with the folder until the end of the scope
+   * // it will be automatically disposed if no more references to it exist
+   * ```
+   */
+  async open() {
+    return this.scope.ref()
+  }
+
+  async [Symbol.asyncDispose](): Promise<void> {
+    if (this._rootRef) {
+      await this._rootRef[Symbol.asyncDispose]()
+      this._rootRef = undefined
     }
   }
 
-  get path(): string {
-    return this._path
+  /**
+   * Sets the action to be performed when the folder is materialized.
+   *
+   * Must be called before calling `open()` or before passing `hooks` to other resources, otherwise the action might not be executed.
+   *
+   * Also note that multiple code parts may set materialization actions for the same folder.
+   * If actions must be isolated, consider passing different `instance` values when creating materialized folder.
+   */
+  onMaterialized(action: MaterializationAction): void {
+    this._materializationActions.push(action)
   }
 
   private async _open(): Promise<void> {
-    if (this.parent) {
-      // if the parent folder is provided, the folder path is relative to the parent folder
-      this._path = join(this.parent.path, this.entity.meta.name)
-    } else {
-      // otherwise, the folder path is in a temporary directory
-      // use HIGHSTATE_TEMP_PATH as base if available for better cleanup reliability
-      const tempBase = process.env.HIGHSTATE_TEMP_PATH || tmpdir()
-      this._tmpPath = await mkdtemp(join(tempBase, "highstate-folder-"))
-      this._path = join(this._tmpPath, this.entity.meta.name)
-    }
-
     switch (this.entity.content.type) {
       case "embedded": {
         // create the folder itself
-        await mkdir(this._path, { mode: this.entity.meta.mode })
+        await mkdir(this.path, { recursive: true, mode: this.entity.meta.mode })
 
-        for (const file of this.entity.content.files) {
-          const materializedFile = await MaterializedFile.open(file, this)
-          this._disposables.push(materializedFile)
+        for (const file of this.entity.files) {
+          // @ts-expect-error bypass constructor visibility
+          const materializedFile = new MaterializedFile(file, undefined, this)
+          await materializedFile.open()
         }
 
-        for (const subfolder of this.entity.content.folders) {
-          const materializedFolder = await MaterializedFolder.open(subfolder, this)
-          this._disposables.push(materializedFolder)
+        for (const subfolder of this.entity.folders) {
+          const materializedFolder = new MaterializedFolder(subfolder, undefined, this)
+          await materializedFolder._open()
         }
 
         break
@@ -445,10 +661,10 @@ export class MaterializedFolder implements AsyncDisposable {
         if (archiveType) {
           // Extract archive to the destination path
           const readStream = createReadStream(this.entity.content.path)
-          await unarchiveFromStream(readStream, this._path, archiveType)
+          await unarchiveFromStream(readStream, this.path, archiveType)
         } else {
           // Regular directory copy
-          await cp(this.entity.content.path, this._path, {
+          await cp(this.entity.content.path, this.path, {
             recursive: true,
             mode: this.entity.meta.mode,
           })
@@ -492,7 +708,7 @@ export class MaterializedFolder implements AsyncDisposable {
           },
         })
 
-        await unarchiveFromStream(stream, this._path, archiveType)
+        await unarchiveFromStream(stream, this.path, archiveType)
 
         break
       }
@@ -509,35 +725,30 @@ export class MaterializedFolder implements AsyncDisposable {
 
         // extract the tgz file directly to the target path
         const readStream = createReadStream(tgzPath)
-        await unarchiveFromStream(readStream, dirname(this._path), "tar")
+        await unarchiveFromStream(readStream, dirname(this.path), "tar")
 
         break
       }
     }
+
+    // execute materialization actions
+    await runMaterializationActions(this.entity, this._materializationActions)
   }
 
-  async [Symbol.asyncDispose](): Promise<void> {
-    if (this._disposed) return
-    this._disposed = true
-
+  private async _dispose(): Promise<void> {
     try {
-      if (this._tmpPath) {
-        // clear the whole temporary directory if it was created
-        await rm(this._tmpPath, { recursive: true, force: true })
+      if (this._materializationPath) {
+        // clear the whole materialization directory if it was created
+        await rm(this._materializationPath, { recursive: true, force: true })
       } else {
         // otherwise, just remove the folder
-        await rm(this._path, { recursive: true, force: true })
+        await rm(this.path, { recursive: true, force: true })
       }
     } catch (error) {
       // ignore errors during cleanup, as the folder might have been already removed
       // or the temporary directory might not exist
       // TODO: centralized logging for unit code
       console.warn("failed to clean up materialized folder:", error)
-    }
-
-    // dispose all materialized children
-    for (const disposable of this._disposables) {
-      await disposable[Symbol.asyncDispose]()
     }
   }
 
@@ -547,17 +758,18 @@ export class MaterializedFolder implements AsyncDisposable {
    * Creates a tgz archive of the entire folder and stores it in HIGHSTATE_ARTIFACT_WRITE_PATH where it will be collected by Highstate.
    */
   async pack({ include, exclude }: FolderPackOptions = {}): Promise<common.ArtifactFolder> {
+    await using _ = await this.open()
+
     const writeDir = process.env.HIGHSTATE_ARTIFACT_WRITE_PATH
     if (!writeDir) {
       throw new Error("HIGHSTATE_ARTIFACT_WRITE_PATH environment variable is not set")
     }
 
     // read actual folder stats from filesystem
-    const folderStats = await stat(this._path)
+    const folderStats = await stat(this.path)
 
     // create tgz archive of the folder
-    const tempBase = process.env.HIGHSTATE_TEMP_PATH || tmpdir()
-    const tempArchivePath = join(tempBase, `highstate-pack-${Date.now()}.tgz`)
+    const tempArchivePath = join(getUnitTempPath(), `pack-${createId()}.tgz`)
 
     const entity = this.entity
 
@@ -566,7 +778,7 @@ export class MaterializedFolder implements AsyncDisposable {
         {
           gzip: true,
           file: tempArchivePath,
-          cwd: dirname(this._path),
+          cwd: dirname(this.path),
 
           filter(path) {
             // match without the folder name prefix
@@ -594,7 +806,7 @@ export class MaterializedFolder implements AsyncDisposable {
           portable: true,
           noMtime: true,
         },
-        [basename(this._path)],
+        [basename(this.path)],
       )
 
       // calculate hash of the archive
@@ -617,15 +829,22 @@ export class MaterializedFolder implements AsyncDisposable {
       }
 
       // return folder entity with artifact content using actual filesystem stats
-      return {
-        meta: newMeta,
-        content: {
-          [HighstateSignature.Artifact]: true,
-          type: "artifact",
-          hash: hashValue,
-          meta: await toPromise(this.artifactMeta),
+      return makeEntity({
+        entity: common.folderEntity,
+        identity: this.entity.$meta.identity,
+        meta: {
+          title: this.entity.meta.name,
         },
-      }
+        value: {
+          meta: newMeta,
+          content: {
+            [HighstateSignature.Artifact]: true,
+            type: "artifact",
+            hash: hashValue,
+            meta: await toPromise(this.artifactMeta),
+          },
+        },
+      }) as common.ArtifactFolder
     } finally {
       // clean up temporary archive
       try {
@@ -637,50 +856,54 @@ export class MaterializedFolder implements AsyncDisposable {
   }
 
   /**
-   * Creates an empty materialized folder with the given name.
+   * Returns a materialized folder instance for the given folder entity.
+   * For each combination of (folder, instance) the same materialized folder instance will be returned.
    *
-   * @param name The name of the folder to create
-   * @param mode Optional folder mode (permissions)
-   * @param parent Optional parent folder to create the folder in
-   * @returns A new MaterializedFolder instance representing an empty folder
+   * @param folder The folder entity to materialize.
+   * @param instance Optional instance name to differentiate multiple materializations of the same folder. Can be used to isolate different operations on the same folder. By default, "default".
    */
-  static async create(
-    name: string,
-    mode?: number,
-    parent?: MaterializedFolder,
-  ): Promise<MaterializedFolder> {
-    const entity: common.Folder = {
-      meta: {
-        name,
-        mode,
-      },
-      content: {
-        type: "embedded",
-        files: [],
-        folders: [],
-      },
-    }
+  static for(folder: common.Folder, instance?: string): MaterializedFolder {
+    const materializationId = getMaterializationId(folder, instance)
 
-    const materializedFolder = new MaterializedFolder(entity, parent)
-
-    try {
-      await materializedFolder._open()
-    } catch (error) {
-      await materializedFolder[Symbol.asyncDispose]()
-      throw error
-    }
-
-    return materializedFolder
+    return getOrCreate(
+      materializedFolders,
+      materializationId,
+      () => new MaterializedFolder(folder, materializationId),
+    )
   }
 
+  /**
+   * Opens a materialized folder and returns the materialized instance.
+   *
+   * @param folder The folder entity to materialize.
+   * @param parent Optional parent folder for nested materialization.
+   * @param instance Optional instance name when materializing without parent.
+   */
+  // biome-ignore lint/suspicious/useAdjacentOverloadSignatures: class intentionally provides both instance and static open APIs
   static async open(
     folder: common.Folder,
     parent?: MaterializedFolder,
+    instance?: string,
   ): Promise<MaterializedFolder> {
-    const materializedFolder = new MaterializedFolder(folder, parent)
+    if (parent) {
+      const materializedFolder = new MaterializedFolder(folder, undefined, parent)
+
+      try {
+        await materializedFolder._open()
+      } catch (error) {
+        await materializedFolder._dispose()
+        throw error
+      }
+
+      return materializedFolder
+    }
+
+    const materializedFolder = MaterializedFolder.for(folder, instance)
 
     try {
-      await materializedFolder._open()
+      if (!materializedFolder._rootRef) {
+        materializedFolder._rootRef = await materializedFolder.open()
+      }
     } catch (error) {
       await materializedFolder[Symbol.asyncDispose]()
       throw error

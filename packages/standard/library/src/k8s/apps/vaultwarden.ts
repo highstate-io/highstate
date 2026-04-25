@@ -1,4 +1,4 @@
-import { defineUnit, z } from "@highstate/contract"
+import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
 import { appName, sharedArgs, sharedInputs, source } from "./shared"
 
@@ -13,12 +13,8 @@ export const vaultwarden = defineUnit({
     ...pick(sharedArgs, ["fqdn"]),
   },
 
-  secrets: {
-    mariadbPassword: z.string().optional(),
-  },
-
   inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "mariadb"]),
+    ...pick(sharedInputs, ["k8sCluster", "accessPoint", "mysql"]),
   },
 
   meta: {

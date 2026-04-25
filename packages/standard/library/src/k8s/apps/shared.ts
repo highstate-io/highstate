@@ -12,13 +12,7 @@ import {
 } from "@highstate/contract"
 import { mapValues } from "remeda"
 import { accessPointEntity } from "../../common"
-import {
-  etcdEntity,
-  mariadbEntity,
-  mongodbEntity,
-  postgresqlEntity,
-  redisEntity,
-} from "../../databases"
+import { etcd, mongodb, mysql, postgresql, redis } from "../../databases"
 import { providerEntity } from "../../dns"
 import { repositoryEntity } from "../../restic"
 import { namespaceEntity, persistentVolumeClaimEntity } from "../resources"
@@ -46,6 +40,13 @@ export const sharedArgs = $args({
    * The number of replicas for the application.
    */
   replicas: z.number().default(1),
+
+  /**
+   * The name of  namespace to create for the application.
+   *
+   * If not provided, defaults to the appName.
+   */
+  namespace: z.string().optional(),
 })
 
 type ToOptionalArgs<T extends Record<string, FullComponentArgumentOptions>> = Simplify<{
@@ -80,9 +81,9 @@ export function appName(defaultAppName: string) {
 
 export const sharedSecrets = $secrets({
   /**
-   * The root password for the database instance. If not provided, a random password will be generated.
+   * The admin password for the application. If not provided, a random password will be generated.
    */
-  rootPassword: z.string().optional(),
+  adminPassword: z.string().optional(),
 
   /**
    * The key to use for backup encryption. If not provided, a random key will be generated.
@@ -135,20 +136,20 @@ export const sharedInputs = $inputs({
   volume: {
     entity: persistentVolumeClaimEntity,
   },
-  mariadb: {
-    entity: mariadbEntity,
+  mysql: {
+    entity: mysql.connectionEntity,
   },
   postgresql: {
-    entity: postgresqlEntity,
+    entity: postgresql.connectionEntity,
   },
   mongodb: {
-    entity: mongodbEntity,
+    entity: mongodb.connectionEntity,
   },
   redis: {
-    entity: redisEntity,
+    entity: redis.connectionEntity,
   },
   etcd: {
-    entity: etcdEntity,
+    entity: etcd.connectionEntity,
   },
 })
 

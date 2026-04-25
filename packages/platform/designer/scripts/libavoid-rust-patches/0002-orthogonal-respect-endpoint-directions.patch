@@ -1,0 +1,42 @@
+diff --git a/src/router.rs b/src/router.rs
+index fd6d58a..94384a6 100644
+--- a/src/router.rs
++++ b/src/router.rs
+@@ -715,7 +715,12 @@ impl Router {
+         // Choose the appropriate graph and routing method
+         let route = match routing_type {
+             ConnType::PolyLine => self.route_polyline(src_point, dst_point),
+-            ConnType::Orthogonal => self.route_orthogonal(src_point, dst_point),
++            ConnType::Orthogonal => self.route_orthogonal(
++                src_point,
++                dst_point,
++                src.directions,
++                dst.directions,
++            ),
+         };
+ 
+         // Set the route
+@@ -808,7 +813,13 @@ impl Router {
+     }
+ 
+     /// Routes using orthogonal segments via visibility graph
+-    fn route_orthogonal(&mut self, src: Point, dst: Point) -> Polygon {
++    fn route_orthogonal(
++        &mut self,
++        src: Point,
++        dst: Point,
++        start_dirs: u32,
++        end_dirs: u32,
++    ) -> Polygon {
+         // Build obstacle inputs
+         let obstacles: Vec<ObstacleInput> = self.shapes.iter()
+             .filter(|(_, shape)| shape.is_active())
+@@ -824,7 +835,7 @@ impl Router {
+         }
+ 
+         // Create connector input for this route
+-        let connectors = vec![ConnectorInput::new(0, src, dst)];
++        let connectors = vec![ConnectorInput::with_directions(0, src, dst, start_dirs, end_dirs)];
+ 
+         // Get shape buffer distance from parameter
+         let buffer = self.parameters

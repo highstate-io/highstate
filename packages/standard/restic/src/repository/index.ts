@@ -1,9 +1,9 @@
 import { l3EndpointToString, parseEndpoint } from "@highstate/common"
 import { restic } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { uniqueBy } from "remeda"
 
-const { args, inputs, secrets, outputs } = forUnit(restic.repository)
+const { stateId, args, inputs, secrets, outputs } = forUnit(restic.repository)
 
 const remoteInfo = await toPromise(
   secrets.rcloneConfig.apply(config => {
@@ -57,13 +57,20 @@ const remoteEndpoints = uniqueBy(
 )
 
 export default outputs({
-  repo: {
-    type: "rclone",
-    pathPattern: args.pathPattern,
-    rcloneConfig: secrets.rcloneConfig,
-    remoteName: remoteInfo.name,
-    remoteEndpoints,
-  },
+  repo: makeEntityOutput({
+    entity: restic.repositoryEntity,
+    identity: stateId,
+    meta: {
+      title: remoteInfo.name,
+    },
+    value: {
+      type: "rclone",
+      pathPattern: args.pathPattern,
+      rcloneConfig: secrets.rcloneConfig,
+      remoteName: remoteInfo.name,
+      remoteEndpoints,
+    },
+  }),
 
   $statusFields: {
     remoteName: remoteInfo.name,

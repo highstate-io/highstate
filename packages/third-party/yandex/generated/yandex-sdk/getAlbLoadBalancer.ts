@@ -32,6 +32,8 @@ export interface GetAlbLoadBalancerArgs {
  */
 export interface GetAlbLoadBalancerResult {
     readonly allocationPolicies: outputs.GetAlbLoadBalancerAllocationPolicy[];
+    readonly allowZonalShift: boolean;
+    readonly autoScalePolicies: outputs.GetAlbLoadBalancerAutoScalePolicy[];
     readonly createdAt: string;
     readonly description: string;
     readonly folderId: string;

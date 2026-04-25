@@ -210,6 +210,7 @@ export type OperationWhereInput = {
   finishedAt?: Prisma.DateTimeNullableFilter<"Operation"> | Date | string | null
   operationStates?: Prisma.InstanceOperationStateListRelationFilter
   logs?: Prisma.OperationLogListRelationFilter
+  entitySnapshots?: Prisma.EntitySnapshotListRelationFilter
 }
 
 export type OperationOrderByWithRelationInput = {
@@ -225,6 +226,7 @@ export type OperationOrderByWithRelationInput = {
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   operationStates?: Prisma.InstanceOperationStateOrderByRelationAggregateInput
   logs?: Prisma.OperationLogOrderByRelationAggregateInput
+  entitySnapshots?: Prisma.EntitySnapshotOrderByRelationAggregateInput
 }
 
 export type OperationWhereUniqueInput = Prisma.AtLeast<{
@@ -243,6 +245,7 @@ export type OperationWhereUniqueInput = Prisma.AtLeast<{
   finishedAt?: Prisma.DateTimeNullableFilter<"Operation"> | Date | string | null
   operationStates?: Prisma.InstanceOperationStateListRelationFilter
   logs?: Prisma.OperationLogListRelationFilter
+  entitySnapshots?: Prisma.EntitySnapshotListRelationFilter
 }, "id">
 
 export type OperationOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type OperationCreateInput = {
   finishedAt?: Date | string | null
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutOperationInput
   logs?: Prisma.OperationLogCreateNestedManyWithoutOperationInput
+  entitySnapshots?: Prisma.EntitySnapshotCreateNestedManyWithoutOperationInput
 }
 
 export type OperationUncheckedCreateInput = {
@@ -305,6 +309,7 @@ export type OperationUncheckedCreateInput = {
   finishedAt?: Date | string | null
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutOperationInput
   logs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutOperationInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedCreateNestedManyWithoutOperationInput
 }
 
 export type OperationUpdateInput = {
@@ -320,6 +325,7 @@ export type OperationUpdateInput = {
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutOperationNestedInput
   logs?: Prisma.OperationLogUpdateManyWithoutOperationNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUpdateManyWithoutOperationNestedInput
 }
 
 export type OperationUncheckedUpdateInput = {
@@ -335,6 +341,7 @@ export type OperationUncheckedUpdateInput = {
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutOperationNestedInput
   logs?: Prisma.OperationLogUncheckedUpdateManyWithoutOperationNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutOperationNestedInput
 }
 
 export type OperationCreateManyInput = {
@@ -376,6 +383,11 @@ export type OperationUncheckedUpdateManyInput = {
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type OperationScalarRelationFilter = {
+  is?: Prisma.OperationWhereInput
+  isNot?: Prisma.OperationWhereInput
+}
+
 export type OperationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
@@ -407,9 +419,18 @@ export type OperationMinOrderByAggregateInput = {
   finishedAt?: Prisma.SortOrder
 }
 
-export type OperationScalarRelationFilter = {
-  is?: Prisma.OperationWhereInput
-  isNot?: Prisma.OperationWhereInput
+export type OperationCreateNestedOneWithoutEntitySnapshotsInput = {
+  create?: Prisma.XOR<Prisma.OperationCreateWithoutEntitySnapshotsInput, Prisma.OperationUncheckedCreateWithoutEntitySnapshotsInput>
+  connectOrCreate?: Prisma.OperationCreateOrConnectWithoutEntitySnapshotsInput
+  connect?: Prisma.OperationWhereUniqueInput
+}
+
+export type OperationUpdateOneRequiredWithoutEntitySnapshotsNestedInput = {
+  create?: Prisma.XOR<Prisma.OperationCreateWithoutEntitySnapshotsInput, Prisma.OperationUncheckedCreateWithoutEntitySnapshotsInput>
+  connectOrCreate?: Prisma.OperationCreateOrConnectWithoutEntitySnapshotsInput
+  upsert?: Prisma.OperationUpsertWithoutEntitySnapshotsInput
+  connect?: Prisma.OperationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OperationUpdateToOneWithWhereWithoutEntitySnapshotsInput, Prisma.OperationUpdateWithoutEntitySnapshotsInput>, Prisma.OperationUncheckedUpdateWithoutEntitySnapshotsInput>
 }
 
 export type EnumOperationTypeFieldUpdateOperationsInput = {
@@ -452,6 +473,82 @@ export type OperationUpdateOneRequiredWithoutLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OperationUpdateToOneWithWhereWithoutLogsInput, Prisma.OperationUpdateWithoutLogsInput>, Prisma.OperationUncheckedUpdateWithoutLogsInput>
 }
 
+export type OperationCreateWithoutEntitySnapshotsInput = {
+  id?: string
+  meta:PrismaJson.OperationMeta
+  type: $Enums.OperationType
+  status?: $Enums.OperationStatus
+  options:PrismaJson.OperationOptions
+  requestedInstanceIds:PrismaJson.InstanceIds
+  phases?:PrismaJson.OperationPhase[] | Prisma.NullableJsonNullValueInput
+  startedAt?: Date | string
+  updatedAt?: Date | string
+  finishedAt?: Date | string | null
+  operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutOperationInput
+  logs?: Prisma.OperationLogCreateNestedManyWithoutOperationInput
+}
+
+export type OperationUncheckedCreateWithoutEntitySnapshotsInput = {
+  id?: string
+  meta:PrismaJson.OperationMeta
+  type: $Enums.OperationType
+  status?: $Enums.OperationStatus
+  options:PrismaJson.OperationOptions
+  requestedInstanceIds:PrismaJson.InstanceIds
+  phases?:PrismaJson.OperationPhase[] | Prisma.NullableJsonNullValueInput
+  startedAt?: Date | string
+  updatedAt?: Date | string
+  finishedAt?: Date | string | null
+  operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutOperationInput
+  logs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutOperationInput
+}
+
+export type OperationCreateOrConnectWithoutEntitySnapshotsInput = {
+  where: Prisma.OperationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OperationCreateWithoutEntitySnapshotsInput, Prisma.OperationUncheckedCreateWithoutEntitySnapshotsInput>
+}
+
+export type OperationUpsertWithoutEntitySnapshotsInput = {
+  update: Prisma.XOR<Prisma.OperationUpdateWithoutEntitySnapshotsInput, Prisma.OperationUncheckedUpdateWithoutEntitySnapshotsInput>
+  create: Prisma.XOR<Prisma.OperationCreateWithoutEntitySnapshotsInput, Prisma.OperationUncheckedCreateWithoutEntitySnapshotsInput>
+  where?: Prisma.OperationWhereInput
+}
+
+export type OperationUpdateToOneWithWhereWithoutEntitySnapshotsInput = {
+  where?: Prisma.OperationWhereInput
+  data: Prisma.XOR<Prisma.OperationUpdateWithoutEntitySnapshotsInput, Prisma.OperationUncheckedUpdateWithoutEntitySnapshotsInput>
+}
+
+export type OperationUpdateWithoutEntitySnapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.OperationMeta
+  type?: Prisma.EnumOperationTypeFieldUpdateOperationsInput | $Enums.OperationType
+  status?: Prisma.EnumOperationStatusFieldUpdateOperationsInput | $Enums.OperationStatus
+  options?:PrismaJson.OperationOptions
+  requestedInstanceIds?:PrismaJson.InstanceIds
+  phases?:PrismaJson.OperationPhase[] | Prisma.NullableJsonNullValueInput
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutOperationNestedInput
+  logs?: Prisma.OperationLogUpdateManyWithoutOperationNestedInput
+}
+
+export type OperationUncheckedUpdateWithoutEntitySnapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.OperationMeta
+  type?: Prisma.EnumOperationTypeFieldUpdateOperationsInput | $Enums.OperationType
+  status?: Prisma.EnumOperationStatusFieldUpdateOperationsInput | $Enums.OperationStatus
+  options?:PrismaJson.OperationOptions
+  requestedInstanceIds?:PrismaJson.InstanceIds
+  phases?:PrismaJson.OperationPhase[] | Prisma.NullableJsonNullValueInput
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutOperationNestedInput
+  logs?: Prisma.OperationLogUncheckedUpdateManyWithoutOperationNestedInput
+}
+
 export type OperationCreateWithoutOperationStatesInput = {
   id?: string
   meta:PrismaJson.OperationMeta
@@ -464,6 +561,7 @@ export type OperationCreateWithoutOperationStatesInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   logs?: Prisma.OperationLogCreateNestedManyWithoutOperationInput
+  entitySnapshots?: Prisma.EntitySnapshotCreateNestedManyWithoutOperationInput
 }
 
 export type OperationUncheckedCreateWithoutOperationStatesInput = {
@@ -478,6 +576,7 @@ export type OperationUncheckedCreateWithoutOperationStatesInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   logs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutOperationInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedCreateNestedManyWithoutOperationInput
 }
 
 export type OperationCreateOrConnectWithoutOperationStatesInput = {
@@ -508,6 +607,7 @@ export type OperationUpdateWithoutOperationStatesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   logs?: Prisma.OperationLogUpdateManyWithoutOperationNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUpdateManyWithoutOperationNestedInput
 }
 
 export type OperationUncheckedUpdateWithoutOperationStatesInput = {
@@ -522,6 +622,7 @@ export type OperationUncheckedUpdateWithoutOperationStatesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   logs?: Prisma.OperationLogUncheckedUpdateManyWithoutOperationNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutOperationNestedInput
 }
 
 export type OperationCreateWithoutLogsInput = {
@@ -536,6 +637,7 @@ export type OperationCreateWithoutLogsInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutOperationInput
+  entitySnapshots?: Prisma.EntitySnapshotCreateNestedManyWithoutOperationInput
 }
 
 export type OperationUncheckedCreateWithoutLogsInput = {
@@ -550,6 +652,7 @@ export type OperationUncheckedCreateWithoutLogsInput = {
   updatedAt?: Date | string
   finishedAt?: Date | string | null
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutOperationInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedCreateNestedManyWithoutOperationInput
 }
 
 export type OperationCreateOrConnectWithoutLogsInput = {
@@ -580,6 +683,7 @@ export type OperationUpdateWithoutLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutOperationNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUpdateManyWithoutOperationNestedInput
 }
 
 export type OperationUncheckedUpdateWithoutLogsInput = {
@@ -594,6 +698,7 @@ export type OperationUncheckedUpdateWithoutLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutOperationNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutOperationNestedInput
 }
 
 
@@ -604,11 +709,13 @@ export type OperationUncheckedUpdateWithoutLogsInput = {
 export type OperationCountOutputType = {
   operationStates: number
   logs: number
+  entitySnapshots: number
 }
 
 export type OperationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   operationStates?: boolean | OperationCountOutputTypeCountOperationStatesArgs
   logs?: boolean | OperationCountOutputTypeCountLogsArgs
+  entitySnapshots?: boolean | OperationCountOutputTypeCountEntitySnapshotsArgs
 }
 
 /**
@@ -635,6 +742,13 @@ export type OperationCountOutputTypeCountLogsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.OperationLogWhereInput
 }
 
+/**
+ * OperationCountOutputType without action
+ */
+export type OperationCountOutputTypeCountEntitySnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EntitySnapshotWhereInput
+}
+
 
 export type OperationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -649,6 +763,7 @@ export type OperationSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   finishedAt?: boolean
   operationStates?: boolean | Prisma.Operation$operationStatesArgs<ExtArgs>
   logs?: boolean | Prisma.Operation$logsArgs<ExtArgs>
+  entitySnapshots?: boolean | Prisma.Operation$entitySnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.OperationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["operation"]>
 
@@ -695,6 +810,7 @@ export type OperationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type OperationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   operationStates?: boolean | Prisma.Operation$operationStatesArgs<ExtArgs>
   logs?: boolean | Prisma.Operation$logsArgs<ExtArgs>
+  entitySnapshots?: boolean | Prisma.Operation$entitySnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.OperationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OperationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -711,6 +827,10 @@ export type $OperationPayload<ExtArgs extends runtime.Types.Extensions.InternalA
      * The logs of the operation.
      */
     logs: Prisma.$OperationLogPayload<ExtArgs>[]
+    /**
+     * The entity snapshots created by this operation.
+     */
+    entitySnapshots: Prisma.$EntitySnapshotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -1157,6 +1277,7 @@ export interface Prisma__OperationClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   operationStates<T extends Prisma.Operation$operationStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Operation$operationStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstanceOperationStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   logs<T extends Prisma.Operation$logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Operation$logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OperationLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  entitySnapshots<T extends Prisma.Operation$entitySnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Operation$entitySnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntitySnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1627,6 +1748,30 @@ export type Operation$logsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.OperationLogScalarFieldEnum | Prisma.OperationLogScalarFieldEnum[]
+}
+
+/**
+ * Operation.entitySnapshots
+ */
+export type Operation$entitySnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EntitySnapshot
+   */
+  select?: Prisma.EntitySnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EntitySnapshot
+   */
+  omit?: Prisma.EntitySnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EntitySnapshotInclude<ExtArgs> | null
+  where?: Prisma.EntitySnapshotWhereInput
+  orderBy?: Prisma.EntitySnapshotOrderByWithRelationInput | Prisma.EntitySnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.EntitySnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EntitySnapshotScalarFieldEnum | Prisma.EntitySnapshotScalarFieldEnum[]
 }
 
 /**

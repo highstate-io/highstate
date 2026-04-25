@@ -216,7 +216,6 @@ They follow the same pattern as other components: they take a cluster as input a
 Some examples:
 
 - `k8s.apps.traefik.v1` (ingress / gateway)
-- `k8s.apps.kubernetes-dashboard.v1`
 - `k8s.apps.mariadb.v1`, `k8s.apps.postgresql.v1`, `k8s.apps.mongodb.v1`
 - `k8s.apps.minio.v1`, `k8s.apps.vaultwarden.v1`, `k8s.apps.syncthing.v1`
 

@@ -34,30 +34,93 @@ export class MdbPostgresqlCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbPostgresqlCluster.__pulumiType;
     }
 
+    /**
+     * Configuration of the PostgreSQL cluster.
+     */
     declare public readonly config: pulumi.Output<outputs.MdbPostgresqlClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
+     * > Deprecated! To manage databases, please switch to using a separate resource type `yandex.MdbPostgresqlDatabase`.
+     *
      * @deprecated Deprecated
      */
     declare public readonly databases: pulumi.Output<outputs.MdbPostgresqlClusterDatabase[] | undefined>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * ID of the KMS key used for cluster disk encryption. Encryption can`t be disabled for an existing cluster. If the source
+     * cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without
+     * encryption.
+     */
+    declare public readonly diskEncryptionKeyId: pulumi.Output<string>;
+    /**
+     * Deployment environment of the PostgreSQL cluster.
+     */
     declare public readonly environment: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Aggregated health of the cluster.
+     */
     declare public /*out*/ readonly health: pulumi.Output<string>;
+    /**
+     * Host Group IDs.
+     */
     declare public readonly hostGroupIds: pulumi.Output<string[]>;
+    /**
+     * Deprecated field. Will be removed in future versions.
+     *
+     * @deprecated Deprecated
+     */
     declare public readonly hostMasterName: pulumi.Output<string>;
+    /**
+     * A host of the PostgreSQL cluster.
+     */
     declare public readonly hosts: pulumi.Output<outputs.MdbPostgresqlClusterHost[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Maintenance policy of the PostgreSQL cluster.
+     */
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbPostgresqlClusterMaintenanceWindow | undefined>;
     declare public readonly mdbPostgresqlClusterId: pulumi.Output<string>;
+    /**
+     * The name of PostgreSQL cluster.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     declare public readonly restore: pulumi.Output<outputs.MdbPostgresqlClusterRestore | undefined>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[]>;
+    /**
+     * Status of the cluster.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbPostgresqlClusterTimeouts | undefined>;
     /**
+     * > Deprecated! To manage users, please switch to using a separate resource type `yandex.MdbPostgresqlUser`.
+     *
      * @deprecated Deprecated
      */
     declare public readonly users: pulumi.Output<outputs.MdbPostgresqlClusterUser[] | undefined>;
@@ -80,6 +143,7 @@ export class MdbPostgresqlCluster extends pulumi.CustomResource {
             resourceInputs["databases"] = state?.databases;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskEncryptionKeyId"] = state?.diskEncryptionKeyId;
             resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["health"] = state?.health;
@@ -114,6 +178,7 @@ export class MdbPostgresqlCluster extends pulumi.CustomResource {
             resourceInputs["databases"] = args?.databases;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskEncryptionKeyId"] = args?.diskEncryptionKeyId;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["hostGroupIds"] = args?.hostGroupIds;
@@ -141,30 +206,93 @@ export class MdbPostgresqlCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbPostgresqlCluster resources.
  */
 export interface MdbPostgresqlClusterState {
+    /**
+     * Configuration of the PostgreSQL cluster.
+     */
     config?: pulumi.Input<inputs.MdbPostgresqlClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
     /**
+     * > Deprecated! To manage databases, please switch to using a separate resource type `yandex.MdbPostgresqlDatabase`.
+     *
      * @deprecated Deprecated
      */
     databases?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlClusterDatabase>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key used for cluster disk encryption. Encryption can`t be disabled for an existing cluster. If the source
+     * cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without
+     * encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the PostgreSQL cluster.
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Aggregated health of the cluster.
+     */
     health?: pulumi.Input<string>;
+    /**
+     * Host Group IDs.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Deprecated field. Will be removed in future versions.
+     *
+     * @deprecated Deprecated
+     */
     hostMasterName?: pulumi.Input<string>;
+    /**
+     * A host of the PostgreSQL cluster.
+     */
     hosts?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy of the PostgreSQL cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbPostgresqlClusterMaintenanceWindow>;
     mdbPostgresqlClusterId?: pulumi.Input<string>;
+    /**
+     * The name of PostgreSQL cluster.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     restore?: pulumi.Input<inputs.MdbPostgresqlClusterRestore>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Status of the cluster.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbPostgresqlClusterTimeouts>;
     /**
+     * > Deprecated! To manage users, please switch to using a separate resource type `yandex.MdbPostgresqlUser`.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlClusterUser>[]>;
@@ -174,27 +302,81 @@ export interface MdbPostgresqlClusterState {
  * The set of arguments for constructing a MdbPostgresqlCluster resource.
  */
 export interface MdbPostgresqlClusterArgs {
+    /**
+     * Configuration of the PostgreSQL cluster.
+     */
     config: pulumi.Input<inputs.MdbPostgresqlClusterConfig>;
     /**
+     * > Deprecated! To manage databases, please switch to using a separate resource type `yandex.MdbPostgresqlDatabase`.
+     *
      * @deprecated Deprecated
      */
     databases?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlClusterDatabase>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key used for cluster disk encryption. Encryption can`t be disabled for an existing cluster. If the source
+     * cluster is encrypted and you leave this field empty when restoring, the restored cluster will be created without
+     * encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the PostgreSQL cluster.
+     */
     environment: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Host Group IDs.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Deprecated field. Will be removed in future versions.
+     *
+     * @deprecated Deprecated
+     */
     hostMasterName?: pulumi.Input<string>;
+    /**
+     * A host of the PostgreSQL cluster.
+     */
     hosts: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy of the PostgreSQL cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbPostgresqlClusterMaintenanceWindow>;
     mdbPostgresqlClusterId?: pulumi.Input<string>;
+    /**
+     * The name of PostgreSQL cluster.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     restore?: pulumi.Input<inputs.MdbPostgresqlClusterRestore>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.MdbPostgresqlClusterTimeouts>;
     /**
+     * > Deprecated! To manage users, please switch to using a separate resource type `yandex.MdbPostgresqlUser`.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlClusterUser>[]>;

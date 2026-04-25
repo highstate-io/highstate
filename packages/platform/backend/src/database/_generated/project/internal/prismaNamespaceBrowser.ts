@@ -54,6 +54,10 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Artifact: 'Artifact',
   InstanceCustomStatus: 'InstanceCustomStatus',
+  Entity: 'Entity',
+  EntitySnapshot: 'EntitySnapshot',
+  EntitySnapshotReference: 'EntitySnapshotReference',
+  EntitySnapshotContent: 'EntitySnapshotContent',
   InstanceEvaluationState: 'InstanceEvaluationState',
   InstanceState: 'InstanceState',
   UserProjectViewport: 'UserProjectViewport',
@@ -131,6 +135,48 @@ export const InstanceCustomStatusScalarFieldEnum = {
 export type InstanceCustomStatusScalarFieldEnum = (typeof InstanceCustomStatusScalarFieldEnum)[keyof typeof InstanceCustomStatusScalarFieldEnum]
 
 
+export const EntityScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  identity: 'identity'
+} as const
+
+export type EntityScalarFieldEnum = (typeof EntityScalarFieldEnum)[keyof typeof EntityScalarFieldEnum]
+
+
+export const EntitySnapshotScalarFieldEnum = {
+  id: 'id',
+  contentHash: 'contentHash',
+  entityId: 'entityId',
+  operationId: 'operationId',
+  stateId: 'stateId',
+  referencedInOutputs: 'referencedInOutputs',
+  exportedInOutputs: 'exportedInOutputs',
+  createdAt: 'createdAt'
+} as const
+
+export type EntitySnapshotScalarFieldEnum = (typeof EntitySnapshotScalarFieldEnum)[keyof typeof EntitySnapshotScalarFieldEnum]
+
+
+export const EntitySnapshotReferenceScalarFieldEnum = {
+  fromId: 'fromId',
+  toId: 'toId',
+  kind: 'kind',
+  group: 'group'
+} as const
+
+export type EntitySnapshotReferenceScalarFieldEnum = (typeof EntitySnapshotReferenceScalarFieldEnum)[keyof typeof EntitySnapshotReferenceScalarFieldEnum]
+
+
+export const EntitySnapshotContentScalarFieldEnum = {
+  hash: 'hash',
+  meta: 'meta',
+  content: 'content'
+} as const
+
+export type EntitySnapshotContentScalarFieldEnum = (typeof EntitySnapshotContentScalarFieldEnum)[keyof typeof EntitySnapshotContentScalarFieldEnum]
+
+
 export const InstanceEvaluationStateScalarFieldEnum = {
   stateId: 'stateId',
   status: 'status',
@@ -158,7 +204,8 @@ export const InstanceStateScalarFieldEnum = {
   model: 'model',
   resolvedInputs: 'resolvedInputs',
   currentResourceCount: 'currentResourceCount',
-  statusFields: 'statusFields'
+  statusFields: 'statusFields',
+  hasResourceHooks: 'hasResourceHooks'
 } as const
 
 export type InstanceStateScalarFieldEnum = (typeof InstanceStateScalarFieldEnum)[keyof typeof InstanceStateScalarFieldEnum]

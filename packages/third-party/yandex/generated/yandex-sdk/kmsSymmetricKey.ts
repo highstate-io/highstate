@@ -34,17 +34,54 @@ export class KmsSymmetricKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === KmsSymmetricKey.__pulumiType;
     }
 
+    /**
+     * Time when the key was created.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly defaultAlgorithm: pulumi.Output<string | undefined>;
-    declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Default encryption algorithm to be used with new versions of the key.
+     */
+    declare public readonly defaultAlgorithm: pulumi.Output<string>;
+    /**
+     * Flag that inhibits deletion of the key
+     */
+    declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * Description of the key.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the folder that the key belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * ID of the symmetric KMS key to return. To get the ID of a symmetric KMS key use a [SymmetricKeyService.List] request.
+     */
     declare public readonly kmsSymmetricKeyId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Custom labels for the key as `key:value` pairs. Maximum 64 per key.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the key.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Time of the last key rotation (time when the last version was created). Empty if the key does not have versions yet.
+     */
     declare public /*out*/ readonly rotatedAt: pulumi.Output<string>;
-    declare public readonly rotationPeriod: pulumi.Output<string | undefined>;
-    declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * Time period between automatic key rotations.
+     */
+    declare public readonly rotationPeriod: pulumi.Output<string>;
+    /**
+     * Current status of the key.
+     */
+    declare public readonly status: pulumi.Output<string>;
+    /**
+     * ID of the symmetric KMS key to return. To get the ID of a symmetric KMS key use a [SymmetricKeyService.List] request.
+     */
+    declare public readonly symmetricKeyId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.KmsSymmetricKeyTimeouts | undefined>;
 
     /**
@@ -71,6 +108,7 @@ export class KmsSymmetricKey extends pulumi.CustomResource {
             resourceInputs["rotatedAt"] = state?.rotatedAt;
             resourceInputs["rotationPeriod"] = state?.rotationPeriod;
             resourceInputs["status"] = state?.status;
+            resourceInputs["symmetricKeyId"] = state?.symmetricKeyId;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as KmsSymmetricKeyArgs | undefined;
@@ -82,10 +120,11 @@ export class KmsSymmetricKey extends pulumi.CustomResource {
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["rotationPeriod"] = args?.rotationPeriod;
+            resourceInputs["status"] = args?.status;
+            resourceInputs["symmetricKeyId"] = args?.symmetricKeyId;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["rotatedAt"] = undefined /*out*/;
-            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(KmsSymmetricKey.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -96,17 +135,54 @@ export class KmsSymmetricKey extends pulumi.CustomResource {
  * Input properties used for looking up and filtering KmsSymmetricKey resources.
  */
 export interface KmsSymmetricKeyState {
+    /**
+     * Time when the key was created.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Default encryption algorithm to be used with new versions of the key.
+     */
     defaultAlgorithm?: pulumi.Input<string>;
+    /**
+     * Flag that inhibits deletion of the key
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * Description of the key.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the key belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the symmetric KMS key to return. To get the ID of a symmetric KMS key use a [SymmetricKeyService.List] request.
+     */
     kmsSymmetricKeyId?: pulumi.Input<string>;
+    /**
+     * Custom labels for the key as `key:value` pairs. Maximum 64 per key.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the key.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time of the last key rotation (time when the last version was created). Empty if the key does not have versions yet.
+     */
     rotatedAt?: pulumi.Input<string>;
+    /**
+     * Time period between automatic key rotations.
+     */
     rotationPeriod?: pulumi.Input<string>;
+    /**
+     * Current status of the key.
+     */
     status?: pulumi.Input<string>;
+    /**
+     * ID of the symmetric KMS key to return. To get the ID of a symmetric KMS key use a [SymmetricKeyService.List] request.
+     */
+    symmetricKeyId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KmsSymmetricKeyTimeouts>;
 }
 
@@ -114,13 +190,45 @@ export interface KmsSymmetricKeyState {
  * The set of arguments for constructing a KmsSymmetricKey resource.
  */
 export interface KmsSymmetricKeyArgs {
+    /**
+     * Default encryption algorithm to be used with new versions of the key.
+     */
     defaultAlgorithm?: pulumi.Input<string>;
+    /**
+     * Flag that inhibits deletion of the key
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * Description of the key.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the key belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the symmetric KMS key to return. To get the ID of a symmetric KMS key use a [SymmetricKeyService.List] request.
+     */
     kmsSymmetricKeyId?: pulumi.Input<string>;
+    /**
+     * Custom labels for the key as `key:value` pairs. Maximum 64 per key.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the key.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time period between automatic key rotations.
+     */
     rotationPeriod?: pulumi.Input<string>;
+    /**
+     * Current status of the key.
+     */
+    status?: pulumi.Input<string>;
+    /**
+     * ID of the symmetric KMS key to return. To get the ID of a symmetric KMS key use a [SymmetricKeyService.List] request.
+     */
+    symmetricKeyId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KmsSymmetricKeyTimeouts>;
 }

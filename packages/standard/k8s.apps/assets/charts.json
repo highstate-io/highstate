@@ -1,10 +1,4 @@
 {
-  "kubernetes-dashboard": {
-    "repo": "https://kubernetes.github.io/dashboard",
-    "name": "kubernetes-dashboard",
-    "version": "7.13.0",
-    "sha256": "ff7bc9645de901ed49a342c63e75ea410edbc2bde7e3047a9207ee724c6f01e4"
-  },
   "traefik": {
     "repo": "https://traefik.github.io/charts",
     "name": "traefik",
@@ -26,8 +20,8 @@
   "mongodb": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "mongodb",
-    "version": "0.7.0",
-    "sha256": "9e7336929d3a800f2f483ff6b28ed5d04480c245326563dee16eb6308ca9a2f4"
+    "version": "0.14.7",
+    "sha256": "9db67a10606abe95fef57fcf638abc9bb915283e5062634e4d0620b92325fdd3"
   },
   "minio": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
@@ -44,7 +38,19 @@
   "etcd": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "etcd",
-    "version": "0.5.0",
-    "sha256": "7d798683281e6e12ff2135373154d82e84120cc0ebce702ea00cd2065e373166"
+    "version": "0.6.1",
+    "sha256": "eca08def7631f57dc89a957bffcd6e3286b79d5ecf0d7c191a6214c12c0e193a"
+  },
+  "grafana": {
+    "repo": "https://grafana-community.github.io/helm-charts",
+    "name": "grafana",
+    "version": "11.0.1",
+    "sha256": "8bbcea91c361974f64b0cbf28a9f3e86b70fbe0fe057596218d5bd26bcf145de"
+  },
+  "matrix-stack": {
+    "repo": "oci://ghcr.io/element-hq/ess-helm",
+    "name": "matrix-stack",
+    "version": "26.3.2",
+    "sha256": "e0bddd952f5472e955f88f2d8910a7b66807e4e1d2b3c7d81de6f8cf5aebfa53"
   }
 }

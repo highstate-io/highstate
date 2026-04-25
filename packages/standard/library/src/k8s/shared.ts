@@ -1,5 +1,12 @@
-import { $args, defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
-import { serverEntity } from "../common"
+import {
+  $args,
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  z,
+} from "@highstate/contract"
+import { fileEntity, serverEntity } from "../common"
 import { implementationReferenceSchema } from "../impl-ref"
 import { addressEntity, l3EndpointEntity, l4EndpointEntity } from "../network"
 import { metadataSchema } from "../utils"
@@ -79,20 +86,6 @@ export const clusterInfoProperties = {
   networkPolicyImplRef: implementationReferenceSchema.optional(),
 
   /**
-   * The endpoints of the API server.
-   *
-   * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
-   *
-   * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
-   */
-  apiEndpoints: l4EndpointEntity.schema.array(),
-
-  /**
-   * The external IPs of the cluster nodes allowed to be used for external access.
-   */
-  externalIps: addressEntity.schema.array(),
-
-  /**
    * The extra quirks of the cluster to improve compatibility.
    */
   quirks: clusterQuirksSchema.optional(),
@@ -108,6 +101,18 @@ export const clusterEntity = defineEntity({
 
   includes: {
     /**
+     * The endpoints of the API server.
+     *
+     * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
+     *
+     * The same node may also be represented by multiple entries (e.g. a node with private and public IP).
+     */
+    apiEndpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
+
+    /**
      * The endpoints of the cluster nodes.
      *
      * The entry may represent real node endpoint or virtual endpoint (like a load balancer).
@@ -117,16 +122,33 @@ export const clusterEntity = defineEntity({
     endpoints: {
       entity: l3EndpointEntity,
       multiple: true,
+      required: false,
     },
+
+    /**
+     * The external IPs of the cluster nodes allowed to be used for external access.
+     */
+    externalIps: {
+      entity: addressEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The kubeconfig file to use for connecting to the cluster.
+     */
+    kubeconfig: fileEntity,
   },
 
   schema: z.object({
     ...clusterInfoProperties,
-    kubeconfig: z.string(),
   }),
 
   meta: {
     color: "#2196F3",
+    title: "K8S Cluster",
+    icon: "devicon:kubernetes",
+    iconColor: "#2196F3",
   },
 })
 
@@ -305,10 +327,19 @@ export const monitorWorkerParamsSchema = z.object({
   resources: namespacedResourceEntity.schema.array(),
 })
 
-export type Cluster = z.infer<typeof clusterEntity.schema>
+export const tolerationSchema = z.object({
+  key: z.string().optional(),
+  operator: z.enum(["Exists", "Equal"]),
+  value: z.string().optional(),
+  effect: z.enum(["NoSchedule", "PreferNoSchedule", "NoExecute"]).optional(),
+})
+
+export type Cluster = EntityValue<typeof clusterEntity>
 export type ClusterInput = EntityInput<typeof clusterEntity>
 
 export type InternalIpsPolicy = z.infer<typeof internalIpsPolicySchema>
 
 export type MonitorWorkerParams = z.infer<typeof monitorWorkerParamsSchema>
 export type MonitorWorkerResourceGroup = z.infer<typeof monitorWorkerResourceGroupSchema>
+
+export type Toleration = z.infer<typeof tolerationSchema>

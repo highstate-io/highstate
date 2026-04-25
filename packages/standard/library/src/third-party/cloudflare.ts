@@ -1,11 +1,11 @@
-import { defineUnit, z } from "@highstate/contract"
+import { defineUnit, secretSchema, z } from "@highstate/contract"
 import { providerEntity } from "../dns"
 
 export const providerDataSchema = z.object({
   /**
-   * The zone ID of the Cloudflare zone.
+   * The mapping of zone names to their corresponding Cloudflare zone IDs.
    */
-  zoneId: z.string(),
+  zoneIds: z.record(z.string(), z.string()),
 
   /**
    * The API token for the Cloudflare account.
@@ -17,7 +17,7 @@ export const providerDataSchema = z.object({
    * - `Zone:Read`
    * - `Zone:DNS:Edit`
    */
-  apiToken: z.string(),
+  apiToken: secretSchema(z.string()),
 })
 
 /**

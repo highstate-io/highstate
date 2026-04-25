@@ -260,79 +260,59 @@ export class InstanceLockService {
     let remainingStateIds = [...stateIds]
     const lockedStateIds: string[] = []
 
-    // create abort controller for managing event subscription
-    const subscriptionController = new AbortController()
+    while (remainingStateIds.length > 0) {
+      if (abortSignal?.aborted) {
+        throw new Error("Lock operation was aborted")
+      }
 
-    // set up event subscription first before attempting any locks to reduce probability of missing events
-    const eventIterable = await this.pubsubManager.subscribe(
-      ["instance-lock", projectId],
-      subscriptionController.signal,
-    )
+      this.logger.debug(
+        {
+          projectId,
+          remainingCount: remainingStateIds.length,
+          lockedCount: lockedStateIds.length,
+        },
+        "attempting to lock %s remaining instances",
+        remainingStateIds.length,
+      )
 
-    try {
-      while (remainingStateIds.length > 0) {
-        if (abortSignal?.aborted) {
-          throw new Error("Lock operation was aborted")
-        }
+      // try to acquire locks on remaining instances using the same token
+      const [_, newlyLockedStateIds] = await this.tryLockInstances(
+        projectId,
+        remainingStateIds,
+        lockMeta,
+        action,
+        allowPartialLock,
+        token,
+      )
 
+      if (newlyLockedStateIds.length === 0) {
+        // no instances were locked, wait for unlock events
         this.logger.debug(
-          {
-            projectId,
-            remainingCount: remainingStateIds.length,
-            lockedCount: lockedStateIds.length,
-          },
-          "attempting to lock %s remaining instances",
+          { projectId, remainingCount: remainingStateIds.length },
+          "waiting for unlock events for %s remaining instances",
           remainingStateIds.length,
         )
 
-        // try to acquire locks on remaining instances using the same token
-        const [_, newlyLockedStateIds] = await this.tryLockInstances(
-          projectId,
-          remainingStateIds,
-          lockMeta,
-          action,
-          allowPartialLock,
-          token,
-        )
-
-        if (newlyLockedStateIds.length === 0) {
-          // no instances were locked, wait for unlock events
-          this.logger.debug(
-            { projectId, remainingCount: remainingStateIds.length },
-            "waiting for unlock events for %s remaining instances",
-            remainingStateIds.length,
-          )
-
-          await this.waitForUnlockEvent(
-            projectId,
-            remainingStateIds,
-            eventIterable,
-            abortSignal,
-            eventWaitTime,
-          )
-          continue
-        }
-
-        // remove newly locked instances from remaining list
-        remainingStateIds = remainingStateIds.filter(id => !newlyLockedStateIds.includes(id))
-        lockedStateIds.push(...newlyLockedStateIds)
-
-        // if partial locking is not allowed, we should have all instances by now
-        if (!allowPartialLock && remainingStateIds.length > 0) {
-          this.logger.error(
-            { projectId, remaining: remainingStateIds.length },
-            "partial lock not allowed but %s instances remain unlocked",
-            remainingStateIds.length,
-          )
-          throw new Error("Failed to acquire all required locks")
-        }
+        await this.waitForUnlockEvent(projectId, remainingStateIds, abortSignal, eventWaitTime)
+        continue
       }
 
-      return [token, lockedStateIds]
-    } finally {
-      // clean up event subscription
-      subscriptionController.abort()
+      // remove newly locked instances from remaining list
+      remainingStateIds = remainingStateIds.filter(id => !newlyLockedStateIds.includes(id))
+      lockedStateIds.push(...newlyLockedStateIds)
+
+      // if partial locking is not allowed, we should have all instances by now
+      if (!allowPartialLock && remainingStateIds.length > 0) {
+        this.logger.error(
+          { projectId, remaining: remainingStateIds.length },
+          "partial lock not allowed but %s instances remain unlocked",
+          remainingStateIds.length,
+        )
+        throw new Error("Failed to acquire all required locks")
+      }
     }
+
+    return [token, lockedStateIds]
   }
 
   /**
@@ -341,32 +321,36 @@ export class InstanceLockService {
    *
    * @param projectId The project ID to monitor for events.
    * @param stateIds The state IDs we're waiting to become available.
-   * @param eventIterable The async iterable for event subscription.
    * @param abortSignal Optional abort signal to interrupt waiting.
    * @param eventWaitTime Time in milliseconds to wait before timing out and retrying.
    */
   private async waitForUnlockEvent(
     projectId: string,
     stateIds: string[],
-    eventIterable: AsyncIterable<InstanceLockEvent>,
     abortSignal?: AbortSignal,
     eventWaitTime = 60000,
   ): Promise<void> {
-    const eventController = new AbortController()
+    const waitController = new AbortController()
+    const eventIterable = await this.pubsubManager.subscribe(
+      ["instance-lock", projectId],
+      waitController.signal,
+    )
 
     // combine abort signals
     if (abortSignal?.aborted) {
       throw new Error("Lock operation was aborted")
     }
 
-    const abortHandler = () => eventController.abort()
+    const abortHandler = () => waitController.abort()
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+
     abortSignal?.addEventListener("abort", abortHandler)
 
     try {
       await Promise.race([
         // timeout promise - triggers retry attempt, does not abort
         new Promise<void>(resolve => {
-          setTimeout(() => {
+          timeoutId = setTimeout(() => {
             this.logger.debug(
               { projectId, eventWaitTime },
               "unlock wait timed out after %s ms, will retry",
@@ -377,7 +361,7 @@ export class InstanceLockService {
         }),
 
         // event listener promise
-        this.listenForUnlockEvents(projectId, stateIds, eventIterable, eventController.signal),
+        this.listenForUnlockEvents(projectId, stateIds, eventIterable),
 
         // abort promise - only this can interrupt the operation
         new Promise<void>((_, reject) => {
@@ -389,7 +373,12 @@ export class InstanceLockService {
         }),
       ])
     } finally {
-      eventController.abort()
+      waitController.abort()
+
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+
       abortSignal?.removeEventListener("abort", abortHandler)
     }
   }
@@ -400,18 +389,13 @@ export class InstanceLockService {
    * @param projectId The project ID to monitor for events.
    * @param stateIds The state IDs we're waiting to become available.
    * @param eventIterable The async iterable for event subscription.
-   * @param signal Abort signal to stop listening.
    */
   private async listenForUnlockEvents(
     projectId: string,
     stateIds: string[],
     eventIterable: AsyncIterable<InstanceLockEvent>,
-    signal: AbortSignal,
   ): Promise<void> {
     for await (const event of eventIterable) {
-      if (signal.aborted) {
-        break
-      }
       if (event.type !== "unlocked") {
         continue // only interested in unlock events
       }

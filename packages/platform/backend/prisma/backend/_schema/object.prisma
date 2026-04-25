@@ -1,0 +1,12 @@
+/// The object allows to track arbitrary object across multiple projects and search them globally by their IDs.
+/// This also allow to correlate different entities across different projects.
+model Object {
+    /// The CUIDv2(d) of the object.
+    id String
+
+    /// The ID of the project that knows this object.
+    /// Multiple projects can reference the same object, but each project can only reference an object once.
+    projectId String
+
+    @@id([id, projectId])
+}

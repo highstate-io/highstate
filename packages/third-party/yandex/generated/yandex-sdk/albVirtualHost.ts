@@ -35,12 +35,42 @@ export class AlbVirtualHost extends pulumi.CustomResource {
     }
 
     declare public readonly albVirtualHostId: pulumi.Output<string>;
+    /**
+     * A list of domains (host/authority header) that will be matched to this virtual host. Wildcard hosts are supported in the
+     * form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
+     */
     declare public readonly authorities: pulumi.Output<string[] | undefined>;
+    /**
+     * The ID of the HTTP router to which the virtual host belongs.
+     */
     declare public readonly httpRouterId: pulumi.Output<string>;
+    /**
+     * Apply the following modifications to the Request/Response header. > Only one type of actions `append` or `replace` or
+     * `remove` should be specified.
+     */
     declare public readonly modifyRequestHeaders: pulumi.Output<outputs.AlbVirtualHostModifyRequestHeader[] | undefined>;
+    /**
+     * Apply the following modifications to the Request/Response header. > Only one type of actions `append` or `replace` or
+     * `remove` should be specified.
+     */
     declare public readonly modifyResponseHeaders: pulumi.Output<outputs.AlbVirtualHostModifyResponseHeader[] | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Rate limit configuration applied for a whole virtual host
+     */
+    declare public readonly rateLimit: pulumi.Output<outputs.AlbVirtualHostRateLimit | undefined>;
+    /**
+     * Route options for the virtual host.
+     */
     declare public readonly routeOptions: pulumi.Output<outputs.AlbVirtualHostRouteOptions | undefined>;
+    /**
+     * A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/'
+     * match first makes all other routes unused. > Exactly one type of routes `http_route` or `grpc_route` should be
+     * specified.
+     */
     declare public readonly routes: pulumi.Output<outputs.AlbVirtualHostRoute[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.AlbVirtualHostTimeouts | undefined>;
 
@@ -63,6 +93,7 @@ export class AlbVirtualHost extends pulumi.CustomResource {
             resourceInputs["modifyRequestHeaders"] = state?.modifyRequestHeaders;
             resourceInputs["modifyResponseHeaders"] = state?.modifyResponseHeaders;
             resourceInputs["name"] = state?.name;
+            resourceInputs["rateLimit"] = state?.rateLimit;
             resourceInputs["routeOptions"] = state?.routeOptions;
             resourceInputs["routes"] = state?.routes;
             resourceInputs["timeouts"] = state?.timeouts;
@@ -77,6 +108,7 @@ export class AlbVirtualHost extends pulumi.CustomResource {
             resourceInputs["modifyRequestHeaders"] = args?.modifyRequestHeaders;
             resourceInputs["modifyResponseHeaders"] = args?.modifyResponseHeaders;
             resourceInputs["name"] = args?.name;
+            resourceInputs["rateLimit"] = args?.rateLimit;
             resourceInputs["routeOptions"] = args?.routeOptions;
             resourceInputs["routes"] = args?.routes;
             resourceInputs["timeouts"] = args?.timeouts;
@@ -91,12 +123,42 @@ export class AlbVirtualHost extends pulumi.CustomResource {
  */
 export interface AlbVirtualHostState {
     albVirtualHostId?: pulumi.Input<string>;
+    /**
+     * A list of domains (host/authority header) that will be matched to this virtual host. Wildcard hosts are supported in the
+     * form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
+     */
     authorities?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of the HTTP router to which the virtual host belongs.
+     */
     httpRouterId?: pulumi.Input<string>;
+    /**
+     * Apply the following modifications to the Request/Response header. > Only one type of actions `append` or `replace` or
+     * `remove` should be specified.
+     */
     modifyRequestHeaders?: pulumi.Input<pulumi.Input<inputs.AlbVirtualHostModifyRequestHeader>[]>;
+    /**
+     * Apply the following modifications to the Request/Response header. > Only one type of actions `append` or `replace` or
+     * `remove` should be specified.
+     */
     modifyResponseHeaders?: pulumi.Input<pulumi.Input<inputs.AlbVirtualHostModifyResponseHeader>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Rate limit configuration applied for a whole virtual host
+     */
+    rateLimit?: pulumi.Input<inputs.AlbVirtualHostRateLimit>;
+    /**
+     * Route options for the virtual host.
+     */
     routeOptions?: pulumi.Input<inputs.AlbVirtualHostRouteOptions>;
+    /**
+     * A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/'
+     * match first makes all other routes unused. > Exactly one type of routes `http_route` or `grpc_route` should be
+     * specified.
+     */
     routes?: pulumi.Input<pulumi.Input<inputs.AlbVirtualHostRoute>[]>;
     timeouts?: pulumi.Input<inputs.AlbVirtualHostTimeouts>;
 }
@@ -106,12 +168,42 @@ export interface AlbVirtualHostState {
  */
 export interface AlbVirtualHostArgs {
     albVirtualHostId?: pulumi.Input<string>;
+    /**
+     * A list of domains (host/authority header) that will be matched to this virtual host. Wildcard hosts are supported in the
+     * form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
+     */
     authorities?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of the HTTP router to which the virtual host belongs.
+     */
     httpRouterId: pulumi.Input<string>;
+    /**
+     * Apply the following modifications to the Request/Response header. > Only one type of actions `append` or `replace` or
+     * `remove` should be specified.
+     */
     modifyRequestHeaders?: pulumi.Input<pulumi.Input<inputs.AlbVirtualHostModifyRequestHeader>[]>;
+    /**
+     * Apply the following modifications to the Request/Response header. > Only one type of actions `append` or `replace` or
+     * `remove` should be specified.
+     */
     modifyResponseHeaders?: pulumi.Input<pulumi.Input<inputs.AlbVirtualHostModifyResponseHeader>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Rate limit configuration applied for a whole virtual host
+     */
+    rateLimit?: pulumi.Input<inputs.AlbVirtualHostRateLimit>;
+    /**
+     * Route options for the virtual host.
+     */
     routeOptions?: pulumi.Input<inputs.AlbVirtualHostRouteOptions>;
+    /**
+     * A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having http '/'
+     * match first makes all other routes unused. > Exactly one type of routes `http_route` or `grpc_route` should be
+     * specified.
+     */
     routes?: pulumi.Input<pulumi.Input<inputs.AlbVirtualHostRoute>[]>;
     timeouts?: pulumi.Input<inputs.AlbVirtualHostTimeouts>;
 }

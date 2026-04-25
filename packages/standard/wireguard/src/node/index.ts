@@ -68,11 +68,11 @@ if (args.postDownScript) postDown.push(`/etc/wireguard/${interfaceName}.post-dow
 
 // add IP masquerading if enabled
 if (args.enableMasquerade) {
-  postUp.push("iptables -t nat -A POSTROUTING -j MASQUERADE")
+  postUp.push("iptables -t nat -A POSTROUTING -o %i -j MASQUERADE")
   postUp.push("iptables -A FORWARD -i %i -j ACCEPT")
   postUp.push("iptables -A FORWARD -o %i -j ACCEPT")
 
-  preDown.push("iptables -t nat -D POSTROUTING -j MASQUERADE || true")
+  preDown.push("iptables -t nat -D POSTROUTING -o %i -j MASQUERADE || true")
   preDown.push("iptables -D FORWARD -i %i -j ACCEPT || true")
   preDown.push("iptables -D FORWARD -o %i -j ACCEPT || true")
 }
@@ -88,6 +88,8 @@ const wgConfig = generateIdentityConfig({
   identity,
   peers,
   listenPort: identity.peer.listenPort,
+  listen: args.listen,
+  peerEndpointFilter: args.peerEndpointFilter,
   preUp,
   postUp,
   preDown,
@@ -164,8 +166,6 @@ export default outputs({
         endpoints,
       }
     : identity.peer,
-
-  endpoints,
 
   $statusFields: {
     interfaceName,

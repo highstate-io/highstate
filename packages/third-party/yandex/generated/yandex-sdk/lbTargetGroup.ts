@@ -34,13 +34,41 @@ export class LbTargetGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === LbTargetGroup.__pulumiType;
     }
 
+    /**
+     * Output only. Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Description of the target group. 0-256 characters long.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the folder that the target group belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * ID of the TargetGroup resource to return. To get the target group ID, use a [TargetGroupService.List] request.
+     */
     declare public readonly lbTargetGroupId: pulumi.Output<string>;
+    /**
+     * Name of the target group. The name is unique within the folder. 3-63 characters long.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the region where the target group resides.
+     */
     declare public readonly regionId: pulumi.Output<string>;
+    /**
+     * ID of the TargetGroup resource to return. To get the target group ID, use a [TargetGroupService.List] request.
+     */
+    declare public readonly targetGroupId: pulumi.Output<string>;
+    /**
+     * A list of targets in the target group.
+     */
     declare public readonly targets: pulumi.Output<outputs.LbTargetGroupTarget[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.LbTargetGroupTimeouts | undefined>;
 
@@ -64,6 +92,7 @@ export class LbTargetGroup extends pulumi.CustomResource {
             resourceInputs["lbTargetGroupId"] = state?.lbTargetGroupId;
             resourceInputs["name"] = state?.name;
             resourceInputs["regionId"] = state?.regionId;
+            resourceInputs["targetGroupId"] = state?.targetGroupId;
             resourceInputs["targets"] = state?.targets;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
@@ -74,6 +103,7 @@ export class LbTargetGroup extends pulumi.CustomResource {
             resourceInputs["lbTargetGroupId"] = args?.lbTargetGroupId;
             resourceInputs["name"] = args?.name;
             resourceInputs["regionId"] = args?.regionId;
+            resourceInputs["targetGroupId"] = args?.targetGroupId;
             resourceInputs["targets"] = args?.targets;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
@@ -87,13 +117,41 @@ export class LbTargetGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LbTargetGroup resources.
  */
 export interface LbTargetGroupState {
+    /**
+     * Output only. Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the target group. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the target group belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the TargetGroup resource to return. To get the target group ID, use a [TargetGroupService.List] request.
+     */
     lbTargetGroupId?: pulumi.Input<string>;
+    /**
+     * Name of the target group. The name is unique within the folder. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the region where the target group resides.
+     */
     regionId?: pulumi.Input<string>;
+    /**
+     * ID of the TargetGroup resource to return. To get the target group ID, use a [TargetGroupService.List] request.
+     */
+    targetGroupId?: pulumi.Input<string>;
+    /**
+     * A list of targets in the target group.
+     */
     targets?: pulumi.Input<pulumi.Input<inputs.LbTargetGroupTarget>[]>;
     timeouts?: pulumi.Input<inputs.LbTargetGroupTimeouts>;
 }
@@ -102,12 +160,37 @@ export interface LbTargetGroupState {
  * The set of arguments for constructing a LbTargetGroup resource.
  */
 export interface LbTargetGroupArgs {
+    /**
+     * Description of the target group. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the target group belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the TargetGroup resource to return. To get the target group ID, use a [TargetGroupService.List] request.
+     */
     lbTargetGroupId?: pulumi.Input<string>;
+    /**
+     * Name of the target group. The name is unique within the folder. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the region where the target group resides.
+     */
     regionId?: pulumi.Input<string>;
+    /**
+     * ID of the TargetGroup resource to return. To get the target group ID, use a [TargetGroupService.List] request.
+     */
+    targetGroupId?: pulumi.Input<string>;
+    /**
+     * A list of targets in the target group.
+     */
     targets?: pulumi.Input<pulumi.Input<inputs.LbTargetGroupTarget>[]>;
     timeouts?: pulumi.Input<inputs.LbTargetGroupTimeouts>;
 }

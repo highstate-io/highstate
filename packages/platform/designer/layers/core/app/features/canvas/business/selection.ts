@@ -14,6 +14,18 @@ export function useCanvasSelection(
 ) {
   const { escape, control, alt } = useMagicKeys()
 
+  const isDialogOpen = () => {
+    if (!import.meta.client) {
+      return false
+    }
+
+    return (
+      document.querySelector(".v-overlay.v-overlay--active.v-dialog") !== null ||
+      document.querySelector('.v-overlay--active [role="dialog"]') !== null ||
+      document.querySelector('[aria-modal="true"]') !== null
+    )
+  }
+
   const selectionMode = ref<SelectionMode>()
   const startPosition = ref<{ x: number; y: number }>()
   const mousePosition = useMouse()
@@ -22,6 +34,13 @@ export function useCanvasSelection(
 
   watch([control, alt], ([control, alt]) => {
     if (!active.value) return
+
+    if (isDialogOpen()) {
+      selectionMode.value = undefined
+      startPosition.value = undefined
+      cursorMode.value = "default"
+      return
+    }
 
     if (cursorMode.value === "default" && control && !selectionMode.value) {
       // start "add" selection mode when control is pressed and no mode is set
@@ -47,6 +66,24 @@ export function useCanvasSelection(
       return
     }
   })
+
+  watch(
+    () => [control.value, alt.value, cursorMode.value] as const,
+    () => {
+      if (!active.value) return
+
+      if (!isDialogOpen()) {
+        return
+      }
+
+      selectionMode.value = undefined
+      startPosition.value = undefined
+
+      if (cursorMode.value === "selection") {
+        cursorMode.value = "default"
+      }
+    },
+  )
 
   watch(escape, pressed => {
     if (!active.value) return

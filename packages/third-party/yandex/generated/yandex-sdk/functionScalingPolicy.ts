@@ -34,8 +34,14 @@ export class FunctionScalingPolicy extends pulumi.CustomResource {
         return obj['__pulumiType'] === FunctionScalingPolicy.__pulumiType;
     }
 
+    /**
+     * Yandex Cloud Function id used to define function.
+     */
     declare public readonly functionId: pulumi.Output<string>;
     declare public readonly functionScalingPolicyId: pulumi.Output<string>;
+    /**
+     * List definition for Yandex Cloud Function scaling policies.
+     */
     declare public readonly policies: pulumi.Output<outputs.FunctionScalingPolicyPolicy[] | undefined>;
 
     /**
@@ -72,8 +78,14 @@ export class FunctionScalingPolicy extends pulumi.CustomResource {
  * Input properties used for looking up and filtering FunctionScalingPolicy resources.
  */
 export interface FunctionScalingPolicyState {
+    /**
+     * Yandex Cloud Function id used to define function.
+     */
     functionId?: pulumi.Input<string>;
     functionScalingPolicyId?: pulumi.Input<string>;
+    /**
+     * List definition for Yandex Cloud Function scaling policies.
+     */
     policies?: pulumi.Input<pulumi.Input<inputs.FunctionScalingPolicyPolicy>[]>;
 }
 
@@ -81,7 +93,13 @@ export interface FunctionScalingPolicyState {
  * The set of arguments for constructing a FunctionScalingPolicy resource.
  */
 export interface FunctionScalingPolicyArgs {
+    /**
+     * Yandex Cloud Function id used to define function.
+     */
     functionId: pulumi.Input<string>;
     functionScalingPolicyId?: pulumi.Input<string>;
+    /**
+     * List definition for Yandex Cloud Function scaling policies.
+     */
     policies?: pulumi.Input<pulumi.Input<inputs.FunctionScalingPolicyPolicy>[]>;
 }

@@ -18,10 +18,24 @@ const emit = defineEmits<{
 }>()
 
 let terminal: Terminal | null = null
+let fitAddon: FitAddon | null = null
+
+function fitTerminal() {
+  if (!needAutoResize || !fitAddon || !terminalEl.value) {
+    return
+  }
+
+  const { clientWidth, clientHeight } = terminalEl.value
+  if (clientWidth <= 0 || clientHeight <= 0) {
+    return
+  }
+
+  fitAddon.fit()
+}
 
 onMounted(() => {
   terminal = new Terminal({ fontFamily: "monospace" })
-  const fitAddon = new FitAddon()
+  fitAddon = new FitAddon()
   const webglAddon = new WebglAddon()
 
   if (needAutoResize) {
@@ -35,16 +49,25 @@ onMounted(() => {
   terminal.open(terminalEl.value!)
 
   if (needAutoResize) {
-    fitAddon.fit()
+    fitTerminal()
 
     const resizeObserver = new ResizeObserver(() => {
-      fitAddon.fit()
+      fitTerminal()
     })
 
     resizeObserver.observe(terminalEl.value!)
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void nextTick(() => fitTerminal())
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
     onUnmounted(() => {
       resizeObserver.disconnect()
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
     })
   }
 
@@ -66,6 +89,10 @@ onMounted(() => {
   onUnmounted(() => {
     terminal?.dispose()
   })
+})
+
+onActivated(() => {
+  void nextTick(() => fitTerminal())
 })
 </script>
 

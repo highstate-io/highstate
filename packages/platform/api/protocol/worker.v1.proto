@@ -43,9 +43,9 @@ message WorkerEvent {
 
 service WorkerService {
   // Connects to the worker service and streams events.
-  rpc connect(ConnectRequest) returns (stream WorkerEvent);
+  rpc Connect(ConnectRequest) returns (stream WorkerEvent);
 
   // Update the metadata of the worker version.
-  rpc updateWorkerVersionMeta(UpdateWorkerVersionMetaRequest)
+  rpc UpdateWorkerVersionMeta(UpdateWorkerVersionMetaRequest)
       returns (google.protobuf.Empty);
 }

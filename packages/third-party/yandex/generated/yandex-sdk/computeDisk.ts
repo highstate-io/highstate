@@ -35,21 +35,73 @@ export class ComputeDisk extends pulumi.CustomResource {
     }
 
     declare public readonly allowRecreate: pulumi.Output<boolean | undefined>;
+    /**
+     * Block size of the disk, specified in bytes.
+     */
     declare public readonly blockSize: pulumi.Output<number | undefined>;
     declare public readonly computeDiskId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Disk placement policy configuration.
+     */
     declare public readonly diskPlacementPolicy: pulumi.Output<outputs.ComputeDiskDiskPlacementPolicy | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this disk is used as a boot disk.
+     * Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    declare public readonly hardwareGeneration: pulumi.Output<outputs.ComputeDiskHardwareGeneration | undefined>;
+    /**
+     * The source image to use for disk creation.
+     */
     declare public readonly imageId: pulumi.Output<string | undefined>;
+    /**
+     * ID of KMS symmetric key used to encrypt disk.
+     */
+    declare public readonly kmsKeyId: pulumi.Output<string | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
     declare public /*out*/ readonly productIds: pulumi.Output<string[]>;
+    /**
+     * Size of the persistent disk, specified in GB. You can specify this field when creating a persistent disk using the
+     * `image_id` or `snapshot_id` parameter, or specify it alone to create an empty persistent disk. If you specify this field
+     * along with `image_id` or `snapshot_id`, the size value must not be less than the size of the source image or the size of
+     * the snapshot.
+     */
     declare public readonly size: pulumi.Output<number | undefined>;
+    /**
+     * The source snapshot to use for disk creation.
+     */
     declare public readonly snapshotId: pulumi.Output<string | undefined>;
+    /**
+     * The status of the disk.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeDiskTimeouts | undefined>;
+    /**
+     * Type of disk to create. Provide this when creating a disk.
+     */
     declare public readonly type: pulumi.Output<string | undefined>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     declare public readonly zone: pulumi.Output<string>;
 
     /**
@@ -72,7 +124,9 @@ export class ComputeDisk extends pulumi.CustomResource {
             resourceInputs["description"] = state?.description;
             resourceInputs["diskPlacementPolicy"] = state?.diskPlacementPolicy;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["hardwareGeneration"] = state?.hardwareGeneration;
             resourceInputs["imageId"] = state?.imageId;
+            resourceInputs["kmsKeyId"] = state?.kmsKeyId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["productIds"] = state?.productIds;
@@ -90,7 +144,9 @@ export class ComputeDisk extends pulumi.CustomResource {
             resourceInputs["description"] = args?.description;
             resourceInputs["diskPlacementPolicy"] = args?.diskPlacementPolicy;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["hardwareGeneration"] = args?.hardwareGeneration;
             resourceInputs["imageId"] = args?.imageId;
+            resourceInputs["kmsKeyId"] = args?.kmsKeyId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["size"] = args?.size;
@@ -112,21 +168,73 @@ export class ComputeDisk extends pulumi.CustomResource {
  */
 export interface ComputeDiskState {
     allowRecreate?: pulumi.Input<boolean>;
+    /**
+     * Block size of the disk, specified in bytes.
+     */
     blockSize?: pulumi.Input<number>;
     computeDiskId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Disk placement policy configuration.
+     */
     diskPlacementPolicy?: pulumi.Input<inputs.ComputeDiskDiskPlacementPolicy>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this disk is used as a boot disk.
+     * Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    hardwareGeneration?: pulumi.Input<inputs.ComputeDiskHardwareGeneration>;
+    /**
+     * The source image to use for disk creation.
+     */
     imageId?: pulumi.Input<string>;
+    /**
+     * ID of KMS symmetric key used to encrypt disk.
+     */
+    kmsKeyId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     productIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Size of the persistent disk, specified in GB. You can specify this field when creating a persistent disk using the
+     * `image_id` or `snapshot_id` parameter, or specify it alone to create an empty persistent disk. If you specify this field
+     * along with `image_id` or `snapshot_id`, the size value must not be less than the size of the source image or the size of
+     * the snapshot.
+     */
     size?: pulumi.Input<number>;
+    /**
+     * The source snapshot to use for disk creation.
+     */
     snapshotId?: pulumi.Input<string>;
+    /**
+     * The status of the disk.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeDiskTimeouts>;
+    /**
+     * Type of disk to create. Provide this when creating a disk.
+     */
     type?: pulumi.Input<string>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     zone?: pulumi.Input<string>;
 }
 
@@ -135,17 +243,63 @@ export interface ComputeDiskState {
  */
 export interface ComputeDiskArgs {
     allowRecreate?: pulumi.Input<boolean>;
+    /**
+     * Block size of the disk, specified in bytes.
+     */
     blockSize?: pulumi.Input<number>;
     computeDiskId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Disk placement policy configuration.
+     */
     diskPlacementPolicy?: pulumi.Input<inputs.ComputeDiskDiskPlacementPolicy>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Hardware generation and its features, which will be applied to the instance when this disk is used as a boot disk.
+     * Provide this property if you wish to override this value, which otherwise is inherited from the source.
+     */
+    hardwareGeneration?: pulumi.Input<inputs.ComputeDiskHardwareGeneration>;
+    /**
+     * The source image to use for disk creation.
+     */
     imageId?: pulumi.Input<string>;
+    /**
+     * ID of KMS symmetric key used to encrypt disk.
+     */
+    kmsKeyId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Size of the persistent disk, specified in GB. You can specify this field when creating a persistent disk using the
+     * `image_id` or `snapshot_id` parameter, or specify it alone to create an empty persistent disk. If you specify this field
+     * along with `image_id` or `snapshot_id`, the size value must not be less than the size of the source image or the size of
+     * the snapshot.
+     */
     size?: pulumi.Input<number>;
+    /**
+     * The source snapshot to use for disk creation.
+     */
     snapshotId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeDiskTimeouts>;
+    /**
+     * Type of disk to create. Provide this when creating a disk.
+     */
     type?: pulumi.Input<string>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     zone?: pulumi.Input<string>;
 }

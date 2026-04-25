@@ -15,6 +15,7 @@ export function getSmartcaptchaCaptcha(args?: GetSmartcaptchaCaptchaArgs, opts?:
         "folderId": args.folderId,
         "id": args.id,
         "name": args.name,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -27,6 +28,7 @@ export interface GetSmartcaptchaCaptchaArgs {
     folderId?: string;
     id?: string;
     name?: string;
+    timeouts?: inputs.GetSmartcaptchaCaptchaTimeouts;
 }
 
 /**
@@ -34,21 +36,25 @@ export interface GetSmartcaptchaCaptchaArgs {
  */
 export interface GetSmartcaptchaCaptchaResult {
     readonly allowedSites: string[];
-    readonly captchaId?: string;
+    readonly captchaId: string;
     readonly challengeType: string;
     readonly clientKey: string;
     readonly cloudId: string;
     readonly complexity: string;
     readonly createdAt: string;
     readonly deletionProtection: boolean;
+    readonly description: string;
+    readonly disallowDataProcessing: boolean;
     readonly folderId: string;
     readonly id: string;
+    readonly labels: {[key: string]: string};
     readonly name: string;
     readonly overrideVariants: outputs.GetSmartcaptchaCaptchaOverrideVariant[];
     readonly preCheckType: string;
     readonly securityRules: outputs.GetSmartcaptchaCaptchaSecurityRule[];
     readonly styleJson: string;
     readonly suspend: boolean;
+    readonly timeouts?: outputs.GetSmartcaptchaCaptchaTimeouts;
     readonly turnOffHostnameCheck: boolean;
 }
 export function getSmartcaptchaCaptchaOutput(args?: GetSmartcaptchaCaptchaOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetSmartcaptchaCaptchaResult> {
@@ -60,6 +66,7 @@ export function getSmartcaptchaCaptchaOutput(args?: GetSmartcaptchaCaptchaOutput
         "folderId": args.folderId,
         "id": args.id,
         "name": args.name,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -72,4 +79,5 @@ export interface GetSmartcaptchaCaptchaOutputArgs {
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
     name?: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.GetSmartcaptchaCaptchaTimeoutsArgs>;
 }

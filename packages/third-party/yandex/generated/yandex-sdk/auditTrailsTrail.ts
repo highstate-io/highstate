@@ -35,17 +35,60 @@ export class AuditTrailsTrail extends pulumi.CustomResource {
     }
 
     declare public readonly auditTrailsTrailId: pulumi.Output<string>;
+    /**
+     * Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and
+     * `storage_destination`.
+     */
     declare public readonly dataStreamDestination: pulumi.Output<outputs.AuditTrailsTrailDataStreamDestination | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
-    declare public readonly filter: pulumi.Output<outputs.AuditTrailsTrailFilter>;
+    /**
+     * Structure is deprecated. Use `filtering_policy` instead.
+     *
+     * @deprecated Deprecated
+     */
+    declare public readonly filter: pulumi.Output<outputs.AuditTrailsTrailFilter | undefined>;
+    /**
+     * Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the
+     * `management_events_filter` or `data_events_filter` fields will be filled.
+     */
+    declare public readonly filteringPolicy: pulumi.Output<outputs.AuditTrailsTrailFilteringPolicy | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and
+     * `data_stream_destination`.
+     */
     declare public readonly loggingDestination: pulumi.Output<outputs.AuditTrailsTrailLoggingDestination | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string>;
+    /**
+     * Status of this trail.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and
+     * `data_stream_destination`.
+     */
     declare public readonly storageDestination: pulumi.Output<outputs.AuditTrailsTrailStorageDestination | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.AuditTrailsTrailTimeouts | undefined>;
+    /**
+     * ID of the trail resource.
+     */
     declare public /*out*/ readonly trailId: pulumi.Output<string>;
 
     /**
@@ -65,6 +108,7 @@ export class AuditTrailsTrail extends pulumi.CustomResource {
             resourceInputs["dataStreamDestination"] = state?.dataStreamDestination;
             resourceInputs["description"] = state?.description;
             resourceInputs["filter"] = state?.filter;
+            resourceInputs["filteringPolicy"] = state?.filteringPolicy;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["loggingDestination"] = state?.loggingDestination;
@@ -76,9 +120,6 @@ export class AuditTrailsTrail extends pulumi.CustomResource {
             resourceInputs["trailId"] = state?.trailId;
         } else {
             const args = argsOrState as AuditTrailsTrailArgs | undefined;
-            if (args?.filter === undefined && !opts.urn) {
-                throw new Error("Missing required property 'filter'");
-            }
             if (args?.folderId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'folderId'");
             }
@@ -89,6 +130,7 @@ export class AuditTrailsTrail extends pulumi.CustomResource {
             resourceInputs["dataStreamDestination"] = args?.dataStreamDestination;
             resourceInputs["description"] = args?.description;
             resourceInputs["filter"] = args?.filter;
+            resourceInputs["filteringPolicy"] = args?.filteringPolicy;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["loggingDestination"] = args?.loggingDestination;
@@ -109,17 +151,60 @@ export class AuditTrailsTrail extends pulumi.CustomResource {
  */
 export interface AuditTrailsTrailState {
     auditTrailsTrailId?: pulumi.Input<string>;
+    /**
+     * Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and
+     * `storage_destination`.
+     */
     dataStreamDestination?: pulumi.Input<inputs.AuditTrailsTrailDataStreamDestination>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Structure is deprecated. Use `filtering_policy` instead.
+     *
+     * @deprecated Deprecated
+     */
     filter?: pulumi.Input<inputs.AuditTrailsTrailFilter>;
+    /**
+     * Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the
+     * `management_events_filter` or `data_events_filter` fields will be filled.
+     */
+    filteringPolicy?: pulumi.Input<inputs.AuditTrailsTrailFilteringPolicy>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and
+     * `data_stream_destination`.
+     */
     loggingDestination?: pulumi.Input<inputs.AuditTrailsTrailLoggingDestination>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId?: pulumi.Input<string>;
+    /**
+     * Status of this trail.
+     */
     status?: pulumi.Input<string>;
+    /**
+     * Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and
+     * `data_stream_destination`.
+     */
     storageDestination?: pulumi.Input<inputs.AuditTrailsTrailStorageDestination>;
     timeouts?: pulumi.Input<inputs.AuditTrailsTrailTimeouts>;
+    /**
+     * ID of the trail resource.
+     */
     trailId?: pulumi.Input<string>;
 }
 
@@ -128,14 +213,51 @@ export interface AuditTrailsTrailState {
  */
 export interface AuditTrailsTrailArgs {
     auditTrailsTrailId?: pulumi.Input<string>;
+    /**
+     * Structure describing destination data stream of the trail. Mutually exclusive with `logging_destination` and
+     * `storage_destination`.
+     */
     dataStreamDestination?: pulumi.Input<inputs.AuditTrailsTrailDataStreamDestination>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
-    filter: pulumi.Input<inputs.AuditTrailsTrailFilter>;
+    /**
+     * Structure is deprecated. Use `filtering_policy` instead.
+     *
+     * @deprecated Deprecated
+     */
+    filter?: pulumi.Input<inputs.AuditTrailsTrailFilter>;
+    /**
+     * Structure describing event filtering process for the trail. Mutually exclusive with `filter`. At least one of the
+     * `management_events_filter` or `data_events_filter` fields will be filled.
+     */
+    filteringPolicy?: pulumi.Input<inputs.AuditTrailsTrailFilteringPolicy>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Structure describing destination log group of the trail. Mutually exclusive with `storage_destination` and
+     * `data_stream_destination`.
+     */
     loggingDestination?: pulumi.Input<inputs.AuditTrailsTrailLoggingDestination>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId: pulumi.Input<string>;
+    /**
+     * Structure describing destination bucket of the trail. Mutually exclusive with `logging_destination` and
+     * `data_stream_destination`.
+     */
     storageDestination?: pulumi.Input<inputs.AuditTrailsTrailStorageDestination>;
     timeouts?: pulumi.Input<inputs.AuditTrailsTrailTimeouts>;
 }

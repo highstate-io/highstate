@@ -2,6 +2,7 @@ import type { InputJsonValue } from "@prisma/client/runtime/client"
 import type { Logger } from "pino"
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
 import {
@@ -45,6 +46,7 @@ export class ProjectService {
     private readonly projectModelBackends: Record<string, ProjectModelBackend>,
     private readonly libraryBackend: LibraryBackend,
     private readonly pubsubManager: PubSubManager,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {}
 
@@ -451,6 +453,13 @@ export class ProjectService {
           }),
         )
       })
+
+      if (states.length > 0) {
+        await this.objectRefIndexService.track(
+          projectId,
+          states.map(state => state.id),
+        )
+      }
 
       void this.pubsubManager.publish(["project-model", projectId], {
         updatedHubs: hubs,

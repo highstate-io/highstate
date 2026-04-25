@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: не ори на меня */
 
-import type { ConfigMap, OutputMap, Stack } from "@pulumi/pulumi/automation/index.js"
+import type { ConfigMap, Stack } from "@pulumi/pulumi/automation/index.js"
 import type { Logger } from "pino"
 import type { ArtifactBackend, ArtifactService } from "../artifact"
 import type { LibraryBackend, ResolvedUnitSource } from "../library"
@@ -15,26 +15,17 @@ import type {
 } from "./abstractions"
 import type { DualAbortSignal } from "./force-abort"
 import { EventEmitter, on } from "node:events"
-import { mkdtemp, rm } from "node:fs/promises"
-import { tmpdir } from "node:os"
+import { mkdir, rm } from "node:fs/promises"
+import { cpus } from "node:os"
 import { join, resolve } from "node:path"
-import { crc32 } from "node:zlib"
 import {
   getInstanceId,
   HighstateConfigKey,
   type InstanceId,
-  instanceStatusFieldSchema,
-  unitArtifactId,
   unitArtifactSchema,
-  unitPageSchema,
-  unitTerminalSchema,
-  unitTriggerSchema,
-  unitWorkerSchema,
 } from "@highstate/contract"
-import { encode } from "@msgpack/msgpack"
-import { sha256 } from "@noble/hashes/sha2"
 import { ensureDependencyInstalled } from "nypm"
-import { mapValues, omitBy } from "remeda"
+import PQueue from "p-queue"
 import { z } from "zod"
 import { runWithRetryOnError } from "../common"
 import {
@@ -51,20 +42,33 @@ type Events = {
 export const localRunnerBackendConfig = z.object({
   HIGHSTATE_RUNNER_BACKEND_LOCAL_PRINT_OUTPUT: z.coerce.boolean().default(true),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_CACHE_DIR: z.string().optional(),
+  HIGHSTATE_RUNNER_BACKEND_LOCAL_CONCURRENCY: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .default(Math.max(1, Math.floor(cpus().length / 4))),
 })
 
 export class LocalRunnerBackend implements RunnerBackend {
   private readonly events = new EventEmitter<Events>()
+  private readonly queue: PQueue
+
+  private static getUnitTempPath(stateId: string): string {
+    return join("/tmp", "highstate", stateId)
+  }
 
   constructor(
     private readonly printOutput: boolean,
     private readonly cacheDir: string,
+    concurrency: number,
     private readonly pulumiProjectHost: LocalPulumiHost,
     private readonly libraryBackend: LibraryBackend,
     private readonly arttifactManager: ArtifactService,
     private readonly artifactBackend: ArtifactBackend,
     private readonly logger: Logger,
-  ) {}
+  ) {
+    this.queue = new PQueue({ concurrency })
+  }
 
   async *watch(options: UnitOptions): AsyncIterable<UnitStateUpdate> {
     const stream = on(
@@ -84,21 +88,69 @@ export class LocalRunnerBackend implements RunnerBackend {
   }
 
   update(options: UnitUpdateOptions): Promise<void> {
-    void this.updateWorker(options, false)
+    void this.queue
+      .add(async () => {
+        options.signal?.throwIfAborted()
+
+        await this.updateWorker(options, false)
+      })
+      .catch(error => this.handleQueuedTaskError("update", options, error))
 
     return Promise.resolve()
   }
 
   preview(options: UnitUpdateOptions): Promise<void> {
-    void this.updateWorker(options, true)
+    void this.queue
+      .add(async () => {
+        options.signal?.throwIfAborted()
+
+        await this.updateWorker(options, true)
+      })
+      .catch(error => this.handleQueuedTaskError("preview", options, error))
 
     return Promise.resolve()
   }
 
+  destroy(options: UnitDestroyOptions): Promise<void> {
+    void this.queue
+      .add(async () => {
+        options.signal?.throwIfAborted()
+
+        await this.destroyWorker(options)
+      })
+      .catch(error => this.handleQueuedTaskError("destroy", options, error))
+
+    return Promise.resolve()
+  }
+
+  refresh(options: UnitOptions): Promise<void> {
+    void this.queue
+      .add(async () => {
+        options.signal?.throwIfAborted()
+
+        await this.refreshWorker(options)
+      })
+      .catch(error => this.handleQueuedTaskError("refresh", options, error))
+
+    return Promise.resolve()
+  }
+
+  private handleQueuedTaskError(operation: string, options: UnitOptions, error: unknown): void {
+    if (error instanceof Error && error.name === "AbortError") {
+      return
+    }
+
+    this.logger.warn({
+      msg: "failed to execute unit runner task",
+      operation,
+      unitId: LocalRunnerBackend.getInstanceId(options),
+      error,
+    })
+  }
+
   private async updateWorker(options: UnitUpdateOptions, preview: boolean): Promise<void> {
     const configMap: ConfigMap = {
-      [HighstateConfigKey.Config]: { value: JSON.stringify(options.config) },
-      [HighstateConfigKey.Secrets]: { value: JSON.stringify(options.secrets), secret: true },
+      [HighstateConfigKey.Config]: { value: JSON.stringify(options.config), secret: true },
     }
 
     const unitId = LocalRunnerBackend.getInstanceId(options)
@@ -109,9 +161,13 @@ export class LocalRunnerBackend implements RunnerBackend {
     let artifactEnv: ArtifactEnvironment | null = null
 
     try {
-      // create unit-specific temp directory for better cleanup reliability
-      unitTempPath = await mkdtemp(join(tmpdir(), `highstate-unit-${options.stateId}-`))
-      childLogger.debug({ msg: "created unit temp directory", unitTempPath })
+      unitTempPath = LocalRunnerBackend.getUnitTempPath(options.stateId)
+
+      // ensure stable temp directory is empty before starting
+      await rm(unitTempPath, { recursive: true, force: true })
+      await mkdir(unitTempPath, { recursive: true })
+
+      childLogger.debug({ msg: "prepared unit temp directory", unitTempPath })
       options.signal?.throwIfAborted()
 
       artifactEnv = await setupArtifactEnvironment(
@@ -128,8 +184,8 @@ export class LocalRunnerBackend implements RunnerBackend {
 
       const envVars: Record<string, string> = {
         HIGHSTATE_CACHE_DIR: this.cacheDir,
-        HIGHSTATE_TEMP_PATH: unitTempPath,
         PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
+        HIGHSTATE_PULUMI_COMMAND: preview ? "preview" : "update",
         ...options.envVars,
       }
 
@@ -208,7 +264,12 @@ export class LocalRunnerBackend implements RunnerBackend {
               })
 
               const outputs = await stack.outputs()
-              const completionUpdate = this.createCompletionStateUpdate("update", unitId, outputs)
+              const completionUpdate: TypedUnitStateUpdate<"completion"> = {
+                unitId,
+                type: "completion",
+                operationType: "update",
+                rawOutputs: outputs,
+              }
 
               if (!preview && outputs["$artifacts"]) {
                 const artifacts = z
@@ -224,17 +285,9 @@ export class LocalRunnerBackend implements RunnerBackend {
                   childLogger,
                 )
 
-                completionUpdate.exportedArtifactIds = mapValues(artifacts, artifacts => {
-                  return artifacts.map(artifact => {
-                    if (artifact[unitArtifactId]) {
-                      return artifact[unitArtifactId]
-                    }
-
-                    throw new Error(
-                      `Failed to determine artifact ID for artifact with hash ${artifact.hash}`,
-                    )
-                  })
-                })
+                // zod parse returns cloned objects; write back mutated artifacts
+                // so symbol-based unitArtifactId values are visible downstream
+                outputs["$artifacts"].value = artifacts
               } else if (preview && outputs["$artifacts"]) {
                 childLogger.debug({ msg: "skipping artifact persistence for preview" })
               }
@@ -268,12 +321,6 @@ export class LocalRunnerBackend implements RunnerBackend {
     }
   }
 
-  async destroy(options: UnitDestroyOptions): Promise<void> {
-    void this.destroyWorker(options)
-
-    return Promise.resolve()
-  }
-
   async deleteState(options: UnitOptions): Promise<void> {
     await this.pulumiProjectHost.runEmpty(
       {
@@ -298,7 +345,18 @@ export class LocalRunnerBackend implements RunnerBackend {
   private async destroyWorker(options: UnitDestroyOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
 
+    const childLogger = this.logger.child({ unitId })
+    let unitTempPath: string | null = null
+
     try {
+      unitTempPath = LocalRunnerBackend.getUnitTempPath(options.stateId)
+
+      // ensure stable temp directory is empty before starting
+      await rm(unitTempPath, { recursive: true, force: true })
+      await mkdir(unitTempPath, { recursive: true })
+
+      childLogger.debug({ msg: "prepared unit temp directory", unitTempPath })
+
       const resolvedSource = await this.getResolvedUnitSource(options)
       if (!resolvedSource) {
         throw new Error(`Resolved unit source not found for ${options.instanceType}`)
@@ -315,6 +373,7 @@ export class LocalRunnerBackend implements RunnerBackend {
           envVars: {
             HIGHSTATE_CACHE_DIR: this.cacheDir,
             PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
+            HIGHSTATE_PULUMI_COMMAND: "destroy",
             ...(options.debug && { TF_LOG: "DEBUG" }),
           },
         },
@@ -343,6 +402,7 @@ export class LocalRunnerBackend implements RunnerBackend {
                   color: "always",
                   refresh: options.refresh,
                   remove: true,
+                  runProgram: options.hasResourceHooks ?? true,
                   signal,
                   debug: options.debug,
 
@@ -399,13 +459,9 @@ export class LocalRunnerBackend implements RunnerBackend {
         unitId: unitId,
         message: await pulumiErrorToString(error),
       })
+    } finally {
+      await this.cleanupTempPath(unitTempPath, unitId, "destroy", this.logger)
     }
-  }
-
-  refresh(options: UnitOptions): Promise<void> {
-    void this.refreshWorker(options)
-
-    return Promise.resolve()
   }
 
   private async refreshWorker(options: UnitOptions): Promise<void> {
@@ -496,51 +552,18 @@ export class LocalRunnerBackend implements RunnerBackend {
     }
   }
 
-  private createCompletionStateUpdate(
-    opType: "update" | "destroy" | "refresh",
-    unitId: InstanceId,
-    outputs: OutputMap,
-  ): TypedUnitStateUpdate<"completion"> {
-    const unitOutputs = omitBy(outputs, (_, key) => key.startsWith("$"))
-
-    return {
-      unitId,
-      type: "completion",
-      operationType: opType,
-
-      outputHash: crc32(sha256(encode(unitOutputs))),
-
-      statusFields: outputs["$statusFields"]
-        ? z.array(instanceStatusFieldSchema).parse(outputs["$statusFields"].value)
-        : null,
-
-      terminals: outputs["$terminals"]
-        ? z.array(unitTerminalSchema).parse(outputs["$terminals"].value)
-        : null,
-
-      pages: outputs["$pages"] ? z.array(unitPageSchema).parse(outputs["$pages"].value) : null,
-
-      triggers: outputs["$triggers"]
-        ? z.array(unitTriggerSchema).parse(outputs["$triggers"].value)
-        : null,
-
-      workers: outputs["$workers"]
-        ? z.array(unitWorkerSchema).parse(outputs["$workers"].value)
-        : null,
-
-      secrets: outputs["$secrets"]
-        ? z.record(z.string(), z.unknown()).parse(outputs["$secrets"].value)
-        : null,
-    }
-  }
-
   private async emitCompletionStateUpdate(
     opType: OperationType,
     unitId: InstanceId,
     stack: Stack,
   ): Promise<TypedUnitStateUpdate<"completion">> {
     const output = await stack.outputs()
-    const update = this.createCompletionStateUpdate(opType, unitId, output)
+    const update: TypedUnitStateUpdate<"completion"> = {
+      unitId,
+      type: "completion",
+      operationType: opType,
+      rawOutputs: output,
+    }
 
     return this.emitStateUpdate(update)
   }
@@ -649,6 +672,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     return new LocalRunnerBackend(
       config.HIGHSTATE_RUNNER_BACKEND_LOCAL_PRINT_OUTPUT,
       cacheDir,
+      config.HIGHSTATE_RUNNER_BACKEND_LOCAL_CONCURRENCY,
       pulumiProjectHost,
       libraryBackend,
       artifactManager,

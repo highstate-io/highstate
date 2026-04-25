@@ -20,6 +20,8 @@ describe("Operation - Cancel", () => {
       instanceStateService,
       projectModelService,
       unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -86,6 +88,8 @@ describe("Operation - Cancel", () => {
         instanceStateService,
         projectModelService,
         unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
         logger,
       )
 

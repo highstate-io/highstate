@@ -2,8 +2,6 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
-import * as inputs from "./types/input";
-import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class ResourcemanagerFolderIamBinding extends pulumi.CustomResource {
@@ -34,12 +32,33 @@ export class ResourcemanagerFolderIamBinding extends pulumi.CustomResource {
         return obj['__pulumiType'] === ResourcemanagerFolderIamBinding.__pulumiType;
     }
 
+    /**
+     * The ID of the compute `folder` to attach the policy to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following
+     * values: * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account. *
+     * **serviceAccount:{service_account_id}**: A unique service account ID. * **federatedUser:{federated_user_id}**: A unique
+     * federated user ID. * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID. *
+     * **group:{group_id}**: A unique group ID. * **system:group:federation:{federation_id}:users**: All users in federation. *
+     * **system:group:organization:{organization_id}:users**: All users in organization. * **system:allAuthenticatedUsers**:
+     * All authenticated users. * **system:allUsers**: All users, including unauthenticated ones. > for more information about
+     * system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+     */
     declare public readonly members: pulumi.Output<string[]>;
+    /**
+     * The ID of this resource.
+     */
     declare public readonly resourcemanagerFolderIamBindingId: pulumi.Output<string>;
+    /**
+     * The role that should be assigned. Only one yandex.ResourcemanagerFolderIamBinding can be used per role.
+     */
     declare public readonly role: pulumi.Output<string>;
+    /**
+     * For test purposes, to compensate IAM operations delay
+     */
     declare public readonly sleepAfter: pulumi.Output<number | undefined>;
-    declare public readonly timeouts: pulumi.Output<outputs.ResourcemanagerFolderIamBindingTimeouts | undefined>;
 
     /**
      * Create a ResourcemanagerFolderIamBinding resource with the given unique name, arguments, and options.
@@ -59,7 +78,6 @@ export class ResourcemanagerFolderIamBinding extends pulumi.CustomResource {
             resourceInputs["resourcemanagerFolderIamBindingId"] = state?.resourcemanagerFolderIamBindingId;
             resourceInputs["role"] = state?.role;
             resourceInputs["sleepAfter"] = state?.sleepAfter;
-            resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as ResourcemanagerFolderIamBindingArgs | undefined;
             if (args?.folderId === undefined && !opts.urn) {
@@ -76,7 +94,6 @@ export class ResourcemanagerFolderIamBinding extends pulumi.CustomResource {
             resourceInputs["resourcemanagerFolderIamBindingId"] = args?.resourcemanagerFolderIamBindingId;
             resourceInputs["role"] = args?.role;
             resourceInputs["sleepAfter"] = args?.sleepAfter;
-            resourceInputs["timeouts"] = args?.timeouts;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(ResourcemanagerFolderIamBinding.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -87,22 +104,64 @@ export class ResourcemanagerFolderIamBinding extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ResourcemanagerFolderIamBinding resources.
  */
 export interface ResourcemanagerFolderIamBindingState {
+    /**
+     * The ID of the compute `folder` to attach the policy to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following
+     * values: * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account. *
+     * **serviceAccount:{service_account_id}**: A unique service account ID. * **federatedUser:{federated_user_id}**: A unique
+     * federated user ID. * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID. *
+     * **group:{group_id}**: A unique group ID. * **system:group:federation:{federation_id}:users**: All users in federation. *
+     * **system:group:organization:{organization_id}:users**: All users in organization. * **system:allAuthenticatedUsers**:
+     * All authenticated users. * **system:allUsers**: All users, including unauthenticated ones. > for more information about
+     * system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+     */
     members?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of this resource.
+     */
     resourcemanagerFolderIamBindingId?: pulumi.Input<string>;
+    /**
+     * The role that should be assigned. Only one yandex.ResourcemanagerFolderIamBinding can be used per role.
+     */
     role?: pulumi.Input<string>;
+    /**
+     * For test purposes, to compensate IAM operations delay
+     */
     sleepAfter?: pulumi.Input<number>;
-    timeouts?: pulumi.Input<inputs.ResourcemanagerFolderIamBindingTimeouts>;
 }
 
 /**
  * The set of arguments for constructing a ResourcemanagerFolderIamBinding resource.
  */
 export interface ResourcemanagerFolderIamBindingArgs {
+    /**
+     * The ID of the compute `folder` to attach the policy to.
+     */
     folderId: pulumi.Input<string>;
+    /**
+     * An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following
+     * values: * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account. *
+     * **serviceAccount:{service_account_id}**: A unique service account ID. * **federatedUser:{federated_user_id}**: A unique
+     * federated user ID. * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID. *
+     * **group:{group_id}**: A unique group ID. * **system:group:federation:{federation_id}:users**: All users in federation. *
+     * **system:group:organization:{organization_id}:users**: All users in organization. * **system:allAuthenticatedUsers**:
+     * All authenticated users. * **system:allUsers**: All users, including unauthenticated ones. > for more information about
+     * system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+     */
     members: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of this resource.
+     */
     resourcemanagerFolderIamBindingId?: pulumi.Input<string>;
+    /**
+     * The role that should be assigned. Only one yandex.ResourcemanagerFolderIamBinding can be used per role.
+     */
     role: pulumi.Input<string>;
+    /**
+     * For test purposes, to compensate IAM operations delay
+     */
     sleepAfter?: pulumi.Input<number>;
-    timeouts?: pulumi.Input<inputs.ResourcemanagerFolderIamBindingTimeouts>;
 }

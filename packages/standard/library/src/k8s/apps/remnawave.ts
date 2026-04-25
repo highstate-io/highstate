@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  z,
+} from "@highstate/contract"
 import { pick } from "remeda"
 import { optionalSharedInputs, sharedInputs, source } from "./shared"
 
@@ -11,6 +17,13 @@ export const remnawaveEntity = defineEntity({
      */
     instanceId: z.string(),
   }),
+
+  meta: {
+    color: "#0066cc",
+    title: "Remnawave",
+    icon: "mdi:waveform",
+    iconColor: "#0066cc",
+  },
 })
 
 /**
@@ -65,5 +78,5 @@ export const node = defineUnit({
   source: source("remnawave/node"),
 })
 
-export type Remnawave = z.infer<typeof remnawaveEntity.schema>
+export type Remnawave = EntityValue<typeof remnawaveEntity>
 export type RemnawaveInput = EntityInput<typeof remnawaveEntity>

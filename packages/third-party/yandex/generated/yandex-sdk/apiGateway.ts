@@ -35,25 +35,72 @@ export class ApiGateway extends pulumi.CustomResource {
     }
 
     declare public readonly apiGatewayId: pulumi.Output<string>;
+    /**
+     * Canary release settings of gateway.
+     */
     declare public readonly canary: pulumi.Output<outputs.ApiGatewayCanary | undefined>;
+    /**
+     * Gateway connectivity. If specified the gateway will be attached to specified network.
+     */
     declare public readonly connectivity: pulumi.Output<outputs.ApiGatewayConnectivity | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Set of custom domains to be attached to Yandex Cloud API Gateway.
+     */
     declare public readonly customDomains: pulumi.Output<outputs.ApiGatewayCustomDomain[] | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Default domain for the Yandex Cloud API Gateway. Generated at creation time.
+     */
     declare public /*out*/ readonly domain: pulumi.Output<string>;
+    /**
+     * Execution timeout in seconds for the Yandex Cloud API Gateway.
+     */
     declare public readonly executionTimeout: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * ID of the log group for the Yandex Cloud API Gateway.
+     */
     declare public /*out*/ readonly logGroupId: pulumi.Output<string>;
+    /**
+     * Options for logging from Yandex Cloud API Gateway.
+     */
     declare public readonly logOptions: pulumi.Output<outputs.ApiGatewayLogOptions | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The OpenAPI specification for Yandex Cloud API Gateway.
+     */
     declare public readonly spec: pulumi.Output<string>;
+    /**
+     * Status of the Yandex Cloud API Gateway.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ApiGatewayTimeouts | undefined>;
     /**
+     * > **DEPRECATED** Use `custom_domains` instead. Set of user domains attached to Yandex Cloud API Gateway.
+     *
      * @deprecated Deprecated
      */
     declare public /*out*/ readonly userDomains: pulumi.Output<string[]>;
+    /**
+     * A set of values for variables in gateway specification.
+     */
     declare public readonly variables: pulumi.Output<{[key: string]: string} | undefined>;
 
     /**
@@ -121,25 +168,72 @@ export class ApiGateway extends pulumi.CustomResource {
  */
 export interface ApiGatewayState {
     apiGatewayId?: pulumi.Input<string>;
+    /**
+     * Canary release settings of gateway.
+     */
     canary?: pulumi.Input<inputs.ApiGatewayCanary>;
+    /**
+     * Gateway connectivity. If specified the gateway will be attached to specified network.
+     */
     connectivity?: pulumi.Input<inputs.ApiGatewayConnectivity>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Set of custom domains to be attached to Yandex Cloud API Gateway.
+     */
     customDomains?: pulumi.Input<pulumi.Input<inputs.ApiGatewayCustomDomain>[]>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Default domain for the Yandex Cloud API Gateway. Generated at creation time.
+     */
     domain?: pulumi.Input<string>;
+    /**
+     * Execution timeout in seconds for the Yandex Cloud API Gateway.
+     */
     executionTimeout?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the log group for the Yandex Cloud API Gateway.
+     */
     logGroupId?: pulumi.Input<string>;
+    /**
+     * Options for logging from Yandex Cloud API Gateway.
+     */
     logOptions?: pulumi.Input<inputs.ApiGatewayLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The OpenAPI specification for Yandex Cloud API Gateway.
+     */
     spec?: pulumi.Input<string>;
+    /**
+     * Status of the Yandex Cloud API Gateway.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ApiGatewayTimeouts>;
     /**
+     * > **DEPRECATED** Use `custom_domains` instead. Set of user domains attached to Yandex Cloud API Gateway.
+     *
      * @deprecated Deprecated
      */
     userDomains?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A set of values for variables in gateway specification.
+     */
     variables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }
 
@@ -148,16 +242,49 @@ export interface ApiGatewayState {
  */
 export interface ApiGatewayArgs {
     apiGatewayId?: pulumi.Input<string>;
+    /**
+     * Canary release settings of gateway.
+     */
     canary?: pulumi.Input<inputs.ApiGatewayCanary>;
+    /**
+     * Gateway connectivity. If specified the gateway will be attached to specified network.
+     */
     connectivity?: pulumi.Input<inputs.ApiGatewayConnectivity>;
+    /**
+     * Set of custom domains to be attached to Yandex Cloud API Gateway.
+     */
     customDomains?: pulumi.Input<pulumi.Input<inputs.ApiGatewayCustomDomain>[]>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Execution timeout in seconds for the Yandex Cloud API Gateway.
+     */
     executionTimeout?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging from Yandex Cloud API Gateway.
+     */
     logOptions?: pulumi.Input<inputs.ApiGatewayLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The OpenAPI specification for Yandex Cloud API Gateway.
+     */
     spec: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ApiGatewayTimeouts>;
+    /**
+     * A set of values for variables in gateway specification.
+     */
     variables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }

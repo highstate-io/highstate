@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export function getMdbMongodbDatabase(args: GetMdbMongodbDatabaseArgs, opts?: pulumi.InvokeOptions): Promise<GetMdbMongodbDatabaseResult> {
@@ -9,6 +11,7 @@ export function getMdbMongodbDatabase(args: GetMdbMongodbDatabaseArgs, opts?: pu
     return pulumi.runtime.invoke("yandex:index/getMdbMongodbDatabase:getMdbMongodbDatabase", {
         "clusterId": args.clusterId,
         "name": args.name,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -18,6 +21,7 @@ export function getMdbMongodbDatabase(args: GetMdbMongodbDatabaseArgs, opts?: pu
 export interface GetMdbMongodbDatabaseArgs {
     clusterId: string;
     name: string;
+    timeouts?: inputs.GetMdbMongodbDatabaseTimeouts;
 }
 
 /**
@@ -27,12 +31,14 @@ export interface GetMdbMongodbDatabaseResult {
     readonly clusterId: string;
     readonly id: string;
     readonly name: string;
+    readonly timeouts?: outputs.GetMdbMongodbDatabaseTimeouts;
 }
 export function getMdbMongodbDatabaseOutput(args: GetMdbMongodbDatabaseOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetMdbMongodbDatabaseResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getMdbMongodbDatabase:getMdbMongodbDatabase", {
         "clusterId": args.clusterId,
         "name": args.name,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -42,4 +48,5 @@ export function getMdbMongodbDatabaseOutput(args: GetMdbMongodbDatabaseOutputArg
 export interface GetMdbMongodbDatabaseOutputArgs {
     clusterId: pulumi.Input<string>;
     name: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.GetMdbMongodbDatabaseTimeoutsArgs>;
 }

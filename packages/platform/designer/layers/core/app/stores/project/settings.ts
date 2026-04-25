@@ -66,9 +66,16 @@ export const useProjectSettingsStore = defineMultiStore({
   name: "project-settings",
   getStoreId: (projectId: string) => `projects/${projectId}/settings`,
 
-  create: ({ storeId, id: [projectId] }) => {
+  create: ({ storeId, id: [projectId], onDeactivated }) => {
     return defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
+      type ReloadableSettingsQuery = {
+        load: () => Promise<void>
+      }
+
+      const activeWorkerVersionQueries = shallowReactive(new Set<ReloadableSettingsQuery>())
+      let workerReloadTimeout: ReturnType<typeof setTimeout> | undefined
 
       const operations = useSettingsQuery(query =>
         $client.settings.queryOperations.query({ projectId, query }),
@@ -97,9 +104,51 @@ export const useProjectSettingsStore = defineMultiStore({
       const apiKeys = useSettingsQuery(query =>
         $client.settings.queryApiKeys.query({ projectId, query }),
       )
+      const entities = useSettingsQuery(query =>
+        $client.settings.queryEntities.query({ projectId, query }),
+      )
       const unlockMethods = useSettingsQuery(query =>
         $client.settings.queryUnlockMethods.query({ projectId, query }),
       )
+
+      const refreshWorkerQueries = async () => {
+        const versionQueries = Array.from(activeWorkerVersionQueries)
+
+        await Promise.allSettled([
+          workers.load(),
+          ...versionQueries.map(query => query.load()),
+        ])
+      }
+
+      const scheduleWorkerQueriesRefresh = () => {
+        if (workerReloadTimeout) {
+          return
+        }
+
+        workerReloadTimeout = setTimeout(() => {
+          workerReloadTimeout = undefined
+          void refreshWorkerQueries()
+        }, 250)
+      }
+
+      const { unsubscribe: stopWatchingWorkerVersionStatuses } =
+        $client.settings.watchWorkerVersionStatuses.subscribe(
+          { projectId },
+          {
+            onData() {
+              scheduleWorkerQueriesRefresh()
+            },
+          },
+        )
+
+      onDeactivated(() => {
+        if (workerReloadTimeout) {
+          clearTimeout(workerReloadTimeout)
+          workerReloadTimeout = undefined
+        }
+
+        stopWatchingWorkerVersionStatuses()
+      })
 
       const addUnlockMethod = async (unlockMethod: UnlockMethodInput) => {
         await $client.settings.addUnlockMethod.mutate({ projectId, unlockMethod })
@@ -149,6 +198,29 @@ export const useProjectSettingsStore = defineMultiStore({
         })
       }
 
+      const restartWorkerVersion = async (workerVersionId: string) => {
+        await $client.settings.restartWorkerVersion.mutate({
+          projectId,
+          workerVersionId,
+        })
+
+        await refreshWorkerQueries()
+      }
+
+      const getEntityDetails = async (entityId: string) => {
+        return await $client.settings.getEntityDetails.query({
+          projectId,
+          entityId,
+        })
+      }
+
+      const getEntitySnapshotDetails = async (snapshotId: string) => {
+        return await $client.settings.getEntitySnapshotDetails.query({
+          projectId,
+          snapshotId,
+        })
+      }
+
       const getPageDetails = async (pageId: string) => {
         return await $client.settings.getPageDetails.query({
           projectId,
@@ -191,6 +263,62 @@ export const useProjectSettingsStore = defineMultiStore({
         })
       }
 
+      const outgoingReferencesForEntity = (entityId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntityOutgoingReferences.query({
+            projectId,
+            entityId,
+            query,
+          }),
+        )
+
+      const outgoingReferencesForEntitySnapshot = (snapshotId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotOutgoingReferences.query({
+            projectId,
+            snapshotId,
+            query,
+          }),
+        )
+
+      const incomingReferencesForEntity = (entityId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntityIncomingReferences.query({
+            projectId,
+            entityId,
+            query,
+          }),
+        )
+
+      const incomingReferencesForEntitySnapshot = (snapshotId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotIncomingReferences.query({
+            projectId,
+            snapshotId,
+            query,
+          }),
+        )
+
+      const snapshotsForEntity = (entityId: string, excludeSnapshotId?: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotsForEntity.query({
+            projectId,
+            entityId,
+            excludeSnapshotId,
+            query,
+          }),
+        )
+
+      const entitySnapshotsForInstanceOperation = (stateId: string, operationId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryEntitySnapshotsForInstanceOperation.query({
+            projectId,
+            stateId,
+            operationId,
+            query,
+          }),
+        )
+
       const sessionsForTerminal = (terminalId: string) =>
         useSettingsQuery(query =>
           $client.settings.getTerminalSessions.query({ projectId, terminalId, query }),
@@ -229,10 +357,19 @@ export const useProjectSettingsStore = defineMultiStore({
           $client.settings.queryArtifacts.query({ projectId, query: { ...query, serviceAccountId } }),
         )
 
-      const versionsForWorker = (workerId: string) =>
-        useSettingsQuery(query =>
+      const versionsForWorker = (workerId: string) => {
+        const queryState = useSettingsQuery(query =>
           $client.settings.queryWorkerVersions.query({ projectId, workerId, query }),
         )
+
+        activeWorkerVersionQueries.add(queryState)
+
+        onDeactivated(() => {
+          activeWorkerVersionQueries.delete(queryState)
+        })
+
+        return queryState
+      }
 
       const terminalsForState = (stateId: string) =>
         useSettingsQuery(query =>
@@ -297,6 +434,7 @@ export const useProjectSettingsStore = defineMultiStore({
         workers,
         serviceAccounts,
         apiKeys,
+        entities,
         unlockMethods,
         addUnlockMethod,
         removeUnlockMethod,
@@ -305,12 +443,21 @@ export const useProjectSettingsStore = defineMultiStore({
         getApiKeyDetails,
         getWorkerDetails,
         getWorkerVersionDetails,
+        restartWorkerVersion,
+        getEntityDetails,
+        getEntitySnapshotDetails,
         getPageDetails,
         getSecretDetails,
         getArtifactDetails,
         getOperationDetails,
         getTriggerDetails,
         getUnlockMethodDetails,
+        outgoingReferencesForEntity,
+        outgoingReferencesForEntitySnapshot,
+        incomingReferencesForEntity,
+        incomingReferencesForEntitySnapshot,
+        snapshotsForEntity,
+        entitySnapshotsForInstanceOperation,
         sessionsForTerminal,
         apiKeysForServiceAccount,
         terminalsForServiceAccount,

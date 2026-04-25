@@ -1,23 +1,20 @@
 import type { Secret } from "../secret"
-import { type GatewayRouteSpec, gatewayRouteMediator, type TlsCertificate } from "@highstate/common"
-import { k8s, type network } from "@highstate/library"
+import { gatewayRouteMediator, type TlsCertificate } from "@highstate/common"
+import { type common, k8s, type network } from "@highstate/library"
 import { type ComponentResourceOptions, type Input, toPromise } from "@highstate/pulumi"
 import { core } from "@pulumi/kubernetes"
 import { Gateway, HttpRoute, TcpRoute, UdpRoute } from "../gateway"
 import { Namespace } from "../namespace"
-import { l4EndpointToServicePort, Service } from "../service"
+import { isEndpointFromCluster, l4EndpointToServicePort, Service } from "../service"
 import { getProvider, mapMetadata } from "../shared"
 import { Certificate } from "../tls"
 
 export const createGatewayRoute = gatewayRouteMediator.implement(
   k8s.gatewayDataSchema,
-  async ({ name, spec, opts }, data) => {
-    const namespace =
-      spec.nativeData instanceof Service
-        ? await toPromise(spec.nativeData.namespace)
-        : Namespace.for(data.namespace, data.cluster)
+  async ({ name, args: spec, opts }, data) => {
+    const namespace = resolveRouteNamespace(spec, data)
 
-    const certSecret = await getCertificateSecret(name, namespace, spec.tlsCertificate)
+    const certSecret = await getCertificateSecret(name, namespace, spec.certificate)
 
     const certificateRef = certSecret
       ? {
@@ -27,7 +24,9 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
         }
       : undefined
 
-    if (spec.type === "http") {
+    const routeProtocol = resolveRouteProtocol(spec)
+
+    if (routeProtocol === "http") {
       return await createHttpGatewayRoute({
         name,
         spec,
@@ -38,25 +37,48 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       })
     }
 
-    const protocol = spec.type === "tcp" ? "TCP" : "UDP"
-
     return await createL4GatewayRoute({
       name,
       spec,
       opts,
       data,
       namespace,
-      protocol,
+      protocol: routeProtocol === "tcp" ? "TCP" : "UDP",
     })
   },
 )
 
-type HttpGatewayRouteSpec = Extract<GatewayRouteSpec, { type: "http" }>
-type L4GatewayRouteSpec = Extract<GatewayRouteSpec, { type: "tcp" | "udp" }>
+type GatewayRouteRuleSpec = {
+  type: "http" | "tcp" | "udp"
+  paths: string[]
+  backends: {
+    endpoints: network.L4Endpoint[]
+    weight?: number
+  }[]
+}
+
+function resolveRouteNamespace(spec: GatewayRouteSpec, data: k8s.GatewayData): Namespace {
+  const metadataNamespace = spec.metadata["k8s.namespace"]
+
+  if (metadataNamespace instanceof Namespace) {
+    return metadataNamespace
+  }
+
+  return Namespace.for(data.namespace, data.cluster)
+}
+
+type GatewayRouteSpec = {
+  gateway: common.Gateway
+  metadata: Record<string, unknown>
+  fqdns: string[]
+  certificate?: TlsCertificate
+  port?: number
+  rules: Record<string, GatewayRouteRuleSpec>
+}
 
 type CreateHttpGatewayRouteArgs = {
   name: string
-  spec: HttpGatewayRouteSpec
+  spec: GatewayRouteSpec
   opts: ComponentResourceOptions | undefined
   data: k8s.GatewayData
   namespace: Namespace
@@ -77,17 +99,16 @@ async function createHttpGatewayRoute({
   namespace,
   certificateRef,
 }: CreateHttpGatewayRouteArgs) {
-  const backendService =
-    spec.nativeData instanceof Service
-      ? spec.nativeData
-      : (await createServiceFromEndpoints(name, namespace, spec.endpoints, data.cluster, opts))
-          .service
+  const listenerPort = spec.port ?? (certificateRef ? data.httpsPort : data.httpPort)
+  const listenerProtocol = certificateRef ? "HTTPS" : "HTTP"
+  const listenerHostname = spec.fqdns[0]
 
   const listeners = [
     {
-      name: "https",
-      port: data.httpsPort,
-      protocol: "HTTPS",
+      name: `${listenerProtocol.toLowerCase()}-${listenerPort}`,
+      port: listenerPort,
+      protocol: listenerProtocol,
+      hostname: listenerHostname,
       tls: {
         mode: "Terminate",
         certificateRefs: certificateRef ? [certificateRef] : undefined,
@@ -95,9 +116,9 @@ async function createHttpGatewayRoute({
     },
   ]
 
-  const gateway = await Gateway.createOnce(
+  const gateway = Gateway.create(
+    name,
     {
-      name: data.className,
       namespace,
       gatewayClassName: data.className,
       listeners,
@@ -105,13 +126,50 @@ async function createHttpGatewayRoute({
     opts,
   )
 
+  const ruleSpecs = Object.values(spec.rules)
+
+  const rules = await Promise.all(
+    ruleSpecs.map(async (ruleSpec, ruleIndex) => {
+      const backendRefs = await Promise.all(
+        ruleSpec.backends.map(async (backend, backendIndex) => {
+          const backendData = await resolveBackendFromEndpoints({
+            routeName: name,
+            backendName: `${ruleIndex}-${backendIndex}`,
+            endpoints: backend.endpoints,
+            namespace,
+            cluster: data.cluster,
+            opts,
+          })
+
+          const backendPort = await selectBackendPort({
+            ports: backendData.ports,
+            protocol: "TCP",
+            targetPort: backendData.preferredTargetPort,
+            serviceName: backendData.serviceName,
+            routeName: name,
+          })
+
+          return {
+            name: backendData.serviceName,
+            namespace: backendData.serviceNamespace,
+            port: backendPort.port,
+          }
+        }),
+      )
+
+      return {
+        matches: ruleSpec.paths,
+        backends: backendRefs,
+      }
+    }),
+  )
+
   const httpRoute = new HttpRoute(
     name,
     {
       gateway,
-      rule: {
-        backend: backendService,
-      },
+      hostnames: spec.fqdns,
+      rules,
     },
     opts,
   )
@@ -124,7 +182,7 @@ async function createHttpGatewayRoute({
 
 type CreateL4GatewayRouteArgs = {
   name: string
-  spec: L4GatewayRouteSpec
+  spec: GatewayRouteSpec
   opts: ComponentResourceOptions | undefined
   data: k8s.GatewayData
   namespace: Namespace
@@ -139,21 +197,28 @@ async function createL4GatewayRoute({
   namespace,
   protocol,
 }: CreateL4GatewayRouteArgs) {
-  const serviceData =
-    spec.nativeData instanceof Service
-      ? {
-          service: spec.nativeData,
-          ports: await getServicePorts(spec.nativeData),
-        }
-      : await createServiceFromEndpoints(name, namespace, spec.endpoints, data.cluster, opts)
+  const backends = Object.values(spec.rules).flatMap(rule => rule.backends)
 
-  const serviceName = await toPromise(serviceData.service.metadata.name)
+  if (backends.length === 0) {
+    throw new Error(`Gateway route "${name}" has no backends to expose.`)
+  }
+
+  const firstBackend = backends[0]
+
+  const backendData = await resolveBackendFromEndpoints({
+    routeName: name,
+    backendName: "0",
+    endpoints: firstBackend.endpoints,
+    namespace,
+    cluster: data.cluster,
+    opts,
+  })
 
   const backendPort = await selectBackendPort({
-    ports: serviceData.ports,
+    ports: backendData.ports,
     protocol,
-    targetPort: spec.targetPort,
-    serviceName,
+    targetPort: backendData.preferredTargetPort,
+    serviceName: backendData.serviceName,
     routeName: name,
   })
 
@@ -166,9 +231,13 @@ async function createL4GatewayRoute({
 
   const listenerName = `${protocol.toLowerCase()}-${listenerPort}`
 
-  const gateway = await Gateway.createOnce(
+  const gatewayName = name
+  const gatewayResourceName = name
+
+  const gateway = Gateway.create(
+    gatewayResourceName,
     {
-      name: data.className,
+      name: gatewayName,
       namespace,
       gatewayClassName: data.className,
       listeners: [
@@ -182,19 +251,11 @@ async function createL4GatewayRoute({
     opts,
   )
 
-  const backendRef = serviceData.service.metadata.apply(metadata => {
-    if (!metadata?.name) {
-      throw new Error(
-        `Service "${serviceName}" referenced by gateway route "${name}" does not have a name.`,
-      )
-    }
-
-    return {
-      name: metadata.name,
-      namespace: metadata.namespace,
-      port: backendPort.port,
-    }
-  })
+  const backendRef = {
+    name: backendData.serviceName,
+    namespace: backendData.serviceNamespace,
+    port: backendPort.port,
+  }
 
   const routeOpts = { ...opts, parent: gateway }
 
@@ -252,6 +313,119 @@ async function getCertificateSecret(
   throw new Error(
     "Not implemented: copying certificate secret across namespaces/clusters/different systems",
   )
+}
+
+function resolveRouteProtocol(spec: GatewayRouteSpec): GatewayRouteRuleSpec["type"] {
+  const rules = Object.values(spec.rules)
+
+  if (rules.length === 0) {
+    throw new Error("Gateway route must contain at least one rule")
+  }
+
+  const type = rules[0].type
+
+  if (rules.some(rule => rule.type !== type)) {
+    throw new Error("Gateway route rules must use the same protocol type")
+  }
+
+  return type
+}
+
+async function resolveBackendFromEndpoints({
+  routeName,
+  backendName,
+  endpoints,
+  namespace,
+  cluster,
+  opts,
+}: {
+  routeName: string
+  backendName: string
+  endpoints: network.L4Endpoint[]
+  namespace: Namespace
+  cluster: k8s.Cluster
+  opts: ComponentResourceOptions | undefined
+}): Promise<{
+  serviceName: string
+  serviceNamespace: string
+  ports: ServicePortInfo[]
+  preferredTargetPort?: number | string
+}> {
+  const serviceMeta = getServiceMetadataFromEndpoints(endpoints, cluster)
+
+  if (serviceMeta) {
+    const metadataPorts: ServicePortInfo[] = endpoints.map(endpoint => ({
+      name: typeof serviceMeta.targetPort === "string" ? serviceMeta.targetPort : undefined,
+      port: endpoint.port,
+      protocol: endpoint.protocol.toUpperCase() as "TCP" | "UDP",
+      targetPort: serviceMeta.targetPort,
+    }))
+
+    return {
+      serviceName: serviceMeta.name,
+      serviceNamespace: serviceMeta.namespace,
+      ports: metadataPorts,
+      preferredTargetPort: serviceMeta.targetPort,
+    }
+  }
+
+  const syntheticService = await createServiceFromEndpoints(
+    `${routeName}-${backendName}`,
+    namespace,
+    endpoints,
+    cluster,
+    opts,
+  )
+
+  const syntheticServiceName = await toPromise(syntheticService.service.metadata.name)
+  const syntheticServiceNamespace = await toPromise(syntheticService.service.metadata.namespace)
+
+  if (!syntheticServiceNamespace) {
+    throw new Error(
+      `Synthetic backend service "${syntheticServiceName}" for gateway route "${routeName}" has no namespace.`,
+    )
+  }
+
+  return {
+    serviceName: syntheticServiceName,
+    serviceNamespace: syntheticServiceNamespace,
+    ports: syntheticService.ports,
+  }
+}
+
+function getServiceMetadataFromEndpoints(
+  endpoints: network.L4Endpoint[],
+  cluster: k8s.Cluster,
+):
+  | {
+      name: string
+      namespace: string
+      targetPort?: number | string
+    }
+  | undefined {
+  const serviceEndpoints = endpoints.filter(endpoint => isEndpointFromCluster(endpoint, cluster))
+
+  if (serviceEndpoints.length === 0 || serviceEndpoints.length !== endpoints.length) {
+    return undefined
+  }
+
+  const first = serviceEndpoints[0].metadata["k8s.service"]
+
+  if (
+    serviceEndpoints.some(
+      endpoint =>
+        endpoint.metadata["k8s.service"].name !== first.name ||
+        endpoint.metadata["k8s.service"].namespace !== first.namespace,
+    )
+  ) {
+    return undefined
+  }
+
+  return {
+    name: first.name,
+    namespace: first.namespace,
+    targetPort: first.targetPort,
+  }
 }
 
 type ServicePortInfo = {
@@ -331,7 +505,7 @@ async function createServiceFromEndpoints(
   }
 }
 
-async function getServicePorts(service: Service): Promise<ServicePortInfo[]> {
+async function _getServicePorts(service: Service): Promise<ServicePortInfo[]> {
   const spec = await toPromise(service.spec)
   const ports = spec.ports ?? []
 

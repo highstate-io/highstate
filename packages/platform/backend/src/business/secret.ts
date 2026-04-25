@@ -2,6 +2,7 @@ import type { Logger } from "pino"
 import type { DatabaseManager, ProjectTransaction } from "../database"
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { randomBytes } from "node:crypto"
 import { type CommonObjectMeta, isUnitModel, parseInstanceId } from "@highstate/contract"
 import {
@@ -16,6 +17,7 @@ export class SecretService {
     private readonly database: DatabaseManager,
     private readonly pubsubManager: PubSubManager,
     private readonly libraryBackend: LibraryBackend,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {}
 
@@ -34,7 +36,7 @@ export class SecretService {
     libraryId: string,
     stateId: string,
     secretValues: Record<string, unknown>,
-  ): Promise<string[]> {
+  ): Promise<{ secretNames: string[]; secretIds: string[] }> {
     // verify instance exists and is a unit
     const state = await tx.instanceState.findUnique({
       where: { id: stateId },
@@ -62,6 +64,8 @@ export class SecretService {
       throw new Error(`Component type "${componentType}" is not a unit model`)
     }
 
+    const secretIds: string[] = []
+
     // upsert provided secrets
     for (const [secretName, value] of Object.entries(secretValues)) {
       const componentSecret = component.secrets[secretName]
@@ -77,7 +81,7 @@ export class SecretService {
         iconColor: componentSecret.meta.iconColor || component.meta.iconColor,
       }
 
-      await tx.secret.upsert({
+      const secret = await tx.secret.upsert({
         where: {
           stateId_name: {
             stateId,
@@ -94,10 +98,15 @@ export class SecretService {
           meta,
           content: value,
         },
+        select: {
+          id: true,
+        },
       })
+
+      secretIds.push(secret.id)
     }
 
-    return Object.keys(secretValues)
+    return { secretNames: Object.keys(secretValues), secretIds }
   }
 
   /**
@@ -125,7 +134,12 @@ export class SecretService {
     }
 
     const statePatch = await database.$transaction(async tx => {
-      await this.updateInstanceSecretsCore(tx, project.libraryId, stateId, secretValues)
+      const { secretNames } = await this.updateInstanceSecretsCore(
+        tx,
+        project.libraryId,
+        stateId,
+        secretValues,
+      )
 
       // invalidate instance state
       const state = await tx.instanceState.update({
@@ -134,7 +148,7 @@ export class SecretService {
         select: { inputHashNonce: true },
       })
 
-      return { ...state, secretNames: Object.keys(secretValues) }
+      return { ...state, secretNames }
     })
 
     this.pubsubManager.publish(["instance-state", projectId], {
@@ -209,7 +223,7 @@ export class SecretService {
   async getPulumiPassword(projectId: string): Promise<string> {
     const database = await this.database.forProject(projectId)
 
-    return await database.$transaction(async tx => {
+    const result = await database.$transaction(async tx => {
       const existingSecret = await tx.secret.findUnique({
         where: {
           systemName: SystemSecretNames.PulumiPassword,
@@ -217,12 +231,12 @@ export class SecretService {
       })
 
       if (existingSecret) {
-        return existingSecret.content as string
+        return { password: existingSecret.content as string, secretId: null as string | null }
       }
 
       const newPassword = randomBytes(32).toString("hex")
 
-      await tx.secret.create({
+      const createdSecret = await tx.secret.create({
         data: {
           systemName: SystemSecretNames.PulumiPassword,
           meta: {
@@ -232,10 +246,19 @@ export class SecretService {
           },
           content: newPassword,
         },
+        select: {
+          id: true,
+        },
       })
 
       this.logger.info({ projectId }, "created new Pulumi password")
-      return newPassword
+      return { password: newPassword, secretId: createdSecret.id }
     })
+
+    if (result.secretId) {
+      await this.objectRefIndexService.track(projectId, [result.secretId])
+    }
+
+    return result.password
   }
 }

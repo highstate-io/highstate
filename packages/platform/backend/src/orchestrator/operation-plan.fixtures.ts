@@ -85,6 +85,7 @@ export const operationPlanTest = test.extend<{
       options: {
         forceUpdateDependencies: false,
         ignoreDependencies: false,
+        ignoreChangedDependencies: false,
         forceUpdateChildren: false,
         destroyDependentInstances: true,
         invokeDestroyTriggers: true,
@@ -197,6 +198,7 @@ export const operationPlanTest = test.extend<{
         libraryBackend,
         instanceStateService,
         projectModelService,
+        undefined,
         logger,
       )
     }

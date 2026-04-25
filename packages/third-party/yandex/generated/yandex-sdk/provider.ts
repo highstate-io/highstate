@@ -26,68 +26,98 @@ export class Provider extends pulumi.ProviderResource {
     }
 
     /**
-     * ID of Yandex.Cloud tenant.
+     * The ID of the [Cloud](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud) to apply any
+     * resources to. This can also be specified using environment variable `YC_CLOUD_ID`.
      */
     declare public readonly cloudId: pulumi.Output<string | undefined>;
     /**
-     * The API endpoint for Yandex.Cloud SDK client.
+     * Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is
+     * **https://api.datalens.tech**. This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+     */
+    declare public readonly datalensEndpoint: pulumi.Output<string | undefined>;
+    /**
+     * The endpoint for API calls, default value is **api.cloud.yandex.net:443**. This can also be defined by environment
+     * variable `YC_ENDPOINT`.
      */
     declare public readonly endpoint: pulumi.Output<string | undefined>;
     /**
-     * The default folder ID where resources will be placed.
+     * The ID of the [Folder](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder) to operate under,
+     * if not specified by a given resource. This can also be specified using environment variable `YC_FOLDER_ID`.
      */
     declare public readonly folderId: pulumi.Output<string | undefined>;
+    /**
+     * The ID of the [Cloud Organization](https://yandex.cloud/docs/organization/quickstart) to operate under.
+     */
     declare public readonly organizationId: pulumi.Output<string | undefined>;
     /**
-     * Profile to use in the shared credentials file. Default value is `default`.
+     * Profile name to use in the shared credentials file. Default value is `default`.
      */
     declare public readonly profile: pulumi.Output<string | undefined>;
     /**
-     * The region where operations will take place. Examples are ru-central1
+     * [The region](https://yandex.cloud/docs/overview/concepts/region) where operations will take place. For example
+     * `ru-central1`.
      */
     declare public readonly regionId: pulumi.Output<string | undefined>;
     /**
-     * Either the path to or the contents of a Service Account key file in JSON format.
+     * Contains either a path to or the contents of the [Service Account
+     * file](https://yandex.cloud/docs/iam/concepts/authorization/key) in JSON format. This can also be specified using
+     * environment variable `YC_SERVICE_ACCOUNT_KEY_FILE`. You can read how to create service account key file
+     * [here](https://yandex.cloud/docs/iam/operations/iam-token/create-for-sa#keys-create). > Only one of `token` or
+     * `service_account_key_file` must be specified. > One can authenticate via instance service account from inside a compute
+     * instance. In order to use this method, omit both `token`/`service_account_key_file` and attach service account to the
+     * instance. [Working with Yandex Cloud from inside an
+     * instance](https://yandex.cloud/docs/compute/operations/vm-connect/auth-inside-vm).
      */
     declare public readonly serviceAccountKeyFile: pulumi.Output<string | undefined>;
     /**
-     * Path to shared credentials file.
+     * Shared credentials file path. Supported keys: `storage_access_key` and `storage_secret_key`. > The `storage_access_key`
+     * and `storage_secret_key` attributes from the shared credentials file are used only when the provider and a storage
+     * data/resource do not have an access/secret keys explicitly specified.
      */
     declare public readonly sharedCredentialsFile: pulumi.Output<string | undefined>;
     /**
-     * Yandex.Cloud storage service access key. Used when a storage data/resource doesn't have an access key explicitly
-     * specified.
+     * Yandex Cloud Object Storage access key, which is used when a storage data/resource doesn't have an access key explicitly
+     * specified. This can also be specified using environment variable `YC_STORAGE_ACCESS_KEY`.
      */
     declare public readonly storageAccessKey: pulumi.Output<string | undefined>;
     /**
-     * Yandex.Cloud storage service endpoint. Default is storage.yandexcloud.net
+     * Yandex Cloud [Object Storage Endpoint](https://yandex.cloud/docs/storage/s3/#request-url), which is used to connect to
+     * `S3 API`. Default value is **storage.yandexcloud.net**.
      */
     declare public readonly storageEndpoint: pulumi.Output<string | undefined>;
     /**
-     * Yandex.Cloud storage service secret key. Used when a storage data/resource doesn't have a secret key explicitly
-     * specified.
+     * Yandex Cloud Object Storage secret key, which is used when a storage data/resource doesn't have a secret key explicitly
+     * specified. This can also be specified using environment variable `YC_STORAGE_SECRET_KEY`.
      */
     declare public readonly storageSecretKey: pulumi.Output<string | undefined>;
     /**
-     * The access token for API operations.
+     * Security token or IAM token used for authentication in Yandex Cloud. Check
+     * [documentation](https://yandex.cloud/docs/iam/operations/iam-token/create) about how to create IAM token. This can also
+     * be specified using environment variable `YC_TOKEN`.
      */
     declare public readonly token: pulumi.Output<string | undefined>;
     /**
-     * Yandex.Cloud Message Queue service access key. Used when a message queue resource doesn't have an access key explicitly
-     * specified.
+     * Yandex Cloud Message Queue service access key, which is used when a YMQ queue resource doesn't have an access key
+     * explicitly specified. This can also be specified using environment variable `YC_MESSAGE_QUEUE_ACCESS_KEY`.
      */
     declare public readonly ymqAccessKey: pulumi.Output<string | undefined>;
     /**
-     * Yandex.Cloud Message Queue service endpoint. Default is message-queue.api.cloud.yandex.net
+     * Yandex Cloud Message Queue service endpoint. Default value is **message-queue.api.cloud.yandex.net**.
      */
     declare public readonly ymqEndpoint: pulumi.Output<string | undefined>;
     /**
-     * Yandex.Cloud Message Queue service secret key. Used when a message queue resource doesn't have a secret key explicitly
-     * specified.
+     * Yandex Cloud Message Queue service secret key, which is used when a YMQ queue resource doesn't have a secret key
+     * explicitly specified. This can also be specified using environment variable `YC_MESSAGE_QUEUE_SECRET_KEY`.
      */
     declare public readonly ymqSecretKey: pulumi.Output<string | undefined>;
     /**
-     * The zone where operations will take place. Examples are ru-central1-a, ru-central2-c, etc.
+     * The Yandex Query API endpoint, default value is **grpc.yandex-query.cloud.yandex.net:2135**. This can also be defined by
+     * environment variable `YC_YQ_ENDPOINT`.
+     */
+    declare public readonly yqEndpoint: pulumi.Output<string | undefined>;
+    /**
+     * The default [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) to operate under, if not
+     * specified by a given resource. This can also be specified using environment variable `YC_ZONE`.
      */
     declare public readonly zone: pulumi.Output<string | undefined>;
 
@@ -103,6 +133,7 @@ export class Provider extends pulumi.ProviderResource {
         opts = opts || {};
         {
             resourceInputs["cloudId"] = args?.cloudId;
+            resourceInputs["datalensEndpoint"] = args?.datalensEndpoint;
             resourceInputs["endpoint"] = args?.endpoint;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["insecure"] = pulumi.output(args?.insecure).apply(JSON.stringify);
@@ -120,6 +151,7 @@ export class Provider extends pulumi.ProviderResource {
             resourceInputs["ymqAccessKey"] = args?.ymqAccessKey;
             resourceInputs["ymqEndpoint"] = args?.ymqEndpoint;
             resourceInputs["ymqSecretKey"] = args?.ymqSecretKey ? pulumi.secret(args.ymqSecretKey) : undefined;
+            resourceInputs["yqEndpoint"] = args?.yqEndpoint;
             resourceInputs["zone"] = args?.zone;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -134,80 +166,111 @@ export class Provider extends pulumi.ProviderResource {
  */
 export interface ProviderArgs {
     /**
-     * ID of Yandex.Cloud tenant.
+     * The ID of the [Cloud](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#cloud) to apply any
+     * resources to. This can also be specified using environment variable `YC_CLOUD_ID`.
      */
     cloudId?: pulumi.Input<string>;
     /**
-     * The API endpoint for Yandex.Cloud SDK client.
+     * Yandex DataLens [DataLens API Endpoint](https://yandex.cloud/docs/datalens/). Default value is
+     * **https://api.datalens.tech**. This can also be defined by environment variable `YC_DATALENS_ENDPOINT`.
+     */
+    datalensEndpoint?: pulumi.Input<string>;
+    /**
+     * The endpoint for API calls, default value is **api.cloud.yandex.net:443**. This can also be defined by environment
+     * variable `YC_ENDPOINT`.
      */
     endpoint?: pulumi.Input<string>;
     /**
-     * The default folder ID where resources will be placed.
+     * The ID of the [Folder](https://yandex.cloud/docs/resource-manager/concepts/resources-hierarchy#folder) to operate under,
+     * if not specified by a given resource. This can also be specified using environment variable `YC_FOLDER_ID`.
      */
     folderId?: pulumi.Input<string>;
     /**
-     * Explicitly allow the provider to perform "insecure" SSL requests. If omitted,default value is `false`.
+     * Explicitly allow the provider to perform "insecure" SSL requests. If omitted, default value is `false`.
      */
     insecure?: pulumi.Input<boolean>;
     /**
-     * The maximum number of times an API request is being executed. If the API request still fails, an error is thrown.
+     * This is the maximum number of times an API call is retried, in the case where requests are being throttled or
+     * experiencing transient failures. The delay between the subsequent API calls increases exponentially.
      */
     maxRetries?: pulumi.Input<number>;
+    /**
+     * The ID of the [Cloud Organization](https://yandex.cloud/docs/organization/quickstart) to operate under.
+     */
     organizationId?: pulumi.Input<string>;
     /**
      * Disable use of TLS. Default value is `false`.
      */
     plaintext?: pulumi.Input<boolean>;
     /**
-     * Profile to use in the shared credentials file. Default value is `default`.
+     * Profile name to use in the shared credentials file. Default value is `default`.
      */
     profile?: pulumi.Input<string>;
     /**
-     * The region where operations will take place. Examples are ru-central1
+     * [The region](https://yandex.cloud/docs/overview/concepts/region) where operations will take place. For example
+     * `ru-central1`.
      */
     regionId?: pulumi.Input<string>;
     /**
-     * Either the path to or the contents of a Service Account key file in JSON format.
+     * Contains either a path to or the contents of the [Service Account
+     * file](https://yandex.cloud/docs/iam/concepts/authorization/key) in JSON format. This can also be specified using
+     * environment variable `YC_SERVICE_ACCOUNT_KEY_FILE`. You can read how to create service account key file
+     * [here](https://yandex.cloud/docs/iam/operations/iam-token/create-for-sa#keys-create). > Only one of `token` or
+     * `service_account_key_file` must be specified. > One can authenticate via instance service account from inside a compute
+     * instance. In order to use this method, omit both `token`/`service_account_key_file` and attach service account to the
+     * instance. [Working with Yandex Cloud from inside an
+     * instance](https://yandex.cloud/docs/compute/operations/vm-connect/auth-inside-vm).
      */
     serviceAccountKeyFile?: pulumi.Input<string>;
     /**
-     * Path to shared credentials file.
+     * Shared credentials file path. Supported keys: `storage_access_key` and `storage_secret_key`. > The `storage_access_key`
+     * and `storage_secret_key` attributes from the shared credentials file are used only when the provider and a storage
+     * data/resource do not have an access/secret keys explicitly specified.
      */
     sharedCredentialsFile?: pulumi.Input<string>;
     /**
-     * Yandex.Cloud storage service access key. Used when a storage data/resource doesn't have an access key explicitly
-     * specified.
+     * Yandex Cloud Object Storage access key, which is used when a storage data/resource doesn't have an access key explicitly
+     * specified. This can also be specified using environment variable `YC_STORAGE_ACCESS_KEY`.
      */
     storageAccessKey?: pulumi.Input<string>;
     /**
-     * Yandex.Cloud storage service endpoint. Default is storage.yandexcloud.net
+     * Yandex Cloud [Object Storage Endpoint](https://yandex.cloud/docs/storage/s3/#request-url), which is used to connect to
+     * `S3 API`. Default value is **storage.yandexcloud.net**.
      */
     storageEndpoint?: pulumi.Input<string>;
     /**
-     * Yandex.Cloud storage service secret key. Used when a storage data/resource doesn't have a secret key explicitly
-     * specified.
+     * Yandex Cloud Object Storage secret key, which is used when a storage data/resource doesn't have a secret key explicitly
+     * specified. This can also be specified using environment variable `YC_STORAGE_SECRET_KEY`.
      */
     storageSecretKey?: pulumi.Input<string>;
     /**
-     * The access token for API operations.
+     * Security token or IAM token used for authentication in Yandex Cloud. Check
+     * [documentation](https://yandex.cloud/docs/iam/operations/iam-token/create) about how to create IAM token. This can also
+     * be specified using environment variable `YC_TOKEN`.
      */
     token?: pulumi.Input<string>;
     /**
-     * Yandex.Cloud Message Queue service access key. Used when a message queue resource doesn't have an access key explicitly
-     * specified.
+     * Yandex Cloud Message Queue service access key, which is used when a YMQ queue resource doesn't have an access key
+     * explicitly specified. This can also be specified using environment variable `YC_MESSAGE_QUEUE_ACCESS_KEY`.
      */
     ymqAccessKey?: pulumi.Input<string>;
     /**
-     * Yandex.Cloud Message Queue service endpoint. Default is message-queue.api.cloud.yandex.net
+     * Yandex Cloud Message Queue service endpoint. Default value is **message-queue.api.cloud.yandex.net**.
      */
     ymqEndpoint?: pulumi.Input<string>;
     /**
-     * Yandex.Cloud Message Queue service secret key. Used when a message queue resource doesn't have a secret key explicitly
-     * specified.
+     * Yandex Cloud Message Queue service secret key, which is used when a YMQ queue resource doesn't have a secret key
+     * explicitly specified. This can also be specified using environment variable `YC_MESSAGE_QUEUE_SECRET_KEY`.
      */
     ymqSecretKey?: pulumi.Input<string>;
     /**
-     * The zone where operations will take place. Examples are ru-central1-a, ru-central2-c, etc.
+     * The Yandex Query API endpoint, default value is **grpc.yandex-query.cloud.yandex.net:2135**. This can also be defined by
+     * environment variable `YC_YQ_ENDPOINT`.
+     */
+    yqEndpoint?: pulumi.Input<string>;
+    /**
+     * The default [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) to operate under, if not
+     * specified by a given resource. This can also be specified using environment variable `YC_ZONE`.
      */
     zone?: pulumi.Input<string>;
 }

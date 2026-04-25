@@ -34,15 +34,46 @@ export class ComputeGpuCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === ComputeGpuCluster.__pulumiType;
     }
 
+    /**
+     * ID of the GPU cluster to return. To get a GPU cluster ID, make a [GpuClusterService.List] request.
+     */
     declare public readonly computeGpuClusterId: pulumi.Output<string>;
+    /**
+     * Creation timestamp.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Description of the GPU cluster.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the folder that the GPU cluster belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
-    declare public readonly interconnectType: pulumi.Output<string | undefined>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * ID of the GPU cluster to return. To get a GPU cluster ID, make a [GpuClusterService.List] request.
+     */
+    declare public readonly gpuClusterId: pulumi.Output<string>;
+    /**
+     * Type of interconnect used for this GPU cluster.
+     */
+    declare public readonly interconnectType: pulumi.Output<string>;
+    /**
+     * GPU cluster labels as `key:value` pairs.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the GPU cluster. The name is unique within the folder.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Status of the GPU cluster.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeGpuClusterTimeouts | undefined>;
+    /**
+     * ID of the availability zone where the GPU cluster resides.
+     */
     declare public readonly zone: pulumi.Output<string>;
 
     /**
@@ -62,6 +93,7 @@ export class ComputeGpuCluster extends pulumi.CustomResource {
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["gpuClusterId"] = state?.gpuClusterId;
             resourceInputs["interconnectType"] = state?.interconnectType;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
@@ -73,6 +105,7 @@ export class ComputeGpuCluster extends pulumi.CustomResource {
             resourceInputs["computeGpuClusterId"] = args?.computeGpuClusterId;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["gpuClusterId"] = args?.gpuClusterId;
             resourceInputs["interconnectType"] = args?.interconnectType;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
@@ -90,15 +123,46 @@ export class ComputeGpuCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ComputeGpuCluster resources.
  */
 export interface ComputeGpuClusterState {
+    /**
+     * ID of the GPU cluster to return. To get a GPU cluster ID, make a [GpuClusterService.List] request.
+     */
     computeGpuClusterId?: pulumi.Input<string>;
+    /**
+     * Creation timestamp.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the GPU cluster.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the GPU cluster belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the GPU cluster to return. To get a GPU cluster ID, make a [GpuClusterService.List] request.
+     */
+    gpuClusterId?: pulumi.Input<string>;
+    /**
+     * Type of interconnect used for this GPU cluster.
+     */
     interconnectType?: pulumi.Input<string>;
+    /**
+     * GPU cluster labels as `key:value` pairs.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the GPU cluster. The name is unique within the folder.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Status of the GPU cluster.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeGpuClusterTimeouts>;
+    /**
+     * ID of the availability zone where the GPU cluster resides.
+     */
     zone?: pulumi.Input<string>;
 }
 
@@ -106,12 +170,37 @@ export interface ComputeGpuClusterState {
  * The set of arguments for constructing a ComputeGpuCluster resource.
  */
 export interface ComputeGpuClusterArgs {
+    /**
+     * ID of the GPU cluster to return. To get a GPU cluster ID, make a [GpuClusterService.List] request.
+     */
     computeGpuClusterId?: pulumi.Input<string>;
+    /**
+     * Description of the GPU cluster.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the GPU cluster belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the GPU cluster to return. To get a GPU cluster ID, make a [GpuClusterService.List] request.
+     */
+    gpuClusterId?: pulumi.Input<string>;
+    /**
+     * Type of interconnect used for this GPU cluster.
+     */
     interconnectType?: pulumi.Input<string>;
+    /**
+     * GPU cluster labels as `key:value` pairs.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the GPU cluster. The name is unique within the folder.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeGpuClusterTimeouts>;
+    /**
+     * ID of the availability zone where the GPU cluster resides.
+     */
     zone?: pulumi.Input<string>;
 }

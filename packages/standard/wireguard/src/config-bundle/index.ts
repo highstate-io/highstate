@@ -1,10 +1,17 @@
 import { type PageBlock, text } from "@highstate/contract"
-import { wireguard } from "@highstate/library"
-import { type DeepInput, fileFromBuffer, forUnit, toPromise } from "@highstate/pulumi"
+import { common, wireguard } from "@highstate/library"
+import {
+  type DeepInput,
+  forUnit,
+  getCombinedIdentity,
+  makeEntityOutput,
+  makeFile,
+  toPromise,
+} from "@highstate/pulumi"
 import ZipStream from "zip-stream"
 import { generateIdentityConfig } from "../shared"
 
-const { name, args, inputs, outputs } = forUnit(wireguard.configBundle)
+const { name, stateId, args, inputs, outputs } = forUnit(wireguard.configBundle)
 
 const { identity, peers, sharedPeers } = await toPromise(inputs)
 
@@ -17,6 +24,7 @@ for (const peer of peers) {
     identity,
     peers: [...sharedPeers, peer],
     peerEndpointFilter: args.peerEndpointFilter,
+    listen: args.listen,
   })
 
   const unsafeConfigContent = await toPromise(configContent)
@@ -53,17 +61,33 @@ for (const peer of peers) {
     },
   )
 
-  configs.push({
-    file: {
+  configs.push(
+    makeEntityOutput({
+      entity: wireguard.configEntity,
+      identity: getCombinedIdentity([stateId, peer.name]),
       meta: {
-        name: `${peer.name}.conf`,
+        title: peer.name,
       },
-      content: {
-        type: "embedded",
-        value: configContent,
+      value: {
+        file: makeEntityOutput({
+          entity: common.fileEntity,
+          identity: getCombinedIdentity([stateId, peer.name]),
+          meta: {
+            title: `${peer.name}.conf`,
+          },
+          value: {
+            meta: {
+              name: `${peer.name}.conf`,
+            },
+            content: {
+              type: "embedded",
+              value: configContent,
+            },
+          },
+        }),
       },
-    },
-  })
+    }),
+  )
 }
 
 zipStream.finish()
@@ -76,7 +100,10 @@ const unsafeZipFileContent = await new Promise<Buffer>((resolve, reject) => {
   zipStream.on("end", () => resolve(Buffer.concat(buffers)))
 })
 
-const zipFile = fileFromBuffer(`${name}.zip`, unsafeZipFileContent, {
+const zipFile = makeFile({
+  name: `${name}.zip`,
+  identity: getCombinedIdentity([stateId, "zip"]),
+  content: unsafeZipFileContent,
   contentType: "application/zip",
   isSecret: true,
 })

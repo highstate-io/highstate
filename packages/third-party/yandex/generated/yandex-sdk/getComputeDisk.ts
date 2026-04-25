@@ -39,9 +39,11 @@ export interface GetComputeDiskResult {
     readonly diskId: string;
     readonly diskPlacementPolicy?: outputs.GetComputeDiskDiskPlacementPolicy;
     readonly folderId: string;
+    readonly hardwareGenerations: outputs.GetComputeDiskHardwareGeneration[];
     readonly id: string;
     readonly imageId: string;
     readonly instanceIds: string[];
+    readonly kmsKeyId: string;
     readonly labels: {[key: string]: string};
     readonly name: string;
     readonly productIds: string[];

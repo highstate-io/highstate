@@ -3,6 +3,10 @@ import type { DatabaseManager } from "../database"
 import type {
   ApiKeyWhereInput,
   ArtifactWhereInput,
+  EntityOrderByWithRelationInput,
+  EntitySnapshotReferenceOrderByWithRelationInput,
+  EntitySnapshotReferenceWhereInput,
+  EntityWhereInput,
   OperationWhereInput,
   PageWhereInput,
   SecretWhereInput,
@@ -20,6 +24,12 @@ import type {
   ArtifactQuery,
   CollectionQuery,
   CollectionQueryResult,
+  EntityDetailsOutput,
+  EntityOutput,
+  EntityQuery,
+  EntityReferenceOutput,
+  EntitySnapshotDetailsOutput,
+  EntitySnapshotListItemOutput,
   OperationOutput,
   OperationType,
   PageDetailsOutput,
@@ -40,9 +50,17 @@ import type {
   WorkerQuery,
   WorkerVersionOutput,
 } from "../shared"
+import { z } from "zod"
 import {
   apiKeyOutputSchema,
   artifactOutputSchema,
+  collectionQuerySchema,
+  entityDetailsOutputSchema,
+  entityOutputSchema,
+  entityQuerySchema,
+  entityReferenceOutputSchema,
+  entitySnapshotDetailsOutputSchema,
+  entitySnapshotListItemOutputSchema,
   forSchema,
   operationOutputSchema,
   pageDetailsOutputSchema,
@@ -52,6 +70,7 @@ import {
   terminalDetailsOutputSchema,
   terminalOutputSchema,
   toApiKeyOutput,
+  toCommonEntityMeta,
   toPageOutput,
   toSecretOutput,
   toTerminalDetailsOutput,
@@ -66,6 +85,745 @@ import {
 
 export class SettingsService {
   constructor(private readonly database: DatabaseManager) {}
+
+  private buildEntityWhere(query: EntityQuery): EntityWhereInput {
+    const where: EntityWhereInput = {}
+
+    if (query.type) {
+      where.type = { contains: query.type }
+    }
+
+    if (!query.search) return where
+
+    return {
+      ...where,
+      OR: [
+        { id: { contains: query.search } },
+        { type: { contains: query.search } },
+        { identity: { contains: query.search } },
+      ],
+    }
+  }
+
+  private buildEntityOrderBy(query: EntityQuery) {
+    const defaultOrderBy: EntityOrderByWithRelationInput[] = [{ type: "asc" }, { identity: "asc" }]
+
+    const sort = query.sortBy?.[0] ?? null
+    if (!sort) return defaultOrderBy
+
+    if (sort.key === "type") return [{ type: sort.order }]
+    if (sort.key === "identity") return [{ identity: sort.order }]
+
+    return defaultOrderBy
+  }
+
+  private buildEntitySnapshotWhere(
+    query: CollectionQuery,
+    snapshotIdField: "fromId" | "toId",
+    snapshotId: string,
+  ) {
+    const baseWhere = { [snapshotIdField]: snapshotId } as EntitySnapshotReferenceWhereInput
+
+    if (!query.search) return baseWhere
+
+    return {
+      AND: [
+        baseWhere,
+        {
+          OR: [
+            { group: { contains: query.search } },
+            { [snapshotIdField]: { contains: query.search } },
+          ],
+        },
+      ],
+    }
+  }
+
+  private buildEntitySnapshotOrderBy(
+    query: CollectionQuery,
+  ): EntitySnapshotReferenceOrderByWithRelationInput[] {
+    const defaultOrderBy: EntitySnapshotReferenceOrderByWithRelationInput[] = [
+      { group: "asc" },
+      { kind: "asc" },
+    ]
+
+    const sort = query.sortBy?.[0] ?? null
+    if (!sort) return defaultOrderBy
+
+    if (sort.key === "group") return [{ group: sort.order }, { kind: "asc" }]
+
+    return defaultOrderBy
+  }
+
+  async queryEntities(
+    projectId: string,
+    query: EntityQuery,
+  ): Promise<CollectionQueryResult<EntityOutput>> {
+    const parsedQuery = entityQuerySchema.parse(query)
+    const db = await this.database.forProject(projectId)
+    const whereClause = this.buildEntityWhere(parsedQuery)
+
+    const [total, items] = await Promise.all([
+      db.entity.count({ where: whereClause }),
+      db.entity.findMany({
+        where: whereClause,
+        orderBy: this.buildEntityOrderBy(parsedQuery),
+        skip: parsedQuery.skip,
+        take: parsedQuery.count,
+        select: {
+          id: true,
+          type: true,
+          identity: true,
+          snapshots: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: {
+              id: true,
+              content: {
+                select: {
+                  meta: true,
+                },
+              },
+              createdAt: true,
+            },
+          },
+        },
+      }),
+    ])
+
+    const outputItems = items.map(item => {
+      const lastSnapshot = item.snapshots[0] ?? null
+      const meta = toCommonEntityMeta(lastSnapshot?.content.meta)
+
+      const parsedOutput = entityOutputSchema.parse({
+        id: item.id,
+        type: item.type,
+        identity: item.identity,
+        meta: meta.title ? meta : { ...meta, title: item.identity },
+        snapshotId: lastSnapshot?.id,
+        createdAt: lastSnapshot?.createdAt,
+      })
+
+      return parsedOutput
+    })
+
+    return { items: outputItems, total }
+  }
+
+  async getEntityDetails(projectId: string, entityId: string): Promise<EntityDetailsOutput | null> {
+    const db = await this.database.forProject(projectId)
+
+    const entity = await db.entity.findUnique({
+      where: { id: entityId },
+      select: {
+        id: true,
+        type: true,
+        identity: true,
+        snapshots: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            content: {
+              select: {
+                meta: true,
+                content: true,
+              },
+            },
+            operationId: true,
+            stateId: true,
+            referencedInOutputs: true,
+            exportedInOutputs: true,
+            createdAt: true,
+          },
+        },
+      },
+    })
+
+    if (!entity) return null
+
+    const lastSnapshot = entity.snapshots[0] ?? null
+    const meta = toCommonEntityMeta(lastSnapshot?.content.meta)
+
+    return entityDetailsOutputSchema.parse({
+      id: entity.id,
+      type: entity.type,
+      identity: entity.identity,
+      meta: meta.title ? meta : { ...meta, title: entity.identity },
+      createdAt: lastSnapshot?.createdAt,
+      lastSnapshot: lastSnapshot
+        ? {
+            id: lastSnapshot.id,
+            meta: toCommonEntityMeta(lastSnapshot.content.meta),
+            content: lastSnapshot.content.content,
+            operationId: lastSnapshot.operationId,
+            stateId: lastSnapshot.stateId,
+            referencedInOutputs: z.string().array().parse(lastSnapshot.referencedInOutputs),
+            exportedInOutputs: z.string().array().parse(lastSnapshot.exportedInOutputs),
+            createdAt: lastSnapshot.createdAt,
+          }
+        : null,
+    })
+  }
+
+  async getEntitySnapshotDetails(
+    projectId: string,
+    snapshotId: string,
+  ): Promise<EntitySnapshotDetailsOutput | null> {
+    const db = await this.database.forProject(projectId)
+
+    const snapshot = await db.entitySnapshot.findUnique({
+      where: { id: snapshotId },
+      select: {
+        id: true,
+        content: {
+          select: {
+            meta: true,
+            content: true,
+          },
+        },
+        operationId: true,
+        stateId: true,
+        referencedInOutputs: true,
+        exportedInOutputs: true,
+        createdAt: true,
+        entity: {
+          select: {
+            id: true,
+            type: true,
+            identity: true,
+          },
+        },
+      },
+    })
+
+    if (!snapshot) return null
+
+    const meta = toCommonEntityMeta(snapshot.content.meta)
+
+    return entitySnapshotDetailsOutputSchema.parse({
+      entity: {
+        id: snapshot.entity.id,
+        type: snapshot.entity.type,
+        identity: snapshot.entity.identity,
+      },
+      snapshot: {
+        id: snapshot.id,
+        meta: meta.title ? meta : { ...meta, title: snapshot.entity.identity },
+        content: snapshot.content.content,
+        operationId: snapshot.operationId,
+        stateId: snapshot.stateId,
+        referencedInOutputs: z.string().array().parse(snapshot.referencedInOutputs),
+        exportedInOutputs: z.string().array().parse(snapshot.exportedInOutputs),
+        createdAt: snapshot.createdAt,
+      },
+    })
+  }
+
+  async queryEntitySnapshotsForEntity(
+    projectId: string,
+    entityId: string,
+    query: CollectionQuery,
+    excludeSnapshotId?: string,
+  ): Promise<CollectionQueryResult<EntitySnapshotListItemOutput>> {
+    const parsedQuery = collectionQuerySchema.parse(query)
+    const db = await this.database.forProject(projectId)
+
+    const whereClause = {
+      entityId,
+      ...(excludeSnapshotId ? { NOT: { id: excludeSnapshotId } } : {}),
+      ...(parsedQuery.search
+        ? {
+            OR: [
+              { id: { contains: parsedQuery.search } },
+              { operationId: { contains: parsedQuery.search } },
+              { stateId: { contains: parsedQuery.search } },
+            ],
+          }
+        : {}),
+    }
+
+    const [total, items] = await Promise.all([
+      db.entitySnapshot.count({ where: whereClause }),
+      db.entitySnapshot.findMany({
+        where: whereClause,
+        orderBy: { createdAt: "desc" },
+        skip: parsedQuery.skip,
+        take: parsedQuery.count,
+        select: {
+          id: true,
+          content: {
+            select: {
+              meta: true,
+            },
+          },
+          operationId: true,
+          stateId: true,
+          createdAt: true,
+          entity: {
+            select: {
+              identity: true,
+            },
+          },
+        },
+      }),
+    ])
+
+    const outputItems = items.map(item => {
+      const meta = toCommonEntityMeta(item.content.meta)
+
+      return entitySnapshotListItemOutputSchema.parse({
+        id: item.id,
+        meta: meta.title ? meta : { ...meta, title: item.entity.identity },
+        operationId: item.operationId,
+        stateId: item.stateId,
+        createdAt: item.createdAt,
+      })
+    })
+
+    return { items: outputItems, total }
+  }
+
+  async queryEntitySnapshotsForInstanceOperation(
+    projectId: string,
+    stateId: string,
+    operationId: string,
+    query: CollectionQuery,
+  ): Promise<CollectionQueryResult<EntitySnapshotListItemOutput>> {
+    const parsedQuery = collectionQuerySchema.parse(query)
+    const db = await this.database.forProject(projectId)
+
+    const whereClause = {
+      stateId,
+      operationId,
+      ...(parsedQuery.search
+        ? {
+            OR: [
+              { id: { contains: parsedQuery.search } },
+              { entityId: { contains: parsedQuery.search } },
+              { entity: { identity: { contains: parsedQuery.search } } },
+              { entity: { type: { contains: parsedQuery.search } } },
+            ],
+          }
+        : {}),
+    }
+
+    const [total, items] = await Promise.all([
+      db.entitySnapshot.count({ where: whereClause }),
+      db.entitySnapshot.findMany({
+        where: whereClause,
+        orderBy: { createdAt: "desc" },
+        skip: parsedQuery.skip,
+        take: parsedQuery.count,
+        select: {
+          id: true,
+          content: {
+            select: {
+              meta: true,
+            },
+          },
+          operationId: true,
+          stateId: true,
+          createdAt: true,
+          entity: {
+            select: {
+              identity: true,
+            },
+          },
+        },
+      }),
+    ])
+
+    const outputItems = items.map(item => {
+      const meta = toCommonEntityMeta(item.content.meta)
+
+      return entitySnapshotListItemOutputSchema.parse({
+        id: item.id,
+        meta: meta.title ? meta : { ...meta, title: item.entity.identity },
+        operationId: item.operationId,
+        stateId: item.stateId,
+        createdAt: item.createdAt,
+      })
+    })
+
+    return { items: outputItems, total }
+  }
+
+  async queryEntitySnapshotOutgoingReferences(
+    projectId: string,
+    snapshotId: string,
+    query: CollectionQuery,
+  ): Promise<CollectionQueryResult<EntityReferenceOutput>> {
+    const db = await this.database.forProject(projectId)
+
+    const snapshot = await db.entitySnapshot.findUnique({
+      where: { id: snapshotId },
+      select: {
+        id: true,
+        content: {
+          select: {
+            meta: true,
+          },
+        },
+        entity: {
+          select: {
+            id: true,
+            type: true,
+            identity: true,
+          },
+        },
+      },
+    })
+
+    if (!snapshot) return { items: [], total: 0 }
+
+    const whereClause = this.buildEntitySnapshotWhere(query, "fromId", snapshot.id)
+
+    const [total, items] = await Promise.all([
+      db.entitySnapshotReference.count({ where: whereClause }),
+      db.entitySnapshotReference.findMany({
+        where: whereClause,
+        orderBy: this.buildEntitySnapshotOrderBy(query),
+        skip: query.skip,
+        take: query.count,
+        select: {
+          kind: true,
+          group: true,
+          fromId: true,
+          toId: true,
+          to: {
+            select: {
+              id: true,
+              content: {
+                select: {
+                  meta: true,
+                },
+              },
+              entity: {
+                select: {
+                  id: true,
+                  type: true,
+                  identity: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ])
+
+    const fromMeta = toCommonEntityMeta(snapshot.content.meta)
+
+    const outputItems = items.map(item => {
+      const toEntity = item.to.entity
+      const toMeta = toCommonEntityMeta(item.to.content.meta)
+
+      return entityReferenceOutputSchema.parse({
+        id: `${item.fromId}:${item.toId}:${item.kind}:${item.group}`,
+        meta: toMeta.title ? toMeta : { ...toMeta, title: toEntity.identity },
+        group: item.group,
+
+        fromSnapshotId: item.fromId,
+        fromEntityId: snapshot.entity.id,
+        fromEntityType: snapshot.entity.type,
+        fromEntityIdentity: snapshot.entity.identity,
+        fromEntityMeta: fromMeta.title
+          ? fromMeta
+          : { ...fromMeta, title: snapshot.entity.identity },
+
+        toSnapshotId: item.toId,
+        toEntityId: toEntity.id,
+        toEntityType: toEntity.type,
+        toEntityIdentity: toEntity.identity,
+        toEntityMeta: toMeta.title ? toMeta : { ...toMeta, title: toEntity.identity },
+      })
+    })
+
+    return { items: outputItems, total }
+  }
+
+  async queryEntitySnapshotIncomingReferences(
+    projectId: string,
+    snapshotId: string,
+    query: CollectionQuery,
+  ): Promise<CollectionQueryResult<EntityReferenceOutput>> {
+    const db = await this.database.forProject(projectId)
+
+    const snapshot = await db.entitySnapshot.findUnique({
+      where: { id: snapshotId },
+      select: {
+        id: true,
+        content: {
+          select: {
+            meta: true,
+          },
+        },
+        entity: {
+          select: {
+            id: true,
+            type: true,
+            identity: true,
+          },
+        },
+      },
+    })
+
+    if (!snapshot) return { items: [], total: 0 }
+
+    const whereClause = this.buildEntitySnapshotWhere(query, "toId", snapshot.id)
+
+    const [total, items] = await Promise.all([
+      db.entitySnapshotReference.count({ where: whereClause }),
+      db.entitySnapshotReference.findMany({
+        where: whereClause,
+        orderBy: this.buildEntitySnapshotOrderBy(query),
+        skip: query.skip,
+        take: query.count,
+        select: {
+          kind: true,
+          group: true,
+          fromId: true,
+          toId: true,
+          from: {
+            select: {
+              id: true,
+              content: {
+                select: {
+                  meta: true,
+                },
+              },
+              entity: {
+                select: {
+                  id: true,
+                  type: true,
+                  identity: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ])
+
+    const toMeta = toCommonEntityMeta(snapshot.content.meta)
+
+    const outputItems = items.map(item => {
+      const fromEntity = item.from.entity
+      const fromMeta = toCommonEntityMeta(item.from.content.meta)
+
+      return entityReferenceOutputSchema.parse({
+        id: `${item.fromId}:${item.toId}:${item.kind}:${item.group}`,
+        meta: fromMeta.title ? fromMeta : { ...fromMeta, title: fromEntity.identity },
+        group: item.group,
+
+        fromSnapshotId: item.fromId,
+        fromEntityId: fromEntity.id,
+        fromEntityType: fromEntity.type,
+        fromEntityIdentity: fromEntity.identity,
+        fromEntityMeta: fromMeta.title ? fromMeta : { ...fromMeta, title: fromEntity.identity },
+
+        toSnapshotId: item.toId,
+        toEntityId: snapshot.entity.id,
+        toEntityType: snapshot.entity.type,
+        toEntityIdentity: snapshot.entity.identity,
+        toEntityMeta: toMeta.title ? toMeta : { ...toMeta, title: snapshot.entity.identity },
+      })
+    })
+
+    return { items: outputItems, total }
+  }
+
+  async queryEntityOutgoingReferences(
+    projectId: string,
+    entityId: string,
+    query: CollectionQuery,
+  ): Promise<CollectionQueryResult<EntityReferenceOutput>> {
+    const db = await this.database.forProject(projectId)
+
+    const entity = await db.entity.findUnique({
+      where: { id: entityId },
+      select: {
+        id: true,
+        type: true,
+        identity: true,
+        snapshots: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            content: {
+              select: {
+                meta: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!entity) return { items: [], total: 0 }
+
+    const lastSnapshot = entity.snapshots[0] ?? null
+    if (!lastSnapshot) return { items: [], total: 0 }
+
+    const whereClause = this.buildEntitySnapshotWhere(query, "fromId", lastSnapshot.id)
+
+    const [total, items] = await Promise.all([
+      db.entitySnapshotReference.count({ where: whereClause }),
+      db.entitySnapshotReference.findMany({
+        where: whereClause,
+        orderBy: this.buildEntitySnapshotOrderBy(query),
+        skip: query.skip,
+        take: query.count,
+        select: {
+          kind: true,
+          group: true,
+          fromId: true,
+          toId: true,
+          to: {
+            select: {
+              id: true,
+              content: {
+                select: {
+                  meta: true,
+                },
+              },
+              entity: {
+                select: {
+                  id: true,
+                  type: true,
+                  identity: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ])
+
+    const fromMeta = toCommonEntityMeta(lastSnapshot.content.meta)
+
+    const outputItems = items.map(item => {
+      const toEntity = item.to.entity
+      const toMeta = toCommonEntityMeta(item.to.content.meta)
+
+      return entityReferenceOutputSchema.parse({
+        id: `${item.fromId}:${item.toId}:${item.kind}:${item.group}`,
+        meta: toMeta.title ? toMeta : { ...toMeta, title: toEntity.identity },
+        group: item.group,
+
+        fromSnapshotId: item.fromId,
+        fromEntityId: entity.id,
+        fromEntityType: entity.type,
+        fromEntityIdentity: entity.identity,
+        fromEntityMeta: fromMeta.title ? fromMeta : { ...fromMeta, title: entity.identity },
+
+        toSnapshotId: item.toId,
+        toEntityId: toEntity.id,
+        toEntityType: toEntity.type,
+        toEntityIdentity: toEntity.identity,
+        toEntityMeta: toMeta.title ? toMeta : { ...toMeta, title: toEntity.identity },
+      })
+    })
+
+    return { items: outputItems, total }
+  }
+
+  async queryEntityIncomingReferences(
+    projectId: string,
+    entityId: string,
+    query: CollectionQuery,
+  ): Promise<CollectionQueryResult<EntityReferenceOutput>> {
+    const db = await this.database.forProject(projectId)
+
+    const entity = await db.entity.findUnique({
+      where: { id: entityId },
+      select: {
+        id: true,
+        type: true,
+        identity: true,
+        snapshots: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            content: {
+              select: {
+                meta: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!entity) return { items: [], total: 0 }
+
+    const lastSnapshot = entity.snapshots[0] ?? null
+    if (!lastSnapshot) return { items: [], total: 0 }
+
+    const whereClause = this.buildEntitySnapshotWhere(query, "toId", lastSnapshot.id)
+
+    const [total, items] = await Promise.all([
+      db.entitySnapshotReference.count({ where: whereClause }),
+      db.entitySnapshotReference.findMany({
+        where: whereClause,
+        orderBy: this.buildEntitySnapshotOrderBy(query),
+        skip: query.skip,
+        take: query.count,
+        select: {
+          kind: true,
+          group: true,
+          fromId: true,
+          toId: true,
+          from: {
+            select: {
+              id: true,
+              content: {
+                select: {
+                  meta: true,
+                },
+              },
+              entity: {
+                select: {
+                  id: true,
+                  type: true,
+                  identity: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ])
+
+    const toMeta = toCommonEntityMeta(lastSnapshot.content.meta)
+
+    const outputItems = items.map(item => {
+      const fromEntity = item.from.entity
+      const fromMeta = toCommonEntityMeta(item.from.content.meta)
+
+      return entityReferenceOutputSchema.parse({
+        id: `${item.fromId}:${item.toId}:${item.kind}:${item.group}`,
+        meta: fromMeta.title ? fromMeta : { ...fromMeta, title: fromEntity.identity },
+        group: item.group,
+
+        fromSnapshotId: item.fromId,
+        fromEntityId: fromEntity.id,
+        fromEntityType: fromEntity.type,
+        fromEntityIdentity: fromEntity.identity,
+        fromEntityMeta: fromMeta.title ? fromMeta : { ...fromMeta, title: fromEntity.identity },
+
+        toSnapshotId: item.toId,
+        toEntityId: entity.id,
+        toEntityType: entity.type,
+        toEntityIdentity: entity.identity,
+        toEntityMeta: toMeta.title ? toMeta : { ...toMeta, title: entity.identity },
+      })
+    })
+
+    return { items: outputItems, total }
+  }
 
   private buildOperationWhere(query: CollectionQuery): OperationWhereInput {
     if (!query.search) return {}
@@ -330,6 +1088,9 @@ export class SettingsService {
 
     if (query.sortBy.length === 1) {
       const sort = query.sortBy[0]
+      if (!sort) {
+        return { [defaultField]: "desc" }
+      }
       return { [sort.key]: sort.order }
     }
 

@@ -1,15 +1,15 @@
-import type { k8s, network } from "@highstate/library"
 import type { types } from "@pulumi/kubernetes"
-import type { SetRequired } from "type-fest"
 import { parseEndpoint } from "@highstate/common"
 import { getOrCreate } from "@highstate/contract"
 import { gateway, type types as gwTypes } from "@highstate/gateway-api"
+import { k8s, type network } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type InputArray,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -81,7 +81,16 @@ export abstract class Gateway extends NamespacedResource {
    * The Highstate gateway entity.
    */
   get entity(): Output<k8s.Gateway> {
-    return output(this.entityBase)
+    return makeEntityOutput({
+      entity: k8s.gatewayEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+      },
+    })
   }
 
   /**
@@ -216,59 +225,6 @@ export abstract class Gateway extends NamespacedResource {
     const resolvedEntity = await toPromise(entity)
 
     return Gateway.for(resolvedEntity, output(cluster))
-  }
-
-  /**
-   * Creates a gateway with the provided name/namespace/cluster only once.
-   *
-   * It automatically names the resource with the following format: `{name}.{namespace}.{clusterName}.{clusterId}`.
-   *
-   * On subsequent calls the gateway is patched with the union of existing and requested listeners.
-   * Only the listeners field is modified to avoid altering other spec fields.
-   *
-   * @param name The name of the gateway to create.
-   * @param args The arguments to create the gateway with.
-   * @param opts Optional resource options.
-   */
-  static async createOnce(
-    args: SetRequired<GatewayArgs, "name">,
-    opts?: ComponentResourceOptions,
-  ): Promise<Gateway> {
-    const { name, namespace, cluster } = await toPromise({
-      name: args.name,
-      namespace: output(args.namespace).metadata.name,
-      cluster: output(args.namespace).cluster,
-    })
-
-    const fullName = `${name}.${namespace}.${cluster.name}.${cluster.id}`
-
-    const existing = Gateway.gatewayCache.get(fullName)
-    if (existing) {
-      Gateway.patch(
-        fullName,
-        {
-          name,
-          namespace: args.namespace,
-          listeners: args.listeners,
-        },
-        opts,
-      )
-
-      return existing
-    }
-
-    const created = Gateway.create(
-      fullName,
-      {
-        ...args,
-        name,
-        namespace: args.namespace,
-      },
-      opts,
-    )
-
-    Gateway.gatewayCache.set(fullName, created)
-    return created
   }
 }
 

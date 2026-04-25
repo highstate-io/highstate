@@ -10,14 +10,8 @@ export function getMdbPostgresqlDatabase(args: GetMdbPostgresqlDatabaseArgs, opt
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getMdbPostgresqlDatabase:getMdbPostgresqlDatabase", {
         "clusterId": args.clusterId,
-        "deletionProtection": args.deletionProtection,
-        "extensions": args.extensions,
         "id": args.id,
-        "lcCollate": args.lcCollate,
-        "lcType": args.lcType,
         "name": args.name,
-        "owner": args.owner,
-        "templateDb": args.templateDb,
     }, opts, utilities.getPackage());
 }
 
@@ -26,14 +20,8 @@ export function getMdbPostgresqlDatabase(args: GetMdbPostgresqlDatabaseArgs, opt
  */
 export interface GetMdbPostgresqlDatabaseArgs {
     clusterId: string;
-    deletionProtection?: string;
-    extensions?: inputs.GetMdbPostgresqlDatabaseExtension[];
     id?: string;
-    lcCollate?: string;
-    lcType?: string;
     name: string;
-    owner?: string;
-    templateDb?: string;
 }
 
 /**
@@ -41,8 +29,8 @@ export interface GetMdbPostgresqlDatabaseArgs {
  */
 export interface GetMdbPostgresqlDatabaseResult {
     readonly clusterId: string;
-    readonly deletionProtection?: string;
-    readonly extensions?: outputs.GetMdbPostgresqlDatabaseExtension[];
+    readonly deletionProtection: string;
+    readonly extensions: outputs.GetMdbPostgresqlDatabaseExtension[];
     readonly id: string;
     readonly lcCollate: string;
     readonly lcType: string;
@@ -54,14 +42,8 @@ export function getMdbPostgresqlDatabaseOutput(args: GetMdbPostgresqlDatabaseOut
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getMdbPostgresqlDatabase:getMdbPostgresqlDatabase", {
         "clusterId": args.clusterId,
-        "deletionProtection": args.deletionProtection,
-        "extensions": args.extensions,
         "id": args.id,
-        "lcCollate": args.lcCollate,
-        "lcType": args.lcType,
         "name": args.name,
-        "owner": args.owner,
-        "templateDb": args.templateDb,
     }, opts, utilities.getPackage());
 }
 
@@ -70,12 +52,6 @@ export function getMdbPostgresqlDatabaseOutput(args: GetMdbPostgresqlDatabaseOut
  */
 export interface GetMdbPostgresqlDatabaseOutputArgs {
     clusterId: pulumi.Input<string>;
-    deletionProtection?: pulumi.Input<string>;
-    extensions?: pulumi.Input<pulumi.Input<inputs.GetMdbPostgresqlDatabaseExtensionArgs>[]>;
     id?: pulumi.Input<string>;
-    lcCollate?: pulumi.Input<string>;
-    lcType?: pulumi.Input<string>;
     name: pulumi.Input<string>;
-    owner?: pulumi.Input<string>;
-    templateDb?: pulumi.Input<string>;
 }

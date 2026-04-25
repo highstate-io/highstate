@@ -165,9 +165,21 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     instance: InstanceModel,
     outputName: string,
     output: InstanceInput,
+    options: { projection?: boolean; projectionUnresolved?: boolean } = {},
   ) => {
     const sourceNodeId = getInstanceNodeId(instance.id)
     if (!sourceNodeId) return
+
+    globalLogger.debug(
+      {
+        instanceId: instance.id,
+        outputName,
+        sourceOutput: output.output,
+        projection: options.projection,
+        projectionUnresolved: options.projectionUnresolved,
+      },
+      "creating composite output edge",
+    )
 
     vueFlowStore.addEdges({
       id: `${instance.id}:${output.output}->outputs:${outputName}`,
@@ -177,6 +189,10 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
       target: "outputs",
       targetHandle: outputName,
       ...commonEdgeOptions,
+      data: {
+        isOutputProjection: options.projection,
+        isOutputProjectionUnresolved: options.projectionUnresolved,
+      },
     })
   }
 

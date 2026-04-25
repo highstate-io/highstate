@@ -37,6 +37,7 @@ export interface GetAlbVirtualHostResult {
     readonly modifyRequestHeaders: outputs.GetAlbVirtualHostModifyRequestHeader[];
     readonly modifyResponseHeaders: outputs.GetAlbVirtualHostModifyResponseHeader[];
     readonly name: string;
+    readonly rateLimits: outputs.GetAlbVirtualHostRateLimit[];
     readonly routeOptions: outputs.GetAlbVirtualHostRouteOption[];
     readonly routes: outputs.GetAlbVirtualHostRoute[];
     readonly virtualHostId: string;

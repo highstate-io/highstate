@@ -100,7 +100,9 @@ const backupJobPair = inputs.resticRepo
 const certificate = TlsCertificate.createOnce("satisfactory", {
   issuers: inputs.accessPoint.tlsIssuers,
   dnsNames: [args.fqdn],
-  nativeData: namespace,
+  metadata: {
+    "k8s.namespace": namespace.metadata.name,
+  },
 })
 
 // 2. deploy the game server itself

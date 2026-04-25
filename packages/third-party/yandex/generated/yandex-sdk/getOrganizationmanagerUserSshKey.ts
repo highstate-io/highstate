@@ -2,17 +2,16 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-export function getOrganizationmanagerUserSshKey(args: GetOrganizationmanagerUserSshKeyArgs, opts?: pulumi.InvokeOptions): Promise<GetOrganizationmanagerUserSshKeyResult> {
+export function getOrganizationmanagerUserSshKey(args?: GetOrganizationmanagerUserSshKeyArgs, opts?: pulumi.InvokeOptions): Promise<GetOrganizationmanagerUserSshKeyResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getOrganizationmanagerUserSshKey:getOrganizationmanagerUserSshKey", {
-        "data": args.data,
-        "expiresAt": args.expiresAt,
         "id": args.id,
-        "name": args.name,
-        "organizationId": args.organizationId,
-        "subjectId": args.subjectId,
+        "timeouts": args.timeouts,
         "userSshKeyId": args.userSshKeyId,
     }, opts, utilities.getPackage());
 }
@@ -21,13 +20,9 @@ export function getOrganizationmanagerUserSshKey(args: GetOrganizationmanagerUse
  * A collection of arguments for invoking getOrganizationmanagerUserSshKey.
  */
 export interface GetOrganizationmanagerUserSshKeyArgs {
-    data?: string;
-    expiresAt?: string;
     id?: string;
-    name?: string;
-    organizationId?: string;
-    subjectId?: string;
-    userSshKeyId: string;
+    timeouts?: inputs.GetOrganizationmanagerUserSshKeyTimeouts;
+    userSshKeyId?: string;
 }
 
 /**
@@ -35,24 +30,22 @@ export interface GetOrganizationmanagerUserSshKeyArgs {
  */
 export interface GetOrganizationmanagerUserSshKeyResult {
     readonly createdAt: string;
-    readonly data?: string;
-    readonly expiresAt?: string;
+    readonly data: string;
+    readonly expiresAt: string;
     readonly fingerprint: string;
     readonly id: string;
-    readonly name?: string;
-    readonly organizationId?: string;
-    readonly subjectId?: string;
+    readonly name: string;
+    readonly organizationId: string;
+    readonly subjectId: string;
+    readonly timeouts?: outputs.GetOrganizationmanagerUserSshKeyTimeouts;
     readonly userSshKeyId: string;
 }
-export function getOrganizationmanagerUserSshKeyOutput(args: GetOrganizationmanagerUserSshKeyOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetOrganizationmanagerUserSshKeyResult> {
+export function getOrganizationmanagerUserSshKeyOutput(args?: GetOrganizationmanagerUserSshKeyOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetOrganizationmanagerUserSshKeyResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getOrganizationmanagerUserSshKey:getOrganizationmanagerUserSshKey", {
-        "data": args.data,
-        "expiresAt": args.expiresAt,
         "id": args.id,
-        "name": args.name,
-        "organizationId": args.organizationId,
-        "subjectId": args.subjectId,
+        "timeouts": args.timeouts,
         "userSshKeyId": args.userSshKeyId,
     }, opts, utilities.getPackage());
 }
@@ -61,11 +54,7 @@ export function getOrganizationmanagerUserSshKeyOutput(args: GetOrganizationmana
  * A collection of arguments for invoking getOrganizationmanagerUserSshKey.
  */
 export interface GetOrganizationmanagerUserSshKeyOutputArgs {
-    data?: pulumi.Input<string>;
-    expiresAt?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
-    name?: pulumi.Input<string>;
-    organizationId?: pulumi.Input<string>;
-    subjectId?: pulumi.Input<string>;
-    userSshKeyId: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.GetOrganizationmanagerUserSshKeyTimeoutsArgs>;
+    userSshKeyId?: pulumi.Input<string>;
 }

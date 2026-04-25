@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  z,
+} from "@highstate/contract"
 import * as dns from "../dns"
 import { implementationReferenceSchema } from "../impl-ref"
 import { l3EndpointEntity } from "../network"
@@ -21,6 +27,9 @@ export const gatewayEntity = defineEntity({
   }),
 
   meta: {
+    title: "Gateway",
+    icon: "mdi:router-network",
+    iconColor: "#F57F17",
     color: "#F57F17",
   },
 })
@@ -41,6 +50,9 @@ export const tlsIssuerEntity = defineEntity({
   }),
 
   meta: {
+    title: "TLS Issuer",
+    icon: "mdi:certificate-outline",
+    iconColor: "#F57F17",
     color: "#F57F17",
   },
 })
@@ -71,6 +83,9 @@ export const accessPointEntity = defineEntity({
   }),
 
   meta: {
+    title: "Access Point",
+    icon: "mdi:access-point",
+    iconColor: "#F57F17",
     color: "#F57F17",
   },
 })
@@ -125,9 +140,9 @@ export const accessPoint = defineUnit({
   },
 })
 
-export type Gateway = z.infer<typeof gatewayEntity.schema>
-export type AccessPoint = z.infer<typeof accessPointEntity.schema>
-export type TlsIssuer = z.infer<typeof tlsIssuerEntity.schema>
+export type Gateway = EntityValue<typeof gatewayEntity>
+export type AccessPoint = EntityValue<typeof accessPointEntity>
+export type TlsIssuer = EntityValue<typeof tlsIssuerEntity>
 
 export type GatewayInput = EntityInput<typeof gatewayEntity>
 export type AccessPointInput = EntityInput<typeof accessPointEntity>

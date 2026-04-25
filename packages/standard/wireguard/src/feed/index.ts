@@ -2,32 +2,25 @@ import type { WgFeedDocument, WgFeedEtcdEntry, WgFeedEtcdKey } from "./models"
 import { readFile } from "node:fs/promises"
 import {
   l3EndpointToString,
-  l4EndpointToString,
   MaterializedFile,
   parseEndpoint,
   parseEndpoints,
 } from "@highstate/common"
-import { Key, Provider } from "@highstate/etcd-sdk"
+import { getProvider, Key } from "@highstate/etcd"
 import { wireguard } from "@highstate/library"
 import { forUnit, type Output, secret, toPromise } from "@highstate/pulumi"
 import { sha256 } from "@noble/hashes/sha2.js"
 import { bytesToHex } from "@noble/hashes/utils.js"
 import { createId } from "@paralleldrive/cuid2"
 import { armor, Encrypter, generateIdentity, identityToRecipient } from "age-encryption"
-import { join, map } from "remeda"
 import { v5 as uuidv5 } from "uuid"
 
 const { args, inputs, getSecret, outputs } = forUnit(wireguard.feed)
 
-const serverEndpoints = await parseEndpoints(args.serverEndpoints, inputs.serverEndpoints, 4)
+const serverEndpoints = parseEndpoints([...args.serverEndpoints, ...inputs.serverEndpoints], 4)
 if (serverEndpoints.length === 0) {
   throw new Error("At least one server endpoint must be provided args or inputs")
 }
-
-const provider = new Provider("etcd", {
-  endpoints: inputs.etcd.endpoints.apply(map(l4EndpointToString)).apply(join(", ")),
-  skipTls: true,
-})
 
 const configs = await toPromise(inputs.configs)
 
@@ -55,12 +48,17 @@ const document: WgFeedDocument = await toPromise({
     }
 
     // TODO: use some other API for extracting the file content without materializing it on disk
-    await using file = await MaterializedFile.open(config.file)
+    const file = MaterializedFile.for(config.file)
+    await using _ = await file.open()
     const content = await readFile(file.path, "utf-8")
 
     return {
       id: config.feedMetadata.id,
       name: config.feedMetadata.name,
+
+      enabled: config.feedMetadata.enabled,
+      forced: config.feedMetadata.forced,
+      exclusive: config.feedMetadata.exclusive,
 
       display_info: {
         title: config.feedMetadata.displayInfo.title,
@@ -99,14 +97,18 @@ const entry: WgFeedEtcdEntry = {
   encrypted_data: armored,
 }
 
+// TODO: investigate why hooks not attached to internal resource
+const { hooks } = await getProvider(inputs.etcd)
+
 // store the feed in etcd
 new Key(
   "feed",
   {
+    connection: inputs.etcd,
     key: `wg-feed/feeds/${feedId}` satisfies WgFeedEtcdKey,
     value: JSON.stringify(entry),
   },
-  { provider },
+  { hooks },
 )
 
 const encKey = await toPromise(

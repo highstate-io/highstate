@@ -439,6 +439,10 @@ function getHelperFunctionForProperty(
     containerParent.value === objectExpression &&
     containerParent.key?.type === "Identifier"
   ) {
+    if (!isDefinitionLikeContext(parentStack)) {
+      return null
+    }
+
     const keyName = containerParent.key.name
     if (keyName === "inputs" || keyName === "outputs") {
       return "$addInputDescription"
@@ -466,6 +470,32 @@ function getHelperFunctionForProperty(
   }
 
   return null
+}
+
+function isDefinitionLikeContext(parentStack: Node[]): boolean {
+  for (let i = parentStack.length - 1; i >= 0; i--) {
+    const node = parentStack[i]
+    if (node.type !== "CallExpression") {
+      continue
+    }
+
+    if (node.callee.type !== "Identifier") {
+      return false
+    }
+
+    return [
+      "defineComponent",
+      "defineUnit",
+      "defineEntity",
+      "$inputs",
+      "$outputs",
+      "$args",
+      "$secrets",
+    ].includes(node.callee.name)
+  }
+
+  // top-level literal specs (without define* wrappers) are still valid transform targets
+  return true
 }
 
 function isZodObjectCall(memberExpression: Node): boolean {

@@ -11,6 +11,7 @@ export function getLoadtestingAgent(args: GetLoadtestingAgentArgs, opts?: pulumi
     return pulumi.runtime.invoke("yandex:index/getLoadtestingAgent:getLoadtestingAgent", {
         "agentId": args.agentId,
         "id": args.id,
+        "logSettings": args.logSettings,
     }, opts, utilities.getPackage());
 }
 
@@ -20,6 +21,7 @@ export function getLoadtestingAgent(args: GetLoadtestingAgentArgs, opts?: pulumi
 export interface GetLoadtestingAgentArgs {
     agentId: string;
     id?: string;
+    logSettings?: inputs.GetLoadtestingAgentLogSettings;
 }
 
 /**
@@ -33,6 +35,7 @@ export interface GetLoadtestingAgentResult {
     readonly folderId: string;
     readonly id: string;
     readonly labels: {[key: string]: string};
+    readonly logSettings?: outputs.GetLoadtestingAgentLogSettings;
     readonly name: string;
 }
 export function getLoadtestingAgentOutput(args: GetLoadtestingAgentOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetLoadtestingAgentResult> {
@@ -40,6 +43,7 @@ export function getLoadtestingAgentOutput(args: GetLoadtestingAgentOutputArgs, o
     return pulumi.runtime.invokeOutput("yandex:index/getLoadtestingAgent:getLoadtestingAgent", {
         "agentId": args.agentId,
         "id": args.id,
+        "logSettings": args.logSettings,
     }, opts, utilities.getPackage());
 }
 
@@ -49,4 +53,5 @@ export function getLoadtestingAgentOutput(args: GetLoadtestingAgentOutputArgs, o
 export interface GetLoadtestingAgentOutputArgs {
     agentId: pulumi.Input<string>;
     id?: pulumi.Input<string>;
+    logSettings?: pulumi.Input<inputs.GetLoadtestingAgentLogSettingsArgs>;
 }

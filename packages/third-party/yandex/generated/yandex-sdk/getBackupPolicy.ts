@@ -35,21 +35,23 @@ export interface GetBackupPolicyResult {
     readonly createdAt: string;
     readonly enabled: boolean;
     readonly fastBackupEnabled: boolean;
+    readonly fileFilters: outputs.GetBackupPolicyFileFilter[];
     readonly folderId: string;
     readonly format: string;
     readonly id: string;
+    readonly lvmSnapshottingEnabled: boolean;
     readonly multiVolumeSnapshottingEnabled: boolean;
     readonly name: string;
     readonly performanceWindowEnabled: boolean;
     readonly policyId: string;
-    readonly preserveFileSecuritySettings: boolean;
-    readonly quiesceSnapshottingEnabled: boolean;
     readonly reattempts: outputs.GetBackupPolicyReattempt[];
     readonly retentions: outputs.GetBackupPolicyRetention[];
     readonly schedulings: outputs.GetBackupPolicyScheduling[];
+    readonly sectorBySector: boolean;
     readonly silentModeEnabled: boolean;
     readonly splittingBytes: string;
     readonly updatedAt: string;
+    readonly validationEnabled: boolean;
     readonly vmSnapshotReattempts: outputs.GetBackupPolicyVmSnapshotReattempt[];
     readonly vssProvider: string;
 }

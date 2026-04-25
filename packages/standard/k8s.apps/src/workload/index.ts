@@ -2,11 +2,10 @@ import { generateKey, generatePassword } from "@highstate/common"
 import {
   ConfigMap,
   type ContainerEnvironment,
-  Deployment,
   Namespace,
   PersistentVolumeClaim,
   Secret,
-  StatefulSet,
+  Workload,
 } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, interpolate } from "@highstate/pulumi"
@@ -84,7 +83,7 @@ const processEnvironmentVariables = (env: typeof args.env): ContainerEnvironment
     if ("dependencyKey" in value && typeof value.dependencyKey === "string") {
       const [service, configKey] = value.dependencyKey.split(".")
 
-      if (service === "mariadb" && inputs.mariadb) {
+      if (service === "mariadb" && inputs.mysql) {
         switch (configKey) {
           case "url":
             environment[key] = interpolate`mysql://root:${mariadbPassword}@mariadb:3306/`
@@ -182,71 +181,67 @@ const backupJobPair =
       )
     : undefined
 
-// create the workload based on type
-let workload: Deployment | StatefulSet
+const workload = Workload.createOrPatchGeneric(
+  appName,
+  {
+    namespace,
+    defaultType: "Deployment",
+    existing: inputs.workload,
 
-const baseWorkloadConfig = {
-  namespace,
-  replicas: args.replicas,
+    deployment: {
+      replicas: args.replicas,
+    },
 
-  container: {
-    image: args.image,
-    command: args.command.length > 0 ? args.command : undefined,
-    environment,
+    statefulSet: {
+      replicas: args.replicas,
+    },
 
-    ...(args.port && {
-      port: {
-        name: "http",
-        containerPort: args.port,
-      },
-    }),
+    container: {
+      image: args.image,
+      command: args.command.length > 0 ? args.command : undefined,
+      environment,
 
-    ...(dataVolumeClaim &&
-      args.dataPath && {
-        volumeMount: {
-          volume: dataVolumeClaim,
-          mountPath: args.dataPath,
+      ...(args.port && {
+        port: {
+          name: "http",
+          containerPort: args.port,
         },
       }),
-  },
 
-  ...(args.port &&
-    args.fqdn &&
-    inputs.accessPoint && {
-      route: {
-        type: "http" as const,
-        accessPoint: inputs.accessPoint,
-        fqdn: args.fqdn,
-        manifest: args.httpRouteManifest,
+      ...(dataVolumeClaim &&
+        args.dataPath && {
+          volumeMount: {
+            volume: dataVolumeClaim,
+            mountPath: args.dataPath,
+          },
+        }),
+    },
+
+    ...(args.port &&
+      args.fqdn &&
+      inputs.accessPoint && {
+        route: {
+          type: "http" as const,
+          accessPoint: inputs.accessPoint,
+          fqdn: args.fqdn,
+        },
+      }),
+
+    ...(args.port && {
+      service: {
+        type: args.serviceType,
       },
     }),
-
-  ...(args.port && {
-    service: {
-      type: args.serviceType,
-      manifest: args.serviceManifest,
-    },
-  }),
-
-  manifest: args.manifest,
-}
-
-const workloadOptions = {
-  dependsOn: backupJobPair?.restoreJob,
-  deletedWith: namespace,
-}
-
-// create deployment or statefulset based on type
-if (args.type === "StatefulSet") {
-  workload = StatefulSet.create(appName, baseWorkloadConfig, workloadOptions)
-} else {
-  workload = Deployment.create(appName, baseWorkloadConfig, workloadOptions)
-}
+  },
+  {
+    dependsOn: backupJobPair?.restoreJob,
+    deletedWith: namespace,
+  },
+)
 
 export default outputs({
   namespace: namespace.entity,
   workload: workload.entity,
-  service: workload.service?.entity,
 
   $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
 })

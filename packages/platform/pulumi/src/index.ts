@@ -1,4 +1,6 @@
 export * from "@pulumi/pulumi"
+export * from "./entity"
 export * from "./file"
+export * from "./resource-hooks"
 export * from "./unit"
 export * from "./utils"

@@ -15,6 +15,8 @@ export function getFunction(args?: GetFunctionArgs, opts?: pulumi.InvokeOptions)
         "folderId": args.folderId,
         "functionId": args.functionId,
         "id": args.id,
+        "metadataOptions": args.metadataOptions,
+        "mounts": args.mounts,
         "name": args.name,
         "secrets": args.secrets,
         "storageMounts": args.storageMounts,
@@ -30,8 +32,13 @@ export interface GetFunctionArgs {
     folderId?: string;
     functionId?: string;
     id?: string;
+    metadataOptions?: inputs.GetFunctionMetadataOptions;
+    mounts?: inputs.GetFunctionMount[];
     name?: string;
     secrets?: inputs.GetFunctionSecret[];
+    /**
+     * @deprecated Deprecated
+     */
     storageMounts?: inputs.GetFunctionStorageMount[];
 }
 
@@ -54,10 +61,15 @@ export interface GetFunctionResult {
     readonly labels: {[key: string]: string};
     readonly logOptions: outputs.GetFunctionLogOption[];
     readonly memory: number;
+    readonly metadataOptions?: outputs.GetFunctionMetadataOptions;
+    readonly mounts?: outputs.GetFunctionMount[];
     readonly name?: string;
     readonly runtime: string;
     readonly secrets?: outputs.GetFunctionSecret[];
     readonly serviceAccountId: string;
+    /**
+     * @deprecated Deprecated
+     */
     readonly storageMounts?: outputs.GetFunctionStorageMount[];
     readonly tags: string[];
     readonly tmpfsSize: number;
@@ -72,6 +84,8 @@ export function getFunctionOutput(args?: GetFunctionOutputArgs, opts?: pulumi.In
         "folderId": args.folderId,
         "functionId": args.functionId,
         "id": args.id,
+        "metadataOptions": args.metadataOptions,
+        "mounts": args.mounts,
         "name": args.name,
         "secrets": args.secrets,
         "storageMounts": args.storageMounts,
@@ -87,7 +101,12 @@ export interface GetFunctionOutputArgs {
     folderId?: pulumi.Input<string>;
     functionId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
+    metadataOptions?: pulumi.Input<inputs.GetFunctionMetadataOptionsArgs>;
+    mounts?: pulumi.Input<pulumi.Input<inputs.GetFunctionMountArgs>[]>;
     name?: pulumi.Input<string>;
     secrets?: pulumi.Input<pulumi.Input<inputs.GetFunctionSecretArgs>[]>;
+    /**
+     * @deprecated Deprecated
+     */
     storageMounts?: pulumi.Input<pulumi.Input<inputs.GetFunctionStorageMountArgs>[]>;
 }

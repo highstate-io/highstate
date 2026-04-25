@@ -3,13 +3,19 @@
 export {
   type Entity,
   type EntityModel,
+  type EntityMeta,
+  type EntityWithMeta,
+  type EntityValue,
+  type EntityValueInput,
   isEntity,
   isAssignableTo,
   defineEntity,
   entityModelSchema,
+  getEntityId,
 } from "./entity"
 
 export * from "./instance"
+export { createInput, createNonProvidedInput } from "./instance-input"
 export * from "./unit"
 export * from "./i18n"
 export * from "./meta"
@@ -17,7 +23,7 @@ export * from "./terminal"
 export * from "./page"
 export * from "./trigger"
 export * from "./worker"
-export * from "./compaction"
+export * from "./cuidv2d"
 
 export {
   // common utilities
@@ -58,6 +64,8 @@ export {
   type ComponentArgumentOptions,
   type FullComponentArgumentOptions,
   type ComponentInputOptions,
+  type ComponentOutputOptions,
+  type FromInputComponentOutputOptions,
   type FullComponentInputOptions,
   type ComponentArgumentOptionsToSchema,
   // schemas

@@ -34,11 +34,34 @@ export class IamServiceAccount extends pulumi.CustomResource {
         return obj['__pulumiType'] === IamServiceAccount.__pulumiType;
     }
 
+    /**
+     * Creation timestamp.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Description of the service account. 0-256 characters long.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the folder that the service account belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * ID of the ServiceAccount resource to return. To get the service account ID, use a [ServiceAccountService.List] request.
+     */
     declare public readonly iamServiceAccountId: pulumi.Output<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the service account. The name is unique within the cloud. 3-63 characters long.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the ServiceAccount resource to return. To get the service account ID, use a [ServiceAccountService.List] request.
+     */
+    declare public readonly serviceAccountId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.IamServiceAccountTimeouts | undefined>;
 
     /**
@@ -58,14 +81,18 @@ export class IamServiceAccount extends pulumi.CustomResource {
             resourceInputs["description"] = state?.description;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["iamServiceAccountId"] = state?.iamServiceAccountId;
+            resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
+            resourceInputs["serviceAccountId"] = state?.serviceAccountId;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as IamServiceAccountArgs | undefined;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["iamServiceAccountId"] = args?.iamServiceAccountId;
+            resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
+            resourceInputs["serviceAccountId"] = args?.serviceAccountId;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
         }
@@ -78,11 +105,34 @@ export class IamServiceAccount extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IamServiceAccount resources.
  */
 export interface IamServiceAccountState {
+    /**
+     * Creation timestamp.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the service account. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the service account belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the ServiceAccount resource to return. To get the service account ID, use a [ServiceAccountService.List] request.
+     */
     iamServiceAccountId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the service account. The name is unique within the cloud. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the ServiceAccount resource to return. To get the service account ID, use a [ServiceAccountService.List] request.
+     */
+    serviceAccountId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.IamServiceAccountTimeouts>;
 }
 
@@ -90,9 +140,29 @@ export interface IamServiceAccountState {
  * The set of arguments for constructing a IamServiceAccount resource.
  */
 export interface IamServiceAccountArgs {
+    /**
+     * Description of the service account. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the service account belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the ServiceAccount resource to return. To get the service account ID, use a [ServiceAccountService.List] request.
+     */
     iamServiceAccountId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the service account. The name is unique within the cloud. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the ServiceAccount resource to return. To get the service account ID, use a [ServiceAccountService.List] request.
+     */
+    serviceAccountId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.IamServiceAccountTimeouts>;
 }

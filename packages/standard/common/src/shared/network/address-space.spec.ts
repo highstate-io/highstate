@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { parseAddress } from "./address"
 import { createAddressSpace } from "./address-space"
 import { parseEndpoint } from "./endpoints"
-import { subnetToString } from "./subnet"
+import { parseSubnet, subnetToString } from "./subnet"
 
 describe("createAddressSpace", () => {
   it("returns a single canonical CIDR for adjacent subnets", () => {
@@ -65,11 +65,7 @@ describe("createAddressSpace", () => {
   })
 
   it("accepts network.Subnet inputs", () => {
-    const subnet = {
-      type: "ipv4",
-      baseAddress: "10.1.0.0",
-      prefixLength: 24,
-    } satisfies network.Subnet
+    const subnet = parseSubnet("10.1.0.0/24") satisfies network.Subnet
 
     const result = createAddressSpace({
       included: [subnet],

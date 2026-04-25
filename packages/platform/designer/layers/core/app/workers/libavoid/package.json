@@ -1,0 +1,31 @@
+{
+  "name": "libavoid",
+  "type": "module",
+  "collaborators": [
+    "Ported from C++ libavoid by Michael Wybrow"
+  ],
+  "description": "Fast, object-avoiding connector routing for interactive diagram editors",
+  "version": "0.1.0",
+  "license": "LGPL-2.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mjwybrow/adaptagrams"
+  },
+  "files": [
+    "libavoid_bg.wasm",
+    "libavoid.js",
+    "libavoid.d.ts"
+  ],
+  "main": "libavoid.js",
+  "types": "libavoid.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ],
+  "keywords": [
+    "routing",
+    "pathfinding",
+    "diagrams",
+    "connectors",
+    "orthogonal"
+  ]
+}

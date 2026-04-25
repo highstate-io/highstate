@@ -64,6 +64,13 @@ export const cluster = defineUnit({
     agentConfig: z.record(z.string(), z.unknown()).optional(),
 
     /**
+     * The map of configuration per each node in the cluster, where the key is the hostname of the node.
+     *
+     * Note: if multiple nodes have the same hostname, the configuration will be applied to all of them.
+     */
+    nodeConfig: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
+
+    /**
      * The configuration of the registries to use for the K3S cluster.
      *
      * See: https://docs.k3s.io/installation/private-registry

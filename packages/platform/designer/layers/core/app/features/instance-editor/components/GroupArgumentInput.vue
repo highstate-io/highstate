@@ -10,6 +10,7 @@ const { argument, isSecret } = defineProps<{
   argument: GroupEditorArgument
   instance: InstanceModel
   isSecret?: boolean
+  readonly?: boolean
 }>()
 
 if (model.value === undefined) {
@@ -77,6 +78,7 @@ watch(discriminatorValue, newValue => {
             :argument="field"
             :instance="instance"
             :is-secret="isSecret"
+            :readonly="readonly"
             @update:model-value="handleModelChange(field.name, $event)"
           />
         </template>
@@ -111,6 +113,7 @@ watch(discriminatorValue, newValue => {
               variant="outlined"
               density="compact"
               hide-details
+              :disabled="readonly"
               @update:model-value="handleModelChange(argument.discriminator.name, $event)"
             />
 
@@ -128,6 +131,7 @@ watch(discriminatorValue, newValue => {
             :argument="field"
             :instance="instance"
             :is-secret="isSecret"
+            :readonly="readonly"
             @update:model-value="handleModelChange(field.name, $event)"
           />
         </template>

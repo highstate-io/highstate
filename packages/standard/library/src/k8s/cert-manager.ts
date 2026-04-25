@@ -56,6 +56,28 @@ export const certManager = defineUnit({
 export const dns01TlsIssuer = defineUnit({
   type: "k8s.dns01-issuer.v1",
 
+  args: {
+    /**
+     * The ACME server to use for issuing certificates.
+     */
+    acmeServer: z
+      .union([
+        z.object({
+          type: z.enum(["letsencrypt", "zerossl"]),
+        }),
+        z.object({
+          type: z.literal("custom"),
+          url: z.string(),
+        }),
+      ])
+      .default({ type: "letsencrypt" }),
+  },
+
+  secrets: {
+    eabKeyId: z.string().optional(),
+    eabKeySecret: z.string().optional(),
+  },
+
   inputs: {
     k8sCluster: clusterEntity,
     dnsProvider: dns.providerEntity,

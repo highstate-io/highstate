@@ -15,6 +15,7 @@ export function getMdbOpensearchCluster(args?: GetMdbOpensearchClusterArgs, opts
         "config": args.config,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "folderId": args.folderId,
         "labels": args.labels,
         "maintenanceWindow": args.maintenanceWindow,
@@ -34,6 +35,7 @@ export interface GetMdbOpensearchClusterArgs {
     config?: inputs.GetMdbOpensearchClusterConfig;
     deletionProtection?: boolean;
     description?: string;
+    diskEncryptionKeyId?: string;
     folderId?: string;
     labels?: {[key: string]: string};
     maintenanceWindow?: inputs.GetMdbOpensearchClusterMaintenanceWindow;
@@ -53,6 +55,7 @@ export interface GetMdbOpensearchClusterResult {
     readonly createdAt: string;
     readonly deletionProtection: boolean;
     readonly description: string;
+    readonly diskEncryptionKeyId: string;
     readonly environment: string;
     readonly folderId: string;
     readonly health: string;
@@ -76,6 +79,7 @@ export function getMdbOpensearchClusterOutput(args?: GetMdbOpensearchClusterOutp
         "config": args.config,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "folderId": args.folderId,
         "labels": args.labels,
         "maintenanceWindow": args.maintenanceWindow,
@@ -95,6 +99,7 @@ export interface GetMdbOpensearchClusterOutputArgs {
     config?: pulumi.Input<inputs.GetMdbOpensearchClusterConfigArgs>;
     deletionProtection?: pulumi.Input<boolean>;
     description?: pulumi.Input<string>;
+    diskEncryptionKeyId?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     maintenanceWindow?: pulumi.Input<inputs.GetMdbOpensearchClusterMaintenanceWindowArgs>;

@@ -1,18 +1,22 @@
 import type { common, ssh } from "@highstate/library"
+import type { MaterializedFile } from "./files"
 import { homedir } from "node:os"
 import {
   ComponentResource,
   type ComponentResourceOptions,
   type Input,
+  type InputArray,
   type InputOrArray,
   interpolate,
+  mergeOptions,
   type Output,
   output,
   toPromise,
 } from "@highstate/pulumi"
 import { sha256 } from "@noble/hashes/sha2"
 import { local, remote, type types } from "@pulumi/command"
-import { flat } from "remeda"
+import { flat, isNonNullish } from "remeda"
+import { mergeResourceHooks } from "./lifetime"
 import { l3EndpointToString } from "./network/endpoints"
 
 /**
@@ -28,8 +32,8 @@ export function getServerConnection(
     host: l3EndpointToString(ssh.endpoints[0]),
     port: ssh.endpoints[0].port,
     user: ssh.user,
-    password: ssh.password,
-    privateKey: ssh.keyPair?.privateKey,
+    password: ssh.password?.value,
+    privateKey: ssh.keyPair?.privateKey.value,
     dialErrorLimit: 3,
     hostKey: ssh.hostKey,
   }))
@@ -37,6 +41,8 @@ export function getServerConnection(
 
 export type CommandHost = "local" | Input<common.Server>
 export type CommandRunMode = "auto" | "prefer-host"
+
+export type CommandContainerShell = "none" | "sh" | "bash"
 
 export type CommandArgs = {
   /**
@@ -81,7 +87,7 @@ export type CommandArgs = {
    * They will be captured in the command's state and will trigger the command to run again
    * if they change.
    */
-  triggers?: InputOrArray<unknown>
+  triggers?: InputArray<unknown>
 
   /**
    * The update triggers for the command.
@@ -91,7 +97,7 @@ export type CommandArgs = {
    * Under the hood, it is implemented using a hash of the provided values and passing it as environment variable.
    * It is recommended to pass only primitive values (strings, numbers, booleans) or small objects/arrays for proper serialization.
    */
-  updateTriggers?: InputOrArray<unknown>
+  updateTriggers?: InputArray<unknown>
 
   /**
    * The working directory for the command.
@@ -106,27 +112,52 @@ export type CommandArgs = {
   environment?: Input<Record<string, Input<string>>>
 
   /**
-   * The run mode for the command.
-   *
-   * - `auto` (default): if the `image` is set, it will always run in a container, never on the host;
-   * otherwise, it will run on the host.
-   *
-   * - `prefer-host`: it will try to run on the host if the executable is available;
-   * otherwise, it will run in a container or throw an error if the `image` is not set.
-   */
-  runMode?: CommandRunMode
-
-  /**
    * The container image to use to run the command.
    */
   image?: Input<string>
+
+  /**
+   * How to execute the command inside the container.
+   *
+   * - "none" runs the command as container argv (default).
+   *   This preserves ENTRYPOINT-style images.
+   * - "sh" runs `sh -lc '<command>'` inside the container.
+   * - "bash" runs `bash -lc '<command>'` inside the container.
+   *
+   * Use a shell mode when the command relies on shell features like pipes,
+   * redirects, globbing, or compound statements.
+   */
+  containerShell?: CommandContainerShell
+
+  /**
+   * Whether to run the command with host network (only applicable for container commands).
+   */
+  hostNetwork?: boolean
+
+  /**
+   * The files to pass to the command.
+   *
+   * They will we automatically materialized when command is executed + mounted in the container if `image` is set.
+   *
+   * For now, files are only supported for local commands.
+   */
+  files?: MaterializedFile[]
 
   /**
    * The paths to mount if the command runs in a container.
    *
    * They will be mounted to the same paths in the container.
    */
-  mounts?: InputOrArray<string>
+  mounts?: InputArray<string>
+
+  /**
+   * Whether to ignore all changes to the command's create, update, and delete properties.
+   *
+   * You can still trigger the command rerun by changing the triggers or updateTriggers.
+   *
+   * By default, this option is set to `true`.
+   */
+  ignoreCommandChanges?: boolean
 }
 
 export type TextFileArgs = {
@@ -170,7 +201,12 @@ function createCommand(command: string | string[]): string {
   return command
 }
 
-function wrapWithWorkDir(dir?: Input<string>) {
+function wrapWithWorkDir(dir?: Input<string>, image?: Input<string>) {
+  if (image) {
+    // do not wrap with work dir for container commands, as the command will be run with -w option
+    return (command: string) => output(command)
+  }
+
   if (!dir) {
     return (command: string) => output(command)
   }
@@ -178,7 +214,15 @@ function wrapWithWorkDir(dir?: Input<string>) {
   return (command: string) => interpolate`cd "${dir}" && ${command}`
 }
 
-function wrapWithEnvironment(environment?: Input<Record<string, Input<string>>>) {
+function wrapWithEnvironment(
+  environment?: Input<Record<string, Input<string>>>,
+  image?: Input<string>,
+) {
+  if (image) {
+    // do not wrap with environment for container commands, as the command will be run with -e option
+    return (command: string) => output(command)
+  }
+
   if (!environment) {
     return (command: string) => output(command)
   }
@@ -195,6 +239,99 @@ function wrapWithEnvironment(environment?: Input<Record<string, Input<string>>>)
 
       return `${envExport} && ${command}`
     })
+}
+
+function shellQuotePosix(value: string): string {
+  // Wrap a string so it is treated as a single argument by a POSIX shell.
+  // This is used when we need to pass a full script to `sh -lc` / `bash -lc`.
+  const escaped = value.replaceAll("'", `"'"'"'"`)
+
+  return `'${escaped}'`
+}
+
+function wrapWithPodman(
+  dir?: Input<string>,
+  environment?: Input<Record<string, Input<string>>>,
+  image?: Input<string> | undefined,
+  mounts?: InputOrArray<string> | undefined,
+  shell?: CommandContainerShell | undefined,
+  hostNetwork?: boolean | undefined,
+  stdin?: Input<string>,
+  files?: MaterializedFile[] | undefined,
+) {
+  if (!image) {
+    return (command: string) => output(command)
+  }
+
+  return (command: string) =>
+    output({ command, image, mounts, stdin, files }).apply(({ command, image, mounts, files }) => {
+      const allMounts = [...(mounts ?? []), ...(files?.map(file => file.path) ?? [])]
+
+      const mountsArgs = allMounts
+        .filter(isNonNullish)
+        .map(mount => `-v ${mount}:${mount}`)
+        .join(" ")
+
+      const workDirArg = dir ? `-w ${dir}` : ""
+
+      const envArgs = environment
+        ? Object.entries(environment)
+            .map(([key, value]) => `-e ${key}="${value}"`)
+            .join(" ")
+        : ""
+
+      const hostNetworkArg = hostNetwork ? "--network host" : ""
+      const stdinArg = stdin ? "-i" : ""
+
+      const containerShell = shell ?? "none"
+      if (containerShell !== "none") {
+        const shellBinary = containerShell
+        const shellCommand = shellQuotePosix(command)
+
+        return `podman run --rm ${workDirArg} ${envArgs} ${mountsArgs} ${hostNetworkArg} ${stdinArg} ${image} ${shellBinary} -lc ${shellCommand}`
+      }
+
+      return `podman run --rm ${workDirArg} ${envArgs} ${mountsArgs} ${hostNetworkArg} ${stdinArg} ${image} ${command}`
+    })
+}
+
+function buildLocalCommand(
+  command: InputOrArray<string>,
+  args: CommandArgs,
+  files?: MaterializedFile[] | undefined,
+): Output<string> {
+  return output(command)
+    .apply(createCommand)
+    .apply(
+      wrapWithPodman(
+        args.cwd,
+        args.environment,
+        args.image,
+        args.mounts,
+        args.containerShell,
+        args.hostNetwork,
+        args.stdin,
+        files,
+      ),
+    )
+}
+
+function buildRemoteCommand(command: InputOrArray<string>, args: CommandArgs): Output<string> {
+  return output(command)
+    .apply(createCommand)
+    .apply(wrapWithWorkDir(args.cwd, args.image))
+    .apply(wrapWithEnvironment(args.environment, args.image))
+    .apply(
+      wrapWithPodman(
+        args.cwd,
+        args.environment,
+        args.image,
+        args.mounts,
+        args.containerShell,
+        args.hostNetwork,
+        args.stdin,
+      ),
+    )
 }
 
 function wrapWithWaitFor(timeout: Input<number> = 300, interval: Input<number> = 5) {
@@ -234,22 +371,38 @@ export class Command extends ComponentResource {
       args.updateTriggers,
     ) as local.CommandArgs["environment"]
 
+    if (args.files && args.files.length > 0 && args.host !== "local") {
+      throw new Error("Files are only supported for local commands")
+    }
+
+    const hooks = mergeResourceHooks(args.files?.map(file => file.hooks) ?? [])
+
     const command =
       args.host === "local"
         ? new local.Command(
             name,
             {
-              create: output(args.create).apply(createCommand),
-              update: args.update ? output(args.update).apply(createCommand) : undefined,
-              delete: args.delete ? output(args.delete).apply(createCommand) : undefined,
+              create: buildLocalCommand(args.create, args, args.files),
+              update: args.update ? buildLocalCommand(args.update, args) : undefined,
+              delete: args.delete ? buildLocalCommand(args.delete, args) : undefined,
               logging: args.logging,
               triggers: args.triggers ? output(args.triggers).apply(flat) : undefined,
-              dir: args.cwd ?? homedir(),
-              environment,
+
+              // don't set working directory for container commands, as it will be passed in the command itself
+              dir: args.image ? undefined : (args.cwd ?? homedir()),
+
+              // don't pass environment for container commands, as it will be passed in the command itself
+              environment: args.image ? undefined : environment,
+
               stdin: args.stdin,
               addPreviousOutputInEnv: false,
             },
-            { ...opts, parent: this },
+            mergeOptions(opts, {
+              parent: this,
+              ignoreChanges:
+                args.ignoreCommandChanges !== false ? ["create", "update", "delete"] : undefined,
+              hooks,
+            }),
           )
         : new remote.Command(
             name,
@@ -262,44 +415,25 @@ export class Command extends ComponentResource {
                 return getServerConnection(server.ssh)
               }),
 
-              create: output(args.create)
-                .apply(createCommand)
-                .apply(wrapWithWorkDir(args.cwd))
-                .apply(wrapWithEnvironment(environment)),
-
-              update: args.update
-                ? output(args.update)
-                    .apply(createCommand)
-                    .apply(wrapWithWorkDir(args.cwd))
-                    .apply(wrapWithEnvironment(environment))
-                : undefined,
-
-              delete: args.delete
-                ? output(args.delete)
-                    .apply(createCommand)
-                    .apply(wrapWithWorkDir(args.cwd))
-                    .apply(wrapWithEnvironment(environment))
-                : undefined,
+              create: buildRemoteCommand(args.create, args),
+              update: args.update ? buildRemoteCommand(args.update, args) : undefined,
+              delete: args.delete ? buildRemoteCommand(args.delete, args) : undefined,
 
               logging: args.logging,
               triggers: args.triggers ? output(args.triggers).apply(flat) : undefined,
               stdin: args.stdin,
 
               addPreviousOutputInEnv: false,
-
-              // TODO: does not work if server do not define AcceptEnv
-              // environment,
             },
-            { ...opts, parent: this },
+            mergeOptions(opts, {
+              parent: this,
+              ignoreChanges:
+                args.ignoreCommandChanges !== false ? ["create", "update", "delete"] : undefined,
+            }),
           )
 
     this.stdout = command.stdout
     this.stderr = command.stderr
-
-    this.registerOutputs({
-      stdout: this.stdout,
-      stderr: this.stderr,
-    })
   }
 
   /**

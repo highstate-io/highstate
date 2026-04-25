@@ -120,6 +120,8 @@ export type ContainerEnvironmentSource =
   | types.input.core.v1.EnvFromSource
   | core.v1.ConfigMap
   | core.v1.Secret
+  | ConfigMap
+  | Secret
 
 export type ContainerVolumeMount =
   | types.input.core.v1.VolumeMount
@@ -268,7 +270,7 @@ export function mapVolumeMount(volumeMount: ContainerVolumeMount): types.input.c
 export function mapEnvironmentSource(
   envFrom: ContainerEnvironmentSource,
 ): types.input.core.v1.EnvFromSource {
-  if (envFrom instanceof core.v1.ConfigMap) {
+  if (envFrom instanceof core.v1.ConfigMap || envFrom instanceof ConfigMap) {
     return {
       configMapRef: {
         name: envFrom.metadata.name,
@@ -276,7 +278,7 @@ export function mapEnvironmentSource(
     }
   }
 
-  if (envFrom instanceof core.v1.Secret) {
+  if (envFrom instanceof core.v1.Secret || envFrom instanceof Secret) {
     return {
       secretRef: {
         name: envFrom.metadata.name,

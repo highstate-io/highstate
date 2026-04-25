@@ -15,17 +15,21 @@ const {
   instance,
   stores,
   state,
+  terminalIds,
   ghost = false,
 } = defineProps<{
   instance: InstanceModel
   component: ComponentModel
   state?: InstanceState
+  terminalIds?: string[]
   stores: ProjectStores
   operation?: OperationType
   locked?: boolean
   editable?: boolean
   ghost?: boolean
 }>()
+
+const effectiveTerminalIds = computed(() => terminalIds ?? state?.terminalIds ?? [])
 
 const { projectStore, stateStore, operationsStore } = stores
 const workspaceStore = useWorkspaceStore()
@@ -270,13 +274,13 @@ defineExpose({ showContextMenu })
       "
     />
 
-    <template v-if="state?.terminalIds?.length">
+    <template v-if="state?.id && effectiveTerminalIds.length > 0">
       <VDivider />
 
-      <TerminalListSubmenu :state-id="state.id" :terminal-ids="state.terminalIds" />
+      <TerminalListSubmenu :state-id="state.id" :terminal-ids="effectiveTerminalIds" />
     </template>
 
-    <template v-if="hasDeployedInstances">
+    <template v-if="hasDeployedInstances || ghost">
       <VDivider />
 
       <ContextMenuItem

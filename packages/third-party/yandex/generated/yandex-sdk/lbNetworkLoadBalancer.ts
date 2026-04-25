@@ -34,17 +34,52 @@ export class LbNetworkLoadBalancer extends pulumi.CustomResource {
         return obj['__pulumiType'] === LbNetworkLoadBalancer.__pulumiType;
     }
 
+    /**
+     * Flag that marks the network load balancer as available to zonal shift.
+     */
+    declare public readonly allowZonalShift: pulumi.Output<boolean>;
+    /**
+     * An AttachedTargetGroup resource.
+     */
     declare public readonly attachedTargetGroups: pulumi.Output<outputs.LbNetworkLoadBalancerAttachedTargetGroup[] | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
     declare public readonly lbNetworkLoadBalancerId: pulumi.Output<string>;
+    /**
+     * Listener specification that will be used by a network load balancer. > One of `external_address_spec` or
+     * `internal_address_spec` should be specified.
+     */
     declare public readonly listeners: pulumi.Output<outputs.LbNetworkLoadBalancerListener[] | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the availability zone where the network load balancer resides. If omitted, default region is being used.
+     */
     declare public readonly regionId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.LbNetworkLoadBalancerTimeouts | undefined>;
+    /**
+     * Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
+     */
     declare public readonly type: pulumi.Output<string | undefined>;
 
     /**
@@ -60,6 +95,7 @@ export class LbNetworkLoadBalancer extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as LbNetworkLoadBalancerState | undefined;
+            resourceInputs["allowZonalShift"] = state?.allowZonalShift;
             resourceInputs["attachedTargetGroups"] = state?.attachedTargetGroups;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
@@ -74,6 +110,7 @@ export class LbNetworkLoadBalancer extends pulumi.CustomResource {
             resourceInputs["type"] = state?.type;
         } else {
             const args = argsOrState as LbNetworkLoadBalancerArgs | undefined;
+            resourceInputs["allowZonalShift"] = args?.allowZonalShift;
             resourceInputs["attachedTargetGroups"] = args?.attachedTargetGroups;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
@@ -96,17 +133,52 @@ export class LbNetworkLoadBalancer extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LbNetworkLoadBalancer resources.
  */
 export interface LbNetworkLoadBalancerState {
+    /**
+     * Flag that marks the network load balancer as available to zonal shift.
+     */
+    allowZonalShift?: pulumi.Input<boolean>;
+    /**
+     * An AttachedTargetGroup resource.
+     */
     attachedTargetGroups?: pulumi.Input<pulumi.Input<inputs.LbNetworkLoadBalancerAttachedTargetGroup>[]>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     lbNetworkLoadBalancerId?: pulumi.Input<string>;
+    /**
+     * Listener specification that will be used by a network load balancer. > One of `external_address_spec` or
+     * `internal_address_spec` should be specified.
+     */
     listeners?: pulumi.Input<pulumi.Input<inputs.LbNetworkLoadBalancerListener>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the availability zone where the network load balancer resides. If omitted, default region is being used.
+     */
     regionId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LbNetworkLoadBalancerTimeouts>;
+    /**
+     * Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
+     */
     type?: pulumi.Input<string>;
 }
 
@@ -114,15 +186,47 @@ export interface LbNetworkLoadBalancerState {
  * The set of arguments for constructing a LbNetworkLoadBalancer resource.
  */
 export interface LbNetworkLoadBalancerArgs {
+    /**
+     * Flag that marks the network load balancer as available to zonal shift.
+     */
+    allowZonalShift?: pulumi.Input<boolean>;
+    /**
+     * An AttachedTargetGroup resource.
+     */
     attachedTargetGroups?: pulumi.Input<pulumi.Input<inputs.LbNetworkLoadBalancerAttachedTargetGroup>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     lbNetworkLoadBalancerId?: pulumi.Input<string>;
+    /**
+     * Listener specification that will be used by a network load balancer. > One of `external_address_spec` or
+     * `internal_address_spec` should be specified.
+     */
     listeners?: pulumi.Input<pulumi.Input<inputs.LbNetworkLoadBalancerListener>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the availability zone where the network load balancer resides. If omitted, default region is being used.
+     */
     regionId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LbNetworkLoadBalancerTimeouts>;
+    /**
+     * Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
+     */
     type?: pulumi.Input<string>;
 }

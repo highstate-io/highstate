@@ -35,12 +35,35 @@ export class ComputePlacementGroup extends pulumi.CustomResource {
     }
 
     declare public readonly computePlacementGroupId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with
+     * placement_strategy_spread).
+     */
     declare public readonly placementStrategyPartitions: pulumi.Output<number | undefined>;
+    /**
+     * A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with
+     * placement_strategy_partitions).
+     */
     declare public readonly placementStrategySpread: pulumi.Output<boolean | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputePlacementGroupTimeouts | undefined>;
 
@@ -88,12 +111,35 @@ export class ComputePlacementGroup extends pulumi.CustomResource {
  */
 export interface ComputePlacementGroupState {
     computePlacementGroupId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with
+     * placement_strategy_spread).
+     */
     placementStrategyPartitions?: pulumi.Input<number>;
+    /**
+     * A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with
+     * placement_strategy_partitions).
+     */
     placementStrategySpread?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.ComputePlacementGroupTimeouts>;
 }
@@ -103,11 +149,31 @@ export interface ComputePlacementGroupState {
  */
 export interface ComputePlacementGroupArgs {
     computePlacementGroupId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with
+     * placement_strategy_spread).
+     */
     placementStrategyPartitions?: pulumi.Input<number>;
+    /**
+     * A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with
+     * placement_strategy_partitions).
+     */
     placementStrategySpread?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.ComputePlacementGroupTimeouts>;
 }

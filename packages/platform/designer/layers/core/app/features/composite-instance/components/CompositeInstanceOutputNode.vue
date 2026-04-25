@@ -11,9 +11,10 @@ const { instance } = defineProps<
   }
 >()
 
-const { libraryStore } = useProjectStores()
+const { projectStore, libraryStore, stateStore } = useProjectStores()
 
 const component = computed(() => libraryStore.library.components[instance.type])
+const state = computed(() => stateStore.getInstanceState(instance.id))
 </script>
 
 <template>
@@ -22,6 +23,8 @@ const component = computed(() => libraryStore.library.components[instance.type])
       :instance="instance"
       :component="component"
       :entities="libraryStore.library.entities"
+      :project-id="projectStore.projectId"
+      :state-id="state?.id"
       type="outputs"
       :mirror="true"
     />

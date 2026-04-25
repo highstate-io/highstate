@@ -34,17 +34,53 @@ export class YdbTable extends pulumi.CustomResource {
         return obj['__pulumiType'] === YdbTable.__pulumiType;
     }
 
+    /**
+     * A map of table attributes.
+     */
     declare public readonly attributes: pulumi.Output<{[key: string]: string}>;
+    /**
+     * A list of column configuration options.
+     */
     declare public readonly columns: pulumi.Output<outputs.YdbTableColumn[]>;
+    /**
+     * Connection string for database.
+     */
     declare public readonly connectionString: pulumi.Output<string>;
+    /**
+     * A list of column group configuration options. The `family` block may be used to group columns into
+     * [families](https://ydb.tech/en/docs/yql/reference/syntax/create_table#column-family) to set shared parameters for them.
+     */
     declare public readonly families: pulumi.Output<outputs.YdbTableFamily[] | undefined>;
+    /**
+     * Use the Bloom filter for the primary key.
+     */
     declare public readonly keyBloomFilter: pulumi.Output<boolean>;
+    /**
+     * Table partitioning settings.
+     */
     declare public readonly partitioningSettings: pulumi.Output<outputs.YdbTablePartitioningSettings | undefined>;
+    /**
+     * Table path.
+     */
     declare public readonly path: pulumi.Output<string>;
+    /**
+     * A list of table columns to be used as primary key.
+     */
     declare public readonly primaryKeys: pulumi.Output<string[]>;
+    /**
+     * Read replication settings.
+     */
     declare public readonly readReplicasSettings: pulumi.Output<string>;
+    /**
+     * Table storage type. Set to `column` for column-oriented tables. Omit for row-oriented tables (default).
+     */
+    declare public readonly store: pulumi.Output<string | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.YdbTableTimeouts | undefined>;
-    declare public readonly ttls: pulumi.Output<outputs.YdbTableTtl[] | undefined>;
+    /**
+     * The `TTL` block supports allow you to create a special column type, [TTL column](https://ydb.tech/en/docs/concepts/ttl),
+     * whose values determine the time-to-live for rows.
+     */
+    declare public readonly ttl: pulumi.Output<outputs.YdbTableTtl | undefined>;
     declare public readonly ydbTableId: pulumi.Output<string>;
 
     /**
@@ -69,8 +105,9 @@ export class YdbTable extends pulumi.CustomResource {
             resourceInputs["path"] = state?.path;
             resourceInputs["primaryKeys"] = state?.primaryKeys;
             resourceInputs["readReplicasSettings"] = state?.readReplicasSettings;
+            resourceInputs["store"] = state?.store;
             resourceInputs["timeouts"] = state?.timeouts;
-            resourceInputs["ttls"] = state?.ttls;
+            resourceInputs["ttl"] = state?.ttl;
             resourceInputs["ydbTableId"] = state?.ydbTableId;
         } else {
             const args = argsOrState as YdbTableArgs | undefined;
@@ -95,8 +132,9 @@ export class YdbTable extends pulumi.CustomResource {
             resourceInputs["path"] = args?.path;
             resourceInputs["primaryKeys"] = args?.primaryKeys;
             resourceInputs["readReplicasSettings"] = args?.readReplicasSettings;
+            resourceInputs["store"] = args?.store;
             resourceInputs["timeouts"] = args?.timeouts;
-            resourceInputs["ttls"] = args?.ttls;
+            resourceInputs["ttl"] = args?.ttl;
             resourceInputs["ydbTableId"] = args?.ydbTableId;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -108,17 +146,53 @@ export class YdbTable extends pulumi.CustomResource {
  * Input properties used for looking up and filtering YdbTable resources.
  */
 export interface YdbTableState {
+    /**
+     * A map of table attributes.
+     */
     attributes?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A list of column configuration options.
+     */
     columns?: pulumi.Input<pulumi.Input<inputs.YdbTableColumn>[]>;
+    /**
+     * Connection string for database.
+     */
     connectionString?: pulumi.Input<string>;
+    /**
+     * A list of column group configuration options. The `family` block may be used to group columns into
+     * [families](https://ydb.tech/en/docs/yql/reference/syntax/create_table#column-family) to set shared parameters for them.
+     */
     families?: pulumi.Input<pulumi.Input<inputs.YdbTableFamily>[]>;
+    /**
+     * Use the Bloom filter for the primary key.
+     */
     keyBloomFilter?: pulumi.Input<boolean>;
+    /**
+     * Table partitioning settings.
+     */
     partitioningSettings?: pulumi.Input<inputs.YdbTablePartitioningSettings>;
+    /**
+     * Table path.
+     */
     path?: pulumi.Input<string>;
+    /**
+     * A list of table columns to be used as primary key.
+     */
     primaryKeys?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Read replication settings.
+     */
     readReplicasSettings?: pulumi.Input<string>;
+    /**
+     * Table storage type. Set to `column` for column-oriented tables. Omit for row-oriented tables (default).
+     */
+    store?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.YdbTableTimeouts>;
-    ttls?: pulumi.Input<pulumi.Input<inputs.YdbTableTtl>[]>;
+    /**
+     * The `TTL` block supports allow you to create a special column type, [TTL column](https://ydb.tech/en/docs/concepts/ttl),
+     * whose values determine the time-to-live for rows.
+     */
+    ttl?: pulumi.Input<inputs.YdbTableTtl>;
     ydbTableId?: pulumi.Input<string>;
 }
 
@@ -126,16 +200,52 @@ export interface YdbTableState {
  * The set of arguments for constructing a YdbTable resource.
  */
 export interface YdbTableArgs {
+    /**
+     * A map of table attributes.
+     */
     attributes?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A list of column configuration options.
+     */
     columns: pulumi.Input<pulumi.Input<inputs.YdbTableColumn>[]>;
+    /**
+     * Connection string for database.
+     */
     connectionString: pulumi.Input<string>;
+    /**
+     * A list of column group configuration options. The `family` block may be used to group columns into
+     * [families](https://ydb.tech/en/docs/yql/reference/syntax/create_table#column-family) to set shared parameters for them.
+     */
     families?: pulumi.Input<pulumi.Input<inputs.YdbTableFamily>[]>;
+    /**
+     * Use the Bloom filter for the primary key.
+     */
     keyBloomFilter?: pulumi.Input<boolean>;
+    /**
+     * Table partitioning settings.
+     */
     partitioningSettings?: pulumi.Input<inputs.YdbTablePartitioningSettings>;
+    /**
+     * Table path.
+     */
     path: pulumi.Input<string>;
+    /**
+     * A list of table columns to be used as primary key.
+     */
     primaryKeys: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Read replication settings.
+     */
     readReplicasSettings?: pulumi.Input<string>;
+    /**
+     * Table storage type. Set to `column` for column-oriented tables. Omit for row-oriented tables (default).
+     */
+    store?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.YdbTableTimeouts>;
-    ttls?: pulumi.Input<pulumi.Input<inputs.YdbTableTtl>[]>;
+    /**
+     * The `TTL` block supports allow you to create a special column type, [TTL column](https://ydb.tech/en/docs/concepts/ttl),
+     * whose values determine the time-to-live for rows.
+     */
+    ttl?: pulumi.Input<inputs.YdbTableTtl>;
     ydbTableId?: pulumi.Input<string>;
 }

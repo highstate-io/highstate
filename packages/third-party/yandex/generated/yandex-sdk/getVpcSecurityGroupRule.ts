@@ -7,7 +7,6 @@ import * as utilities from "./utilities";
 export function getVpcSecurityGroupRule(args: GetVpcSecurityGroupRuleArgs, opts?: pulumi.InvokeOptions): Promise<GetVpcSecurityGroupRuleResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getVpcSecurityGroupRule:getVpcSecurityGroupRule", {
-        "id": args.id,
         "ruleId": args.ruleId,
         "securityGroupBinding": args.securityGroupBinding,
     }, opts, utilities.getPackage());
@@ -17,7 +16,6 @@ export function getVpcSecurityGroupRule(args: GetVpcSecurityGroupRuleArgs, opts?
  * A collection of arguments for invoking getVpcSecurityGroupRule.
  */
 export interface GetVpcSecurityGroupRuleArgs {
-    id?: string;
     ruleId: string;
     securityGroupBinding: string;
 }
@@ -44,7 +42,6 @@ export interface GetVpcSecurityGroupRuleResult {
 export function getVpcSecurityGroupRuleOutput(args: GetVpcSecurityGroupRuleOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetVpcSecurityGroupRuleResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getVpcSecurityGroupRule:getVpcSecurityGroupRule", {
-        "id": args.id,
         "ruleId": args.ruleId,
         "securityGroupBinding": args.securityGroupBinding,
     }, opts, utilities.getPackage());
@@ -54,7 +51,6 @@ export function getVpcSecurityGroupRuleOutput(args: GetVpcSecurityGroupRuleOutpu
  * A collection of arguments for invoking getVpcSecurityGroupRule.
  */
 export interface GetVpcSecurityGroupRuleOutputArgs {
-    id?: pulumi.Input<string>;
     ruleId: pulumi.Input<string>;
     securityGroupBinding: pulumi.Input<string>;
 }

@@ -39,6 +39,7 @@ export interface GetVpcAddressResult {
     readonly externalIpv4Addresses: outputs.GetVpcAddressExternalIpv4Address[];
     readonly folderId: string;
     readonly id: string;
+    readonly internalIpv4Addresses: outputs.GetVpcAddressInternalIpv4Address[];
     readonly labels: {[key: string]: string};
     readonly name: string;
     readonly reserved: boolean;

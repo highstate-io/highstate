@@ -9,6 +9,7 @@ new Command(name, {
   create: args.script,
   update: args.updateScript,
   delete: args.deleteScript,
+  ignoreCommandChanges: false,
 })
 
 export default outputs({

@@ -18,6 +18,8 @@ describe("Operation - Destroy", () => {
       instanceStateService,
       projectModelService,
       unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -59,6 +61,8 @@ describe("Operation - Destroy", () => {
         instanceStateService,
         projectModelService,
         unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
         logger,
       )
 

@@ -62,15 +62,31 @@ export const operationOptionsSchema = z
     forceUpdateDependencies: z.boolean().default(false),
 
     /**
-     * Ignore dependencies and operate only on explicitly requested instances.
+     * Ignore only changed dependencies and keep failed/undeployed prerequisites.
      *
      * **Operation Behavior Impact:**
-     * - skips dependency inclusion even when dependencies are failed or undeployed;
-     * - caller must explicitly include every prerequisite instance to avoid failures;
-     * - complements on-demand or targeted updates where dependency safety is managed externally.
+     * - skips dependency inclusion when dependency is only changed;
+     * - still includes failed or undeployed dependencies to preserve safety for missing/broken prerequisites;
+     * - useful for targeted updates where stale-but-healthy dependencies are intentionally not traversed.
      *
      * **Usage with other options:**
      * - mutually exclusive with `forceUpdateDependencies`;
+     * - mutually exclusive with `ignoreDependencies`;
+     * - independent of child/composite inclusion options.
+     */
+    ignoreChangedDependencies: z.boolean().default(false),
+
+    /**
+     * Ignore all dependencies and operate only on explicitly requested instances.
+     *
+     * **Operation Behavior Impact:**
+     * - skips dependency inclusion entirely, including failed and undeployed prerequisites;
+     * - caller must explicitly include every prerequisite instance to avoid failures;
+     * - intended for fully manual execution flows.
+     *
+     * **Usage with other options:**
+     * - mutually exclusive with `forceUpdateDependencies`;
+     * - mutually exclusive with `ignoreChangedDependencies`;
      * - independent of child/composite inclusion options.
      */
     ignoreDependencies: z.boolean().default(false),
@@ -88,6 +104,48 @@ export const operationOptionsSchema = z
      * - overrides `allowPartialCompositeInstanceCreation`: when enabled, **ALL** children are included regardless of existence.
      */
     forceUpdateChildren: z.boolean().default(false),
+
+    /**
+     * Run only ghost cleanup destroy phase and skip update phase entirely.
+     *
+     * **Operation Behavior Impact:**
+     * - applies to update operations only;
+     * - skips update phase even if normal update candidates exist;
+     * - keeps only ghost cleanup destroy phase for affected substantive composites.
+     *
+     * **Usage with other options:**
+     * - mutually exclusive with `firstDestroyGhosts`;
+     * - mutually exclusive with `ignoreGhosts`.
+     */
+    onlyDestroyGhosts: z.boolean().default(false),
+
+    /**
+     * Run ghost cleanup destroy phase before update phase.
+     *
+     * **Operation Behavior Impact:**
+     * - applies to update operations only;
+     * - keeps both phases but changes order to destroy ghosts first;
+     * - useful when stale ghost resources should be removed prior to update execution.
+     *
+     * **Usage with other options:**
+     * - mutually exclusive with `onlyDestroyGhosts`;
+     * - mutually exclusive with `ignoreGhosts`.
+     */
+    firstDestroyGhosts: z.boolean().default(false),
+
+    /**
+     * Ignore ghost cleanup and skip destroy phase for ghosts.
+     *
+     * **Operation Behavior Impact:**
+     * - applies to update operations only;
+     * - disables ghost cleanup destroy phase generation;
+     * - update phase remains unchanged.
+     *
+     * **Usage with other options:**
+     * - mutually exclusive with `onlyDestroyGhosts`;
+     * - mutually exclusive with `firstDestroyGhosts`.
+     */
+    ignoreGhosts: z.boolean().default(false),
 
     /**
      * Include dependent instances when destroying instances.

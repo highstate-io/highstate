@@ -80,7 +80,7 @@ export function useTerminalSession(projectId: string, sessionId: string) {
       },
     )
 
-    onDeactivated(stopWatchingSession)
+    onUnmounted(stopWatchingSession)
 
     await until(session).not.toBeNull()
 
@@ -110,7 +110,7 @@ export function useTerminalSession(projectId: string, sessionId: string) {
     const attachAddon = new AttachAddon(ws)
     terminal.value!.loadAddon(attachAddon)
 
-    onDeactivated(() => ws.close())
+    onUnmounted(() => ws.close())
   }
 
   return {

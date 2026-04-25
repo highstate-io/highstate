@@ -34,16 +34,44 @@ export class DnsZone extends pulumi.CustomResource {
         return obj['__pulumiType'] === DnsZone.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
     declare public readonly dnsZoneId: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
+     */
     declare public readonly privateNetworks: pulumi.Output<string[]>;
+    /**
+     * The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private
+     * Cloud resources.
+     */
     declare public readonly public: pulumi.Output<boolean>;
     declare public readonly timeouts: pulumi.Output<outputs.DnsZoneTimeouts | undefined>;
+    /**
+     * The DNS name of this zone, e.g. `example.com.`. Must ends with dot.
+     */
     declare public readonly zone: pulumi.Output<string>;
 
     /**
@@ -96,16 +124,44 @@ export class DnsZone extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DnsZone resources.
  */
 export interface DnsZoneState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
     dnsZoneId?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
+     */
     privateNetworks?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private
+     * Cloud resources.
+     */
     public?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.DnsZoneTimeouts>;
+    /**
+     * The DNS name of this zone, e.g. `example.com.`. Must ends with dot.
+     */
     zone?: pulumi.Input<string>;
 }
 
@@ -113,14 +169,39 @@ export interface DnsZoneState {
  * The set of arguments for constructing a DnsZone resource.
  */
 export interface DnsZoneArgs {
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
     dnsZoneId?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
+     */
     privateNetworks?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private
+     * Cloud resources.
+     */
     public?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.DnsZoneTimeouts>;
+    /**
+     * The DNS name of this zone, e.g. `example.com.`. Must ends with dot.
+     */
     zone: pulumi.Input<string>;
 }

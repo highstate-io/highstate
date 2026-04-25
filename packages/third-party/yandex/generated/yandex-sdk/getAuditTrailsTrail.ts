@@ -28,6 +28,10 @@ export interface GetAuditTrailsTrailArgs {
 export interface GetAuditTrailsTrailResult {
     readonly dataStreamDestinations: outputs.GetAuditTrailsTrailDataStreamDestination[];
     readonly description: string;
+    readonly filteringPolicies: outputs.GetAuditTrailsTrailFilteringPolicy[];
+    /**
+     * @deprecated Deprecated
+     */
     readonly filters: outputs.GetAuditTrailsTrailFilter[];
     readonly folderId: string;
     readonly id: string;

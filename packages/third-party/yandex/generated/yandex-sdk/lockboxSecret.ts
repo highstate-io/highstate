@@ -34,14 +34,42 @@ export class LockboxSecret extends pulumi.CustomResource {
         return obj['__pulumiType'] === LockboxSecret.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * The KMS key used to encrypt the Yandex Cloud Lockbox secret.
+     */
     declare public readonly kmsKeyId: pulumi.Output<string | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
     declare public readonly lockboxSecretId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Payload specification for password generation.
+     */
+    declare public readonly passwordPayloadSpecification: pulumi.Output<outputs.LockboxSecretPasswordPayloadSpecification | undefined>;
+    /**
+     * The Yandex Cloud Lockbox secret status.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.LockboxSecretTimeouts | undefined>;
 
@@ -66,6 +94,7 @@ export class LockboxSecret extends pulumi.CustomResource {
             resourceInputs["labels"] = state?.labels;
             resourceInputs["lockboxSecretId"] = state?.lockboxSecretId;
             resourceInputs["name"] = state?.name;
+            resourceInputs["passwordPayloadSpecification"] = state?.passwordPayloadSpecification;
             resourceInputs["status"] = state?.status;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
@@ -77,6 +106,7 @@ export class LockboxSecret extends pulumi.CustomResource {
             resourceInputs["labels"] = args?.labels;
             resourceInputs["lockboxSecretId"] = args?.lockboxSecretId;
             resourceInputs["name"] = args?.name;
+            resourceInputs["passwordPayloadSpecification"] = args?.passwordPayloadSpecification;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
@@ -90,14 +120,42 @@ export class LockboxSecret extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LockboxSecret resources.
  */
 export interface LockboxSecretState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * The KMS key used to encrypt the Yandex Cloud Lockbox secret.
+     */
     kmsKeyId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     lockboxSecretId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Payload specification for password generation.
+     */
+    passwordPayloadSpecification?: pulumi.Input<inputs.LockboxSecretPasswordPayloadSpecification>;
+    /**
+     * The Yandex Cloud Lockbox secret status.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LockboxSecretTimeouts>;
 }
@@ -106,12 +164,34 @@ export interface LockboxSecretState {
  * The set of arguments for constructing a LockboxSecret resource.
  */
 export interface LockboxSecretArgs {
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * The KMS key used to encrypt the Yandex Cloud Lockbox secret.
+     */
     kmsKeyId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     lockboxSecretId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Payload specification for password generation.
+     */
+    passwordPayloadSpecification?: pulumi.Input<inputs.LockboxSecretPasswordPayloadSpecification>;
     timeouts?: pulumi.Input<inputs.LockboxSecretTimeouts>;
 }

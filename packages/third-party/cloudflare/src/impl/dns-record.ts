@@ -21,7 +21,7 @@ class CloudflareDnsRecord extends ComponentResource {
     this.dnsRecord = new DnsRecord(
       name,
       {
-        name: args.name ?? name,
+        name: args.name,
         zoneId: args.zoneId,
         type: args.type,
         content: args.value,
@@ -39,7 +39,14 @@ export const createDnsRecord = dnsRecordMediator.implement(
   cloudflare.providerDataSchema,
   ({ name, args }, data) => {
     const provider = getProvider(data)
+    const zoneId = data.zoneIds[args.zone]
 
-    return new CloudflareDnsRecord(name, { ...args, zoneId: data.zoneId }, { provider })
+    if (!zoneId) {
+      throw new Error(
+        `The DNS provider "${provider.id}" does not have ID for the zone "${args.zone}". This is not expected, please open an issue.`,
+      )
+    }
+
+    return new CloudflareDnsRecord(name, { ...args, zoneId }, { provider })
   },
 )

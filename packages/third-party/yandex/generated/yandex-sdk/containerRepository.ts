@@ -34,8 +34,18 @@ export class ContainerRepository extends pulumi.CustomResource {
         return obj['__pulumiType'] === ContainerRepository.__pulumiType;
     }
 
+    /**
+     * ID of the Repository resource to return. To get the repository ID use a [RepositoryService.List] request.
+     */
     declare public readonly containerRepositoryId: pulumi.Output<string>;
+    /**
+     * Name of the repository. The name is unique within the registry.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the Repository resource to return. To get the repository ID use a [RepositoryService.List] request.
+     */
+    declare public readonly repositoryId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ContainerRepositoryTimeouts | undefined>;
 
     /**
@@ -53,11 +63,13 @@ export class ContainerRepository extends pulumi.CustomResource {
             const state = argsOrState as ContainerRepositoryState | undefined;
             resourceInputs["containerRepositoryId"] = state?.containerRepositoryId;
             resourceInputs["name"] = state?.name;
+            resourceInputs["repositoryId"] = state?.repositoryId;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as ContainerRepositoryArgs | undefined;
             resourceInputs["containerRepositoryId"] = args?.containerRepositoryId;
             resourceInputs["name"] = args?.name;
+            resourceInputs["repositoryId"] = args?.repositoryId;
             resourceInputs["timeouts"] = args?.timeouts;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -69,8 +81,18 @@ export class ContainerRepository extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ContainerRepository resources.
  */
 export interface ContainerRepositoryState {
+    /**
+     * ID of the Repository resource to return. To get the repository ID use a [RepositoryService.List] request.
+     */
     containerRepositoryId?: pulumi.Input<string>;
+    /**
+     * Name of the repository. The name is unique within the registry.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the Repository resource to return. To get the repository ID use a [RepositoryService.List] request.
+     */
+    repositoryId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRepositoryTimeouts>;
 }
 
@@ -78,7 +100,17 @@ export interface ContainerRepositoryState {
  * The set of arguments for constructing a ContainerRepository resource.
  */
 export interface ContainerRepositoryArgs {
+    /**
+     * ID of the Repository resource to return. To get the repository ID use a [RepositoryService.List] request.
+     */
     containerRepositoryId?: pulumi.Input<string>;
+    /**
+     * Name of the repository. The name is unique within the registry.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the Repository resource to return. To get the repository ID use a [RepositoryService.List] request.
+     */
+    repositoryId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRepositoryTimeouts>;
 }

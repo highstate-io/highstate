@@ -10,6 +10,7 @@ const { argument, isSecret } = defineProps<{
   argument: PlainEditorArgument
   instance: InstanceModel
   isSecret?: boolean
+  readonly?: boolean
 }>()
 
 if (model.value === undefined && argument.default !== undefined) {
@@ -46,6 +47,7 @@ const placeholder = computed(() => {
       variant="outlined"
       density="compact"
       hide-details
+      :readonly="readonly"
     >
       <template #append-inner>
         <VIcon v-if="isSecret" @click="showSecret = !showSecret">
@@ -64,6 +66,7 @@ const placeholder = computed(() => {
       variant="outlined"
       density="compact"
       hide-details
+      :readonly="readonly"
     >
       <template #append-inner>
         <VIcon v-if="isSecret" @click="showSecret = !showSecret">
@@ -82,6 +85,7 @@ const placeholder = computed(() => {
       multiple
       chips
       hide-details
+      :disabled="readonly"
     />
 
     <VSelect
@@ -94,9 +98,17 @@ const placeholder = computed(() => {
       density="compact"
       :multiple="argument.multiple"
       hide-details
+      :disabled="readonly"
     />
 
-    <VCheckbox v-else v-model="model" :label="argument.title" density="compact" hide-details />
+    <VCheckbox
+      v-else
+      v-model="model"
+      :label="argument.title"
+      density="compact"
+      hide-details
+      :disabled="readonly"
+    />
 
     <ArgumentDescription
       v-if="argument.description"

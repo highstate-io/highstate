@@ -6,7 +6,11 @@ import {
   baseHeaders,
 } from "#layers/core/app/features/settings"
 import { bytesToHumanReadable } from "@highstate/contract"
-import type { CollectionQuery, CollectionQueryResult, ArtifactOutput } from "@highstate/backend/shared"
+import type {
+  CollectionQuery,
+  CollectionQueryResult,
+  ArtifactOutput,
+} from "@highstate/backend/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

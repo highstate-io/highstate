@@ -34,15 +34,49 @@ export class LoggingGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === LoggingGroup.__pulumiType;
     }
 
-    declare public /*out*/ readonly cloudId: pulumi.Output<string>;
+    /**
+     * Log group cloud ID.
+     */
+    declare public readonly cloudId: pulumi.Output<string>;
+    /**
+     * Log group creation time.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly dataStream: pulumi.Output<string | undefined>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Data stream name
+     */
+    declare public readonly dataStream: pulumi.Output<string>;
+    /**
+     * Log group description.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * Log group folder ID.
+     */
     declare public readonly folderId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Log group labels.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * ID of the log group to return. To get a log group ID make a [LogGroupService.List] request.
+     */
+    declare public readonly logGroupId: pulumi.Output<string>;
+    /**
+     * ID of the log group to return. To get a log group ID make a [LogGroupService.List] request.
+     */
     declare public readonly loggingGroupId: pulumi.Output<string>;
+    /**
+     * Log group name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Log group entry retention period. Entries will be present in group during this period.
+     */
     declare public readonly retentionPeriod: pulumi.Output<string>;
+    /**
+     * Status of the log group.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.LoggingGroupTimeouts | undefined>;
 
@@ -65,6 +99,7 @@ export class LoggingGroup extends pulumi.CustomResource {
             resourceInputs["description"] = state?.description;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
+            resourceInputs["logGroupId"] = state?.logGroupId;
             resourceInputs["loggingGroupId"] = state?.loggingGroupId;
             resourceInputs["name"] = state?.name;
             resourceInputs["retentionPeriod"] = state?.retentionPeriod;
@@ -72,15 +107,16 @@ export class LoggingGroup extends pulumi.CustomResource {
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as LoggingGroupArgs | undefined;
+            resourceInputs["cloudId"] = args?.cloudId;
             resourceInputs["dataStream"] = args?.dataStream;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
+            resourceInputs["logGroupId"] = args?.logGroupId;
             resourceInputs["loggingGroupId"] = args?.loggingGroupId;
             resourceInputs["name"] = args?.name;
             resourceInputs["retentionPeriod"] = args?.retentionPeriod;
             resourceInputs["timeouts"] = args?.timeouts;
-            resourceInputs["cloudId"] = undefined /*out*/;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
         }
@@ -93,15 +129,49 @@ export class LoggingGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LoggingGroup resources.
  */
 export interface LoggingGroupState {
+    /**
+     * Log group cloud ID.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * Log group creation time.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Data stream name
+     */
     dataStream?: pulumi.Input<string>;
+    /**
+     * Log group description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Log group folder ID.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Log group labels.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the log group to return. To get a log group ID make a [LogGroupService.List] request.
+     */
+    logGroupId?: pulumi.Input<string>;
+    /**
+     * ID of the log group to return. To get a log group ID make a [LogGroupService.List] request.
+     */
     loggingGroupId?: pulumi.Input<string>;
+    /**
+     * Log group name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Log group entry retention period. Entries will be present in group during this period.
+     */
     retentionPeriod?: pulumi.Input<string>;
+    /**
+     * Status of the log group.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LoggingGroupTimeouts>;
 }
@@ -110,12 +180,41 @@ export interface LoggingGroupState {
  * The set of arguments for constructing a LoggingGroup resource.
  */
 export interface LoggingGroupArgs {
+    /**
+     * Log group cloud ID.
+     */
+    cloudId?: pulumi.Input<string>;
+    /**
+     * Data stream name
+     */
     dataStream?: pulumi.Input<string>;
+    /**
+     * Log group description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Log group folder ID.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Log group labels.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the log group to return. To get a log group ID make a [LogGroupService.List] request.
+     */
+    logGroupId?: pulumi.Input<string>;
+    /**
+     * ID of the log group to return. To get a log group ID make a [LogGroupService.List] request.
+     */
     loggingGroupId?: pulumi.Input<string>;
+    /**
+     * Log group name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Log group entry retention period. Entries will be present in group during this period.
+     */
     retentionPeriod?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LoggingGroupTimeouts>;
 }

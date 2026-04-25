@@ -76,7 +76,7 @@ const hasExtraContent = computed(() => {
         <InstanceStatusFieldItem
           v-for="(item, index) in statusField.value"
           :key="index"
-          :item="item"
+          :item="String(item)"
         />
       </VList>
     </VMenu>

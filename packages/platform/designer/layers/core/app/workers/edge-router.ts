@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
+  ConnEnd,
+  ConnRef,
+  Point,
+  Rectangle,
+  Router,
+  ShapeRef,
   AvoidLib,
-  type Avoid,
-  type ConnRef,
-  type Rectangle,
-  type Router,
-  type ShapeRef,
-} from "libavoid-js"
-
-// thanks to https://github.com/clientIO/joint/blob/master/examples/libavoid/src/avoid-router.js
+  default as initLibavoid,
+} from "./libavoid/libavoid"
 
 export type EdgeRouterShape = {
   id: string
@@ -71,27 +71,83 @@ export type EdgeRouterOutputMessage =
       routerId: string
     }
   | {
-      type: "edge-path-updated"
+      type: "edge-paths-updated"
       routerId: string
-      edgeId: string
-      points: number[][]
+      updates: {
+        edgeId: string
+        points: number[][]
+      }[]
     }
 
 const postMessage = (port: MessagePort, message: EdgeRouterOutputMessage) => {
   port.postMessage(message)
 }
 
-const _avoid = AvoidLib.load("/libavoid.wasm").then(() => AvoidLib.getInstance())
+const _avoid = initLibavoid("/libavoid.wasm").then(() => AvoidLib.getInstance())
 
 type RouterState = {
   routerId: string
   router: Router
   shapeMap: Map<string, ShapeRef>
   edgeConnRefMap: Map<string, ConnRef>
-  avoid: Avoid
 }
 
 const routers: Map<string, RouterState> = new Map()
+
+const INITIAL_EDGE_CHUNK_SIZE = 150
+
+const ROUTER_FLAG_ORTHOGONAL = 2
+
+const ROUTING_PARAMETER = {
+  SHAPE_BUFFER_DISTANCE: 6,
+  IDEAL_NUDGING_DISTANCE: 7,
+} as const
+
+const ROUTING_OPTION = {
+  NUDGE_ORTHOGONAL_SEGMENTS: 0,
+  NUDGE_ORTHOGONAL_TOUCHING_COLINEAR_SEGMENTS: 3,
+  PERFORM_UNIFYING_NUDGING_PREPROCESSING_STEP: 4,
+  NUDGE_SHARED_PATHS_WITH_COMMON_END_POINT: 6,
+  NUDGE_ORTHOGONAL_SEGMENTS_CONNECTED_TO_SHAPES: 7,
+} as const
+
+const CONN_DIR_LEFT = 4
+const CONN_DIR_RIGHT = 8
+
+const waitForNextTask = async (): Promise<void> => {
+  await new Promise<void>(resolve => {
+    setTimeout(resolve, 0)
+  })
+}
+
+const createInitialEdges = async (
+  port: MessagePort,
+  state: RouterState,
+  edges: EdgeRouterEdge[],
+): Promise<void> => {
+  if (edges.length <= INITIAL_EDGE_CHUNK_SIZE) {
+    for (const edge of edges) {
+      addEdge(port, state, edge)
+    }
+
+    state.router.processTransaction()
+    sendAllEdgePathUpdates(port, state)
+    return
+  }
+
+  for (let startIndex = 0; startIndex < edges.length; startIndex += INITIAL_EDGE_CHUNK_SIZE) {
+    const edgeChunk = edges.slice(startIndex, startIndex + INITIAL_EDGE_CHUNK_SIZE)
+
+    for (const edge of edgeChunk) {
+      addEdge(port, state, edge)
+    }
+
+    state.router.processTransaction()
+    sendAllEdgePathUpdates(port, state)
+
+    await waitForNextTask()
+  }
+}
 
 const createRouter = async (
   port: MessagePort,
@@ -104,17 +160,24 @@ const createRouter = async (
     return
   }
 
-  const avoid = await _avoid
+  await _avoid
 
-  const router: Router = new avoid.Router(avoid.OrthogonalRouting)
+  const router: Router = new Router(ROUTER_FLAG_ORTHOGONAL)
 
-  router.setRoutingParameter(avoid.idealNudgingDistance, 6)
-  router.setRoutingParameter(avoid.shapeBufferDistance, 40)
-  router.setRoutingOption(avoid.nudgeOrthogonalTouchingColinearSegments, true)
-  router.setRoutingOption(avoid.performUnifyingNudgingPreprocessingStep, true)
-  router.setRoutingOption(avoid.nudgeSharedPathsWithCommonEndPoint, false)
+  router.setRoutingParameter(ROUTING_PARAMETER.IDEAL_NUDGING_DISTANCE, 6)
+  router.setRoutingParameter(ROUTING_PARAMETER.SHAPE_BUFFER_DISTANCE, 40)
+  router.setRoutingOption(ROUTING_OPTION.NUDGE_ORTHOGONAL_SEGMENTS, true)
+  router.setRoutingOption(ROUTING_OPTION.NUDGE_ORTHOGONAL_TOUCHING_COLINEAR_SEGMENTS, true)
+  router.setRoutingOption(ROUTING_OPTION.PERFORM_UNIFYING_NUDGING_PREPROCESSING_STEP, true)
+  router.setRoutingOption(ROUTING_OPTION.NUDGE_SHARED_PATHS_WITH_COMMON_END_POINT, false)
+  // router.setRoutingOption(ROUTING_OPTION.NUDGE_ORTHOGONAL_SEGMENTS_CONNECTED_TO_SHAPES, true)
 
-  const state = { routerId, router, shapeMap: new Map(), edgeConnRefMap: new Map(), avoid }
+  const state: RouterState = {
+    routerId,
+    router,
+    shapeMap: new Map(),
+    edgeConnRefMap: new Map(),
+  }
   routers.set(routerId, state)
 
   console.log(
@@ -125,32 +188,22 @@ const createRouter = async (
     addShape(state, shape)
   }
 
-  for (const edge of edges) {
-    addEdge(port, state, edge)
-  }
-
-  router.processTransaction()
-
-  for (const edge of edges) {
-    const connRef = state.edgeConnRefMap.get(edge.id)
-    if (connRef) {
-      syncEdgePath(port, state, edge.id, connRef)
-    }
-  }
+  await createInitialEdges(port, state, edges)
 
   postMessage(port, { type: "router-ready", routerId })
 }
 
-const getAvoidRectFromShape = (avoid: Avoid, shape: EdgeRouterShape): Rectangle => {
-  return new avoid.Rectangle(
-    new avoid.Point(shape.x, shape.y),
-    new avoid.Point(shape.x + shape.width, shape.y + shape.height),
+const getAvoidRectFromShape = (shape: EdgeRouterShape): Rectangle => {
+  return Rectangle.fromCorners(
+    new Point(shape.x, shape.y),
+    new Point(shape.x + shape.width, shape.y + shape.height),
   )
 }
 
 const addShape = (state: RouterState, shape: EdgeRouterShape): void => {
-  const avoidRect = getAvoidRectFromShape(state.avoid, shape)
-  const shapeRef = new state.avoid.ShapeRef(state.router, avoidRect)
+  const avoidRect = getAvoidRectFromShape(shape)
+  const shapeRef = new ShapeRef(state.router, avoidRect.toPolygon())
+  state.router.addShape(shapeRef)
 
   state.shapeMap.set(shape.id, shapeRef)
 }
@@ -159,45 +212,45 @@ const updateShape = (state: RouterState, shape: EdgeRouterShape): void => {
   const shapeRef = state.shapeMap.get(shape.id)
 
   if (shapeRef) {
-    const avoidRect = getAvoidRectFromShape(state.avoid, shape)
-
-    state.router.moveShape(shapeRef, avoidRect)
+    const avoidRect = getAvoidRectFromShape(shape)
+    state.router.moveShapeTo(shapeRef, avoidRect.toPolygon())
   } else {
     addShape(state, shape)
   }
 }
 
-const syncEdgePath = (
-  port: MessagePort,
-  state: RouterState,
-  edgeId: string,
-  connRef: ConnRef,
-): void => {
-  const route = connRef.displayRoute()
+const getEdgePath = (state: RouterState, connRef: ConnRef): number[][] => {
+  const route = state.router.getConnectorRoute(connRef.id()) ?? connRef.displayRoute()
+
+  if (!route) {
+    return []
+  }
+
   const points: number[][] = []
 
   for (let i = 0; i < route.size(); i++) {
-    points.push([route.get_ps(i).x, route.get_ps(i).y])
+    const routePoint = route.at(i)
+    if (!routePoint) {
+      continue
+    }
+
+    points.push([routePoint.x, routePoint.y])
   }
 
-  postMessage(port, {
-    type: "edge-path-updated",
-    routerId: state.routerId,
-    edgeId,
-    points,
-  })
+  return points
 }
 
-const createConnCallback = (
-  port: MessagePort,
-  state: RouterState,
-  edgeId: string,
-): ((connRefPtr: number) => void) => {
-  return (connRefPtr: number) => {
-    const connRef = state.avoid.wrapPointer(connRefPtr, state.avoid.ConnRef)
+const sendAllEdgePathUpdates = (port: MessagePort, state: RouterState): void => {
+  const updates = Array.from(state.edgeConnRefMap.entries()).map(([edgeId, connRef]) => ({
+    edgeId,
+    points: getEdgePath(state, connRef),
+  }))
 
-    syncEdgePath(port, state, edgeId, connRef)
-  }
+  postMessage(port, {
+    type: "edge-paths-updated",
+    routerId: state.routerId,
+    updates,
+  })
 }
 
 const removeShape = (state: RouterState, shapeId: string): void => {
@@ -209,12 +262,12 @@ const removeShape = (state: RouterState, shapeId: string): void => {
   }
 }
 
-const getEdgeEndpoints = (avoid: Avoid, edge: EdgeRouterEdge) => {
-  const srcPt: any = new avoid.Point(edge.sourceX, edge.sourceY)
-  const dstPt: any = new avoid.Point(edge.targetX, edge.targetY)
+const getEdgeEndpoints = (edge: EdgeRouterEdge) => {
+  const srcPt = new Point(edge.sourceX, edge.sourceY)
+  const dstPt = new Point(edge.targetX, edge.targetY)
 
-  const srcConnEnd = new avoid.ConnEnd(srcPt, avoid.ConnDirRight)
-  const dstConnEnd = new avoid.ConnEnd(dstPt, avoid.ConnDirLeft)
+  const srcConnEnd = new ConnEnd(srcPt, CONN_DIR_RIGHT)
+  const dstConnEnd = new ConnEnd(dstPt, CONN_DIR_LEFT)
 
   return { srcConnEnd, dstConnEnd }
 }
@@ -224,11 +277,12 @@ const addEdge = (port: MessagePort, state: RouterState, edge: EdgeRouterEdge): v
   const targetNodeShape = state.shapeMap.get(edge.target)
 
   if (sourceNodeShape && targetNodeShape) {
-    const { srcConnEnd, dstConnEnd } = getEdgeEndpoints(state.avoid, edge)
+    const { srcConnEnd, dstConnEnd } = getEdgeEndpoints(edge)
 
-    const connRef: ConnRef = new state.avoid.ConnRef(state.router, srcConnEnd, dstConnEnd)
+    const connRef: ConnRef = ConnRef.createWithEndpoints(state.router, srcConnEnd, dstConnEnd)
+    connRef.setRoutingType(ROUTER_FLAG_ORTHOGONAL)
+    state.router.addConnector(connRef)
 
-    connRef.setCallback(createConnCallback(port, state, edge.id), connRef)
     state.edgeConnRefMap.set(edge.id, connRef)
   }
 }
@@ -236,10 +290,11 @@ const addEdge = (port: MessagePort, state: RouterState, edge: EdgeRouterEdge): v
 const updateEdge = (state: RouterState, edge: EdgeRouterEdge): void => {
   const connRef = state.edgeConnRefMap.get(edge.id)
   if (connRef) {
-    const { srcConnEnd, dstConnEnd } = getEdgeEndpoints(state.avoid, edge)
+    const { srcConnEnd, dstConnEnd } = getEdgeEndpoints(edge)
 
     connRef.setSourceEndpoint(srcConnEnd)
     connRef.setDestEndpoint(dstConnEnd)
+    state.router.updateConnector(connRef)
   }
 }
 
@@ -249,6 +304,17 @@ const removeEdge = (state: RouterState, edgeId: string): void => {
     state.router.deleteConnector(connRef)
     state.edgeConnRefMap.delete(edgeId)
   }
+}
+
+const disposeRouter = (routerId: string): void => {
+  const state = routers.get(routerId)
+  if (!state) {
+    return
+  }
+
+  state.edgeConnRefMap.clear()
+  state.shapeMap.clear()
+  routers.delete(routerId)
 }
 
 const withRouter = (routerId: string, callback: (state: RouterState) => void): void => {
@@ -301,7 +367,12 @@ const withRouter = (routerId: string, callback: (state: RouterState) => void): v
       case "process-transaction": {
         withRouter(data.routerId, state => {
           state.router.processTransaction()
+          sendAllEdgePathUpdates(port, state)
         })
+        break
+      }
+      case "dispose-router": {
+        disposeRouter(data.routerId)
         break
       }
     }

@@ -1,4 +1,3 @@
-import type { k8s, network, wireguard } from "@highstate/library"
 import {
   addressToCidr,
   createAddressSpace,
@@ -12,7 +11,8 @@ import {
   subnetToString,
 } from "@highstate/common"
 import { getBestEndpoint } from "@highstate/k8s"
-import { type Input, type Output, secret, type Unwrap } from "@highstate/pulumi"
+import { type k8s, type network, wireguard } from "@highstate/library"
+import { type Input, makeEntity, type Output, secret, type Unwrap } from "@highstate/pulumi"
 import { x25519 } from "@noble/curves/ed25519"
 import { sha256 } from "@noble/hashes/sha2.js"
 import { randomBytes } from "@noble/hashes/utils.js"
@@ -59,13 +59,36 @@ function generatePeerConfig(
     `PublicKey = ${peer.publicKey}`,
   ]
 
-  if (peer.allowedSubnets.length > 0) {
-    lines.push(`AllowedIPs = ${peer.allowedSubnets.map(subnetToString).join(", ")}`)
+  const effectiveAllowedSubnets = [...peer.allowedSubnets]
+
+  // add allowed subnets from relayed peers to ensure proper routing through relay nodes
+  for (const relayedPeer of peer.relayedPeers) {
+    if (relayedPeer.publicKey === identity.peer.publicKey) {
+      // skip relayed peer if it's the same as the identity to avoid circular routes
+      continue
+    }
+
+    effectiveAllowedSubnets.push(...relayedPeer.allowedSubnets)
   }
 
-  const endpoints = peerEndpointFilter
+  const allowedAddressSpace = createAddressSpace({ included: effectiveAllowedSubnets })
+  if (allowedAddressSpace.subnets.length > 0) {
+    lines.push(`AllowedIPs = ${effectiveAllowedSubnets.map(subnetToString).join(", ")}`)
+  }
+
+  let endpoints = peerEndpointFilter
     ? filterWithMetadataByExpression(peer.endpoints, peerEndpointFilter)
     : peer.endpoints
+
+  if (!peer.network?.ipv6) {
+    // filter out IPv6 endpoints if the peer's network does not support IPv6 to avoid connectivity issues
+    endpoints = endpoints.filter(endpoint => endpoint.type !== "ipv6")
+  }
+
+  if (peer.network?.ipv4 === false) {
+    // filter out IPv4 endpoints if the peer's network does not support IPv4 to avoid connectivity issues
+    endpoints = endpoints.filter(endpoint => endpoint.type !== "ipv4")
+  }
 
   const bestEndpoint = getBestEndpoint(endpoints, cluster)
 
@@ -79,8 +102,8 @@ function generatePeerConfig(
 
   if (identity.peer.presharedKeyPart && peer.presharedKeyPart) {
     const presharedKey = combinePresharedKeyParts(
-      identity.peer.presharedKeyPart,
-      peer.presharedKeyPart,
+      identity.peer.presharedKeyPart.value,
+      peer.presharedKeyPart.value,
     )
 
     lines.push(`PresharedKey = ${presharedKey}`)
@@ -108,6 +131,9 @@ export type IdentityConfigArgs = {
   postDown?: string[]
   cluster?: k8s.Cluster
   peerEndpointFilter?: string
+  listen?: boolean
+  network?: wireguard.Network
+  table?: number | "off" | "auto"
 }
 
 export function generateIdentityConfig({
@@ -121,6 +147,9 @@ export function generateIdentityConfig({
   postDown = [],
   cluster,
   peerEndpointFilter,
+  listen = true,
+  network,
+  table,
 }: IdentityConfigArgs): Output<string> {
   const allDns = unique(
     peers
@@ -139,9 +168,13 @@ export function generateIdentityConfig({
     lines.push(`Address = ${identity.peer.addresses.map(addressToCidr).join(", ")}`)
   }
 
+  if (table) {
+    lines.push(`Table = ${table}`)
+  }
+
   lines.push(
     //
-    `PrivateKey = ${identity.privateKey}`,
+    `PrivateKey = ${identity.privateKey.value}`,
     "MTU = 1280",
   )
 
@@ -149,7 +182,7 @@ export function generateIdentityConfig({
     lines.push(`DNS = ${allDns.join(", ")}`)
   }
 
-  if (listenPort) {
+  if (listen) {
     lines.push(`ListenPort = ${listenPort}`)
   }
 
@@ -181,11 +214,32 @@ export function generateIdentityConfig({
     }
   }
 
+  if (
+    network?.backend === "amneziawg" &&
+    network.amnezia &&
+    Object.keys(network.amnezia).length > 0
+  ) {
+    lines.push("")
+
+    for (const [key, value] of Object.entries(network.amnezia)) {
+      const firstChar = key.charAt(0).toUpperCase()
+      const rest = key.slice(1)
+      const parameterName = `${firstChar}${rest}`
+
+      lines.push(`${parameterName} = ${value}`)
+    }
+  }
+
   const otherPeers = peers.filter(peer => peer.name !== identity.peer.name)
 
   for (const peer of otherPeers) {
     lines.push("")
     lines.push(generatePeerConfig(identity, peer, cluster, peerEndpointFilter))
+  }
+
+  for (const relayedPeer of identity.peer.relayedPeers) {
+    lines.push("")
+    lines.push(generatePeerConfig(identity, relayedPeer, cluster, peerEndpointFilter))
   }
 
   return secret(lines.join("\n"))
@@ -196,6 +250,7 @@ type SharedPeerInputs = {
   endpoints: Input<network.L3Endpoint>[]
   allowedSubnets: Input<network.Subnet>[]
   allowedEndpoints: Input<network.L3Endpoint>[]
+  relayedPeers: Input<wireguard.Peer>[]
 }
 
 export function calculateEndpoints(
@@ -235,7 +290,7 @@ export async function calculateAllowedSubnets(
   }
 
   if (exitNode) {
-    if (network?.ipv4) {
+    if (!network || network?.ipv4) {
       included.push("0.0.0.0/0")
     }
 
@@ -277,18 +332,27 @@ export async function createPeerEntity(
   const addresses = args.addresses.map(parseAddress)
   const allowedSubnets = await calculateAllowedSubnets(args, inputs, addresses)
 
-  return {
-    name: args.peerName ?? name,
-    endpoints,
-    allowedSubnets,
-    dns: args.dns.map(parseAddress),
-    publicKey,
-    addresses,
-    network: inputs.network,
-    presharedKeyPart,
-    listenPort: args.listenPort ?? 51820,
-    persistentKeepalive: args.persistentKeepalive,
-  }
+  return makeEntity({
+    entity: wireguard.peerEntity,
+    identity: publicKey,
+    meta: {
+      title: args.peerName ?? name,
+    },
+    value: {
+      name: args.peerName ?? name,
+      endpoints,
+      allowedSubnets,
+      dns: args.dns.map(parseAddress),
+      publicKey,
+      addresses,
+      network: inputs.network,
+      presharedKeyPart,
+      listenPort: args.listenPort ?? 51820,
+      persistentKeepalive: args.persistentKeepalive,
+      feedMetadata: feedMetadataFromArgs(args.feedMetadata),
+      relayedPeers: inputs.relayedPeers,
+    },
+  })
 }
 
 export function shouldExpose(
@@ -304,4 +368,47 @@ export function shouldExpose(
   }
 
   return identity.peer.endpoints.length > 0
+}
+
+export function feedMetadataFromArgs(
+  feedMetadata: wireguard.SharedPeerArgs["feedMetadata"],
+): wireguard.FeedMetadata | undefined {
+  return feedMetadata.provided === "yes"
+    ? {
+        id: feedMetadata.id,
+        name: feedMetadata.name,
+        enabled: feedMetadata.enabled,
+        forced: feedMetadata.forced,
+        exclusive: feedMetadata.exclusive,
+        displayInfo: {
+          title: feedMetadata.title,
+          description: feedMetadata.description,
+          iconUrl: feedMetadata.iconUrl,
+        },
+      }
+    : undefined
+}
+
+export function feedMetadataFromPeers(peers: wireguard.Peer[]): wireguard.FeedMetadata | undefined {
+  const feedPeers = peers.filter(peer => peer.feedMetadata)
+
+  if (feedPeers.length === 0) {
+    return undefined
+  }
+
+  if (feedPeers.length > 1) {
+    throw new Error("Multiple peers have feed metadata, but only one is allowed")
+  }
+
+  return feedPeers[0].feedMetadata
+}
+
+export function getNextAvailablePort(portsInUse: number[], startingPort: number = 51820): number {
+  let port = startingPort
+
+  while (portsInUse.includes(port)) {
+    port++
+  }
+
+  return port
 }

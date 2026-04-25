@@ -1,8 +1,8 @@
 import { common } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { parseEndpoint } from "../../shared"
 
-const { name, args, inputs, outputs } = forUnit(common.remoteFile)
+const { name, stateId, args, inputs, outputs } = forUnit(common.remoteFile)
 
 const resolvedInputs = await toPromise(inputs)
 if (!resolvedInputs.endpoint && !args.url) {
@@ -12,13 +12,20 @@ if (!resolvedInputs.endpoint && !args.url) {
 const endpoint = parseEndpoint(resolvedInputs.endpoint ?? args.url!, 7)
 
 export default outputs({
-  file: {
+  file: makeEntityOutput({
+    entity: common.fileEntity,
+    identity: stateId,
     meta: {
-      name: args.fileName ?? endpoint.path?.split("/").pop() ?? name,
+      title: args.fileName ?? endpoint.path?.split("/").pop() ?? name,
     },
-    content: {
-      type: "remote",
-      endpoint,
+    value: {
+      meta: {
+        name: args.fileName ?? endpoint.path?.split("/").pop() ?? name,
+      },
+      content: {
+        type: "remote",
+        endpoint,
+      },
     },
-  },
+  }),
 })

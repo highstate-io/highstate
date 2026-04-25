@@ -2,6 +2,7 @@ import type { Logger } from "pino"
 import type { ApiKeyService, ProjectUnlockService } from "../business"
 import type { DatabaseManager, Worker, WorkerVersion } from "../database"
 import type { PubSubManager } from "../pubsub"
+import type { WorkerVersionStatus } from "../shared"
 import type { WorkerBackend } from "./abstractions"
 import { PassThrough } from "node:stream"
 import { z } from "zod"
@@ -9,6 +10,9 @@ import { type AsyncBatcher, createAsyncBatcher } from "../shared"
 
 export const workerManagerConfig = z.object({
   HIGHSTATE_WORKER_API_PATH: z.string().default("/var/run/highstate.sock"),
+  HIGHSTATE_WORKER_START_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  HIGHSTATE_WORKER_RESTART_BACKOFF_BASE_MS: z.coerce.number().int().nonnegative().default(1000),
+  HIGHSTATE_WORKER_RESTART_BACKOFF_MAX_MS: z.coerce.number().int().nonnegative().default(30000),
 })
 
 type RunningWorkerInfo = {
@@ -22,7 +26,40 @@ type RunningWorkerInfo = {
   lineBuffer?: string
 }
 
-export const maxWorkerStartAttempts = 5
+function getWorkerRestartBackoffMs(failedAttempts: number, baseMs: number, maxMs: number): number {
+  if (failedAttempts <= 0) {
+    return 0
+  }
+
+  const exponent = Math.max(0, failedAttempts - 1)
+  const uncapped = baseMs * 2 ** exponent
+
+  return Math.min(maxMs, uncapped)
+}
+
+async function waitForAbortableDelay(delayMs: number, signal: AbortSignal): Promise<boolean> {
+  if (delayMs <= 0) {
+    return true
+  }
+
+  if (signal.aborted) {
+    return false
+  }
+
+  return await new Promise(resolve => {
+    const onAbort = () => {
+      clearTimeout(timer)
+      resolve(false)
+    }
+
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort)
+      resolve(true)
+    }, delayMs)
+
+    signal.addEventListener("abort", onAbort, { once: true })
+  })
+}
 
 export class WorkerManager {
   constructor(
@@ -50,6 +87,17 @@ export class WorkerManager {
 
   private readonly runningWorkers = new Map<string, RunningWorkerInfo>()
 
+  private async publishWorkerVersionStatus(
+    projectId: string,
+    workerVersionId: string,
+    status: WorkerVersionStatus,
+  ): Promise<void> {
+    await this.pubsubManager.publish(["worker-version-status", projectId], {
+      workerVersionId,
+      status,
+    })
+  }
+
   private async startWorkerVersion(
     projectId: string,
     workerVersion: WorkerVersion & { worker: Worker },
@@ -70,6 +118,7 @@ export class WorkerManager {
     // calculate attempt number
     const previousFailedAttempts = existingInfo?.failedAttempts ?? 0
     const failedAttempts = restart ? previousFailedAttempts + 1 : 0
+    const maxWorkerStartAttempts = this.config.HIGHSTATE_WORKER_START_MAX_ATTEMPTS
 
     // check if max attempts reached
     if (failedAttempts >= maxWorkerStartAttempts) {
@@ -95,6 +144,8 @@ export class WorkerManager {
         },
       })
 
+      await this.publishWorkerVersionStatus(projectId, workerVersion.id, "error")
+
       // clean up from running workers map
       if (existingInfo) {
         existingInfo.logBatcher && void existingInfo.logBatcher.flush()
@@ -102,6 +153,45 @@ export class WorkerManager {
       }
 
       return
+    }
+
+    if (restart && existingInfo) {
+      const restartBackoffMs = getWorkerRestartBackoffMs(
+        failedAttempts,
+        this.config.HIGHSTATE_WORKER_RESTART_BACKOFF_BASE_MS,
+        this.config.HIGHSTATE_WORKER_RESTART_BACKOFF_MAX_MS,
+      )
+
+      if (restartBackoffMs > 0) {
+        this.logger.debug(
+          { projectId, workerVersionId: workerVersion.id, restartBackoffMs, failedAttempts },
+          `delaying worker version "%s" restart for %s ms after attempt %s`,
+          workerVersion.id,
+          restartBackoffMs,
+          failedAttempts,
+        )
+
+        await this.writeWorkerLog(
+          projectId,
+          workerVersion.id,
+          `worker restart scheduled in ${restartBackoffMs}ms`,
+        )
+
+        const canContinue = await waitForAbortableDelay(
+          restartBackoffMs,
+          existingInfo.abortController.signal,
+        )
+
+        if (!canContinue) {
+          return
+        }
+
+        const currentInfo = this.runningWorkers.get(workerVersion.id)
+
+        if (currentInfo !== existingInfo || currentInfo.abortController.signal.aborted) {
+          return
+        }
+      }
     }
 
     // regenerate API token
@@ -183,6 +273,8 @@ export class WorkerManager {
         runtimeId: this.runtimeId,
       },
     })
+
+    await this.publishWorkerVersionStatus(projectId, workerVersion.id, "starting")
 
     void this.workerBackend
       .run({
@@ -272,6 +364,8 @@ export class WorkerManager {
       },
     })
 
+    await this.publishWorkerVersionStatus(projectId, workerVersionId, "running")
+
     this.logger.debug(
       { projectId, workerVersionId },
       `worker version "%s" is now running in project "%s"`,
@@ -310,6 +404,8 @@ export class WorkerManager {
         runtimeId: this.runtimeId,
       },
     })
+
+    await this.publishWorkerVersionStatus(info.projectId, workerVersionId, "stopped")
 
     this.logger.debug(
       { projectId: info.projectId, workerVersionId },

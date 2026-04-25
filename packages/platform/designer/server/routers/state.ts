@@ -44,6 +44,26 @@ export const stateRouter = router({
       })
     }),
 
+  getOutputReferencedEntities: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        stateId: z.string(),
+        output: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.projectService.getProjectOrThrow(input.projectId)
+      const library = await ctx.libraryBackend.loadLibrary(project.libraryId)
+
+      return await ctx.entitySnapshotService.listReferencedEntitySnapshotsForOutput(
+        input.projectId,
+        input.stateId,
+        input.output,
+        library,
+      )
+    }),
+
   getInstanceLocks: publicProcedure
     .input(
       z.object({

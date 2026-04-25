@@ -22,6 +22,7 @@ declare global {
     type NullableInstanceId = contract.InstanceId | null
     type InstanceIds = contract.InstanceId[]
     type InstanceModel = contract.InstanceModel
+    type EntityMeta = Partial<contract.CommonObjectMeta>
 
     type InstanceArgs = Record<string, unknown>
     type InstanceResolvedInputs = Record<string, shared.StableInstanceInput[]>

@@ -34,15 +34,49 @@ export class YdbTopic extends pulumi.CustomResource {
         return obj['__pulumiType'] === YdbTopic.__pulumiType;
     }
 
+    declare public readonly autoPartitioningSettings: pulumi.Output<outputs.YdbTopicAutoPartitioningSettings | undefined>;
+    /**
+     * Topic Readers.
+     */
     declare public readonly consumers: pulumi.Output<outputs.YdbTopicConsumer[] | undefined>;
+    /**
+     * YDB database endpoint.
+     */
     declare public readonly databaseEndpoint: pulumi.Output<string>;
+    /**
+     * Topic description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Number of max active partitions. Default value `1`.
+     */
+    declare public readonly maxPartitionsCount: pulumi.Output<number>;
+    /**
+     * Resource metering mode (`reserved_capacity` - based on the allocated resources or `request_units` - based on actual
+     * usage). This option applies to topics in serverless databases.
+     */
     declare public readonly meteringMode: pulumi.Output<string>;
+    /**
+     * Topic name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Maximum allowed write speed per partition. If a write speed for a given partition exceeds this value, the write speed
+     * will be capped. Default value: `1024 (1MB)`.
+     */
     declare public readonly partitionWriteSpeedKbps: pulumi.Output<number>;
+    /**
+     * Number of min partitions. Default value `1`.
+     */
     declare public readonly partitionsCount: pulumi.Output<number>;
+    /**
+     * Data retention time. Default value `86400000`.
+     */
     declare public readonly retentionPeriodHours: pulumi.Output<number>;
     declare public readonly retentionStorageMb: pulumi.Output<number>;
+    /**
+     * Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
+     */
     declare public readonly supportedCodecs: pulumi.Output<string[]>;
     declare public readonly timeouts: pulumi.Output<outputs.YdbTopicTimeouts | undefined>;
     declare public readonly ydbTopicId: pulumi.Output<string>;
@@ -60,9 +94,11 @@ export class YdbTopic extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as YdbTopicState | undefined;
+            resourceInputs["autoPartitioningSettings"] = state?.autoPartitioningSettings;
             resourceInputs["consumers"] = state?.consumers;
             resourceInputs["databaseEndpoint"] = state?.databaseEndpoint;
             resourceInputs["description"] = state?.description;
+            resourceInputs["maxPartitionsCount"] = state?.maxPartitionsCount;
             resourceInputs["meteringMode"] = state?.meteringMode;
             resourceInputs["name"] = state?.name;
             resourceInputs["partitionWriteSpeedKbps"] = state?.partitionWriteSpeedKbps;
@@ -77,9 +113,11 @@ export class YdbTopic extends pulumi.CustomResource {
             if (args?.databaseEndpoint === undefined && !opts.urn) {
                 throw new Error("Missing required property 'databaseEndpoint'");
             }
+            resourceInputs["autoPartitioningSettings"] = args?.autoPartitioningSettings;
             resourceInputs["consumers"] = args?.consumers;
             resourceInputs["databaseEndpoint"] = args?.databaseEndpoint;
             resourceInputs["description"] = args?.description;
+            resourceInputs["maxPartitionsCount"] = args?.maxPartitionsCount;
             resourceInputs["meteringMode"] = args?.meteringMode;
             resourceInputs["name"] = args?.name;
             resourceInputs["partitionWriteSpeedKbps"] = args?.partitionWriteSpeedKbps;
@@ -99,15 +137,49 @@ export class YdbTopic extends pulumi.CustomResource {
  * Input properties used for looking up and filtering YdbTopic resources.
  */
 export interface YdbTopicState {
+    autoPartitioningSettings?: pulumi.Input<inputs.YdbTopicAutoPartitioningSettings>;
+    /**
+     * Topic Readers.
+     */
     consumers?: pulumi.Input<pulumi.Input<inputs.YdbTopicConsumer>[]>;
+    /**
+     * YDB database endpoint.
+     */
     databaseEndpoint?: pulumi.Input<string>;
+    /**
+     * Topic description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Number of max active partitions. Default value `1`.
+     */
+    maxPartitionsCount?: pulumi.Input<number>;
+    /**
+     * Resource metering mode (`reserved_capacity` - based on the allocated resources or `request_units` - based on actual
+     * usage). This option applies to topics in serverless databases.
+     */
     meteringMode?: pulumi.Input<string>;
+    /**
+     * Topic name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Maximum allowed write speed per partition. If a write speed for a given partition exceeds this value, the write speed
+     * will be capped. Default value: `1024 (1MB)`.
+     */
     partitionWriteSpeedKbps?: pulumi.Input<number>;
+    /**
+     * Number of min partitions. Default value `1`.
+     */
     partitionsCount?: pulumi.Input<number>;
+    /**
+     * Data retention time. Default value `86400000`.
+     */
     retentionPeriodHours?: pulumi.Input<number>;
     retentionStorageMb?: pulumi.Input<number>;
+    /**
+     * Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
+     */
     supportedCodecs?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.YdbTopicTimeouts>;
     ydbTopicId?: pulumi.Input<string>;
@@ -117,15 +189,49 @@ export interface YdbTopicState {
  * The set of arguments for constructing a YdbTopic resource.
  */
 export interface YdbTopicArgs {
+    autoPartitioningSettings?: pulumi.Input<inputs.YdbTopicAutoPartitioningSettings>;
+    /**
+     * Topic Readers.
+     */
     consumers?: pulumi.Input<pulumi.Input<inputs.YdbTopicConsumer>[]>;
+    /**
+     * YDB database endpoint.
+     */
     databaseEndpoint: pulumi.Input<string>;
+    /**
+     * Topic description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Number of max active partitions. Default value `1`.
+     */
+    maxPartitionsCount?: pulumi.Input<number>;
+    /**
+     * Resource metering mode (`reserved_capacity` - based on the allocated resources or `request_units` - based on actual
+     * usage). This option applies to topics in serverless databases.
+     */
     meteringMode?: pulumi.Input<string>;
+    /**
+     * Topic name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Maximum allowed write speed per partition. If a write speed for a given partition exceeds this value, the write speed
+     * will be capped. Default value: `1024 (1MB)`.
+     */
     partitionWriteSpeedKbps?: pulumi.Input<number>;
+    /**
+     * Number of min partitions. Default value `1`.
+     */
     partitionsCount?: pulumi.Input<number>;
+    /**
+     * Data retention time. Default value `86400000`.
+     */
     retentionPeriodHours?: pulumi.Input<number>;
     retentionStorageMb?: pulumi.Input<number>;
+    /**
+     * Supported data encodings. Can be one of `gzip`, `raw` or `zstd`.
+     */
     supportedCodecs?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.YdbTopicTimeouts>;
     ydbTopicId?: pulumi.Input<string>;

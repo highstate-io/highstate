@@ -1,7 +1,7 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import { databases } from "../.."
-import { serviceEntity } from "../service"
+import { redis } from "../../databases"
+import { statefulSetEntity } from "../workload"
 import {
   appName,
   optionalSharedInputs,
@@ -32,8 +32,8 @@ export const valkey = defineUnit({
   },
 
   outputs: {
-    redis: databases.redisEntity,
-    service: serviceEntity,
+    connection: redis.connectionEntity,
+    statefulSet: statefulSetEntity,
   },
 
   meta: {
@@ -43,5 +43,5 @@ export const valkey = defineUnit({
     category: "Databases",
   },
 
-  source: source("valkey/app"),
+  source: source("valkey"),
 })

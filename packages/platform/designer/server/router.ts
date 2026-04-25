@@ -7,6 +7,7 @@ import { terminalRouter } from "./routers/terminal"
 import { operationRouter } from "./routers/operation"
 import { logsRouter } from "./routers/logs"
 import { settingsRouter } from "./routers/settings"
+import { searchRouter } from "./routers/search"
 
 export const appRouter = router({
   state: stateRouter,
@@ -17,6 +18,7 @@ export const appRouter = router({
   terminal: terminalRouter,
   operation: operationRouter,
   logs: logsRouter,
+  search: searchRouter,
 })
 
 export type AppRouter = typeof appRouter

@@ -34,12 +34,34 @@ export class VpcRouteTable extends pulumi.CustomResource {
         return obj['__pulumiType'] === VpcRouteTable.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the network this route table belongs to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * A list of static route records for the route table. > Only one of `next_hop_address` or `gateway_id` should be
+     * specified.
+     */
     declare public readonly staticRoutes: pulumi.Output<outputs.VpcRouteTableStaticRoute[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.VpcRouteTableTimeouts | undefined>;
     declare public readonly vpcRouteTableId: pulumi.Output<string>;
@@ -90,12 +112,34 @@ export class VpcRouteTable extends pulumi.CustomResource {
  * Input properties used for looking up and filtering VpcRouteTable resources.
  */
 export interface VpcRouteTableState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the network this route table belongs to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * A list of static route records for the route table. > Only one of `next_hop_address` or `gateway_id` should be
+     * specified.
+     */
     staticRoutes?: pulumi.Input<pulumi.Input<inputs.VpcRouteTableStaticRoute>[]>;
     timeouts?: pulumi.Input<inputs.VpcRouteTableTimeouts>;
     vpcRouteTableId?: pulumi.Input<string>;
@@ -105,11 +149,30 @@ export interface VpcRouteTableState {
  * The set of arguments for constructing a VpcRouteTable resource.
  */
 export interface VpcRouteTableArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the network this route table belongs to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * A list of static route records for the route table. > Only one of `next_hop_address` or `gateway_id` should be
+     * specified.
+     */
     staticRoutes?: pulumi.Input<pulumi.Input<inputs.VpcRouteTableStaticRoute>[]>;
     timeouts?: pulumi.Input<inputs.VpcRouteTableTimeouts>;
     vpcRouteTableId?: pulumi.Input<string>;

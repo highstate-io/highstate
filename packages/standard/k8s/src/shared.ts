@@ -1,5 +1,5 @@
 import type { PartialKeys } from "@highstate/contract"
-import type { k8s } from "@highstate/library"
+import type { common, k8s } from "@highstate/library"
 import {
   ComponentResource,
   type ComponentResourceOptions,
@@ -24,7 +24,13 @@ export function getProvider(cluster: k8s.Cluster): Provider {
     return existing
   }
 
-  const provider = new Provider(name, { kubeconfig: secret(cluster.kubeconfig) })
+  if (cluster.kubeconfig.content.type !== "embedded-secret") {
+    throw new Error("Only embedded secrets are supported for cluster kubeconfig for now")
+  }
+
+  const provider = new Provider(name, {
+    kubeconfig: secret(cluster.kubeconfig.content.value.value),
+  })
   providers.set(name, provider)
 
   return provider
@@ -34,6 +40,28 @@ export async function getProviderAsync(cluster: Input<k8s.Cluster>): Promise<Pro
   const resolvedCluster = await toPromise(cluster)
 
   return getProvider(resolvedCluster)
+}
+
+export function getEmbeddedSecretFileContent(file: Input<common.File>): Output<string> {
+  return output(file).apply(file => {
+    if (file.content.type !== "embedded-secret") {
+      throw new Error("Only embedded-secret file contents are supported for kubeconfig for now")
+    }
+
+    return file.content.value.value
+  })
+}
+
+export function getClusterKubeconfigContent(cluster: Input<k8s.Cluster>): Output<string> {
+  return output(cluster).apply(cluster => {
+    if (cluster.kubeconfig.content.type !== "embedded-secret") {
+      throw new Error(
+        "Only embedded-secret file contents are supported for cluster kubeconfig for now",
+      )
+    }
+
+    return cluster.kubeconfig.content.value.value
+  })
 }
 
 export type NamespaceLike = core.v1.Namespace | Namespace | string

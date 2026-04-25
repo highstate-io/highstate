@@ -1,0 +1,7 @@
+{
+  "influxdb": {
+    "name": "ghcr.io/metrico/influxdb3-unlocked",
+    "tag": "latest",
+    "image": "ghcr.io/metrico/influxdb3-unlocked:latest@sha256:5cc4e82cdcf1d852e1df247a69d5d7274f7c27fa429734e8970fe24ac0380249"
+  }
+}

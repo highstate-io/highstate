@@ -1,16 +1,16 @@
 import type { InstanceId } from "@highstate/contract"
 import type { InstanceStateService, UpdateOperationStateOptions } from "../business"
 import type { InstanceOperationStatus } from "../database"
+import type {
+  InstanceStatus,
+  OperationPhase,
+  OperationPhaseType,
+  OperationType,
+  ProjectOutput,
+} from "../shared"
 import type { OperationContext } from "./operation-context"
 import { EventEmitter, on } from "node:events"
 import { mapValues } from "remeda"
-import {
-  type InstanceStatus,
-  isTransientInstanceOperationStatus,
-  type OperationPhase,
-  type OperationPhaseType,
-  type ProjectOutput,
-} from "../shared"
 
 type AbortControllerPair = {
   abortController: AbortController
@@ -35,6 +35,7 @@ export class OperationWorkset {
   constructor(
     readonly project: ProjectOutput,
     readonly operationId: string,
+    readonly operationType: OperationType,
     readonly phases: OperationPhase[],
     private readonly context: OperationContext,
     private readonly instanceStateService: InstanceStateService,
@@ -117,16 +118,33 @@ export class OperationWorkset {
     const patches = await this.instanceStateService.createOperationStates(
       this.project.id,
       Array.from(this.allAffectedInstanceIds).map(instanceId => {
-        const instance = this.context.getInstance(instanceId)
         const state = this.context.getState(instanceId)
-
-        const resolvedInputs = mapValues(
-          //
-          this.context.getResolvedInputs(instance.id) ?? {},
-          inputs => inputs.map(input => input.input),
+        const hasDestroyPhase = this.phases.some(
+          phase =>
+            phase.type === "destroy" &&
+            phase.instances.some(instance => instance.id === instanceId),
         )
 
-        const serializedResolvedInputs = this.context.serializeResolvedInputs(resolvedInputs)
+        // destroy plans may reference state-only instances that are no longer in the project model
+        const instance = hasDestroyPhase
+          ? (this.context.tryGetInstance(instanceId) ??
+            this.context.tryGetInstanceForDestroy(instanceId))
+          : this.context.tryGetInstance(instanceId)
+
+        if (!instance) {
+          throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
+        }
+
+        const serializedResolvedInputs =
+          this.context.getResolvedInputs(instance.id) != null
+            ? this.context.serializeResolvedInputs(
+                mapValues(
+                  //
+                  this.context.getResolvedInputs(instance.id) ?? {},
+                  inputs => inputs.map(input => input.input),
+                ),
+              )
+            : (state.resolvedInputs ?? {})
 
         return [
           {
@@ -155,6 +173,10 @@ export class OperationWorkset {
   async updateState(instanceId: InstanceId, options: UpdateOperationStateOptions): Promise<void> {
     const state = this.context.getState(instanceId)
 
+    if (state.lastOperationState?.operationId !== this.operationId) {
+      return
+    }
+
     const patch = await this.instanceStateService.updateOperationState(
       this.project.id,
       state.id,
@@ -164,9 +186,11 @@ export class OperationWorkset {
 
     Object.assign(state, patch)
 
-    if (state.parentInstanceId && this.currentPhase !== "preview") {
+    const parentInstanceId = this.getPhaseParentId(instanceId)
+
+    if (parentInstanceId && this.currentPhase !== "preview") {
       // TODO: update all updates in single transaction
-      await this.recalculateCompositeInstanceState(state.parentInstanceId)
+      await this.recalculateCompositeInstanceState(parentInstanceId)
     }
   }
 
@@ -221,12 +245,6 @@ export class OperationWorkset {
 
     await this.updateState(instanceId, {
       operationState: {
-        status:
-          !state.lastOperationState?.status ||
-          // do not override final statuses
-          isTransientInstanceOperationStatus(state.lastOperationState.status)
-            ? this.getTransientStatusByOperationPhase()
-            : state.lastOperationState.status,
         currentResourceCount,
         totalResourceCount: finalTotalResourceCount,
       },
@@ -271,6 +289,7 @@ export class OperationWorkset {
 
   getNextStableInstanceStatus(instanceId: InstanceId): InstanceStatus {
     const state = this.context.getState(instanceId)
+    const modelInstance = this.context.tryGetInstance(instanceId)
 
     switch (this.currentPhase) {
       case "preview":
@@ -278,10 +297,41 @@ export class OperationWorkset {
       case "update":
         return "deployed"
       case "destroy":
+        // update operations may include a destroy phase only for ghost cleanup
+        // keep composite containers deployed only while they still have unit descendants
+        if (this.operationType === "update" && modelInstance?.kind === "composite") {
+          return this.hasActiveUnitDescendant(instanceId) ? state.status : "undeployed"
+        }
+
         return "undeployed"
       case "refresh":
         return state.status // do not change instance status when refreshing
     }
+  }
+
+  private hasActiveUnitDescendant(instanceId: InstanceId): boolean {
+    const queue = [...this.context.getStateChildIds(instanceId)]
+    const visited = new Set<InstanceId>()
+
+    while (queue.length > 0) {
+      const childId = queue.shift()
+      if (!childId || visited.has(childId)) {
+        continue
+      }
+
+      visited.add(childId)
+
+      const childState = this.context.getState(childId)
+      if (childState.kind === "unit" && childState.status !== "undeployed") {
+        return true
+      }
+
+      if (childState.kind === "composite") {
+        queue.push(...this.context.getStateChildIds(childId))
+      }
+    }
+
+    return false
   }
 
   setupAbortControllersForAllInstances(): void {

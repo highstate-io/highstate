@@ -34,14 +34,43 @@ export class OrganizationmanagerUserSshKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === OrganizationmanagerUserSshKey.__pulumiType;
     }
 
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     declare public readonly data: pulumi.Output<string>;
-    declare public readonly expiresAt: pulumi.Output<string | undefined>;
+    /**
+     * Used for temporary keys, if empty the key doesn't expire
+     */
+    declare public readonly expiresAt: pulumi.Output<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     declare public /*out*/ readonly fingerprint: pulumi.Output<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     declare public readonly organizationId: pulumi.Output<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key_service.proto
+     */
+    declare public readonly organizationmanagerUserSshKeyId: pulumi.Output<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     declare public readonly subjectId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.OrganizationmanagerUserSshKeyTimeouts | undefined>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key_service.proto
+     */
+    declare public readonly userSshKeyId: pulumi.Output<string>;
 
     /**
      * Create a OrganizationmanagerUserSshKey resource with the given unique name, arguments, and options.
@@ -62,8 +91,10 @@ export class OrganizationmanagerUserSshKey extends pulumi.CustomResource {
             resourceInputs["fingerprint"] = state?.fingerprint;
             resourceInputs["name"] = state?.name;
             resourceInputs["organizationId"] = state?.organizationId;
+            resourceInputs["organizationmanagerUserSshKeyId"] = state?.organizationmanagerUserSshKeyId;
             resourceInputs["subjectId"] = state?.subjectId;
             resourceInputs["timeouts"] = state?.timeouts;
+            resourceInputs["userSshKeyId"] = state?.userSshKeyId;
         } else {
             const args = argsOrState as OrganizationmanagerUserSshKeyArgs | undefined;
             if (args?.data === undefined && !opts.urn) {
@@ -79,8 +110,10 @@ export class OrganizationmanagerUserSshKey extends pulumi.CustomResource {
             resourceInputs["expiresAt"] = args?.expiresAt;
             resourceInputs["name"] = args?.name;
             resourceInputs["organizationId"] = args?.organizationId;
+            resourceInputs["organizationmanagerUserSshKeyId"] = args?.organizationmanagerUserSshKeyId;
             resourceInputs["subjectId"] = args?.subjectId;
             resourceInputs["timeouts"] = args?.timeouts;
+            resourceInputs["userSshKeyId"] = args?.userSshKeyId;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["fingerprint"] = undefined /*out*/;
         }
@@ -93,24 +126,76 @@ export class OrganizationmanagerUserSshKey extends pulumi.CustomResource {
  * Input properties used for looking up and filtering OrganizationmanagerUserSshKey resources.
  */
 export interface OrganizationmanagerUserSshKeyState {
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     data?: pulumi.Input<string>;
+    /**
+     * Used for temporary keys, if empty the key doesn't expire
+     */
     expiresAt?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     fingerprint?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     name?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     organizationId?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key_service.proto
+     */
+    organizationmanagerUserSshKeyId?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     subjectId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerUserSshKeyTimeouts>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key_service.proto
+     */
+    userSshKeyId?: pulumi.Input<string>;
 }
 
 /**
  * The set of arguments for constructing a OrganizationmanagerUserSshKey resource.
  */
 export interface OrganizationmanagerUserSshKeyArgs {
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     data: pulumi.Input<string>;
+    /**
+     * Used for temporary keys, if empty the key doesn't expire
+     */
     expiresAt?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     name?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     organizationId: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key_service.proto
+     */
+    organizationmanagerUserSshKeyId?: pulumi.Input<string>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key.proto
+     */
     subjectId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerUserSshKeyTimeouts>;
+    /**
+     * package: yandex.cloud.organizationmanager.v1 filename: yandex/cloud/organizationmanager/v1/user_ssh_key_service.proto
+     */
+    userSshKeyId?: pulumi.Input<string>;
 }

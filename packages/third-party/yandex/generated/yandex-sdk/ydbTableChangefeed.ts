@@ -34,15 +34,40 @@ export class YdbTableChangefeed extends pulumi.CustomResource {
         return obj['__pulumiType'] === YdbTableChangefeed.__pulumiType;
     }
 
+    /**
+     * Connection string, conflicts with `table_id`.
+     */
     declare public readonly connectionString: pulumi.Output<string>;
+    /**
+     * Changefeed [consumers](https://ydb.tech/en/docs/concepts/topic#consumer) - named entities for reading data from the
+     * topic.
+     */
     declare public readonly consumers: pulumi.Output<outputs.YdbTableChangefeedConsumer[] | undefined>;
+    /**
+     * Changefeed format.
+     */
     declare public readonly format: pulumi.Output<string>;
+    /**
+     * [Changefeed mode](https://ydb.tech/en/docs/yql/reference/syntax/alter_table#changefeed-options).
+     */
     declare public readonly mode: pulumi.Output<string>;
+    /**
+     * Changefeed name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Time of data retention in the topic, [ISO 8601](https://ru.wikipedia.org/wiki/ISO_8601) format.
+     */
     declare public readonly retentionPeriod: pulumi.Output<string | undefined>;
     declare public readonly tableId: pulumi.Output<string>;
+    /**
+     * Table path.
+     */
     declare public readonly tablePath: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.YdbTableChangefeedTimeouts | undefined>;
+    /**
+     * Use [virtual timestamps](https://ydb.tech/en/docs/concepts/cdc#virtual-timestamps).
+     */
     declare public readonly virtualTimestamps: pulumi.Output<boolean | undefined>;
     declare public readonly ydbTableChangefeedId: pulumi.Output<string>;
 
@@ -99,15 +124,40 @@ export class YdbTableChangefeed extends pulumi.CustomResource {
  * Input properties used for looking up and filtering YdbTableChangefeed resources.
  */
 export interface YdbTableChangefeedState {
+    /**
+     * Connection string, conflicts with `table_id`.
+     */
     connectionString?: pulumi.Input<string>;
+    /**
+     * Changefeed [consumers](https://ydb.tech/en/docs/concepts/topic#consumer) - named entities for reading data from the
+     * topic.
+     */
     consumers?: pulumi.Input<pulumi.Input<inputs.YdbTableChangefeedConsumer>[]>;
+    /**
+     * Changefeed format.
+     */
     format?: pulumi.Input<string>;
+    /**
+     * [Changefeed mode](https://ydb.tech/en/docs/yql/reference/syntax/alter_table#changefeed-options).
+     */
     mode?: pulumi.Input<string>;
+    /**
+     * Changefeed name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time of data retention in the topic, [ISO 8601](https://ru.wikipedia.org/wiki/ISO_8601) format.
+     */
     retentionPeriod?: pulumi.Input<string>;
     tableId?: pulumi.Input<string>;
+    /**
+     * Table path.
+     */
     tablePath?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.YdbTableChangefeedTimeouts>;
+    /**
+     * Use [virtual timestamps](https://ydb.tech/en/docs/concepts/cdc#virtual-timestamps).
+     */
     virtualTimestamps?: pulumi.Input<boolean>;
     ydbTableChangefeedId?: pulumi.Input<string>;
 }
@@ -116,15 +166,40 @@ export interface YdbTableChangefeedState {
  * The set of arguments for constructing a YdbTableChangefeed resource.
  */
 export interface YdbTableChangefeedArgs {
+    /**
+     * Connection string, conflicts with `table_id`.
+     */
     connectionString?: pulumi.Input<string>;
+    /**
+     * Changefeed [consumers](https://ydb.tech/en/docs/concepts/topic#consumer) - named entities for reading data from the
+     * topic.
+     */
     consumers?: pulumi.Input<pulumi.Input<inputs.YdbTableChangefeedConsumer>[]>;
+    /**
+     * Changefeed format.
+     */
     format: pulumi.Input<string>;
+    /**
+     * [Changefeed mode](https://ydb.tech/en/docs/yql/reference/syntax/alter_table#changefeed-options).
+     */
     mode: pulumi.Input<string>;
+    /**
+     * Changefeed name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time of data retention in the topic, [ISO 8601](https://ru.wikipedia.org/wiki/ISO_8601) format.
+     */
     retentionPeriod?: pulumi.Input<string>;
     tableId?: pulumi.Input<string>;
+    /**
+     * Table path.
+     */
     tablePath?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.YdbTableChangefeedTimeouts>;
+    /**
+     * Use [virtual timestamps](https://ydb.tech/en/docs/concepts/cdc#virtual-timestamps).
+     */
     virtualTimestamps?: pulumi.Input<boolean>;
     ydbTableChangefeedId?: pulumi.Input<string>;
 }

@@ -4,17 +4,12 @@ import { common, dns, k3s, k8s } from "@highstate/library"
 /**
  * A single-node Kubernetes cluster created on top of existing server.
  *
- * Includes all necessary components + external access point and kubernetes dashboard.
+ * Includes all necessary components + external access point.
  */
 export const singleNodeCluster = defineComponent({
   type: "example.single-node-cluster.v1",
 
   args: {
-    /**
-     * The FQDN where the Kubernetes dashboard will be accessible.
-     */
-    dashboardFqdn: z.string(),
-
     /**
      * The public endpoint of the gateway to override automatic detection.
      */
@@ -31,7 +26,7 @@ export const singleNodeCluster = defineComponent({
     accessPoint: common.accessPointEntity,
   },
 
-  create({ name, args, inputs }) {
+  create({ name, inputs }) {
     // 1. create k3s cluster on the server
     const { k8sCluster } = k3s.cluster({
       name,
@@ -86,18 +81,6 @@ export const singleNodeCluster = defineComponent({
         gateway,
         dnsProviders: [inputs.dnsProvider],
         tlsIssuers: [tlsIssuer],
-      },
-    })
-
-    // 5. create kubernetes dashboard
-    k8s.apps.kubernetesDashboard({
-      name,
-      args: {
-        fqdn: args.dashboardFqdn,
-      },
-      inputs: {
-        k8sCluster: withCertManager,
-        accessPoint,
       },
     })
 

@@ -1,4 +1,11 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  secretSchema,
+  z,
+} from "@highstate/contract"
 import {
   checksumSchema,
   fileEntity,
@@ -13,6 +20,18 @@ import * as ssh from "./ssh"
 export const clusterEntity = defineEntity({
   type: "proxmox.cluster.v1",
 
+  includes: {
+    /**
+     * The SSH configuration for the Proxmox nodes.
+     *
+     * If not specified, it will be assumed that the nodes are not accessible via SSH.
+     */
+    ssh: {
+      entity: ssh.connectionEntity,
+      required: false,
+    },
+  },
+
   schema: z.object({
     endpoint: l7EndpointEntity.schema,
     insecure: z.boolean().optional(),
@@ -21,10 +40,8 @@ export const clusterEntity = defineEntity({
     defaultNodeName: z.string(),
     defaultDatastoreId: z.string(),
 
-    password: z.string().optional(),
-    apiToken: z.string().optional(),
-
-    ssh: ssh.connectionSchema.optional(),
+    password: secretSchema(z.string()).optional(),
+    apiToken: secretSchema(z.string()).optional(),
   }),
 
   meta: {
@@ -430,8 +447,8 @@ export const virtualMachine = defineUnit({
   },
 })
 
-export type Cluster = z.infer<typeof clusterEntity.schema>
-export type Image = z.infer<typeof imageEntity.schema>
+export type Cluster = EntityValue<typeof clusterEntity>
+export type Image = EntityValue<typeof imageEntity>
 
 export type ClusterInput = EntityInput<typeof clusterEntity>
 export type ImageInput = EntityInput<typeof imageEntity>

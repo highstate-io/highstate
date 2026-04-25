@@ -34,17 +34,84 @@ export class MdbPostgresqlUser extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbPostgresqlUser.__pulumiType;
     }
 
+    /**
+     * Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is
+     * `AUTH_METHOD_PASSWORD`.
+     */
+    declare public readonly authMethod: pulumi.Output<string | undefined>;
+    /**
+     * The ID of the PostgreSQL cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * The maximum number of connections per user. (Default 50).
+     */
     declare public readonly connLimit: pulumi.Output<number>;
+    /**
+     * Connection Manager connection configuration. Filled in by the server automatically.
+     */
+    declare public /*out*/ readonly connectionManager: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<string | undefined>;
-    declare public readonly grants: pulumi.Output<string[]>;
+    /**
+     * Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is
+     * ignored during updating. > **Must specify either password or generate_password**.
+     */
+    declare public readonly generatePassword: pulumi.Output<boolean | undefined>;
+    /**
+     * List of the user's grants.
+     */
+    declare public readonly grants: pulumi.Output<string[] | undefined>;
+    /**
+     * User's ability to login.
+     */
     declare public readonly login: pulumi.Output<boolean | undefined>;
     declare public readonly mdbPostgresqlUserId: pulumi.Output<string>;
+    /**
+     * The name of the PostgreSQL user.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly password: pulumi.Output<string>;
+    /**
+     * The password of the user.
+     */
+    declare public readonly password: pulumi.Output<string | undefined>;
+    /**
+     * Set of permissions granted to the user.
+     */
     declare public readonly permissions: pulumi.Output<outputs.MdbPostgresqlUserPermission[] | undefined>;
-    declare public readonly settings: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Map of user settings. [Full
+     * description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+     * - `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+     * - `read uncommitted` - `read committed` - `repeatable read` - `serializable` - `lock_timeout` - The maximum time (in
+     * milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default
+     * 0) - `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables
+     * logging of the duration of statements.) - `synchronous_commit` - This setting defines whether DBMS will commit
+     * transaction in a synchronous way. One of: - `on` - `off` - `local` - `remote write` - `remote apply` - `temp_file_limit`
+     * - The maximum storage space size (in kilobytes) that a single process can use to create temporary files. -
+     * `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of: - `none` -
+     * `ddl` - `mod` - `all` - `pool_mode` - Mode that the connection pooler is working in with specified user. One of: -
+     * `session` - `transaction` - `statement` - `prepared_statements_pooling` - This setting allows user to use prepared
+     * statements with transaction pooling. Boolean. - `catchup_timeout` - The connection pooler setting. It determines the
+     * maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this
+     * threshold. Default value is 0, which disables this feature. Integer. - `wal_sender_timeout` - The maximum time (in
+     * milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that
+     * are inactive for longer than this amount of time. Integer. - `idle_in_transaction_session_timeout` - Sets the maximum
+     * allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout.
+     * Integer. - `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables
+     * the timeout. Integer. - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full
+     * description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings).
+     * String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
+     */
+    declare public readonly settings: pulumi.Output<{[key: string]: string} | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbPostgresqlUserTimeouts | undefined>;
+    /**
+     * Password-based authentication method for user. Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or
+     * `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`. The default is password_encryption setting for cluster.
+     */
+    declare public readonly userPasswordEncryption: pulumi.Output<string>;
 
     /**
      * Create a MdbPostgresqlUser resource with the given unique name, arguments, and options.
@@ -59,9 +126,12 @@ export class MdbPostgresqlUser extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as MdbPostgresqlUserState | undefined;
+            resourceInputs["authMethod"] = state?.authMethod;
             resourceInputs["clusterId"] = state?.clusterId;
             resourceInputs["connLimit"] = state?.connLimit;
+            resourceInputs["connectionManager"] = state?.connectionManager;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
+            resourceInputs["generatePassword"] = state?.generatePassword;
             resourceInputs["grants"] = state?.grants;
             resourceInputs["login"] = state?.login;
             resourceInputs["mdbPostgresqlUserId"] = state?.mdbPostgresqlUserId;
@@ -70,17 +140,17 @@ export class MdbPostgresqlUser extends pulumi.CustomResource {
             resourceInputs["permissions"] = state?.permissions;
             resourceInputs["settings"] = state?.settings;
             resourceInputs["timeouts"] = state?.timeouts;
+            resourceInputs["userPasswordEncryption"] = state?.userPasswordEncryption;
         } else {
             const args = argsOrState as MdbPostgresqlUserArgs | undefined;
             if (args?.clusterId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'clusterId'");
             }
-            if (args?.password === undefined && !opts.urn) {
-                throw new Error("Missing required property 'password'");
-            }
+            resourceInputs["authMethod"] = args?.authMethod;
             resourceInputs["clusterId"] = args?.clusterId;
             resourceInputs["connLimit"] = args?.connLimit;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
+            resourceInputs["generatePassword"] = args?.generatePassword;
             resourceInputs["grants"] = args?.grants;
             resourceInputs["login"] = args?.login;
             resourceInputs["mdbPostgresqlUserId"] = args?.mdbPostgresqlUserId;
@@ -89,6 +159,8 @@ export class MdbPostgresqlUser extends pulumi.CustomResource {
             resourceInputs["permissions"] = args?.permissions;
             resourceInputs["settings"] = args?.settings;
             resourceInputs["timeouts"] = args?.timeouts;
+            resourceInputs["userPasswordEncryption"] = args?.userPasswordEncryption;
+            resourceInputs["connectionManager"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const secretOpts = { additionalSecretOutputs: ["password"] };
@@ -101,32 +173,162 @@ export class MdbPostgresqlUser extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbPostgresqlUser resources.
  */
 export interface MdbPostgresqlUserState {
+    /**
+     * Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is
+     * `AUTH_METHOD_PASSWORD`.
+     */
+    authMethod?: pulumi.Input<string>;
+    /**
+     * The ID of the PostgreSQL cluster.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * The maximum number of connections per user. (Default 50).
+     */
     connLimit?: pulumi.Input<number>;
+    /**
+     * Connection Manager connection configuration. Filled in by the server automatically.
+     */
+    connectionManager?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<string>;
+    /**
+     * Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is
+     * ignored during updating. > **Must specify either password or generate_password**.
+     */
+    generatePassword?: pulumi.Input<boolean>;
+    /**
+     * List of the user's grants.
+     */
     grants?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * User's ability to login.
+     */
     login?: pulumi.Input<boolean>;
     mdbPostgresqlUserId?: pulumi.Input<string>;
+    /**
+     * The name of the PostgreSQL user.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
     password?: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlUserPermission>[]>;
+    /**
+     * Map of user settings. [Full
+     * description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+     * - `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+     * - `read uncommitted` - `read committed` - `repeatable read` - `serializable` - `lock_timeout` - The maximum time (in
+     * milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default
+     * 0) - `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables
+     * logging of the duration of statements.) - `synchronous_commit` - This setting defines whether DBMS will commit
+     * transaction in a synchronous way. One of: - `on` - `off` - `local` - `remote write` - `remote apply` - `temp_file_limit`
+     * - The maximum storage space size (in kilobytes) that a single process can use to create temporary files. -
+     * `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of: - `none` -
+     * `ddl` - `mod` - `all` - `pool_mode` - Mode that the connection pooler is working in with specified user. One of: -
+     * `session` - `transaction` - `statement` - `prepared_statements_pooling` - This setting allows user to use prepared
+     * statements with transaction pooling. Boolean. - `catchup_timeout` - The connection pooler setting. It determines the
+     * maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this
+     * threshold. Default value is 0, which disables this feature. Integer. - `wal_sender_timeout` - The maximum time (in
+     * milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that
+     * are inactive for longer than this amount of time. Integer. - `idle_in_transaction_session_timeout` - Sets the maximum
+     * allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout.
+     * Integer. - `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables
+     * the timeout. Integer. - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full
+     * description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings).
+     * String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
+     */
     settings?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     timeouts?: pulumi.Input<inputs.MdbPostgresqlUserTimeouts>;
+    /**
+     * Password-based authentication method for user. Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or
+     * `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`. The default is password_encryption setting for cluster.
+     */
+    userPasswordEncryption?: pulumi.Input<string>;
 }
 
 /**
  * The set of arguments for constructing a MdbPostgresqlUser resource.
  */
 export interface MdbPostgresqlUserArgs {
+    /**
+     * Authentication method for the user. Possible values are `AUTH_METHOD_PASSWORD`, `AUTH_METHOD_IAM`. Default is
+     * `AUTH_METHOD_PASSWORD`.
+     */
+    authMethod?: pulumi.Input<string>;
+    /**
+     * The ID of the PostgreSQL cluster.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * The maximum number of connections per user. (Default 50).
+     */
     connLimit?: pulumi.Input<number>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<string>;
+    /**
+     * Generate password using Connection Manager. Allowed values: true or false. It's used only during user creation and is
+     * ignored during updating. > **Must specify either password or generate_password**.
+     */
+    generatePassword?: pulumi.Input<boolean>;
+    /**
+     * List of the user's grants.
+     */
     grants?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * User's ability to login.
+     */
     login?: pulumi.Input<boolean>;
     mdbPostgresqlUserId?: pulumi.Input<string>;
+    /**
+     * The name of the PostgreSQL user.
+     */
     name?: pulumi.Input<string>;
-    password: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
+    password?: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbPostgresqlUserPermission>[]>;
+    /**
+     * Map of user settings. [Full
+     * description](https://yandex.cloud/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.UserSettings).
+     * - `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. One of:
+     * - `read uncommitted` - `read committed` - `repeatable read` - `serializable` - `lock_timeout` - The maximum time (in
+     * milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default
+     * 0) - `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables
+     * logging of the duration of statements.) - `synchronous_commit` - This setting defines whether DBMS will commit
+     * transaction in a synchronous way. One of: - `on` - `off` - `local` - `remote write` - `remote apply` - `temp_file_limit`
+     * - The maximum storage space size (in kilobytes) that a single process can use to create temporary files. -
+     * `log_statement` - This setting specifies which SQL statements should be logged (on the user level). One of: - `none` -
+     * `ddl` - `mod` - `all` - `pool_mode` - Mode that the connection pooler is working in with specified user. One of: -
+     * `session` - `transaction` - `statement` - `prepared_statements_pooling` - This setting allows user to use prepared
+     * statements with transaction pooling. Boolean. - `catchup_timeout` - The connection pooler setting. It determines the
+     * maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this
+     * threshold. Default value is 0, which disables this feature. Integer. - `wal_sender_timeout` - The maximum time (in
+     * milliseconds) to wait for WAL replication (can be set only for PostgreSQL 12+). Terminate replication connections that
+     * are inactive for longer than this amount of time. Integer. - `idle_in_transaction_session_timeout` - Sets the maximum
+     * allowed idle time (in milliseconds) between queries, when in a transaction. Value of 0 (default) disables the timeout.
+     * Integer. - `statement_timeout` - The maximum time (in milliseconds) to wait for statement. Value of 0 (default) disables
+     * the timeout. Integer. - `pgaudit` - Settings of the PostgreSQL Audit Extension (pgaudit). [Full
+     * description](https://yandex.cloud/ru/docs/managed-postgresql/api-ref/grpc/Cluster/create#yandex.cloud.mdb.postgresql.v1.PGAuditSettings).
+     * String (json with with escaped quotes). Example `"{\"log\": [\"READ\", \"WRITE\"]}"`
+     */
     settings?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     timeouts?: pulumi.Input<inputs.MdbPostgresqlUserTimeouts>;
+    /**
+     * Password-based authentication method for user. Possible values are `USER_PASSWORD_ENCRYPTION_MD5` or
+     * `USER_PASSWORD_ENCRYPTION_SCRAM_SHA_256`. The default is password_encryption setting for cluster.
+     */
+    userPasswordEncryption?: pulumi.Input<string>;
 }

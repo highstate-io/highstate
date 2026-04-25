@@ -35,41 +35,54 @@ export class MdbOpensearchCluster extends pulumi.CustomResource {
     }
 
     /**
-     * Authentification settings for dashboards
+     * Authentication settings for Dashboards.
      */
     declare public readonly authSettings: pulumi.Output<outputs.MdbOpensearchClusterAuthSettings | undefined>;
+    /**
+     * The ID of the OpenSearch cluster that the resource belongs to.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
     /**
      * Configuration of the OpenSearch cluster.
      */
     declare public readonly config: pulumi.Output<outputs.MdbOpensearchClusterConfig | undefined>;
     /**
-     * Creation timestamp
+     * The creation timestamp of the resource.
      */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
     /**
-     * Description of the OpenSearch cluster
+     * The resource description.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
     /**
-     * Deployment environment of the OpenSearch cluster.
+     * ID of the KMS key for cluster disk encryption.
+     */
+    declare public readonly diskEncryptionKeyId: pulumi.Output<string | undefined>;
+    /**
+     * Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It
+     * is not possible to change this value after cluster creation**.
      */
     declare public readonly environment: pulumi.Output<string>;
     /**
-     * ID of the folder that the OpenSearch cluster belongs to.
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
      */
     declare public readonly folderId: pulumi.Output<string>;
     /**
-     * Aggregated cluster health.
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).
      */
     declare public /*out*/ readonly health: pulumi.Output<string>;
     /**
-     * Current nodes in the cluster
+     * A hosts of the OpenSearch cluster.
      */
     declare public /*out*/ readonly hosts: pulumi.Output<outputs.MdbOpensearchClusterHost[]>;
     /**
-     * Custom labels for the OpenSearch cluster as `key:value` pairs.
+     * A set of key/value label pairs which assigned to resource.
      */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbOpensearchClusterMaintenanceWindow | undefined>;
@@ -78,16 +91,21 @@ export class MdbOpensearchCluster extends pulumi.CustomResource {
      */
     declare public readonly name: pulumi.Output<string>;
     /**
-     * ID of the network that the cluster belongs to.
+     * The `VPC Network ID` of subnets which resource attached to.
      */
     declare public readonly networkId: pulumi.Output<string>;
     /**
-     * User security groups
+     * The list of security groups applied to resource or their components.
      */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * ID of the service account authorized for this cluster.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string | undefined>;
     /**
-     * Current state of the cluster.
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).
      */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbOpensearchClusterTimeouts | undefined>;
@@ -111,6 +129,7 @@ export class MdbOpensearchCluster extends pulumi.CustomResource {
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskEncryptionKeyId"] = state?.diskEncryptionKeyId;
             resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["health"] = state?.health;
@@ -133,6 +152,7 @@ export class MdbOpensearchCluster extends pulumi.CustomResource {
             resourceInputs["config"] = args?.config;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskEncryptionKeyId"] = args?.diskEncryptionKeyId;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
@@ -157,41 +177,54 @@ export class MdbOpensearchCluster extends pulumi.CustomResource {
  */
 export interface MdbOpensearchClusterState {
     /**
-     * Authentification settings for dashboards
+     * Authentication settings for Dashboards.
      */
     authSettings?: pulumi.Input<inputs.MdbOpensearchClusterAuthSettings>;
+    /**
+     * The ID of the OpenSearch cluster that the resource belongs to.
+     */
     clusterId?: pulumi.Input<string>;
     /**
      * Configuration of the OpenSearch cluster.
      */
     config?: pulumi.Input<inputs.MdbOpensearchClusterConfig>;
     /**
-     * Creation timestamp
+     * The creation timestamp of the resource.
      */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
     /**
-     * Description of the OpenSearch cluster
+     * The resource description.
      */
     description?: pulumi.Input<string>;
     /**
-     * Deployment environment of the OpenSearch cluster.
+     * ID of the KMS key for cluster disk encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It
+     * is not possible to change this value after cluster creation**.
      */
     environment?: pulumi.Input<string>;
     /**
-     * ID of the folder that the OpenSearch cluster belongs to.
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
      */
     folderId?: pulumi.Input<string>;
     /**
-     * Aggregated cluster health.
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).
      */
     health?: pulumi.Input<string>;
     /**
-     * Current nodes in the cluster
+     * A hosts of the OpenSearch cluster.
      */
     hosts?: pulumi.Input<pulumi.Input<inputs.MdbOpensearchClusterHost>[]>;
     /**
-     * Custom labels for the OpenSearch cluster as `key:value` pairs.
+     * A set of key/value label pairs which assigned to resource.
      */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     maintenanceWindow?: pulumi.Input<inputs.MdbOpensearchClusterMaintenanceWindow>;
@@ -200,16 +233,21 @@ export interface MdbOpensearchClusterState {
      */
     name?: pulumi.Input<string>;
     /**
-     * ID of the network that the cluster belongs to.
+     * The `VPC Network ID` of subnets which resource attached to.
      */
     networkId?: pulumi.Input<string>;
     /**
-     * User security groups
+     * The list of security groups applied to resource or their components.
      */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * ID of the service account authorized for this cluster.
+     */
     serviceAccountId?: pulumi.Input<string>;
     /**
-     * Current state of the cluster.
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-opensearch/api-ref/Cluster/).
      */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbOpensearchClusterTimeouts>;
@@ -220,29 +258,40 @@ export interface MdbOpensearchClusterState {
  */
 export interface MdbOpensearchClusterArgs {
     /**
-     * Authentification settings for dashboards
+     * Authentication settings for Dashboards.
      */
     authSettings?: pulumi.Input<inputs.MdbOpensearchClusterAuthSettings>;
+    /**
+     * The ID of the OpenSearch cluster that the resource belongs to.
+     */
     clusterId?: pulumi.Input<string>;
     /**
      * Configuration of the OpenSearch cluster.
      */
     config?: pulumi.Input<inputs.MdbOpensearchClusterConfig>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
     /**
-     * Description of the OpenSearch cluster
+     * The resource description.
      */
     description?: pulumi.Input<string>;
     /**
-     * Deployment environment of the OpenSearch cluster.
+     * ID of the KMS key for cluster disk encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. **It
+     * is not possible to change this value after cluster creation**.
      */
     environment?: pulumi.Input<string>;
     /**
-     * ID of the folder that the OpenSearch cluster belongs to.
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
      */
     folderId?: pulumi.Input<string>;
     /**
-     * Custom labels for the OpenSearch cluster as `key:value` pairs.
+     * A set of key/value label pairs which assigned to resource.
      */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     maintenanceWindow?: pulumi.Input<inputs.MdbOpensearchClusterMaintenanceWindow>;
@@ -251,13 +300,16 @@ export interface MdbOpensearchClusterArgs {
      */
     name?: pulumi.Input<string>;
     /**
-     * ID of the network that the cluster belongs to.
+     * The `VPC Network ID` of subnets which resource attached to.
      */
     networkId: pulumi.Input<string>;
     /**
-     * User security groups
+     * The list of security groups applied to resource or their components.
      */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * ID of the service account authorized for this cluster.
+     */
     serviceAccountId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbOpensearchClusterTimeouts>;
 }

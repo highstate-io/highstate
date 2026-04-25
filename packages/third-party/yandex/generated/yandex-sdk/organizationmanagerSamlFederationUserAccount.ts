@@ -34,7 +34,13 @@ export class OrganizationmanagerSamlFederationUserAccount extends pulumi.CustomR
         return obj['__pulumiType'] === OrganizationmanagerSamlFederationUserAccount.__pulumiType;
     }
 
+    /**
+     * ID of a SAML Federation.
+     */
     declare public readonly federationId: pulumi.Output<string>;
+    /**
+     * Name ID of the SAML federated user.
+     */
     declare public readonly nameId: pulumi.Output<string>;
     declare public readonly organizationmanagerSamlFederationUserAccountId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.OrganizationmanagerSamlFederationUserAccountTimeouts | undefined>;
@@ -78,7 +84,13 @@ export class OrganizationmanagerSamlFederationUserAccount extends pulumi.CustomR
  * Input properties used for looking up and filtering OrganizationmanagerSamlFederationUserAccount resources.
  */
 export interface OrganizationmanagerSamlFederationUserAccountState {
+    /**
+     * ID of a SAML Federation.
+     */
     federationId?: pulumi.Input<string>;
+    /**
+     * Name ID of the SAML federated user.
+     */
     nameId?: pulumi.Input<string>;
     organizationmanagerSamlFederationUserAccountId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerSamlFederationUserAccountTimeouts>;
@@ -88,7 +100,13 @@ export interface OrganizationmanagerSamlFederationUserAccountState {
  * The set of arguments for constructing a OrganizationmanagerSamlFederationUserAccount resource.
  */
 export interface OrganizationmanagerSamlFederationUserAccountArgs {
+    /**
+     * ID of a SAML Federation.
+     */
     federationId: pulumi.Input<string>;
+    /**
+     * Name ID of the SAML federated user.
+     */
     nameId: pulumi.Input<string>;
     organizationmanagerSamlFederationUserAccountId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerSamlFederationUserAccountTimeouts>;

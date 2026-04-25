@@ -405,10 +405,6 @@ export type OperationLogUncheckedUpdateManyWithoutOperationNestedInput = {
   deleteMany?: Prisma.OperationLogScalarWhereInput | Prisma.OperationLogScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type OperationLogCreateWithoutStateInput = {
   id: string
   isSystem?: boolean

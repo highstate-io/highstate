@@ -34,10 +34,23 @@ export class MdbMongodbUser extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbMongodbUser.__pulumiType;
     }
 
+    /**
+     * The ID of the cluster to which user belongs to.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * The name of the user.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The password of the user.
+     */
     declare public readonly password: pulumi.Output<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     declare public readonly permissions: pulumi.Output<outputs.MdbMongodbUserPermission[] | undefined>;
+    declare public readonly timeouts: pulumi.Output<outputs.MdbMongodbUserTimeouts | undefined>;
 
     /**
      * Create a MdbMongodbUser resource with the given unique name, arguments, and options.
@@ -56,6 +69,7 @@ export class MdbMongodbUser extends pulumi.CustomResource {
             resourceInputs["name"] = state?.name;
             resourceInputs["password"] = state?.password;
             resourceInputs["permissions"] = state?.permissions;
+            resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as MdbMongodbUserArgs | undefined;
             if (args?.clusterId === undefined && !opts.urn) {
@@ -68,6 +82,7 @@ export class MdbMongodbUser extends pulumi.CustomResource {
             resourceInputs["name"] = args?.name;
             resourceInputs["password"] = args?.password ? pulumi.secret(args.password) : undefined;
             resourceInputs["permissions"] = args?.permissions;
+            resourceInputs["timeouts"] = args?.timeouts;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const secretOpts = { additionalSecretOutputs: ["password"] };
@@ -80,18 +95,44 @@ export class MdbMongodbUser extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbMongodbUser resources.
  */
 export interface MdbMongodbUserState {
+    /**
+     * The ID of the cluster to which user belongs to.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * The name of the user.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
     password?: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbMongodbUserPermission>[]>;
+    timeouts?: pulumi.Input<inputs.MdbMongodbUserTimeouts>;
 }
 
 /**
  * The set of arguments for constructing a MdbMongodbUser resource.
  */
 export interface MdbMongodbUserArgs {
+    /**
+     * The ID of the cluster to which user belongs to.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * The name of the user.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
     password: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbMongodbUserPermission>[]>;
+    timeouts?: pulumi.Input<inputs.MdbMongodbUserTimeouts>;
 }

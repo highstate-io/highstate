@@ -34,12 +34,30 @@ export class MdbKafkaConnector extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbKafkaConnector.__pulumiType;
     }
 
+    /**
+     * The ID of the Kafka cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * Settings for MirrorMaker2 connector.
+     */
     declare public readonly connectorConfigMirrormakers: pulumi.Output<outputs.MdbKafkaConnectorConnectorConfigMirrormaker[] | undefined>;
+    /**
+     * Settings for S3 Sink connector.
+     */
     declare public readonly connectorConfigS3Sinks: pulumi.Output<outputs.MdbKafkaConnectorConnectorConfigS3Sink[] | undefined>;
     declare public readonly mdbKafkaConnectorId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Additional properties for connector.
+     */
     declare public readonly properties: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The number of the connector's parallel working tasks. Default is the number of brokers.
+     */
     declare public readonly tasksMax: pulumi.Output<number | undefined>;
 
     /**
@@ -84,12 +102,30 @@ export class MdbKafkaConnector extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbKafkaConnector resources.
  */
 export interface MdbKafkaConnectorState {
+    /**
+     * The ID of the Kafka cluster.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * Settings for MirrorMaker2 connector.
+     */
     connectorConfigMirrormakers?: pulumi.Input<pulumi.Input<inputs.MdbKafkaConnectorConnectorConfigMirrormaker>[]>;
+    /**
+     * Settings for S3 Sink connector.
+     */
     connectorConfigS3Sinks?: pulumi.Input<pulumi.Input<inputs.MdbKafkaConnectorConnectorConfigS3Sink>[]>;
     mdbKafkaConnectorId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Additional properties for connector.
+     */
     properties?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The number of the connector's parallel working tasks. Default is the number of brokers.
+     */
     tasksMax?: pulumi.Input<number>;
 }
 
@@ -97,11 +133,29 @@ export interface MdbKafkaConnectorState {
  * The set of arguments for constructing a MdbKafkaConnector resource.
  */
 export interface MdbKafkaConnectorArgs {
+    /**
+     * The ID of the Kafka cluster.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * Settings for MirrorMaker2 connector.
+     */
     connectorConfigMirrormakers?: pulumi.Input<pulumi.Input<inputs.MdbKafkaConnectorConnectorConfigMirrormaker>[]>;
+    /**
+     * Settings for S3 Sink connector.
+     */
     connectorConfigS3Sinks?: pulumi.Input<pulumi.Input<inputs.MdbKafkaConnectorConnectorConfigS3Sink>[]>;
     mdbKafkaConnectorId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Additional properties for connector.
+     */
     properties?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The number of the connector's parallel working tasks. Default is the number of brokers.
+     */
     tasksMax?: pulumi.Input<number>;
 }

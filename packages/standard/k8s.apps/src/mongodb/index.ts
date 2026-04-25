@@ -1,140 +1,133 @@
-import type { databases } from "@highstate/library"
-import { l3EndpointToString } from "@highstate/common"
 import {
-  createScriptContainer,
-  Job,
-  NetworkPolicy,
-  requireBestEndpoint,
-  type ScopedResourceArgs,
-  ScriptBundle,
-  Secret,
-} from "@highstate/k8s"
-import {
-  ComponentResource,
-  type ComponentResourceOptions,
-  type Input,
-  interpolate,
-  type Output,
-  output,
-} from "@highstate/pulumi"
-import { initEnvironment } from "./scripts"
+  generateKey,
+  generatePassword,
+  l3EndpointToString,
+  l4EndpointToString,
+} from "@highstate/common"
+import { Chart, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
+import { k8s, mongodb } from "@highstate/library"
+import { forUnit, makeEntityOutput, makeSecretOutput, toPromise } from "@highstate/pulumi"
+import { BackupJobPair } from "@highstate/restic"
+import { charts, createBootstrapServiceEndpoint } from "../shared"
+import { backupEnvironment } from "./scripts"
 
-export type MongoDBDatabaseArgs = ScopedResourceArgs & {
-  mongodb: Input<databases.MongoDB>
-  database?: Input<string>
-  username?: Input<string>
-  password: Input<string>
-}
+const { stateId, args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.mongodb)
 
-export class MongoDBDatabase extends ComponentResource {
-  readonly rootPassword: Secret
-  readonly credentials: Secret
-  readonly scriptBundle: ScriptBundle
-  readonly initJob: Job
-  /**
-   * The network policy to allow access to the database from the namespace.
-   * If the namespace is equal to the namespace of the MongoDB instance,
-   * the policy will not be created.
-   */
-  readonly networkPolicy: Output<NetworkPolicy | undefined>
+const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
-  constructor(name: string, args: MongoDBDatabaseArgs, opts?: ComponentResourceOptions) {
-    super("highstate:apps:MongoDBDatabase", name, args, opts)
+const adminPassword = getSecret("adminPassword", generatePassword)
+const backupKey = getSecret("backupKey", generateKey)
 
-    this.rootPassword = Secret.create(
-      `${name}-mongodb-root-password`,
+const rootPasswordSecret = Secret.create(
+  `${args.appName}-root-password`,
+  {
+    namespace,
+
+    stringData: {
+      "mongodb-root-password": adminPassword,
+    },
+  },
+  { deletedWith: namespace },
+)
+
+const dataVolumeClaim = PersistentVolumeClaim.create(
+  `${args.appName}-data`,
+  { namespace },
+  { deletedWith: namespace },
+)
+
+const serviceEndpoint = createBootstrapServiceEndpoint(namespace, args.appName, 27017)
+
+const backupJobPair = inputs.resticRepo
+  ? new BackupJobPair(
+      args.appName,
       {
-        namespace: args.namespace,
+        namespace,
 
-        stringData: {
-          "mongodb-root-password": output(args.mongodb).apply(m => m.password ?? ""),
+        resticRepo: inputs.resticRepo,
+        backupKey,
+
+        environments: [backupEnvironment],
+
+        backupContainer: {
+          image:
+            "alpine/mongosh@sha256:2d7a9cb13f433ae72c13019db935e74831359a022f0a89282e5294cf578db3bc",
         },
-      },
-      { ...opts, parent: this },
-    )
 
-    const database = args.database ?? name
-    const username = args.username ?? database
-
-    const endpoint = output({
-      cluster: output(args.namespace).cluster,
-      endpoints: output(args.mongodb).endpoints,
-    }).apply(({ endpoints, cluster }) => requireBestEndpoint(endpoints, cluster))
-
-    const host = endpoint.apply(l3EndpointToString)
-    const port = endpoint.apply(ep => ep.port?.toString() ?? "")
-
-    this.credentials = Secret.create(
-      `${name}-mongodb-credentials`,
-      {
-        namespace: args.namespace,
-
-        stringData: {
-          host,
-          port,
-          database,
-          username,
-          password: args.password,
-          url: interpolate`mongodb://${username}:${args.password}@${host}:${port}/${database}`,
+        restoreContainer: {
+          image:
+            "alpine/mongosh@sha256:2d7a9cb13f433ae72c13019db935e74831359a022f0a89282e5294cf578db3bc",
         },
-      },
-      { ...opts, parent: this },
-    )
-
-    this.scriptBundle = new ScriptBundle(
-      `${name}-mongodb-scripts`,
-      {
-        namespace: args.namespace,
-
-        distribution: "alpine",
-        environments: [initEnvironment],
 
         environment: {
           environment: {
             MONGODB_ROOT_PASSWORD: {
-              secret: this.rootPassword,
+              secret: rootPasswordSecret,
               key: "mongodb-root-password",
             },
-            DATABASE_HOST: {
-              secret: this.credentials,
-              key: "host",
-            },
-            DATABASE_NAME: {
-              secret: this.credentials,
-              key: "database",
-            },
-            DATABASE_USER: {
-              secret: this.credentials,
-              key: "username",
-            },
-            DATABASE_PASSWORD: {
-              secret: this.credentials,
-              key: "password",
-            },
+            DATABASE_HOST: serviceEndpoint.apply(l3EndpointToString),
           },
         },
+
+        allowedEndpoints: [serviceEndpoint],
       },
-      { ...opts, parent: this },
+      { dependsOn: dataVolumeClaim, deletedWith: namespace },
     )
+  : undefined
 
-    this.initJob = Job.create(
-      `${name}-mongodb-init`,
-      {
-        namespace: args.namespace,
+const chart = new Chart(
+  args.appName,
+  {
+    namespace,
 
-        container: createScriptContainer({
-          bundle: this.scriptBundle,
-          main: "init-database.sh",
-        }),
+    chart: charts.mongodb,
+
+    values: {
+      fullnameOverride: args.appName,
+      nameOverride: args.appName,
+
+      auth: {
+        rootUsername: "root",
+        existingSecret: rootPasswordSecret.metadata.name,
       },
-      { ...opts, parent: this },
-    )
 
-    this.networkPolicy = output({
-      namespace: args.namespace,
-      endpoints: output(args.mongodb).endpoints,
-    }).apply(async ({ namespace, endpoints }) =>
-      NetworkPolicy.allowEgressToBestEndpoint(namespace, endpoints),
-    )
-  }
-}
+      persistence: {
+        existingClaim: dataVolumeClaim.metadata.name,
+      },
+    },
+
+    service: {
+      external: args.external,
+    },
+  },
+  { dependsOn: backupJobPair, deletedWith: namespace },
+)
+
+const endpoints = await toPromise(chart.service.endpoints)
+
+export default outputs({
+  connection: makeEntityOutput({
+    entity: mongodb.connectionEntity,
+    identity: stateId,
+    meta: {
+      title: args.appName,
+    },
+    value: {
+      endpoints,
+      credentials: {
+        type: "password",
+        username: "root",
+        password: makeSecretOutput(adminPassword),
+      },
+    },
+  }),
+
+  statefulSet: chart.statefulSet.entity,
+
+  $statusFields: {
+    endpoints: endpoints.map(l4EndpointToString),
+  },
+
+  $triggers: [backupJobPair?.handleTrigger(invokedTriggers)],
+  $terminals: chart.terminals.apply(terminals => [...terminals, backupJobPair?.terminal]),
+})

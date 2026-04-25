@@ -1,10 +1,11 @@
 import { text, trimIndentation } from "@highstate/contract"
 import { k8s } from "@highstate/library"
-import { fileFromString, forUnit, interpolate, output, secret, toPromise } from "@highstate/pulumi"
+import { forUnit, interpolate, makeFileOutput, output, secret, toPromise } from "@highstate/pulumi"
 import { join } from "remeda"
 import { createK8sTerminal } from "../../cluster"
 import { Namespace } from "../../namespace"
 import { ClusterAccessScope } from "../../rbac"
+import { getClusterKubeconfigContent } from "../../shared"
 
 const { args, inputs, outputs } = forUnit(k8s.reducedAccessCluster)
 
@@ -34,7 +35,7 @@ const resourceLines = await toPromise(
 export default outputs({
   k8sCluster: accessScope.cluster,
 
-  $terminals: [createK8sTerminal(accessScope.cluster.kubeconfig)],
+  $terminals: [createK8sTerminal(secret(getClusterKubeconfigContent(accessScope.cluster)))],
 
   $pages: {
     index: {
@@ -58,7 +59,9 @@ export default outputs({
         },
         {
           type: "file",
-          file: fileFromString("kubeconfig", accessScope.cluster.kubeconfig, {
+          file: makeFileOutput({
+            name: "kubeconfig",
+            content: secret(getClusterKubeconfigContent(accessScope.cluster)),
             contentType: "text/yaml",
             isSecret: true,
           }),

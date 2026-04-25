@@ -54,6 +54,7 @@ export interface GetKubernetesClusterResult {
     readonly serviceIpv4Range: string;
     readonly serviceIpv6Range: string;
     readonly status: string;
+    readonly workloadIdentityFederations: outputs.GetKubernetesClusterWorkloadIdentityFederation[];
 }
 export function getKubernetesClusterOutput(args?: GetKubernetesClusterOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetKubernetesClusterResult> {
     args = args || {};

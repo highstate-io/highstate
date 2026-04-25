@@ -21,6 +21,7 @@ export function getComputeInstance(args?: GetComputeInstanceArgs, opts?: pulumi.
         "metadataOptions": args.metadataOptions,
         "name": args.name,
         "placementPolicy": args.placementPolicy,
+        "serviceAccountId": args.serviceAccountId,
     }, opts, utilities.getPackage());
 }
 
@@ -39,6 +40,7 @@ export interface GetComputeInstanceArgs {
     metadataOptions?: inputs.GetComputeInstanceMetadataOptions;
     name?: string;
     placementPolicy?: inputs.GetComputeInstancePlacementPolicy;
+    serviceAccountId?: string;
 }
 
 /**
@@ -52,6 +54,7 @@ export interface GetComputeInstanceResult {
     readonly folderId: string;
     readonly fqdn: string;
     readonly gpuClusterId: string;
+    readonly hardwareGenerations: outputs.GetComputeInstanceHardwareGeneration[];
     readonly id: string;
     readonly instanceId: string;
     readonly labels: {[key: string]: string};
@@ -68,7 +71,7 @@ export interface GetComputeInstanceResult {
     readonly resources: outputs.GetComputeInstanceResource[];
     readonly schedulingPolicies: outputs.GetComputeInstanceSchedulingPolicy[];
     readonly secondaryDisks: outputs.GetComputeInstanceSecondaryDisk[];
-    readonly serviceAccountId: string;
+    readonly serviceAccountId?: string;
     readonly status: string;
     readonly zone: string;
 }
@@ -87,6 +90,7 @@ export function getComputeInstanceOutput(args?: GetComputeInstanceOutputArgs, op
         "metadataOptions": args.metadataOptions,
         "name": args.name,
         "placementPolicy": args.placementPolicy,
+        "serviceAccountId": args.serviceAccountId,
     }, opts, utilities.getPackage());
 }
 
@@ -105,4 +109,5 @@ export interface GetComputeInstanceOutputArgs {
     metadataOptions?: pulumi.Input<inputs.GetComputeInstanceMetadataOptionsArgs>;
     name?: pulumi.Input<string>;
     placementPolicy?: pulumi.Input<inputs.GetComputeInstancePlacementPolicyArgs>;
+    serviceAccountId?: pulumi.Input<string>;
 }

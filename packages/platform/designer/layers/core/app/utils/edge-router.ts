@@ -28,10 +28,95 @@ export function setupEdgeRouter(
 ): void {
   const routerId = createId()
   const ready = ref(false)
+  const queuedMessages = new Map<string, EdgeRouterInputMessage>()
+  let flushScheduled = false
+  let flushing = false
+  const pendingEdgePathUpdates = new Map<string, number[][]>()
+  let edgePathFlushHandle: number | null = null
 
-  const safePostMessage = async (message: EdgeRouterInputMessage) => {
-    await until(ready).toBe(true)
-    postMessage(message)
+  const flushEdgePathUpdates = () => {
+    edgePathFlushHandle = null
+
+    if (pendingEdgePathUpdates.size === 0) {
+      return
+    }
+
+    const updates = Array.from(pendingEdgePathUpdates.entries())
+    pendingEdgePathUpdates.clear()
+
+    for (const [edgeId, points] of updates) {
+      vueFlowStore.updateEdgeData(edgeId, { points })
+    }
+  }
+
+  const scheduleFlushEdgePathUpdates = () => {
+    if (edgePathFlushHandle !== null) {
+      return
+    }
+
+    edgePathFlushHandle = requestAnimationFrame(() => {
+      flushEdgePathUpdates()
+    })
+  }
+
+  const getMessageKey = (message: EdgeRouterInputMessage): string => {
+    switch (message.type) {
+      case "add-shape":
+      case "update-shape":
+        return `shape:${message.shape.id}`
+      case "remove-shape":
+        return `shape:${message.shapeId}`
+      case "add-edge":
+      case "update-edge":
+        return `edge:${message.edge.id}`
+      case "remove-edge":
+        return `edge:${message.edgeId}`
+      case "process-transaction":
+        return "process-transaction"
+      case "create-router":
+        return `create-router:${message.routerId}`
+      case "dispose-router":
+        return `dispose-router:${message.routerId}`
+    }
+  }
+
+  const flushQueuedMessages = async () => {
+    if (flushing || !ready.value) {
+      return
+    }
+
+    flushing = true
+
+    while (queuedMessages.size > 0) {
+      const messages = Array.from(queuedMessages.values())
+      queuedMessages.clear()
+
+      for (const message of messages) {
+        postMessage(message)
+      }
+
+      await Promise.resolve()
+    }
+
+    flushing = false
+  }
+
+  const scheduleFlushQueuedMessages = () => {
+    if (flushScheduled) {
+      return
+    }
+
+    flushScheduled = true
+
+    queueMicrotask(() => {
+      flushScheduled = false
+      void flushQueuedMessages()
+    })
+  }
+
+  const queueRouterMessage = (message: EdgeRouterInputMessage) => {
+    queuedMessages.set(getMessageKey(message), message)
+    scheduleFlushQueuedMessages()
   }
 
   const getShapeFromGraphNode = (node: GraphNode<any, any, string>): EdgeRouterShape | null => {
@@ -65,28 +150,28 @@ export function setupEdgeRouter(
     const shape = getShapeFromGraphNode(node)
 
     if (shape) {
-      safePostMessage({ type: "update-shape", routerId, shape })
+      queueRouterMessage({ type: "update-shape", routerId, shape })
     }
   }
 
   const removeGraphNodeShape = (nodeId: string) => {
-    safePostMessage({ type: "remove-shape", routerId, shapeId: nodeId })
+    queueRouterMessage({ type: "remove-shape", routerId, shapeId: nodeId })
   }
 
   const createGraphEdge = (edge: GraphEdge<any, any, string>) => {
-    safePostMessage({ type: "add-edge", routerId, edge: getEdgeFromGraphEdge(edge) })
+    queueRouterMessage({ type: "add-edge", routerId, edge: getEdgeFromGraphEdge(edge) })
   }
 
   const updateGraphEdge = (edge: GraphEdge<any, any, string>) => {
-    safePostMessage({ type: "update-edge", routerId, edge: getEdgeFromGraphEdge(edge) })
+    queueRouterMessage({ type: "update-edge", routerId, edge: getEdgeFromGraphEdge(edge) })
   }
 
   const removeGraphEdge = (edgeId: string) => {
-    safePostMessage({ type: "remove-edge", routerId, edgeId })
+    queueRouterMessage({ type: "remove-edge", routerId, edgeId })
   }
 
   const processTransaction = useDebounceFn(() => {
-    safePostMessage({ type: "process-transaction", routerId })
+    queueRouterMessage({ type: "process-transaction", routerId })
   }, 100)
 
   onNodesMoved((nodes, edges) => {
@@ -149,10 +234,16 @@ export function setupEdgeRouter(
     switch (message.type) {
       case "router-ready": {
         ready.value = true
+        void flushQueuedMessages()
         break
       }
-      case "edge-path-updated": {
-        vueFlowStore.updateEdgeData(message.edgeId, { points: message.points })
+      case "edge-paths-updated": {
+        for (const update of message.updates) {
+          pendingEdgePathUpdates.set(update.edgeId, update.points)
+        }
+
+        scheduleFlushEdgePathUpdates()
+
         break
       }
     }
@@ -173,10 +264,18 @@ export function setupEdgeRouter(
 
   onError(() => {
     ready.value = false
+    queuedMessages.clear()
   })
 
   onScopeDispose(() => {
     globalLogger.debug({ routerId }, "disposing edge router")
+
+    if (edgePathFlushHandle !== null) {
+      cancelAnimationFrame(edgePathFlushHandle)
+      edgePathFlushHandle = null
+    }
+
+    pendingEdgePathUpdates.clear()
 
     if (ready.value) {
       postMessage({ type: "dispose-router", routerId })

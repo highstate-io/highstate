@@ -49,7 +49,9 @@ export interface GetKubernetesNodeGroupResult {
     readonly nodeTaints: string[];
     readonly scalePolicies: outputs.GetKubernetesNodeGroupScalePolicy[];
     readonly status: string;
+    readonly variables: {[key: string]: string};
     readonly versionInfos: outputs.GetKubernetesNodeGroupVersionInfo[];
+    readonly workloadIdentityFederations: outputs.GetKubernetesNodeGroupWorkloadIdentityFederation[];
 }
 export function getKubernetesNodeGroupOutput(args?: GetKubernetesNodeGroupOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetKubernetesNodeGroupResult> {
     args = args || {};

@@ -32,20 +32,77 @@ export class StorageObject extends pulumi.CustomResource {
         return obj['__pulumiType'] === StorageObject.__pulumiType;
     }
 
+    /**
+     * The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     declare public readonly accessKey: pulumi.Output<string | undefined>;
+    /**
+     * The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. >
+     * To change ACL after creation, the service account to which used access and secret keys correspond should have
+     * `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
+     */
     declare public readonly acl: pulumi.Output<string | undefined>;
+    /**
+     * The name of the containing bucket.
+     */
     declare public readonly bucket: pulumi.Output<string>;
+    /**
+     * Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text. Conflicts with `source`
+     * and `content_base64`.
+     */
     declare public readonly content: pulumi.Output<string | undefined>;
+    /**
+     * Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading
+     * non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with
+     * small text strings. For larger objects, use `source` to stream the content from a disk file. Conflicts with `source` and
+     * `content`.
+     */
     declare public readonly contentBase64: pulumi.Output<string | undefined>;
+    /**
+     * A standard MIME type describing the format of the object data, e.g. `application/octet-stream`. All Valid MIME Types are
+     * valid for this input.
+     */
     declare public readonly contentType: pulumi.Output<string>;
+    /**
+     * The name of the object once it is in the bucket.
+     */
     declare public readonly key: pulumi.Output<string>;
+    /**
+     * Specifies a [legal hold status](https://yandex.cloud/docs/storage/concepts/object-lock#types) of an object. Requires
+     * `object_lock_configuration` to be enabled on a bucket.
+     */
     declare public readonly objectLockLegalHoldStatus: pulumi.Output<string | undefined>;
+    /**
+     * Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`. It must be set simultaneously with
+     * `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.
+     */
     declare public readonly objectLockMode: pulumi.Output<string | undefined>;
+    /**
+     * Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with
+     * `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket.
+     */
     declare public readonly objectLockRetainUntilDate: pulumi.Output<string | undefined>;
+    /**
+     * The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     declare public readonly secretKey: pulumi.Output<string | undefined>;
+    /**
+     * The path to a file that will be read and uploaded as raw bytes for the object content. Conflicts with `content` and
+     * `content_base64`.
+     */
     declare public readonly source: pulumi.Output<string | undefined>;
+    /**
+     * Used to trigger object update when the source content changes. So the only meaningful value is
+     * `filemd5("path/to/source"). The value is only stored in state and not saved by Yandex Storage.
+     */
     declare public readonly sourceHash: pulumi.Output<string | undefined>;
     declare public readonly storageObjectId: pulumi.Output<string>;
+    /**
+     * The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags)
+     * for more information.
+     */
     declare public readonly tags: pulumi.Output<{[key: string]: string} | undefined>;
 
     /**
@@ -111,20 +168,77 @@ export class StorageObject extends pulumi.CustomResource {
  * Input properties used for looking up and filtering StorageObject resources.
  */
 export interface StorageObjectState {
+    /**
+     * The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     accessKey?: pulumi.Input<string>;
+    /**
+     * The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. >
+     * To change ACL after creation, the service account to which used access and secret keys correspond should have
+     * `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
+     */
     acl?: pulumi.Input<string>;
+    /**
+     * The name of the containing bucket.
+     */
     bucket?: pulumi.Input<string>;
+    /**
+     * Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text. Conflicts with `source`
+     * and `content_base64`.
+     */
     content?: pulumi.Input<string>;
+    /**
+     * Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading
+     * non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with
+     * small text strings. For larger objects, use `source` to stream the content from a disk file. Conflicts with `source` and
+     * `content`.
+     */
     contentBase64?: pulumi.Input<string>;
+    /**
+     * A standard MIME type describing the format of the object data, e.g. `application/octet-stream`. All Valid MIME Types are
+     * valid for this input.
+     */
     contentType?: pulumi.Input<string>;
+    /**
+     * The name of the object once it is in the bucket.
+     */
     key?: pulumi.Input<string>;
+    /**
+     * Specifies a [legal hold status](https://yandex.cloud/docs/storage/concepts/object-lock#types) of an object. Requires
+     * `object_lock_configuration` to be enabled on a bucket.
+     */
     objectLockLegalHoldStatus?: pulumi.Input<string>;
+    /**
+     * Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`. It must be set simultaneously with
+     * `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.
+     */
     objectLockMode?: pulumi.Input<string>;
+    /**
+     * Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with
+     * `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket.
+     */
     objectLockRetainUntilDate?: pulumi.Input<string>;
+    /**
+     * The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     secretKey?: pulumi.Input<string>;
+    /**
+     * The path to a file that will be read and uploaded as raw bytes for the object content. Conflicts with `content` and
+     * `content_base64`.
+     */
     source?: pulumi.Input<string>;
+    /**
+     * Used to trigger object update when the source content changes. So the only meaningful value is
+     * `filemd5("path/to/source"). The value is only stored in state and not saved by Yandex Storage.
+     */
     sourceHash?: pulumi.Input<string>;
     storageObjectId?: pulumi.Input<string>;
+    /**
+     * The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags)
+     * for more information.
+     */
     tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }
 
@@ -132,19 +246,76 @@ export interface StorageObjectState {
  * The set of arguments for constructing a StorageObject resource.
  */
 export interface StorageObjectArgs {
+    /**
+     * The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     accessKey?: pulumi.Input<string>;
+    /**
+     * The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. >
+     * To change ACL after creation, the service account to which used access and secret keys correspond should have
+     * `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
+     */
     acl?: pulumi.Input<string>;
+    /**
+     * The name of the containing bucket.
+     */
     bucket: pulumi.Input<string>;
+    /**
+     * Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text. Conflicts with `source`
+     * and `content_base64`.
+     */
     content?: pulumi.Input<string>;
+    /**
+     * Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading
+     * non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with
+     * small text strings. For larger objects, use `source` to stream the content from a disk file. Conflicts with `source` and
+     * `content`.
+     */
     contentBase64?: pulumi.Input<string>;
+    /**
+     * A standard MIME type describing the format of the object data, e.g. `application/octet-stream`. All Valid MIME Types are
+     * valid for this input.
+     */
     contentType?: pulumi.Input<string>;
+    /**
+     * The name of the object once it is in the bucket.
+     */
     key: pulumi.Input<string>;
+    /**
+     * Specifies a [legal hold status](https://yandex.cloud/docs/storage/concepts/object-lock#types) of an object. Requires
+     * `object_lock_configuration` to be enabled on a bucket.
+     */
     objectLockLegalHoldStatus?: pulumi.Input<string>;
+    /**
+     * Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`. It must be set simultaneously with
+     * `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.
+     */
     objectLockMode?: pulumi.Input<string>;
+    /**
+     * Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with
+     * `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket.
+     */
     objectLockRetainUntilDate?: pulumi.Input<string>;
+    /**
+     * The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     secretKey?: pulumi.Input<string>;
+    /**
+     * The path to a file that will be read and uploaded as raw bytes for the object content. Conflicts with `content` and
+     * `content_base64`.
+     */
     source?: pulumi.Input<string>;
+    /**
+     * Used to trigger object update when the source content changes. So the only meaningful value is
+     * `filemd5("path/to/source"). The value is only stored in state and not saved by Yandex Storage.
+     */
     sourceHash?: pulumi.Input<string>;
     storageObjectId?: pulumi.Input<string>;
+    /**
+     * The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags)
+     * for more information.
+     */
     tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }

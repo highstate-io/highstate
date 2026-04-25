@@ -32,9 +32,33 @@ export class DatasphereCommunityIamBinding extends pulumi.CustomResource {
         return obj['__pulumiType'] === DatasphereCommunityIamBinding.__pulumiType;
     }
 
+    /**
+     * The ID of the compute `community` to attach the policy to.
+     */
     declare public readonly communityId: pulumi.Output<string>;
+    /**
+     * The ID of this resource.
+     */
+    declare public readonly datasphereCommunityIamBindingId: pulumi.Output<string>;
+    /**
+     * An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following
+     * values: * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account. *
+     * **serviceAccount:{service_account_id}**: A unique service account ID. * **federatedUser:{federated_user_id}**: A unique
+     * federated user ID. * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID. *
+     * **group:{group_id}**: A unique group ID. * **system:group:federation:{federation_id}:users**: All users in federation. *
+     * **system:group:organization:{organization_id}:users**: All users in organization. * **system:allAuthenticatedUsers**:
+     * All authenticated users. * **system:allUsers**: All users, including unauthenticated ones. > for more information about
+     * system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+     */
     declare public readonly members: pulumi.Output<string[]>;
+    /**
+     * The role that should be assigned. Only one yandex.DatasphereCommunityIamBinding can be used per role.
+     */
     declare public readonly role: pulumi.Output<string>;
+    /**
+     * For test purposes, to compensate IAM operations delay
+     */
+    declare public readonly sleepAfter: pulumi.Output<number | undefined>;
 
     /**
      * Create a DatasphereCommunityIamBinding resource with the given unique name, arguments, and options.
@@ -50,8 +74,10 @@ export class DatasphereCommunityIamBinding extends pulumi.CustomResource {
         if (opts.id) {
             const state = argsOrState as DatasphereCommunityIamBindingState | undefined;
             resourceInputs["communityId"] = state?.communityId;
+            resourceInputs["datasphereCommunityIamBindingId"] = state?.datasphereCommunityIamBindingId;
             resourceInputs["members"] = state?.members;
             resourceInputs["role"] = state?.role;
+            resourceInputs["sleepAfter"] = state?.sleepAfter;
         } else {
             const args = argsOrState as DatasphereCommunityIamBindingArgs | undefined;
             if (args?.communityId === undefined && !opts.urn) {
@@ -64,8 +90,10 @@ export class DatasphereCommunityIamBinding extends pulumi.CustomResource {
                 throw new Error("Missing required property 'role'");
             }
             resourceInputs["communityId"] = args?.communityId;
+            resourceInputs["datasphereCommunityIamBindingId"] = args?.datasphereCommunityIamBindingId;
             resourceInputs["members"] = args?.members;
             resourceInputs["role"] = args?.role;
+            resourceInputs["sleepAfter"] = args?.sleepAfter;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(DatasphereCommunityIamBinding.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -76,16 +104,64 @@ export class DatasphereCommunityIamBinding extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DatasphereCommunityIamBinding resources.
  */
 export interface DatasphereCommunityIamBindingState {
+    /**
+     * The ID of the compute `community` to attach the policy to.
+     */
     communityId?: pulumi.Input<string>;
+    /**
+     * The ID of this resource.
+     */
+    datasphereCommunityIamBindingId?: pulumi.Input<string>;
+    /**
+     * An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following
+     * values: * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account. *
+     * **serviceAccount:{service_account_id}**: A unique service account ID. * **federatedUser:{federated_user_id}**: A unique
+     * federated user ID. * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID. *
+     * **group:{group_id}**: A unique group ID. * **system:group:federation:{federation_id}:users**: All users in federation. *
+     * **system:group:organization:{organization_id}:users**: All users in organization. * **system:allAuthenticatedUsers**:
+     * All authenticated users. * **system:allUsers**: All users, including unauthenticated ones. > for more information about
+     * system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+     */
     members?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The role that should be assigned. Only one yandex.DatasphereCommunityIamBinding can be used per role.
+     */
     role?: pulumi.Input<string>;
+    /**
+     * For test purposes, to compensate IAM operations delay
+     */
+    sleepAfter?: pulumi.Input<number>;
 }
 
 /**
  * The set of arguments for constructing a DatasphereCommunityIamBinding resource.
  */
 export interface DatasphereCommunityIamBindingArgs {
+    /**
+     * The ID of the compute `community` to attach the policy to.
+     */
     communityId: pulumi.Input<string>;
+    /**
+     * The ID of this resource.
+     */
+    datasphereCommunityIamBindingId?: pulumi.Input<string>;
+    /**
+     * An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following
+     * values: * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account. *
+     * **serviceAccount:{service_account_id}**: A unique service account ID. * **federatedUser:{federated_user_id}**: A unique
+     * federated user ID. * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID. *
+     * **group:{group_id}**: A unique group ID. * **system:group:federation:{federation_id}:users**: All users in federation. *
+     * **system:group:organization:{organization_id}:users**: All users in organization. * **system:allAuthenticatedUsers**:
+     * All authenticated users. * **system:allUsers**: All users, including unauthenticated ones. > for more information about
+     * system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).
+     */
     members: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The role that should be assigned. Only one yandex.DatasphereCommunityIamBinding can be used per role.
+     */
     role: pulumi.Input<string>;
+    /**
+     * For test purposes, to compensate IAM operations delay
+     */
+    sleepAfter?: pulumi.Input<number>;
 }

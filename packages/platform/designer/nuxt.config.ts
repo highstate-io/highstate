@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     tsConfig: {
       compilerOptions: {
         allowImportingTsExtensions: true,
+        noUncheckedIndexedAccess: false
       },
     },
   },
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
       tsConfig: {
         compilerOptions: {
           allowImportingTsExtensions: true,
+          noUncheckedIndexedAccess: false
         },
       },
     },

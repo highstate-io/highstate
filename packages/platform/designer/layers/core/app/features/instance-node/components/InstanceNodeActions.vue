@@ -10,12 +10,16 @@ import { GenericIcon } from "#layers/core/app/features/shared"
 const {
   component,
   state,
+  terminalIds,
   ghost = false,
 } = defineProps<{
   component: ComponentModel
   state?: InstanceState
+  terminalIds?: string[]
   locked: boolean
   editable: boolean
+  canOpenArgsEditor?: boolean
+  canEditSecrets?: boolean
 
   hideShowComposite?: boolean
   loadingSecrets?: boolean
@@ -60,7 +64,10 @@ const progressValue = computed(() => {
     : 0
 })
 
-const hasTerminal = computed(() => state?.terminalIds && state.terminalIds.length > 0)
+const hasTerminal = computed(() => {
+  const ids = terminalIds ?? state?.terminalIds ?? []
+  return ids.length > 0
+})
 const hasPage = computed(() => state?.pageIds && state.pageIds.length > 0)
 
 const progressColor = computed(() => {
@@ -133,7 +140,7 @@ defineSlots<{
     </VBtn>
 
     <VBtn
-      v-if="editable && !ghost && !isRunning"
+      v-if="canOpenArgsEditor && !ghost && !isRunning"
       size="small"
       variant="tonal"
       class="toolbar-button"
@@ -145,7 +152,7 @@ defineSlots<{
     </VBtn>
 
     <VBtn
-      v-if="editable && !ghost && !isRunning && hasSecrets"
+      v-if="canEditSecrets && !ghost && !isRunning && hasSecrets"
       size="small"
       variant="tonal"
       class="toolbar-button"

@@ -34,24 +34,58 @@ export class IamServiceAccountKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === IamServiceAccountKey.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The encrypted private key, base64 encoded. This is only populated when `pgp_key` is supplied.
+     */
     declare public /*out*/ readonly encryptedPrivateKey: pulumi.Output<string>;
+    /**
+     * The output format of the keys. `PEM_FILE` is the default format.
+     */
     declare public readonly format: pulumi.Output<string | undefined>;
     declare public readonly iamServiceAccountKeyId: pulumi.Output<string>;
+    /**
+     * The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API
+     * reference](https://yandex.cloud/docs/iam/api-ref/Key).
+     */
     declare public readonly keyAlgorithm: pulumi.Output<string | undefined>;
+    /**
+     * The fingerprint of the PGP key used to encrypt the private key. This is only populated when `pgp_key` is supplied.
+     */
     declare public /*out*/ readonly keyFingerprint: pulumi.Output<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     declare public readonly outputToLockbox: pulumi.Output<outputs.IamServiceAccountKeyOutputToLockbox | undefined>;
     /**
-     * version generated, that will contain the sensitive outputs
+     * ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when
+     * `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when
+     * `output_to_lockbox` is removed.
      */
     declare public /*out*/ readonly outputToLockboxVersionId: pulumi.Output<string>;
+    /**
+     * An optional PGP key to encrypt the resulting private key material. May either be a base64-encoded public key or a
+     * keybase username in the form `keybase:keybaseusername`.
+     */
     declare public readonly pgpKey: pulumi.Output<string | undefined>;
+    /**
+     * The private key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.
+     */
     declare public /*out*/ readonly privateKey: pulumi.Output<string>;
+    /**
+     * The public key.
+     */
     declare public /*out*/ readonly publicKey: pulumi.Output<string>;
+    /**
+     * ID of the service account to create a pair for.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string>;
 
     /**
@@ -110,24 +144,58 @@ export class IamServiceAccountKey extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IamServiceAccountKey resources.
  */
 export interface IamServiceAccountKeyState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The encrypted private key, base64 encoded. This is only populated when `pgp_key` is supplied.
+     */
     encryptedPrivateKey?: pulumi.Input<string>;
+    /**
+     * The output format of the keys. `PEM_FILE` is the default format.
+     */
     format?: pulumi.Input<string>;
     iamServiceAccountKeyId?: pulumi.Input<string>;
+    /**
+     * The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API
+     * reference](https://yandex.cloud/docs/iam/api-ref/Key).
+     */
     keyAlgorithm?: pulumi.Input<string>;
+    /**
+     * The fingerprint of the PGP key used to encrypt the private key. This is only populated when `pgp_key` is supplied.
+     */
     keyFingerprint?: pulumi.Input<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     outputToLockbox?: pulumi.Input<inputs.IamServiceAccountKeyOutputToLockbox>;
     /**
-     * version generated, that will contain the sensitive outputs
+     * ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when
+     * `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when
+     * `output_to_lockbox` is removed.
      */
     outputToLockboxVersionId?: pulumi.Input<string>;
+    /**
+     * An optional PGP key to encrypt the resulting private key material. May either be a base64-encoded public key or a
+     * keybase username in the form `keybase:keybaseusername`.
+     */
     pgpKey?: pulumi.Input<string>;
+    /**
+     * The private key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.
+     */
     privateKey?: pulumi.Input<string>;
+    /**
+     * The public key.
+     */
     publicKey?: pulumi.Input<string>;
+    /**
+     * ID of the service account to create a pair for.
+     */
     serviceAccountId?: pulumi.Input<string>;
 }
 
@@ -135,14 +203,31 @@ export interface IamServiceAccountKeyState {
  * The set of arguments for constructing a IamServiceAccountKey resource.
  */
 export interface IamServiceAccountKeyArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The output format of the keys. `PEM_FILE` is the default format.
+     */
     format?: pulumi.Input<string>;
     iamServiceAccountKeyId?: pulumi.Input<string>;
+    /**
+     * The algorithm used to generate the key. `RSA_2048` is the default algorithm. Valid values are listed in the [API
+     * reference](https://yandex.cloud/docs/iam/api-ref/Key).
+     */
     keyAlgorithm?: pulumi.Input<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     outputToLockbox?: pulumi.Input<inputs.IamServiceAccountKeyOutputToLockbox>;
+    /**
+     * An optional PGP key to encrypt the resulting private key material. May either be a base64-encoded public key or a
+     * keybase username in the form `keybase:keybaseusername`.
+     */
     pgpKey?: pulumi.Input<string>;
+    /**
+     * ID of the service account to create a pair for.
+     */
     serviceAccountId: pulumi.Input<string>;
 }

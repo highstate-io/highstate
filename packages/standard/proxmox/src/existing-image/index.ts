@@ -1,5 +1,5 @@
 import { proxmox } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
+import { forUnit, getCombinedIdentityOutput, makeEntityOutput } from "@highstate/pulumi"
 import { storage } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
@@ -18,7 +18,14 @@ const image = storage.File.get(
 )
 
 export default outputs({
-  image: {
-    id: image.id,
-  },
+  image: makeEntityOutput({
+    entity: proxmox.imageEntity,
+    identity: getCombinedIdentityOutput([inputs.proxmoxCluster, image.id]),
+    meta: {
+      title: image.fileName,
+    },
+    value: {
+      id: image.id,
+    },
+  }),
 })

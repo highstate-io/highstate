@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export function getComputeImage(args?: GetComputeImageArgs, opts?: pulumi.InvokeOptions): Promise<GetComputeImageResult> {
@@ -35,8 +37,10 @@ export interface GetComputeImageResult {
     readonly description: string;
     readonly family: string;
     readonly folderId: string;
+    readonly hardwareGenerations: outputs.GetComputeImageHardwareGeneration[];
     readonly id: string;
     readonly imageId: string;
+    readonly kmsKeyId: string;
     readonly labels: {[key: string]: string};
     readonly minDiskSize: number;
     readonly name: string;

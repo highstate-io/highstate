@@ -34,17 +34,57 @@ export class ComputeFilesystem extends pulumi.CustomResource {
         return obj['__pulumiType'] === ComputeFilesystem.__pulumiType;
     }
 
-    declare public readonly blockSize: pulumi.Output<number | undefined>;
+    /**
+     * Block size used for the filesystem, specified in bytes.
+     */
+    declare public readonly blockSize: pulumi.Output<number>;
+    /**
+     * ID of the filesystem to return. To get the filesystem ID, make a [FilesystemService.List] request.
+     */
     declare public readonly computeFilesystemId: pulumi.Output<string>;
+    /**
+     * Creation timestamp.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Description of the filesystem.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the filesystem to return. To get the filesystem ID, make a [FilesystemService.List] request.
+     */
+    declare public readonly filesystemId: pulumi.Output<string>;
+    /**
+     * ID of the folder that the filesystem belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Filesystem labels as `key:value` pairs. For details about the concept, see
+     * [documentation](https://www.terraform.io/docs/overview/concepts/services#labels).
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the filesystem. The name is unique within the folder.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly size: pulumi.Output<number | undefined>;
+    /**
+     * Size of the filesystem, specified in bytes.
+     */
+    declare public readonly size: pulumi.Output<number>;
+    /**
+     * Current status of the filesystem.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeFilesystemTimeouts | undefined>;
-    declare public readonly type: pulumi.Output<string | undefined>;
+    /**
+     * ID of the filesystem type. To get a list of available filesystem types, make a
+     * [yandex.cloud.compute.v1.DiskTypeService.List] request.
+     */
+    declare public readonly type: pulumi.Output<string>;
+    /**
+     * ID of the availability zone where the filesystem resides. A filesystem can be attached only to instances residing in the
+     * same availability zone.
+     */
     declare public readonly zone: pulumi.Output<string>;
 
     /**
@@ -64,6 +104,7 @@ export class ComputeFilesystem extends pulumi.CustomResource {
             resourceInputs["computeFilesystemId"] = state?.computeFilesystemId;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
+            resourceInputs["filesystemId"] = state?.filesystemId;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
@@ -77,6 +118,7 @@ export class ComputeFilesystem extends pulumi.CustomResource {
             resourceInputs["blockSize"] = args?.blockSize;
             resourceInputs["computeFilesystemId"] = args?.computeFilesystemId;
             resourceInputs["description"] = args?.description;
+            resourceInputs["filesystemId"] = args?.filesystemId;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
@@ -96,17 +138,57 @@ export class ComputeFilesystem extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ComputeFilesystem resources.
  */
 export interface ComputeFilesystemState {
+    /**
+     * Block size used for the filesystem, specified in bytes.
+     */
     blockSize?: pulumi.Input<number>;
+    /**
+     * ID of the filesystem to return. To get the filesystem ID, make a [FilesystemService.List] request.
+     */
     computeFilesystemId?: pulumi.Input<string>;
+    /**
+     * Creation timestamp.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the filesystem.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the filesystem to return. To get the filesystem ID, make a [FilesystemService.List] request.
+     */
+    filesystemId?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the filesystem belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Filesystem labels as `key:value` pairs. For details about the concept, see
+     * [documentation](https://www.terraform.io/docs/overview/concepts/services#labels).
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the filesystem. The name is unique within the folder.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Size of the filesystem, specified in bytes.
+     */
     size?: pulumi.Input<number>;
+    /**
+     * Current status of the filesystem.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeFilesystemTimeouts>;
+    /**
+     * ID of the filesystem type. To get a list of available filesystem types, make a
+     * [yandex.cloud.compute.v1.DiskTypeService.List] request.
+     */
     type?: pulumi.Input<string>;
+    /**
+     * ID of the availability zone where the filesystem resides. A filesystem can be attached only to instances residing in the
+     * same availability zone.
+     */
     zone?: pulumi.Input<string>;
 }
 
@@ -114,14 +196,48 @@ export interface ComputeFilesystemState {
  * The set of arguments for constructing a ComputeFilesystem resource.
  */
 export interface ComputeFilesystemArgs {
+    /**
+     * Block size used for the filesystem, specified in bytes.
+     */
     blockSize?: pulumi.Input<number>;
+    /**
+     * ID of the filesystem to return. To get the filesystem ID, make a [FilesystemService.List] request.
+     */
     computeFilesystemId?: pulumi.Input<string>;
+    /**
+     * Description of the filesystem.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the filesystem to return. To get the filesystem ID, make a [FilesystemService.List] request.
+     */
+    filesystemId?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the filesystem belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Filesystem labels as `key:value` pairs. For details about the concept, see
+     * [documentation](https://www.terraform.io/docs/overview/concepts/services#labels).
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the filesystem. The name is unique within the folder.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Size of the filesystem, specified in bytes.
+     */
     size?: pulumi.Input<number>;
     timeouts?: pulumi.Input<inputs.ComputeFilesystemTimeouts>;
+    /**
+     * ID of the filesystem type. To get a list of available filesystem types, make a
+     * [yandex.cloud.compute.v1.DiskTypeService.List] request.
+     */
     type?: pulumi.Input<string>;
+    /**
+     * ID of the availability zone where the filesystem resides. A filesystem can be attached only to instances residing in the
+     * same availability zone.
+     */
     zone?: pulumi.Input<string>;
 }

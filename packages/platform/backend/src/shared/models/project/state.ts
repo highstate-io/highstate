@@ -11,6 +11,7 @@ import { z } from "zod"
 export const stableInstanceInputSchema = z.object({
   stateId: z.string(),
   output: z.string(),
+  path: z.string().optional(),
 })
 
 /**
@@ -76,6 +77,15 @@ export const instanceStateEventSchema = z.discriminatedUnion("type", [
     type: z.literal("patched"),
     stateId: z.string(),
     patch: z.custom<Partial<InstanceState>>(),
+  }),
+  z.object({
+    type: z.literal("patched-batch"),
+    patches: z.array(
+      z.object({
+        stateId: z.string(),
+        patch: z.custom<Partial<InstanceState>>(),
+      }),
+    ),
   }),
   z.object({
     type: z.literal("deleted"),

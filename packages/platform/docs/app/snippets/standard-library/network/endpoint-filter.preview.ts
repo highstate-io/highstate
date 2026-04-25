@@ -13,7 +13,7 @@ const { l3Endpoints } = network.endpointFilter({
     endpointFilter: `(level == l3 or port == 443) and type != "hostname"`,
   },
   inputs: {
-    l3Endpoints: [server]
+    l3Endpoints: server.endpoints
   }
 })
 

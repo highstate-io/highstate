@@ -29,16 +29,19 @@ export interface GetDataprocClusterArgs {
  * A collection of values returned by getDataprocCluster.
  */
 export interface GetDataprocClusterResult {
+    readonly autoscalingServiceAccountId: string;
     readonly bucket: string;
     readonly clusterConfigs: outputs.GetDataprocClusterClusterConfig[];
     readonly clusterId: string;
     readonly createdAt: string;
     readonly deletionProtection: boolean;
     readonly description: string;
+    readonly environment: string;
     readonly folderId: string;
     readonly hostGroupIds: string[];
     readonly id: string;
     readonly labels: {[key: string]: string};
+    readonly logGroupId: string;
     readonly name: string;
     readonly securityGroupIds: string[];
     readonly serviceAccountId: string;

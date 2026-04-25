@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class MdbMongodbDatabase extends pulumi.CustomResource {
@@ -32,8 +34,15 @@ export class MdbMongodbDatabase extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbMongodbDatabase.__pulumiType;
     }
 
+    /**
+     * The ID of MongoDB Cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * The name of the database.
+     */
     declare public readonly name: pulumi.Output<string>;
+    declare public readonly timeouts: pulumi.Output<outputs.MdbMongodbDatabaseTimeouts | undefined>;
 
     /**
      * Create a MdbMongodbDatabase resource with the given unique name, arguments, and options.
@@ -50,6 +59,7 @@ export class MdbMongodbDatabase extends pulumi.CustomResource {
             const state = argsOrState as MdbMongodbDatabaseState | undefined;
             resourceInputs["clusterId"] = state?.clusterId;
             resourceInputs["name"] = state?.name;
+            resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as MdbMongodbDatabaseArgs | undefined;
             if (args?.clusterId === undefined && !opts.urn) {
@@ -57,6 +67,7 @@ export class MdbMongodbDatabase extends pulumi.CustomResource {
             }
             resourceInputs["clusterId"] = args?.clusterId;
             resourceInputs["name"] = args?.name;
+            resourceInputs["timeouts"] = args?.timeouts;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(MdbMongodbDatabase.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -67,14 +78,28 @@ export class MdbMongodbDatabase extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbMongodbDatabase resources.
  */
 export interface MdbMongodbDatabaseState {
+    /**
+     * The ID of MongoDB Cluster.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * The name of the database.
+     */
     name?: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.MdbMongodbDatabaseTimeouts>;
 }
 
 /**
  * The set of arguments for constructing a MdbMongodbDatabase resource.
  */
 export interface MdbMongodbDatabaseArgs {
+    /**
+     * The ID of MongoDB Cluster.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * The name of the database.
+     */
     name?: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.MdbMongodbDatabaseTimeouts>;
 }

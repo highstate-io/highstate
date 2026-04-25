@@ -33,7 +33,13 @@ export interface GetMdbKafkaClusterArgs {
     id?: string;
     name?: string;
     subnetIds?: string[];
+    /**
+     * @deprecated Deprecated
+     */
     topics?: inputs.GetMdbKafkaClusterTopic[];
+    /**
+     * @deprecated Deprecated
+     */
     users?: inputs.GetMdbKafkaClusterUser[];
 }
 
@@ -41,13 +47,12 @@ export interface GetMdbKafkaClusterArgs {
  * A collection of values returned by getMdbKafkaCluster.
  */
 export interface GetMdbKafkaClusterResult {
-    readonly accesses: outputs.GetMdbKafkaClusterAccess[];
     readonly clusterId: string;
     readonly config?: outputs.GetMdbKafkaClusterConfig;
     readonly createdAt: string;
     readonly deletionProtection: boolean;
     readonly description: string;
-    readonly diskSizeAutoscalings: outputs.GetMdbKafkaClusterDiskSizeAutoscaling[];
+    readonly diskEncryptionKeyId: string;
     readonly environment: string;
     readonly folderId: string;
     readonly health: string;
@@ -61,7 +66,13 @@ export interface GetMdbKafkaClusterResult {
     readonly securityGroupIds: string[];
     readonly status: string;
     readonly subnetIds?: string[];
+    /**
+     * @deprecated Deprecated
+     */
     readonly topics?: outputs.GetMdbKafkaClusterTopic[];
+    /**
+     * @deprecated Deprecated
+     */
     readonly users?: outputs.GetMdbKafkaClusterUser[];
 }
 export function getMdbKafkaClusterOutput(args?: GetMdbKafkaClusterOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetMdbKafkaClusterResult> {
@@ -91,6 +102,12 @@ export interface GetMdbKafkaClusterOutputArgs {
     id?: pulumi.Input<string>;
     name?: pulumi.Input<string>;
     subnetIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * @deprecated Deprecated
+     */
     topics?: pulumi.Input<pulumi.Input<inputs.GetMdbKafkaClusterTopicArgs>[]>;
+    /**
+     * @deprecated Deprecated
+     */
     users?: pulumi.Input<pulumi.Input<inputs.GetMdbKafkaClusterUserArgs>[]>;
 }

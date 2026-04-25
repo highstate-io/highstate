@@ -11,6 +11,12 @@ import {
 import { mapValues } from "remeda"
 import { errorToString } from "../../common"
 
+function toCloneSafeInstanceModel(instance: InstanceModel): InstanceModel {
+  // Runtime instances may contain Proxy-based accessors in outputs/resolvedOutputs.
+  // Serialize to plain data so worker thread postMessage can structured-clone it.
+  return JSON.parse(JSON.stringify(instance)) as InstanceModel
+}
+
 export function evaluateProject(
   logger: Logger,
   components: Readonly<Record<string, Component>>,
@@ -42,7 +48,7 @@ export function evaluateProject(
     success: true,
 
     virtualInstances: getRuntimeInstances()
-      .map(instance => instance.instance)
+      .map(instance => toCloneSafeInstanceModel(instance.instance))
       // only include top-level composite instances and their children
       .filter(instance => instance.kind === "composite" || !allInstancesMap.has(instance.id)),
 

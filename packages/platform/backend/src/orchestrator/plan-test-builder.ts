@@ -101,6 +101,7 @@ export class PlanTestBuilder {
       status: "undeployed",
       source: stateType === "ghost" ? "virtual" : "resident",
       kind: instance.kind,
+      hasResourceHooks: false,
       parentId: null,
       parentInstanceId: instance.parentId ?? null,
       selfHash: null,

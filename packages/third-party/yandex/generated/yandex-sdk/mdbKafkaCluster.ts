@@ -34,29 +34,89 @@ export class MdbKafkaCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbKafkaCluster.__pulumiType;
     }
 
+    /**
+     * Configuration of the Kafka cluster.
+     */
     declare public readonly config: pulumi.Output<outputs.MdbKafkaClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * ID of the KMS key to encrypt cluster disks.
+     */
+    declare public readonly diskEncryptionKeyId: pulumi.Output<string>;
+    /**
+     * Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRODUCTION`.
+     */
     declare public readonly environment: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/api-ref/Cluster/).
+     */
     declare public /*out*/ readonly health: pulumi.Output<string>;
+    /**
+     * A list of IDs of the host groups to place VMs of the cluster on.
+     */
     declare public readonly hostGroupIds: pulumi.Output<string[]>;
+    /**
+     * A host of the Kafka cluster.
+     */
     declare public /*out*/ readonly hosts: pulumi.Output<outputs.MdbKafkaClusterHost[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Maintenance policy of the Kafka cluster.
+     */
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbKafkaClusterMaintenanceWindow | undefined>;
     declare public readonly mdbKafkaClusterId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[]>;
+    /**
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/api-ref/Cluster/).
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     declare public readonly subnetIds: pulumi.Output<string[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbKafkaClusterTimeouts | undefined>;
     /**
+     * To manage topics, please switch to using a separate resource type `yandex.MdbKafkaTopic`.
+     *
      * @deprecated Deprecated
      */
     declare public readonly topics: pulumi.Output<outputs.MdbKafkaClusterTopic[] | undefined>;
     /**
+     * To manage users, please switch to using a separate resource type `yandex.MdbKafkaUser`.
+     *
      * @deprecated Deprecated
      */
     declare public readonly users: pulumi.Output<outputs.MdbKafkaClusterUser[] | undefined>;
@@ -78,6 +138,7 @@ export class MdbKafkaCluster extends pulumi.CustomResource {
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskEncryptionKeyId"] = state?.diskEncryptionKeyId;
             resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["health"] = state?.health;
@@ -105,6 +166,7 @@ export class MdbKafkaCluster extends pulumi.CustomResource {
             resourceInputs["config"] = args?.config;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskEncryptionKeyId"] = args?.diskEncryptionKeyId;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["hostGroupIds"] = args?.hostGroupIds;
@@ -132,29 +194,89 @@ export class MdbKafkaCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbKafkaCluster resources.
  */
 export interface MdbKafkaClusterState {
+    /**
+     * Configuration of the Kafka cluster.
+     */
     config?: pulumi.Input<inputs.MdbKafkaClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key to encrypt cluster disks.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRODUCTION`.
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/api-ref/Cluster/).
+     */
     health?: pulumi.Input<string>;
+    /**
+     * A list of IDs of the host groups to place VMs of the cluster on.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A host of the Kafka cluster.
+     */
     hosts?: pulumi.Input<pulumi.Input<inputs.MdbKafkaClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy of the Kafka cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbKafkaClusterMaintenanceWindow>;
     mdbKafkaClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/api-ref/Cluster/).
+     */
     status?: pulumi.Input<string>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     subnetIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.MdbKafkaClusterTimeouts>;
     /**
+     * To manage topics, please switch to using a separate resource type `yandex.MdbKafkaTopic`.
+     *
      * @deprecated Deprecated
      */
     topics?: pulumi.Input<pulumi.Input<inputs.MdbKafkaClusterTopic>[]>;
     /**
+     * To manage users, please switch to using a separate resource type `yandex.MdbKafkaUser`.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbKafkaClusterUser>[]>;
@@ -164,25 +286,69 @@ export interface MdbKafkaClusterState {
  * The set of arguments for constructing a MdbKafkaCluster resource.
  */
 export interface MdbKafkaClusterArgs {
+    /**
+     * Configuration of the Kafka cluster.
+     */
     config: pulumi.Input<inputs.MdbKafkaClusterConfig>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key to encrypt cluster disks.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRODUCTION`.
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A list of IDs of the host groups to place VMs of the cluster on.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy of the Kafka cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbKafkaClusterMaintenanceWindow>;
     mdbKafkaClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     subnetIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.MdbKafkaClusterTimeouts>;
     /**
+     * To manage topics, please switch to using a separate resource type `yandex.MdbKafkaTopic`.
+     *
      * @deprecated Deprecated
      */
     topics?: pulumi.Input<pulumi.Input<inputs.MdbKafkaClusterTopic>[]>;
     /**
+     * To manage users, please switch to using a separate resource type `yandex.MdbKafkaUser`.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbKafkaClusterUser>[]>;

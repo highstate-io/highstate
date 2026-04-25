@@ -360,7 +360,7 @@ export type NetworkPolicyArgs = ScopedResourceArgs & {
    * The pod selector for this network policy.
    * If not provided, it will select all pods in the namespace.
    */
-  selector?: SelectorLike
+  selector?: Input<SelectorLike>
 
   /**
    * The rule for incoming traffic.

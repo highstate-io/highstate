@@ -109,11 +109,7 @@ const detailItems = [
       </RelatedDataPanel>
 
       <!-- Terminals Panel -->
-      <RelatedDataPanel
-        title="Terminals"
-        icon="mdi-console"
-        :count="terminals.data.value.total"
-      >
+      <RelatedDataPanel title="Terminals" icon="mdi-console" :count="terminals.data.value.total">
         <TerminalsTable
           v-model:search="terminals.search.value"
           v-model:sort-by="terminals.sortBy.value"

@@ -1,12 +1,13 @@
-import type { k8s } from "@highstate/library"
 import type { Container } from "./container"
 import type { NetworkPolicy } from "./network-policy"
 import { getOrCreate, type UnitTerminal } from "@highstate/contract"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -18,6 +19,7 @@ import { omit } from "remeda"
 import { Namespace } from "./namespace"
 import { commonExtraArgs, getProvider, mapMetadata, type ScopedResourceArgs } from "./shared"
 import {
+  filterPatchOwnedContainersInTemplate,
   getWorkloadComponents,
   Workload,
   type WorkloadArgs,
@@ -90,7 +92,17 @@ export abstract class Job extends Workload {
    * The Highstate job entity.
    */
   get entity(): Output<k8s.Job> {
-    return output(this.entityBase)
+    return makeEntityOutput({
+      entity: k8s.jobEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+        spec: this.spec,
+      },
+    })
   }
 
   protected getTerminalMeta(): Output<UnitTerminal["meta"]> {
@@ -298,10 +310,16 @@ class JobPatch extends Job {
         {
           metadata: mapMetadata(args, name),
           spec: output({ args, podTemplate }).apply(({ args, podTemplate }) => {
-            return deepmerge(
+            const spec = deepmerge(
               { template: podTemplate } satisfies types.input.batch.v1.JobSpec,
-              omit(args, jobExtraArgs) as types.input.batch.v1.JobSpec,
-            )
+              omit(args, jobExtraArgs),
+            ) as Unwrap<types.input.batch.v1.JobSpec>
+
+            if (spec.template) {
+              spec.template = filterPatchOwnedContainersInTemplate(spec.template, podTemplate)
+            }
+
+            return spec
           }),
         },
         { ...opts, parent: this, provider: getProvider(cluster) },

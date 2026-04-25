@@ -34,25 +34,80 @@ export class ComputeInstanceGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === ComputeInstanceGroup.__pulumiType;
     }
 
+    /**
+     * The allocation policy of the instance group by zone and region.
+     */
     declare public readonly allocationPolicy: pulumi.Output<outputs.ComputeInstanceGroupAllocationPolicy>;
+    /**
+     * Application Load balancing (L7) specifications.
+     */
     declare public readonly applicationLoadBalancer: pulumi.Output<outputs.ComputeInstanceGroupApplicationLoadBalancer | undefined>;
     declare public readonly computeInstanceGroupId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
+    /**
+     * The deployment policy of the instance group.
+     */
     declare public readonly deployPolicy: pulumi.Output<outputs.ComputeInstanceGroupDeployPolicy>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Health check specifications.
+     */
     declare public readonly healthChecks: pulumi.Output<outputs.ComputeInstanceGroupHealthCheck[] | undefined>;
+    /**
+     * The template for creating new instances.
+     */
     declare public readonly instanceTemplate: pulumi.Output<outputs.ComputeInstanceGroupInstanceTemplate>;
+    /**
+     * Instances block.
+     */
     declare public /*out*/ readonly instances: pulumi.Output<outputs.ComputeInstanceGroupInstance[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Load balancing specifications.
+     */
     declare public readonly loadBalancer: pulumi.Output<outputs.ComputeInstanceGroupLoadBalancer | undefined>;
+    /**
+     * Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the
+     * deployment policy. Specified in seconds.
+     */
     declare public readonly maxCheckingHealthDuration: pulumi.Output<number | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The scaling policy of the instance group. > Either `fixed_scale` or `auto_scale` must be specified.
+     */
     declare public readonly scalePolicy: pulumi.Output<outputs.ComputeInstanceGroupScalePolicy>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string>;
+    /**
+     * The status of the instance.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeInstanceGroupTimeouts | undefined>;
+    /**
+     * A set of key/value variables pairs to assign to the instance group.
+     */
     declare public readonly variables: pulumi.Output<{[key: string]: string} | undefined>;
 
     /**
@@ -135,25 +190,80 @@ export class ComputeInstanceGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ComputeInstanceGroup resources.
  */
 export interface ComputeInstanceGroupState {
+    /**
+     * The allocation policy of the instance group by zone and region.
+     */
     allocationPolicy?: pulumi.Input<inputs.ComputeInstanceGroupAllocationPolicy>;
+    /**
+     * Application Load balancing (L7) specifications.
+     */
     applicationLoadBalancer?: pulumi.Input<inputs.ComputeInstanceGroupApplicationLoadBalancer>;
     computeInstanceGroupId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The deployment policy of the instance group.
+     */
     deployPolicy?: pulumi.Input<inputs.ComputeInstanceGroupDeployPolicy>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Health check specifications.
+     */
     healthChecks?: pulumi.Input<pulumi.Input<inputs.ComputeInstanceGroupHealthCheck>[]>;
+    /**
+     * The template for creating new instances.
+     */
     instanceTemplate?: pulumi.Input<inputs.ComputeInstanceGroupInstanceTemplate>;
+    /**
+     * Instances block.
+     */
     instances?: pulumi.Input<pulumi.Input<inputs.ComputeInstanceGroupInstance>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Load balancing specifications.
+     */
     loadBalancer?: pulumi.Input<inputs.ComputeInstanceGroupLoadBalancer>;
+    /**
+     * Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the
+     * deployment policy. Specified in seconds.
+     */
     maxCheckingHealthDuration?: pulumi.Input<number>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The scaling policy of the instance group. > Either `fixed_scale` or `auto_scale` must be specified.
+     */
     scalePolicy?: pulumi.Input<inputs.ComputeInstanceGroupScalePolicy>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId?: pulumi.Input<string>;
+    /**
+     * The status of the instance.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeInstanceGroupTimeouts>;
+    /**
+     * A set of key/value variables pairs to assign to the instance group.
+     */
     variables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }
 
@@ -161,21 +271,67 @@ export interface ComputeInstanceGroupState {
  * The set of arguments for constructing a ComputeInstanceGroup resource.
  */
 export interface ComputeInstanceGroupArgs {
+    /**
+     * The allocation policy of the instance group by zone and region.
+     */
     allocationPolicy: pulumi.Input<inputs.ComputeInstanceGroupAllocationPolicy>;
+    /**
+     * Application Load balancing (L7) specifications.
+     */
     applicationLoadBalancer?: pulumi.Input<inputs.ComputeInstanceGroupApplicationLoadBalancer>;
     computeInstanceGroupId?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The deployment policy of the instance group.
+     */
     deployPolicy: pulumi.Input<inputs.ComputeInstanceGroupDeployPolicy>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Health check specifications.
+     */
     healthChecks?: pulumi.Input<pulumi.Input<inputs.ComputeInstanceGroupHealthCheck>[]>;
+    /**
+     * The template for creating new instances.
+     */
     instanceTemplate: pulumi.Input<inputs.ComputeInstanceGroupInstanceTemplate>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Load balancing specifications.
+     */
     loadBalancer?: pulumi.Input<inputs.ComputeInstanceGroupLoadBalancer>;
+    /**
+     * Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the
+     * deployment policy. Specified in seconds.
+     */
     maxCheckingHealthDuration?: pulumi.Input<number>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The scaling policy of the instance group. > Either `fixed_scale` or `auto_scale` must be specified.
+     */
     scalePolicy: pulumi.Input<inputs.ComputeInstanceGroupScalePolicy>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeInstanceGroupTimeouts>;
+    /**
+     * A set of key/value variables pairs to assign to the instance group.
+     */
     variables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }

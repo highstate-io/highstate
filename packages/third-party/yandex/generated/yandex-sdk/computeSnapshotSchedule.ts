@@ -35,16 +35,51 @@ export class ComputeSnapshotSchedule extends pulumi.CustomResource {
     }
 
     declare public readonly computeSnapshotScheduleId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * IDs of the disk for snapshot schedule.
+     */
     declare public readonly diskIds: pulumi.Output<string[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Time duration applied to snapshots created by this snapshot schedule. This is a signed sequence of decimal numbers, each
+     * with optional fraction and a unit suffix. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. Examples:
+     * `300ms`, `1.5h` or `2h45m`.
+     */
     declare public readonly retentionPeriod: pulumi.Output<string | undefined>;
+    /**
+     * Schedule policy of the snapshot schedule.
+     */
     declare public readonly schedulePolicy: pulumi.Output<outputs.ComputeSnapshotScheduleSchedulePolicy | undefined>;
+    /**
+     * Maximum number of snapshots for every disk of the snapshot schedule.
+     */
     declare public readonly snapshotCount: pulumi.Output<number | undefined>;
+    /**
+     * Additional attributes for snapshots created by this snapshot schedule.
+     */
     declare public readonly snapshotSpec: pulumi.Output<outputs.ComputeSnapshotScheduleSnapshotSpec | undefined>;
+    /**
+     * The status of the snapshot schedule.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeSnapshotScheduleTimeouts | undefined>;
 
@@ -100,16 +135,51 @@ export class ComputeSnapshotSchedule extends pulumi.CustomResource {
  */
 export interface ComputeSnapshotScheduleState {
     computeSnapshotScheduleId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * IDs of the disk for snapshot schedule.
+     */
     diskIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time duration applied to snapshots created by this snapshot schedule. This is a signed sequence of decimal numbers, each
+     * with optional fraction and a unit suffix. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. Examples:
+     * `300ms`, `1.5h` or `2h45m`.
+     */
     retentionPeriod?: pulumi.Input<string>;
+    /**
+     * Schedule policy of the snapshot schedule.
+     */
     schedulePolicy?: pulumi.Input<inputs.ComputeSnapshotScheduleSchedulePolicy>;
+    /**
+     * Maximum number of snapshots for every disk of the snapshot schedule.
+     */
     snapshotCount?: pulumi.Input<number>;
+    /**
+     * Additional attributes for snapshots created by this snapshot schedule.
+     */
     snapshotSpec?: pulumi.Input<inputs.ComputeSnapshotScheduleSnapshotSpec>;
+    /**
+     * The status of the snapshot schedule.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeSnapshotScheduleTimeouts>;
 }
@@ -119,14 +189,43 @@ export interface ComputeSnapshotScheduleState {
  */
 export interface ComputeSnapshotScheduleArgs {
     computeSnapshotScheduleId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * IDs of the disk for snapshot schedule.
+     */
     diskIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Time duration applied to snapshots created by this snapshot schedule. This is a signed sequence of decimal numbers, each
+     * with optional fraction and a unit suffix. Valid time units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, `h`. Examples:
+     * `300ms`, `1.5h` or `2h45m`.
+     */
     retentionPeriod?: pulumi.Input<string>;
+    /**
+     * Schedule policy of the snapshot schedule.
+     */
     schedulePolicy?: pulumi.Input<inputs.ComputeSnapshotScheduleSchedulePolicy>;
+    /**
+     * Maximum number of snapshots for every disk of the snapshot schedule.
+     */
     snapshotCount?: pulumi.Input<number>;
+    /**
+     * Additional attributes for snapshots created by this snapshot schedule.
+     */
     snapshotSpec?: pulumi.Input<inputs.ComputeSnapshotScheduleSnapshotSpec>;
     timeouts?: pulumi.Input<inputs.ComputeSnapshotScheduleTimeouts>;
 }

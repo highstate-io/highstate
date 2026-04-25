@@ -34,17 +34,72 @@ export class DatatransferTransfer extends pulumi.CustomResource {
         return obj['__pulumiType'] === DatatransferTransfer.__pulumiType;
     }
 
+    /**
+     * package: yandex.cloud.datatransfer.v1 filename: yandex/cloud/datatransfer/v1/transfer.proto
+     */
+    declare public readonly dataObjects: pulumi.Output<outputs.DatatransferTransferDataObject[] | undefined>;
+    /**
+     * Identifier of the transfer to be returned. To get the list of all available transfers, make a [List] request.
+     */
     declare public readonly datatransferTransferId: pulumi.Output<string>;
+    /**
+     * Description of the transfer.
+     */
     declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the folder to create the transfer in. To get the folder ID, make a
+     * [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Transfer labels as `key:value` pairs. For details about the concept, see documentation.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The transfer name. Must be unique within the folder.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly onCreateActivateMode: pulumi.Output<string | undefined>;
-    declare public readonly runtime: pulumi.Output<outputs.DatatransferTransferRuntime | undefined>;
+    /**
+     * Activation action on create a new incremental transfer. It is not part of the transfer parameter and is used only on
+     * create. One of `sync_activate`, `async_activate`, `dont_activate`. The default is `async_activate`.
+     */
+    declare public readonly onCreateActivateMode: pulumi.Output<string>;
+    /**
+     * Regular snapshots for the transfer, applicable only if transfer type is SNAPSHOT_ONLY
+     */
+    declare public readonly regularSnapshots: pulumi.Output<outputs.DatatransferTransferRegularSnapshot[] | undefined>;
+    /**
+     * Replication runtime parameters for the transfer
+     */
+    declare public readonly replicationRuntimes: pulumi.Output<outputs.DatatransferTransferReplicationRuntime[] | undefined>;
+    /**
+     * Runtime parameters for the transfer
+     */
+    declare public readonly runtimes: pulumi.Output<outputs.DatatransferTransferRuntime[] | undefined>;
+    /**
+     * Identifier of the source endpoint.
+     */
     declare public readonly sourceId: pulumi.Output<string>;
+    /**
+     * Identifier of the target endpoint.
+     */
     declare public readonly targetId: pulumi.Output<string>;
-    declare public readonly transformation: pulumi.Output<outputs.DatatransferTransferTransformation | undefined>;
+    declare public readonly timeouts: pulumi.Output<outputs.DatatransferTransferTimeouts | undefined>;
+    /**
+     * Identifier of the transfer to be returned. To get the list of all available transfers, make a [List] request.
+     */
+    declare public readonly transferId: pulumi.Output<string>;
+    /**
+     * Transformation for the transfer.
+     */
+    declare public readonly transformations: pulumi.Output<outputs.DatatransferTransferTransformation[] | undefined>;
+    /**
+     * Type of the transfer. One of SNAPSHOT_ONLY, INCREMENT_ONLY, SNAPSHOT_AND_INCREMENT
+     */
     declare public readonly type: pulumi.Output<string>;
+    /**
+     * Error description if transfer has any errors.
+     */
     declare public /*out*/ readonly warning: pulumi.Output<string>;
 
     /**
@@ -60,30 +115,40 @@ export class DatatransferTransfer extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as DatatransferTransferState | undefined;
+            resourceInputs["dataObjects"] = state?.dataObjects;
             resourceInputs["datatransferTransferId"] = state?.datatransferTransferId;
             resourceInputs["description"] = state?.description;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["onCreateActivateMode"] = state?.onCreateActivateMode;
-            resourceInputs["runtime"] = state?.runtime;
+            resourceInputs["regularSnapshots"] = state?.regularSnapshots;
+            resourceInputs["replicationRuntimes"] = state?.replicationRuntimes;
+            resourceInputs["runtimes"] = state?.runtimes;
             resourceInputs["sourceId"] = state?.sourceId;
             resourceInputs["targetId"] = state?.targetId;
-            resourceInputs["transformation"] = state?.transformation;
+            resourceInputs["timeouts"] = state?.timeouts;
+            resourceInputs["transferId"] = state?.transferId;
+            resourceInputs["transformations"] = state?.transformations;
             resourceInputs["type"] = state?.type;
             resourceInputs["warning"] = state?.warning;
         } else {
             const args = argsOrState as DatatransferTransferArgs | undefined;
+            resourceInputs["dataObjects"] = args?.dataObjects;
             resourceInputs["datatransferTransferId"] = args?.datatransferTransferId;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["onCreateActivateMode"] = args?.onCreateActivateMode;
-            resourceInputs["runtime"] = args?.runtime;
+            resourceInputs["regularSnapshots"] = args?.regularSnapshots;
+            resourceInputs["replicationRuntimes"] = args?.replicationRuntimes;
+            resourceInputs["runtimes"] = args?.runtimes;
             resourceInputs["sourceId"] = args?.sourceId;
             resourceInputs["targetId"] = args?.targetId;
-            resourceInputs["transformation"] = args?.transformation;
+            resourceInputs["timeouts"] = args?.timeouts;
+            resourceInputs["transferId"] = args?.transferId;
+            resourceInputs["transformations"] = args?.transformations;
             resourceInputs["type"] = args?.type;
             resourceInputs["warning"] = undefined /*out*/;
         }
@@ -96,17 +161,72 @@ export class DatatransferTransfer extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DatatransferTransfer resources.
  */
 export interface DatatransferTransferState {
+    /**
+     * package: yandex.cloud.datatransfer.v1 filename: yandex/cloud/datatransfer/v1/transfer.proto
+     */
+    dataObjects?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferDataObject>[]>;
+    /**
+     * Identifier of the transfer to be returned. To get the list of all available transfers, make a [List] request.
+     */
     datatransferTransferId?: pulumi.Input<string>;
+    /**
+     * Description of the transfer.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder to create the transfer in. To get the folder ID, make a
+     * [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Transfer labels as `key:value` pairs. For details about the concept, see documentation.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The transfer name. Must be unique within the folder.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Activation action on create a new incremental transfer. It is not part of the transfer parameter and is used only on
+     * create. One of `sync_activate`, `async_activate`, `dont_activate`. The default is `async_activate`.
+     */
     onCreateActivateMode?: pulumi.Input<string>;
-    runtime?: pulumi.Input<inputs.DatatransferTransferRuntime>;
+    /**
+     * Regular snapshots for the transfer, applicable only if transfer type is SNAPSHOT_ONLY
+     */
+    regularSnapshots?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferRegularSnapshot>[]>;
+    /**
+     * Replication runtime parameters for the transfer
+     */
+    replicationRuntimes?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferReplicationRuntime>[]>;
+    /**
+     * Runtime parameters for the transfer
+     */
+    runtimes?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferRuntime>[]>;
+    /**
+     * Identifier of the source endpoint.
+     */
     sourceId?: pulumi.Input<string>;
+    /**
+     * Identifier of the target endpoint.
+     */
     targetId?: pulumi.Input<string>;
-    transformation?: pulumi.Input<inputs.DatatransferTransferTransformation>;
+    timeouts?: pulumi.Input<inputs.DatatransferTransferTimeouts>;
+    /**
+     * Identifier of the transfer to be returned. To get the list of all available transfers, make a [List] request.
+     */
+    transferId?: pulumi.Input<string>;
+    /**
+     * Transformation for the transfer.
+     */
+    transformations?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferTransformation>[]>;
+    /**
+     * Type of the transfer. One of SNAPSHOT_ONLY, INCREMENT_ONLY, SNAPSHOT_AND_INCREMENT
+     */
     type?: pulumi.Input<string>;
+    /**
+     * Error description if transfer has any errors.
+     */
     warning?: pulumi.Input<string>;
 }
 
@@ -114,15 +234,67 @@ export interface DatatransferTransferState {
  * The set of arguments for constructing a DatatransferTransfer resource.
  */
 export interface DatatransferTransferArgs {
+    /**
+     * package: yandex.cloud.datatransfer.v1 filename: yandex/cloud/datatransfer/v1/transfer.proto
+     */
+    dataObjects?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferDataObject>[]>;
+    /**
+     * Identifier of the transfer to be returned. To get the list of all available transfers, make a [List] request.
+     */
     datatransferTransferId?: pulumi.Input<string>;
+    /**
+     * Description of the transfer.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder to create the transfer in. To get the folder ID, make a
+     * [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Transfer labels as `key:value` pairs. For details about the concept, see documentation.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The transfer name. Must be unique within the folder.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Activation action on create a new incremental transfer. It is not part of the transfer parameter and is used only on
+     * create. One of `sync_activate`, `async_activate`, `dont_activate`. The default is `async_activate`.
+     */
     onCreateActivateMode?: pulumi.Input<string>;
-    runtime?: pulumi.Input<inputs.DatatransferTransferRuntime>;
+    /**
+     * Regular snapshots for the transfer, applicable only if transfer type is SNAPSHOT_ONLY
+     */
+    regularSnapshots?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferRegularSnapshot>[]>;
+    /**
+     * Replication runtime parameters for the transfer
+     */
+    replicationRuntimes?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferReplicationRuntime>[]>;
+    /**
+     * Runtime parameters for the transfer
+     */
+    runtimes?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferRuntime>[]>;
+    /**
+     * Identifier of the source endpoint.
+     */
     sourceId?: pulumi.Input<string>;
+    /**
+     * Identifier of the target endpoint.
+     */
     targetId?: pulumi.Input<string>;
-    transformation?: pulumi.Input<inputs.DatatransferTransferTransformation>;
+    timeouts?: pulumi.Input<inputs.DatatransferTransferTimeouts>;
+    /**
+     * Identifier of the transfer to be returned. To get the list of all available transfers, make a [List] request.
+     */
+    transferId?: pulumi.Input<string>;
+    /**
+     * Transformation for the transfer.
+     */
+    transformations?: pulumi.Input<pulumi.Input<inputs.DatatransferTransferTransformation>[]>;
+    /**
+     * Type of the transfer. One of SNAPSHOT_ONLY, INCREMENT_ONLY, SNAPSHOT_AND_INCREMENT
+     */
     type?: pulumi.Input<string>;
 }

@@ -1,7 +1,9 @@
 import type { IsEmptyObject, Simplify } from "type-fest"
 import type { PartialKeys } from "./utils"
 import { z } from "zod"
+import { cuidv2d } from "./cuidv2d"
 import { camelCaseToHumanReadable } from "./i18n"
+import { fixJsonSchema } from "./json-schema"
 import {
   objectMetaSchema,
   parseVersionedName,
@@ -90,11 +92,17 @@ export type EntityModel = z.infer<typeof entityModelSchema>
 export type EntityTypes = Record<VersionedName, true>
 
 export declare const implementedTypes: unique symbol
+export declare const entityOutput: unique symbol
+export declare const entityInput: unique symbol
+export declare const entityIncludes: unique symbol
 
 export type Entity<
   TType extends VersionedName = VersionedName,
   TImplementedTypes extends EntityTypes = EntityTypes,
   TSchema extends z.ZodTypeAny = z.ZodTypeAny,
+  TOutput = z.output<TSchema>,
+  TInput = z.input<TSchema>,
+  TIncludes extends Record<string, unknown> = Record<string, unknown>,
 > = {
   /**
    * The static type of the entity.
@@ -114,10 +122,126 @@ export type Entity<
   schema: TSchema
 
   /**
+   * The inferred value type of the entity.
+   *
+   * Does not exist at runtime.
+   */
+  [entityOutput]: TOutput
+
+  /**
+   * The inferred input type of the entity.
+   *
+   * Does not exist at runtime.
+   */
+  [entityInput]: TInput
+
+  /**
+   * The record of entity inclusions defined in `defineEntity({ includes: ... })`.
+   *
+   * Does not exist at runtime.
+   */
+  [entityIncludes]: TIncludes
+
+  /**
    * The model of the entity.
    */
   model: EntityModel
 }
+
+export type EntityValue<TEntity> = TEntity extends { [entityOutput]: infer TValue } ? TValue : never
+
+/**
+ * The input type accepted by the entity schema.
+ */
+export type EntityValueInput<TEntity> = TEntity extends { [entityInput]: infer TValue }
+  ? TValue
+  : never
+
+type DistributiveSimplify<T> = T extends unknown ? Simplify<T> : never
+
+type ResolveIncludeEntity<TIncludeRef> = TIncludeRef extends { entity: infer E }
+  ? E extends () => infer ER
+    ? ER
+    : E
+  : TIncludeRef
+
+type IsIncludeMultiple<TIncludeRef> = TIncludeRef extends { multiple?: infer M }
+  ? M extends true
+    ? true
+    : false
+  : false
+
+type IsIncludeRequired<TIncludeRef> = TIncludeRef extends { required?: infer R }
+  ? R extends false
+    ? false
+    : true
+  : true
+
+type IsOptionalOutputInclude<TIncludeRef> = IsIncludeMultiple<TIncludeRef> extends true
+  ? false
+  : IsIncludeRequired<TIncludeRef> extends false
+    ? true
+    : false
+
+type IsOptionalInputInclude<TIncludeRef> = IsIncludeRequired<TIncludeRef> extends false
+  ? true
+  : false
+
+type IncludeOutputValue<TIncludeRef> = IsIncludeMultiple<TIncludeRef> extends true
+  ? EntityValue<ResolveIncludeEntity<TIncludeRef>>[]
+  : EntityValue<ResolveIncludeEntity<TIncludeRef>>
+
+type IncludeInputValue<TIncludeRef> = IsIncludeMultiple<TIncludeRef> extends true
+  ? EntityValueInput<ResolveIncludeEntity<TIncludeRef>>[]
+  : EntityValueInput<ResolveIncludeEntity<TIncludeRef>>
+
+type InclusionValueShape<TIncludes extends Record<string, EntityIncludeRef>> =
+  TIncludes extends Record<string, never>
+    ? Record<never, never>
+    : {
+        -readonly [K in keyof TIncludes as IsOptionalOutputInclude<TIncludes[K]> extends true
+          ? never
+          : K]-?: IncludeOutputValue<TIncludes[K]>
+      } & {
+        -readonly [K in keyof TIncludes as IsOptionalOutputInclude<TIncludes[K]> extends true
+          ? K
+          : never]?: IncludeOutputValue<TIncludes[K]>
+      }
+
+type InclusionInputShape<TIncludes extends Record<string, EntityIncludeRef>> =
+  TIncludes extends Record<string, never>
+    ? Record<never, never>
+    : {
+        -readonly [K in keyof TIncludes as IsOptionalInputInclude<TIncludes[K]> extends true
+          ? never
+          : K]-?: IncludeInputValue<TIncludes[K]>
+      } & {
+        -readonly [K in keyof TIncludes as IsOptionalInputInclude<TIncludes[K]> extends true
+          ? K
+          : never]?: IncludeInputValue<TIncludes[K]>
+      }
+
+type DefineEntityValue<
+  TSchema extends z.ZodType,
+  TExtends extends Record<string, Entity>,
+  TIncludes extends Record<string, EntityIncludeRef>,
+> = DistributiveSimplify<
+  z.output<MakeEntitySchema<AddSchemaExtensions<TSchema, TExtends>>> &
+    InclusionValueShape<TIncludes>
+>
+
+type DefineEntityInput<
+  TSchema extends z.ZodType,
+  TExtends extends Record<string, Entity>,
+  TIncludes extends Record<string, EntityIncludeRef>,
+> = DistributiveSimplify<
+  z.input<MakeEntitySchema<AddSchemaExtensions<TSchema, TExtends>>> & InclusionInputShape<TIncludes>
+>
+
+type MakeEntitySchema<TSchema extends z.ZodTypeAny> = z.ZodIntersection<
+  TSchema,
+  typeof entityWithMetaSchema
+>
 
 type EntityOptions<
   TType extends VersionedName,
@@ -160,32 +284,50 @@ type EntityOptions<
   includes?: TIncludes
 }
 
-export type EntityIncludeRef = Entity | { entity: Entity; multiple?: boolean; required?: boolean }
+export type EntityIncludeRef =
+  | Entity
+  | { entity: Entity; multiple?: boolean; required?: boolean }
+  | { entity: () => Entity; multiple?: boolean; required?: boolean }
 
-function isEntityIncludeRef(
-  value: EntityIncludeRef,
-): value is { entity: Entity; multiple?: boolean; required?: boolean } {
-  return typeof value === "object" && value !== null && "entity" in value
+type EntityIncludeObjectRef = Exclude<EntityIncludeRef, Entity>
+
+function isEntityIncludeRef(value: EntityIncludeRef): value is EntityIncludeObjectRef {
+  if (typeof value !== "object" || value === null || !("entity" in value)) {
+    return false
+  }
+
+  const entity = (value as { entity: unknown }).entity
+  return typeof entity === "function" || isEntity(entity)
 }
 
 type InclusionShape<TImplements extends Record<string, EntityIncludeRef>> = {
-  [K in keyof TImplements]: TImplements[K] extends {
-    entity: infer E
+  -readonly [K in keyof TImplements]: TImplements[K] extends {
+    entity: () => infer E
     multiple?: infer M
     required?: infer R
   }
-    ? E extends Entity
+    ? M extends true
+      ? R extends false
+        ? z.ZodDefault<z.ZodArray<z.ZodType<EntityValue<E>>>>
+        : z.ZodArray<z.ZodType<EntityValue<E>>>
+      : R extends false
+        ? z.ZodOptional<z.ZodType<EntityValue<E>>>
+        : z.ZodType<EntityValue<E>>
+    : TImplements[K] extends {
+          entity: infer E
+          multiple?: infer M
+          required?: infer R
+        }
       ? M extends true
         ? R extends false
-          ? z.ZodOptional<z.ZodArray<E["schema"]>>
-          : z.ZodArray<E["schema"]>
+          ? z.ZodDefault<z.ZodArray<z.ZodType<EntityValue<E>>>>
+          : z.ZodArray<z.ZodType<EntityValue<E>>>
         : R extends false
-          ? z.ZodOptional<E["schema"]>
-          : E["schema"]
-      : never
-    : TImplements[K] extends Entity
-      ? TImplements[K]["schema"]
-      : never
+          ? z.ZodOptional<z.ZodType<EntityValue<E>>>
+          : z.ZodType<EntityValue<E>>
+      : TImplements[K] extends Entity
+        ? z.ZodType<EntityValue<TImplements[K]>>
+        : never
 }
 
 type AddSchemaExtensions<
@@ -216,6 +358,24 @@ type AddTypeExtensions<
         >
       }[keyof TExtends]
 
+type AddIncludeExtensions<
+  TIncludes extends Record<string, EntityIncludeRef>,
+  TExtends extends Record<string, Entity>,
+> = TExtends extends Record<string, never>
+  ? TIncludes
+  : IsEmptyObject<TExtends> extends true
+    ? TIncludes
+    : {
+        [K in keyof TExtends]: AddIncludeExtensions<
+          TIncludes & ExtractEntityIncludes<TExtends[K][typeof entityIncludes]>,
+          Omit<TExtends, K>
+        >
+      }[keyof TExtends]
+
+type ExtractEntityIncludes<T> = T extends Record<string, EntityIncludeRef>
+  ? T
+  : Record<string, never>
+
 type AddSchemaInclusions<
   TSchema extends z.ZodTypeAny,
   TImplements extends Record<string, EntityIncludeRef>,
@@ -223,37 +383,20 @@ type AddSchemaInclusions<
   ? TSchema
   : z.ZodIntersection<TSchema, z.ZodObject<InclusionShape<TImplements>>>
 
-type AddTypeInclusions<
-  TImplementedTypes extends EntityTypes,
-  TImplements extends Record<string, EntityIncludeRef>,
-> = TImplements extends Record<string, never>
-  ? TImplementedTypes
-  : {
-      [K in keyof TImplements]: TImplements[K] extends {
-        entity: infer E
-      }
-        ? E extends Entity
-          ? AddTypeInclusions<TImplementedTypes & E[typeof implementedTypes], Omit<TImplements, K>>
-          : TImplementedTypes
-        : TImplements[K] extends Entity
-          ? AddTypeInclusions<
-              TImplementedTypes & TImplements[K][typeof implementedTypes],
-              Omit<TImplements, K>
-            >
-          : TImplementedTypes
-    }[keyof TImplements]
-
 export function defineEntity<
   TType extends VersionedName,
   TSchema extends z.ZodType,
-  TExtends extends Record<string, Entity> = Record<string, never>,
-  TImplements extends Record<string, EntityIncludeRef> = Record<string, never>,
+  const TExtends extends Record<string, Entity> = Record<string, never>,
+  const TIncludes extends Record<string, EntityIncludeRef> = Record<never, never>,
 >(
-  options: EntityOptions<TType, TSchema, TExtends, TImplements>,
+  options: EntityOptions<TType, TSchema, TExtends, TIncludes>,
 ): Entity<
   TType,
-  Simplify<AddTypeInclusions<AddTypeExtensions<{ [K in TType]: true }, TExtends>, TImplements>>,
-  AddSchemaExtensions<AddSchemaInclusions<TSchema, TImplements>, TExtends>
+  Simplify<AddTypeExtensions<{ [K in TType]: true }, TExtends>>,
+  MakeEntitySchema<AddSchemaExtensions<AddSchemaInclusions<TSchema, TIncludes>, TExtends>>,
+  DefineEntityValue<TSchema, TExtends, AddIncludeExtensions<TIncludes, TExtends>>,
+  DefineEntityInput<TSchema, TExtends, AddIncludeExtensions<TIncludes, TExtends>>,
+  AddIncludeExtensions<TIncludes, TExtends>
 > {
   try {
     entityModelSchema.shape.type.parse(options.type)
@@ -265,40 +408,48 @@ export function defineEntity<
     throw new Error("Entity schema is required")
   }
 
-  const includedEntities = Object.entries(options.includes ?? {}).map(([field, entityRef]) => {
-    if (isEntityIncludeRef(entityRef)) {
-      return {
-        entity: entityRef.entity,
-        inclusion: {
-          type: entityRef.entity.type,
-          required: entityRef.required ?? true,
-          multiple: entityRef.multiple ?? false,
-          field,
-        },
+  type IncludeRef = {
+    field: string
+    required: boolean
+    multiple: boolean
+    getEntity: () => Entity
+  }
+
+  const includeRefs: IncludeRef[] = Object.entries(options.includes ?? {}).map(
+    ([field, entityRef]) => {
+      if (isEntityIncludeRef(entityRef)) {
+        const required = entityRef.required ?? true
+        const multiple = entityRef.multiple ?? false
+
+        let getEntity: () => Entity
+
+        if (typeof entityRef.entity === "function") {
+          const entity = entityRef.entity
+          getEntity = entity
+        } else {
+          const entity = entityRef.entity
+          getEntity = () => entity
+        }
+
+        return { field, required, multiple, getEntity }
       }
-    }
 
-    return {
-      entity: entityRef,
-      inclusion: {
-        type: entityRef.type,
-        required: true,
-        multiple: false,
-        field,
-      },
-    }
-  })
+      const getEntity = () => entityRef
+      return { field, required: true, multiple: false, getEntity }
+    },
+  )
 
-  const inclusionShape = includedEntities.reduce(
-    (shape, { entity, inclusion }) => {
-      if (inclusion.multiple) {
-        shape[inclusion.field] = inclusion.required
-          ? entity.schema.array()
-          : entity.schema.array().optional()
+  const inclusionShape = includeRefs.reduce(
+    (shape, includeRef) => {
+      let schema: z.ZodTypeAny = z.lazy(() => includeRef.getEntity().schema)
+
+      if (includeRef.multiple) {
+        schema = includeRef.required ? schema.array().min(1) : schema.array().default([])
       } else {
-        shape[inclusion.field] = inclusion.required ? entity.schema : entity.schema.optional()
+        schema = includeRef.required ? schema : schema.optional()
       }
 
+      shape[includeRef.field] = schema
       return shape
     },
     {} as Record<string, z.ZodTypeAny>,
@@ -309,23 +460,32 @@ export function defineEntity<
     options.schema as z.ZodType,
   )
 
-  if (includedEntities.length > 0) {
+  if (includeRefs.length > 0) {
     finalSchema = z.intersection(finalSchema, z.object(inclusionShape))
   }
 
-  const directInclusions = includedEntities.map(({ inclusion }) => inclusion)
+  finalSchema = z.intersection(finalSchema, entityWithMetaSchema)
+
+  const directInclusions = () =>
+    includeRefs.map(includeRef => ({
+      type: includeRef.getEntity().type,
+      required: includeRef.required,
+      multiple: includeRef.multiple,
+      field: includeRef.field,
+    }))
   const directExtensions = Object.values(options.extends ?? {}).map(entity => entity.type)
 
-  const inclusions = Object.values(options.extends ?? {}).reduce(
-    (incs, entity) => {
+  const getInclusions = () => {
+    const incs = [...directInclusions()]
+
+    for (const entity of Object.values(options.extends ?? {})) {
       if (entity.model.inclusions) {
         incs.push(...entity.model.inclusions)
       }
+    }
 
-      return incs
-    },
-    [...directInclusions],
-  )
+    return incs
+  }
 
   const extensions = Object.values(options.extends ?? {}).reduce((exts, entity) => {
     exts.push(...(entity.model.extensions ?? []), entity.type)
@@ -343,12 +503,23 @@ export function defineEntity<
         type: options.type,
         extensions: extensions.length > 0 ? extensions : undefined,
         directExtensions: directExtensions.length > 0 ? directExtensions : undefined,
-        inclusions: inclusions.length > 0 ? inclusions : undefined,
-        directInclusions: directInclusions.length > 0 ? directInclusions : undefined,
+        get inclusions() {
+          const incs = getInclusions()
+          return incs.length > 0 ? incs : undefined
+        },
+        get directInclusions() {
+          const incs = directInclusions()
+          return incs.length > 0 ? incs : undefined
+        },
         get schema() {
           if (!_schema) {
             // TODO: forbid unrepresentable types (and find way to filter out "undefined" literals)
-            _schema = z.toJSONSchema(finalSchema, { target: "draft-7", unrepresentable: "any" })
+            const rawSchema = z.toJSONSchema(finalSchema, {
+              target: "draft-7",
+              unrepresentable: "any",
+            })
+
+            _schema = fixJsonSchema(rawSchema) as z.core.JSONSchema.BaseSchema
           }
 
           return _schema
@@ -394,4 +565,73 @@ export function isAssignableTo(entity: EntityModel, target: VersionedName): bool
   }
 
   return entity.inclusions?.some(implementation => implementation.type === target) ?? false
+}
+
+export const entityMetaSchema = z.object({
+  /**
+   * The type of the entity.
+   */
+  type: versionedNameSchema,
+
+  /**
+   * The globally unique identity of the entity.
+   *
+   * Anonymous entities are forbidden.
+   */
+  identity: z.string(),
+
+  /**
+   * The IDs of the entities to reference by this entity.
+   * Must already exist in the system (or be at least defined by this unit).
+   */
+  references: z.record(z.string(), z.string().array()).optional(),
+
+  ...objectMetaSchema.pick({
+    title: true,
+    description: true,
+    icon: true,
+    iconColor: true,
+  }).shape,
+})
+
+export type EntityMeta = z.infer<typeof entityMetaSchema>
+
+export const entityWithMetaSchema = z.object({
+  $meta: entityMetaSchema,
+})
+
+export type EntityWithMeta = z.infer<typeof entityWithMetaSchema>
+
+export type EntityWithRequiredMeta = EntityWithMeta & {
+  $meta: EntityMeta
+}
+
+const entityIdCache = new WeakMap<EntityWithMeta, string>()
+const entityIdNamespace = "3cd37048-7c50-43a9-a2b9-ff7ff2b5ee79"
+
+/**
+ * Gets the unique ID of an entity based on its type and identity.
+ *
+ * The ID is generated using a hash of the entity's type and identity, and is cached for future retrievals.
+ *
+ * @param entity The entity to get the ID for.
+ * @returns The unique ID of the entity.
+ */
+export function getEntityId(entity: EntityWithMeta): string {
+  if (!entity.$meta) {
+    throw new Error("Entity $meta is required to generate an entity id")
+  }
+
+  const existingId = entityIdCache.get(entity)
+
+  if (existingId) {
+    return existingId
+  }
+
+  const { type, identity } = entity.$meta
+
+  const id = cuidv2d(entityIdNamespace, `${type}:${identity}`)
+  entityIdCache.set(entity, id)
+
+  return id
 }

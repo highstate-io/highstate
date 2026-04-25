@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export function getComputeSnapshot(args?: GetComputeSnapshotArgs, opts?: pulumi.InvokeOptions): Promise<GetComputeSnapshotResult> {
@@ -33,7 +35,9 @@ export interface GetComputeSnapshotResult {
     readonly description: string;
     readonly diskSize: number;
     readonly folderId: string;
+    readonly hardwareGenerations: outputs.GetComputeSnapshotHardwareGeneration[];
     readonly id: string;
+    readonly kmsKeyId: string;
     readonly labels: {[key: string]: string};
     readonly name: string;
     readonly productIds: string[];

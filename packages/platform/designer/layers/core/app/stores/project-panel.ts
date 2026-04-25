@@ -8,6 +8,8 @@ export const useProjectPanelStore = defineMultiStore({
   create: ({ storeId, id: [projectId], logger }) => {
     return defineStore(storeId, () => {
       const { instancesStore } = useExplicitProjectStores(projectId)
+      const instanceFocusRequest = shallowRef<{ instanceId: string; requestId: number }>()
+      let nextFocusRequestId = 0
 
       const {
         vueFlowStore,
@@ -18,7 +20,7 @@ export const useProjectPanelStore = defineMultiStore({
         onInstanceNodeDeleted,
         onNodesMoved,
         edgeEndpointOffsets,
-      } = useCanvasStore("project", projectId)
+      } = useCanvasStore.ensureCreated("project", projectId)
 
       const { $client } = useNuxtApp()
 
@@ -48,6 +50,17 @@ export const useProjectPanelStore = defineMultiStore({
         void waitForLayoutCompletion(vueFlowStore)
           //
           .then(() => setupEdgeRouter(vueFlowStore, onNodesMoved, edgeEndpointOffsets))
+      }
+
+      const requestInstanceFocus = (instanceId: string) => {
+        nextFocusRequestId += 1
+        instanceFocusRequest.value = { instanceId, requestId: nextFocusRequestId }
+      }
+
+      const clearInstanceFocusRequest = (requestId: number) => {
+        if (instanceFocusRequest.value?.requestId === requestId) {
+          instanceFocusRequest.value = undefined
+        }
       }
 
       onInstanceMoved(instance => {
@@ -297,6 +310,9 @@ export const useProjectPanelStore = defineMultiStore({
       return {
         initialize,
         placeNodes,
+        instanceFocusRequest,
+        requestInstanceFocus,
+        clearInstanceFocusRequest,
       }
     })
   },

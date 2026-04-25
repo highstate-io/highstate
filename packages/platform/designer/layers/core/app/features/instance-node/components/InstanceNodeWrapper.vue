@@ -33,7 +33,6 @@ const state = computed(() => stateStore.instanceStates.get(instance.value.id))
 const instanceLock = computed(() => state.value && stateStore.instanceLocks.get(state.value.id))
 const operation = computed(() => operationsStore.getLastInstanceOperation(instance.value.id))
 const isGhost = computed(() => instancesStore.isGhostInstance(instance.value.id))
-const isResidentGhost = computed(() => isGhost.value && state.value?.source === "resident")
 
 const loadingPage = ref(false)
 const pageVisible = ref(false)
@@ -73,15 +72,59 @@ const openPage = async () => {
 
 const loadingTerminal = ref(false)
 
+const terminalIds = computed(() => {
+  const ownTerminalIds = state.value?.terminalIds ?? []
+  if (component.value.kind !== "composite") {
+    return ownTerminalIds
+  }
+
+  const visitedInstances = new Set<string>()
+  const visitedTerminals = new Set<string>()
+  const result: string[] = []
+
+  const appendTerminalIds = (ids: string[] | undefined) => {
+    for (const terminalId of ids ?? []) {
+      if (visitedTerminals.has(terminalId)) {
+        continue
+      }
+
+      visitedTerminals.add(terminalId)
+      result.push(terminalId)
+    }
+  }
+
+  const visitInstance = (instanceId: string) => {
+    if (visitedInstances.has(instanceId)) {
+      return
+    }
+
+    visitedInstances.add(instanceId)
+
+    const childState = stateStore.instanceStates.get(instanceId)
+    appendTerminalIds(childState?.terminalIds)
+
+    for (const child of instancesStore.getInstanceChildren(instanceId)) {
+      visitInstance(child.id)
+    }
+  }
+
+  appendTerminalIds(ownTerminalIds)
+  for (const child of instancesStore.getInstanceChildren(instance.value.id)) {
+    visitInstance(child.id)
+  }
+
+  return result
+})
+
 const openTerminal = async () => {
   loadingTerminal.value = true
 
   try {
-    if (!state.value?.terminalIds || state.value.terminalIds.length === 0) {
+    if (terminalIds.value.length === 0) {
       return
     }
 
-    await instancesStore.openTerminal(state.value.terminalIds[0])
+    await instancesStore.openTerminal(terminalIds.value[0])
   } finally {
     loadingTerminal.value = false
   }
@@ -113,16 +156,20 @@ const canConnect = (connection: Connection) => {
     return false
   }
 
-  return validateConnection(vueFlowStore, libraryStore.library, connection)
+  return validateConnection(
+    vueFlowStore,
+    libraryStore.library,
+    instancesStore.inputResolverOutputs,
+    connection,
+  )
 }
 
 watch(
   () => ({
     ghost: isGhost.value,
-    resident: isResidentGhost.value,
     initialized: vueFlowStore.areNodesInitialized.value,
   }),
-  ({ ghost, resident, initialized }) => {
+  ({ ghost, initialized }) => {
     if (!initialized) {
       return
     }
@@ -149,7 +196,7 @@ watch(
       }
     }
 
-    vueFlowStore.updateNode(id, () => ({ connectable: false, draggable: resident }))
+    vueFlowStore.updateNode(id, () => ({ connectable: false, draggable: true }))
   },
   { immediate: true },
 )
@@ -164,11 +211,13 @@ watch(
     :instance="data.instance"
     :component="component"
     :entities="libraryStore.library.entities"
+    :project-id="projectStore.projectId"
     :input-resolver-outputs="instancesStore.inputResolverOutputs"
     :input-resolver-dependent-map="instancesStore.inputResolverDependentMap"
     :is-valid-connection="canConnect"
     :instance-lock="instanceLock"
     :state="state"
+    :terminal-ids="terminalIds"
     :editable="data.editable && !isGhost"
     :ghost="isGhost"
     :stores="markRaw(stores)"
@@ -183,7 +232,7 @@ watch(
     @open:secrets="openSecretsEditor"
     @open:terminal="openTerminal"
     @operation:launch="
-      operation => operationsStore.launchInstanceOperation(operation, data.instance)
+      operation => operationsStore.launchQuickInstanceOperation(operation, data.instance)
     "
     @operation:cancel="
       operationsStore.cancelInstanceOperation(
@@ -210,6 +259,7 @@ watch(
       :instance="instance"
       :component="component"
       :state="state"
+      :terminal-ids="terminalIds"
       :editable="data.editable && !isGhost"
       :locked="!!instanceLock"
       :ghost="isGhost"

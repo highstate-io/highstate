@@ -1,3 +1,5 @@
+import type { InstanceState } from "../shared"
+import { getInstanceId } from "@highstate/contract"
 import { describe } from "vitest"
 import { createOperationPlan } from "./operation-plan"
 import { operationPlanTest } from "./operation-plan.fixtures"
@@ -49,7 +51,7 @@ describe("OperationPlan - Update Operations", () => {
   )
 
   operationPlanTest(
-    "1a. should ignore dependencies when option enabled",
+    "1a. should skip only changed dependencies when ignoreChangedDependencies enabled",
     async ({ testBuilder, expect }) => {
       // arrange
       const { context, operation } = await testBuilder()
@@ -59,6 +61,93 @@ describe("OperationPlan - Update Operations", () => {
         .depends("C", "B")
         .depends("B", "A")
         .states({ A: "upToDate", B: "changed", C: "upToDate" })
+        .options({ ignoreChangedDependencies: true })
+        .request("update", "C")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "component.v1:C",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+            ],
+            "type": "update",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "1b. should still include undeployed dependencies when ignoreChangedDependencies enabled",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .unit("A")
+        .unit("B")
+        .unit("C")
+        .depends("C", "B")
+        .depends("B", "A")
+        .states({ A: "changed", B: "undeployed", C: "upToDate" })
+        .options({ ignoreChangedDependencies: true })
+        .request("update", "C")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "component.v1:B",
+                "message": "undeployed and required by "component.v1:C"",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:C",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+            ],
+            "type": "update",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "1c. should ignore all dependencies when ignoreDependencies enabled",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .unit("A")
+        .unit("B")
+        .unit("C")
+        .depends("C", "B")
+        .depends("B", "A")
+        .states({ A: "changed", B: "undeployed", C: "upToDate" })
         .options({ ignoreDependencies: true })
         .request("update", "C")
         .build()
@@ -90,7 +179,167 @@ describe("OperationPlan - Update Operations", () => {
   )
 
   operationPlanTest(
-    "2. should not propagate beyond compositional inclusion",
+    "1d. should tolerate missing parent instance in model when walking substantive ancestors",
+    async ({ createContext, createTestOperation, expect }) => {
+      // arrange
+      const missingParentId = getInstanceId("composite.v1", "MissingParent")
+      const parentId = getInstanceId("composite.v1", "Parent")
+      const childId = getInstanceId("component.v1", "Child")
+      const requestedId = getInstanceId("component.v1", "Requested")
+
+      const context = await createContext(
+        [
+          {
+            id: parentId,
+            name: "Parent",
+            type: "composite.v1",
+            kind: "composite",
+            parentId: missingParentId,
+            inputs: {},
+            args: {},
+            outputs: {},
+            resolvedInputs: {},
+            resolvedOutputs: {},
+          },
+          {
+            id: childId,
+            name: "Child",
+            type: "component.v1",
+            kind: "unit",
+            parentId,
+            inputs: {},
+            args: {},
+            outputs: {},
+            resolvedInputs: {},
+            resolvedOutputs: {},
+          },
+          {
+            id: requestedId,
+            name: "Requested",
+            type: "component.v1",
+            kind: "unit",
+            parentId: undefined,
+            inputs: {
+              dependency: [{ instanceId: childId, output: "default" }],
+            },
+            args: {},
+            outputs: {},
+            resolvedInputs: {
+              dependency: [{ instanceId: childId, output: "default" }],
+            },
+            resolvedOutputs: {},
+          },
+        ],
+        [
+          {
+            id: parentId,
+            instanceId: parentId,
+            status: "deployed",
+            source: "resident",
+            kind: "composite",
+            hasResourceHooks: false,
+            parentId: null,
+            parentInstanceId: missingParentId,
+            selfHash: null,
+            inputHash: null,
+            outputHash: null,
+            dependencyOutputHash: null,
+            statusFields: null,
+            exportedArtifactIds: null,
+            inputHashNonce: null,
+            currentResourceCount: null,
+            model: null,
+            resolvedInputs: null,
+            lastOperationState: undefined,
+            evaluationState: null,
+          },
+          {
+            id: childId,
+            instanceId: childId,
+            status: "undeployed",
+            source: "resident",
+            kind: "unit",
+            hasResourceHooks: false,
+            parentId: null,
+            parentInstanceId: parentId,
+            selfHash: null,
+            inputHash: null,
+            outputHash: null,
+            dependencyOutputHash: null,
+            statusFields: null,
+            exportedArtifactIds: null,
+            inputHashNonce: null,
+            currentResourceCount: null,
+            model: null,
+            resolvedInputs: null,
+            lastOperationState: undefined,
+            evaluationState: {} as InstanceState["evaluationState"],
+          },
+          {
+            id: requestedId,
+            instanceId: requestedId,
+            status: "deployed",
+            source: "resident",
+            kind: "unit",
+            hasResourceHooks: false,
+            parentId: null,
+            parentInstanceId: null,
+            selfHash: null,
+            inputHash: null,
+            outputHash: null,
+            dependencyOutputHash: null,
+            statusFields: null,
+            exportedArtifactIds: null,
+            inputHashNonce: null,
+            currentResourceCount: null,
+            model: null,
+            resolvedInputs: null,
+            lastOperationState: undefined,
+            evaluationState: {} as InstanceState["evaluationState"],
+          },
+        ],
+      )
+
+      const operation = createTestOperation("update", [requestedId])
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "component.v1:Child",
+                "message": "undeployed and required by "component.v1:Requested"",
+                "parentId": "composite.v1:Parent",
+              },
+              {
+                "id": "component.v1:Requested",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "composite.v1:Parent",
+                "message": "parent of included child "component.v1:Child"",
+                "parentId": "composite.v1:MissingParent",
+              },
+            ],
+            "type": "update",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "2. should include full ancestor chain for compositional inclusion",
     async ({ testBuilder, expect }) => {
       // arrange
       const { context, operation } = await testBuilder()
@@ -139,6 +388,11 @@ describe("OperationPlan - Update Operations", () => {
                 "id": "composite.v1:Parent",
                 "message": "parent of included child "component.v1:A"",
                 "parentId": "composite.v1:GrandParent",
+              },
+              {
+                "id": "composite.v1:GrandParent",
+                "message": "parent of included child "composite.v1:Parent"",
+                "parentId": undefined,
               },
             ],
             "type": "update",
@@ -210,7 +464,7 @@ describe("OperationPlan - Update Operations", () => {
         .depends("C", "B")
         .depends("B", "A")
         .states({ A: "upToDate", B: "upToDate", C: "upToDate" })
-        .options({ forceUpdateDependencies: true, ignoreDependencies: true })
+        .options({ forceUpdateDependencies: true, ignoreChangedDependencies: true })
         .request("update", "C")
         .build()
 
@@ -223,7 +477,61 @@ describe("OperationPlan - Update Operations", () => {
           operation.options,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
+        "[Error: Operation options are invalid: forceUpdateDependencies and ignoreChangedDependencies cannot both be enabled.]",
+      )
+    },
+  )
+
+  operationPlanTest(
+    "3b. should reject conflicting force dependency and ignore options",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .unit("A")
+        .unit("B")
+        .depends("B", "A")
+        .states({ A: "upToDate", B: "upToDate" })
+        .options({ forceUpdateDependencies: true, ignoreDependencies: true })
+        .request("update", "B")
+        .build()
+
+      // act & assert
+      expect(() =>
+        createOperationPlan(
+          context,
+          operation.type,
+          operation.requestedInstanceIds,
+          operation.options,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(
         "[Error: Operation options are invalid: forceUpdateDependencies and ignoreDependencies cannot both be enabled.]",
+      )
+    },
+  )
+
+  operationPlanTest(
+    "3c. should reject conflicting ignore changed and ignore options",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .unit("A")
+        .unit("B")
+        .depends("B", "A")
+        .states({ A: "upToDate", B: "upToDate" })
+        .options({ ignoreChangedDependencies: true, ignoreDependencies: true })
+        .request("update", "B")
+        .build()
+
+      // act & assert
+      expect(() =>
+        createOperationPlan(
+          context,
+          operation.type,
+          operation.requestedInstanceIds,
+          operation.options,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(
+        "[Error: Operation options are invalid: ignoreChangedDependencies and ignoreDependencies cannot both be enabled.]",
       )
     },
   )
@@ -332,7 +640,7 @@ describe("OperationPlan - Update Operations", () => {
   )
 
   operationPlanTest(
-    "5a. should skip ghost children in update phase when forcing child updates",
+    "5a. should cleanup ghost children when forceUpdateChildren is enabled",
     async ({ testBuilder, expect }) => {
       // arrange
       const { context, operation } = await testBuilder()
@@ -375,6 +683,249 @@ describe("OperationPlan - Update Operations", () => {
           },
         ]
       `)
+    },
+  )
+
+  operationPlanTest(
+    "5b. should cleanup ghosts from nested child composites during parent composite update",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Parent")
+        .composite("ChildComposite")
+        .unit("GhostLeaf")
+        .children("Parent", "ChildComposite")
+        .children("ChildComposite", "GhostLeaf")
+        .states({
+          Parent: "upToDate",
+          ChildComposite: "upToDate",
+          GhostLeaf: "ghost",
+        })
+        .request("update", "Parent")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "composite.v1:Parent",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "composite.v1:ChildComposite",
+                "message": "included in operation",
+                "parentId": "composite.v1:Parent",
+              },
+              {
+                "id": "component.v1:GhostLeaf",
+                "message": "ghost cleanup",
+                "parentId": "composite.v1:ChildComposite",
+              },
+            ],
+            "type": "destroy",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "5c. should run only ghost destroy phase when onlyDestroyGhosts is enabled",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Parent")
+        .unit("Child1")
+        .unit("GhostChild")
+        .children("Parent", "Child1", "GhostChild")
+        .states({
+          Parent: "upToDate",
+          Child1: "changed",
+          GhostChild: "ghost",
+        })
+        .options({ onlyDestroyGhosts: true })
+        .request("update", "Parent")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "composite.v1:Parent",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:GhostChild",
+                "message": "ghost cleanup",
+                "parentId": "composite.v1:Parent",
+              },
+            ],
+            "type": "destroy",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "5d. should place ghost destroy phase before update when firstDestroyGhosts is enabled",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Parent")
+        .unit("Child1")
+        .unit("GhostChild")
+        .children("Parent", "Child1", "GhostChild")
+        .states({
+          Parent: "upToDate",
+          Child1: "changed",
+          GhostChild: "ghost",
+        })
+        .options({ firstDestroyGhosts: true })
+        .request("update", "Parent")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "composite.v1:Parent",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:GhostChild",
+                "message": "ghost cleanup",
+                "parentId": "composite.v1:Parent",
+              },
+            ],
+            "type": "destroy",
+          },
+          {
+            "instances": [
+              {
+                "id": "composite.v1:Parent",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:Child1",
+                "message": "changed and child of included parent",
+                "parentId": "composite.v1:Parent",
+              },
+            ],
+            "type": "update",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "5e. should skip ghost destroy phase when ignoreGhosts is enabled",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Parent")
+        .unit("Child1")
+        .unit("GhostChild")
+        .children("Parent", "Child1", "GhostChild")
+        .states({
+          Parent: "upToDate",
+          Child1: "changed",
+          GhostChild: "ghost",
+        })
+        .options({ ignoreGhosts: true })
+        .request("update", "Parent")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "composite.v1:Parent",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:Child1",
+                "message": "changed and child of included parent",
+                "parentId": "composite.v1:Parent",
+              },
+            ],
+            "type": "update",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "5f. should reject mutually exclusive ghost options",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Parent")
+        .unit("GhostChild")
+        .children("Parent", "GhostChild")
+        .states({ Parent: "upToDate", GhostChild: "ghost" })
+        .options({ onlyDestroyGhosts: true, ignoreGhosts: true })
+        .request("update", "Parent")
+        .build()
+
+      // act & assert
+      expect(() =>
+        createOperationPlan(
+          context,
+          operation.type,
+          operation.requestedInstanceIds,
+          operation.options,
+        ),
+      ).toThrow(
+        "Operation options are invalid: only one of onlyDestroyGhosts, firstDestroyGhosts, ignoreGhosts can be enabled.",
+      )
     },
   )
 
@@ -750,7 +1301,7 @@ describe("OperationPlan - Update Operations", () => {
   )
 
   operationPlanTest(
-    "13. should isolate boundaries in deep composite hierarchies",
+    "13. should include deep ancestor chain without ancestor siblings",
     async ({ testBuilder, expect }) => {
       // arrange
       const { context, operation } = await testBuilder()
@@ -796,6 +1347,16 @@ describe("OperationPlan - Update Operations", () => {
                 "id": "composite.v1:Parent",
                 "message": "parent of included child "component.v1:Child"",
                 "parentId": "composite.v1:GrandParent",
+              },
+              {
+                "id": "composite.v1:GrandParent",
+                "message": "parent of included child "composite.v1:Parent"",
+                "parentId": "composite.v1:GreatGrandParent",
+              },
+              {
+                "id": "composite.v1:GreatGrandParent",
+                "message": "parent of included child "composite.v1:GrandParent"",
+                "parentId": undefined,
               },
             ],
             "type": "update",
@@ -1172,6 +1733,96 @@ describe("OperationPlan - Update Operations", () => {
                 "id": "composite.v1:Parent",
                 "message": "parent of included child "component.v1:Child2"",
                 "parentId": undefined,
+              },
+            ],
+            "type": "update",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "20. should skip explicitly requested empty nested composites",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Root")
+        .composite("Level1")
+        .composite("Level2")
+        .children("Root", "Level1")
+        .children("Level1", "Level2")
+        .states({
+          Root: "upToDate",
+          Level1: "upToDate",
+          Level2: "upToDate",
+        })
+        .request("update", "Root")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`[]`)
+    },
+  )
+
+  operationPlanTest(
+    "21. should keep non-empty branch while skipping empty nested composites",
+    async ({ testBuilder, expect }) => {
+      // arrange
+      const { context, operation } = await testBuilder()
+        .composite("Root")
+        .composite("EmptyLevel1")
+        .composite("EmptyLevel2")
+        .composite("NonEmptyLevel1")
+        .unit("Leaf")
+        .children("Root", "EmptyLevel1", "NonEmptyLevel1")
+        .children("EmptyLevel1", "EmptyLevel2")
+        .children("NonEmptyLevel1", "Leaf")
+        .states({
+          Root: "upToDate",
+          EmptyLevel1: "upToDate",
+          EmptyLevel2: "upToDate",
+          NonEmptyLevel1: "upToDate",
+          Leaf: "changed",
+        })
+        .request("update", "Root")
+        .build()
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "composite.v1:Root",
+                "message": "explicitly requested",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:Leaf",
+                "message": "changed and child of included parent",
+                "parentId": "composite.v1:NonEmptyLevel1",
+              },
+              {
+                "id": "composite.v1:NonEmptyLevel1",
+                "message": "parent of included child "component.v1:Leaf"",
+                "parentId": "composite.v1:Root",
               },
             ],
             "type": "update",

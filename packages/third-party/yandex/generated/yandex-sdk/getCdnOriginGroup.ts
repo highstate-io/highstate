@@ -24,7 +24,7 @@ export interface GetCdnOriginGroupArgs {
     folderId?: string;
     id?: string;
     name?: string;
-    originGroupId?: number;
+    originGroupId?: string;
 }
 
 /**
@@ -34,8 +34,9 @@ export interface GetCdnOriginGroupResult {
     readonly folderId: string;
     readonly id: string;
     readonly name: string;
-    readonly originGroupId: number;
+    readonly originGroupId: string;
     readonly origins: outputs.GetCdnOriginGroupOrigin[];
+    readonly providerType: string;
     readonly useNext: boolean;
 }
 export function getCdnOriginGroupOutput(args?: GetCdnOriginGroupOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetCdnOriginGroupResult> {
@@ -56,5 +57,5 @@ export interface GetCdnOriginGroupOutputArgs {
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
     name?: pulumi.Input<string>;
-    originGroupId?: pulumi.Input<number>;
+    originGroupId?: pulumi.Input<string>;
 }

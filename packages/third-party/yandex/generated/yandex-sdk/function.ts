@@ -34,31 +34,113 @@ export class Function extends pulumi.CustomResource {
         return obj['__pulumiType'] === Function.__pulumiType;
     }
 
+    /**
+     * Config for asynchronous invocations of Yandex Cloud Function.
+     */
     declare public readonly asyncInvocation: pulumi.Output<outputs.FunctionAsyncInvocation | undefined>;
+    /**
+     * The maximum number of requests processed by a function instance at the same time.
+     */
     declare public readonly concurrency: pulumi.Output<number>;
+    /**
+     * Function version connectivity. If specified the version will be attached to specified network.
+     */
     declare public readonly connectivity: pulumi.Output<outputs.FunctionConnectivity | undefined>;
+    /**
+     * Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either
+     * `package` or `content` section must be specified.
+     */
     declare public readonly content: pulumi.Output<outputs.FunctionContent | undefined>;
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Entrypoint for Yandex Cloud Function.
+     */
     declare public readonly entrypoint: pulumi.Output<string>;
+    /**
+     * A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).
+     */
     declare public readonly environment: pulumi.Output<{[key: string]: string} | undefined>;
-    declare public readonly executionTimeout: pulumi.Output<string | undefined>;
+    /**
+     * Execution timeout in seconds for Yandex Cloud Function.
+     */
+    declare public readonly executionTimeout: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
     declare public readonly functionId: pulumi.Output<string>;
+    /**
+     * Image size for Yandex Cloud Function.
+     */
     declare public /*out*/ readonly imageSize: pulumi.Output<number>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Options for logging from Yandex Cloud Function.
+     */
     declare public readonly logOptions: pulumi.Output<outputs.FunctionLogOptions | undefined>;
+    /**
+     * Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function.
+     */
     declare public readonly memory: pulumi.Output<number>;
+    /**
+     * Options set the access mode to function's metadata endpoints.
+     */
+    declare public readonly metadataOptions: pulumi.Output<outputs.FunctionMetadataOptions | undefined>;
+    /**
+     * Mounts for Yandex Cloud Function.
+     */
+    declare public readonly mounts: pulumi.Output<outputs.FunctionMount[] | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section. Either
+     * `package` or `content` section must be specified.
+     */
     declare public readonly package: pulumi.Output<outputs.FunctionPackage | undefined>;
+    /**
+     * Runtime for Yandex Cloud Function.
+     */
     declare public readonly runtime: pulumi.Output<string>;
+    /**
+     * Secrets for Yandex Cloud Function.
+     */
     declare public readonly secrets: pulumi.Output<outputs.FunctionSecret[] | undefined>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string | undefined>;
+    /**
+     * (**DEPRECATED**, use `mounts > object_storage` instead). Storage mounts for Yandex Cloud Function.
+     *
+     * @deprecated Deprecated
+     */
     declare public readonly storageMounts: pulumi.Output<outputs.FunctionStorageMount[] | undefined>;
+    /**
+     * Tags for Yandex Cloud Function. Tag `$latest` isn't returned.
+     */
     declare public readonly tags: pulumi.Output<string[]>;
     declare public readonly timeouts: pulumi.Output<outputs.FunctionTimeouts | undefined>;
+    /**
+     * Tmpfs size for Yandex Cloud Function.
+     */
     declare public readonly tmpfsSize: pulumi.Output<number>;
+    /**
+     * User-defined string for current function version. User must change this string any times when function changed. Function
+     * will be updated when hash is changed.
+     */
     declare public readonly userHash: pulumi.Output<string>;
+    /**
+     * Version of Yandex Cloud Function.
+     */
     declare public /*out*/ readonly version: pulumi.Output<string>;
 
     /**
@@ -89,6 +171,8 @@ export class Function extends pulumi.CustomResource {
             resourceInputs["labels"] = state?.labels;
             resourceInputs["logOptions"] = state?.logOptions;
             resourceInputs["memory"] = state?.memory;
+            resourceInputs["metadataOptions"] = state?.metadataOptions;
+            resourceInputs["mounts"] = state?.mounts;
             resourceInputs["name"] = state?.name;
             resourceInputs["package"] = state?.package;
             resourceInputs["runtime"] = state?.runtime;
@@ -127,6 +211,8 @@ export class Function extends pulumi.CustomResource {
             resourceInputs["labels"] = args?.labels;
             resourceInputs["logOptions"] = args?.logOptions;
             resourceInputs["memory"] = args?.memory;
+            resourceInputs["metadataOptions"] = args?.metadataOptions;
+            resourceInputs["mounts"] = args?.mounts;
             resourceInputs["name"] = args?.name;
             resourceInputs["package"] = args?.package;
             resourceInputs["runtime"] = args?.runtime;
@@ -150,31 +236,113 @@ export class Function extends pulumi.CustomResource {
  * Input properties used for looking up and filtering Function resources.
  */
 export interface FunctionState {
+    /**
+     * Config for asynchronous invocations of Yandex Cloud Function.
+     */
     asyncInvocation?: pulumi.Input<inputs.FunctionAsyncInvocation>;
+    /**
+     * The maximum number of requests processed by a function instance at the same time.
+     */
     concurrency?: pulumi.Input<number>;
+    /**
+     * Function version connectivity. If specified the version will be attached to specified network.
+     */
     connectivity?: pulumi.Input<inputs.FunctionConnectivity>;
+    /**
+     * Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either
+     * `package` or `content` section must be specified.
+     */
     content?: pulumi.Input<inputs.FunctionContent>;
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Entrypoint for Yandex Cloud Function.
+     */
     entrypoint?: pulumi.Input<string>;
+    /**
+     * A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).
+     */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Execution timeout in seconds for Yandex Cloud Function.
+     */
     executionTimeout?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
     functionId?: pulumi.Input<string>;
+    /**
+     * Image size for Yandex Cloud Function.
+     */
     imageSize?: pulumi.Input<number>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging from Yandex Cloud Function.
+     */
     logOptions?: pulumi.Input<inputs.FunctionLogOptions>;
+    /**
+     * Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function.
+     */
     memory?: pulumi.Input<number>;
+    /**
+     * Options set the access mode to function's metadata endpoints.
+     */
+    metadataOptions?: pulumi.Input<inputs.FunctionMetadataOptions>;
+    /**
+     * Mounts for Yandex Cloud Function.
+     */
+    mounts?: pulumi.Input<pulumi.Input<inputs.FunctionMount>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section. Either
+     * `package` or `content` section must be specified.
+     */
     package?: pulumi.Input<inputs.FunctionPackage>;
+    /**
+     * Runtime for Yandex Cloud Function.
+     */
     runtime?: pulumi.Input<string>;
+    /**
+     * Secrets for Yandex Cloud Function.
+     */
     secrets?: pulumi.Input<pulumi.Input<inputs.FunctionSecret>[]>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId?: pulumi.Input<string>;
+    /**
+     * (**DEPRECATED**, use `mounts > object_storage` instead). Storage mounts for Yandex Cloud Function.
+     *
+     * @deprecated Deprecated
+     */
     storageMounts?: pulumi.Input<pulumi.Input<inputs.FunctionStorageMount>[]>;
+    /**
+     * Tags for Yandex Cloud Function. Tag `$latest` isn't returned.
+     */
     tags?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.FunctionTimeouts>;
+    /**
+     * Tmpfs size for Yandex Cloud Function.
+     */
     tmpfsSize?: pulumi.Input<number>;
+    /**
+     * User-defined string for current function version. User must change this string any times when function changed. Function
+     * will be updated when hash is changed.
+     */
     userHash?: pulumi.Input<string>;
+    /**
+     * Version of Yandex Cloud Function.
+     */
     version?: pulumi.Input<string>;
 }
 
@@ -182,27 +350,103 @@ export interface FunctionState {
  * The set of arguments for constructing a Function resource.
  */
 export interface FunctionArgs {
+    /**
+     * Config for asynchronous invocations of Yandex Cloud Function.
+     */
     asyncInvocation?: pulumi.Input<inputs.FunctionAsyncInvocation>;
+    /**
+     * The maximum number of requests processed by a function instance at the same time.
+     */
     concurrency?: pulumi.Input<number>;
+    /**
+     * Function version connectivity. If specified the version will be attached to specified network.
+     */
     connectivity?: pulumi.Input<inputs.FunctionConnectivity>;
+    /**
+     * Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either
+     * `package` or `content` section must be specified.
+     */
     content?: pulumi.Input<inputs.FunctionContent>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Entrypoint for Yandex Cloud Function.
+     */
     entrypoint: pulumi.Input<string>;
+    /**
+     * A set of key/value environment variables for Yandex Cloud Function. Each key must begin with a letter (A-Z, a-z).
+     */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Execution timeout in seconds for Yandex Cloud Function.
+     */
     executionTimeout?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
     functionId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging from Yandex Cloud Function.
+     */
     logOptions?: pulumi.Input<inputs.FunctionLogOptions>;
+    /**
+     * Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function.
+     */
     memory: pulumi.Input<number>;
+    /**
+     * Options set the access mode to function's metadata endpoints.
+     */
+    metadataOptions?: pulumi.Input<inputs.FunctionMetadataOptions>;
+    /**
+     * Mounts for Yandex Cloud Function.
+     */
+    mounts?: pulumi.Input<pulumi.Input<inputs.FunctionMount>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section. Either
+     * `package` or `content` section must be specified.
+     */
     package?: pulumi.Input<inputs.FunctionPackage>;
+    /**
+     * Runtime for Yandex Cloud Function.
+     */
     runtime: pulumi.Input<string>;
+    /**
+     * Secrets for Yandex Cloud Function.
+     */
     secrets?: pulumi.Input<pulumi.Input<inputs.FunctionSecret>[]>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId?: pulumi.Input<string>;
+    /**
+     * (**DEPRECATED**, use `mounts > object_storage` instead). Storage mounts for Yandex Cloud Function.
+     *
+     * @deprecated Deprecated
+     */
     storageMounts?: pulumi.Input<pulumi.Input<inputs.FunctionStorageMount>[]>;
+    /**
+     * Tags for Yandex Cloud Function. Tag `$latest` isn't returned.
+     */
     tags?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.FunctionTimeouts>;
+    /**
+     * Tmpfs size for Yandex Cloud Function.
+     */
     tmpfsSize?: pulumi.Input<number>;
+    /**
+     * User-defined string for current function version. User must change this string any times when function changed. Function
+     * will be updated when hash is changed.
+     */
     userHash: pulumi.Input<string>;
 }

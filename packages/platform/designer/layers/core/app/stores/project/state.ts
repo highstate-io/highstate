@@ -122,6 +122,25 @@ export const useProjectStateStore = defineMultiStore({
                     updateState(newState as InstanceState)
                     break
                   }
+                  case "patched-batch": {
+                    for (const item of event.patches) {
+                      const instanceId = stateIdToInstanceIdMap.get(item.stateId)
+                      if (!instanceId) {
+                        logger.warn(
+                          { stateId: item.stateId },
+                          "received patch for unknown state ID",
+                        )
+                        continue
+                      }
+
+                      const existingState = instanceStates.get(instanceId)
+                      const newState = { ...existingState, ...item.patch }
+
+                      updateState(newState as InstanceState)
+                    }
+
+                    break
+                  }
                   case "deleted": {
                     const instanceId = stateIdToInstanceIdMap.get(event.stateId)
                     if (!instanceId) {

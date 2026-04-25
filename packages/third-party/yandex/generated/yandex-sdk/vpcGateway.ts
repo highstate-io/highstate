@@ -34,11 +34,29 @@ export class VpcGateway extends pulumi.CustomResource {
         return obj['__pulumiType'] === VpcGateway.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Shared egress gateway configuration. Currently empty.
+     */
     declare public readonly sharedEgressGateway: pulumi.Output<outputs.VpcGatewaySharedEgressGateway | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.VpcGatewayTimeouts | undefined>;
     declare public readonly vpcGatewayId: pulumi.Output<string>;
@@ -84,11 +102,29 @@ export class VpcGateway extends pulumi.CustomResource {
  * Input properties used for looking up and filtering VpcGateway resources.
  */
 export interface VpcGatewayState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Shared egress gateway configuration. Currently empty.
+     */
     sharedEgressGateway?: pulumi.Input<inputs.VpcGatewaySharedEgressGateway>;
     timeouts?: pulumi.Input<inputs.VpcGatewayTimeouts>;
     vpcGatewayId?: pulumi.Input<string>;
@@ -98,10 +134,25 @@ export interface VpcGatewayState {
  * The set of arguments for constructing a VpcGateway resource.
  */
 export interface VpcGatewayArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Shared egress gateway configuration. Currently empty.
+     */
     sharedEgressGateway?: pulumi.Input<inputs.VpcGatewaySharedEgressGateway>;
     timeouts?: pulumi.Input<inputs.VpcGatewayTimeouts>;
     vpcGatewayId?: pulumi.Input<string>;

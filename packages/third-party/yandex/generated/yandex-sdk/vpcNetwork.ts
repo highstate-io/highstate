@@ -34,12 +34,33 @@ export class VpcNetwork extends pulumi.CustomResource {
         return obj['__pulumiType'] === VpcNetwork.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * ID of default Security Group of this network.
+     */
     declare public /*out*/ readonly defaultSecurityGroupId: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     declare public /*out*/ readonly subnetIds: pulumi.Output<string[]>;
     declare public readonly timeouts: pulumi.Output<outputs.VpcNetworkTimeouts | undefined>;
     declare public readonly vpcNetworkId: pulumi.Output<string>;
@@ -87,12 +108,33 @@ export class VpcNetwork extends pulumi.CustomResource {
  * Input properties used for looking up and filtering VpcNetwork resources.
  */
 export interface VpcNetworkState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * ID of default Security Group of this network.
+     */
     defaultSecurityGroupId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The list of VPC subnets identifiers which resource is attached.
+     */
     subnetIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.VpcNetworkTimeouts>;
     vpcNetworkId?: pulumi.Input<string>;
@@ -102,9 +144,21 @@ export interface VpcNetworkState {
  * The set of arguments for constructing a VpcNetwork resource.
  */
 export interface VpcNetworkArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.VpcNetworkTimeouts>;
     vpcNetworkId?: pulumi.Input<string>;

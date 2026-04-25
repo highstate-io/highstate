@@ -1,16 +1,17 @@
 import type { UnitTerminal } from "@highstate/contract"
+import type { common } from "@highstate/library"
+import type { DistributedOmit } from "type-fest"
 import type { Namespace } from "./namespace"
 import type { Workload, WorkloadTerminalArgs } from "./workload"
 import { mkdir, readFile, unlink } from "node:fs/promises"
 import { resolve } from "node:path"
-import { AccessPointRoute, type AccessPointRouteArgs } from "@highstate/common"
 import {
-  type InputArray,
-  type InputRecord,
-  normalize,
-  normalizeInputs,
-  toPromise,
-} from "@highstate/pulumi"
+  AccessPointRoute,
+  type AccessPointRouteArgs,
+  type GatewayHttpRuleArgs,
+  type GatewayRuleArgs,
+} from "@highstate/common"
+import { type InputRecord, normalize, normalizeInputs, toPromise } from "@highstate/pulumi"
 import { local } from "@pulumi/command"
 import { apps, core, helm, type types } from "@pulumi/kubernetes"
 import {
@@ -30,6 +31,112 @@ import { createServiceSpec, Service, type ServiceArgs } from "./service"
 import { getNamespaceName, getProvider, type NamespaceLike } from "./shared"
 import { StatefulSet } from "./stateful-set"
 
+type ChartRouteBaseArgs = DistributedOmit<
+  AccessPointRouteArgs,
+  "accessPoint" | "backend" | "backends" | "rules" | "type" | "path" | "paths"
+> & {
+  /**
+   * The name of the service to route to.
+   *
+   * If not specified, it will route to the main service of the chart.
+   */
+  serviceName?: string
+
+  /**
+   * The service port to route to.
+   *
+   * Can be either a numeric port or a named port from the matched service.
+   *
+   * If not specified, it first falls back to the servicePort of the chart,
+   * then to the first port of the matched service.
+   */
+  servicePort?: Input<number | string>
+
+  /**
+   * The access point to use for the route.
+   *
+   * If not specified, it will use the access point provided at the chart level, or throw an error if the chart level access point is not provided.
+   */
+  accessPoint?: Input<common.AccessPoint>
+
+  /**
+   * The protocol type for the route.
+   */
+  type: "http" | "tcp" | "udp"
+}
+
+type ChartHttpGatewayRuleArgs = DistributedOmit<GatewayHttpRuleArgs, "backend" | "backends"> & {
+  /**
+   * The name of the service to route to.
+   *
+   * If not specified, it first falls back to the serviceName of the route, then to the main service of the chart.
+   */
+  serviceName?: string
+
+  /**
+   * The service port to route to.
+   *
+   * Can be either a numeric port or a named port from the matched service.
+   *
+   * If not specified, it first falls back to the servicePort of the route,
+   * then to the servicePort of the chart,
+   * then to the first port of the matched service.
+   */
+  servicePort?: Input<number | string>
+}
+
+type ChartTcpUdpGatewayRuleArgs = DistributedOmit<GatewayRuleArgs, "backend" | "backends"> & {
+  /**
+   * The name of the service to route to.
+   *
+   * If not specified, it first falls back to the serviceName of the route, then to the main service of the chart.
+   */
+  serviceName?: string
+
+  /**
+   * The service port to route to.
+   *
+   * Can be either a numeric port or a named port from the matched service.
+   *
+   * If not specified, it first falls back to the servicePort of the route,
+   * then to the servicePort of the chart,
+   * then to the first port of the matched service.
+   */
+  servicePort?: Input<number | string>
+}
+
+type ChartGatewayRuleArgs = ChartHttpGatewayRuleArgs | ChartTcpUdpGatewayRuleArgs
+
+export type ChartRouteArgs = ChartRouteBaseArgs &
+  (
+    | {
+        type: "http"
+
+        /**
+         * The path to match for the `default` rule of the listener.
+         */
+        path?: Input<string>
+
+        /**
+         * The paths to match for the `default` rule of the listener.
+         */
+        paths?: Input<string[]>
+
+        /**
+         * The rules of the route.
+         */
+        rules?: InputRecord<ChartHttpGatewayRuleArgs>
+      }
+    | {
+        type: "tcp" | "udp"
+
+        /**
+         * The rules of the route.
+         */
+        rules?: InputRecord<ChartTcpUdpGatewayRuleArgs>
+      }
+  )
+
 export type ChartArgs = Omit<
   helm.v4.ChartArgs,
   "chart" | "version" | "repositoryOpts" | "namespace"
@@ -45,6 +152,15 @@ export type ChartArgs = Omit<
    * By default, it is the same as the chart name.
    */
   serviceName?: string
+
+  /**
+   * The service port to route to by default.
+   *
+   * Can be either a numeric port or a named port from the matched service.
+   *
+   * Can be overridden by route.servicePort and rule.servicePort.
+   */
+  servicePort?: Input<number | string>
 
   /**
    * The extra args to pass to the main service of the chart.
@@ -68,12 +184,17 @@ export type ChartArgs = Omit<
   /**
    * The configuration for the access point route to create.
    */
-  route?: Input<Omit<AccessPointRouteArgs, "endpoints" | "customData">>
+  route?: Input<ChartRouteArgs>
 
   /**
    * The configuration for the access point routes to create.
    */
-  routes?: InputArray<Omit<AccessPointRouteArgs, "endpoints" | "customData">>
+  routes?: InputRecord<ChartRouteArgs>
+
+  /**
+   * The access point to use for the routes.
+   */
+  accessPoint?: Input<common.AccessPoint>
 
   /**
    * The network policy to apply to the chart.
@@ -158,7 +279,9 @@ export class Chart extends ComponentResource {
                     ...resourceArgs.props,
                     spec: {
                       ...spec,
-                      ...omit(serviceSpec, ["ports"]),
+                      ...(serviceSpec.ports?.length !== 0
+                        ? serviceSpec
+                        : omit(serviceSpec, ["ports"])),
                     },
                   },
                   opts: resourceArgs.opts,
@@ -172,23 +295,101 @@ export class Chart extends ComponentResource {
       )
     })
 
-    this.routes = output(normalizeInputs(args.route, args.routes)).apply(async routes => {
+    this.routes = output(
+      normalizeInputs(
+        args.route ? { name: "default", route: args.route } : undefined,
+        args.routes
+          ? Object.entries(args.routes).map(([name, route]) => ({ name, route }))
+          : undefined,
+      ),
+    ).apply(async routes => {
       if (routes.length === 0) {
         return []
       }
 
       return await Promise.all(
-        routes.map(async route => {
+        routes.map(async ({ name: routeName, route }) => {
+          const { serviceName: _serviceName, rules: _rules, ...baseRoute } = route
+          const accessPoint = route.accessPoint ?? args.accessPoint
+
+          if (!accessPoint) {
+            throw new Error(
+              `Access point is required for chart route "${name}-${routeName}". Set it on the route or on Chart args.accessPoint`,
+            )
+          }
+
+          const namespace = await toPromise(args.namespace)
+
+          const routeRules = (await toPromise(route.rules)) as Record<string, ChartGatewayRuleArgs>
+          const routeRuleValues = Object.values(routeRules ?? {})
+
+          const defaultServiceName = route.serviceName ?? args.serviceName ?? name
+          const defaultServicePort = route.servicePort ?? args.servicePort
+          const needsDefaultBackend = routeRuleValues.length === 0
+
+          const defaultService = needsDefaultBackend
+            ? await this.getService(defaultServiceName)
+            : undefined
+
+          const defaultServiceEndpoints =
+            needsDefaultBackend && defaultService
+              ? await this.resolveServiceEndpoints(
+                  defaultService,
+                  defaultServiceName,
+                  defaultServicePort,
+                  `${name}-${routeName}`,
+                )
+              : undefined
+
+          const resolvedRules = routeRules
+            ? await Promise.all(
+                Object.entries(routeRules).map(async ([ruleName, rule]) => {
+                  const ruleServiceName = rule.serviceName ?? defaultServiceName
+                  const ruleService = await this.getService(ruleServiceName)
+                  const ruleServicePort = rule.servicePort ?? route.servicePort ?? args.servicePort
+                  const ruleServiceEndpoints = await this.resolveServiceEndpoints(
+                    ruleService,
+                    ruleServiceName,
+                    ruleServicePort,
+                    `${name}-${routeName}:${ruleName}`,
+                  )
+
+                  return [
+                    ruleName,
+                    [
+                      {
+                        ...omit(rule, ["serviceName", "servicePort"]),
+                        backend: {
+                          endpoints: ruleServiceEndpoints,
+                        },
+                      },
+                    ],
+                  ] as const
+                }),
+              )
+            : undefined
+
+          const resolvedRulesInput = resolvedRules
+            ? (Object.fromEntries(resolvedRules) as unknown as InputRecord<GatewayRuleArgs[]>)
+            : undefined
+
           return new AccessPointRoute(
-            name,
+            `${name}-${routeName}`,
             {
-              ...route,
-
-              endpoints: this.service.endpoints,
-
-              // pass the native data to the route to allow implementation to use it
-              gatewayNativeData: await toPromise(this.service),
-              tlsCertificateNativeData: await toPromise(args.namespace),
+              ...baseRoute,
+              accessPoint,
+              ...(defaultService
+                ? {
+                    backend: {
+                      endpoints: defaultServiceEndpoints,
+                    },
+                  }
+                : {}),
+              rules: resolvedRulesInput,
+              metadata: {
+                ...(route.metadata ?? {}),
+                "k8s.namespace": namespace,
+              },
             },
             { ...opts, parent: this },
           )
@@ -254,18 +455,101 @@ export class Chart extends ComponentResource {
 
   private set service(_value: never) {}
 
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: for pulumi which for some reason tries to copy all properties
   private set terminals(_value: never) {}
 
   get service(): Output<Service> {
     return this.getServiceOutput(undefined)
   }
 
+  get deployment(): Output<Deployment> {
+    return this.getDeploymentOutput(this.name)
+  }
+
+  get statefulSet(): Output<StatefulSet> {
+    return this.getStatefulSetOutput(this.name)
+  }
+
   get terminals(): Output<UnitTerminal[]> {
-    return this.workloads.apply(workloads => output(workloads.map(workload => workload.terminal)))
+    return this.workloads.apply(workloads => {
+      const terminalsByWorkload = workloads.map(workload =>
+        output({ terminals: workload.terminals, workloadName: workload.metadata.name }),
+      )
+
+      return output(terminalsByWorkload).apply(workloadTerminals => {
+        const hasMultipleWorkloads = workloadTerminals.length > 1
+
+        return workloadTerminals.flatMap(({ terminals, workloadName }) => {
+          if (!hasMultipleWorkloads) {
+            return terminals
+          }
+
+          return terminals.map(terminal => ({
+            ...terminal,
+            meta: {
+              ...terminal.meta,
+              title: `${terminal.meta.title} | ${workloadName}`,
+            },
+          }))
+        })
+      })
+    })
   }
 
   private readonly services = new Map<string, Service>()
+
+  private async resolveServiceEndpoints(
+    service: Service,
+    serviceName: string,
+    servicePort: Input<number | string> | undefined,
+    routeName: string,
+  ) {
+    const endpoints = await toPromise(service.endpoints)
+    const servicePorts = await toPromise(service.spec.ports)
+
+    if (endpoints.length === 0) {
+      throw new Error(
+        `No endpoints found for service "${serviceName}" in chart route "${routeName}"`,
+      )
+    }
+
+    let resolvedServicePort: number | undefined
+
+    if (servicePort != null) {
+      const requestedServicePort = await toPromise(servicePort)
+
+      if (typeof requestedServicePort === "string") {
+        const namedPort = servicePorts?.find(port => port.name === requestedServicePort)
+
+        if (!namedPort) {
+          throw new Error(
+            `Named port "${requestedServicePort}" not found for service "${serviceName}" in chart route "${routeName}"`,
+          )
+        }
+
+        resolvedServicePort = namedPort.port
+      } else {
+        resolvedServicePort = requestedServicePort
+      }
+    } else {
+      resolvedServicePort = endpoints[0]?.port
+    }
+
+    if (resolvedServicePort == null) {
+      throw new Error(
+        `Unable to resolve service port for service "${serviceName}" in chart route "${routeName}"`,
+      )
+    }
+
+    const filteredEndpoints = endpoints.filter(endpoint => endpoint.port === resolvedServicePort)
+
+    if (filteredEndpoints.length === 0) {
+      throw new Error(
+        `No endpoints with port ${resolvedServicePort} found for service "${serviceName}" in chart route "${routeName}"`,
+      )
+    }
+
+    return filteredEndpoints
+  }
 
   getServiceOutput(name: string | undefined): Output<Service> {
     return output({ args: this.args, chart: this.chart }).apply(({ args, chart }) => {
@@ -289,8 +573,56 @@ export class Chart extends ComponentResource {
     })
   }
 
+  getWorkloadOutput(name: string): Output<Workload> {
+    return this.workloads.apply(async workloads => {
+      const workloadsWithNames = await toPromise(
+        workloads.map(workload => output({ workload, name: workload.metadata.name })),
+      )
+
+      const item = workloadsWithNames.find(w => w.name === name)
+
+      if (!item) {
+        throw new Error(`Workload with name '${name}' not found in the chart workloads`)
+      }
+
+      return item.workload
+    })
+  }
+
+  getDeploymentOutput(name: string): Output<Deployment> {
+    return this.getWorkloadOutput(name).apply(workload => {
+      if (workload instanceof Deployment) {
+        return workload
+      }
+
+      throw new Error(`Workload with name '${name}' is not a Deployment`)
+    })
+  }
+
+  getStatefulSetOutput(name: string): Output<StatefulSet> {
+    return this.getWorkloadOutput(name).apply(workload => {
+      if (workload instanceof StatefulSet) {
+        return workload
+      }
+
+      throw new Error(`Workload with name '${name}' is not a StatefulSet`)
+    })
+  }
+
   getService(name?: string): Promise<Service> {
     return toPromise(this.getServiceOutput(name))
+  }
+
+  getWorkload(name: string): Promise<Workload> {
+    return toPromise(this.getWorkloadOutput(name))
+  }
+
+  getDeployment(name: string): Promise<Deployment> {
+    return toPromise(this.getDeploymentOutput(name))
+  }
+
+  getStatefulSet(name: string): Promise<StatefulSet> {
+    return toPromise(this.getStatefulSetOutput(name))
   }
 }
 

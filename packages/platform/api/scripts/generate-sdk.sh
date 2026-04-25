@@ -13,7 +13,7 @@ rm -rf "$OUTPUT_DIR"/*
 PROTO_FILES=$(find "$PROTOCOL_DIR" -name "*.proto" -type f)
 
 protoc \
-    --plugin=../../../node_modules/.bin/protoc-gen-ts_proto \
+    --plugin=./node_modules/.bin/protoc-gen-ts_proto \
     --ts_proto_out="$OUTPUT_DIR" \
     --ts_proto_opt=outputServices=nice-grpc \
     --ts_proto_opt=outputServices=generic-definitions \

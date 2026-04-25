@@ -34,13 +34,38 @@ export class IotCoreDevice extends pulumi.CustomResource {
         return obj['__pulumiType'] === IotCoreDevice.__pulumiType;
     }
 
+    /**
+     * A set of key/value aliases pairs to assign to the IoT Core Device.
+     */
     declare public readonly aliases: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * A set of certificate's fingerprints for the IoT Core Device.
+     */
     declare public readonly certificates: pulumi.Output<string[] | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
     declare public readonly iotCoreDeviceId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * A set of passwords's id for the IoT Core Device.
+     */
     declare public readonly passwords: pulumi.Output<string[] | undefined>;
+    /**
+     * IoT Core Registry ID for the IoT Core Device.
+     */
     declare public readonly registryId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.IotCoreDeviceTimeouts | undefined>;
 
@@ -62,6 +87,7 @@ export class IotCoreDevice extends pulumi.CustomResource {
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
             resourceInputs["iotCoreDeviceId"] = state?.iotCoreDeviceId;
+            resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["passwords"] = state?.passwords;
             resourceInputs["registryId"] = state?.registryId;
@@ -75,6 +101,7 @@ export class IotCoreDevice extends pulumi.CustomResource {
             resourceInputs["certificates"] = args?.certificates;
             resourceInputs["description"] = args?.description;
             resourceInputs["iotCoreDeviceId"] = args?.iotCoreDeviceId;
+            resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["passwords"] = args?.passwords ? pulumi.secret(args.passwords) : undefined;
             resourceInputs["registryId"] = args?.registryId;
@@ -92,13 +119,38 @@ export class IotCoreDevice extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IotCoreDevice resources.
  */
 export interface IotCoreDeviceState {
+    /**
+     * A set of key/value aliases pairs to assign to the IoT Core Device.
+     */
     aliases?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A set of certificate's fingerprints for the IoT Core Device.
+     */
     certificates?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
     iotCoreDeviceId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of passwords's id for the IoT Core Device.
+     */
     passwords?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * IoT Core Registry ID for the IoT Core Device.
+     */
     registryId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.IotCoreDeviceTimeouts>;
 }
@@ -107,12 +159,34 @@ export interface IotCoreDeviceState {
  * The set of arguments for constructing a IotCoreDevice resource.
  */
 export interface IotCoreDeviceArgs {
+    /**
+     * A set of key/value aliases pairs to assign to the IoT Core Device.
+     */
     aliases?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A set of certificate's fingerprints for the IoT Core Device.
+     */
     certificates?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
     iotCoreDeviceId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
+    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of passwords's id for the IoT Core Device.
+     */
     passwords?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * IoT Core Registry ID for the IoT Core Device.
+     */
     registryId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.IotCoreDeviceTimeouts>;
 }

@@ -30,9 +30,84 @@ graph RL
 
 **Update Phase**: `B`, `C`
 
-### Example 2: Composite Boundary Isolation
+### Example 1a: Ignore Changed Dependencies Only
 
-**Test**: `should not propagate beyond compositional inclusion`
+**Test**: `should skip only changed dependencies when ignoreChangedDependencies enabled`
+
+```mermaid
+graph RL
+    A["A ✅"]
+    B["B ≠"]
+    C["C 🚀"]
+
+    C --> B --> A
+```
+
+**Options:**
+
+- `ignoreChangedDependencies`: `true`
+
+**Decision Steps**:
+
+1. `C` explicitly requested;
+2. `C` depends on `B`, `B` is only changed and changed dependencies are ignored → `B` excluded;
+3. no failed/undeployed prerequisite is present in this chain.
+
+**Update Phase**: `C`
+
+### Example 1b: Ignore Changed But Keep Undeployed/Failed
+
+**Test**: `should still include undeployed dependencies when ignoreChangedDependencies enabled`
+
+```mermaid
+graph RL
+    A["A ≠"]
+    B["B ∅"]
+    C["C 🚀"]
+
+    C --> B --> A
+```
+
+**Options:**
+
+- `ignoreChangedDependencies`: `true`
+
+**Decision Steps**:
+
+1. `C` explicitly requested;
+2. `C` depends on `B`, `B` is undeployed → `B` included for safety;
+3. `B` depends on `A`, `A` is only changed and changed dependencies are ignored → `A` excluded.
+
+**Update Phase**: `B`, `C`
+
+### Example 1c: Manual Ignore All Dependencies
+
+**Test**: `should ignore all dependencies when ignoreDependencies enabled`
+
+```mermaid
+graph RL
+    A["A ≠"]
+    B["B ∅"]
+    C["C 🚀"]
+
+    C --> B --> A
+```
+
+**Options:**
+
+- `ignoreDependencies`: `true`
+
+**Decision Steps**:
+
+1. `C` explicitly requested;
+2. `C` dependencies are fully ignored in manual mode;
+3. both changed and undeployed prerequisites are skipped.
+
+**Update Phase**: `C`
+
+### Example 2: Full Ancestor Chain for Compositional Inclusion
+
+**Test**: `should include full ancestor chain for compositional inclusion`
 
 ```mermaid
 graph RL
@@ -52,10 +127,10 @@ graph RL
 1. `B` explicitly requested;
 2. `B` depends on `A`, `A` is outdated → `A` included;
 3. `A` is child of `Parent` → `Parent` included (compositional);
-4. `Parent` is child of `GrandParent` → `GrandParent` NOT included (compositional boundary);
-5. `C` is sibling of `Parent`, `C` is outdated but `GrandParent` is not included → `C` NOT included.
+4. `Parent` is child of `GrandParent` → `GrandParent` included as ancestor;
+5. `C` is sibling of `Parent`, but ancestor inclusion does not auto-include siblings → `C` NOT included.
 
-**Update Phase**: `A`, `Parent`, `B`
+**Update Phase**: `A`, `Parent`, `GrandParent`, `B`
 
 ### Example 3: Force Dependencies
 
@@ -123,6 +198,157 @@ graph RL
 3. `Parent` has destroyed children → `Parent` added to destroy phase.
 
 **Destroy Phase**: `GhostChild`, `Parent`
+
+### Example 5a: Force Children With Ghost-Only Composite
+
+**Test**: `should cleanup ghost children when forceUpdateChildren is enabled`
+
+```mermaid
+graph RL
+    subgraph Parent["Parent 🚀"]
+        GhostChild["GhostChild 👻"]
+    end
+```
+
+**Options:**
+
+- `forceUpdateChildren`: `true`
+
+**Decision Steps**:
+
+1. `Parent` explicitly requested;
+2. `forceUpdateChildren` applies to real children only, so `GhostChild` is not included in update phase;
+3. `Parent` has no non-ghost child that needs update, so update phase stays empty;
+4. ghost cleanup pass includes `GhostChild` in destroy phase;
+5. `Parent` is added to destroy phase as parent of destroyed ghost child.
+
+**Destroy Phase**: `GhostChild`, `Parent`
+
+### Example 5b: Nested Ghost Cleanup for Child Composites
+
+**Test**: `should cleanup ghosts from nested child composites during parent composite update`
+
+```mermaid
+graph RL
+    subgraph Parent["Parent 🚀"]
+        subgraph ChildComposite["ChildComposite ✅"]
+            GhostLeaf["GhostLeaf 👻"]
+        end
+    end
+```
+
+**Decision Steps**:
+
+1. `Parent` explicitly requested;
+2. no non-ghost outdated descendants exist, so update phase is empty;
+3. ghost cleanup traverses the full composite subtree, not only direct children;
+4. nested `GhostLeaf` is included in destroy phase;
+5. intermediate composite chain needed for state recalculation is included, so `ChildComposite` and `Parent` are also added to destroy phase.
+
+**Destroy Phase**: `GhostLeaf`, `ChildComposite`, `Parent`
+
+### Example 5c: Only Destroy Ghosts
+
+**Test**: `should run only ghost destroy phase when onlyDestroyGhosts is enabled`
+
+```mermaid
+graph RL
+    subgraph Parent["Parent 🚀"]
+        Child1["Child1 ≠"]
+        GhostChild["GhostChild 👻"]
+    end
+```
+
+**Options:**
+
+- `onlyDestroyGhosts`: `true`
+
+**Decision Steps**:
+
+1. `Parent` explicitly requested;
+2. `Child1` is outdated and would normally be included in update phase;
+3. `onlyDestroyGhosts` disables update phase generation entirely;
+4. ghost cleanup still runs and includes `GhostChild`;
+5. `Parent` is included in destroy phase as parent of destroyed ghost child.
+
+**Destroy Phase**: `GhostChild`, `Parent`
+
+### Example 5d: Destroy Ghosts Before Update
+
+**Test**: `should place ghost destroy phase before update when firstDestroyGhosts is enabled`
+
+```mermaid
+graph RL
+    subgraph Parent["Parent 🚀"]
+        Child1["Child1 ≠"]
+        GhostChild["GhostChild 👻"]
+    end
+```
+
+**Options:**
+
+- `firstDestroyGhosts`: `true`
+
+**Decision Steps**:
+
+1. `Parent` explicitly requested;
+2. `Child1` is outdated and included in update phase;
+3. `GhostChild` is included in ghost cleanup destroy phase;
+4. option reorders phases so destroy runs before update;
+5. both phases are kept.
+
+**Destroy Phase**: `GhostChild`, `Parent`
+
+**Update Phase**: `Child1`, `Parent`
+
+### Example 5e: Ignore Ghost Cleanup
+
+**Test**: `should skip ghost destroy phase when ignoreGhosts is enabled`
+
+```mermaid
+graph RL
+    subgraph Parent["Parent 🚀"]
+        Child1["Child1 ≠"]
+        GhostChild["GhostChild 👻"]
+    end
+```
+
+**Options:**
+
+- `ignoreGhosts`: `true`
+
+**Decision Steps**:
+
+1. `Parent` explicitly requested;
+2. `Child1` is outdated and included in update phase;
+3. ghost cleanup generation is disabled by `ignoreGhosts`;
+4. no destroy phase is created for ghosts.
+
+**Update Phase**: `Child1`, `Parent`
+
+### Example 5f: Mutually Exclusive Ghost Strategy Options
+
+**Test**: `should reject mutually exclusive ghost options`
+
+```mermaid
+graph RL
+    subgraph Parent["Parent 🚀"]
+        GhostChild["GhostChild 👻"]
+    end
+```
+
+**Options:**
+
+- `onlyDestroyGhosts`: `true`
+- `ignoreGhosts`: `true`
+
+**Decision Steps**:
+
+1. planner validates ghost strategy options before phase construction;
+2. more than one of `onlyDestroyGhosts`, `firstDestroyGhosts`, `ignoreGhosts` is enabled;
+3. operation plan creation is rejected as invalid.
+
+**Result**: validation error
 
 ### Example 6: Nested Composites with Mixed Updates
 
@@ -293,9 +519,9 @@ graph RL
 
 **Update Phase**: `A`, `C`
 
-### Example 13: Deep Nesting with Boundary Isolation
+### Example 13: Deep Nesting with Ancestor Chain Inclusion
 
-**Test**: `should isolate boundaries in deep composite hierarchies`
+**Test**: `should include deep ancestor chain without ancestor siblings`
 
 ```mermaid
 graph RL
@@ -314,10 +540,11 @@ graph RL
 
 1. `Child` explicitly requested;
 2. `Child` is child of `Parent` → `Parent` included (compositional);
-3. `Parent` is child of `GrandParent` → `GrandParent` NOT included (compositional boundary);
-4. `Uncle` and `GreatUncle` not affected.
+3. `Parent` is child of `GrandParent` → `GrandParent` included as ancestor;
+4. `GrandParent` is child of `GreatGrandParent` → `GreatGrandParent` included as ancestor;
+5. `Uncle` and `GreatUncle` are ancestor siblings and are not auto-included.
 
-**Update Phase**: `Child`, `Parent`
+**Update Phase**: `Child`, `Parent`, `GrandParent`, `GreatGrandParent`
 
 ### Example 14: Mixed Force Flags
 
@@ -469,7 +696,7 @@ graph RL
         Child3["Child3 ≠"]
         Child4["Child4 ≠"]
     end
-    
+
     Child2 --> Child1
     Child3 --> Child4
 ```
@@ -483,3 +710,51 @@ graph RL
 5. `Child4` is child of compositional composite, outdated → `Child4` excluded (rule 3 doesn't apply).
 
 **Update Phase**: `Child1`, `Child2`, `Parent`
+
+### Example 20: Explicit Empty Nested Composite
+
+**Test**: `should skip explicitly requested empty nested composites`
+
+```mermaid
+graph RL
+    subgraph Root["Root 🚀"]
+        subgraph Level1["Level1 ✅"]
+            Level2["Level2 ✅"]
+        end
+    end
+```
+
+**Decision Steps**:
+
+1. `Root` explicitly requested;
+2. `Root` has no unit descendants (directly or recursively) → empty composite;
+3. empty composites are not added to operation plan;
+4. `Level1` and `Level2` are also empty composites and remain excluded.
+
+**Update Phase**: _(empty)_
+
+### Example 21: Mixed Nested Branches with Empty Composite Pruning
+
+**Test**: `should keep non-empty branch while skipping empty nested composites`
+
+```mermaid
+graph RL
+    subgraph Root["Root 🚀"]
+        subgraph EmptyLevel1
+            EmptyLevel2["EmptyLevel2 ✅"]
+        end
+        subgraph NonEmptyLevel1
+            Leaf["Leaf ≠"]
+        end
+    end
+```
+
+**Decision Steps**:
+
+1. `Root` explicitly requested;
+2. `EmptyLevel1`/`EmptyLevel2` have no unit descendants → both excluded;
+3. `Leaf` is outdated and is a unit descendant under `NonEmptyLevel1` → `Leaf` included;
+4. `NonEmptyLevel1` is parent of included child → `NonEmptyLevel1` included;
+5. `Root` is explicitly requested and non-empty due to `Leaf` branch → `Root` included.
+
+**Update Phase**: `Root`, `Leaf`, `NonEmptyLevel1`

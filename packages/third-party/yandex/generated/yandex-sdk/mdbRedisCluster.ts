@@ -34,27 +34,104 @@ export class MdbRedisCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbRedisCluster.__pulumiType;
     }
 
+    /**
+     * Access policy to the Redis cluster.
+     */
+    declare public readonly access: pulumi.Output<outputs.MdbRedisClusterAccess | undefined>;
+    /**
+     * Announce fqdn instead of ip address.
+     */
     declare public readonly announceHostnames: pulumi.Output<boolean | undefined>;
+    /**
+     * Allows to use ACL users to auth in sentinel
+     */
+    declare public readonly authSentinel: pulumi.Output<boolean | undefined>;
+    /**
+     * Configuration of the Redis cluster.
+     */
     declare public readonly config: pulumi.Output<outputs.MdbRedisClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * ID of the KMS key for cluster disk encryption.
+     */
+    declare public readonly diskEncryptionKeyId: pulumi.Output<string>;
+    /**
+     * Disk size autoscaling settings.
+     */
     declare public readonly diskSizeAutoscaling: pulumi.Output<outputs.MdbRedisClusterDiskSizeAutoscaling | undefined>;
+    /**
+     * Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+     */
     declare public readonly environment: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+     */
     declare public /*out*/ readonly health: pulumi.Output<string>;
+    /**
+     * A host of the Redis cluster.
+     */
     declare public readonly hosts: pulumi.Output<outputs.MdbRedisClusterHost[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Maintenance window settings.
+     */
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbRedisClusterMaintenanceWindow | undefined>;
     declare public readonly mdbRedisClusterId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * Persistence mode. Possible values: `ON`, `OFF`.
+     */
     declare public readonly persistenceMode: pulumi.Output<string>;
+    /**
+     * Resources allocated to hosts of the Redis cluster.
+     */
     declare public readonly resources: pulumi.Output<outputs.MdbRedisClusterResources>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded. If cluster is sharded - disabling is not
+     * allowed.
+     */
     declare public readonly sharded: pulumi.Output<boolean | undefined>;
+    /**
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbRedisClusterTimeouts | undefined>;
+    /**
+     * TLS support mode enabled/disabled.
+     */
     declare public readonly tlsEnabled: pulumi.Output<boolean>;
 
     /**
@@ -70,11 +147,14 @@ export class MdbRedisCluster extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as MdbRedisClusterState | undefined;
+            resourceInputs["access"] = state?.access;
             resourceInputs["announceHostnames"] = state?.announceHostnames;
+            resourceInputs["authSentinel"] = state?.authSentinel;
             resourceInputs["config"] = state?.config;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskEncryptionKeyId"] = state?.diskEncryptionKeyId;
             resourceInputs["diskSizeAutoscaling"] = state?.diskSizeAutoscaling;
             resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
@@ -109,10 +189,13 @@ export class MdbRedisCluster extends pulumi.CustomResource {
             if (args?.resources === undefined && !opts.urn) {
                 throw new Error("Missing required property 'resources'");
             }
+            resourceInputs["access"] = args?.access;
             resourceInputs["announceHostnames"] = args?.announceHostnames;
+            resourceInputs["authSentinel"] = args?.authSentinel;
             resourceInputs["config"] = args?.config;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskEncryptionKeyId"] = args?.diskEncryptionKeyId;
             resourceInputs["diskSizeAutoscaling"] = args?.diskSizeAutoscaling;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
@@ -141,27 +224,104 @@ export class MdbRedisCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbRedisCluster resources.
  */
 export interface MdbRedisClusterState {
+    /**
+     * Access policy to the Redis cluster.
+     */
+    access?: pulumi.Input<inputs.MdbRedisClusterAccess>;
+    /**
+     * Announce fqdn instead of ip address.
+     */
     announceHostnames?: pulumi.Input<boolean>;
+    /**
+     * Allows to use ACL users to auth in sentinel
+     */
+    authSentinel?: pulumi.Input<boolean>;
+    /**
+     * Configuration of the Redis cluster.
+     */
     config?: pulumi.Input<inputs.MdbRedisClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key for cluster disk encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Disk size autoscaling settings.
+     */
     diskSizeAutoscaling?: pulumi.Input<inputs.MdbRedisClusterDiskSizeAutoscaling>;
+    /**
+     * Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+     */
     health?: pulumi.Input<string>;
+    /**
+     * A host of the Redis cluster.
+     */
     hosts?: pulumi.Input<pulumi.Input<inputs.MdbRedisClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance window settings.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbRedisClusterMaintenanceWindow>;
     mdbRedisClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * Persistence mode. Possible values: `ON`, `OFF`.
+     */
     persistenceMode?: pulumi.Input<string>;
+    /**
+     * Resources allocated to hosts of the Redis cluster.
+     */
     resources?: pulumi.Input<inputs.MdbRedisClusterResources>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded. If cluster is sharded - disabling is not
+     * allowed.
+     */
     sharded?: pulumi.Input<boolean>;
+    /**
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-redis/api-ref/Cluster/).
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbRedisClusterTimeouts>;
+    /**
+     * TLS support mode enabled/disabled.
+     */
     tlsEnabled?: pulumi.Input<boolean>;
 }
 
@@ -169,23 +329,87 @@ export interface MdbRedisClusterState {
  * The set of arguments for constructing a MdbRedisCluster resource.
  */
 export interface MdbRedisClusterArgs {
+    /**
+     * Access policy to the Redis cluster.
+     */
+    access?: pulumi.Input<inputs.MdbRedisClusterAccess>;
+    /**
+     * Announce fqdn instead of ip address.
+     */
     announceHostnames?: pulumi.Input<boolean>;
+    /**
+     * Allows to use ACL users to auth in sentinel
+     */
+    authSentinel?: pulumi.Input<boolean>;
+    /**
+     * Configuration of the Redis cluster.
+     */
     config: pulumi.Input<inputs.MdbRedisClusterConfig>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key for cluster disk encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Disk size autoscaling settings.
+     */
     diskSizeAutoscaling?: pulumi.Input<inputs.MdbRedisClusterDiskSizeAutoscaling>;
+    /**
+     * Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+     */
     environment: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A host of the Redis cluster.
+     */
     hosts: pulumi.Input<pulumi.Input<inputs.MdbRedisClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance window settings.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbRedisClusterMaintenanceWindow>;
     mdbRedisClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * Persistence mode. Possible values: `ON`, `OFF`.
+     */
     persistenceMode?: pulumi.Input<string>;
+    /**
+     * Resources allocated to hosts of the Redis cluster.
+     */
     resources: pulumi.Input<inputs.MdbRedisClusterResources>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded. If cluster is sharded - disabling is not
+     * allowed.
+     */
     sharded?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.MdbRedisClusterTimeouts>;
+    /**
+     * TLS support mode enabled/disabled.
+     */
     tlsEnabled?: pulumi.Input<boolean>;
 }

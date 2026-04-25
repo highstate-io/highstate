@@ -34,10 +34,29 @@ export class OrganizationmanagerGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === OrganizationmanagerGroup.__pulumiType;
     }
 
+    /**
+     * Creation timestamp.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Description of the group.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the Group resource to return. To get the group ID, use a [GroupService.List] request.
+     */
+    declare public readonly groupId: pulumi.Output<string>;
+    /**
+     * Name of the group.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the organization that the group belongs to.
+     */
     declare public readonly organizationId: pulumi.Output<string>;
+    /**
+     * ID of the Group resource to return. To get the group ID, use a [GroupService.List] request.
+     */
     declare public readonly organizationmanagerGroupId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.OrganizationmanagerGroupTimeouts | undefined>;
 
@@ -56,6 +75,7 @@ export class OrganizationmanagerGroup extends pulumi.CustomResource {
             const state = argsOrState as OrganizationmanagerGroupState | undefined;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
+            resourceInputs["groupId"] = state?.groupId;
             resourceInputs["name"] = state?.name;
             resourceInputs["organizationId"] = state?.organizationId;
             resourceInputs["organizationmanagerGroupId"] = state?.organizationmanagerGroupId;
@@ -66,6 +86,7 @@ export class OrganizationmanagerGroup extends pulumi.CustomResource {
                 throw new Error("Missing required property 'organizationId'");
             }
             resourceInputs["description"] = args?.description;
+            resourceInputs["groupId"] = args?.groupId;
             resourceInputs["name"] = args?.name;
             resourceInputs["organizationId"] = args?.organizationId;
             resourceInputs["organizationmanagerGroupId"] = args?.organizationmanagerGroupId;
@@ -81,10 +102,29 @@ export class OrganizationmanagerGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering OrganizationmanagerGroup resources.
  */
 export interface OrganizationmanagerGroupState {
+    /**
+     * Creation timestamp.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the group.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the Group resource to return. To get the group ID, use a [GroupService.List] request.
+     */
+    groupId?: pulumi.Input<string>;
+    /**
+     * Name of the group.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the organization that the group belongs to.
+     */
     organizationId?: pulumi.Input<string>;
+    /**
+     * ID of the Group resource to return. To get the group ID, use a [GroupService.List] request.
+     */
     organizationmanagerGroupId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerGroupTimeouts>;
 }
@@ -93,9 +133,25 @@ export interface OrganizationmanagerGroupState {
  * The set of arguments for constructing a OrganizationmanagerGroup resource.
  */
 export interface OrganizationmanagerGroupArgs {
+    /**
+     * Description of the group.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the Group resource to return. To get the group ID, use a [GroupService.List] request.
+     */
+    groupId?: pulumi.Input<string>;
+    /**
+     * Name of the group.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the organization that the group belongs to.
+     */
     organizationId: pulumi.Input<string>;
+    /**
+     * ID of the Group resource to return. To get the group ID, use a [GroupService.List] request.
+     */
     organizationmanagerGroupId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerGroupTimeouts>;
 }

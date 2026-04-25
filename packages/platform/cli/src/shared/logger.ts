@@ -6,6 +6,9 @@ export const logger = pino(
   {
     name: "highstate-cli",
     level: process.env.LOG_LEVEL ?? "info",
+    serializers: {
+      error: value => serializeError(value),
+    },
   },
   createConsolaStream(),
 )
@@ -51,4 +54,57 @@ function createConsolaStream() {
   })
 
   return stream
+}
+
+function serializeError(value: unknown, seen: WeakSet<object> = new WeakSet()): unknown {
+  if (value instanceof Error) {
+    const base: Record<string, unknown> = {
+      name: value.name,
+      message: value.message,
+      stack: value.stack,
+    }
+
+    const cause = (value as Error & { cause?: unknown }).cause
+    if (cause !== undefined) {
+      base.cause = serializeError(cause, seen)
+    }
+
+    const extraEntries = Object.entries(value)
+    if (extraEntries.length > 0) {
+      base.details = Object.fromEntries(
+        extraEntries.map(([key, entryValue]) => [key, serializeError(entryValue, seen)]),
+      )
+    }
+
+    return base
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(entry => serializeError(entry, seen))
+  }
+
+  if (value && typeof value === "object") {
+    if (seen.has(value)) {
+      return "[Circular]"
+    }
+
+    seen.add(value)
+
+    const entries = Object.entries(value)
+    if (entries.length === 0) {
+      return {
+        type: value.constructor?.name ?? "Object",
+        message: String(value),
+      }
+    }
+
+    return Object.fromEntries(
+      entries.map(([key, entryValue]) => [key, serializeError(entryValue, seen)]),
+    )
+  }
+
+  return {
+    type: typeof value,
+    message: String(value),
+  }
 }

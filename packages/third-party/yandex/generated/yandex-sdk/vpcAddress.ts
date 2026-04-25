@@ -34,16 +34,52 @@ export class VpcAddress extends pulumi.CustomResource {
         return obj['__pulumiType'] === VpcAddress.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * DNS record specification of address.
+     */
     declare public readonly dnsRecords: pulumi.Output<outputs.VpcAddressDnsRecord[] | undefined>;
+    /**
+     * Specification of IPv4 address. > Either one `address` or `zone_id` arguments can be specified. > Either one
+     * `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified. > Change any argument in
+     * `external_ipv4_address` will cause an address recreate.
+     */
     declare public readonly externalIpv4Address: pulumi.Output<outputs.VpcAddressExternalIpv4Address | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Specification of internal IPv4 address. > Change any argument in `internal_ipv4_address` will cause an address recreate.
+     */
+    declare public readonly internalIpv4Address: pulumi.Output<outputs.VpcAddressInternalIpv4Address | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * `false` means that address is ephemeral.
+     */
     declare public /*out*/ readonly reserved: pulumi.Output<boolean>;
     declare public readonly timeouts: pulumi.Output<outputs.VpcAddressTimeouts | undefined>;
+    /**
+     * `true` if address is used.
+     */
     declare public /*out*/ readonly used: pulumi.Output<boolean>;
     declare public readonly vpcAddressId: pulumi.Output<string>;
 
@@ -66,6 +102,7 @@ export class VpcAddress extends pulumi.CustomResource {
             resourceInputs["dnsRecords"] = state?.dnsRecords;
             resourceInputs["externalIpv4Address"] = state?.externalIpv4Address;
             resourceInputs["folderId"] = state?.folderId;
+            resourceInputs["internalIpv4Address"] = state?.internalIpv4Address;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["reserved"] = state?.reserved;
@@ -79,6 +116,7 @@ export class VpcAddress extends pulumi.CustomResource {
             resourceInputs["dnsRecords"] = args?.dnsRecords;
             resourceInputs["externalIpv4Address"] = args?.externalIpv4Address;
             resourceInputs["folderId"] = args?.folderId;
+            resourceInputs["internalIpv4Address"] = args?.internalIpv4Address;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["timeouts"] = args?.timeouts;
@@ -96,16 +134,52 @@ export class VpcAddress extends pulumi.CustomResource {
  * Input properties used for looking up and filtering VpcAddress resources.
  */
 export interface VpcAddressState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * DNS record specification of address.
+     */
     dnsRecords?: pulumi.Input<pulumi.Input<inputs.VpcAddressDnsRecord>[]>;
+    /**
+     * Specification of IPv4 address. > Either one `address` or `zone_id` arguments can be specified. > Either one
+     * `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified. > Change any argument in
+     * `external_ipv4_address` will cause an address recreate.
+     */
     externalIpv4Address?: pulumi.Input<inputs.VpcAddressExternalIpv4Address>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Specification of internal IPv4 address. > Change any argument in `internal_ipv4_address` will cause an address recreate.
+     */
+    internalIpv4Address?: pulumi.Input<inputs.VpcAddressInternalIpv4Address>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * `false` means that address is ephemeral.
+     */
     reserved?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.VpcAddressTimeouts>;
+    /**
+     * `true` if address is used.
+     */
     used?: pulumi.Input<boolean>;
     vpcAddressId?: pulumi.Input<string>;
 }
@@ -114,12 +188,39 @@ export interface VpcAddressState {
  * The set of arguments for constructing a VpcAddress resource.
  */
 export interface VpcAddressArgs {
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * DNS record specification of address.
+     */
     dnsRecords?: pulumi.Input<pulumi.Input<inputs.VpcAddressDnsRecord>[]>;
+    /**
+     * Specification of IPv4 address. > Either one `address` or `zone_id` arguments can be specified. > Either one
+     * `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified. > Change any argument in
+     * `external_ipv4_address` will cause an address recreate.
+     */
     externalIpv4Address?: pulumi.Input<inputs.VpcAddressExternalIpv4Address>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Specification of internal IPv4 address. > Change any argument in `internal_ipv4_address` will cause an address recreate.
+     */
+    internalIpv4Address?: pulumi.Input<inputs.VpcAddressInternalIpv4Address>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.VpcAddressTimeouts>;
     vpcAddressId?: pulumi.Input<string>;

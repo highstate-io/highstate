@@ -16,7 +16,7 @@ const provider = await createProvider(inputs.connection)
 
 const vmName = args.vmName ?? name
 const sshPrivateKey = getSecret("sshPrivateKey", generateSshPrivateKey)
-const keyPair = sshPrivateKeyToKeyPair(sshPrivateKey)
+const keyPair = sshPrivateKey.apply(sshPrivateKeyToKeyPair)
 
 const sshKey = new SshKey(
   "ssh-key",

@@ -35,10 +35,25 @@ export class BackupPolicyBindings extends pulumi.CustomResource {
     }
 
     declare public readonly backupPolicyBindingsId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Flag is specifies whether the policy application is enabled. May be `false` if Processing flag is `true`.
+     */
     declare public /*out*/ readonly enabled: pulumi.Output<boolean>;
+    /**
+     * Compute Cloud instance ID.
+     */
     declare public readonly instanceId: pulumi.Output<string>;
+    /**
+     * Backup Policy ID.
+     */
     declare public readonly policyId: pulumi.Output<string>;
+    /**
+     * Flag that specifies whether the policy is in the process of binding to an instance.
+     */
     declare public /*out*/ readonly processing: pulumi.Output<boolean>;
     declare public readonly timeouts: pulumi.Output<outputs.BackupPolicyBindingsTimeouts | undefined>;
 
@@ -88,10 +103,25 @@ export class BackupPolicyBindings extends pulumi.CustomResource {
  */
 export interface BackupPolicyBindingsState {
     backupPolicyBindingsId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Flag is specifies whether the policy application is enabled. May be `false` if Processing flag is `true`.
+     */
     enabled?: pulumi.Input<boolean>;
+    /**
+     * Compute Cloud instance ID.
+     */
     instanceId?: pulumi.Input<string>;
+    /**
+     * Backup Policy ID.
+     */
     policyId?: pulumi.Input<string>;
+    /**
+     * Flag that specifies whether the policy is in the process of binding to an instance.
+     */
     processing?: pulumi.Input<boolean>;
     timeouts?: pulumi.Input<inputs.BackupPolicyBindingsTimeouts>;
 }
@@ -101,7 +131,13 @@ export interface BackupPolicyBindingsState {
  */
 export interface BackupPolicyBindingsArgs {
     backupPolicyBindingsId?: pulumi.Input<string>;
+    /**
+     * Compute Cloud instance ID.
+     */
     instanceId: pulumi.Input<string>;
+    /**
+     * Backup Policy ID.
+     */
     policyId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.BackupPolicyBindingsTimeouts>;
 }

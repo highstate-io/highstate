@@ -35,14 +35,43 @@ export class AlbBackendGroup extends pulumi.CustomResource {
     }
 
     declare public readonly albBackendGroupId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * gRPC backend specification that will be used by the ALB Backend Group.
+     */
     declare public readonly grpcBackends: pulumi.Output<outputs.AlbBackendGroupGrpcBackend[] | undefined>;
+    /**
+     * HTTP backend specification that will be used by the ALB Backend Group. > Only one of `target_group_ids` or
+     * `storage_bucket` should be specified.
+     */
     declare public readonly httpBackends: pulumi.Output<outputs.AlbBackendGroupHttpBackend[] | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Session affinity mode determines how incoming requests are grouped into one session. > Only one type(`connection` or
+     * `cookie` or `header`) of session affinity should be specified.
+     */
     declare public readonly sessionAffinity: pulumi.Output<outputs.AlbBackendGroupSessionAffinity | undefined>;
+    /**
+     * Stream backend specification that will be used by the ALB Backend Group.
+     */
     declare public readonly streamBackends: pulumi.Output<outputs.AlbBackendGroupStreamBackend[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.AlbBackendGroupTimeouts | undefined>;
 
@@ -94,14 +123,43 @@ export class AlbBackendGroup extends pulumi.CustomResource {
  */
 export interface AlbBackendGroupState {
     albBackendGroupId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * gRPC backend specification that will be used by the ALB Backend Group.
+     */
     grpcBackends?: pulumi.Input<pulumi.Input<inputs.AlbBackendGroupGrpcBackend>[]>;
+    /**
+     * HTTP backend specification that will be used by the ALB Backend Group. > Only one of `target_group_ids` or
+     * `storage_bucket` should be specified.
+     */
     httpBackends?: pulumi.Input<pulumi.Input<inputs.AlbBackendGroupHttpBackend>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Session affinity mode determines how incoming requests are grouped into one session. > Only one type(`connection` or
+     * `cookie` or `header`) of session affinity should be specified.
+     */
     sessionAffinity?: pulumi.Input<inputs.AlbBackendGroupSessionAffinity>;
+    /**
+     * Stream backend specification that will be used by the ALB Backend Group.
+     */
     streamBackends?: pulumi.Input<pulumi.Input<inputs.AlbBackendGroupStreamBackend>[]>;
     timeouts?: pulumi.Input<inputs.AlbBackendGroupTimeouts>;
 }
@@ -111,13 +169,39 @@ export interface AlbBackendGroupState {
  */
 export interface AlbBackendGroupArgs {
     albBackendGroupId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * gRPC backend specification that will be used by the ALB Backend Group.
+     */
     grpcBackends?: pulumi.Input<pulumi.Input<inputs.AlbBackendGroupGrpcBackend>[]>;
+    /**
+     * HTTP backend specification that will be used by the ALB Backend Group. > Only one of `target_group_ids` or
+     * `storage_bucket` should be specified.
+     */
     httpBackends?: pulumi.Input<pulumi.Input<inputs.AlbBackendGroupHttpBackend>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Session affinity mode determines how incoming requests are grouped into one session. > Only one type(`connection` or
+     * `cookie` or `header`) of session affinity should be specified.
+     */
     sessionAffinity?: pulumi.Input<inputs.AlbBackendGroupSessionAffinity>;
+    /**
+     * Stream backend specification that will be used by the ALB Backend Group.
+     */
     streamBackends?: pulumi.Input<pulumi.Input<inputs.AlbBackendGroupStreamBackend>[]>;
     timeouts?: pulumi.Input<inputs.AlbBackendGroupTimeouts>;
 }

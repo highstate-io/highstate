@@ -1,13 +1,11 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
-import { serviceEntity } from "../service"
+import { connectionEntity } from "../../databases/mongodb"
+import { statefulSetEntity } from "../workload"
 import {
   appName,
   optionalSharedInputs,
   sharedArgs,
-  sharedDatabaseArgs,
-  sharedDatabaseSecrets,
   sharedInputs,
   sharedSecrets,
   source,
@@ -25,7 +23,7 @@ export const mongodb = defineUnit({
   },
 
   secrets: {
-    ...pick(sharedSecrets, ["rootPassword", "backupKey"]),
+    ...pick(sharedSecrets, ["adminPassword", "backupKey"]),
   },
 
   inputs: {
@@ -34,8 +32,8 @@ export const mongodb = defineUnit({
   },
 
   outputs: {
-    mongodb: databases.mongodbEntity,
-    service: serviceEntity,
+    connection: connectionEntity,
+    statefulSet: statefulSetEntity,
   },
 
   meta: {
@@ -45,35 +43,5 @@ export const mongodb = defineUnit({
     category: "Databases",
   },
 
-  source: source("mongodb/app"),
-})
-
-/**
- * The virtual MongoDB database created on the MongoDB instance.
- *
- * Requires a Kubernetes cluster to place init jobs and secrets.
- */
-export const mongodbDatabase = defineUnit({
-  type: "k8s.apps.mongodb.database.v1",
-
-  args: sharedDatabaseArgs,
-  secrets: sharedDatabaseSecrets,
-
-  inputs: {
-    ...pick(sharedInputs, ["k8sCluster", "mongodb"]),
-    ...pick(optionalSharedInputs, ["namespace"]),
-  },
-
-  outputs: {
-    mongodb: databases.mongodbEntity,
-  },
-
-  meta: {
-    title: "MongoDB Database",
-    icon: "simple-icons:mongodb",
-    secondaryIcon: "mdi:database-plus",
-    category: "Databases",
-  },
-
-  source: source("mongodb/database"),
+  source: source("mongodb"),
 })

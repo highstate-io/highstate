@@ -10,6 +10,7 @@ import type { ArtifactService } from "../artifact"
 import type { SecretService, UnitExtraService, WorkerService } from "../business"
 import type { PubSubManager } from "../pubsub"
 import type { RunnerBackend } from "../runner"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { type InstanceId, parseInstanceId } from "@highstate/contract"
 import { isNonNullish, omit } from "remeda"
 import {
@@ -103,6 +104,7 @@ export type InstanceStatePatch = Pick<
   | "resolvedInputs"
   | "currentResourceCount"
   | "exportedArtifactIds"
+  | "hasResourceHooks"
 >
 
 export type UpdateOperationStateOptions = {
@@ -220,6 +222,7 @@ export class InstanceStateService {
     private readonly artifactService: ArtifactService,
     private readonly unitExtraService: UnitExtraService,
     private readonly secretService: SecretService,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {}
 
@@ -667,6 +670,7 @@ export class InstanceStateService {
 
     const result = await database.$transaction(async tx => {
       let unitExtraData = null
+      let unitExtraTrackingIds: string[] = []
 
       // update operation state
       const updatedOperationState = await tx.instanceOperationState.update({
@@ -690,20 +694,35 @@ export class InstanceStateService {
 
       // update unit-specific data if provided
       if (unitExtra) {
-        const [pageIds, terminalIds, triggerIds, secretNames] = await Promise.all([
-          this.unitExtraService.processUnitPages(tx, stateId, unitExtra.pages),
-          this.unitExtraService.processUnitTerminals(tx, stateId, unitExtra.terminals),
-          this.unitExtraService.processUnitTriggers(tx, stateId, unitExtra.triggers),
-          this.secretService.updateInstanceSecretsCore(
-            tx,
-            project.libraryId,
-            stateId,
-            unitExtra.secrets,
-          ),
-          this.workerService.updateUnitRegistrations(tx, projectId, stateId, unitExtra.workers),
-        ])
+        const [pageIds, terminalIds, triggerIds, secretUpdate, workerObjectIds] = await Promise.all(
+          [
+            this.unitExtraService.processUnitPages(tx, stateId, unitExtra.pages),
+            this.unitExtraService.processUnitTerminals(tx, stateId, unitExtra.terminals),
+            this.unitExtraService.processUnitTriggers(tx, stateId, unitExtra.triggers),
+            this.secretService.updateInstanceSecretsCore(
+              tx,
+              project.libraryId,
+              stateId,
+              unitExtra.secrets,
+            ),
+            this.workerService.updateUnitRegistrations(tx, projectId, stateId, unitExtra.workers),
+          ],
+        )
 
-        unitExtraData = { pageIds, terminalIds, triggerIds, secretNames }
+        unitExtraData = {
+          pageIds,
+          terminalIds,
+          triggerIds,
+          secretNames: secretUpdate.secretNames,
+        }
+
+        unitExtraTrackingIds = [
+          ...pageIds,
+          ...terminalIds,
+          ...triggerIds,
+          ...secretUpdate.secretIds,
+          ...workerObjectIds,
+        ]
 
         if (unitExtra.artifactIds !== undefined) {
           await this.unitExtraService.pruneInstanceArtifacts(tx, stateId, unitExtra.artifactIds)
@@ -718,8 +737,12 @@ export class InstanceStateService {
         })
       }
 
-      return { updatedOperationState, unitExtraData }
+      return { updatedOperationState, unitExtraData, unitExtraTrackingIds }
     })
+
+    if (result.unitExtraTrackingIds.length > 0) {
+      await this.objectRefIndexService.track(projectId, result.unitExtraTrackingIds)
+    }
 
     if (options.unitExtra?.artifactIds !== undefined) {
       await this.artifactService.collectGarbage(projectId)

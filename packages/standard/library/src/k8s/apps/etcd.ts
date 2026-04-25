@@ -1,6 +1,6 @@
 import { defineUnit } from "@highstate/contract"
 import { pick } from "remeda"
-import * as databases from "../../databases"
+import { connectionEntity } from "../../databases/etcd"
 import {
   appName,
   optionalSharedInputs,
@@ -31,7 +31,7 @@ export const etcd = defineUnit({
   },
 
   outputs: {
-    etcd: databases.etcdEntity,
+    connection: connectionEntity,
   },
 
   meta: {
@@ -42,5 +42,5 @@ export const etcd = defineUnit({
     category: "Databases",
   },
 
-  source: source("etcd/app"),
+  source: source("etcd"),
 })

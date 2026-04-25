@@ -34,26 +34,83 @@ export class CmCertificate extends pulumi.CustomResource {
         return obj['__pulumiType'] === CmCertificate.__pulumiType;
     }
 
+    /**
+     * Array of challenges.
+     */
     declare public /*out*/ readonly challenges: pulumi.Output<outputs.CmCertificateChallenge[]>;
     declare public readonly cmCertificateId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Domains for this certificate. Should be specified for managed certificates.
+     */
     declare public readonly domains: pulumi.Output<string[] | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Certificate issue timestamp.
+     */
     declare public /*out*/ readonly issuedAt: pulumi.Output<string>;
+    /**
+     * Certificate Issuer.
+     */
     declare public /*out*/ readonly issuer: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Managed specification. > Resource creation awaits getting challenges from issue provider.
+     */
     declare public readonly managed: pulumi.Output<outputs.CmCertificateManaged | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Certificate end valid period.
+     */
     declare public /*out*/ readonly notAfter: pulumi.Output<string>;
+    /**
+     * Certificate start valid period.
+     */
     declare public /*out*/ readonly notBefore: pulumi.Output<string>;
+    /**
+     * Self-managed specification. > Only one type `private_key` or `private_key_lockbox_secret` should be specified.
+     */
     declare public readonly selfManaged: pulumi.Output<outputs.CmCertificateSelfManaged | undefined>;
+    /**
+     * Certificate Serial Number.
+     */
     declare public /*out*/ readonly serial: pulumi.Output<string>;
+    /**
+     * Certificate status: `VALIDATING`, `INVALID`, `ISSUED`, `REVOKED`, `RENEWING` or `RENEWAL_FAILED`.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * Certificate Subject.
+     */
     declare public /*out*/ readonly subject: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.CmCertificateTimeouts | undefined>;
+    /**
+     * Certificate type: `MANAGED` or `IMPORTED`.
+     */
     declare public /*out*/ readonly type: pulumi.Output<string>;
+    /**
+     * Certificate update timestamp.
+     */
     declare public /*out*/ readonly updatedAt: pulumi.Output<string>;
 
     /**
@@ -123,26 +180,83 @@ export class CmCertificate extends pulumi.CustomResource {
  * Input properties used for looking up and filtering CmCertificate resources.
  */
 export interface CmCertificateState {
+    /**
+     * Array of challenges.
+     */
     challenges?: pulumi.Input<pulumi.Input<inputs.CmCertificateChallenge>[]>;
     cmCertificateId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Domains for this certificate. Should be specified for managed certificates.
+     */
     domains?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Certificate issue timestamp.
+     */
     issuedAt?: pulumi.Input<string>;
+    /**
+     * Certificate Issuer.
+     */
     issuer?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Managed specification. > Resource creation awaits getting challenges from issue provider.
+     */
     managed?: pulumi.Input<inputs.CmCertificateManaged>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Certificate end valid period.
+     */
     notAfter?: pulumi.Input<string>;
+    /**
+     * Certificate start valid period.
+     */
     notBefore?: pulumi.Input<string>;
+    /**
+     * Self-managed specification. > Only one type `private_key` or `private_key_lockbox_secret` should be specified.
+     */
     selfManaged?: pulumi.Input<inputs.CmCertificateSelfManaged>;
+    /**
+     * Certificate Serial Number.
+     */
     serial?: pulumi.Input<string>;
+    /**
+     * Certificate status: `VALIDATING`, `INVALID`, `ISSUED`, `REVOKED`, `RENEWING` or `RENEWAL_FAILED`.
+     */
     status?: pulumi.Input<string>;
+    /**
+     * Certificate Subject.
+     */
     subject?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.CmCertificateTimeouts>;
+    /**
+     * Certificate type: `MANAGED` or `IMPORTED`.
+     */
     type?: pulumi.Input<string>;
+    /**
+     * Certificate update timestamp.
+     */
     updatedAt?: pulumi.Input<string>;
 }
 
@@ -151,13 +265,37 @@ export interface CmCertificateState {
  */
 export interface CmCertificateArgs {
     cmCertificateId?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Domains for this certificate. Should be specified for managed certificates.
+     */
     domains?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Managed specification. > Resource creation awaits getting challenges from issue provider.
+     */
     managed?: pulumi.Input<inputs.CmCertificateManaged>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Self-managed specification. > Only one type `private_key` or `private_key_lockbox_secret` should be specified.
+     */
     selfManaged?: pulumi.Input<inputs.CmCertificateSelfManaged>;
     timeouts?: pulumi.Input<inputs.CmCertificateTimeouts>;
 }

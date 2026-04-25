@@ -34,38 +34,131 @@ export class MdbMongodbCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbMongodbCluster.__pulumiType;
     }
 
+    /**
+     * Configuration of the MongoDB subcluster.
+     */
     declare public readonly clusterConfig: pulumi.Output<outputs.MdbMongodbClusterClusterConfig>;
+    /**
+     * The ID of the cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     /**
+     * A database of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     declare public readonly databases: pulumi.Output<outputs.MdbMongodbClusterDatabase[] | undefined>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * ID of the KMS key for cluster disk encryption.
+     */
+    declare public readonly diskEncryptionKeyId: pulumi.Output<string>;
+    /**
+     * Disk size autoscaling settings for mongocfg.
+     */
+    declare public readonly diskSizeAutoscalingMongocfg: pulumi.Output<outputs.MdbMongodbClusterDiskSizeAutoscalingMongocfg | undefined>;
+    /**
+     * Disk size autoscaling settings for mongod.
+     */
+    declare public readonly diskSizeAutoscalingMongod: pulumi.Output<outputs.MdbMongodbClusterDiskSizeAutoscalingMongod | undefined>;
+    /**
+     * Disk size autoscaling settings for mongoinfra.
+     */
+    declare public readonly diskSizeAutoscalingMongoinfra: pulumi.Output<outputs.MdbMongodbClusterDiskSizeAutoscalingMongoinfra | undefined>;
+    /**
+     * Disk size autoscaling settings for mongos.
+     */
+    declare public readonly diskSizeAutoscalingMongos: pulumi.Output<outputs.MdbMongodbClusterDiskSizeAutoscalingMongos | undefined>;
+    /**
+     * Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+     */
     declare public readonly environment: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
+     */
     declare public /*out*/ readonly health: pulumi.Output<string>;
+    /**
+     * A host of the MongoDB cluster.
+     */
     declare public readonly hosts: pulumi.Output<outputs.MdbMongodbClusterHost[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Maintenance window settings of the MongoDB cluster.
+     */
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbMongodbClusterMaintenanceWindow | undefined>;
     declare public readonly mdbMongodbClusterId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
     /**
+     * (**DEPRECATED**, use `resources_*` instead) Resources allocated to hosts of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     declare public readonly resources: pulumi.Output<outputs.MdbMongodbClusterResources | undefined>;
+    /**
+     * Resources allocated to `mongocfg` hosts of the MongoDB cluster.
+     */
     declare public readonly resourcesMongocfg: pulumi.Output<outputs.MdbMongodbClusterResourcesMongocfg | undefined>;
+    /**
+     * Resources allocated to `mongod` hosts of the MongoDB cluster.
+     */
     declare public readonly resourcesMongod: pulumi.Output<outputs.MdbMongodbClusterResourcesMongod | undefined>;
+    /**
+     * Resources allocated to `mongoinfra` hosts of the MongoDB cluster.
+     */
     declare public readonly resourcesMongoinfra: pulumi.Output<outputs.MdbMongodbClusterResourcesMongoinfra | undefined>;
+    /**
+     * Resources allocated to `mongos` hosts of the MongoDB cluster.
+     */
     declare public readonly resourcesMongos: pulumi.Output<outputs.MdbMongodbClusterResourcesMongos | undefined>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     declare public readonly restore: pulumi.Output<outputs.MdbMongodbClusterRestore | undefined>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * MongoDB Cluster mode enabled/disabled.
+     */
     declare public /*out*/ readonly sharded: pulumi.Output<boolean>;
+    /**
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbMongodbClusterTimeouts | undefined>;
     /**
+     * A user of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     declare public readonly users: pulumi.Output<outputs.MdbMongodbClusterUser[] | undefined>;
@@ -89,6 +182,11 @@ export class MdbMongodbCluster extends pulumi.CustomResource {
             resourceInputs["databases"] = state?.databases;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskEncryptionKeyId"] = state?.diskEncryptionKeyId;
+            resourceInputs["diskSizeAutoscalingMongocfg"] = state?.diskSizeAutoscalingMongocfg;
+            resourceInputs["diskSizeAutoscalingMongod"] = state?.diskSizeAutoscalingMongod;
+            resourceInputs["diskSizeAutoscalingMongoinfra"] = state?.diskSizeAutoscalingMongoinfra;
+            resourceInputs["diskSizeAutoscalingMongos"] = state?.diskSizeAutoscalingMongos;
             resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["health"] = state?.health;
@@ -128,6 +226,11 @@ export class MdbMongodbCluster extends pulumi.CustomResource {
             resourceInputs["databases"] = args?.databases;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskEncryptionKeyId"] = args?.diskEncryptionKeyId;
+            resourceInputs["diskSizeAutoscalingMongocfg"] = args?.diskSizeAutoscalingMongocfg;
+            resourceInputs["diskSizeAutoscalingMongod"] = args?.diskSizeAutoscalingMongod;
+            resourceInputs["diskSizeAutoscalingMongoinfra"] = args?.diskSizeAutoscalingMongoinfra;
+            resourceInputs["diskSizeAutoscalingMongos"] = args?.diskSizeAutoscalingMongos;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["hosts"] = args?.hosts;
@@ -159,38 +262,131 @@ export class MdbMongodbCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbMongodbCluster resources.
  */
 export interface MdbMongodbClusterState {
+    /**
+     * Configuration of the MongoDB subcluster.
+     */
     clusterConfig?: pulumi.Input<inputs.MdbMongodbClusterClusterConfig>;
+    /**
+     * The ID of the cluster.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
     /**
+     * A database of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     databases?: pulumi.Input<pulumi.Input<inputs.MdbMongodbClusterDatabase>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key for cluster disk encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Disk size autoscaling settings for mongocfg.
+     */
+    diskSizeAutoscalingMongocfg?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongocfg>;
+    /**
+     * Disk size autoscaling settings for mongod.
+     */
+    diskSizeAutoscalingMongod?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongod>;
+    /**
+     * Disk size autoscaling settings for mongoinfra.
+     */
+    diskSizeAutoscalingMongoinfra?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongoinfra>;
+    /**
+     * Disk size autoscaling settings for mongos.
+     */
+    diskSizeAutoscalingMongos?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongos>;
+    /**
+     * Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`. For more information
+     * see `health` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
+     */
     health?: pulumi.Input<string>;
+    /**
+     * A host of the MongoDB cluster.
+     */
     hosts?: pulumi.Input<pulumi.Input<inputs.MdbMongodbClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance window settings of the MongoDB cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbMongodbClusterMaintenanceWindow>;
     mdbMongodbClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
     /**
+     * (**DEPRECATED**, use `resources_*` instead) Resources allocated to hosts of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     resources?: pulumi.Input<inputs.MdbMongodbClusterResources>;
+    /**
+     * Resources allocated to `mongocfg` hosts of the MongoDB cluster.
+     */
     resourcesMongocfg?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongocfg>;
+    /**
+     * Resources allocated to `mongod` hosts of the MongoDB cluster.
+     */
     resourcesMongod?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongod>;
+    /**
+     * Resources allocated to `mongoinfra` hosts of the MongoDB cluster.
+     */
     resourcesMongoinfra?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongoinfra>;
+    /**
+     * Resources allocated to `mongos` hosts of the MongoDB cluster.
+     */
     resourcesMongos?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongos>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     restore?: pulumi.Input<inputs.MdbMongodbClusterRestore>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * MongoDB Cluster mode enabled/disabled.
+     */
     sharded?: pulumi.Input<boolean>;
+    /**
+     * Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or
+     * `STATUS_UNKNOWN`. For more information see `status` field of JSON representation in [the official
+     * documentation](https://yandex.cloud/docs/managed-mongodb/api-ref/Cluster/).
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbMongodbClusterTimeouts>;
     /**
+     * A user of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbMongodbClusterUser>[]>;
@@ -200,34 +396,111 @@ export interface MdbMongodbClusterState {
  * The set of arguments for constructing a MdbMongodbCluster resource.
  */
 export interface MdbMongodbClusterArgs {
+    /**
+     * Configuration of the MongoDB subcluster.
+     */
     clusterConfig: pulumi.Input<inputs.MdbMongodbClusterClusterConfig>;
+    /**
+     * The ID of the cluster.
+     */
     clusterId?: pulumi.Input<string>;
     /**
+     * A database of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     databases?: pulumi.Input<pulumi.Input<inputs.MdbMongodbClusterDatabase>[]>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the KMS key for cluster disk encryption.
+     */
+    diskEncryptionKeyId?: pulumi.Input<string>;
+    /**
+     * Disk size autoscaling settings for mongocfg.
+     */
+    diskSizeAutoscalingMongocfg?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongocfg>;
+    /**
+     * Disk size autoscaling settings for mongod.
+     */
+    diskSizeAutoscalingMongod?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongod>;
+    /**
+     * Disk size autoscaling settings for mongoinfra.
+     */
+    diskSizeAutoscalingMongoinfra?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongoinfra>;
+    /**
+     * Disk size autoscaling settings for mongos.
+     */
+    diskSizeAutoscalingMongos?: pulumi.Input<inputs.MdbMongodbClusterDiskSizeAutoscalingMongos>;
+    /**
+     * Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+     */
     environment: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A host of the MongoDB cluster.
+     */
     hosts: pulumi.Input<pulumi.Input<inputs.MdbMongodbClusterHost>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance window settings of the MongoDB cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbMongodbClusterMaintenanceWindow>;
     mdbMongodbClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
     /**
+     * (**DEPRECATED**, use `resources_*` instead) Resources allocated to hosts of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     resources?: pulumi.Input<inputs.MdbMongodbClusterResources>;
+    /**
+     * Resources allocated to `mongocfg` hosts of the MongoDB cluster.
+     */
     resourcesMongocfg?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongocfg>;
+    /**
+     * Resources allocated to `mongod` hosts of the MongoDB cluster.
+     */
     resourcesMongod?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongod>;
+    /**
+     * Resources allocated to `mongoinfra` hosts of the MongoDB cluster.
+     */
     resourcesMongoinfra?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongoinfra>;
+    /**
+     * Resources allocated to `mongos` hosts of the MongoDB cluster.
+     */
     resourcesMongos?: pulumi.Input<inputs.MdbMongodbClusterResourcesMongos>;
+    /**
+     * The cluster will be created from the specified backup.
+     */
     restore?: pulumi.Input<inputs.MdbMongodbClusterRestore>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
     timeouts?: pulumi.Input<inputs.MdbMongodbClusterTimeouts>;
     /**
+     * A user of the MongoDB cluster.
+     *
      * @deprecated Deprecated
      */
     users?: pulumi.Input<pulumi.Input<inputs.MdbMongodbClusterUser>[]>;

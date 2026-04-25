@@ -1,9 +1,9 @@
 import { text } from "@highstate/contract"
-import { wireguard } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
-import { generateIdentityConfig } from "../shared"
+import { common, wireguard } from "@highstate/library"
+import { forUnit, getCombinedIdentityOutput, makeEntityOutput, toPromise } from "@highstate/pulumi"
+import { feedMetadataFromArgs, feedMetadataFromPeers, generateIdentityConfig } from "../shared"
 
-const { name, inputs, args, outputs } = forUnit(wireguard.config)
+const { name, stateId, inputs, args, outputs } = forUnit(wireguard.config)
 
 const { identity, peers } = await toPromise(inputs)
 
@@ -11,32 +11,39 @@ const configContent = generateIdentityConfig({
   identity,
   peers,
   peerEndpointFilter: args.peerEndpointFilter,
+  listen: args.listen,
+  network: inputs.network ?? identity.peer.network,
+})
+
+const file = makeEntityOutput({
+  entity: common.fileEntity,
+  identity: stateId,
+  meta: {
+    title: `${name}.conf`,
+  },
+  value: {
+    meta: {
+      name: `${name}.conf`,
+    },
+    content: {
+      type: "embedded",
+      value: configContent,
+    },
+  },
 })
 
 export default outputs({
-  config: {
-    file: {
-      meta: {
-        name: `${name}.conf`,
-      },
-      content: {
-        type: "embedded",
-        value: configContent,
-      },
+  config: makeEntityOutput({
+    entity: wireguard.configEntity,
+    identity: getCombinedIdentityOutput([file]),
+    meta: {
+      title: identity.peer.name,
     },
-    feedMetadata:
-      args.feedMetadata.enabled === "true"
-        ? {
-            id: args.feedMetadata.id,
-            name: args.feedMetadata.name,
-            displayInfo: {
-              title: args.feedMetadata.title,
-              description: args.feedMetadata.description,
-              iconUrl: args.feedMetadata.iconUrl,
-            },
-          }
-        : undefined,
-  },
+    value: {
+      file,
+      feedMetadata: feedMetadataFromPeers(peers) ?? feedMetadataFromArgs(args.feedMetadata),
+    },
+  }),
   $pages: {
     index: {
       meta: {

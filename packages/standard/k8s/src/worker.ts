@@ -4,7 +4,7 @@ import type { DeepInput, Input, InputArray, Unwrap } from "@highstate/pulumi"
 import type { Namespace } from "./namespace"
 import { type Output, output } from "@pulumi/pulumi"
 import { ClusterAccessScope } from "./rbac"
-import { images, type NamespacedResource } from "./shared"
+import { getClusterKubeconfigContent, images, type NamespacedResource } from "./shared"
 
 export async function createMonitorWorker(
   namespace: Input<Namespace>,
@@ -12,6 +12,8 @@ export async function createMonitorWorker(
 ): Promise<Output<Unwrap<UnitWorker>>> {
   const scope = new ClusterAccessScope("monitor", {
     rule: {
+      apiGroups: ["", "apps"],
+      resources: ["deployments", "statefulsets", "services", "pods"],
       verbs: ["get", "list", "watch"],
     },
 
@@ -24,7 +26,7 @@ export async function createMonitorWorker(
     image: images["worker.k8s-monitor"].image,
 
     params: {
-      kubeconfig: scope.cluster.kubeconfig,
+      kubeconfig: getClusterKubeconfigContent(scope.cluster),
       resources: output(resources).apply(resources => resources.map(r => r.entity)),
     } satisfies DeepInput<k8s.MonitorWorkerParams>,
   })

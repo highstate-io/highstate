@@ -34,15 +34,48 @@ export class KmsAsymmetricSignatureKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === KmsAsymmetricSignatureKey.__pulumiType;
     }
 
+    /**
+     * ID of the asymmetric KMS key to return. To get the ID of an asymmetric KMS key use a
+     * [AsymmetricSignatureKeyService.List] request.
+     */
+    declare public readonly asymmetricSignatureKeyId: pulumi.Output<string>;
+    /**
+     * Time when the key was created.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly deletionProtection: pulumi.Output<boolean | undefined>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Flag that inhibits deletion of the key
+     */
+    declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * Description of the key.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the folder that the key belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * ID of the asymmetric KMS key to return. To get the ID of an asymmetric KMS key use a
+     * [AsymmetricSignatureKeyService.List] request.
+     */
     declare public readonly kmsAsymmetricSignatureKeyId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Custom labels for the key as `key:value` pairs. Maximum 64 per key.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the key.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly signatureAlgorithm: pulumi.Output<string | undefined>;
-    declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * Signature Algorithm ID.
+     */
+    declare public readonly signatureAlgorithm: pulumi.Output<string>;
+    /**
+     * Current status of the key.
+     */
+    declare public readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.KmsAsymmetricSignatureKeyTimeouts | undefined>;
 
     /**
@@ -58,6 +91,7 @@ export class KmsAsymmetricSignatureKey extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as KmsAsymmetricSignatureKeyState | undefined;
+            resourceInputs["asymmetricSignatureKeyId"] = state?.asymmetricSignatureKeyId;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
@@ -70,6 +104,7 @@ export class KmsAsymmetricSignatureKey extends pulumi.CustomResource {
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as KmsAsymmetricSignatureKeyArgs | undefined;
+            resourceInputs["asymmetricSignatureKeyId"] = args?.asymmetricSignatureKeyId;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
             resourceInputs["folderId"] = args?.folderId;
@@ -77,9 +112,9 @@ export class KmsAsymmetricSignatureKey extends pulumi.CustomResource {
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["signatureAlgorithm"] = args?.signatureAlgorithm;
+            resourceInputs["status"] = args?.status;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
-            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(KmsAsymmetricSignatureKey.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -90,14 +125,47 @@ export class KmsAsymmetricSignatureKey extends pulumi.CustomResource {
  * Input properties used for looking up and filtering KmsAsymmetricSignatureKey resources.
  */
 export interface KmsAsymmetricSignatureKeyState {
+    /**
+     * ID of the asymmetric KMS key to return. To get the ID of an asymmetric KMS key use a
+     * [AsymmetricSignatureKeyService.List] request.
+     */
+    asymmetricSignatureKeyId?: pulumi.Input<string>;
+    /**
+     * Time when the key was created.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Flag that inhibits deletion of the key
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * Description of the key.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the key belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the asymmetric KMS key to return. To get the ID of an asymmetric KMS key use a
+     * [AsymmetricSignatureKeyService.List] request.
+     */
     kmsAsymmetricSignatureKeyId?: pulumi.Input<string>;
+    /**
+     * Custom labels for the key as `key:value` pairs. Maximum 64 per key.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the key.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Signature Algorithm ID.
+     */
     signatureAlgorithm?: pulumi.Input<string>;
+    /**
+     * Current status of the key.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KmsAsymmetricSignatureKeyTimeouts>;
 }
@@ -106,12 +174,43 @@ export interface KmsAsymmetricSignatureKeyState {
  * The set of arguments for constructing a KmsAsymmetricSignatureKey resource.
  */
 export interface KmsAsymmetricSignatureKeyArgs {
+    /**
+     * ID of the asymmetric KMS key to return. To get the ID of an asymmetric KMS key use a
+     * [AsymmetricSignatureKeyService.List] request.
+     */
+    asymmetricSignatureKeyId?: pulumi.Input<string>;
+    /**
+     * Flag that inhibits deletion of the key
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * Description of the key.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the key belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * ID of the asymmetric KMS key to return. To get the ID of an asymmetric KMS key use a
+     * [AsymmetricSignatureKeyService.List] request.
+     */
     kmsAsymmetricSignatureKeyId?: pulumi.Input<string>;
+    /**
+     * Custom labels for the key as `key:value` pairs. Maximum 64 per key.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the key.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Signature Algorithm ID.
+     */
     signatureAlgorithm?: pulumi.Input<string>;
+    /**
+     * Current status of the key.
+     */
+    status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KmsAsymmetricSignatureKeyTimeouts>;
 }

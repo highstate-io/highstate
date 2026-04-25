@@ -35,11 +35,29 @@ export class AlbTargetGroup extends pulumi.CustomResource {
     }
 
     declare public readonly albTargetGroupId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * A Target resource.
+     */
     declare public readonly targets: pulumi.Output<outputs.AlbTargetGroupTarget[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.AlbTargetGroupTimeouts | undefined>;
 
@@ -85,11 +103,29 @@ export class AlbTargetGroup extends pulumi.CustomResource {
  */
 export interface AlbTargetGroupState {
     albTargetGroupId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A Target resource.
+     */
     targets?: pulumi.Input<pulumi.Input<inputs.AlbTargetGroupTarget>[]>;
     timeouts?: pulumi.Input<inputs.AlbTargetGroupTimeouts>;
 }
@@ -99,10 +135,25 @@ export interface AlbTargetGroupState {
  */
 export interface AlbTargetGroupArgs {
     albTargetGroupId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A Target resource.
+     */
     targets?: pulumi.Input<pulumi.Input<inputs.AlbTargetGroupTarget>[]>;
     timeouts?: pulumi.Input<inputs.AlbTargetGroupTimeouts>;
 }

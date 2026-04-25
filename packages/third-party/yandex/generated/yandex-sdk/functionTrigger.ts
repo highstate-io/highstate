@@ -34,24 +34,85 @@ export class FunctionTrigger extends pulumi.CustomResource {
         return obj['__pulumiType'] === FunctionTrigger.__pulumiType;
     }
 
+    /**
+     * [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings
+     * definition for Yandex Cloud Functions Trigger.
+     */
     declare public readonly container: pulumi.Output<outputs.FunctionTriggerContainer | undefined>;
+    /**
+     * [Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     declare public readonly containerRegistry: pulumi.Output<outputs.FunctionTriggerContainerRegistry | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * [Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     declare public readonly dataStreams: pulumi.Output<outputs.FunctionTriggerDataStreams | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.
+     */
     declare public readonly dlq: pulumi.Output<outputs.FunctionTriggerDlq | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud
+     * Functions Trigger.
+     */
     declare public readonly function: pulumi.Output<outputs.FunctionTriggerFunction | undefined>;
     declare public readonly functionTriggerId: pulumi.Output<string>;
+    /**
+     * [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present. Only one section `iot` or `message_queue`.
+     */
     declare public readonly iot: pulumi.Output<outputs.FunctionTriggerIot | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Deprecated Logging settings definition for Yandex Cloud Functions Trigger. Please, use logging instead.
+     */
     declare public readonly logGroup: pulumi.Output<outputs.FunctionTriggerLogGroup | undefined>;
+    /**
+     * [Logging](https://yandex.cloud/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     declare public readonly logging: pulumi.Output<outputs.FunctionTriggerLogging | undefined>;
+    /**
+     * [Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions
+     * Trigger, if present.
+     */
     declare public readonly mail: pulumi.Output<outputs.FunctionTriggerMail | undefined>;
+    /**
+     * [Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present.
+     */
     declare public readonly messageQueue: pulumi.Output<outputs.FunctionTriggerMessageQueue | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * [Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present.
+     */
     declare public readonly objectStorage: pulumi.Output<outputs.FunctionTriggerObjectStorage | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.FunctionTriggerTimeouts | undefined>;
+    /**
+     * [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions
+     * Trigger, if present.
+     */
     declare public readonly timer: pulumi.Output<outputs.FunctionTriggerTimer | undefined>;
 
     /**
@@ -117,24 +178,85 @@ export class FunctionTrigger extends pulumi.CustomResource {
  * Input properties used for looking up and filtering FunctionTrigger resources.
  */
 export interface FunctionTriggerState {
+    /**
+     * [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings
+     * definition for Yandex Cloud Functions Trigger.
+     */
     container?: pulumi.Input<inputs.FunctionTriggerContainer>;
+    /**
+     * [Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     containerRegistry?: pulumi.Input<inputs.FunctionTriggerContainerRegistry>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * [Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     dataStreams?: pulumi.Input<inputs.FunctionTriggerDataStreams>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.
+     */
     dlq?: pulumi.Input<inputs.FunctionTriggerDlq>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud
+     * Functions Trigger.
+     */
     function?: pulumi.Input<inputs.FunctionTriggerFunction>;
     functionTriggerId?: pulumi.Input<string>;
+    /**
+     * [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present. Only one section `iot` or `message_queue`.
+     */
     iot?: pulumi.Input<inputs.FunctionTriggerIot>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Deprecated Logging settings definition for Yandex Cloud Functions Trigger. Please, use logging instead.
+     */
     logGroup?: pulumi.Input<inputs.FunctionTriggerLogGroup>;
+    /**
+     * [Logging](https://yandex.cloud/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     logging?: pulumi.Input<inputs.FunctionTriggerLogging>;
+    /**
+     * [Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions
+     * Trigger, if present.
+     */
     mail?: pulumi.Input<inputs.FunctionTriggerMail>;
+    /**
+     * [Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present.
+     */
     messageQueue?: pulumi.Input<inputs.FunctionTriggerMessageQueue>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * [Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present.
+     */
     objectStorage?: pulumi.Input<inputs.FunctionTriggerObjectStorage>;
     timeouts?: pulumi.Input<inputs.FunctionTriggerTimeouts>;
+    /**
+     * [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions
+     * Trigger, if present.
+     */
     timer?: pulumi.Input<inputs.FunctionTriggerTimer>;
 }
 
@@ -142,22 +264,80 @@ export interface FunctionTriggerState {
  * The set of arguments for constructing a FunctionTrigger resource.
  */
 export interface FunctionTriggerArgs {
+    /**
+     * [Yandex Cloud Serverless Container](https://yandex.cloud/docs/serverless-containers/concepts/container) settings
+     * definition for Yandex Cloud Functions Trigger.
+     */
     container?: pulumi.Input<inputs.FunctionTriggerContainer>;
+    /**
+     * [Container Registry](https://yandex.cloud/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     containerRegistry?: pulumi.Input<inputs.FunctionTriggerContainerRegistry>;
+    /**
+     * [Data Streams](https://yandex.cloud/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     dataStreams?: pulumi.Input<inputs.FunctionTriggerDataStreams>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Dead Letter Queue (DLQ) settings definition for Yandex Cloud Functions Trigger.
+     */
     dlq?: pulumi.Input<inputs.FunctionTriggerDlq>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * [Yandex Cloud Function](https://yandex.cloud/docs/functions/concepts/function) settings definition for Yandex Cloud
+     * Functions Trigger.
+     */
     function?: pulumi.Input<inputs.FunctionTriggerFunction>;
     functionTriggerId?: pulumi.Input<string>;
+    /**
+     * [IoT](https://yandex.cloud/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present. Only one section `iot` or `message_queue`.
+     */
     iot?: pulumi.Input<inputs.FunctionTriggerIot>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Deprecated Logging settings definition for Yandex Cloud Functions Trigger. Please, use logging instead.
+     */
     logGroup?: pulumi.Input<inputs.FunctionTriggerLogGroup>;
+    /**
+     * [Logging](https://yandex.cloud/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex
+     * Cloud Functions Trigger, if present.
+     */
     logging?: pulumi.Input<inputs.FunctionTriggerLogging>;
+    /**
+     * [Mail](https://yandex.cloud/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions
+     * Trigger, if present.
+     */
     mail?: pulumi.Input<inputs.FunctionTriggerMail>;
+    /**
+     * [Message Queue](https://yandex.cloud/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present.
+     */
     messageQueue?: pulumi.Input<inputs.FunctionTriggerMessageQueue>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * [Object Storage](https://yandex.cloud/docs/functions/concepts/trigger/os-trigger) settings definition for Yandex Cloud
+     * Functions Trigger, if present.
+     */
     objectStorage?: pulumi.Input<inputs.FunctionTriggerObjectStorage>;
     timeouts?: pulumi.Input<inputs.FunctionTriggerTimeouts>;
+    /**
+     * [Timer](https://yandex.cloud/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions
+     * Trigger, if present.
+     */
     timer?: pulumi.Input<inputs.FunctionTriggerTimer>;
 }

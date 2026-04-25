@@ -34,12 +34,31 @@ export class DnsRecordset extends pulumi.CustomResource {
         return obj['__pulumiType'] === DnsRecordset.__pulumiType;
     }
 
+    /**
+     * The string data for the records in this record set.
+     */
     declare public readonly datas: pulumi.Output<string[]>;
+    /**
+     * The DNS record set description.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
     declare public readonly dnsRecordsetId: pulumi.Output<string>;
+    /**
+     * The DNS name this record set will apply to.
+     */
     declare public readonly name: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.DnsRecordsetTimeouts | undefined>;
+    /**
+     * The time-to-live of this record set (seconds).
+     */
     declare public readonly ttl: pulumi.Output<number>;
+    /**
+     * The DNS record set type.
+     */
     declare public readonly type: pulumi.Output<string>;
+    /**
+     * The id of the zone in which this record set will reside.
+     */
     declare public readonly zoneId: pulumi.Output<string>;
 
     /**
@@ -56,6 +75,7 @@ export class DnsRecordset extends pulumi.CustomResource {
         if (opts.id) {
             const state = argsOrState as DnsRecordsetState | undefined;
             resourceInputs["datas"] = state?.datas;
+            resourceInputs["description"] = state?.description;
             resourceInputs["dnsRecordsetId"] = state?.dnsRecordsetId;
             resourceInputs["name"] = state?.name;
             resourceInputs["timeouts"] = state?.timeouts;
@@ -77,6 +97,7 @@ export class DnsRecordset extends pulumi.CustomResource {
                 throw new Error("Missing required property 'zoneId'");
             }
             resourceInputs["datas"] = args?.datas;
+            resourceInputs["description"] = args?.description;
             resourceInputs["dnsRecordsetId"] = args?.dnsRecordsetId;
             resourceInputs["name"] = args?.name;
             resourceInputs["timeouts"] = args?.timeouts;
@@ -93,12 +114,31 @@ export class DnsRecordset extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DnsRecordset resources.
  */
 export interface DnsRecordsetState {
+    /**
+     * The string data for the records in this record set.
+     */
     datas?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The DNS record set description.
+     */
+    description?: pulumi.Input<string>;
     dnsRecordsetId?: pulumi.Input<string>;
+    /**
+     * The DNS name this record set will apply to.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.DnsRecordsetTimeouts>;
+    /**
+     * The time-to-live of this record set (seconds).
+     */
     ttl?: pulumi.Input<number>;
+    /**
+     * The DNS record set type.
+     */
     type?: pulumi.Input<string>;
+    /**
+     * The id of the zone in which this record set will reside.
+     */
     zoneId?: pulumi.Input<string>;
 }
 
@@ -106,11 +146,30 @@ export interface DnsRecordsetState {
  * The set of arguments for constructing a DnsRecordset resource.
  */
 export interface DnsRecordsetArgs {
+    /**
+     * The string data for the records in this record set.
+     */
     datas: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The DNS record set description.
+     */
+    description?: pulumi.Input<string>;
     dnsRecordsetId?: pulumi.Input<string>;
+    /**
+     * The DNS name this record set will apply to.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.DnsRecordsetTimeouts>;
+    /**
+     * The time-to-live of this record set (seconds).
+     */
     ttl: pulumi.Input<number>;
+    /**
+     * The DNS record set type.
+     */
     type: pulumi.Input<string>;
+    /**
+     * The id of the zone in which this record set will reside.
+     */
     zoneId: pulumi.Input<string>;
 }

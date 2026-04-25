@@ -34,13 +34,48 @@ export class MdbMysqlUser extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbMysqlUser.__pulumiType;
     }
 
+    /**
+     * Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`,
+     * `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`,
+     * `MDB_IAMPROXY_AUTH`).
+     */
     declare public readonly authenticationPlugin: pulumi.Output<string>;
+    /**
+     * The ID of the MySQL cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * User's connection limits. If the attribute is not specified there will be no changes. Default value is `-1`. When these
+     * parameters are set to `-1`, backend default values will be actually used.
+     */
     declare public readonly connectionLimits: pulumi.Output<outputs.MdbMysqlUserConnectionLimits | undefined>;
-    declare public readonly globalPermissions: pulumi.Output<string[]>;
+    /**
+     * Connection Manager connection configuration. Filled in by the server automatically.
+     */
+    declare public /*out*/ readonly connectionManager: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and
+     * is ignored during updating. > **Must specify either password or generate_password**.
+     */
+    declare public readonly generatePassword: pulumi.Output<boolean | undefined>;
+    /**
+     * List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`,
+     * `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified
+     * there will be no changes.
+     */
+    declare public readonly globalPermissions: pulumi.Output<string[] | undefined>;
     declare public readonly mdbMysqlUserId: pulumi.Output<string>;
+    /**
+     * The name of the user.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly password: pulumi.Output<string>;
+    /**
+     * The password of the user.
+     */
+    declare public readonly password: pulumi.Output<string | undefined>;
+    /**
+     * Set of permissions granted to the user.
+     */
     declare public readonly permissions: pulumi.Output<outputs.MdbMysqlUserPermission[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbMysqlUserTimeouts | undefined>;
 
@@ -60,6 +95,8 @@ export class MdbMysqlUser extends pulumi.CustomResource {
             resourceInputs["authenticationPlugin"] = state?.authenticationPlugin;
             resourceInputs["clusterId"] = state?.clusterId;
             resourceInputs["connectionLimits"] = state?.connectionLimits;
+            resourceInputs["connectionManager"] = state?.connectionManager;
+            resourceInputs["generatePassword"] = state?.generatePassword;
             resourceInputs["globalPermissions"] = state?.globalPermissions;
             resourceInputs["mdbMysqlUserId"] = state?.mdbMysqlUserId;
             resourceInputs["name"] = state?.name;
@@ -71,18 +108,17 @@ export class MdbMysqlUser extends pulumi.CustomResource {
             if (args?.clusterId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'clusterId'");
             }
-            if (args?.password === undefined && !opts.urn) {
-                throw new Error("Missing required property 'password'");
-            }
             resourceInputs["authenticationPlugin"] = args?.authenticationPlugin;
             resourceInputs["clusterId"] = args?.clusterId;
             resourceInputs["connectionLimits"] = args?.connectionLimits;
+            resourceInputs["generatePassword"] = args?.generatePassword;
             resourceInputs["globalPermissions"] = args?.globalPermissions;
             resourceInputs["mdbMysqlUserId"] = args?.mdbMysqlUserId;
             resourceInputs["name"] = args?.name;
             resourceInputs["password"] = args?.password ? pulumi.secret(args.password) : undefined;
             resourceInputs["permissions"] = args?.permissions;
             resourceInputs["timeouts"] = args?.timeouts;
+            resourceInputs["connectionManager"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const secretOpts = { additionalSecretOutputs: ["password"] };
@@ -95,13 +131,48 @@ export class MdbMysqlUser extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbMysqlUser resources.
  */
 export interface MdbMysqlUserState {
+    /**
+     * Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`,
+     * `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`,
+     * `MDB_IAMPROXY_AUTH`).
+     */
     authenticationPlugin?: pulumi.Input<string>;
+    /**
+     * The ID of the MySQL cluster.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * User's connection limits. If the attribute is not specified there will be no changes. Default value is `-1`. When these
+     * parameters are set to `-1`, backend default values will be actually used.
+     */
     connectionLimits?: pulumi.Input<inputs.MdbMysqlUserConnectionLimits>;
+    /**
+     * Connection Manager connection configuration. Filled in by the server automatically.
+     */
+    connectionManager?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and
+     * is ignored during updating. > **Must specify either password or generate_password**.
+     */
+    generatePassword?: pulumi.Input<boolean>;
+    /**
+     * List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`,
+     * `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified
+     * there will be no changes.
+     */
     globalPermissions?: pulumi.Input<pulumi.Input<string>[]>;
     mdbMysqlUserId?: pulumi.Input<string>;
+    /**
+     * The name of the user.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
     password?: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbMysqlUserPermission>[]>;
     timeouts?: pulumi.Input<inputs.MdbMysqlUserTimeouts>;
 }
@@ -110,13 +181,44 @@ export interface MdbMysqlUserState {
  * The set of arguments for constructing a MdbMysqlUser resource.
  */
 export interface MdbMysqlUserArgs {
+    /**
+     * Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`,
+     * `MYSQL_NO_LOGIN`, `MDB_IAMPROXY_AUTH` (for version 5.7 `MYSQL_NATIVE_PASSWORD`, `SHA256_PASSWORD`, `MYSQL_NO_LOGIN`,
+     * `MDB_IAMPROXY_AUTH`).
+     */
     authenticationPlugin?: pulumi.Input<string>;
+    /**
+     * The ID of the MySQL cluster.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * User's connection limits. If the attribute is not specified there will be no changes. Default value is `-1`. When these
+     * parameters are set to `-1`, backend default values will be actually used.
+     */
     connectionLimits?: pulumi.Input<inputs.MdbMysqlUserConnectionLimits>;
+    /**
+     * Generate password using Connection Manager. Allowed values: `true` or `false`. It's used only during user creation and
+     * is ignored during updating. > **Must specify either password or generate_password**.
+     */
+    generatePassword?: pulumi.Input<boolean>;
+    /**
+     * List user's global permissions. Allowed permissions: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS`,
+     * `FLUSH_OPTIMIZER_COSTS`, `SHOW_ROUTINE`, `MDB_ADMIN` for clear list use empty list. If the attribute is not specified
+     * there will be no changes.
+     */
     globalPermissions?: pulumi.Input<pulumi.Input<string>[]>;
     mdbMysqlUserId?: pulumi.Input<string>;
+    /**
+     * The name of the user.
+     */
     name?: pulumi.Input<string>;
-    password: pulumi.Input<string>;
+    /**
+     * The password of the user.
+     */
+    password?: pulumi.Input<string>;
+    /**
+     * Set of permissions granted to the user.
+     */
     permissions?: pulumi.Input<pulumi.Input<inputs.MdbMysqlUserPermission>[]>;
     timeouts?: pulumi.Input<inputs.MdbMysqlUserTimeouts>;
 }

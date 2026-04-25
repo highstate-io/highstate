@@ -35,11 +35,29 @@ export class AlbHttpRouter extends pulumi.CustomResource {
     }
 
     declare public readonly albHttpRouterId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Route options for the virtual host.
+     */
     declare public readonly routeOptions: pulumi.Output<outputs.AlbHttpRouterRouteOptions | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.AlbHttpRouterTimeouts | undefined>;
 
@@ -85,11 +103,29 @@ export class AlbHttpRouter extends pulumi.CustomResource {
  */
 export interface AlbHttpRouterState {
     albHttpRouterId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Route options for the virtual host.
+     */
     routeOptions?: pulumi.Input<inputs.AlbHttpRouterRouteOptions>;
     timeouts?: pulumi.Input<inputs.AlbHttpRouterTimeouts>;
 }
@@ -99,10 +135,25 @@ export interface AlbHttpRouterState {
  */
 export interface AlbHttpRouterArgs {
     albHttpRouterId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Route options for the virtual host.
+     */
     routeOptions?: pulumi.Input<inputs.AlbHttpRouterRouteOptions>;
     timeouts?: pulumi.Input<inputs.AlbHttpRouterTimeouts>;
 }

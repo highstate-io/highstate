@@ -11,15 +11,15 @@ export function createProvider(cluster: Input<proxmox.Cluster>): Promise<Provide
 
         insecure: cluster.insecure,
         username: cluster.username,
-        password: cluster.password,
+        password: cluster.password?.value,
 
-        apiToken: cluster.apiToken,
+        apiToken: cluster.apiToken?.value,
 
         ssh: cluster.ssh
           ? {
-              privateKey: cluster.ssh.keyPair?.privateKey,
+              privateKey: cluster.ssh.keyPair?.privateKey.value,
               username: cluster.ssh.user,
-              password: cluster.ssh.password,
+              password: cluster.ssh.password?.value,
             }
           : undefined,
       })

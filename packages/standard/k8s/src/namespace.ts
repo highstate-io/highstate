@@ -1,6 +1,6 @@
-import type { k8s } from "@highstate/library"
 import { getOrCreate } from "@highstate/contract"
-import { toPromise } from "@highstate/pulumi"
+import { k8s } from "@highstate/library"
+import { makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { core, type types } from "@pulumi/kubernetes"
 import {
   type ComponentResourceOptions,
@@ -10,6 +10,7 @@ import {
   output,
   type Unwrap,
 } from "@pulumi/pulumi"
+import { ClusterAccessScope } from "./rbac"
 import {
   getProvider,
   mapMetadata,
@@ -48,6 +49,13 @@ export abstract class Namespace extends Resource {
   static readonly apiVersion = "v1"
   static readonly kind = "Namespace"
 
+  /**
+   * The cluster entity authorized to port-forward into the namespace.
+   *
+   * Only created for namespaces created with `create` or `createOrGet` methods, not for wrapped or external namespaces.
+   */
+  portForwardCluster?: Output<k8s.Cluster>
+
   constructor(
     type: string,
     name: string,
@@ -74,7 +82,16 @@ export abstract class Namespace extends Resource {
    * The Highstate namespace entity.
    */
   get entity(): Output<k8s.Namespace> {
-    return output(this.entityBase) as Output<k8s.Namespace>
+    return makeEntityOutput({
+      entity: k8s.namespaceEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+      },
+    })
   }
 
   /**
@@ -298,6 +315,33 @@ class CreatedNamespace extends Namespace {
       namespace.spec,
       namespace.status,
     )
+
+    const scope = new ClusterAccessScope(
+      `${name}-port-forward`,
+      {
+        namespace: this,
+        rules: [
+          {
+            apiGroups: [""],
+            resources: ["services"],
+            verbs: ["get"],
+          },
+          {
+            apiGroups: [""],
+            resources: ["pods"],
+            verbs: ["get", "list"],
+          },
+          {
+            apiGroups: [""],
+            resources: ["pods/portforward"],
+            verbs: ["create"],
+          },
+        ],
+      },
+      { parent: this },
+    )
+
+    this.portForwardCluster = scope.cluster
   }
 }
 

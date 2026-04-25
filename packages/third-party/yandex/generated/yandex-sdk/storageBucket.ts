@@ -34,30 +34,126 @@ export class StorageBucket extends pulumi.CustomResource {
         return obj['__pulumiType'] === StorageBucket.__pulumiType;
     }
 
+    /**
+     * The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     declare public readonly accessKey: pulumi.Output<string | undefined>;
-    declare public readonly acl: pulumi.Output<string | undefined>;
+    /**
+     * The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
+     * Conflicts with `grant`. > To change ACL after creation, service account with `storage.admin` role should be used, though
+     * this role is not necessary to create a bucket with any ACL.
+     *
+     * @deprecated Deprecated
+     */
+    declare public readonly acl: pulumi.Output<string>;
+    /**
+     * Provides various access to objects. See [Bucket
+     * Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
+     */
     declare public readonly anonymousAccessFlags: pulumi.Output<outputs.StorageBucketAnonymousAccessFlags | undefined>;
     declare public readonly bucket: pulumi.Output<string>;
+    /**
+     * The bucket domain name.
+     */
     declare public /*out*/ readonly bucketDomainName: pulumi.Output<string>;
+    /**
+     * Creates a unique bucket name beginning with the specified prefix. Conflicts with `bucket`.
+     */
     declare public readonly bucketPrefix: pulumi.Output<string | undefined>;
+    /**
+     * A rule of [Cross-Origin Resource Sharing](https://yandex.cloud/docs/storage/concepts/cors) (CORS object).
+     */
     declare public readonly corsRules: pulumi.Output<outputs.StorageBucketCorsRule[] | undefined>;
+    /**
+     * Storage class which is used for storing objects by default. Available values are: "STANDARD", "COLD", "ICE". Default is
+     * `"STANDARD"`. See [Storage Class](https://yandex.cloud/docs/storage/concepts/storage-class) for more information.
+     */
     declare public readonly defaultStorageClass: pulumi.Output<string>;
+    /**
+     * If true, static key authentication in bucket is forbidden. Default is `false`.
+     */
+    declare public readonly disabledStatickeyAuth: pulumi.Output<boolean | undefined>;
+    /**
+     * Allow to create bucket in different folder. In case you are using IAM token from UserAccount, you are needed to
+     * explicitly specify folder_id in the resource, as it cannot be identified from such type of account. In case you are
+     * using IAM token from ServiceAccount or static access keys, folder_id does not need to be specified unless you want to
+     * create the resource in a different folder than the account folder. > It will try to create bucket using `IAM-token`, not
+     * using `access keys`.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without
+     * error. These objects are *not* recoverable. Default is `false`.
+     */
     declare public readonly forceDestroy: pulumi.Output<boolean | undefined>;
+    /**
+     * An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`. > To
+     * manage `grant` argument, service account with `storage.admin` role should be used.
+     *
+     * @deprecated Deprecated
+     */
     declare public readonly grants: pulumi.Output<outputs.StorageBucketGrant[] | undefined>;
+    /**
+     * Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for
+     * more information.
+     */
     declare public readonly https: pulumi.Output<outputs.StorageBucketHttps | undefined>;
+    /**
+     * A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
+     */
     declare public readonly lifecycleRules: pulumi.Output<outputs.StorageBucketLifecycleRule[] | undefined>;
+    /**
+     * A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs).
+     */
     declare public readonly loggings: pulumi.Output<outputs.StorageBucketLogging[] | undefined>;
+    /**
+     * The size of bucket, in bytes. See [Size Limiting](https://yandex.cloud/docs/storage/operations/buckets/limit-max-volume)
+     * for more information.
+     */
     declare public readonly maxSize: pulumi.Output<number | undefined>;
+    /**
+     * A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock).
+     */
     declare public readonly objectLockConfiguration: pulumi.Output<outputs.StorageBucketObjectLockConfiguration | undefined>;
-    declare public readonly policy: pulumi.Output<string | undefined>;
+    /**
+     * The `policy` object should contain the only field with the text of the policy. See [policy
+     * documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
+     *
+     * @deprecated Deprecated
+     */
+    declare public readonly policy: pulumi.Output<string>;
+    /**
+     * The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     declare public readonly secretKey: pulumi.Output<string | undefined>;
+    /**
+     * A configuration of server-side encryption for the bucket.
+     */
     declare public readonly serverSideEncryptionConfiguration: pulumi.Output<outputs.StorageBucketServerSideEncryptionConfiguration | undefined>;
     declare public readonly storageBucketId: pulumi.Output<string>;
+    /**
+     * The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags)
+     * for more information.
+     */
     declare public readonly tags: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * A state of [versioning](https://yandex.cloud/docs/storage/concepts/versioning). > To manage `versioning` argument,
+     * service account with `storage.admin` role should be used.
+     */
     declare public readonly versioning: pulumi.Output<outputs.StorageBucketVersioning | undefined>;
+    /**
+     * A [Website Object](https://yandex.cloud/docs/storage/concepts/hosting)
+     */
     declare public readonly website: pulumi.Output<outputs.StorageBucketWebsite | undefined>;
+    /**
+     * The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+     */
     declare public readonly websiteDomain: pulumi.Output<string>;
+    /**
+     * The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+     */
     declare public readonly websiteEndpoint: pulumi.Output<string>;
 
     /**
@@ -81,6 +177,7 @@ export class StorageBucket extends pulumi.CustomResource {
             resourceInputs["bucketPrefix"] = state?.bucketPrefix;
             resourceInputs["corsRules"] = state?.corsRules;
             resourceInputs["defaultStorageClass"] = state?.defaultStorageClass;
+            resourceInputs["disabledStatickeyAuth"] = state?.disabledStatickeyAuth;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["forceDestroy"] = state?.forceDestroy;
             resourceInputs["grants"] = state?.grants;
@@ -107,6 +204,7 @@ export class StorageBucket extends pulumi.CustomResource {
             resourceInputs["bucketPrefix"] = args?.bucketPrefix;
             resourceInputs["corsRules"] = args?.corsRules;
             resourceInputs["defaultStorageClass"] = args?.defaultStorageClass;
+            resourceInputs["disabledStatickeyAuth"] = args?.disabledStatickeyAuth;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["forceDestroy"] = args?.forceDestroy;
             resourceInputs["grants"] = args?.grants;
@@ -137,30 +235,126 @@ export class StorageBucket extends pulumi.CustomResource {
  * Input properties used for looking up and filtering StorageBucket resources.
  */
 export interface StorageBucketState {
+    /**
+     * The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     accessKey?: pulumi.Input<string>;
+    /**
+     * The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
+     * Conflicts with `grant`. > To change ACL after creation, service account with `storage.admin` role should be used, though
+     * this role is not necessary to create a bucket with any ACL.
+     *
+     * @deprecated Deprecated
+     */
     acl?: pulumi.Input<string>;
+    /**
+     * Provides various access to objects. See [Bucket
+     * Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
+     */
     anonymousAccessFlags?: pulumi.Input<inputs.StorageBucketAnonymousAccessFlags>;
     bucket?: pulumi.Input<string>;
+    /**
+     * The bucket domain name.
+     */
     bucketDomainName?: pulumi.Input<string>;
+    /**
+     * Creates a unique bucket name beginning with the specified prefix. Conflicts with `bucket`.
+     */
     bucketPrefix?: pulumi.Input<string>;
+    /**
+     * A rule of [Cross-Origin Resource Sharing](https://yandex.cloud/docs/storage/concepts/cors) (CORS object).
+     */
     corsRules?: pulumi.Input<pulumi.Input<inputs.StorageBucketCorsRule>[]>;
+    /**
+     * Storage class which is used for storing objects by default. Available values are: "STANDARD", "COLD", "ICE". Default is
+     * `"STANDARD"`. See [Storage Class](https://yandex.cloud/docs/storage/concepts/storage-class) for more information.
+     */
     defaultStorageClass?: pulumi.Input<string>;
+    /**
+     * If true, static key authentication in bucket is forbidden. Default is `false`.
+     */
+    disabledStatickeyAuth?: pulumi.Input<boolean>;
+    /**
+     * Allow to create bucket in different folder. In case you are using IAM token from UserAccount, you are needed to
+     * explicitly specify folder_id in the resource, as it cannot be identified from such type of account. In case you are
+     * using IAM token from ServiceAccount or static access keys, folder_id does not need to be specified unless you want to
+     * create the resource in a different folder than the account folder. > It will try to create bucket using `IAM-token`, not
+     * using `access keys`.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without
+     * error. These objects are *not* recoverable. Default is `false`.
+     */
     forceDestroy?: pulumi.Input<boolean>;
+    /**
+     * An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`. > To
+     * manage `grant` argument, service account with `storage.admin` role should be used.
+     *
+     * @deprecated Deprecated
+     */
     grants?: pulumi.Input<pulumi.Input<inputs.StorageBucketGrant>[]>;
+    /**
+     * Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for
+     * more information.
+     */
     https?: pulumi.Input<inputs.StorageBucketHttps>;
+    /**
+     * A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
+     */
     lifecycleRules?: pulumi.Input<pulumi.Input<inputs.StorageBucketLifecycleRule>[]>;
+    /**
+     * A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs).
+     */
     loggings?: pulumi.Input<pulumi.Input<inputs.StorageBucketLogging>[]>;
+    /**
+     * The size of bucket, in bytes. See [Size Limiting](https://yandex.cloud/docs/storage/operations/buckets/limit-max-volume)
+     * for more information.
+     */
     maxSize?: pulumi.Input<number>;
+    /**
+     * A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock).
+     */
     objectLockConfiguration?: pulumi.Input<inputs.StorageBucketObjectLockConfiguration>;
+    /**
+     * The `policy` object should contain the only field with the text of the policy. See [policy
+     * documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
+     *
+     * @deprecated Deprecated
+     */
     policy?: pulumi.Input<string>;
+    /**
+     * The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     secretKey?: pulumi.Input<string>;
+    /**
+     * A configuration of server-side encryption for the bucket.
+     */
     serverSideEncryptionConfiguration?: pulumi.Input<inputs.StorageBucketServerSideEncryptionConfiguration>;
     storageBucketId?: pulumi.Input<string>;
+    /**
+     * The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags)
+     * for more information.
+     */
     tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A state of [versioning](https://yandex.cloud/docs/storage/concepts/versioning). > To manage `versioning` argument,
+     * service account with `storage.admin` role should be used.
+     */
     versioning?: pulumi.Input<inputs.StorageBucketVersioning>;
+    /**
+     * A [Website Object](https://yandex.cloud/docs/storage/concepts/hosting)
+     */
     website?: pulumi.Input<inputs.StorageBucketWebsite>;
+    /**
+     * The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+     */
     websiteDomain?: pulumi.Input<string>;
+    /**
+     * The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+     */
     websiteEndpoint?: pulumi.Input<string>;
 }
 
@@ -168,28 +362,121 @@ export interface StorageBucketState {
  * The set of arguments for constructing a StorageBucket resource.
  */
 export interface StorageBucketArgs {
+    /**
+     * The access key to use when applying changes. This value can also be provided as `storage_access_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     accessKey?: pulumi.Input<string>;
+    /**
+     * The [predefined ACL](https://yandex.cloud/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
+     * Conflicts with `grant`. > To change ACL after creation, service account with `storage.admin` role should be used, though
+     * this role is not necessary to create a bucket with any ACL.
+     *
+     * @deprecated Deprecated
+     */
     acl?: pulumi.Input<string>;
+    /**
+     * Provides various access to objects. See [Bucket
+     * Availability](https://yandex.cloud/docs/storage/operations/buckets/bucket-availability) for more information.
+     */
     anonymousAccessFlags?: pulumi.Input<inputs.StorageBucketAnonymousAccessFlags>;
     bucket?: pulumi.Input<string>;
+    /**
+     * Creates a unique bucket name beginning with the specified prefix. Conflicts with `bucket`.
+     */
     bucketPrefix?: pulumi.Input<string>;
+    /**
+     * A rule of [Cross-Origin Resource Sharing](https://yandex.cloud/docs/storage/concepts/cors) (CORS object).
+     */
     corsRules?: pulumi.Input<pulumi.Input<inputs.StorageBucketCorsRule>[]>;
+    /**
+     * Storage class which is used for storing objects by default. Available values are: "STANDARD", "COLD", "ICE". Default is
+     * `"STANDARD"`. See [Storage Class](https://yandex.cloud/docs/storage/concepts/storage-class) for more information.
+     */
     defaultStorageClass?: pulumi.Input<string>;
+    /**
+     * If true, static key authentication in bucket is forbidden. Default is `false`.
+     */
+    disabledStatickeyAuth?: pulumi.Input<boolean>;
+    /**
+     * Allow to create bucket in different folder. In case you are using IAM token from UserAccount, you are needed to
+     * explicitly specify folder_id in the resource, as it cannot be identified from such type of account. In case you are
+     * using IAM token from ServiceAccount or static access keys, folder_id does not need to be specified unless you want to
+     * create the resource in a different folder than the account folder. > It will try to create bucket using `IAM-token`, not
+     * using `access keys`.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without
+     * error. These objects are *not* recoverable. Default is `false`.
+     */
     forceDestroy?: pulumi.Input<boolean>;
+    /**
+     * An [ACL policy grant](https://yandex.cloud/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`. > To
+     * manage `grant` argument, service account with `storage.admin` role should be used.
+     *
+     * @deprecated Deprecated
+     */
     grants?: pulumi.Input<pulumi.Input<inputs.StorageBucketGrant>[]>;
+    /**
+     * Manages https certificates for bucket. See [https](https://yandex.cloud/docs/storage/operations/hosting/certificate) for
+     * more information.
+     */
     https?: pulumi.Input<inputs.StorageBucketHttps>;
+    /**
+     * A configuration of [object lifecycle management](https://yandex.cloud/docs/storage/concepts/lifecycles).
+     */
     lifecycleRules?: pulumi.Input<pulumi.Input<inputs.StorageBucketLifecycleRule>[]>;
+    /**
+     * A settings of [bucket logging](https://yandex.cloud/docs/storage/concepts/server-logs).
+     */
     loggings?: pulumi.Input<pulumi.Input<inputs.StorageBucketLogging>[]>;
+    /**
+     * The size of bucket, in bytes. See [Size Limiting](https://yandex.cloud/docs/storage/operations/buckets/limit-max-volume)
+     * for more information.
+     */
     maxSize?: pulumi.Input<number>;
+    /**
+     * A configuration of [object lock management](https://yandex.cloud/docs/storage/concepts/object-lock).
+     */
     objectLockConfiguration?: pulumi.Input<inputs.StorageBucketObjectLockConfiguration>;
+    /**
+     * The `policy` object should contain the only field with the text of the policy. See [policy
+     * documentation](https://yandex.cloud/docs/storage/concepts/policy) for more information on policy format.
+     *
+     * @deprecated Deprecated
+     */
     policy?: pulumi.Input<string>;
+    /**
+     * The secret key to use when applying changes. This value can also be provided as `storage_secret_key` specified in
+     * provider config (explicitly or within `shared_credentials_file`) is used.
+     */
     secretKey?: pulumi.Input<string>;
+    /**
+     * A configuration of server-side encryption for the bucket.
+     */
     serverSideEncryptionConfiguration?: pulumi.Input<inputs.StorageBucketServerSideEncryptionConfiguration>;
     storageBucketId?: pulumi.Input<string>;
+    /**
+     * The `tags` object for setting tags (or labels) for bucket. See [Tags](https://yandex.cloud/docs/storage/concepts/tags)
+     * for more information.
+     */
     tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A state of [versioning](https://yandex.cloud/docs/storage/concepts/versioning). > To manage `versioning` argument,
+     * service account with `storage.admin` role should be used.
+     */
     versioning?: pulumi.Input<inputs.StorageBucketVersioning>;
+    /**
+     * A [Website Object](https://yandex.cloud/docs/storage/concepts/hosting)
+     */
     website?: pulumi.Input<inputs.StorageBucketWebsite>;
+    /**
+     * The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+     */
     websiteDomain?: pulumi.Input<string>;
+    /**
+     * The website endpoint, if the bucket is configured with a website. If not, this will be an empty string.
+     */
     websiteEndpoint?: pulumi.Input<string>;
 }

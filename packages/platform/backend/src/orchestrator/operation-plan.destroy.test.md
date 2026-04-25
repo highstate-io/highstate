@@ -77,9 +77,9 @@ graph RL
 
 **Destroy Phase**: `C`, `B`
 
-### Example 4: Composite Boundary Isolation
+### Example 4: Full Ancestor Chain for Compositional Inclusion
 
-**Test**: `should not propagate beyond compositional inclusion`
+**Test**: `should include full ancestor chain for compositional inclusion`
 
 ```mermaid
 graph RL
@@ -99,10 +99,10 @@ graph RL
 1. `A` explicitly requested;
 2. `B` depends on `A`, cascade enabled → `B` included (dependent of `A`);
 3. `A` is child of `Parent` → `Parent` included (compositional);
-4. `Parent` is child of `GrandParent` → `GrandParent` NOT included (compositional boundary);
-5. `C` is sibling of `Parent` but `GrandParent` is not included → `C` NOT included.
+4. `Parent` is child of `GrandParent` → `GrandParent` included as ancestor;
+5. `C` is sibling of `Parent`, but ancestor inclusion does not auto-include siblings → `C` NOT included.
 
-**Destroy Phase**: `B`, `A`, `Parent`
+**Destroy Phase**: `B`, `A`, `Parent`, `GrandParent`
 
 ### Example 5: Substantive Composite with Mixed Child States
 
@@ -150,9 +150,9 @@ graph RL
 1. `Child1` explicitly requested;
 2. No instances depend on `Child1` (Child1 depends on Child3, not vice versa);
 3. `Child1` is child of `Parent1` → `Parent1` included (compositional);
-4. `Parent1` is child of `GrandParent` → `GrandParent` NOT included (compositional boundary).
+4. `Parent1` is child of `GrandParent` → `GrandParent` included as ancestor.
 
-**Destroy Phase**: `Child1`, `Parent1`
+**Destroy Phase**: `Child1`, `Parent1`, `GrandParent`
 
 ### Example 7: Request Child with Isolated Destroy
 
@@ -250,9 +250,9 @@ graph RL
 
 **Destroy Phase**: `C`, `B`, `A`
 
-### Example 11: Deep Nesting with Boundary Isolation
+### Example 11: Deep Nesting with Ancestor Chain Inclusion
 
-**Test**: `should isolate boundaries in deep composite hierarchies`
+**Test**: `should include deep ancestor chain without ancestor siblings`
 
 ```mermaid
 graph RL
@@ -272,10 +272,11 @@ graph RL
 1. `Child` explicitly requested;
 2. No instances depend on `Child`;
 3. `Child` is child of `Parent` → `Parent` included (compositional);
-4. `Parent` is child of `GrandParent` → `GrandParent` NOT included (compositional boundary);
-5. `Uncle` and `GreatUncle` not affected.
+4. `Parent` is child of `GrandParent` → `GrandParent` included as ancestor;
+5. `GrandParent` is child of `GreatGrandParent` → `GreatGrandParent` included as ancestor;
+6. `Uncle` and `GreatUncle` are ancestor siblings and are not auto-included.
 
-**Destroy Phase**: `Child`, `Parent`
+**Destroy Phase**: `Child`, `Parent`, `GrandParent`, `GreatGrandParent`
 
 ### Example 12: Diamond Dependency Pattern
 
@@ -355,3 +356,23 @@ graph RL
 4. `Child2` is sibling of `Child1` in substantive composite, partial destruction enabled → `Child2` excluded.
 
 **Destroy Phase**: `Child1`, `Parent`, `ExternalX`
+
+### Example 15: State-Only Dependent Missing from Model
+
+**Test**: `should include state-only dependents when model instance is missing`
+
+```mermaid
+graph RL
+    Requested["requested 🚀"]
+    Dependent["dependent ✅ (state-only)"]
+
+    Dependent --> Requested
+```
+
+**Decision Steps**:
+
+1. `requested` explicitly requested;
+2. `dependent` is not present in current project model, but exists in state with a dependency on `requested`;
+3. destroy cascade uses state relationships, so `dependent` is included as dependent of destroyed `requested`.
+
+**Destroy Phase**: `dependent`, `requested`

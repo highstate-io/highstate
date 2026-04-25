@@ -20,11 +20,16 @@ if (!server.ssh) {
 const repo = await MaterializedRepository.open(flake)
 await repo.git.add(".")
 
-const privateKey = await MaterializedFile.create(
-  "private-key",
-  server.ssh.keyPair?.privateKey,
-  0o600,
-)
+if (!server.ssh.keyPair?.privateKey) {
+  throw new Error("Server must have an SSH private key")
+}
+
+const privateKey = await MaterializedFile.create({
+  name: "private-key",
+  content: server.ssh.keyPair.privateKey.value,
+  isSecret: true,
+  mode: 0o600,
+})
 
 const hostKey = await MaterializedFile.open(createSshHostKeyFile(server))
 

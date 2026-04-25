@@ -34,13 +34,37 @@ export class DatasphereProject extends pulumi.CustomResource {
         return obj['__pulumiType'] === DatasphereProject.__pulumiType;
     }
 
+    /**
+     * Community ID where project would be created.
+     */
     declare public readonly communityId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Creator account ID of the Datasphere Project.
+     */
     declare public /*out*/ readonly createdBy: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly description: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Datasphere Project limits configuration.
+     */
     declare public readonly limits: pulumi.Output<outputs.DatasphereProjectLimits>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Datasphere Project settings configuration.
+     */
     declare public readonly settings: pulumi.Output<outputs.DatasphereProjectSettings>;
     declare public readonly timeouts: pulumi.Output<outputs.DatasphereProjectTimeouts | undefined>;
 
@@ -90,13 +114,37 @@ export class DatasphereProject extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DatasphereProject resources.
  */
 export interface DatasphereProjectState {
+    /**
+     * Community ID where project would be created.
+     */
     communityId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Creator account ID of the Datasphere Project.
+     */
     createdBy?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Datasphere Project limits configuration.
+     */
     limits?: pulumi.Input<inputs.DatasphereProjectLimits>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Datasphere Project settings configuration.
+     */
     settings?: pulumi.Input<inputs.DatasphereProjectSettings>;
     timeouts?: pulumi.Input<inputs.DatasphereProjectTimeouts>;
 }
@@ -105,11 +153,29 @@ export interface DatasphereProjectState {
  * The set of arguments for constructing a DatasphereProject resource.
  */
 export interface DatasphereProjectArgs {
+    /**
+     * Community ID where project would be created.
+     */
     communityId: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Datasphere Project limits configuration.
+     */
     limits?: pulumi.Input<inputs.DatasphereProjectLimits>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Datasphere Project settings configuration.
+     */
     settings?: pulumi.Input<inputs.DatasphereProjectSettings>;
     timeouts?: pulumi.Input<inputs.DatasphereProjectTimeouts>;
 }

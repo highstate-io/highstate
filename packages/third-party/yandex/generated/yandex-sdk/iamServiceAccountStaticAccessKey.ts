@@ -34,22 +34,50 @@ export class IamServiceAccountStaticAccessKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === IamServiceAccountStaticAccessKey.__pulumiType;
     }
 
+    /**
+     * ID of the static access key. This is only populated when `output_to_lockbox` is not provided.
+     */
     declare public /*out*/ readonly accessKey: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The encrypted secret, base64 encoded. This is only populated when `pgp_key` is supplied.
+     */
     declare public /*out*/ readonly encryptedSecretKey: pulumi.Output<string>;
     declare public readonly iamServiceAccountStaticAccessKeyId: pulumi.Output<string>;
+    /**
+     * The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.
+     */
     declare public /*out*/ readonly keyFingerprint: pulumi.Output<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     declare public readonly outputToLockbox: pulumi.Output<outputs.IamServiceAccountStaticAccessKeyOutputToLockbox | undefined>;
     /**
-     * version generated, that will contain the sensitive outputs
+     * ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when
+     * `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when
+     * `output_to_lockbox` is removed.
      */
     declare public /*out*/ readonly outputToLockboxVersionId: pulumi.Output<string>;
+    /**
+     * An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase
+     * username in the form `keybase:keybaseusername`.
+     */
     declare public readonly pgpKey: pulumi.Output<string | undefined>;
+    /**
+     * Private part of generated static access key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are
+     * provided.
+     */
     declare public /*out*/ readonly secretKey: pulumi.Output<string>;
+    /**
+     * ID of the service account which is used to get a static key.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string>;
 
     /**
@@ -104,22 +132,50 @@ export class IamServiceAccountStaticAccessKey extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IamServiceAccountStaticAccessKey resources.
  */
 export interface IamServiceAccountStaticAccessKeyState {
+    /**
+     * ID of the static access key. This is only populated when `output_to_lockbox` is not provided.
+     */
     accessKey?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The encrypted secret, base64 encoded. This is only populated when `pgp_key` is supplied.
+     */
     encryptedSecretKey?: pulumi.Input<string>;
     iamServiceAccountStaticAccessKeyId?: pulumi.Input<string>;
+    /**
+     * The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.
+     */
     keyFingerprint?: pulumi.Input<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     outputToLockbox?: pulumi.Input<inputs.IamServiceAccountStaticAccessKeyOutputToLockbox>;
     /**
-     * version generated, that will contain the sensitive outputs
+     * ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when
+     * `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when
+     * `output_to_lockbox` is removed.
      */
     outputToLockboxVersionId?: pulumi.Input<string>;
+    /**
+     * An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase
+     * username in the form `keybase:keybaseusername`.
+     */
     pgpKey?: pulumi.Input<string>;
+    /**
+     * Private part of generated static access key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are
+     * provided.
+     */
     secretKey?: pulumi.Input<string>;
+    /**
+     * ID of the service account which is used to get a static key.
+     */
     serviceAccountId?: pulumi.Input<string>;
 }
 
@@ -127,12 +183,22 @@ export interface IamServiceAccountStaticAccessKeyState {
  * The set of arguments for constructing a IamServiceAccountStaticAccessKey resource.
  */
 export interface IamServiceAccountStaticAccessKeyArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
     iamServiceAccountStaticAccessKeyId?: pulumi.Input<string>;
     /**
      * option to create a Lockbox secret version from sensitive outputs
      */
     outputToLockbox?: pulumi.Input<inputs.IamServiceAccountStaticAccessKeyOutputToLockbox>;
+    /**
+     * An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase
+     * username in the form `keybase:keybaseusername`.
+     */
     pgpKey?: pulumi.Input<string>;
+    /**
+     * ID of the service account which is used to get a static key.
+     */
     serviceAccountId: pulumi.Input<string>;
 }

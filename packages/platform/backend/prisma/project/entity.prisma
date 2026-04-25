@@ -1,0 +1,125 @@
+/// This model represents and instance of Highstate entity produced by one or many component instances one or many times.
+/// Entity tracks EntitySnapshots by their unique IDs allowing to correlate them across different operations and instances.
+/// Entities also can be tracked globally across different projects by referencing them in the Object model at the backend level.
+model Entity {
+    /// The CUIDv2 or CUIDv2d of the entity.
+    ///
+    /// The ID is calculated by the backend as CUIDv2d(entityType, identity), where identity is a user-provided string value that is expected to be globally unique for each entity of the same type.
+    id String @id
+
+    /// The type of the entity.
+    type String
+
+    /// The identity of the entity.
+    identity String
+
+    /// The snapshots of the entity.
+    snapshots EntitySnapshot[]
+}
+
+/// This model represents an immutable snapshot of an entity at a certain point of time
+/// provide by some component instance during an operation.
+model EntitySnapshot {
+    /// The CUIDv2 of the entity snapshot.
+    id String @id @default(cuid(2))
+
+    /// The SHA-256 hash of the entity snapshot content.
+    /// The content is stored separately in the EntitySnapshotContent model and can be shared between different snapshots with the same content hash.
+    contentHash String
+
+    /// The ID of the entity this snapshot belongs to.
+    entityId String
+
+    /// The ID of the operation that created this snapshot.
+    operationId String
+
+    /// The ID of the instance state produced this entity snapshot.
+    stateId String
+
+    /// The name of the instance outputs where this entity were referenced (including nested entities).
+    ///
+    /// ![string[]]
+    referencedInOutputs Json
+
+    /// The name of the outputs that exported this entity directly.
+    ///
+    /// ![string[]]
+    exportedInOutputs Json
+
+    /// The time when the entity snapshot was created.
+    createdAt DateTime @default(now())
+
+    /// The content of the entity snapshot.
+    content EntitySnapshotContent @relation(fields: [contentHash], references: [hash])
+
+    /// The entity this snapshot belongs to.
+    entity Entity @relation(fields: [entityId], references: [id])
+
+    /// The operation that created this snapshot.
+    operation Operation @relation(fields: [operationId], references: [id])
+
+    /// The instance state that produced this entity snapshot.
+    state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The snapshots of entities referenced by this entity snapshot.
+    /// For explicit references (specified manually by their IDs) the last snapshot of the referenced entity will be used.
+    /// For implicit references (collected via includes) the same snapshot of the same operation will be used.
+    references EntitySnapshotReference[] @relation("EntitySnapshotReferences")
+
+    /// The snapshots of entities that reference this entity snapshot.
+    referencedBy EntitySnapshotReference[] @relation("EntitySnapshotReferencedBy")
+
+    /// The artifacts referenced by this entity snapshot.
+    artifacts Artifact[]
+
+    @@index([entityId, createdAt(sort: Desc)])
+    @@index([operationId])
+    @@index([stateId, createdAt(sort: Desc)])
+}
+
+enum EntityReferenceKind {
+    explicit
+    inclusion
+}
+
+model EntitySnapshotReference {
+    /// The CUIDv2 of the entity snapshot relation.
+    fromId String
+
+    /// The CUIDv2 of the referenced entity snapshot.
+    toId String
+
+    /// The kind of the reference, which can be either explicit or inclusion (implicit).
+    kind EntityReferenceKind
+
+    /// The group of the references.
+    /// It can be either the exlicit group name provided by the entity explicit reference,
+    /// or name of the inclusion field of the parent entity for implicit references.
+    group String
+
+    /// The entity snapshot that holds the reference.
+    from EntitySnapshot @relation("EntitySnapshotReferences", fields: [fromId], references: [id])
+
+    /// The entity snapshot that is referenced.
+    to EntitySnapshot @relation("EntitySnapshotReferencedBy", fields: [toId], references: [id])
+
+    @@id([fromId, toId, kind, group])
+    @@index([toId])
+    @@index([fromId])
+}
+
+model EntitySnapshotContent {
+    /// The SHA-256 hash of the entity snapshot content.
+    hash String @id
+
+    /// The metadata of the entity at the time of the snapshot.
+    ///
+    /// [EntityMeta]
+    meta Json?
+
+    /// The content of the entity snapshot, which is opaque to the backend.
+    content Json
+
+    /// The entity snapshots that have this content.
+    snapshots EntitySnapshot[]
+}

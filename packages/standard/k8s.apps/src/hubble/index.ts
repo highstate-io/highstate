@@ -11,9 +11,12 @@ const service = Service.get("hubble-ui", { namespace, name: "hubble-ui" })
 new AccessPointRoute(args.appName, {
   type: "http",
   accessPoint: inputs.accessPoint,
-  endpoints: service.endpoints,
-  gatewayNativeData: service,
-  tlsCertificateNativeData: namespace,
+  backend: {
+    endpoints: service.endpoints,
+  },
+  metadata: {
+    "k8s.namespace": namespace.metadata.name,
+  },
 })
 
 export default outputs({})

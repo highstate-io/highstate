@@ -34,11 +34,33 @@ export class ResourcemanagerCloud extends pulumi.CustomResource {
         return obj['__pulumiType'] === ResourcemanagerCloud.__pulumiType;
     }
 
+    /**
+     * ID of the Cloud resource to return. To get the cloud ID, use a [CloudService.List] request.
+     */
+    declare public readonly cloudId: pulumi.Output<string>;
+    /**
+     * Creation timestamp.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Description of the cloud. 0-256 characters long.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the cloud. 3-63 characters long.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the organization that the cloud belongs to.
+     */
     declare public readonly organizationId: pulumi.Output<string>;
+    /**
+     * ID of the Cloud resource to return. To get the cloud ID, use a [CloudService.List] request.
+     */
     declare public readonly resourcemanagerCloudId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ResourcemanagerCloudTimeouts | undefined>;
 
@@ -55,6 +77,7 @@ export class ResourcemanagerCloud extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as ResourcemanagerCloudState | undefined;
+            resourceInputs["cloudId"] = state?.cloudId;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
             resourceInputs["labels"] = state?.labels;
@@ -64,6 +87,7 @@ export class ResourcemanagerCloud extends pulumi.CustomResource {
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as ResourcemanagerCloudArgs | undefined;
+            resourceInputs["cloudId"] = args?.cloudId;
             resourceInputs["description"] = args?.description;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
@@ -81,11 +105,33 @@ export class ResourcemanagerCloud extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ResourcemanagerCloud resources.
  */
 export interface ResourcemanagerCloudState {
+    /**
+     * ID of the Cloud resource to return. To get the cloud ID, use a [CloudService.List] request.
+     */
+    cloudId?: pulumi.Input<string>;
+    /**
+     * Creation timestamp.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the cloud. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the cloud. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the organization that the cloud belongs to.
+     */
     organizationId?: pulumi.Input<string>;
+    /**
+     * ID of the Cloud resource to return. To get the cloud ID, use a [CloudService.List] request.
+     */
     resourcemanagerCloudId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ResourcemanagerCloudTimeouts>;
 }
@@ -94,10 +140,29 @@ export interface ResourcemanagerCloudState {
  * The set of arguments for constructing a ResourcemanagerCloud resource.
  */
 export interface ResourcemanagerCloudArgs {
+    /**
+     * ID of the Cloud resource to return. To get the cloud ID, use a [CloudService.List] request.
+     */
+    cloudId?: pulumi.Input<string>;
+    /**
+     * Description of the cloud. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the cloud. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the organization that the cloud belongs to.
+     */
     organizationId?: pulumi.Input<string>;
+    /**
+     * ID of the Cloud resource to return. To get the cloud ID, use a [CloudService.List] request.
+     */
     resourcemanagerCloudId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ResourcemanagerCloudTimeouts>;
 }

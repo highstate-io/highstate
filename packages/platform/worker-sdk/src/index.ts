@@ -83,7 +83,10 @@ export class Worker<TParamsSchema extends z.ZodType> {
 
     await workerClient.updateWorkerVersionMeta({
       workerVersionId: this.runOptions.workerVersionId,
-      meta: this.options,
+      meta: {
+        workerMeta: this.options.workerMeta,
+        serviceAccountMeta: this.options.serviceAccountMeta,
+      },
     })
 
     for await (const { event } of workerClient.connect({

@@ -1,5 +1,5 @@
 import type { Component } from "./component"
-import type { InstanceInput, InstanceModel } from "./instance"
+import type { InstanceInput, InstanceModel, RuntimeInput } from "./instance"
 import { mapValues } from "remeda"
 
 export type RuntimeInstance = {
@@ -8,7 +8,17 @@ export type RuntimeInstance = {
 }
 
 export const boundaryInput = Symbol("boundaryInput")
-export const boundaryInputs = Symbol("boundaryInputs")
+
+function isStableInstanceInput(value: unknown): value is InstanceInput {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "instanceId" in value &&
+    "output" in value &&
+    typeof (value as { instanceId: unknown }).instanceId === "string" &&
+    typeof (value as { output: unknown }).output === "string"
+  )
+}
 
 function formatInstancePath(instance: InstanceModel): string {
   let result = instance.id
@@ -86,20 +96,60 @@ export function registerInstance<T>(component: Component, instance: InstanceMode
   }
 
   try {
-    const outputs = fn() as Record<string, InstanceInput[]>
+    const rawOutputs = fn() as Record<string, RuntimeInput | RuntimeInput[] | undefined>
+    const outputs = mapValues(rawOutputs ?? {}, outputGroup => {
+      return [outputGroup].flat(2).filter(Boolean) as RuntimeInput[]
+    })
 
-    instance.resolvedOutputs = outputs
-    instance.outputs = mapValues(outputs ?? {}, outputs =>
-      outputs.map(output => output[boundaryInput] ?? output),
+    const toStableInputs = (
+      outputGroup: RuntimeInput[],
+      useBoundaryFallback: boolean,
+    ): InstanceInput[] => {
+      return outputGroup
+        .map(output => (useBoundaryFallback ? output[boundaryInput] : output))
+        .filter(isStableInstanceInput)
+        .map(output => {
+          return output.path
+            ? {
+                instanceId: output.instanceId,
+                output: output.output,
+                path: output.path,
+              }
+            : {
+                instanceId: output.instanceId,
+                output: output.output,
+              }
+        })
+    }
+
+    instance.resolvedOutputs = mapValues(outputs ?? {}, outputGroup =>
+      toStableInputs(outputGroup, false),
     )
+    instance.outputs = mapValues(outputs ?? {}, outputGroup => toStableInputs(outputGroup, true))
 
     // mark all outputs with the boundary input of the instance
-    return mapValues(outputs, (outputs, outputKey) =>
-      outputs.map(output => ({
-        ...output,
-        [boundaryInput]: { instanceId: instance.id, output: outputKey },
-      })),
-    ) as T
+    // keep object identity to preserve proxy-based deep accessors
+    return mapValues(rawOutputs, (rawOutputGroup, outputKey) => {
+      const outputRefs = (outputs[outputKey] ?? []).map(output => {
+        if (output.provided) {
+          output[boundaryInput] = { instanceId: instance.id, output: outputKey }
+        }
+
+        return output
+      })
+
+      if (component.model.outputs[outputKey]?.multiple) {
+        const multipleOutput = (
+          Array.isArray(rawOutputGroup) ? rawOutputGroup : outputRefs
+        ) as RuntimeInput[] & Partial<{ [boundaryInput]: InstanceInput }>
+
+        multipleOutput[boundaryInput] ??= { instanceId: instance.id, output: outputKey }
+
+        return multipleOutput
+      }
+
+      return rawOutputGroup ?? outputRefs[0]
+    }) as T
   } finally {
     if (previousParentInstance) {
       currentInstance = previousParentInstance

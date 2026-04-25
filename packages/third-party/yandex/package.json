@@ -9,7 +9,8 @@
     "./connection": "./dist/connection/index.js",
     "./disk": "./dist/disk/index.js",
     "./existing-image": "./dist/existing-image/index.js",
-    "./virtual-machine": "./dist/virtual-machine/index.js"
+    "./virtual-machine": "./dist/virtual-machine/index.js",
+    "./instance-group": "./dist/instance-group/index.js"
   },
   "publishConfig": {
     "access": "public"
@@ -32,11 +33,11 @@
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
     "@highstate/yandex-sdk": "workspace:*",
-    "@pulumi/pulumi": "3.198.0"
+    "@pulumi/pulumi": "3.220.0"
   },
   "devDependencies": {
-    "@highstate/cli": "workspace:*",
     "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
   },
   "repository": {

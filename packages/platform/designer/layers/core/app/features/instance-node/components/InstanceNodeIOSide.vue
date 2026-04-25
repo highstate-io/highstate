@@ -2,22 +2,34 @@
 import type { ResolvedInstanceInput } from "@highstate/backend/shared"
 import type { ComponentModel, EntityModel, InstanceInput, InstanceModel } from "@highstate/contract"
 import type { ValidConnectionFunc } from "@vue-flow/core"
+import {
+  InstanceNodeInputChipPopup,
+  InstanceNodeOutputChipPopup,
+} from "#layers/core/app/features/entity-explorer"
 import InstanceNodeIOSideHandle from "./InstanceNodeIOSideHandle.vue"
 
 const {
   instance,
   component,
   entities,
+  type,
+  side,
+  projectId,
+  stateId,
+  isValidConnection,
   resolvedInputs,
   preventShowAllHandles,
   forceShowAllHandles,
   resolvedInjectionInput,
+  usedOutputs,
 } = defineProps<{
   instance: InstanceModel
   component: ComponentModel
   entities: Record<string, EntityModel | undefined>
   type: "inputs" | "outputs"
   side: "left" | "right"
+  projectId?: string
+  stateId?: string
   isValidConnection?: ValidConnectionFunc
   resolvedInputs?: Record<string, ResolvedInstanceInput[]>
   resolvedInjectionInput?: InstanceInput[]
@@ -26,10 +38,32 @@ const {
   preventShowAllHandles?: boolean
 }>()
 
-const getHandleColor = (type: "inputs" | "outputs", handleName: string) => {
-  const handle = component[type][handleName]
+const getResolvedInputType = (inputName: string): string | undefined => {
+  const types = Array.from(new Set((resolvedInputs?.[inputName] ?? []).map(input => input.type)))
 
-  return entities[handle.type]?.meta.color ?? "#607D8B"
+  if (types.length !== 1) {
+    return undefined
+  }
+
+  return types[0]
+}
+
+const getHandleType = (ioType: "inputs" | "outputs", handleName: string): string => {
+  const handle = component[ioType][handleName]
+
+  if (ioType === "inputs") {
+    return getResolvedInputType(handleName) ?? handle.type
+  }
+
+  if (handle.fromInput) {
+    return getResolvedInputType(handle.fromInput) ?? handle.type
+  }
+
+  return handle.type
+}
+
+const getHandleColor = (type: "inputs" | "outputs", handleName: string) => {
+  return entities[getHandleType(type, handleName)]?.meta.color ?? "#607D8B"
 }
 
 const getHandleTextColor = (type: "inputs" | "outputs", handleName: string) => {
@@ -56,6 +90,16 @@ const { isOutside } = useMouseInElement(columnEl)
 const showAllHandles = computed(
   () => forceShowAllHandles || (!isOutside.value && !preventShowAllHandles),
 )
+
+const shouldShowHandle = (name: string) => {
+  if (type === "outputs") {
+    return !usedOutputs || usedOutputs.has(name) || showAllHandles.value
+  }
+
+  return (
+    side === "right" || hasInputs(name) || isRequiredAndNotConnected(name) || showAllHandles.value
+  )
+}
 
 const injectionInputText = computed(() => {
   if (!resolvedInjectionInput) {
@@ -101,13 +145,66 @@ const hasInjectionInputs = computed(
     </VChip>
 
     <template v-for="(item, name) in component[type]" :key="name">
+      <InstanceNodeOutputChipPopup
+        v-if="type === 'outputs'"
+        :project-id="projectId"
+        :state-id="stateId"
+        :output="name"
+        :output-sources="instance.resolvedOutputs?.[name]"
+        :entities="entities"
+      >
+        <template #activator="{ props: menuProps, opened }">
+          <VChip
+            v-if="shouldShowHandle(name) || opened"
+            v-bind="menuProps"
+            :style="{
+              backgroundColor: getHandleColor(type, name),
+              color: getHandleTextColor(type, name),
+            }"
+            text-color="white"
+            class="rounded handle-chip"
+          >
+            {{ item.meta.title }}
+            <InstanceNodeIOSideHandle
+              :name="name"
+              :side="side"
+              :is-valid-connection="isValidConnection"
+              :handle-color="getHandleColor(type, name)"
+            />
+          </VChip>
+        </template>
+      </InstanceNodeOutputChipPopup>
+
+      <InstanceNodeInputChipPopup
+        v-else-if="projectId && type === 'inputs'"
+        :project-id="projectId"
+        :resolved-inputs="resolvedInputs?.[name] ?? []"
+        :entities="entities"
+      >
+        <template #activator="{ props: menuProps, opened }">
+          <VChip
+            v-if="shouldShowHandle(name) || opened"
+            v-bind="menuProps"
+            :style="{
+              backgroundColor: getHandleColor(type, name),
+              color: getHandleTextColor(type, name),
+            }"
+            text-color="white"
+            class="rounded handle-chip"
+          >
+            {{ item.meta.title }}
+            <InstanceNodeIOSideHandle
+              :name="name"
+              :side="side"
+              :is-valid-connection="isValidConnection"
+              :handle-color="getHandleColor(type, name)"
+            />
+          </VChip>
+        </template>
+      </InstanceNodeInputChipPopup>
+
       <VChip
-        v-if="
-          (side === 'right' && type === 'inputs') ||
-          (type === 'outputs' && (!usedOutputs || usedOutputs.has(name))) ||
-          (type === 'inputs' && (hasInputs(name) || isRequiredAndNotConnected(name))) ||
-          showAllHandles
-        "
+        v-else-if="shouldShowHandle(name)"
         :style="{
           backgroundColor: getHandleColor(type, name),
           color: getHandleTextColor(type, name),

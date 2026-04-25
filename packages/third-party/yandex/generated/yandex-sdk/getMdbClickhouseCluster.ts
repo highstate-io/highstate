@@ -12,6 +12,7 @@ export function getMdbClickhouseCluster(args?: GetMdbClickhouseClusterArgs, opts
     return pulumi.runtime.invoke("yandex:index/getMdbClickhouseCluster:getMdbClickhouseCluster", {
         "access": args.access,
         "adminPassword": args.adminPassword,
+        "backupRetainPeriodDays": args.backupRetainPeriodDays,
         "backupWindowStart": args.backupWindowStart,
         "clickhouse": args.clickhouse,
         "cloudStorage": args.cloudStorage,
@@ -21,6 +22,7 @@ export function getMdbClickhouseCluster(args?: GetMdbClickhouseClusterArgs, opts
         "databases": args.databases,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "embeddedKeeper": args.embeddedKeeper,
         "environment": args.environment,
         "folderId": args.folderId,
@@ -52,15 +54,20 @@ export function getMdbClickhouseCluster(args?: GetMdbClickhouseClusterArgs, opts
 export interface GetMdbClickhouseClusterArgs {
     access?: inputs.GetMdbClickhouseClusterAccess;
     adminPassword?: string;
+    backupRetainPeriodDays?: number;
     backupWindowStart?: inputs.GetMdbClickhouseClusterBackupWindowStart;
     clickhouse?: inputs.GetMdbClickhouseClusterClickhouse;
     cloudStorage?: inputs.GetMdbClickhouseClusterCloudStorage;
     clusterId?: string;
     copySchemaOnNewHosts?: boolean;
     createdAt?: string;
+    /**
+     * @deprecated Deprecated
+     */
     databases?: inputs.GetMdbClickhouseClusterDatabase[];
     deletionProtection?: boolean;
     description?: string;
+    diskEncryptionKeyId?: string;
     embeddedKeeper?: boolean;
     environment?: string;
     folderId?: string;
@@ -80,6 +87,9 @@ export interface GetMdbClickhouseClusterArgs {
     sqlDatabaseManagement?: boolean;
     sqlUserManagement?: boolean;
     status?: string;
+    /**
+     * @deprecated Deprecated
+     */
     users?: inputs.GetMdbClickhouseClusterUser[];
     version?: string;
     zookeeper?: inputs.GetMdbClickhouseClusterZookeeper;
@@ -91,15 +101,20 @@ export interface GetMdbClickhouseClusterArgs {
 export interface GetMdbClickhouseClusterResult {
     readonly access?: outputs.GetMdbClickhouseClusterAccess;
     readonly adminPassword?: string;
+    readonly backupRetainPeriodDays?: number;
     readonly backupWindowStart?: outputs.GetMdbClickhouseClusterBackupWindowStart;
     readonly clickhouse?: outputs.GetMdbClickhouseClusterClickhouse;
     readonly cloudStorage?: outputs.GetMdbClickhouseClusterCloudStorage;
     readonly clusterId: string;
     readonly copySchemaOnNewHosts?: boolean;
     readonly createdAt: string;
+    /**
+     * @deprecated Deprecated
+     */
     readonly databases?: outputs.GetMdbClickhouseClusterDatabase[];
     readonly deletionProtection: boolean;
     readonly description?: string;
+    readonly diskEncryptionKeyId: string;
     readonly embeddedKeeper: boolean;
     readonly environment?: string;
     readonly folderId: string;
@@ -113,12 +128,15 @@ export interface GetMdbClickhouseClusterResult {
     readonly name?: string;
     readonly networkId?: string;
     readonly securityGroupIds: string[];
-    readonly serviceAccountId: string;
+    readonly serviceAccountId?: string;
     readonly shardGroups?: outputs.GetMdbClickhouseClusterShardGroup[];
     readonly shards?: outputs.GetMdbClickhouseClusterShard[];
     readonly sqlDatabaseManagement: boolean;
     readonly sqlUserManagement: boolean;
     readonly status: string;
+    /**
+     * @deprecated Deprecated
+     */
     readonly users?: outputs.GetMdbClickhouseClusterUser[];
     readonly version: string;
     readonly zookeeper?: outputs.GetMdbClickhouseClusterZookeeper;
@@ -129,6 +147,7 @@ export function getMdbClickhouseClusterOutput(args?: GetMdbClickhouseClusterOutp
     return pulumi.runtime.invokeOutput("yandex:index/getMdbClickhouseCluster:getMdbClickhouseCluster", {
         "access": args.access,
         "adminPassword": args.adminPassword,
+        "backupRetainPeriodDays": args.backupRetainPeriodDays,
         "backupWindowStart": args.backupWindowStart,
         "clickhouse": args.clickhouse,
         "cloudStorage": args.cloudStorage,
@@ -138,6 +157,7 @@ export function getMdbClickhouseClusterOutput(args?: GetMdbClickhouseClusterOutp
         "databases": args.databases,
         "deletionProtection": args.deletionProtection,
         "description": args.description,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "embeddedKeeper": args.embeddedKeeper,
         "environment": args.environment,
         "folderId": args.folderId,
@@ -169,15 +189,20 @@ export function getMdbClickhouseClusterOutput(args?: GetMdbClickhouseClusterOutp
 export interface GetMdbClickhouseClusterOutputArgs {
     access?: pulumi.Input<inputs.GetMdbClickhouseClusterAccessArgs>;
     adminPassword?: pulumi.Input<string>;
+    backupRetainPeriodDays?: pulumi.Input<number>;
     backupWindowStart?: pulumi.Input<inputs.GetMdbClickhouseClusterBackupWindowStartArgs>;
     clickhouse?: pulumi.Input<inputs.GetMdbClickhouseClusterClickhouseArgs>;
     cloudStorage?: pulumi.Input<inputs.GetMdbClickhouseClusterCloudStorageArgs>;
     clusterId?: pulumi.Input<string>;
     copySchemaOnNewHosts?: pulumi.Input<boolean>;
     createdAt?: pulumi.Input<string>;
+    /**
+     * @deprecated Deprecated
+     */
     databases?: pulumi.Input<pulumi.Input<inputs.GetMdbClickhouseClusterDatabaseArgs>[]>;
     deletionProtection?: pulumi.Input<boolean>;
     description?: pulumi.Input<string>;
+    diskEncryptionKeyId?: pulumi.Input<string>;
     embeddedKeeper?: pulumi.Input<boolean>;
     environment?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
@@ -197,6 +222,9 @@ export interface GetMdbClickhouseClusterOutputArgs {
     sqlDatabaseManagement?: pulumi.Input<boolean>;
     sqlUserManagement?: pulumi.Input<boolean>;
     status?: pulumi.Input<string>;
+    /**
+     * @deprecated Deprecated
+     */
     users?: pulumi.Input<pulumi.Input<inputs.GetMdbClickhouseClusterUserArgs>[]>;
     version?: pulumi.Input<string>;
     zookeeper?: pulumi.Input<inputs.GetMdbClickhouseClusterZookeeperArgs>;

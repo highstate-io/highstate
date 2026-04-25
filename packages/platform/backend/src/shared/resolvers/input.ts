@@ -1,12 +1,15 @@
 import {
   type ComponentModel,
+  type EntityModel,
   type HubInput,
   type HubModel,
   type InstanceInput,
   type InstanceModel,
+  inputKey,
   isUnitModel,
 } from "@highstate/contract"
 import { fromEntries, mapValues } from "remeda"
+import { resolveEffectiveOutputType } from "./effective-output-type"
 import { GraphResolver } from "./graph-resolver"
 
 export type InputResolverNode =
@@ -14,10 +17,12 @@ export type InputResolverNode =
       kind: "instance"
       instance: InstanceModel
       component: ComponentModel
+      entities: Readonly<Record<string, EntityModel>>
     }
   | {
       kind: "hub"
       hub: HubModel
+      entities: Readonly<Record<string, EntityModel>>
     }
 
 export type ResolvedInstanceInput = {
@@ -30,6 +35,7 @@ export type InputResolverOutput =
       kind: "instance"
       instance: InstanceModel
       component: ComponentModel
+      entities: Readonly<Record<string, EntityModel>>
       resolvedInputs: Record<string, ResolvedInstanceInput[]>
       resolvedOutputs: Record<string, InstanceInput[]> | undefined
       resolvedInjectionInputs: ResolvedInstanceInput[]
@@ -79,6 +85,25 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
     return dependencies
   }
 
+  private resolveOutputTypeForInput(input: InstanceInput, fallbackType: string): string {
+    return resolveEffectiveOutputType({
+      input,
+      fallbackType,
+      getInstanceContext: instanceId => {
+        const output = this.outputs.get(`instance:${instanceId}`)
+        if (!output || output.kind !== "instance") {
+          return undefined
+        }
+
+        return {
+          instance: output.instance,
+          component: output.component,
+          entities: output.entities,
+        }
+      },
+    })
+  }
+
   processNode(node: InputResolverNode): InputResolverOutput {
     const getHubOutput = (input: HubInput) => {
       const output = this.outputs.get(`hub:${input.hubId}`)
@@ -119,7 +144,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       const hubResult: Map<string, ResolvedInstanceInput> = new Map()
 
       const addHubResult = (input: ResolvedInstanceInput) => {
-        hubResult.set(`${input.input.instanceId}:${input.input.output}`, input)
+        hubResult.set(inputKey(input.input), input)
       }
 
       for (const input of node.hub.inputs ?? []) {
@@ -131,7 +156,10 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
           continue
         }
 
-        addHubResult({ input, type: componentInput.type })
+        addHubResult({
+          input,
+          type: this.resolveOutputTypeForInput(input, componentInput.type),
+        })
       }
 
       for (const injectionInput of node.hub.injectionInputs ?? []) {
@@ -162,6 +190,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
         kind: "instance",
         instance: node.instance,
         component: node.component,
+        entities: node.entities,
         resolvedInputs: mapValues(node.instance.resolvedInputs, (inputs, inputName) => {
           const componentInput = node.component.inputs[inputName]
           if (!componentInput) {
@@ -191,7 +220,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
         resolvedInputsMap.set(inputName, inputs)
       }
 
-      inputs.set(`${input.input.instanceId}:${input.input.output}`, input)
+      inputs.set(inputKey(input.input), input)
     }
 
     const addInstanceInput = (inputName: string, input: InstanceInput) => {
@@ -213,17 +242,37 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       }
 
       if (isUnitModel(component)) {
-        addInstanceResult(inputName, { input, type: componentInput.type })
+        addInstanceResult(inputName, {
+          input,
+          type: this.resolveOutputTypeForInput(input, componentInput.type),
+        })
         return
       }
 
       if (resolvedOutputs) {
         for (const output of resolvedOutputs) {
-          addInstanceResult(inputName, { input: output, type: componentInput.type })
+          addInstanceResult(inputName, {
+            input: {
+              ...output,
+              // keep explicit path from the edge while preserving already-resolved output path
+              path: input.path ?? output.path,
+            },
+            type: this.resolveOutputTypeForInput(
+              {
+                instanceId: input.instanceId,
+                output: input.output,
+                path: input.path ?? output.path,
+              },
+              componentInput.type,
+            ),
+          })
         }
       } else {
         // if the instance is not evaluated, we a forced to use the input as is
-        addInstanceResult(inputName, { input, type: componentInput.type })
+        addInstanceResult(inputName, {
+          input,
+          type: this.resolveOutputTypeForInput(input, componentInput.type),
+        })
       }
     }
 
@@ -239,7 +288,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
     for (const injectionInput of node.instance.injectionInputs ?? []) {
       const { resolvedInputs } = getHubOutput(injectionInput)
       for (const input of resolvedInputs) {
-        injectionInputs.set(`${input.input.instanceId}:${input.input.output}`, input)
+        injectionInputs.set(inputKey(input.input), input)
       }
     }
 
@@ -250,7 +299,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       for (const hubInput of hubInputs) {
         const { resolvedInputs } = getHubOutput(hubInput)
         for (const input of resolvedInputs) {
-          allInputs.set(`${input.input.instanceId}:${input.input.output}`, input)
+          allInputs.set(inputKey(input.input), input)
         }
       }
 
@@ -258,7 +307,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
         if (input.type === componentInput.type) {
           addInstanceInput(inputName, input.input)
 
-          const key = `${input.input.instanceId}:${input.input.output}`
+          const key = inputKey(input.input)
           if (injectionInputs.has(key)) {
             matchedInjectionInputs.set(key, input)
           }
@@ -277,6 +326,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       kind: "instance",
       instance: node.instance,
       component: node.component,
+      entities: node.entities,
       resolvedInputs,
       resolvedOutputs: node.instance.resolvedOutputs,
       resolvedInjectionInputs: Array.from(injectionInputs.values()),

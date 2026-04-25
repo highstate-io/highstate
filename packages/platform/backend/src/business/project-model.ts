@@ -1,4 +1,4 @@
-import type { InstanceModel } from "@highstate/contract"
+import type { InstanceInput, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { DatabaseManager } from "../database"
 import type { LibraryBackend } from "../library"
@@ -44,6 +44,12 @@ export class ProjectModelService {
   ) {
     this.projectUnlockService.registerUnlockTask(
       //
+      "repair-instance-inputs",
+      projectId => this.repairInstanceInputs(projectId),
+    )
+
+    this.projectUnlockService.registerUnlockTask(
+      //
       "sync-instance-states",
       projectId => this.syncInstanceStates(projectId),
     )
@@ -61,18 +67,28 @@ export class ProjectModelService {
   ): Promise<[projectModel: FullProjectModel, project: ProjectOutput]> {
     const { project, backend, spec } = await this.getProjectWithBackend(projectId)
 
-    // get base model from storage backend
-    const { instances, hubs } = await backend.getProjectModel(project, spec)
+    const [{ instances, hubs }, library] = await Promise.all([
+      backend.getProjectModel(project, spec),
+      this.libraryBackend.loadLibrary(project.libraryId),
+    ])
+
+    const filteredInstances = this.filterInstancesWithKnownComponents(
+      project.id,
+      project.libraryId,
+      instances,
+      library.components,
+      "project-model",
+    )
 
     return [
       {
-        instances,
+        instances: filteredInstances,
         hubs,
         virtualInstances: includeVirtualInstances ? await this.getVirtualInstances(projectId) : [],
         ghostInstances: includeGhostInstances
           ? await this.getGhostInstances(
               projectId,
-              instances.map(instance => instance.id),
+              filteredInstances.map(instance => instance.id),
             )
           : [],
       },
@@ -94,21 +110,21 @@ export class ProjectModelService {
 
     const library = await this.libraryBackend.loadLibrary(project.libraryId)
 
-    const filteredInstances = instances.filter(instance => instance.type in library.components)
     const stateMap = new Map(states.map(state => [state.id, state]))
 
     const inputResolverNodes = new Map<string, InputResolverNode>()
 
-    for (const instance of filteredInstances) {
+    for (const instance of instances) {
       inputResolverNodes.set(`instance:${instance.id}`, {
         kind: "instance",
         instance,
-        component: library.components[instance.type],
+        component: library.components[instance.type]!,
+        entities: library.entities,
       })
     }
 
     for (const hub of hubs) {
-      inputResolverNodes.set(`hub:${hub.id}`, { kind: "hub", hub })
+      inputResolverNodes.set(`hub:${hub.id}`, { kind: "hub", hub, entities: library.entities })
     }
 
     const inputResolver = new InputResolver(inputResolverNodes, this.logger)
@@ -118,7 +134,7 @@ export class ProjectModelService {
 
     await inputResolver.process()
 
-    for (const instance of filteredInstances) {
+    for (const instance of instances) {
       const output = inputResolver.requireOutput(`instance:${instance.id}`)
       if (output.kind !== "instance") {
         throw new Error("Expected instance node")
@@ -130,10 +146,40 @@ export class ProjectModelService {
     return {
       project,
       library,
-      instances: filteredInstances,
+      instances,
       stateMap,
       resolvedInputs,
     }
+  }
+
+  private filterInstancesWithKnownComponents(
+    projectId: string,
+    libraryId: string,
+    instances: InstanceModel[],
+    components: Record<string, unknown>,
+    source: string,
+  ): InstanceModel[] {
+    const filteredInstances: InstanceModel[] = []
+
+    for (const instance of instances) {
+      if (instance.type in components) {
+        filteredInstances.push(instance)
+        continue
+      }
+
+      this.logger.warn(
+        {
+          projectId,
+          libraryId,
+          instanceId: instance.id,
+          instanceType: instance.type,
+          source,
+        },
+        "ignoring instance because its component is not defined in the library",
+      )
+    }
+
+    return filteredInstances
   }
 
   /**
@@ -219,8 +265,12 @@ export class ProjectModelService {
           // the resident instance is ghost if it is not in the model
           { source: "resident", instanceId: { notIn: residentInstanceIds } },
 
-          // the virtual instance is ghost if it is has no evaluation state
-          { source: "virtual", evaluationState: null },
+          // the virtual instance is ghost if it has no evaluation state and is not represented in the model
+          {
+            source: "virtual",
+            evaluationState: null,
+            instanceId: { notIn: residentInstanceIds },
+          },
         ],
       },
       select: { model: true },
@@ -254,5 +304,96 @@ export class ProjectModelService {
 
       this.logger.info({ projectId }, "created missing %s instance states", missingInstances.length)
     })
+  }
+
+  private async repairInstanceInputs(projectId: string): Promise<void> {
+    const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+
+    const [{ instances, hubs }, library] = await Promise.all([
+      backend.getProjectModel(project, spec),
+      this.libraryBackend.loadLibrary(project.libraryId),
+    ])
+
+    const instanceById = new Map(instances.map(instance => [instance.id, instance]))
+
+    const isValidInstanceInput = (input: InstanceInput): boolean => {
+      const target = instanceById.get(input.instanceId)
+      if (!target) {
+        return false
+      }
+
+      const targetComponent = library.components[target.type]
+      if (!targetComponent) {
+        return false
+      }
+
+      return Boolean(targetComponent.outputs?.[input.output])
+    }
+
+    let repairedInstances = 0
+    let removedInputs = 0
+    let repairedHubs = 0
+    let removedHubInputs = 0
+
+    for (const instance of instances) {
+      const component = library.components[instance.type]
+      if (!component || !instance.inputs) {
+        continue
+      }
+
+      const componentInputNames = new Set(Object.keys(component.inputs ?? {}))
+      const nextInputs: Record<string, InstanceInput[]> = Object.fromEntries(
+        Object.entries(instance.inputs)
+          .filter(([inputName]) => componentInputNames.has(inputName))
+          .map(([inputName, inputValues]) => [inputName, inputValues.filter(isValidInstanceInput)])
+          .filter(([, inputValues]) => inputValues.length > 0),
+      )
+
+      const removed =
+        Object.values(instance.inputs).reduce((sum, values) => sum + values.length, 0) -
+        Object.values(nextInputs).reduce((sum, values) => sum + values.length, 0)
+
+      if (removed === 0) {
+        continue
+      }
+
+      await backend.updateInstance(project, spec, instance.id, {
+        inputs: nextInputs,
+      })
+
+      repairedInstances += 1
+      removedInputs += removed
+    }
+
+    for (const hub of hubs) {
+      const inputs = hub.inputs ?? []
+      if (inputs.length === 0) {
+        continue
+      }
+
+      const nextInputs = inputs.filter(isValidInstanceInput)
+      const removed = inputs.length - nextInputs.length
+      if (removed === 0) {
+        continue
+      }
+
+      await backend.updateHub(project, spec, hub.id, {
+        inputs: nextInputs,
+      })
+
+      repairedHubs += 1
+      removedHubInputs += removed
+    }
+
+    if (repairedInstances > 0 || repairedHubs > 0) {
+      this.logger.warn(
+        { projectId },
+        "repaired %s instances and %s hubs, removed %s instance inputs and %s hub inputs during unlock",
+        repairedInstances,
+        repairedHubs,
+        removedInputs,
+        removedHubInputs,
+      )
+    }
   }
 }

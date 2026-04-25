@@ -1,4 +1,11 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  secretSchema,
+  z,
+} from "@highstate/contract"
 import { serverOutputs, vmSecrets, vmSshArgs } from "../common"
 import * as ssh from "../ssh"
 
@@ -7,8 +14,15 @@ export const connectionEntity = defineEntity({
 
   schema: z.object({
     name: z.string(),
-    apiToken: z.string(),
+    apiToken: secretSchema(z.string()),
   }),
+
+  meta: {
+    color: "#0078FF",
+    title: "Timeweb Connection",
+    icon: "material-symbols:cloud",
+    iconColor: "#0078FF",
+  },
 })
 
 /**
@@ -105,5 +119,5 @@ export const virtualMachine = defineUnit({
   },
 })
 
-export type Connection = z.infer<typeof connectionEntity.schema>
+export type Connection = EntityValue<typeof connectionEntity>
 export type ConnectionInput = EntityInput<typeof connectionEntity>

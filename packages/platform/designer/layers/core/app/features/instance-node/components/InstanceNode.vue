@@ -2,7 +2,6 @@
 import {
   getResolvedInjectionInstanceInputs,
   getResolvedInstanceInputs,
-  getResolvedInstanceOutputs,
   type InputResolverOutput,
   type InstanceLockOutput,
   type InstanceState,
@@ -37,6 +36,7 @@ const {
   inputResolverDependentMap,
   allInstances = new Map<string, InstanceModel>(),
   state,
+  projectId,
   ioType = "both",
   editable = false,
   ghost = false,
@@ -49,6 +49,8 @@ const {
   allInstances?: Map<string, InstanceModel>
 
   state?: InstanceState
+  terminalIds?: string[]
+  projectId?: string
   instanceLock?: InstanceLockOutput
 
   loadingSecrets?: boolean
@@ -87,6 +89,10 @@ defineSlots<{
 
 const editingSecrets = defineModel<boolean>("editingSecrets", { default: false })
 const editingArgs = ref(false)
+const isNestedInstance = computed(() => !!instance.parentId)
+const canOpenArgsEditor = computed(() => editable || isNestedInstance.value)
+const argsEditorReadOnly = computed(() => !editable && isNestedInstance.value)
+const canEditSecrets = computed(() => editable || isNestedInstance.value)
 
 const hasInputs = computed(() => Object.keys(component.inputs).length > 0)
 const hasOutputs = computed(() => Object.keys(component.outputs).length > 0)
@@ -99,8 +105,7 @@ const resolvedInjectionInput = computed(() =>
 )
 
 const usedOutputs = computed(() => {
-  const resolvedOutputs = getResolvedInstanceOutputs(inputResolverOutputs, instance.id) ?? {}
-  const allResolvedOutputs = Object.values(resolvedOutputs).flat()
+  const allOutputs = Object.values(instance.outputs ?? {}).flat()
 
   const usedOutputs = new Set<string>()
   const dependents = inputResolverDependentMap.get(`instance:${instance.id}`) ?? []
@@ -109,7 +114,7 @@ const usedOutputs = computed(() => {
     if (
       input.instanceId === instance.id ||
       // for comosite instances which outputs may be resolved to another instance
-      allResolvedOutputs.some(o => o.instanceId === input.instanceId)
+      allOutputs.some(o => o.instanceId === input.instanceId)
     ) {
       usedOutputs.add(input.output)
     }
@@ -134,10 +139,10 @@ const usedOutputs = computed(() => {
 
   // also check parent resolved outputs
   if (instance.parentId) {
-    const parentResolvedOutputs =
-      getResolvedInstanceOutputs(inputResolverOutputs, instance.parentId) ?? {}
+    const parentModel = allInstances.get(instance.parentId)
+    const parentOutputs = Object.values(parentModel?.outputs ?? {}).flat()
 
-    for (const output of Object.values(parentResolvedOutputs).flat()) {
+    for (const output of parentOutputs) {
       if (output.instanceId === instance.id) {
         usedOutputs.add(output.output)
       }
@@ -215,6 +220,7 @@ const overlayIconSize = computed(() =>
       :component="component"
       :state="state"
       :all-instances="allInstances"
+      :readonly="argsEditorReadOnly"
       @save="(instanceId, newName, newArgs) => emit('save:args', instanceId, newName, newArgs)"
     />
 
@@ -237,6 +243,8 @@ const overlayIconSize = computed(() =>
         :component="component"
         :instance="instance"
         :entities="entities"
+        :project-id="projectId"
+        :state-id="state?.id"
         :is-valid-connection="isValidConnection"
         :type="ioType"
         :mirror="ioMirror"
@@ -259,8 +267,11 @@ const overlayIconSize = computed(() =>
       :instance="instance"
       :component="component"
       :state="state"
+      :terminal-ids="terminalIds"
       :locked="!!instanceLock"
       :editable="editable"
+      :can-open-args-editor="canOpenArgsEditor"
+      :can-edit-secrets="canEditSecrets"
       :ghost="ghost"
       :hide-show-composite="hideShowComposite"
       @open:args="editingArgs = true"

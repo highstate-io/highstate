@@ -34,7 +34,13 @@ export class OrganizationmanagerGroupMembership extends pulumi.CustomResource {
         return obj['__pulumiType'] === OrganizationmanagerGroupMembership.__pulumiType;
     }
 
+    /**
+     * The Group to add/remove members to/from.
+     */
     declare public readonly groupId: pulumi.Output<string>;
+    /**
+     * A set of members of the Group. Each member is represented by an id.
+     */
     declare public readonly members: pulumi.Output<string[]>;
     declare public readonly organizationmanagerGroupMembershipId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.OrganizationmanagerGroupMembershipTimeouts | undefined>;
@@ -78,7 +84,13 @@ export class OrganizationmanagerGroupMembership extends pulumi.CustomResource {
  * Input properties used for looking up and filtering OrganizationmanagerGroupMembership resources.
  */
 export interface OrganizationmanagerGroupMembershipState {
+    /**
+     * The Group to add/remove members to/from.
+     */
     groupId?: pulumi.Input<string>;
+    /**
+     * A set of members of the Group. Each member is represented by an id.
+     */
     members?: pulumi.Input<pulumi.Input<string>[]>;
     organizationmanagerGroupMembershipId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerGroupMembershipTimeouts>;
@@ -88,7 +100,13 @@ export interface OrganizationmanagerGroupMembershipState {
  * The set of arguments for constructing a OrganizationmanagerGroupMembership resource.
  */
 export interface OrganizationmanagerGroupMembershipArgs {
+    /**
+     * The Group to add/remove members to/from.
+     */
     groupId: pulumi.Input<string>;
+    /**
+     * A set of members of the Group. Each member is represented by an id.
+     */
     members: pulumi.Input<pulumi.Input<string>[]>;
     organizationmanagerGroupMembershipId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.OrganizationmanagerGroupMembershipTimeouts>;

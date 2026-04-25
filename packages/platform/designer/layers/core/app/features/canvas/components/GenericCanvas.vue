@@ -38,9 +38,13 @@ defineSlots<{
 
 const canvasStore = useCanvasStore.ensureCreated(...canvasId)
 
-watchEffect(() => {
-  canvasStore.edgeEndpointOffsets.setInputResolverOutputs(inputResolverOutputs)
-})
+watch(
+  () => inputResolverOutputs,
+  outputs => {
+    canvasStore.edgeEndpointOffsets.setInputResolverOutputs(outputs)
+  },
+  { immediate: true },
+)
 emit("init", canvasStore)
 </script>
 

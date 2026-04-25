@@ -2,19 +2,20 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-export function getKmsAsymmetricSignatureKey(args: GetKmsAsymmetricSignatureKeyArgs, opts?: pulumi.InvokeOptions): Promise<GetKmsAsymmetricSignatureKeyResult> {
+export function getKmsAsymmetricSignatureKey(args?: GetKmsAsymmetricSignatureKeyArgs, opts?: pulumi.InvokeOptions): Promise<GetKmsAsymmetricSignatureKeyResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("yandex:index/getKmsAsymmetricSignatureKey:getKmsAsymmetricSignatureKey", {
         "asymmetricSignatureKeyId": args.asymmetricSignatureKeyId,
         "deletionProtection": args.deletionProtection,
-        "description": args.description,
         "folderId": args.folderId,
         "id": args.id,
-        "labels": args.labels,
-        "name": args.name,
         "signatureAlgorithm": args.signatureAlgorithm,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -22,14 +23,12 @@ export function getKmsAsymmetricSignatureKey(args: GetKmsAsymmetricSignatureKeyA
  * A collection of arguments for invoking getKmsAsymmetricSignatureKey.
  */
 export interface GetKmsAsymmetricSignatureKeyArgs {
-    asymmetricSignatureKeyId: string;
+    asymmetricSignatureKeyId?: string;
     deletionProtection?: boolean;
-    description?: string;
     folderId?: string;
     id?: string;
-    labels?: {[key: string]: string};
-    name?: string;
     signatureAlgorithm?: string;
+    timeouts?: inputs.GetKmsAsymmetricSignatureKeyTimeouts;
 }
 
 /**
@@ -38,26 +37,26 @@ export interface GetKmsAsymmetricSignatureKeyArgs {
 export interface GetKmsAsymmetricSignatureKeyResult {
     readonly asymmetricSignatureKeyId: string;
     readonly createdAt: string;
-    readonly deletionProtection?: boolean;
-    readonly description?: string;
+    readonly deletionProtection: boolean;
+    readonly description: string;
     readonly folderId: string;
     readonly id: string;
-    readonly labels?: {[key: string]: string};
-    readonly name?: string;
-    readonly signatureAlgorithm?: string;
+    readonly labels: {[key: string]: string};
+    readonly name: string;
+    readonly signatureAlgorithm: string;
     readonly status: string;
+    readonly timeouts?: outputs.GetKmsAsymmetricSignatureKeyTimeouts;
 }
-export function getKmsAsymmetricSignatureKeyOutput(args: GetKmsAsymmetricSignatureKeyOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetKmsAsymmetricSignatureKeyResult> {
+export function getKmsAsymmetricSignatureKeyOutput(args?: GetKmsAsymmetricSignatureKeyOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetKmsAsymmetricSignatureKeyResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("yandex:index/getKmsAsymmetricSignatureKey:getKmsAsymmetricSignatureKey", {
         "asymmetricSignatureKeyId": args.asymmetricSignatureKeyId,
         "deletionProtection": args.deletionProtection,
-        "description": args.description,
         "folderId": args.folderId,
         "id": args.id,
-        "labels": args.labels,
-        "name": args.name,
         "signatureAlgorithm": args.signatureAlgorithm,
+        "timeouts": args.timeouts,
     }, opts, utilities.getPackage());
 }
 
@@ -65,12 +64,10 @@ export function getKmsAsymmetricSignatureKeyOutput(args: GetKmsAsymmetricSignatu
  * A collection of arguments for invoking getKmsAsymmetricSignatureKey.
  */
 export interface GetKmsAsymmetricSignatureKeyOutputArgs {
-    asymmetricSignatureKeyId: pulumi.Input<string>;
+    asymmetricSignatureKeyId?: pulumi.Input<string>;
     deletionProtection?: pulumi.Input<boolean>;
-    description?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
-    labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-    name?: pulumi.Input<string>;
     signatureAlgorithm?: pulumi.Input<string>;
+    timeouts?: pulumi.Input<inputs.GetKmsAsymmetricSignatureKeyTimeoutsArgs>;
 }

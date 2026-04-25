@@ -34,29 +34,101 @@ export class ServerlessContainer extends pulumi.CustomResource {
         return obj['__pulumiType'] === ServerlessContainer.__pulumiType;
     }
 
-    declare public readonly concurrency: pulumi.Output<number | undefined>;
+    /**
+     * Config for asynchronous invocations of Yandex Cloud Serverless Container.
+     */
+    declare public readonly asyncInvocation: pulumi.Output<outputs.ServerlessContainerAsyncInvocation | undefined>;
+    /**
+     * Concurrency of Yandex Cloud Serverless Container.
+     */
+    declare public readonly concurrency: pulumi.Output<number>;
+    /**
+     * Network access. If specified the revision will be attached to specified network.
+     */
     declare public readonly connectivity: pulumi.Output<outputs.ServerlessContainerConnectivity | undefined>;
+    /**
+     * Core fraction (**0...100**) of the Yandex Cloud Serverless Container.
+     */
     declare public readonly coreFraction: pulumi.Output<number>;
+    /**
+     * Cores (**1+**) of the Yandex Cloud Serverless Container.
+     */
     declare public readonly cores: pulumi.Output<number | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container.
+     */
     declare public readonly executionTimeout: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Revision deployment image for Yandex Cloud Serverless Container.
+     */
     declare public readonly image: pulumi.Output<outputs.ServerlessContainerImage>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Options for logging from Yandex Cloud Serverless Container.
+     */
     declare public readonly logOptions: pulumi.Output<outputs.ServerlessContainerLogOptions | undefined>;
     /**
-     * Container memory in megabytes, should be aligned to 128
+     * Memory in megabytes (**aligned to 128 MB**).
      */
     declare public readonly memory: pulumi.Output<number>;
+    /**
+     * Options set the access mode to revision's metadata endpoints.
+     */
+    declare public readonly metadataOptions: pulumi.Output<outputs.ServerlessContainerMetadataOptions | undefined>;
+    /**
+     * Mounts for Yandex Cloud Serverless Container.
+     */
+    declare public readonly mounts: pulumi.Output<outputs.ServerlessContainerMount[] | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Provision policy. If specified the revision will have prepared instances.
+     */
     declare public readonly provisionPolicy: pulumi.Output<outputs.ServerlessContainerProvisionPolicy | undefined>;
+    /**
+     * Last revision ID of the Yandex Cloud Serverless Container.
+     */
     declare public /*out*/ readonly revisionId: pulumi.Output<string>;
+    /**
+     * Runtime for Yandex Cloud Serverless Container.
+     */
+    declare public readonly runtime: pulumi.Output<outputs.ServerlessContainerRuntime | undefined>;
+    /**
+     * Secrets for Yandex Cloud Serverless Container.
+     */
     declare public readonly secrets: pulumi.Output<outputs.ServerlessContainerSecret[] | undefined>;
     declare public readonly serverlessContainerId: pulumi.Output<string>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string | undefined>;
+    /**
+     * (**DEPRECATED**, use `mounts.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container.
+     *
+     * @deprecated Deprecated
+     */
     declare public readonly storageMounts: pulumi.Output<outputs.ServerlessContainerStorageMount[] | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.ServerlessContainerTimeouts | undefined>;
+    /**
+     * Invoke URL for the Yandex Cloud Serverless Container.
+     */
     declare public /*out*/ readonly url: pulumi.Output<string>;
 
     /**
@@ -72,6 +144,7 @@ export class ServerlessContainer extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as ServerlessContainerState | undefined;
+            resourceInputs["asyncInvocation"] = state?.asyncInvocation;
             resourceInputs["concurrency"] = state?.concurrency;
             resourceInputs["connectivity"] = state?.connectivity;
             resourceInputs["coreFraction"] = state?.coreFraction;
@@ -84,9 +157,12 @@ export class ServerlessContainer extends pulumi.CustomResource {
             resourceInputs["labels"] = state?.labels;
             resourceInputs["logOptions"] = state?.logOptions;
             resourceInputs["memory"] = state?.memory;
+            resourceInputs["metadataOptions"] = state?.metadataOptions;
+            resourceInputs["mounts"] = state?.mounts;
             resourceInputs["name"] = state?.name;
             resourceInputs["provisionPolicy"] = state?.provisionPolicy;
             resourceInputs["revisionId"] = state?.revisionId;
+            resourceInputs["runtime"] = state?.runtime;
             resourceInputs["secrets"] = state?.secrets;
             resourceInputs["serverlessContainerId"] = state?.serverlessContainerId;
             resourceInputs["serviceAccountId"] = state?.serviceAccountId;
@@ -101,6 +177,7 @@ export class ServerlessContainer extends pulumi.CustomResource {
             if (args?.memory === undefined && !opts.urn) {
                 throw new Error("Missing required property 'memory'");
             }
+            resourceInputs["asyncInvocation"] = args?.asyncInvocation;
             resourceInputs["concurrency"] = args?.concurrency;
             resourceInputs["connectivity"] = args?.connectivity;
             resourceInputs["coreFraction"] = args?.coreFraction;
@@ -112,8 +189,11 @@ export class ServerlessContainer extends pulumi.CustomResource {
             resourceInputs["labels"] = args?.labels;
             resourceInputs["logOptions"] = args?.logOptions;
             resourceInputs["memory"] = args?.memory;
+            resourceInputs["metadataOptions"] = args?.metadataOptions;
+            resourceInputs["mounts"] = args?.mounts;
             resourceInputs["name"] = args?.name;
             resourceInputs["provisionPolicy"] = args?.provisionPolicy;
+            resourceInputs["runtime"] = args?.runtime;
             resourceInputs["secrets"] = args?.secrets;
             resourceInputs["serverlessContainerId"] = args?.serverlessContainerId;
             resourceInputs["serviceAccountId"] = args?.serviceAccountId;
@@ -132,29 +212,101 @@ export class ServerlessContainer extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ServerlessContainer resources.
  */
 export interface ServerlessContainerState {
+    /**
+     * Config for asynchronous invocations of Yandex Cloud Serverless Container.
+     */
+    asyncInvocation?: pulumi.Input<inputs.ServerlessContainerAsyncInvocation>;
+    /**
+     * Concurrency of Yandex Cloud Serverless Container.
+     */
     concurrency?: pulumi.Input<number>;
+    /**
+     * Network access. If specified the revision will be attached to specified network.
+     */
     connectivity?: pulumi.Input<inputs.ServerlessContainerConnectivity>;
+    /**
+     * Core fraction (**0...100**) of the Yandex Cloud Serverless Container.
+     */
     coreFraction?: pulumi.Input<number>;
+    /**
+     * Cores (**1+**) of the Yandex Cloud Serverless Container.
+     */
     cores?: pulumi.Input<number>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container.
+     */
     executionTimeout?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Revision deployment image for Yandex Cloud Serverless Container.
+     */
     image?: pulumi.Input<inputs.ServerlessContainerImage>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging from Yandex Cloud Serverless Container.
+     */
     logOptions?: pulumi.Input<inputs.ServerlessContainerLogOptions>;
     /**
-     * Container memory in megabytes, should be aligned to 128
+     * Memory in megabytes (**aligned to 128 MB**).
      */
     memory?: pulumi.Input<number>;
+    /**
+     * Options set the access mode to revision's metadata endpoints.
+     */
+    metadataOptions?: pulumi.Input<inputs.ServerlessContainerMetadataOptions>;
+    /**
+     * Mounts for Yandex Cloud Serverless Container.
+     */
+    mounts?: pulumi.Input<pulumi.Input<inputs.ServerlessContainerMount>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Provision policy. If specified the revision will have prepared instances.
+     */
     provisionPolicy?: pulumi.Input<inputs.ServerlessContainerProvisionPolicy>;
+    /**
+     * Last revision ID of the Yandex Cloud Serverless Container.
+     */
     revisionId?: pulumi.Input<string>;
+    /**
+     * Runtime for Yandex Cloud Serverless Container.
+     */
+    runtime?: pulumi.Input<inputs.ServerlessContainerRuntime>;
+    /**
+     * Secrets for Yandex Cloud Serverless Container.
+     */
     secrets?: pulumi.Input<pulumi.Input<inputs.ServerlessContainerSecret>[]>;
     serverlessContainerId?: pulumi.Input<string>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId?: pulumi.Input<string>;
+    /**
+     * (**DEPRECATED**, use `mounts.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container.
+     *
+     * @deprecated Deprecated
+     */
     storageMounts?: pulumi.Input<pulumi.Input<inputs.ServerlessContainerStorageMount>[]>;
     timeouts?: pulumi.Input<inputs.ServerlessContainerTimeouts>;
+    /**
+     * Invoke URL for the Yandex Cloud Serverless Container.
+     */
     url?: pulumi.Input<string>;
 }
 
@@ -162,25 +314,88 @@ export interface ServerlessContainerState {
  * The set of arguments for constructing a ServerlessContainer resource.
  */
 export interface ServerlessContainerArgs {
+    /**
+     * Config for asynchronous invocations of Yandex Cloud Serverless Container.
+     */
+    asyncInvocation?: pulumi.Input<inputs.ServerlessContainerAsyncInvocation>;
+    /**
+     * Concurrency of Yandex Cloud Serverless Container.
+     */
     concurrency?: pulumi.Input<number>;
+    /**
+     * Network access. If specified the revision will be attached to specified network.
+     */
     connectivity?: pulumi.Input<inputs.ServerlessContainerConnectivity>;
+    /**
+     * Core fraction (**0...100**) of the Yandex Cloud Serverless Container.
+     */
     coreFraction?: pulumi.Input<number>;
+    /**
+     * Cores (**1+**) of the Yandex Cloud Serverless Container.
+     */
     cores?: pulumi.Input<number>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container.
+     */
     executionTimeout?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Revision deployment image for Yandex Cloud Serverless Container.
+     */
     image: pulumi.Input<inputs.ServerlessContainerImage>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging from Yandex Cloud Serverless Container.
+     */
     logOptions?: pulumi.Input<inputs.ServerlessContainerLogOptions>;
     /**
-     * Container memory in megabytes, should be aligned to 128
+     * Memory in megabytes (**aligned to 128 MB**).
      */
     memory: pulumi.Input<number>;
+    /**
+     * Options set the access mode to revision's metadata endpoints.
+     */
+    metadataOptions?: pulumi.Input<inputs.ServerlessContainerMetadataOptions>;
+    /**
+     * Mounts for Yandex Cloud Serverless Container.
+     */
+    mounts?: pulumi.Input<pulumi.Input<inputs.ServerlessContainerMount>[]>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Provision policy. If specified the revision will have prepared instances.
+     */
     provisionPolicy?: pulumi.Input<inputs.ServerlessContainerProvisionPolicy>;
+    /**
+     * Runtime for Yandex Cloud Serverless Container.
+     */
+    runtime?: pulumi.Input<inputs.ServerlessContainerRuntime>;
+    /**
+     * Secrets for Yandex Cloud Serverless Container.
+     */
     secrets?: pulumi.Input<pulumi.Input<inputs.ServerlessContainerSecret>[]>;
     serverlessContainerId?: pulumi.Input<string>;
+    /**
+     * [Service account](https://yandex.cloud/docs/iam/concepts/users/service-accounts) which linked to the resource.
+     */
     serviceAccountId?: pulumi.Input<string>;
+    /**
+     * (**DEPRECATED**, use `mounts.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container.
+     *
+     * @deprecated Deprecated
+     */
     storageMounts?: pulumi.Input<pulumi.Input<inputs.ServerlessContainerStorageMount>[]>;
     timeouts?: pulumi.Input<inputs.ServerlessContainerTimeouts>;
 }

@@ -1,5 +1,6 @@
 import { check } from "@highstate/contract"
 import { network } from "@highstate/library"
+import { makeEntity } from "@highstate/pulumi"
 import { ipToString, parseCidr, parseIp, subnetBaseFromCidr } from "./ip"
 
 export type InputAddress = network.Address | string
@@ -27,22 +28,46 @@ export function parseAddress(address: InputAddress): network.Address {
   const subnetBase = subnetBaseFromCidr(parsed)
   const subnetBaseAddress = ipToString(parsed.type, subnetBase)
 
-  const result: network.Address = {
-    type: parsed.type,
-    value: canonicalAddress,
-    subnet: {
-      type: parsed.type,
-      baseAddress: subnetBaseAddress,
-      prefixLength: parsed.prefixLength,
+  const canonicalCidr = `${canonicalAddress}/${parsed.prefixLength}`
+  const subnetCidr = `${subnetBaseAddress}/${parsed.prefixLength}`
+
+  const singlePrefixLength = parsed.type === "ipv4" ? 32 : 128
+
+  return makeEntity({
+    entity: network.addressEntity,
+    identity: canonicalCidr,
+    meta: {
+      title: canonicalCidr,
     },
-  }
-
-  const validated = network.addressEntity.schema.safeParse(result)
-  if (!validated.success) {
-    throw new Error(`Invalid address "${input}": ${validated.error.message}`)
-  }
-
-  return validated.data
+    value: {
+      type: parsed.type,
+      value: canonicalAddress,
+      subnet: makeEntity({
+        entity: network.subnetEntity,
+        identity: subnetCidr,
+        meta: {
+          title: subnetCidr,
+        },
+        value: {
+          type: parsed.type,
+          baseAddress: subnetBaseAddress,
+          prefixLength: parsed.prefixLength,
+        },
+      }),
+      asSubnet: makeEntity({
+        entity: network.subnetEntity,
+        identity: `${canonicalAddress}/${singlePrefixLength}`,
+        meta: {
+          title: `${canonicalAddress}/${singlePrefixLength}`,
+        },
+        value: {
+          type: parsed.type,
+          baseAddress: canonicalAddress,
+          prefixLength: singlePrefixLength,
+        },
+      }),
+    },
+  })
 }
 
 /**

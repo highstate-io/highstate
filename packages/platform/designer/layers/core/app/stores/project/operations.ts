@@ -140,6 +140,15 @@ export const useProjectOperationsStore = defineMultiStore({
         })
       }
 
+      const launchQuickInstanceOperation = async (
+        type: OperationType,
+        instance: InstanceModel,
+      ) => {
+        return await launchInstanceOperation(type, instance, {
+          ignoreChangedDependencies: true,
+        })
+      }
+
       const cancelOperation = async (operationId: string) => {
         await $client.operation.cancel.mutate({ operationId })
       }
@@ -165,6 +174,8 @@ export const useProjectOperationsStore = defineMultiStore({
 
       const instancesToAutoUpdate = computed(() => {
         return Array.from(instancesStore.instances.values()).filter(instance => {
+          if (instancesStore.virtualInstanceIds.has(instance.id)) return false
+
           const state = stateStore.instanceStates.get(instance.id)
           if (!state?.lastOperationState?.operationId) return true
 
@@ -176,12 +187,10 @@ export const useProjectOperationsStore = defineMultiStore({
 
           if (state.lastOperationState.status !== "updated") return true
 
-          // todo: implement input hash comparison when we have proper hash calculation
-          // const output = stateStore.inputHashOutputs.get(instance.id)
-          // if (!output?.inputHash) return false
-          // return state.lastOperationState.resolvedInputsHash !== output.inputHash
+          const output = stateStore.inputHashOutputs.get(instance.id)
+          if (!output) return false
 
-          return false // for now, don't auto-update based on input hash changes
+          return state.inputHash !== output.inputHash
         })
       })
 
@@ -194,6 +203,7 @@ export const useProjectOperationsStore = defineMultiStore({
         planInstanceOperation,
         launchOperation,
         launchInstanceOperation,
+        launchQuickInstanceOperation,
         cancelOperation,
         cancelInstanceOperation,
         onOperationFinished,

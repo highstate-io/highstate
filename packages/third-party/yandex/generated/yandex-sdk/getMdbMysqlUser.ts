@@ -33,6 +33,7 @@ export interface GetMdbMysqlUserResult {
     readonly authenticationPlugin: string;
     readonly clusterId: string;
     readonly connectionLimits: outputs.GetMdbMysqlUserConnectionLimit[];
+    readonly connectionManager: {[key: string]: string};
     readonly globalPermissions: string[];
     readonly id: string;
     readonly name: string;

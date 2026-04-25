@@ -34,9 +34,19 @@ export class LockboxSecretVersion extends pulumi.CustomResource {
         return obj['__pulumiType'] === LockboxSecretVersion.__pulumiType;
     }
 
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
-    declare public readonly entries: pulumi.Output<outputs.LockboxSecretVersionEntry[]>;
+    /**
+     * List of entries in the Yandex Cloud Lockbox secret version. Must be omitted for secrets with a payload specification. >
+     * One either `text_value` or `command` is required.
+     */
+    declare public readonly entries: pulumi.Output<outputs.LockboxSecretVersionEntry[] | undefined>;
     declare public readonly lockboxSecretVersionId: pulumi.Output<string>;
+    /**
+     * The Yandex Cloud Lockbox secret ID where to add the version.
+     */
     declare public readonly secretId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.LockboxSecretVersionTimeouts | undefined>;
 
@@ -60,9 +70,6 @@ export class LockboxSecretVersion extends pulumi.CustomResource {
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as LockboxSecretVersionArgs | undefined;
-            if (args?.entries === undefined && !opts.urn) {
-                throw new Error("Missing required property 'entries'");
-            }
             if (args?.secretId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'secretId'");
             }
@@ -81,9 +88,19 @@ export class LockboxSecretVersion extends pulumi.CustomResource {
  * Input properties used for looking up and filtering LockboxSecretVersion resources.
  */
 export interface LockboxSecretVersionState {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * List of entries in the Yandex Cloud Lockbox secret version. Must be omitted for secrets with a payload specification. >
+     * One either `text_value` or `command` is required.
+     */
     entries?: pulumi.Input<pulumi.Input<inputs.LockboxSecretVersionEntry>[]>;
     lockboxSecretVersionId?: pulumi.Input<string>;
+    /**
+     * The Yandex Cloud Lockbox secret ID where to add the version.
+     */
     secretId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LockboxSecretVersionTimeouts>;
 }
@@ -92,9 +109,19 @@ export interface LockboxSecretVersionState {
  * The set of arguments for constructing a LockboxSecretVersion resource.
  */
 export interface LockboxSecretVersionArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
-    entries: pulumi.Input<pulumi.Input<inputs.LockboxSecretVersionEntry>[]>;
+    /**
+     * List of entries in the Yandex Cloud Lockbox secret version. Must be omitted for secrets with a payload specification. >
+     * One either `text_value` or `command` is required.
+     */
+    entries?: pulumi.Input<pulumi.Input<inputs.LockboxSecretVersionEntry>[]>;
     lockboxSecretVersionId?: pulumi.Input<string>;
+    /**
+     * The Yandex Cloud Lockbox secret ID where to add the version.
+     */
     secretId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.LockboxSecretVersionTimeouts>;
 }

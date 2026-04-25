@@ -1,10 +1,10 @@
 import { endpointToString } from "@highstate/common"
 import { Chart, ClusterAccessScope, Namespace } from "@highstate/k8s"
-import { k8s } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { common, k8s } from "@highstate/library"
+import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { charts } from "../shared"
 
-const { name, args, inputs, outputs } = forUnit(k8s.apps.traefik)
+const { name, stateId, args, inputs, outputs } = forUnit(k8s.apps.traefik)
 
 const className = args.className ?? name
 const clusterEndpoints = await toPromise(inputs.k8sCluster.endpoints)
@@ -20,6 +20,8 @@ const chart = new Chart(args.appName, {
   skipCrds: true,
 
   values: {
+    nodeSelector: args.nodeSelector,
+
     global: {
       // disable telemetry
       checkNewVersion: false,
@@ -68,6 +70,13 @@ const chart = new Chart(args.appName, {
           },
         },
       },
+      websecure: {
+        http: {
+          encodedCharacters: {
+            allowEncodedHash: true,
+          },
+        },
+      },
     },
   },
 
@@ -111,19 +120,26 @@ const clusterScope = new ClusterAccessScope(name, {
 })
 
 export default outputs({
-  gateway: {
-    implRef: {
-      package: "@highstate/k8s",
-      data: {
-        cluster: clusterScope.cluster,
-        namespace: namespace.entity,
-        className,
-        httpPort: 8080,
-        httpsPort: 8443,
-      },
+  gateway: makeEntityOutput({
+    entity: common.gatewayEntity,
+    identity: stateId,
+    meta: {
+      title: className,
     },
-    endpoints: clusterEndpoints,
-  },
+    value: {
+      implRef: {
+        package: "@highstate/k8s",
+        data: {
+          cluster: clusterScope.cluster,
+          namespace: namespace.entity,
+          className,
+          httpPort: 8080,
+          httpsPort: 8443,
+        },
+      },
+      endpoints: clusterEndpoints,
+    },
+  }),
 
   service: chart.service.entity,
   endpoints: chart.service.endpoints,

@@ -1,8 +1,8 @@
-import { cloudflare } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
+import { cloudflare, dns } from "@highstate/library"
+import { forUnit, makeEntityOutput } from "@highstate/pulumi"
 import { getZones, Provider } from "@pulumi/cloudflare"
 
-const { instanceId, secrets, outputs } = forUnit(cloudflare.connection)
+const { stateId, secrets, outputs } = forUnit(cloudflare.connection)
 
 const provider = new Provider("cloudflare", { apiToken: secrets.apiToken })
 const { results: zones } = await getZones({}, { provider })
@@ -14,18 +14,26 @@ if (!zones.length) {
 }
 
 export default outputs({
-  dnsProvider: {
-    id: `cloudflare.${instanceId}`,
-    zones: zones.map(zone => zone.name),
+  dnsProvider: makeEntityOutput({
+    entity: dns.providerEntity,
+    identity: stateId,
+    meta: {
+      title: zones[0]!.name,
+      icon: "simple-icons:cloudflare",
+      iconColor: "#F38020",
+    },
+    value: {
+      zones: zones.map(zone => zone.name),
 
-    implRef: {
-      package: "@highstate/cloudflare",
-      data: {
-        zoneId: zones[0].id,
-        apiToken: secrets.apiToken,
+      implRef: {
+        package: "@highstate/cloudflare",
+        data: {
+          zoneIds: Object.fromEntries(zones.map(zone => [zone.name, zone.id])),
+          apiToken: secrets.apiToken,
+        },
       },
     },
-  },
+  }),
   $statusFields: {
     zones: zones.map(zone => zone.name),
   },

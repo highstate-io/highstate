@@ -4,9 +4,10 @@ import {
   defineEntity,
   defineUnit,
   type EntityInput,
+  type EntityValue,
+  secretSchema,
   z,
 } from "@highstate/contract"
-import { fileEntity } from "./common/files"
 import { l4EndpointEntity, portSchema } from "./network"
 
 export const keyTypeSchema = z.enum(["ed25519"])
@@ -50,44 +51,66 @@ export const keyPairEntity = defineEntity({
     /**
      * The private key in PEM format.
      */
-    privateKey: z.string(),
+    privateKey: secretSchema(z.string()),
   }),
 
   meta: {
     color: "#2b5797",
+    title: "SSH Key Pair",
+    icon: "charm:key",
+    iconColor: "#ffffff",
+    secondaryIcon: "mdi:lock",
+    secondaryIconColor: "#ffffff",
   },
 })
 
 /**
- * The schema for the SSH connection configuration.
- *
- * Contains enough information to connect to an SSH server.
+ * The schema for the SSH connection credentials.
  */
-export const connectionSchema = z.object({
-  /**
-   * The list of L4 endpoints which can be used to connect to the SSH server.
-   */
-  endpoints: l4EndpointEntity.schema.array(),
+export const connectionEntity = defineEntity({
+  type: "ssh.connection.v1",
 
-  /**
-   * The host key of the SSH server which will be used to verify the server's identity.
-   */
-  hostKey: z.string(),
+  includes: {
+    /**
+     * The endpoints to connect to.
+     */
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+    },
 
-  /**
-   * The user to connect as.
-   */
-  user: z.string(),
+    /**
+     * The SSH key pair to use for authentication.
+     */
+    keyPair: {
+      entity: keyPairEntity,
+      required: false,
+    },
+  },
 
-  /**
-   * The password to use for authentication.
-   */
-  password: z.string().optional(),
+  schema: z.object({
+    /**
+     * The host key of the SSH server which will be used to verify the server's identity.
+     */
+    hostKey: z.string(),
 
-  /**
-   * The SSH key pair to use for authentication.
-   */
-  keyPair: keyPairEntity.schema.optional(),
+    /**
+     * The user to connect as.
+     */
+    user: z.string(),
+
+    /**
+     * The password to use for authentication.
+     */
+    password: secretSchema(z.string()).optional(),
+  }),
+
+  meta: {
+    color: "#2b5797",
+    title: "SSH Connection",
+    icon: "mdi:terminal",
+    iconColor: "#2b5797",
+  },
 })
 
 export const argsSchema = z.object({
@@ -196,7 +219,6 @@ export const keyPair = defineUnit({
 
   outputs: {
     keyPair: keyPairEntity,
-    publicKeyFile: fileEntity,
   },
 
   meta: {
@@ -216,9 +238,9 @@ export const keyPair = defineUnit({
 
 export type Args = z.infer<typeof argsSchema>
 export type KeyType = z.infer<typeof keyTypeSchema>
-export type PublicKey = z.infer<typeof publicKeyEntity.schema>
-export type KeyPair = z.infer<typeof keyPairEntity.schema>
-export type Connection = z.infer<typeof connectionSchema>
+export type PublicKey = EntityValue<typeof publicKeyEntity>
+export type KeyPair = EntityValue<typeof keyPairEntity>
+export type Connection = EntityValue<typeof connectionEntity>
 
 export type PublicKeyInput = EntityInput<typeof publicKeyEntity>
 export type KeyPairInput = EntityInput<typeof keyPairEntity>

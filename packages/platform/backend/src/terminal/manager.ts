@@ -1,5 +1,6 @@
 import type { Logger } from "pino"
 import type { ProjectUnlockService } from "../business"
+import type { ObjectRefIndexService } from "../business/object-ref-index"
 import type { DatabaseManager, Terminal, TerminalSession } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { TerminalSessionOutput } from "../shared/models/project/terminal"
@@ -35,6 +36,7 @@ export class TerminalManager {
     private readonly database: DatabaseManager,
     private readonly pubsubManager: PubSubManager,
     private readonly projectUnlockService: ProjectUnlockService,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {
     this.projectUnlockService.registerUnlockTask(
@@ -112,6 +114,8 @@ export class TerminalManager {
         terminalId,
       },
     })
+
+    await this.objectRefIndexService.track(projectId, [session.id])
 
     const output = toTerminalSessionOutput(terminal, session)
 
@@ -319,6 +323,7 @@ export class TerminalManager {
     database: DatabaseManager,
     pubsubManager: PubSubManager,
     projectUnlockService: ProjectUnlockService,
+    objectRefIndexService: ObjectRefIndexService,
     logger: Logger,
   ): TerminalManager {
     return new TerminalManager(
@@ -326,6 +331,7 @@ export class TerminalManager {
       database,
       pubsubManager,
       projectUnlockService,
+      objectRefIndexService,
       logger.child({ service: "TerminalManager" }),
     )
   }

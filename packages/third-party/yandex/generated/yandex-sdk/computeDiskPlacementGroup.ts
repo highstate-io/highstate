@@ -34,15 +34,43 @@ export class ComputeDiskPlacementGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === ComputeDiskPlacementGroup.__pulumiType;
     }
 
+    /**
+     * ID of the placement group to return. To get the placement group ID, use [DiskPlacementGroupService.List] request.
+     */
     declare public readonly computeDiskPlacementGroupId: pulumi.Output<string>;
+    /**
+     * Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Description of the placement group.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the placement group to return. To get the placement group ID, use [DiskPlacementGroupService.List] request.
+     */
+    declare public readonly diskPlacementGroupId: pulumi.Output<string>;
+    /**
+     * ID of the folder that the placement group belongs to.
+     */
     declare public readonly folderId: pulumi.Output<string>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Resource labels as `key:value` pairs.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the placement group. The name is unique within the folder.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * Current status of the placement group
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ComputeDiskPlacementGroupTimeouts | undefined>;
-    declare public readonly zone: pulumi.Output<string | undefined>;
+    /**
+     * ID of the availability zone where the placement group resides.
+     */
+    declare public readonly zone: pulumi.Output<string>;
 
     /**
      * Create a ComputeDiskPlacementGroup resource with the given unique name, arguments, and options.
@@ -60,6 +88,7 @@ export class ComputeDiskPlacementGroup extends pulumi.CustomResource {
             resourceInputs["computeDiskPlacementGroupId"] = state?.computeDiskPlacementGroupId;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
+            resourceInputs["diskPlacementGroupId"] = state?.diskPlacementGroupId;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
@@ -70,6 +99,7 @@ export class ComputeDiskPlacementGroup extends pulumi.CustomResource {
             const args = argsOrState as ComputeDiskPlacementGroupArgs | undefined;
             resourceInputs["computeDiskPlacementGroupId"] = args?.computeDiskPlacementGroupId;
             resourceInputs["description"] = args?.description;
+            resourceInputs["diskPlacementGroupId"] = args?.diskPlacementGroupId;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
@@ -87,14 +117,42 @@ export class ComputeDiskPlacementGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ComputeDiskPlacementGroup resources.
  */
 export interface ComputeDiskPlacementGroupState {
+    /**
+     * ID of the placement group to return. To get the placement group ID, use [DiskPlacementGroupService.List] request.
+     */
     computeDiskPlacementGroupId?: pulumi.Input<string>;
+    /**
+     * Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the placement group.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the placement group to return. To get the placement group ID, use [DiskPlacementGroupService.List] request.
+     */
+    diskPlacementGroupId?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the placement group belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `key:value` pairs.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the placement group. The name is unique within the folder.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * Current status of the placement group
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeDiskPlacementGroupTimeouts>;
+    /**
+     * ID of the availability zone where the placement group resides.
+     */
     zone?: pulumi.Input<string>;
 }
 
@@ -102,11 +160,33 @@ export interface ComputeDiskPlacementGroupState {
  * The set of arguments for constructing a ComputeDiskPlacementGroup resource.
  */
 export interface ComputeDiskPlacementGroupArgs {
+    /**
+     * ID of the placement group to return. To get the placement group ID, use [DiskPlacementGroupService.List] request.
+     */
     computeDiskPlacementGroupId?: pulumi.Input<string>;
+    /**
+     * Description of the placement group.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the placement group to return. To get the placement group ID, use [DiskPlacementGroupService.List] request.
+     */
+    diskPlacementGroupId?: pulumi.Input<string>;
+    /**
+     * ID of the folder that the placement group belongs to.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `key:value` pairs.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the placement group. The name is unique within the folder.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ComputeDiskPlacementGroupTimeouts>;
+    /**
+     * ID of the availability zone where the placement group resides.
+     */
     zone?: pulumi.Input<string>;
 }

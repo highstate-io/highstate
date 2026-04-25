@@ -34,38 +34,153 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbGreenplumCluster.__pulumiType;
     }
 
+    /**
+     * Access policy to the Greenplum cluster.
+     */
     declare public readonly access: pulumi.Output<outputs.MdbGreenplumClusterAccess | undefined>;
+    /**
+     * Sets whether the master hosts should get a public IP address on creation. Changing this parameter for an existing host
+     * is not supported at the moment.
+     */
     declare public readonly assignPublicIp: pulumi.Output<boolean>;
+    /**
+     * Background activities settings.
+     */
+    declare public readonly backgroundActivities: pulumi.Output<outputs.MdbGreenplumClusterBackgroundActivity[] | undefined>;
+    /**
+     * Time to start the daily backup, in the UTC timezone.
+     */
     declare public readonly backupWindowStart: pulumi.Output<outputs.MdbGreenplumClusterBackupWindowStart | undefined>;
+    /**
+     * Cloud Storage settings of the Greenplum cluster.
+     */
     declare public readonly cloudStorage: pulumi.Output<outputs.MdbGreenplumClusterCloudStorage | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
+     */
     declare public readonly environment: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Greenplum cluster config. Detail info in `Greenplum cluster settings` block.
+     */
     declare public readonly greenplumConfig: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Aggregated health of the cluster.
+     */
     declare public /*out*/ readonly health: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Cloud Logging settings.
+     */
+    declare public readonly logging: pulumi.Output<outputs.MdbGreenplumClusterLogging | undefined>;
+    /**
+     * Maintenance policy of the Greenplum cluster.
+     */
     declare public readonly maintenanceWindow: pulumi.Output<outputs.MdbGreenplumClusterMaintenanceWindow | undefined>;
+    /**
+     * Number of hosts in master subcluster (1 or 2).
+     */
     declare public readonly masterHostCount: pulumi.Output<number>;
+    /**
+     * A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+     */
+    declare public readonly masterHostGroupIds: pulumi.Output<string[]>;
+    /**
+     * Info about hosts in master subcluster.
+     */
     declare public /*out*/ readonly masterHosts: pulumi.Output<outputs.MdbGreenplumClusterMasterHost[]>;
+    /**
+     * Settings for master subcluster.
+     */
     declare public readonly masterSubcluster: pulumi.Output<outputs.MdbGreenplumClusterMasterSubcluster>;
     declare public readonly mdbGreenplumClusterId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * Configuration of the connection pooler.
+     */
     declare public readonly poolerConfig: pulumi.Output<outputs.MdbGreenplumClusterPoolerConfig | undefined>;
+    /**
+     * Configuration of the PXF daemon.
+     */
     declare public readonly pxfConfig: pulumi.Output<outputs.MdbGreenplumClusterPxfConfig | undefined>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * Number of hosts in segment subcluster (from 1 to 32).
+     */
     declare public readonly segmentHostCount: pulumi.Output<number>;
+    /**
+     * A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+     */
+    declare public readonly segmentHostGroupIds: pulumi.Output<string[]>;
+    /**
+     * Info about hosts in segment subcluster.
+     */
     declare public /*out*/ readonly segmentHosts: pulumi.Output<outputs.MdbGreenplumClusterSegmentHost[]>;
+    /**
+     * Number of segments on segment host (not more then 1 + RAM/8).
+     */
     declare public readonly segmentInHost: pulumi.Output<number>;
+    /**
+     * Settings for segment subcluster.
+     */
     declare public readonly segmentSubcluster: pulumi.Output<outputs.MdbGreenplumClusterSegmentSubcluster>;
+    /**
+     * ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
+     */
+    declare public readonly serviceAccountId: pulumi.Output<string | undefined>;
+    /**
+     * Status of the cluster.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * The ID of the subnet, to which the hosts belongs. The subnet must be a part of the network to which the cluster belongs.
+     */
     declare public readonly subnetId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbGreenplumClusterTimeouts | undefined>;
+    /**
+     * Greenplum cluster admin user name.
+     */
     declare public readonly userName: pulumi.Output<string>;
+    /**
+     * Greenplum cluster admin password name.
+     */
     declare public readonly userPassword: pulumi.Output<string>;
+    /**
+     * Version of the Greenplum cluster. (`6.28`)
+     */
     declare public readonly version: pulumi.Output<string>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     declare public readonly zone: pulumi.Output<string>;
 
     /**
@@ -83,6 +198,7 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
             const state = argsOrState as MdbGreenplumClusterState | undefined;
             resourceInputs["access"] = state?.access;
             resourceInputs["assignPublicIp"] = state?.assignPublicIp;
+            resourceInputs["backgroundActivities"] = state?.backgroundActivities;
             resourceInputs["backupWindowStart"] = state?.backupWindowStart;
             resourceInputs["cloudStorage"] = state?.cloudStorage;
             resourceInputs["createdAt"] = state?.createdAt;
@@ -93,8 +209,10 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
             resourceInputs["greenplumConfig"] = state?.greenplumConfig;
             resourceInputs["health"] = state?.health;
             resourceInputs["labels"] = state?.labels;
+            resourceInputs["logging"] = state?.logging;
             resourceInputs["maintenanceWindow"] = state?.maintenanceWindow;
             resourceInputs["masterHostCount"] = state?.masterHostCount;
+            resourceInputs["masterHostGroupIds"] = state?.masterHostGroupIds;
             resourceInputs["masterHosts"] = state?.masterHosts;
             resourceInputs["masterSubcluster"] = state?.masterSubcluster;
             resourceInputs["mdbGreenplumClusterId"] = state?.mdbGreenplumClusterId;
@@ -104,9 +222,11 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
             resourceInputs["pxfConfig"] = state?.pxfConfig;
             resourceInputs["securityGroupIds"] = state?.securityGroupIds;
             resourceInputs["segmentHostCount"] = state?.segmentHostCount;
+            resourceInputs["segmentHostGroupIds"] = state?.segmentHostGroupIds;
             resourceInputs["segmentHosts"] = state?.segmentHosts;
             resourceInputs["segmentInHost"] = state?.segmentInHost;
             resourceInputs["segmentSubcluster"] = state?.segmentSubcluster;
+            resourceInputs["serviceAccountId"] = state?.serviceAccountId;
             resourceInputs["status"] = state?.status;
             resourceInputs["subnetId"] = state?.subnetId;
             resourceInputs["timeouts"] = state?.timeouts;
@@ -157,6 +277,7 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
             }
             resourceInputs["access"] = args?.access;
             resourceInputs["assignPublicIp"] = args?.assignPublicIp;
+            resourceInputs["backgroundActivities"] = args?.backgroundActivities;
             resourceInputs["backupWindowStart"] = args?.backupWindowStart;
             resourceInputs["cloudStorage"] = args?.cloudStorage;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
@@ -165,8 +286,10 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["greenplumConfig"] = args?.greenplumConfig;
             resourceInputs["labels"] = args?.labels;
+            resourceInputs["logging"] = args?.logging;
             resourceInputs["maintenanceWindow"] = args?.maintenanceWindow;
             resourceInputs["masterHostCount"] = args?.masterHostCount;
+            resourceInputs["masterHostGroupIds"] = args?.masterHostGroupIds;
             resourceInputs["masterSubcluster"] = args?.masterSubcluster;
             resourceInputs["mdbGreenplumClusterId"] = args?.mdbGreenplumClusterId;
             resourceInputs["name"] = args?.name;
@@ -175,8 +298,10 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
             resourceInputs["pxfConfig"] = args?.pxfConfig;
             resourceInputs["securityGroupIds"] = args?.securityGroupIds;
             resourceInputs["segmentHostCount"] = args?.segmentHostCount;
+            resourceInputs["segmentHostGroupIds"] = args?.segmentHostGroupIds;
             resourceInputs["segmentInHost"] = args?.segmentInHost;
             resourceInputs["segmentSubcluster"] = args?.segmentSubcluster;
+            resourceInputs["serviceAccountId"] = args?.serviceAccountId;
             resourceInputs["subnetId"] = args?.subnetId;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["userName"] = args?.userName;
@@ -200,38 +325,153 @@ export class MdbGreenplumCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbGreenplumCluster resources.
  */
 export interface MdbGreenplumClusterState {
+    /**
+     * Access policy to the Greenplum cluster.
+     */
     access?: pulumi.Input<inputs.MdbGreenplumClusterAccess>;
+    /**
+     * Sets whether the master hosts should get a public IP address on creation. Changing this parameter for an existing host
+     * is not supported at the moment.
+     */
     assignPublicIp?: pulumi.Input<boolean>;
+    /**
+     * Background activities settings.
+     */
+    backgroundActivities?: pulumi.Input<pulumi.Input<inputs.MdbGreenplumClusterBackgroundActivity>[]>;
+    /**
+     * Time to start the daily backup, in the UTC timezone.
+     */
     backupWindowStart?: pulumi.Input<inputs.MdbGreenplumClusterBackupWindowStart>;
+    /**
+     * Cloud Storage settings of the Greenplum cluster.
+     */
     cloudStorage?: pulumi.Input<inputs.MdbGreenplumClusterCloudStorage>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
+     */
     environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Greenplum cluster config. Detail info in `Greenplum cluster settings` block.
+     */
     greenplumConfig?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Aggregated health of the cluster.
+     */
     health?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Cloud Logging settings.
+     */
+    logging?: pulumi.Input<inputs.MdbGreenplumClusterLogging>;
+    /**
+     * Maintenance policy of the Greenplum cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbGreenplumClusterMaintenanceWindow>;
+    /**
+     * Number of hosts in master subcluster (1 or 2).
+     */
     masterHostCount?: pulumi.Input<number>;
+    /**
+     * A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+     */
+    masterHostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Info about hosts in master subcluster.
+     */
     masterHosts?: pulumi.Input<pulumi.Input<inputs.MdbGreenplumClusterMasterHost>[]>;
+    /**
+     * Settings for master subcluster.
+     */
     masterSubcluster?: pulumi.Input<inputs.MdbGreenplumClusterMasterSubcluster>;
     mdbGreenplumClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * Configuration of the connection pooler.
+     */
     poolerConfig?: pulumi.Input<inputs.MdbGreenplumClusterPoolerConfig>;
+    /**
+     * Configuration of the PXF daemon.
+     */
     pxfConfig?: pulumi.Input<inputs.MdbGreenplumClusterPxfConfig>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Number of hosts in segment subcluster (from 1 to 32).
+     */
     segmentHostCount?: pulumi.Input<number>;
+    /**
+     * A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+     */
+    segmentHostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Info about hosts in segment subcluster.
+     */
     segmentHosts?: pulumi.Input<pulumi.Input<inputs.MdbGreenplumClusterSegmentHost>[]>;
+    /**
+     * Number of segments on segment host (not more then 1 + RAM/8).
+     */
     segmentInHost?: pulumi.Input<number>;
+    /**
+     * Settings for segment subcluster.
+     */
     segmentSubcluster?: pulumi.Input<inputs.MdbGreenplumClusterSegmentSubcluster>;
+    /**
+     * ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
+     */
+    serviceAccountId?: pulumi.Input<string>;
+    /**
+     * Status of the cluster.
+     */
     status?: pulumi.Input<string>;
+    /**
+     * The ID of the subnet, to which the hosts belongs. The subnet must be a part of the network to which the cluster belongs.
+     */
     subnetId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbGreenplumClusterTimeouts>;
+    /**
+     * Greenplum cluster admin user name.
+     */
     userName?: pulumi.Input<string>;
+    /**
+     * Greenplum cluster admin password name.
+     */
     userPassword?: pulumi.Input<string>;
+    /**
+     * Version of the Greenplum cluster. (`6.28`)
+     */
     version?: pulumi.Input<string>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     zone?: pulumi.Input<string>;
 }
 
@@ -239,32 +479,132 @@ export interface MdbGreenplumClusterState {
  * The set of arguments for constructing a MdbGreenplumCluster resource.
  */
 export interface MdbGreenplumClusterArgs {
+    /**
+     * Access policy to the Greenplum cluster.
+     */
     access?: pulumi.Input<inputs.MdbGreenplumClusterAccess>;
+    /**
+     * Sets whether the master hosts should get a public IP address on creation. Changing this parameter for an existing host
+     * is not supported at the moment.
+     */
     assignPublicIp: pulumi.Input<boolean>;
+    /**
+     * Background activities settings.
+     */
+    backgroundActivities?: pulumi.Input<pulumi.Input<inputs.MdbGreenplumClusterBackgroundActivity>[]>;
+    /**
+     * Time to start the daily backup, in the UTC timezone.
+     */
     backupWindowStart?: pulumi.Input<inputs.MdbGreenplumClusterBackupWindowStart>;
+    /**
+     * Cloud Storage settings of the Greenplum cluster.
+     */
     cloudStorage?: pulumi.Input<inputs.MdbGreenplumClusterCloudStorage>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
+     */
     environment: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * Greenplum cluster config. Detail info in `Greenplum cluster settings` block.
+     */
     greenplumConfig?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Cloud Logging settings.
+     */
+    logging?: pulumi.Input<inputs.MdbGreenplumClusterLogging>;
+    /**
+     * Maintenance policy of the Greenplum cluster.
+     */
     maintenanceWindow?: pulumi.Input<inputs.MdbGreenplumClusterMaintenanceWindow>;
+    /**
+     * Number of hosts in master subcluster (1 or 2).
+     */
     masterHostCount: pulumi.Input<number>;
+    /**
+     * A list of IDs of the host groups to place master subclusters' VMs of the cluster on.
+     */
+    masterHostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Settings for master subcluster.
+     */
     masterSubcluster: pulumi.Input<inputs.MdbGreenplumClusterMasterSubcluster>;
     mdbGreenplumClusterId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The `VPC Network ID` of subnets which resource attached to.
+     */
     networkId: pulumi.Input<string>;
+    /**
+     * Configuration of the connection pooler.
+     */
     poolerConfig?: pulumi.Input<inputs.MdbGreenplumClusterPoolerConfig>;
+    /**
+     * Configuration of the PXF daemon.
+     */
     pxfConfig?: pulumi.Input<inputs.MdbGreenplumClusterPxfConfig>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Number of hosts in segment subcluster (from 1 to 32).
+     */
     segmentHostCount: pulumi.Input<number>;
+    /**
+     * A list of IDs of the host groups to place segment subclusters' VMs of the cluster on.
+     */
+    segmentHostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Number of segments on segment host (not more then 1 + RAM/8).
+     */
     segmentInHost: pulumi.Input<number>;
+    /**
+     * Settings for segment subcluster.
+     */
     segmentSubcluster: pulumi.Input<inputs.MdbGreenplumClusterSegmentSubcluster>;
+    /**
+     * ID of service account to use with Yandex Cloud resources (e.g. S3, Cloud Logging).
+     */
+    serviceAccountId?: pulumi.Input<string>;
+    /**
+     * The ID of the subnet, to which the hosts belongs. The subnet must be a part of the network to which the cluster belongs.
+     */
     subnetId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbGreenplumClusterTimeouts>;
+    /**
+     * Greenplum cluster admin user name.
+     */
     userName: pulumi.Input<string>;
+    /**
+     * Greenplum cluster admin password name.
+     */
     userPassword: pulumi.Input<string>;
+    /**
+     * Version of the Greenplum cluster. (`6.28`)
+     */
     version: pulumi.Input<string>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     zone: pulumi.Input<string>;
 }

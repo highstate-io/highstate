@@ -1,11 +1,12 @@
-import type { k8s } from "@highstate/library"
 import type { Namespace } from "./namespace"
+import { common, type k8s } from "@highstate/library"
 import {
   ComponentResource,
   type ComponentResourceOptions,
   type Input,
   type InputArray,
   interpolate,
+  makeEntity,
   normalizeInputs,
   type Output,
   output,
@@ -15,7 +16,6 @@ import {
 import { KubeConfig } from "@kubernetes/client-node"
 import { core, rbac, type types } from "@pulumi/kubernetes"
 import { map, unique } from "remeda"
-import { stringify } from "yaml"
 import { Secret } from "./secret"
 import {
   getNamespaceName,
@@ -185,9 +185,14 @@ export class ClusterAccessScope extends ComponentResource {
       kubeconfig,
       newToken: accessTokenSecret.getValue("token"),
       serviceAccount: serviceAccount.metadata.name,
-    }).apply(({ cluster, kubeconfig, newToken, serviceAccount }) => {
+      serviceAccountId: serviceAccount.metadata.uid,
+    }).apply(({ cluster, kubeconfig, newToken, serviceAccount, serviceAccountId }) => {
+      if (kubeconfig.content.type !== "embedded-secret") {
+        throw new Error("Only embedded secrets are supported for cluster kubeconfig for now")
+      }
+
       const config = new KubeConfig()
-      config.loadFromString(kubeconfig)
+      config.loadFromString(kubeconfig.content.value.value)
 
       // clear all existing contexts and users
       config.users = []
@@ -205,7 +210,25 @@ export class ClusterAccessScope extends ComponentResource {
 
       return {
         ...cluster,
-        kubeconfig: stringify(JSON.parse(config.exportConfig())),
+        connectionId: serviceAccountId,
+        kubeconfig: makeEntity({
+          entity: common.fileEntity,
+          identity: `${serviceAccountId}:kubeconfig`,
+          meta: {
+            title: `kubeconfig for SA ${serviceAccount}`,
+          },
+          value: {
+            content: {
+              type: "embedded-secret",
+              value: config.exportConfig(),
+            },
+            meta: {
+              name: "kubeconfig",
+              contentType: "text/yaml",
+              mode: 0o600,
+            },
+          },
+        }),
       }
     })
   }

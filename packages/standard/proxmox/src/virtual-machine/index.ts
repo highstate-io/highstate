@@ -23,7 +23,8 @@ const datastoreId = args.datastoreId ?? inputs.proxmoxCluster.defaultDatastoreId
 const inputVendorData = await toPromise(inputs.vendorData)
 
 const sshKeyPair =
-  inputs.sshKeyPair ?? sshPrivateKeyToKeyPair(getSecret("sshPrivateKey", generateSshPrivateKey))
+  inputs.sshKeyPair ??
+  getSecret("sshPrivateKey", generateSshPrivateKey).apply(sshPrivateKeyToKeyPair)
 
 const rootPassword = getSecret("rootPassword", generatePassword)
 
@@ -153,7 +154,7 @@ const { server, terminal } = await createServerBundle({
   endpoints: [endpoint],
   sshArgs: args.ssh,
   sshPassword: rootPassword,
-  sshPrivateKey: sshKeyPair.privateKey,
+  sshPrivateKey: sshKeyPair.privateKey.value,
   sshKeyPair,
 })
 

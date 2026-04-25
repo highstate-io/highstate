@@ -34,13 +34,34 @@ export class IotCoreBroker extends pulumi.CustomResource {
         return obj['__pulumiType'] === IotCoreBroker.__pulumiType;
     }
 
+    /**
+     * A set of certificate's fingerprints for the IoT Core Broker.
+     */
     declare public readonly certificates: pulumi.Output<string[] | undefined>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
     declare public readonly iotCoreBrokerId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Options for logging for IoT Core Broker.
+     */
     declare public readonly logOptions: pulumi.Output<outputs.IotCoreBrokerLogOptions | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.IotCoreBrokerTimeouts | undefined>;
 
@@ -87,13 +108,34 @@ export class IotCoreBroker extends pulumi.CustomResource {
  * Input properties used for looking up and filtering IotCoreBroker resources.
  */
 export interface IotCoreBrokerState {
+    /**
+     * A set of certificate's fingerprints for the IoT Core Broker.
+     */
     certificates?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
     iotCoreBrokerId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging for IoT Core Broker.
+     */
     logOptions?: pulumi.Input<inputs.IotCoreBrokerLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.IotCoreBrokerTimeouts>;
 }
@@ -102,12 +144,30 @@ export interface IotCoreBrokerState {
  * The set of arguments for constructing a IotCoreBroker resource.
  */
 export interface IotCoreBrokerArgs {
+    /**
+     * A set of certificate's fingerprints for the IoT Core Broker.
+     */
     certificates?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
     iotCoreBrokerId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Options for logging for IoT Core Broker.
+     */
     logOptions?: pulumi.Input<inputs.IotCoreBrokerLogOptions>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.IotCoreBrokerTimeouts>;
 }

@@ -34,20 +34,75 @@ export class DataprocCluster extends pulumi.CustomResource {
         return obj['__pulumiType'] === DataprocCluster.__pulumiType;
     }
 
+    /**
+     * Service account to be used for managing hosts in an autoscaled subcluster.
+     */
+    declare public readonly autoscalingServiceAccountId: pulumi.Output<string | undefined>;
+    /**
+     * Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of
+     * job driver's process to specified bucket. In order for this to work service account (specified by the
+     * `service_account_id` argument) should be given permission to create objects within this bucket.
+     */
     declare public readonly bucket: pulumi.Output<string | undefined>;
+    /**
+     * Configuration and resources for hosts that should be created with the cluster.
+     */
     declare public readonly clusterConfig: pulumi.Output<outputs.DataprocClusterClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
     declare public readonly dataprocClusterId: pulumi.Output<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     declare public readonly deletionProtection: pulumi.Output<boolean>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRESTABLE`.
+     */
+    declare public readonly environment: pulumi.Output<string | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A list of host group IDs to place VMs of the cluster on.
+     */
     declare public readonly hostGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * ID of the cloud logging group for cluster logs.
+     */
+    declare public readonly logGroupId: pulumi.Output<string | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     declare public readonly securityGroupIds: pulumi.Output<string[] | undefined>;
+    /**
+     * Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service
+     * account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.
+     */
     declare public readonly serviceAccountId: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.DataprocClusterTimeouts | undefined>;
+    /**
+     * Whether to enable UI Proxy feature.
+     */
     declare public readonly uiProxy: pulumi.Output<boolean | undefined>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     declare public readonly zoneId: pulumi.Output<string>;
 
     /**
@@ -63,15 +118,18 @@ export class DataprocCluster extends pulumi.CustomResource {
         opts = opts || {};
         if (opts.id) {
             const state = argsOrState as DataprocClusterState | undefined;
+            resourceInputs["autoscalingServiceAccountId"] = state?.autoscalingServiceAccountId;
             resourceInputs["bucket"] = state?.bucket;
             resourceInputs["clusterConfig"] = state?.clusterConfig;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["dataprocClusterId"] = state?.dataprocClusterId;
             resourceInputs["deletionProtection"] = state?.deletionProtection;
             resourceInputs["description"] = state?.description;
+            resourceInputs["environment"] = state?.environment;
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["hostGroupIds"] = state?.hostGroupIds;
             resourceInputs["labels"] = state?.labels;
+            resourceInputs["logGroupId"] = state?.logGroupId;
             resourceInputs["name"] = state?.name;
             resourceInputs["securityGroupIds"] = state?.securityGroupIds;
             resourceInputs["serviceAccountId"] = state?.serviceAccountId;
@@ -86,14 +144,17 @@ export class DataprocCluster extends pulumi.CustomResource {
             if (args?.serviceAccountId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'serviceAccountId'");
             }
+            resourceInputs["autoscalingServiceAccountId"] = args?.autoscalingServiceAccountId;
             resourceInputs["bucket"] = args?.bucket;
             resourceInputs["clusterConfig"] = args?.clusterConfig;
             resourceInputs["dataprocClusterId"] = args?.dataprocClusterId;
             resourceInputs["deletionProtection"] = args?.deletionProtection;
             resourceInputs["description"] = args?.description;
+            resourceInputs["environment"] = args?.environment;
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["hostGroupIds"] = args?.hostGroupIds;
             resourceInputs["labels"] = args?.labels;
+            resourceInputs["logGroupId"] = args?.logGroupId;
             resourceInputs["name"] = args?.name;
             resourceInputs["securityGroupIds"] = args?.securityGroupIds;
             resourceInputs["serviceAccountId"] = args?.serviceAccountId;
@@ -111,20 +172,75 @@ export class DataprocCluster extends pulumi.CustomResource {
  * Input properties used for looking up and filtering DataprocCluster resources.
  */
 export interface DataprocClusterState {
+    /**
+     * Service account to be used for managing hosts in an autoscaled subcluster.
+     */
+    autoscalingServiceAccountId?: pulumi.Input<string>;
+    /**
+     * Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of
+     * job driver's process to specified bucket. In order for this to work service account (specified by the
+     * `service_account_id` argument) should be given permission to create objects within this bucket.
+     */
     bucket?: pulumi.Input<string>;
+    /**
+     * Configuration and resources for hosts that should be created with the cluster.
+     */
     clusterConfig?: pulumi.Input<inputs.DataprocClusterClusterConfig>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
     dataprocClusterId?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRESTABLE`.
+     */
+    environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A list of host group IDs to place VMs of the cluster on.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the cloud logging group for cluster logs.
+     */
+    logGroupId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service
+     * account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.
+     */
     serviceAccountId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.DataprocClusterTimeouts>;
+    /**
+     * Whether to enable UI Proxy feature.
+     */
     uiProxy?: pulumi.Input<boolean>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     zoneId?: pulumi.Input<string>;
 }
 
@@ -132,18 +248,70 @@ export interface DataprocClusterState {
  * The set of arguments for constructing a DataprocCluster resource.
  */
 export interface DataprocClusterArgs {
+    /**
+     * Service account to be used for managing hosts in an autoscaled subcluster.
+     */
+    autoscalingServiceAccountId?: pulumi.Input<string>;
+    /**
+     * Name of the Object Storage bucket to use for Yandex Data Processing jobs. Yandex Data Processing Agent saves output of
+     * job driver's process to specified bucket. In order for this to work service account (specified by the
+     * `service_account_id` argument) should be given permission to create objects within this bucket.
+     */
     bucket?: pulumi.Input<string>;
+    /**
+     * Configuration and resources for hosts that should be created with the cluster.
+     */
     clusterConfig: pulumi.Input<inputs.DataprocClusterClusterConfig>;
     dataprocClusterId?: pulumi.Input<string>;
+    /**
+     * The `true` value means that resource is protected from accidental deletion.
+     */
     deletionProtection?: pulumi.Input<boolean>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Deployment environment of the cluster. Can be either `PRESTABLE` or `PRODUCTION`. The default is `PRESTABLE`.
+     */
+    environment?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A list of host group IDs to place VMs of the cluster on.
+     */
     hostGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * ID of the cloud logging group for cluster logs.
+     */
+    logGroupId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The list of security groups applied to resource or their components.
+     */
     securityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Service account to be used by the Yandex Data Processing agent to access resources of Yandex Cloud. Selected service
+     * account should have `mdb.dataproc.agent` role on the folder where the Yandex Data Processing cluster will be located.
+     */
     serviceAccountId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.DataprocClusterTimeouts>;
+    /**
+     * Whether to enable UI Proxy feature.
+     */
     uiProxy?: pulumi.Input<boolean>;
+    /**
+     * The [availability zone](https://yandex.cloud/docs/overview/concepts/geo-scope) where resource is located. If it is not
+     * provided, the default provider zone will be used.
+     */
     zoneId?: pulumi.Input<string>;
 }

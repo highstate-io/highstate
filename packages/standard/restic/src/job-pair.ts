@@ -9,8 +9,10 @@ import {
   type Container,
   CronJob,
   createScriptContainer,
+  getClusterKubeconfigContent,
   getProvider,
   Job,
+  images as k8sImages,
   type ScopedResourceArgs,
   ScriptBundle,
   type ScriptDistribution,
@@ -24,6 +26,7 @@ import {
   getUnitInstanceName,
   type Input,
   type InputArray,
+  makeFile,
   normalize,
   type Output,
   output,
@@ -401,6 +404,137 @@ export class BackupJobPair extends ComponentResource {
         },
       },
     }))
+  }
+
+  get triggerBackupTerminal(): Output<UnitTerminal> {
+    return output({
+      cluster: output(this.args.namespace).cluster,
+      cronJobName: this.backupJob.metadata.name,
+      namespace: this.backupJob.metadata.namespace,
+    }).apply(async ({ cluster, cronJobName, namespace }) => {
+      const kubeconfig = await toPromise(getClusterKubeconfigContent(cluster))
+      const kubeconfigFile = await toPromise(
+        makeFile({
+          name: "kubeconfig",
+          content: kubeconfig,
+          isSecret: true,
+        }),
+      )
+      const triggerScriptFile = await toPromise(
+        makeFile({
+          name: "trigger-backup.sh",
+          content: text`
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            NAMESPACE=${JSON.stringify(namespace)}
+            CRONJOB_NAME=${JSON.stringify(cronJobName)}
+            JOB_NAME="${this.name}-manual-$(date +%s)"
+
+            echo "Creating job '$JOB_NAME' from cronjob '$CRONJOB_NAME' in namespace '$NAMESPACE'"
+            kubectl create job "$JOB_NAME" --from="cronjob/$CRONJOB_NAME" -n "$NAMESPACE"
+
+            echo "Waiting for job to start..."
+            until [[ -n "$(kubectl get job "$JOB_NAME" -n "$NAMESPACE" -o jsonpath='{.status.startTime}' 2>/dev/null || true)" ]]; do
+              sleep 2
+            done
+
+            echo "Waiting for job pod..."
+            POD_NAME=""
+            until [[ -n "$POD_NAME" ]]; do
+              POD_NAME=$(kubectl get pod -n "$NAMESPACE" -l "job-name=$JOB_NAME" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+              sleep 2
+            done
+
+            echo "Waiting for pod '$POD_NAME' to start..."
+            while true; do
+              POD_PHASE=$(kubectl get pod "$POD_NAME" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+
+              if [[ "$POD_PHASE" == "Running" || "$POD_PHASE" == "Succeeded" || "$POD_PHASE" == "Failed" ]]; then
+                break
+              fi
+
+              sleep 2
+            done
+
+            echo "Job started. Streaming logs..."
+            (
+              while true; do
+                if kubectl logs -f "job/$JOB_NAME" -n "$NAMESPACE" --all-containers=true; then
+                  break
+                fi
+
+                COMPLETE=$(kubectl get job "$JOB_NAME" -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>/dev/null || true)
+                FAILED=$(kubectl get job "$JOB_NAME" -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}' 2>/dev/null || true)
+
+                if [[ "$COMPLETE" == "True" || "$FAILED" == "True" ]]; then
+                  break
+                fi
+
+                echo "Logs are not available yet, retrying..."
+                sleep 2
+              done
+            ) &
+            LOGS_PID=$!
+
+            STATUS=""
+            while true; do
+              COMPLETE=$(kubectl get job "$JOB_NAME" -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>/dev/null || true)
+              FAILED=$(kubectl get job "$JOB_NAME" -n "$NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}' 2>/dev/null || true)
+
+              if [[ "$COMPLETE" == "True" ]]; then
+                STATUS="completed"
+                break
+              fi
+
+              if [[ "$FAILED" == "True" ]]; then
+                STATUS="failed"
+                break
+              fi
+
+              sleep 2
+            done
+
+            wait "$LOGS_PID" || true
+
+            if [[ "$STATUS" == "failed" ]]; then
+              echo "Backup job '$JOB_NAME' failed"
+              exit 1
+            fi
+
+            echo "Backup job '$JOB_NAME' completed successfully"
+          `,
+        }),
+      )
+
+      return {
+        name: "backup-trigger",
+
+        meta: {
+          title: "Trigger Backup",
+          description: "Create a backup job from cron job and stream logs until completion",
+          icon: "material-symbols:play-arrow",
+        },
+
+        spec: {
+          image: k8sImages["terminal-kubectl"].image,
+          command: ["bash", "/trigger-backup.sh"],
+
+          files: {
+            "/kubeconfig": kubeconfigFile,
+            "/trigger-backup.sh": triggerScriptFile,
+          },
+
+          env: {
+            KUBECONFIG: "/kubeconfig",
+          },
+        },
+      }
+    })
+  }
+
+  get terminals(): Output<UnitTerminal>[] {
+    return [this.terminal, this.triggerBackupTerminal]
   }
 
   private async createBackupOnDestroyJob(): Promise<void> {

@@ -1,4 +1,6 @@
 export * from "./address"
 export * from "./address-space"
+export * from "./dynamic-endpoints"
 export * from "./endpoints"
+export * from "./resolved-address-space"
 export * from "./subnet"

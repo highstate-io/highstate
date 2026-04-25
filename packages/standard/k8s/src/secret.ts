@@ -1,15 +1,16 @@
-import type { k8s } from "@highstate/library"
 import { getOrCreate } from "@highstate/contract"
-import { toPromise } from "@highstate/pulumi"
-import { core, type types } from "@pulumi/kubernetes"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
-} from "@pulumi/pulumi"
+  toPromise,
+} from "@highstate/pulumi"
+import { core, type types } from "@pulumi/kubernetes"
 import { Namespace } from "./namespace"
 import { getProvider, mapMetadata, NamespacedResource, type ScopedResourceArgs } from "./shared"
 
@@ -56,7 +57,16 @@ export abstract class Secret extends NamespacedResource {
    * The Highstate secret entity.
    */
   get entity(): Output<k8s.Secret> {
-    return output(this.entityBase)
+    return makeEntityOutput({
+      entity: k8s.secretEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+      },
+    })
   }
 
   /**

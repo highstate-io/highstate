@@ -2,6 +2,7 @@
 import { DockviewVue, type DockviewReadyEvent } from "dockview-vue"
 import { themeDark } from "dockview-core"
 import { CustomTab, GenericPanel } from "#layers/core/app/features/shared"
+import { GlobalSearchCommandPalette } from "#layers/core/app/features/global-search"
 import { LayoutResetButton } from "#layers/core/app/features/main-menu"
 
 const initialized = ref(false)
@@ -36,6 +37,8 @@ defineOptions({
       right-header-actions-component="LayoutResetButton"
       @ready="onReady"
     />
+
+    <GlobalSearchCommandPalette />
   </div>
 </template>
 

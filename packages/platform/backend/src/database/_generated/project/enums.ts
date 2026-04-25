@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const EntityReferenceKind = {
+  explicit: 'explicit',
+  inclusion: 'inclusion'
+} as const
+
+export type EntityReferenceKind = (typeof EntityReferenceKind)[keyof typeof EntityReferenceKind]
+
+
 export const InstanceEvaluationStatus = {
   evaluating: 'evaluating',
   evaluated: 'evaluated',

@@ -1,5 +1,10 @@
 import type { Logger } from "pino"
-import type { InstanceStateService, ProjectModelService } from "../business"
+import type {
+  CapturedEntitySnapshotValue,
+  EntitySnapshotService,
+  InstanceStateService,
+  ProjectModelService,
+} from "../business"
 import type { LibraryBackend } from "../library"
 import {
   type ComponentModel,
@@ -7,6 +12,8 @@ import {
   type InstanceInput,
   type InstanceModel,
   isUnitModel,
+  parseInstanceId,
+  type VersionedName,
 } from "@highstate/contract"
 import { BetterLock } from "better-lock"
 import { mapValues, unique } from "remeda"
@@ -23,6 +30,8 @@ import {
   type ResolvedInstanceInput,
   type StableInstanceInput,
 } from "../shared"
+
+type RawPulumiOutputs = Record<string, { value: unknown; secret?: boolean }>
 
 export class OperationContext {
   private readonly instanceMap = new Map<InstanceId, InstanceModel>()
@@ -48,6 +57,8 @@ export class OperationContext {
     Record<InstanceId, ResolvedInstanceInput[]>
   >()
 
+  private readonly capturedOutputValueMap = new Map<string, CapturedEntitySnapshotValue[]>()
+
   private constructor(
     public readonly project: ProjectOutput,
     public readonly library: LibraryModel,
@@ -55,12 +66,48 @@ export class OperationContext {
   ) {}
 
   public getInstance(instanceId: InstanceId): InstanceModel {
-    const instance = this.instanceMap.get(instanceId)
+    const instance = this.tryGetInstance(instanceId)
     if (!instance) {
       throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
     }
 
     return instance
+  }
+
+  public tryGetInstance(instanceId: InstanceId): InstanceModel | undefined {
+    return this.instanceMap.get(instanceId)
+  }
+
+  public tryGetInstanceForDestroy(instanceId: InstanceId): InstanceModel | undefined {
+    const modelInstance = this.tryGetInstance(instanceId)
+    if (modelInstance) {
+      return modelInstance
+    }
+
+    const state = this.stateMap.get(instanceId)
+    if (!state) {
+      return undefined
+    }
+
+    const stateModel = state.model ?? state.lastOperationState?.model
+    if (stateModel) {
+      return stateModel
+    }
+
+    const [type, name] = parseInstanceId(instanceId)
+
+    return {
+      id: instanceId,
+      name,
+      type,
+      kind: state.kind,
+      parentId: state.parentInstanceId ?? undefined,
+      inputs: {},
+      args: {},
+      outputs: {},
+      resolvedInputs: {},
+      resolvedOutputs: {},
+    }
   }
 
   public isGhostInstance(instanceId: InstanceId): boolean {
@@ -83,6 +130,56 @@ export class OperationContext {
     instanceId: InstanceId,
   ): Record<string, ResolvedInstanceInput[]> | undefined {
     return this.resolvedInstanceInputs.get(instanceId)
+  }
+
+  public getCapturedOutputValues(
+    instanceId: InstanceId,
+    output: string,
+  ): CapturedEntitySnapshotValue[] {
+    const key = `${instanceId}:${output}`
+    return this.capturedOutputValueMap.get(key) ?? []
+  }
+
+  public updateCapturedOutputValuesFromUnitOutputs(options: {
+    instanceId: InstanceId
+    instanceType: VersionedName
+    outputs: RawPulumiOutputs
+  }): void {
+    const component = this.library.components[options.instanceType]
+    if (!component) {
+      return
+    }
+
+    for (const [outputName, outputSpec] of Object.entries(component.outputs ?? {})) {
+      const raw = options.outputs[outputName]?.value
+
+      if (raw === undefined || raw === null) {
+        this.capturedOutputValueMap.set(`${options.instanceId}:${outputName}`, [])
+        continue
+      }
+
+      const items = outputSpec.multiple ? raw : [raw]
+      if (outputSpec.multiple && !Array.isArray(raw)) {
+        throw new Error(
+          `Output "${outputName}" for instance "${options.instanceId}" must be an array`,
+        )
+      }
+
+      const values = (items as unknown[]).map(item => {
+        if (typeof item !== "object" || item === null || Array.isArray(item)) {
+          throw new Error(
+            `Output "${outputName}" for instance "${options.instanceId}" must contain objects`,
+          )
+        }
+
+        return {
+          ok: true,
+          value: item as Record<string, unknown>,
+        } satisfies CapturedEntitySnapshotValue
+      })
+
+      this.capturedOutputValueMap.set(`${options.instanceId}:${outputName}`, values)
+    }
   }
 
   public setState(state: InstanceState): void {
@@ -127,6 +224,7 @@ export class OperationContext {
         return {
           stateId: state.id,
           output: input.output,
+          path: input.path,
         }
       }),
     )
@@ -247,22 +345,49 @@ export class OperationContext {
     }
   }
 
-  /**
-   * Gets a map of instance IDs to state IDs for dependencies of the given instance.
-   *
-   * @param instanceId The instance ID to get the state ID map for.
-   * @returns A map of instance IDs to state IDs.
-   */
-  public getInstanceIdToStateIdMap(instanceId: InstanceId): Record<InstanceId, string> {
-    const map: Record<InstanceId, string> = {}
-    const dependencies = this.getDependencies(instanceId).map(i => i.id)
+  private async captureEntitySnapshotsAtOperationStart(options: {
+    projectId: string
+    entitySnapshotService: EntitySnapshotService
+  }): Promise<void> {
+    const keys: {
+      stateId: string
+      output: string
+      instanceId: InstanceId
+      operationId?: string
+    }[] = []
 
-    for (const dep of dependencies) {
-      const state = this.getState(dep)
-      map[dep] = state.id
+    for (const [instanceId, inputs] of this.resolvedInstanceInputs.entries()) {
+      for (const inputGroup of Object.values(inputs ?? {})) {
+        for (const input of inputGroup) {
+          if (input.input.instanceId === instanceId) {
+            continue
+          }
+
+          const dependencyState = this.getState(input.input.instanceId)
+          keys.push({
+            stateId: dependencyState.id,
+            output: input.input.output,
+            instanceId: input.input.instanceId,
+            operationId: dependencyState.lastOperationState?.operationId,
+          })
+        }
+      }
     }
 
-    return map
+    if (keys.length === 0) {
+      return
+    }
+
+    const captured = await options.entitySnapshotService.reconstructLatestExportedOutputValues(
+      options.projectId,
+      keys.map(k => ({ stateId: k.stateId, output: k.output, operationId: k.operationId })),
+      this.library,
+    )
+
+    for (const key of keys) {
+      const snapshotValues = captured.get(`${key.stateId}:${key.output}`) ?? []
+      this.capturedOutputValueMap.set(`${key.instanceId}:${key.output}`, snapshotValues)
+    }
   }
 
   getUnfinishedOperationStates(): InstanceState[] {
@@ -281,6 +406,7 @@ export class OperationContext {
     libraryBackend: LibraryBackend,
     instanceStateService: InstanceStateService,
     projectModelService: ProjectModelService,
+    entitySnapshotService: EntitySnapshotService | undefined,
     logger: Logger,
   ): Promise<OperationContext> {
     const [{ instances, virtualInstances, hubs, ghostInstances }, project] =
@@ -348,11 +474,16 @@ export class OperationContext {
         kind: "instance",
         instance,
         component: library.components[instance.type],
+        entities: library.entities,
       })
     }
 
     for (const hub of hubs) {
-      context.inputResolverNodes.set(`hub:${hub.id}`, { kind: "hub", hub })
+      context.inputResolverNodes.set(`hub:${hub.id}`, {
+        kind: "hub",
+        hub,
+        entities: library.entities,
+      })
     }
 
     context.inputResolver = new InputResolver(context.inputResolverNodes, logger)
@@ -387,6 +518,13 @@ export class OperationContext {
     context.inputHashResolver.addAllNodesToWorkset()
 
     await context.inputHashResolver.process()
+
+    if (entitySnapshotService) {
+      await context.captureEntitySnapshotsAtOperationStart({
+        projectId,
+        entitySnapshotService,
+      })
+    }
 
     return context
   }

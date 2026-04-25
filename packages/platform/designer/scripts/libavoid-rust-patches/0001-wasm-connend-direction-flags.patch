@@ -1,0 +1,21 @@
+diff --git a/src/wasm.rs b/src/wasm.rs
+index d1e8ea2..6e2f7fb 100644
+--- a/src/wasm.rs
++++ b/src/wasm.rs
+@@ -290,9 +290,14 @@ pub struct ConnEnd {
+ #[wasm_bindgen]
+ impl ConnEnd {
+     #[wasm_bindgen(constructor)]
+-    pub fn new(point: &Point) -> ConnEnd {
++    pub fn new(point: &Point, directions: Option<u32>) -> ConnEnd {
++        let inner = match directions {
++            Some(flags) => RustConnEnd::free_point(point.inner, flags),
++            None => RustConnEnd::new(point.inner),
++        };
++
+         ConnEnd {
+-            inner: RustConnEnd::new(point.inner),
++            inner,
+         }
+     }
+ 

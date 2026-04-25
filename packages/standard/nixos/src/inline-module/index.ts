@@ -1,31 +1,38 @@
-import { nixos } from "@highstate/library"
-import { forUnit, toPromise } from "@highstate/pulumi"
+import { common, nixos } from "@highstate/library"
+import { forUnit, makeEntityOutput, makeFile } from "@highstate/pulumi"
 
-const { name, args, inputs, outputs } = forUnit(nixos.inlineModule)
+const {
+  name,
+  stateId,
+  args,
+  inputs: { files, folders },
+  outputs,
+} = forUnit(nixos.inlineModule)
 
 const moduleName = args.moduleName ?? name
-const { files, folders } = await toPromise(inputs)
 
 export default outputs({
-  folder: {
+  folder: makeEntityOutput({
+    entity: common.folderEntity,
+    identity: stateId,
     meta: {
-      name: moduleName,
+      title: moduleName,
     },
-    content: {
-      type: "embedded",
+    value: {
+      meta: {
+        name: moduleName,
+      },
+      content: {
+        type: "embedded",
+      },
       files: [
-        ...(files ?? []),
-        {
-          meta: {
-            name: "default.nix",
-          },
-          content: {
-            type: "embedded",
-            value: args.code,
-          },
-        },
+        ...files,
+        makeFile({
+          name: "default.nix",
+          content: args.code,
+        }),
       ],
-      folders: folders ?? [],
+      folders,
     },
-  },
+  }),
 })

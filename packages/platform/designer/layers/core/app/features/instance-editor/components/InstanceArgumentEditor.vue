@@ -15,11 +15,17 @@ import GroupArgumentInput from "./GroupArgumentInput.vue"
 import PlainArgumentInput from "./PlainArgumentInput.vue"
 import { createEditorArguments, populateDefaultValues, removeDefaultValues } from "../business"
 
-const { instance, component, allInstances } = defineProps<{
+const {
+  instance,
+  component,
+  allInstances,
+  readonly = false,
+} = defineProps<{
   instance: InstanceModel
   component: ComponentModel
   state?: InstanceState
   allInstances: Map<string, InstanceModel>
+  readonly?: boolean
 }>()
 
 const editing = defineModel<boolean>()
@@ -37,6 +43,11 @@ const emit = defineEmits<{
 }>()
 
 const save = async () => {
+  if (readonly) {
+    editing.value = false
+    return
+  }
+
   const newArgs = removeDefaultValues(args, component.args)
   emit("save", instance.id, name.value, newArgs)
 
@@ -89,6 +100,7 @@ const nameDescription =
             label="Name"
             variant="outlined"
             density="compact"
+            :readonly="readonly"
             :rules="nameRules"
           />
 
@@ -101,6 +113,7 @@ const nameDescription =
           v-model="args[argument.name]"
           :argument="argument"
           :instance="instance"
+          :readonly="readonly"
         />
 
         <VExpansionPanels v-if="expandableArguments.length > 0" :elevation="0">
@@ -110,6 +123,7 @@ const nameDescription =
               v-model="args[argument.name]"
               :argument="argument"
               :instance="instance"
+              :readonly="readonly"
             />
 
             <CodeArgumentInput
@@ -117,6 +131,7 @@ const nameDescription =
               v-model="args[argument.name]"
               :argument="argument"
               :instance="instance"
+              :readonly="readonly"
             />
           </template>
         </VExpansionPanels>
@@ -128,7 +143,7 @@ const nameDescription =
         <VSpacer />
 
         <VBtn @click="cancel">Cancel</VBtn>
-        <VBtn @click="save" color="primary" :disabled="!nameValid">Save</VBtn>
+        <VBtn v-if="!readonly" @click="save" color="primary" :disabled="!nameValid">Save</VBtn>
       </VCardActions>
     </VCard>
   </VDialog>

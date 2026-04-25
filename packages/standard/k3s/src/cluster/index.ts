@@ -1,20 +1,20 @@
 import { Command, l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { createK8sTerminal } from "@highstate/k8s"
-import { type common, k3s } from "@highstate/library"
+import { common, k3s, k8s } from "@highstate/library"
 import {
-  fileFromString,
   forUnit,
   type InputRecord,
   interpolate,
+  makeEntityOutput,
+  makeFileOutput,
   output,
-  type Resource,
   secret,
   toPromise,
 } from "@highstate/pulumi"
 import { KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
-import { isIncludedIn, uniqueBy } from "remeda"
+import { isIncludedIn, mergeDeep, uniqueBy } from "remeda"
 
 const { name, args, inputs, outputs } = forUnit(k3s.cluster)
 
@@ -58,9 +58,6 @@ if (args.cni === "none") {
   serverConfig["flannel-backend"] = "none"
 }
 
-const serverConfigContent = JSON.stringify(serverConfig, null, 2)
-const agentConfigContent = JSON.stringify(agentConfig, null, 2)
-
 const seedInstallCommand = createNode(seed, "server", { K3S_CLUSTER_INIT: "true" })
 
 const tokenCommand = Command.receiveTextFile(
@@ -84,6 +81,7 @@ const agentTokenCommand = Command.receiveTextFile(
 for (const master of masters.slice(1)) {
   createNode(master, "server", {
     K3S_TOKEN: tokenCommand.stdout,
+    INSTALL_K3S_EXEC: `--node-ip=${l3EndpointToString(master.endpoints[0])}`,
     K3S_URL: `https://${l4EndpointToString(apiEndpoints[0])}`,
   })
 }
@@ -91,20 +89,21 @@ for (const master of masters.slice(1)) {
 for (const worker of workers) {
   createNode(worker, "agent", {
     K3S_TOKEN: agentTokenCommand.stdout,
+    INSTALL_K3S_EXEC: `--node-ip=${l3EndpointToString(worker.endpoints[0])}`,
     K3S_URL: `https://${l4EndpointToString(apiEndpoints[0])}`,
   })
 }
 
-function createNode(
-  server: common.Server,
-  type: "server" | "agent",
-  env: InputRecord<string>,
-  dependsOn?: Resource,
-) {
+function createNode(server: common.Server, type: "server" | "agent", env: InputRecord<string>) {
+  const baseConfig = type === "server" ? serverConfig : agentConfig
+  const nodeSpecificConfig = args.nodeConfig?.[server.hostname] ?? {}
+
+  const mergedConfig = mergeDeep(baseConfig, nodeSpecificConfig)
+
   const configFileCommand = Command.createTextFile(`config-${server.hostname}`, {
     host: server,
     path: "/etc/rancher/k3s/config.yaml",
-    content: type === "server" ? serverConfigContent : agentConfigContent,
+    content: JSON.stringify(mergedConfig, null, 2),
   })
 
   const registryConfigFileCommand = Command.createTextFile(`registry-config-${server.hostname}`, {
@@ -127,7 +126,7 @@ function createNode(
       delete: "/usr/local/bin/k3s-uninstall.sh || true",
     },
     {
-      dependsOn: [configFileCommand, registryConfigFileCommand, ...(dependsOn ? [dependsOn] : [])],
+      dependsOn: [configFileCommand, registryConfigFileCommand],
     },
   )
 }
@@ -153,8 +152,13 @@ kubeConfig.loadFromString(kubeconfig)
 const provider = new Provider(name, { kubeconfig: secret(kubeconfig) })
 const kubeSystem = core.v1.Namespace.get("kube-system", "kube-system", { provider })
 
-export default outputs({
-  k8sCluster: {
+const k8sCluster = makeEntityOutput({
+  entity: k8s.clusterEntity,
+  identity: kubeSystem.metadata.uid,
+  meta: {
+    title: name,
+  },
+  value: {
     id: kubeSystem.metadata.uid,
     connectionId: kubeSystem.metadata.uid,
     name,
@@ -172,8 +176,29 @@ export default outputs({
         : "LoadBalancer",
     },
 
-    kubeconfig: secret(kubeconfig),
+    kubeconfig: makeEntityOutput({
+      entity: common.fileEntity,
+      identity: interpolate`${kubeSystem.metadata.uid}:kubeconfig`,
+      meta: {
+        title: "kubeconfig",
+      },
+      value: {
+        meta: {
+          name: "kubeconfig",
+          mode: 0o600,
+          contentType: "text/yaml",
+        },
+        content: {
+          type: "embedded-secret",
+          value: kubeconfig,
+        },
+      },
+    }),
   },
+})
+
+export default outputs({
+  k8sCluster,
 
   $terminals: [createK8sTerminal(kubeconfig)],
 
@@ -198,7 +223,9 @@ export default outputs({
         },
         {
           type: "file",
-          file: fileFromString("kubeconfig", kubeconfig, {
+          file: makeFileOutput({
+            name: "kubeconfig",
+            content: kubeconfig,
             contentType: "text/yaml",
             isSecret: true,
           }),

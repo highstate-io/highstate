@@ -9,14 +9,39 @@
     "tag": "1.29.7",
     "image": "linuxserver/syncthing:1.29.7@sha256:2600853512ea2744d88b05fba7524d4bc6d99e14975d408a7f53beee0a2b83e1"
   },
-  "maybe": {
-    "name": "ghcr.io/maybe-finance/maybe",
-    "tag": "sha-cdad31812a273ec96e63aaeecc263e6bec237db8",
-    "image": "ghcr.io/maybe-finance/maybe:sha-cdad31812a273ec96e63aaeecc263e6bec237db8@sha256:51056a51735f8b6380e27b54b172d1a9706cc6960a4984730af3c233a4b9bb3e"
-  },
   "wg-feed-server": {
     "name": "ghcr.io/exeteres/wg-feed/server",
-    "tag": "v0.2.0",
-    "image": "ghcr.io/exeteres/wg-feed/server:v0.2.0@sha256:ebdd718fc1a28caecc9b0c7ce5d624dd1e5cdb08f7b276586d25009c74516661"
+    "tag": "v0.4.0",
+    "image": "ghcr.io/exeteres/wg-feed/server:v0.4.0@sha256:0c1d6ad04f4718658bca04a7c2a71729b4bcfac6289ba7b513bf97abc175d734"
+  },
+  "minio-console": {
+    "name": "ghcr.io/huncrys/minio-console",
+    "tag": "latest",
+    "image": "ghcr.io/huncrys/minio-console:latest@sha256:b186ef392385b6e0a45ca2b91404a8e61a07794c8775189ae757e33703e013d7"
+  },
+  "refluxdb": {
+    "name": "ghcr.io/metrico/influxdb3-unlocked",
+    "tag": "latest",
+    "image": "ghcr.io/metrico/influxdb3-unlocked:latest@sha256:5cc4e82cdcf1d852e1df247a69d5d7274f7c27fa429734e8970fe24ac0380249"
+  },
+  "portal": {
+    "name": "ghcr.io/exeteres/portal",
+    "tag": "v1.2.3",
+    "image": "ghcr.io/exeteres/portal:v1.2.3@sha256:3a9667f006124d90db07ffb8435de2efbb544e86d42e2dc04eb71d8ec3edec4f"
+  },
+  "matrix-tools": {
+    "name": "ghcr.io/element-hq/ess-helm/matrix-tools",
+    "tag": "0.7.3",
+    "image": "ghcr.io/element-hq/ess-helm/matrix-tools:0.7.3@sha256:7c47000a2a54c9673ab53b3317ebdd8570e5024abbda7425318589fbe5069d7a"
+  },
+  "cinny": {
+    "name": "ghcr.io/cinnyapp/cinny",
+    "tag": "v4.11.1",
+    "image": "ghcr.io/cinnyapp/cinny:v4.11.1@sha256:1a61688751b97d840347bab36320c3b611861b0fef7eafcd9ec94c5ec9060e80"
+  },
+  "static-file-server": {
+    "name": "halverneus/static-file-server",
+    "tag": "v1.8.12",
+    "image": "halverneus/static-file-server:v1.8.12@sha256:48c3f4139614c377ad9f29273c465c04671a338a296d40e0ebee626178800072"
   }
 }

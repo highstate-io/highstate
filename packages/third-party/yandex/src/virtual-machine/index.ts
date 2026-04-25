@@ -8,18 +8,25 @@ import {
 } from "@highstate/common"
 import { trimIndentation } from "@highstate/contract"
 import { yandex } from "@highstate/library"
-import { forUnit, getResourceComment, interpolate, toPromise } from "@highstate/pulumi"
-import { ComputeDisk, ComputeInstance, getVpcSubnet, VpcAddress } from "@highstate/yandex-sdk"
+import { forUnit, getResourceComment, interpolate, type Output, toPromise } from "@highstate/pulumi"
+import {
+  ComputeDisk,
+  ComputeInstance,
+  getVpcSubnet,
+  KmsSymmetricKey,
+  VpcAddress,
+} from "@highstate/yandex-sdk"
 import { createProvider } from "../provider"
 
 const { name, args, getSecret, inputs, outputs } = forUnit(yandex.virtualMachine)
 
 const vmName = args.vmName ?? name
 
-const provider = await createProvider(inputs.connection)
+const provider = await createProvider(inputs.connection, args.cloudId)
 
 const sshKeyPair =
-  inputs.sshKeyPair ?? sshPrivateKeyToKeyPair(getSecret("sshPrivateKey", generateSshPrivateKey))
+  inputs.sshKeyPair ??
+  getSecret("sshPrivateKey", generateSshPrivateKey).apply(sshPrivateKeyToKeyPair)
 
 const rootPassword = getSecret("rootPassword", generatePassword)
 
@@ -44,6 +51,22 @@ if (!subnetId) {
   subnetId = subnet.id
 }
 
+// create key for disk
+let encryptionKeyId: Output<string> | undefined
+if (args.bootDisk.encrypted) {
+  const encryptionKey = new KmsSymmetricKey(
+    "encryption-key",
+    {
+      name: vmName,
+      description: getResourceComment(),
+      folderId: args.folderId ?? inputs.connection.defaultFolderId,
+    },
+    { provider },
+  )
+
+  encryptionKeyId = encryptionKey.id
+}
+
 // create the disk
 const disk = new ComputeDisk(
   "disk",
@@ -53,8 +76,9 @@ const disk = new ComputeDisk(
     size: args.bootDisk.size,
     imageId: inputs.image.id,
     allowRecreate: false,
-    folderId: inputs.connection.defaultFolderId,
+    folderId: args.folderId ?? inputs.connection.defaultFolderId,
     zone: inputs.connection.defaultZone,
+    kmsKeyId: encryptionKeyId,
   },
   { provider, ignoreChanges: ["imageId"] },
 )
@@ -70,13 +94,14 @@ const userData = interpolate`
       sudo: ALL=(ALL) NOPASSWD:ALL
 `.apply(trimIndentation)
 
-let address: VpcAddress | undefined
+let publicAddress: VpcAddress | undefined
 
 if (args.network.assignPublicIp && args.network.reservePublicIp) {
-  address = new VpcAddress(
+  publicAddress = new VpcAddress(
     "address",
     {
       name: vmName,
+      folderId: args.folderId ?? inputs.connection.defaultFolderId,
       description: getResourceComment(),
       externalIpv4Address: {
         zoneId: inputs.connection.defaultZone,
@@ -92,7 +117,7 @@ const instance = new ComputeInstance(
   {
     name: vmName,
     description: getResourceComment(),
-    folderId: inputs.connection.defaultFolderId,
+    folderId: args.folderId ?? inputs.connection.defaultFolderId,
     zone: inputs.connection.defaultZone,
     platformId: args.platformId,
     allowStoppingForUpdate: true,
@@ -103,6 +128,10 @@ const instance = new ComputeInstance(
       coreFraction: args.resources.coreFraction,
     },
 
+    schedulingPolicy: {
+      preemptible: args.preemptible,
+    },
+
     bootDisk: {
       diskId: disk.id,
     },
@@ -111,7 +140,9 @@ const instance = new ComputeInstance(
       {
         subnetId: subnetId,
         nat: args.network.assignPublicIp,
-        natIpAddress: address ? address.externalIpv4Address.apply(a => a!.address) : undefined,
+        natIpAddress: publicAddress
+          ? publicAddress.externalIpv4Address.apply(a => a!.address)
+          : undefined,
       },
     ],
 

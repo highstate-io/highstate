@@ -1,4 +1,4 @@
-import type { CommonObjectMeta, UnitWorker } from "@highstate/contract"
+import type { CommonObjectMeta, ServiceAccountMeta, UnitWorker } from "@highstate/contract"
 import type { Logger } from "pino"
 import type {
   DatabaseManager,
@@ -13,6 +13,7 @@ import { randomBytes } from "node:crypto"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client"
 import { createProjectLogger } from "../common"
 import {
+  type ApiKeyMeta,
   extractDigestFromImage,
   getWorkerIdentity,
   type WorkerUnitRegistrationEvent,
@@ -41,7 +42,9 @@ export class WorkerService {
     projectId: string,
     stateId: string,
     unitWorkers: UnitWorker[],
-  ): Promise<void> {
+  ): Promise<string[]> {
+    const objectIds = new Set<string>()
+
     // parse images first
     const parsedWorkers = unitWorkers.map(w => {
       const digest = extractDigestFromImage(w.image)
@@ -66,6 +69,13 @@ export class WorkerService {
     for (const worker of parsedWorkers) {
       const workerRecord = await this.ensureWorker(tx, worker.identity)
       const workerVersionRecord = await this.ensureWorkerVersion(tx, workerRecord, worker.digest)
+
+      objectIds.add(workerRecord.id)
+      objectIds.add(workerRecord.serviceAccountId)
+      objectIds.add(workerVersionRecord.id)
+      if (workerVersionRecord.apiKeyId) {
+        objectIds.add(workerVersionRecord.apiKeyId)
+      }
 
       const existing = existingRegistrations.find(r => r.name === worker.name)
       const stringifiedParams = JSON.stringify(worker.params)
@@ -145,6 +155,8 @@ export class WorkerService {
     void this.workerManager.syncWorkers(projectId)
 
     logger.info(`updated worker registrations for instance state "%s"`, stateId)
+
+    return Array.from(objectIds)
   }
 
   private async ensureWorker(tx: ProjectTransaction, identity: string): Promise<Worker> {
@@ -230,7 +242,7 @@ export class WorkerService {
       where: {
         unitRegistrations: { none: {} },
       },
-      select: { id: true },
+      select: { id: true, apiKeyId: true },
     })
 
     if (unused.length === 0) {
@@ -240,6 +252,22 @@ export class WorkerService {
     await tx.workerVersion.deleteMany({
       where: { id: { in: unused.map(u => u.id) } },
     })
+
+    await tx.apiKey.deleteMany({
+      where: { id: { in: unused.map(u => u.apiKeyId) } },
+    })
+  }
+
+  private createWorkerApiKeyMeta(
+    workerIdentity: string,
+    serviceAccountMeta: Pick<ServiceAccountMeta, "title" | "description">,
+  ): ApiKeyMeta {
+    return {
+      title: `${serviceAccountMeta.title} API Key`,
+      description:
+        serviceAccountMeta.description ??
+        `Automatically managed API key for worker "${workerIdentity}" service account.`,
+    }
   }
 
   /**
@@ -253,15 +281,38 @@ export class WorkerService {
     projectId: string,
     workerVersionId: string,
     meta: CommonObjectMeta,
+    serviceAccountMeta?: ServiceAccountMeta,
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
     const logger = createProjectLogger(this.logger, projectId)
 
     try {
-      await database.workerVersion.update({
+      const workerVersion = await database.workerVersion.update({
         where: { id: workerVersionId },
+        select: {
+          worker: {
+            select: {
+              identity: true,
+              serviceAccountId: true,
+            },
+          },
+        },
         data: { meta },
       })
+
+      if (serviceAccountMeta) {
+        await database.serviceAccount.update({
+          where: { id: workerVersion.worker.serviceAccountId },
+          data: { meta: serviceAccountMeta },
+        })
+
+        await database.apiKey.updateMany({
+          where: { serviceAccountId: workerVersion.worker.serviceAccountId },
+          data: {
+            meta: this.createWorkerApiKeyMeta(workerVersion.worker.identity, serviceAccountMeta),
+          },
+        })
+      }
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
         throw new WorkerVersionNotFoundError(projectId, workerVersionId)

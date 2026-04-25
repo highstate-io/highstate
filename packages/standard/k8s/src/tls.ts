@@ -1,12 +1,13 @@
-import type { k8s } from "@highstate/library"
 import type { types } from "@pulumi/kubernetes"
 import { cert_manager, type types as cmTypes } from "@highstate/cert-manager"
 import { getOrCreate } from "@highstate/contract"
+import { k8s } from "@highstate/library"
 import {
   type ComponentResourceOptions,
   type Input,
   type Inputs,
   interpolate,
+  makeEntityOutput,
   type Output,
   output,
   toPromise,
@@ -29,6 +30,22 @@ export type CreateOrGetCertificateArgs = CertificateArgs & {
    * The certificate entity to patch/retrieve.
    */
   existing: Input<k8s.Certificate> | undefined
+}
+
+const certManagerCertificateWaitFor = "condition=Ready"
+
+function mapCertificateMetadata(
+  args: CertificateArgs,
+  fallbackName: string,
+): Output<types.input.meta.v1.ObjectMeta> {
+  return mapMetadata(args, fallbackName).apply(metadata => ({
+    ...metadata,
+    annotations: {
+      ...metadata.annotations,
+      "pulumi.com/waitFor":
+        metadata.annotations?.["pulumi.com/waitFor"] ?? certManagerCertificateWaitFor,
+    },
+  }))
 }
 
 /**
@@ -65,8 +82,17 @@ export abstract class Certificate extends NamespacedResource {
   /**
    * The Highstate certificate entity.
    */
-  get entity(): Output<k8s.NamespacedResource> {
-    return output(this.entityBase)
+  get entity(): Output<k8s.Certificate> {
+    return makeEntityOutput({
+      entity: k8s.certificateEntity,
+      identity: this.metadata.uid,
+      meta: {
+        title: this.metadata.name,
+      },
+      value: {
+        ...this.entityBase,
+      },
+    })
   }
 
   /**
@@ -228,7 +254,7 @@ class CreatedCertificate extends Certificate {
       return new cert_manager.v1.Certificate(
         name,
         {
-          metadata: mapMetadata(args, name),
+          metadata: mapCertificateMetadata(args, name),
           spec: omit(args, commonExtraArgs),
         },
         { ...opts, parent: this, provider: getProvider(cluster) },
@@ -255,7 +281,7 @@ class CertificatePatch extends Certificate {
       return new cert_manager.v1.CertificatePatch(
         name,
         {
-          metadata: mapMetadata(args, name),
+          metadata: mapCertificateMetadata(args, name),
           spec: omit(args, commonExtraArgs),
         },
         { ...opts, parent: this, provider: getProvider(cluster) },

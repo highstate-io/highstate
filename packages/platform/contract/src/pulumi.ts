@@ -1,32 +1,48 @@
 import { parse } from "yaml"
 import { z } from "zod"
-import { entityInclusionSchema } from "./entity"
 import {
   fileMetaSchema,
   HighstateSignature,
-  instanceIdSchema,
   instanceInputSchema,
+  secretSchema,
   yamlValueSchema,
 } from "./instance"
 import { commonObjectMetaSchema } from "./meta"
 import { triggerInvocationSchema } from "./trigger"
 
-export type UnitInputReference = z.infer<typeof unitInputReference>
-
-export const unitInputReference = z.object({
+export const unitInputSourceSchema = z.object({
   ...instanceInputSchema.shape,
+})
+
+export type UnitInputSource = z.infer<typeof unitInputSourceSchema>
+
+export const unitInputValueSchema = z.object({
+  /**
+   * Inline resolved value passed to the unit.
+   *
+   * The backend is responsible for resolving the correct entity snapshot value
+   * and applying any inclusion transformations.
+   */
+  value: z.unknown(),
 
   /**
-   * The resolved inclusion needed to extract the input value.
+   * Optional provenance of the value.
    */
-  inclusion: entityInclusionSchema.optional(),
+  source: unitInputSourceSchema.optional(),
 })
+
+export type UnitInputValue = z.infer<typeof unitInputValueSchema>
 
 export const unitConfigSchema = z.object({
   /**
    * The ID of the instance.
    */
   instanceId: z.string(),
+
+  /**
+   * The state ID of the instance.
+   */
+  stateId: z.string(),
 
   /**
    * The record of argument values for the unit.
@@ -36,7 +52,7 @@ export const unitConfigSchema = z.object({
   /**
    * The record of input references for the unit.
    */
-  inputs: z.record(z.string(), unitInputReference.array()),
+  inputs: z.record(z.string(), unitInputValueSchema.array()),
 
   /**
    * The list of triggers that have been invoked for this unit.
@@ -44,14 +60,11 @@ export const unitConfigSchema = z.object({
   invokedTriggers: triggerInvocationSchema.array(),
 
   /**
-   * The list of secret names that exists and provided to the unit.
+   * The record of secret values provided to the unit.
+   *
+   * It is stored in Pulumi stack config as a secret.
    */
-  secretNames: z.string().array(),
-
-  /**
-   * The map of instance ID to state ID in order to resolve instance references.
-   */
-  stateIdMap: z.record(instanceIdSchema, z.string()),
+  secretValues: z.record(z.string(), z.unknown()),
 
   /**
    * The base path for imports.
@@ -87,7 +100,6 @@ export function parseArgumentValue(value: unknown): unknown {
 
 export enum HighstateConfigKey {
   Config = "highstate",
-  Secrets = "highstate.secrets",
 }
 
 export const unitArtifactId = Symbol("unitArtifactId")
@@ -117,6 +129,23 @@ export const fileContentSchema = z.union([
      * If `isBinary` is true, this will be a base64 encoded string.
      */
     value: z.string(),
+  }),
+  z.object({
+    type: z.literal("embedded-secret"),
+
+    /**
+     * Whether the content is binary or not.
+     *
+     * If true, the `value` will be a base64 encoded string.
+     */
+    isBinary: z.boolean().optional(),
+
+    /**
+     * The content of the file wrapped as a Highstate secret.
+     *
+     * If `isBinary` is true, this will be a base64 encoded string.
+     */
+    value: secretSchema(z.string()),
   }),
   z.object({
     type: z.literal("artifact"),

@@ -34,25 +34,87 @@ export class KubernetesNodeGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === KubernetesNodeGroup.__pulumiType;
     }
 
+    /**
+     * This argument specify subnets (zones), that will be used by node group compute instances.
+     */
     declare public readonly allocationPolicy: pulumi.Output<outputs.KubernetesNodeGroupAllocationPolicy | undefined>;
+    /**
+     * A list of allowed unsafe `sysctl` parameters for this node group. For more details see
+     * [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster).
+     */
     declare public readonly allowedUnsafeSysctls: pulumi.Output<string[] | undefined>;
+    /**
+     * The ID of the Kubernetes cluster that this node group belongs to.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * Deploy policy of the node group.
+     */
     declare public readonly deployPolicy: pulumi.Output<outputs.KubernetesNodeGroupDeployPolicy | undefined>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of instance group that is used to manage this Kubernetes node group.
+     */
     declare public /*out*/ readonly instanceGroupId: pulumi.Output<string>;
+    /**
+     * Template used to create compute instances in this Kubernetes node group.
+     */
     declare public readonly instanceTemplate: pulumi.Output<outputs.KubernetesNodeGroupInstanceTemplate>;
     declare public readonly kubernetesNodeGroupId: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and
+     * could happen at any time. Revision upgrades are performed only within the same minor version, e.g. `1.29`. Minor version
+     * upgrades (e.g. `1.29`->`1.30`) should be performed manually.
+     */
     declare public readonly maintenancePolicy: pulumi.Output<outputs.KubernetesNodeGroupMaintenancePolicy | undefined>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+     */
     declare public readonly nodeLabels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+     */
     declare public readonly nodeTaints: pulumi.Output<string[] | undefined>;
+    /**
+     * Scale policy of the node group.
+     */
     declare public readonly scalePolicy: pulumi.Output<outputs.KubernetesNodeGroupScalePolicy>;
+    /**
+     * Status of the Kubernetes node group.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.KubernetesNodeGroupTimeouts | undefined>;
+    /**
+     * Variables for templating as key/value pairs.
+     */
+    declare public readonly variables: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Version of Kubernetes that will be used for Kubernetes node group.
+     */
     declare public readonly version: pulumi.Output<string>;
+    /**
+     * Information about Kubernetes node group version.
+     */
     declare public /*out*/ readonly versionInfos: pulumi.Output<outputs.KubernetesNodeGroupVersionInfo[]>;
+    /**
+     * Workload Identity Federation configuration.
+     */
+    declare public readonly workloadIdentityFederation: pulumi.Output<outputs.KubernetesNodeGroupWorkloadIdentityFederation | undefined>;
 
     /**
      * Create a KubernetesNodeGroup resource with the given unique name, arguments, and options.
@@ -84,8 +146,10 @@ export class KubernetesNodeGroup extends pulumi.CustomResource {
             resourceInputs["scalePolicy"] = state?.scalePolicy;
             resourceInputs["status"] = state?.status;
             resourceInputs["timeouts"] = state?.timeouts;
+            resourceInputs["variables"] = state?.variables;
             resourceInputs["version"] = state?.version;
             resourceInputs["versionInfos"] = state?.versionInfos;
+            resourceInputs["workloadIdentityFederation"] = state?.workloadIdentityFederation;
         } else {
             const args = argsOrState as KubernetesNodeGroupArgs | undefined;
             if (args?.clusterId === undefined && !opts.urn) {
@@ -111,7 +175,9 @@ export class KubernetesNodeGroup extends pulumi.CustomResource {
             resourceInputs["nodeTaints"] = args?.nodeTaints;
             resourceInputs["scalePolicy"] = args?.scalePolicy;
             resourceInputs["timeouts"] = args?.timeouts;
+            resourceInputs["variables"] = args?.variables;
             resourceInputs["version"] = args?.version;
+            resourceInputs["workloadIdentityFederation"] = args?.workloadIdentityFederation;
             resourceInputs["createdAt"] = undefined /*out*/;
             resourceInputs["instanceGroupId"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
@@ -126,44 +192,156 @@ export class KubernetesNodeGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering KubernetesNodeGroup resources.
  */
 export interface KubernetesNodeGroupState {
+    /**
+     * This argument specify subnets (zones), that will be used by node group compute instances.
+     */
     allocationPolicy?: pulumi.Input<inputs.KubernetesNodeGroupAllocationPolicy>;
+    /**
+     * A list of allowed unsafe `sysctl` parameters for this node group. For more details see
+     * [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster).
+     */
     allowedUnsafeSysctls?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of the Kubernetes cluster that this node group belongs to.
+     */
     clusterId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Deploy policy of the node group.
+     */
     deployPolicy?: pulumi.Input<inputs.KubernetesNodeGroupDeployPolicy>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of instance group that is used to manage this Kubernetes node group.
+     */
     instanceGroupId?: pulumi.Input<string>;
+    /**
+     * Template used to create compute instances in this Kubernetes node group.
+     */
     instanceTemplate?: pulumi.Input<inputs.KubernetesNodeGroupInstanceTemplate>;
     kubernetesNodeGroupId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and
+     * could happen at any time. Revision upgrades are performed only within the same minor version, e.g. `1.29`. Minor version
+     * upgrades (e.g. `1.29`->`1.30`) should be performed manually.
+     */
     maintenancePolicy?: pulumi.Input<inputs.KubernetesNodeGroupMaintenancePolicy>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+     */
     nodeLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+     */
     nodeTaints?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Scale policy of the node group.
+     */
     scalePolicy?: pulumi.Input<inputs.KubernetesNodeGroupScalePolicy>;
+    /**
+     * Status of the Kubernetes node group.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.KubernetesNodeGroupTimeouts>;
+    /**
+     * Variables for templating as key/value pairs.
+     */
+    variables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Version of Kubernetes that will be used for Kubernetes node group.
+     */
     version?: pulumi.Input<string>;
+    /**
+     * Information about Kubernetes node group version.
+     */
     versionInfos?: pulumi.Input<pulumi.Input<inputs.KubernetesNodeGroupVersionInfo>[]>;
+    /**
+     * Workload Identity Federation configuration.
+     */
+    workloadIdentityFederation?: pulumi.Input<inputs.KubernetesNodeGroupWorkloadIdentityFederation>;
 }
 
 /**
  * The set of arguments for constructing a KubernetesNodeGroup resource.
  */
 export interface KubernetesNodeGroupArgs {
+    /**
+     * This argument specify subnets (zones), that will be used by node group compute instances.
+     */
     allocationPolicy?: pulumi.Input<inputs.KubernetesNodeGroupAllocationPolicy>;
+    /**
+     * A list of allowed unsafe `sysctl` parameters for this node group. For more details see
+     * [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster).
+     */
     allowedUnsafeSysctls?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The ID of the Kubernetes cluster that this node group belongs to.
+     */
     clusterId: pulumi.Input<string>;
+    /**
+     * Deploy policy of the node group.
+     */
     deployPolicy?: pulumi.Input<inputs.KubernetesNodeGroupDeployPolicy>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * Template used to create compute instances in this Kubernetes node group.
+     */
     instanceTemplate: pulumi.Input<inputs.KubernetesNodeGroupInstanceTemplate>;
     kubernetesNodeGroupId?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Maintenance policy for this Kubernetes node group. If policy is omitted, automatic revision upgrades are enabled and
+     * could happen at any time. Revision upgrades are performed only within the same minor version, e.g. `1.29`. Minor version
+     * upgrades (e.g. `1.29`->`1.30`) should be performed manually.
+     */
     maintenancePolicy?: pulumi.Input<inputs.KubernetesNodeGroupMaintenancePolicy>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+     */
     nodeLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+     */
     nodeTaints?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * Scale policy of the node group.
+     */
     scalePolicy: pulumi.Input<inputs.KubernetesNodeGroupScalePolicy>;
     timeouts?: pulumi.Input<inputs.KubernetesNodeGroupTimeouts>;
+    /**
+     * Variables for templating as key/value pairs.
+     */
+    variables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Version of Kubernetes that will be used for Kubernetes node group.
+     */
     version?: pulumi.Input<string>;
+    /**
+     * Workload Identity Federation configuration.
+     */
+    workloadIdentityFederation?: pulumi.Input<inputs.KubernetesNodeGroupWorkloadIdentityFederation>;
 }

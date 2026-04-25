@@ -45,6 +45,9 @@ export function useGraphResolverState<
   const ready = ref(false)
   const createRequestSent = ref(false)
   const initialNodesDispatchRequested = ref(false)
+  const pendingUpdates = new Map<string, TInput>()
+  const pendingDeletes = new Set<string>()
+  let flushTimer: ReturnType<typeof setTimeout> | null = null
 
   const inputs = shallowReactive(new Map()) as Map<string, TInput>
   const outputs = shallowReactive(new Map()) as Map<string, TOutput>
@@ -55,6 +58,35 @@ export function useGraphResolverState<
   const safePostMessage = async (message: GraphResolverInput) => {
     await until(ready).toBe(true)
     worker.postMessage(message)
+  }
+
+  const scheduleFlush = () => {
+    if (flushTimer) {
+      return
+    }
+
+    flushTimer = setTimeout(() => {
+      flushTimer = null
+
+      const updates = Array.from(pendingUpdates.entries())
+      const deletes = Array.from(pendingDeletes.values())
+
+      pendingUpdates.clear()
+      pendingDeletes.clear()
+
+      for (const [key, value] of updates) {
+        safePostMessage({
+          type: "update-input",
+          resolverId: resolverId,
+          nodeId: key,
+          node: JSON.parse(JSON.stringify(value)),
+        })
+      }
+
+      for (const key of deletes) {
+        safePostMessage({ type: "delete-input", resolverId: resolverId, nodeId: key })
+      }
+    }, 0)
   }
 
   const createResolver = () => {
@@ -105,6 +137,17 @@ export function useGraphResolverState<
 
         break
       }
+      case "dependent-set-batch": {
+        for (const item of message.items) {
+          if (!item.dependents || item.dependents.length === 0) {
+            dependentMap.delete(item.nodeId)
+          } else {
+            dependentMap.set(item.nodeId, item.dependents)
+          }
+        }
+
+        break
+      }
       case "outputs": {
         for (const item of message.items) {
           outputs.set(item.nodeId, item.output as TOutput)
@@ -130,6 +173,11 @@ export function useGraphResolverState<
   onScopeDispose(() => {
     logger.debug({ stateId: resolverId }, "disposing state")
 
+    if (flushTimer) {
+      clearTimeout(flushTimer)
+      flushTimer = null
+    }
+
     if (ready.value) {
       worker.postMessage({ type: "dispose-resolver", resolverId })
     }
@@ -142,18 +190,22 @@ export function useGraphResolverState<
       return
     }
 
-    safePostMessage({
-      type: "update-input",
-      resolverId: resolverId,
-      nodeId: key,
-      node: JSON.parse(JSON.stringify(value)),
-    })
+    pendingDeletes.delete(key)
+    pendingUpdates.set(key, value)
+    scheduleFlush()
   }
 
   const del = (key: string) => {
     inputs.delete(key)
     outputs.delete(key)
-    safePostMessage({ type: "delete-input", resolverId: resolverId, nodeId: key })
+
+    if (!initialNodesDispatchRequested.value) {
+      return
+    }
+
+    pendingUpdates.delete(key)
+    pendingDeletes.add(key)
+    scheduleFlush()
   }
 
   return {

@@ -9,10 +9,15 @@ export const createCertificate = tlsCertificateMediator.implement(
   ({ name, spec, opts }, data) => {
     const provider = getProvider(data.cluster)
 
+    const metadata = spec.metadata as Record<string, unknown> | undefined
+    const metadataNamespace = metadata?.["k8s.namespace"]
+
     const namespace =
-      spec.nativeData instanceof Namespace
-        ? spec.nativeData
-        : Namespace.get("cert-manager", { name: "cert-manager", cluster: data.cluster })
+      metadataNamespace instanceof Namespace
+        ? metadataNamespace
+        : metadataNamespace
+          ? Namespace.for(metadataNamespace as k8s.Namespace, data.cluster)
+          : Namespace.get("cert-manager", { name: "cert-manager", cluster: data.cluster })
 
     return Certificate.create(
       name,

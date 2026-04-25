@@ -39,7 +39,7 @@ const contextMenu = useTemplateRef("contextMenu")
       (instanceId, newName, newArgs) => instancesStore.updateInstance(instanceId, newName, newArgs)
     "
     @operation:launch="
-      operation => operationsStore.launchInstanceOperation(operation, data.instance)
+      operation => operationsStore.launchQuickInstanceOperation(operation, data.instance)
     "
     @operation:cancel="
       operationsStore.cancelInstanceOperation(

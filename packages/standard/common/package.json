@@ -32,11 +32,23 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/network/l3-endpoint-replacer": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/network/l4-endpoint": {
         "mode": "manual",
         "version": "1"
       },
+      "./units/network/l4-endpoint-replacer": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/network/l7-endpoint": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/network/l7-endpoint-replacer": {
         "mode": "manual",
         "version": "1"
       },
@@ -55,54 +67,6 @@
       "./units/server-patch": {
         "mode": "manual",
         "version": "1"
-      },
-      "./units/databases/existing-etcd": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/existing-mariadb": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/existing-postgresql": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/existing-mongodb": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/existing-redis": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/existing-s3": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/etcd-patch": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/mariadb-patch": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/postgresql-patch": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/mongodb-patch": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/redis-patch": {
-        "mode": "manual",
-        "version": "1"
-      },
-      "./units/databases/s3-patch": {
-        "mode": "manual",
-        "version": "1"
       }
     }
   },
@@ -116,24 +80,15 @@
     "./units/network/address-space": "./dist/units/network/address-space/index.js",
     "./units/network/endpoint-filter": "./dist/units/network/endpoint-filter/index.js",
     "./units/network/l3-endpoint": "./dist/units/network/l3-endpoint/index.js",
+    "./units/network/l3-endpoint-replacer": "./dist/units/network/l3-endpoint-replacer/index.js",
     "./units/network/l4-endpoint": "./dist/units/network/l4-endpoint/index.js",
+    "./units/network/l4-endpoint-replacer": "./dist/units/network/l4-endpoint-replacer/index.js",
     "./units/network/l7-endpoint": "./dist/units/network/l7-endpoint/index.js",
+    "./units/network/l7-endpoint-replacer": "./dist/units/network/l7-endpoint-replacer/index.js",
     "./units/existing-server": "./dist/units/existing-server/index.js",
     "./units/ssh/key-pair": "./dist/units/ssh/key-pair/index.js",
     "./units/script": "./dist/units/script/index.js",
-    "./units/server-patch": "./dist/units/server-patch/index.js",
-    "./units/databases/existing-etcd": "./dist/units/databases/existing-etcd/index.js",
-    "./units/databases/existing-mariadb": "./dist/units/databases/existing-mariadb/index.js",
-    "./units/databases/existing-postgresql": "./dist/units/databases/existing-postgresql/index.js",
-    "./units/databases/existing-mongodb": "./dist/units/databases/existing-mongodb/index.js",
-    "./units/databases/existing-redis": "./dist/units/databases/existing-redis/index.js",
-    "./units/databases/existing-s3": "./dist/units/databases/existing-s3/index.js",
-    "./units/databases/etcd-patch": "./dist/units/databases/etcd-patch/index.js",
-    "./units/databases/mariadb-patch": "./dist/units/databases/mariadb-patch/index.js",
-    "./units/databases/postgresql-patch": "./dist/units/databases/postgresql-patch/index.js",
-    "./units/databases/mongodb-patch": "./dist/units/databases/mongodb-patch/index.js",
-    "./units/databases/redis-patch": "./dist/units/databases/redis-patch/index.js",
-    "./units/databases/s3-patch": "./dist/units/databases/s3-patch/index.js"
+    "./units/server-patch": "./dist/units/server-patch/index.js"
   },
   "publishConfig": {
     "access": "public"
@@ -163,7 +118,8 @@
     "minimatch": "^10.0.3",
     "remeda": "^2.21.0",
     "tar": "^7.4.3",
-    "unzipper": "^0.12.3"
+    "unzipper": "^0.12.3",
+    "@paralleldrive/cuid2": "^2.2.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

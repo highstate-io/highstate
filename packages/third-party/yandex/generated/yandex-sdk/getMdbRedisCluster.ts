@@ -12,6 +12,7 @@ export function getMdbRedisCluster(args?: GetMdbRedisClusterArgs, opts?: pulumi.
     return pulumi.runtime.invoke("yandex:index/getMdbRedisCluster:getMdbRedisCluster", {
         "clusterId": args.clusterId,
         "deletionProtection": args.deletionProtection,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "folderId": args.folderId,
         "id": args.id,
         "name": args.name,
@@ -24,6 +25,7 @@ export function getMdbRedisCluster(args?: GetMdbRedisClusterArgs, opts?: pulumi.
 export interface GetMdbRedisClusterArgs {
     clusterId?: string;
     deletionProtection?: boolean;
+    diskEncryptionKeyId?: string;
     folderId?: string;
     id?: string;
     name?: string;
@@ -34,11 +36,13 @@ export interface GetMdbRedisClusterArgs {
  */
 export interface GetMdbRedisClusterResult {
     readonly announceHostnames: boolean;
+    readonly authSentinel: boolean;
     readonly clusterId: string;
     readonly configs: outputs.GetMdbRedisClusterConfig[];
     readonly createdAt: string;
     readonly deletionProtection: boolean;
     readonly description: string;
+    readonly diskEncryptionKeyId: string;
     readonly diskSizeAutoscalings: outputs.GetMdbRedisClusterDiskSizeAutoscaling[];
     readonly environment: string;
     readonly folderId: string;
@@ -62,6 +66,7 @@ export function getMdbRedisClusterOutput(args?: GetMdbRedisClusterOutputArgs, op
     return pulumi.runtime.invokeOutput("yandex:index/getMdbRedisCluster:getMdbRedisCluster", {
         "clusterId": args.clusterId,
         "deletionProtection": args.deletionProtection,
+        "diskEncryptionKeyId": args.diskEncryptionKeyId,
         "folderId": args.folderId,
         "id": args.id,
         "name": args.name,
@@ -74,6 +79,7 @@ export function getMdbRedisClusterOutput(args?: GetMdbRedisClusterOutputArgs, op
 export interface GetMdbRedisClusterOutputArgs {
     clusterId?: pulumi.Input<string>;
     deletionProtection?: pulumi.Input<boolean>;
+    diskEncryptionKeyId?: pulumi.Input<string>;
     folderId?: pulumi.Input<string>;
     id?: pulumi.Input<string>;
     name?: pulumi.Input<string>;

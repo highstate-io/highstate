@@ -9,9 +9,7 @@ import {
   IdTableCell,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
-import {
-  ServiceAccountRefChip,
-} from "#layers/core/app/features/shared"
+import { ServiceAccountRefChip } from "#layers/core/app/features/shared"
 
 const { settingsStore } = useProjectStores()
 const { projectStore } = useProjectStores()
@@ -59,12 +57,16 @@ void versions.load()
 // Navigate to version logs
 const viewVersionLogs = (versionId: string) => {
   navigateTo({
-    name: 'worker-version-logs',
+    name: "worker-version-logs",
     params: {
       projectId: params.projectId,
       workerVersionId: versionId,
     },
   })
+}
+
+const restartVersion = async (versionId: string) => {
+  await settingsStore.restartWorkerVersion(versionId)
 }
 </script>
 
@@ -113,6 +115,7 @@ const viewVersionLogs = (versionId: string) => {
           :data="versions.data.value"
           :loading="versions.isLoading.value"
           :hide-header="true"
+          @restart-version="restartVersion"
           @view-logs="viewVersionLogs"
         />
       </RelatedDataPanel>

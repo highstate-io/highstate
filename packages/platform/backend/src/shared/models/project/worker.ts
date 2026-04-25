@@ -52,6 +52,13 @@ export const workerVersionStatusSchema = z.enum([
 
 export type WorkerVersionStatus = z.infer<typeof workerVersionStatusSchema>
 
+export const workerVersionStatusEventSchema = z.object({
+  workerVersionId: z.cuid2(),
+  status: workerVersionStatusSchema,
+})
+
+export type WorkerVersionStatusEvent = z.infer<typeof workerVersionStatusEventSchema>
+
 export const workerVersionOutputSchema = z.object({
   id: z.cuid2(),
   digest: z.string(),

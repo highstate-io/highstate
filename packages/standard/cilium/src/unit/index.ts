@@ -1,7 +1,7 @@
 import { l3EndpointToString } from "@highstate/common"
 import { Chart, Namespace } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit, ResourceHook, secret, toPromise } from "@highstate/pulumi"
+import { forUnit, ResourceHook, secret, setResourceHooks, toPromise } from "@highstate/pulumi"
 import { CoreV1Api, KubeConfig } from "@kubernetes/client-node"
 import { chart } from "../shared"
 
@@ -12,7 +12,12 @@ const cluster = await toPromise(inputs.k8sCluster)
 const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   // restart (delete) all pods to make Cilium manage their networking
   const kubeConfig = new KubeConfig()
-  kubeConfig.loadFromString(cluster.kubeconfig)
+
+  if (cluster.kubeconfig.content.type !== "embedded-secret") {
+    throw new Error("Only embedded secrets are supported for kubeconfig content in this unit.")
+  }
+
+  kubeConfig.loadFromString(cluster.kubeconfig.content.value.value)
 
   const coreApi = kubeConfig.makeApiClient(CoreV1Api)
   const allPods = await coreApi.listPodForAllNamespaces()
@@ -27,6 +32,8 @@ const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   )
 })
 
+setResourceHooks()
+
 new Chart(
   "cilium",
   {
@@ -34,6 +41,8 @@ new Chart(
     chart,
 
     values: {
+      tolerations: args.agentTolerations,
+
       ipam: {
         mode: "kubernetes",
       },
@@ -42,6 +51,11 @@ new Chart(
 
       operator: {
         replicas: 1,
+        tolerations: args.operatorTolerations,
+      },
+
+      envoy: {
+        tolerations: args.envoyTolerations,
       },
 
       hubble: {
@@ -67,10 +81,13 @@ new Chart(
 export default outputs({
   k8sCluster: secret({
     ...cluster,
-    cni: "cilium",
+    networkPolicyImplRef: {
+      package: "@highstate/cilium",
+      data: {},
+    },
     metadata: {
       ...cluster.metadata,
-      cilium: {
+      "cilium.cni": {
         allowForbiddenFqdnResolution: args.allowForbiddenFqdnResolution ?? false,
       },
     } satisfies k8s.CiliumClusterMetadata,

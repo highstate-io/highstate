@@ -34,12 +34,29 @@ export class MdbKafkaTopic extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbKafkaTopic.__pulumiType;
     }
 
+    /**
+     * The ID of the Kafka cluster.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
     declare public readonly mdbKafkaTopicId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The number of the topic's partitions.
+     */
     declare public readonly partitions: pulumi.Output<number>;
+    /**
+     * Amount of data copies (replicas) for the topic in the cluster.
+     */
     declare public readonly replicationFactor: pulumi.Output<number>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbKafkaTopicTimeouts | undefined>;
+    /**
+     * User-defined settings for the topic. For more information, see [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka
+     * documentation](https://kafka.apache.org/documentation/#topicconfigs).
+     */
     declare public readonly topicConfig: pulumi.Output<outputs.MdbKafkaTopicTopicConfig | undefined>;
 
     /**
@@ -90,12 +107,29 @@ export class MdbKafkaTopic extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbKafkaTopic resources.
  */
 export interface MdbKafkaTopicState {
+    /**
+     * The ID of the Kafka cluster.
+     */
     clusterId?: pulumi.Input<string>;
     mdbKafkaTopicId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The number of the topic's partitions.
+     */
     partitions?: pulumi.Input<number>;
+    /**
+     * Amount of data copies (replicas) for the topic in the cluster.
+     */
     replicationFactor?: pulumi.Input<number>;
     timeouts?: pulumi.Input<inputs.MdbKafkaTopicTimeouts>;
+    /**
+     * User-defined settings for the topic. For more information, see [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka
+     * documentation](https://kafka.apache.org/documentation/#topicconfigs).
+     */
     topicConfig?: pulumi.Input<inputs.MdbKafkaTopicTopicConfig>;
 }
 
@@ -103,11 +137,28 @@ export interface MdbKafkaTopicState {
  * The set of arguments for constructing a MdbKafkaTopic resource.
  */
 export interface MdbKafkaTopicArgs {
+    /**
+     * The ID of the Kafka cluster.
+     */
     clusterId: pulumi.Input<string>;
     mdbKafkaTopicId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The number of the topic's partitions.
+     */
     partitions: pulumi.Input<number>;
+    /**
+     * Amount of data copies (replicas) for the topic in the cluster.
+     */
     replicationFactor: pulumi.Input<number>;
     timeouts?: pulumi.Input<inputs.MdbKafkaTopicTimeouts>;
+    /**
+     * User-defined settings for the topic. For more information, see [the official
+     * documentation](https://yandex.cloud/docs/managed-kafka/concepts/settings-list#topic-settings) and [the Kafka
+     * documentation](https://kafka.apache.org/documentation/#topicconfigs).
+     */
     topicConfig?: pulumi.Input<inputs.MdbKafkaTopicTopicConfig>;
 }

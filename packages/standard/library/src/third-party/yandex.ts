@@ -1,5 +1,13 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
-import { serverOutputs, vmSecrets, vmSshArgs } from "../common"
+import {
+  $args,
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  secretSchema,
+  z,
+} from "@highstate/contract"
+import { serverEntity, serverOutputs, vmSecrets, vmSshArgs } from "../common"
 import * as ssh from "../ssh"
 
 export const connectionEntity = defineEntity({
@@ -7,9 +15,9 @@ export const connectionEntity = defineEntity({
 
   schema: z.object({
     /**
-     * The service account key file content (JSON).
+     * The JSON of the authorized key for the service account.
      */
-    serviceAccountKeyFile: z.string().optional(),
+    authorizedKeyJson: secretSchema(z.string()),
 
     /**
      * The ID of the cloud.
@@ -30,10 +38,18 @@ export const connectionEntity = defineEntity({
      * The region ID.
      */
     regionId: z.string().optional(),
+
+    /**
+     * The ID of the service account used for authentication.
+     */
+    serviceAccountId: z.string(),
   }),
 
   meta: {
     color: "#0080ff",
+    title: "YC Connection",
+    icon: "simple-icons:yandexcloud",
+    iconColor: "#0080ff",
   },
 })
 
@@ -81,16 +97,16 @@ export const connection = defineUnit({
 
   secrets: {
     /**
-     * The service account key file content (JSON).
+     * The JSON of the authorized key for the service account.
      *
      * Important: service account must have `iam.serviceAccounts.user` role to work properly.
      *
      * See [Creating an authorized key](https://yandex.cloud/en/docs/iam/operations/authentication/manage-authorized-keys#create-authorized-key) for details.
      */
-    serviceAccountKeyFile: {
+    authorizedKeyJson: {
       schema: z.string().meta({ language: "json" }),
       meta: {
-        title: "Service Account Key File",
+        title: "Authorized Key JSON",
       },
     },
   },
@@ -138,6 +154,13 @@ export const diskSchema = z.object({
    * For `network-ssd-nonreplicated` and `network-ssd-io-m3` must be multiple of 93.
    */
   size: z.number().default(20),
+
+  /**
+   * Whether the disk should be encrypted by separate key in KMS.
+   *
+   * If `true`, a new key will be created for the disk.
+   */
+  encrypted: z.boolean().default(true),
 })
 
 export const diskEntity = defineEntity({
@@ -210,7 +233,7 @@ export const imageEntity = defineEntity({
   }),
 
   meta: {
-    title: "Yandex Cloud Image",
+    title: "YC Image",
     icon: "simple-icons:yandexcloud",
     iconColor: "#0080ff",
     secondaryIcon: "mage:compact-disk-fill",
@@ -258,6 +281,103 @@ export const existingImage = defineUnit({
   },
 })
 
+export const platformIdSchema = z.enum([
+  // standard platforms
+  "standard-v1",
+  "standard-v2",
+  "standard-v3",
+  "amd-v1",
+  "standard-v4a",
+
+  // high-performance platforms
+  "highfreq-v3",
+  "highfreq-v4a",
+
+  // with gpu
+  "gpu-standard-v1",
+  "gpu-standard-v2",
+  "gpu-standard-v3",
+  "gpu-standard-v3i",
+  "standard-v3-t4",
+  "standard-v3-t4i",
+  "gpu-platform-v4",
+])
+
+const vmArgs = $args({
+  /**
+   * The platform ID for the instance.
+   *
+   * See [Platforms](https://yandex.cloud/en/docs/compute/concepts/vm-platforms) for details.
+   */
+  platformId: platformIdSchema.default("standard-v3"),
+
+  /**
+   * The resources to allocate to the virtual machine.
+   */
+  resources: z
+    .object({
+      /**
+       * The number of CPU cores.
+       */
+      cores: z.number().default(2),
+
+      /**
+       * The amount of memory in GB.
+       */
+      memory: z.number().default(4),
+
+      /**
+       * The guaranteed CPU core performance (10-100).
+       */
+      coreFraction: z.number().min(10).max(100).default(100),
+    })
+    .prefault({}),
+
+  /**
+   * The boot disk configuration.
+   */
+  bootDisk: diskSchema.prefault({}),
+
+  /**
+   * The network configuration.
+   */
+  network: z
+    .object({
+      /**
+       * The subnet ID to connect to.
+       * If not specified, will auto-discover the default subnet for the zone.
+       */
+      subnetId: z.string().optional(),
+
+      /**
+       * Whether to assign a public IP.
+       */
+      assignPublicIp: z.boolean().default(true),
+
+      /**
+       * Whether to reserve the public IP permanently.
+       *
+       * If not set, the public IP can be changed when the VM is stopped and started again.
+       *
+       * Makes no sense if `assignPublicIp` is false.
+       */
+      reservePublicIp: z.boolean().default(true),
+    })
+    .prefault({}),
+
+  /**
+   * The SSH configuration.
+   */
+  ssh: vmSshArgs,
+
+  /**
+   * Whether the virtual machine is preemptible.
+   *
+   * See [Preemptible VMs](https://yandex.cloud/en/docs/compute/concepts/preemptible-vms) for details.
+   */
+  preemptible: z.boolean().default(false),
+})
+
 /**
  * The virtual machine on Yandex Cloud.
  */
@@ -272,92 +392,18 @@ export const virtualMachine = defineUnit({
     vmName: z.string().optional(),
 
     /**
-     * The platform ID for the instance.
-     *
-     * See [Platforms](https://yandex.cloud/en/docs/compute/concepts/vm-platforms) for details.
+     * The ID of the cloud to create the VM in.
+     * If not specified, will use the cloud from the connection.
      */
-    platformId: z
-      .enum([
-        // standard platforms
-        "standard-v1",
-        "standard-v2",
-        "standard-v3",
-        "amd-v1",
-        "standard-v4a",
-
-        // high-performance platforms
-        "highfreq-v3",
-        "highfreq-v4a",
-
-        // with gpu
-        "gpu-standard-v1",
-        "gpu-standard-v2",
-        "gpu-standard-v3",
-        "gpu-standard-v3i",
-        "standard-v3-t4",
-        "standard-v3-t4i",
-        "gpu-platform-v4",
-      ])
-      .default("standard-v3"),
+    cloudId: z.string().optional(),
 
     /**
-     * The resources to allocate to the virtual machine.
+     * The ID of the folder to create the VM in.
+     * If not specified, will use the default folder from the connection.
      */
-    resources: z
-      .object({
-        /**
-         * The number of CPU cores.
-         */
-        cores: z.number().default(2),
+    folderId: z.string().optional(),
 
-        /**
-         * The amount of memory in GB.
-         */
-        memory: z.number().default(4),
-
-        /**
-         * The guaranteed CPU core performance (10-100).
-         */
-        coreFraction: z.number().min(10).max(100).optional(),
-      })
-      .prefault({}),
-
-    /**
-     * The boot disk configuration.
-     */
-    bootDisk: diskSchema.prefault({}),
-
-    /**
-     * The network configuration.
-     */
-    network: z
-      .object({
-        /**
-         * The subnet ID to connect to.
-         * If not specified, will auto-discover the default subnet for the zone.
-         */
-        subnetId: z.string().optional(),
-
-        /**
-         * Whether to assign a public IP.
-         */
-        assignPublicIp: z.boolean().default(true),
-
-        /**
-         * Whether to reserve the public IP permanently.
-         *
-         * If not set, the public IP can be changed when the VM is stopped and started again.
-         *
-         * Makes no sense if `assignPublicIp` is false.
-         */
-        reservePublicIp: z.boolean().default(true),
-      })
-      .prefault({}),
-
-    /**
-     * The SSH configuration.
-     */
-    ssh: vmSshArgs,
+    ...vmArgs,
   },
 
   secrets: {
@@ -386,11 +432,75 @@ export const virtualMachine = defineUnit({
   },
 })
 
-export type Connection = z.infer<typeof connectionEntity.schema>
+/**
+ * The instance group on Yandex Cloud.
+ */
+export const instanceGroup = defineUnit({
+  type: "yandex.instance-group.v1",
+
+  args: {
+    /**
+     * The name of the instance group.
+     * If not specified, the name of the unit will be used.
+     */
+    groupName: z.string().optional(),
+
+    /**
+     * The ID of the cloud to create the instance group in.
+     * If not specified, will use the cloud from the connection.
+     */
+    cloudId: z.string().optional(),
+
+    /**
+     * The ID of the folder to create the instance group in.
+     * If not specified, will use the default folder from the connection.
+     */
+    folderId: z.string().optional(),
+
+    /**
+     * The number of instances to create in the group.
+     */
+    size: z.number().default(1),
+
+    ...vmArgs,
+  },
+
+  secrets: {
+    ...vmSecrets,
+  },
+
+  inputs: {
+    connection: connectionEntity,
+    image: imageEntity,
+    ...ssh.inputs,
+  },
+
+  outputs: {
+    servers: {
+      entity: serverEntity,
+      multiple: true,
+    },
+  },
+
+  meta: {
+    title: "YC Instance Group",
+    category: "Yandex Cloud",
+    icon: "simple-icons:yandexcloud",
+    iconColor: "#0080ff",
+    secondaryIcon: "mdi:group",
+  },
+
+  source: {
+    package: "@highstate/yandex",
+    path: "instance-group",
+  },
+})
+
+export type Connection = EntityValue<typeof connectionEntity>
 export type ConnectionInput = EntityInput<typeof connectionEntity>
 
-export type Disk = z.infer<typeof diskEntity.schema>
+export type Disk = EntityValue<typeof diskEntity>
 export type DiskInput = EntityInput<typeof diskEntity>
 
-export type Image = z.infer<typeof imageEntity.schema>
+export type Image = EntityValue<typeof imageEntity>
 export type ImageInput = EntityInput<typeof imageEntity>

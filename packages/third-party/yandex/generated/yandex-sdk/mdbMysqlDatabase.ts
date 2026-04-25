@@ -34,8 +34,14 @@ export class MdbMysqlDatabase extends pulumi.CustomResource {
         return obj['__pulumiType'] === MdbMysqlDatabase.__pulumiType;
     }
 
+    /**
+     * The MySQL cluster ID.
+     */
     declare public readonly clusterId: pulumi.Output<string>;
     declare public readonly mdbMysqlDatabaseId: pulumi.Output<string>;
+    /**
+     * The name of the database.
+     */
     declare public readonly name: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.MdbMysqlDatabaseTimeouts | undefined>;
 
@@ -75,8 +81,14 @@ export class MdbMysqlDatabase extends pulumi.CustomResource {
  * Input properties used for looking up and filtering MdbMysqlDatabase resources.
  */
 export interface MdbMysqlDatabaseState {
+    /**
+     * The MySQL cluster ID.
+     */
     clusterId?: pulumi.Input<string>;
     mdbMysqlDatabaseId?: pulumi.Input<string>;
+    /**
+     * The name of the database.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbMysqlDatabaseTimeouts>;
 }
@@ -85,8 +97,14 @@ export interface MdbMysqlDatabaseState {
  * The set of arguments for constructing a MdbMysqlDatabase resource.
  */
 export interface MdbMysqlDatabaseArgs {
+    /**
+     * The MySQL cluster ID.
+     */
     clusterId: pulumi.Input<string>;
     mdbMysqlDatabaseId?: pulumi.Input<string>;
+    /**
+     * The name of the database.
+     */
     name?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.MdbMysqlDatabaseTimeouts>;
 }

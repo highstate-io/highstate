@@ -11,6 +11,7 @@ import {
   projectUnlockStateSchema,
   terminalSessionOutputSchema,
   workerUnitRegistrationEventSchema,
+  workerVersionStatusEventSchema,
 } from "../shared"
 
 export type PubSubEventMap = {
@@ -23,6 +24,7 @@ export type PubSubEventMap = {
   "operation-instance-log": [operationId: string, instanceId: string]
   "worker-unit-registration": [projectId: string, workerVersionId: string]
   "worker-version-log": [projectId: string, workerVersionId: string]
+  "worker-version-status": [projectId: string]
 }
 
 const eventSchemas = {
@@ -35,6 +37,7 @@ const eventSchemas = {
   "operation-instance-log": z.custom<OperationLog>(),
   "worker-unit-registration": workerUnitRegistrationEventSchema,
   "worker-version-log": z.custom<WorkerVersionLog>(),
+  "worker-version-status": workerVersionStatusEventSchema,
 }
 
 type PubSubEventSchemas = typeof eventSchemas

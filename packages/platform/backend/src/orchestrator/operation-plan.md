@@ -41,10 +41,12 @@ Different operation types are assembled from phases as follows:
 - Then an `update phase` containing the same instances to be recreated
 
 **Preview Operation:**
+
 - Single `update phase` calculated using update phase rules but not executed
 - **Restriction**: Only allowed for "edge" instances (instances that depend on others but no instances depend on them)
 
 **Refresh Operation:**
+
 - Single `refresh phase` calculated using update phase rules for state refresh
 - **Key difference**: No destroy phase is created, even if ghost cleanup would normally occur
 
@@ -108,7 +110,8 @@ Since composite instances cannot be directly depended upon, message conflicts ar
 ### Propagation Rules
 
 - **Substantive composite inclusions** trigger further dependency resolution and parent propagation
-- **Compositional composite inclusions** do NOT trigger further propagation (boundary isolation)
+- **Compositional composite inclusions** still propagate upward through the full parent chain
+- **Ancestor siblings are not auto-included** unless they are independently required by other rules
 
 ### Ghost Cleanup Rules
 

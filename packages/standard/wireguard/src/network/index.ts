@@ -1,11 +1,20 @@
 import { wireguard } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
+import { forUnit, makeEntity } from "@highstate/pulumi"
 
-const { args, outputs } = forUnit(wireguard.network)
+const { name, stateId, args, outputs } = forUnit(wireguard.network)
 
 export default outputs({
-  network: {
-    backend: args.backend,
-    ipv6: args.ipv6,
-  },
+  network: makeEntity({
+    entity: wireguard.networkEntity,
+    identity: stateId,
+    meta: {
+      title: name,
+    },
+    value: {
+      backend: args.backend,
+      ipv4: args.ipv4,
+      ipv6: args.ipv6,
+      amnezia: args.amnezia,
+    },
+  }),
 })

@@ -35,10 +35,27 @@ export class CdnOriginGroup extends pulumi.CustomResource {
     }
 
     declare public readonly cdnOriginGroupId: pulumi.Output<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * A set of available origins, an origins group must contain at least one enabled origin with fields below.
+     */
     declare public readonly origins: pulumi.Output<outputs.CdnOriginGroupOrigin[]>;
+    /**
+     * CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+     */
+    declare public readonly providerType: pulumi.Output<string | undefined>;
     declare public readonly timeouts: pulumi.Output<outputs.CdnOriginGroupTimeouts | undefined>;
+    /**
+     * If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from
+     * the list.
+     */
     declare public readonly useNext: pulumi.Output<boolean | undefined>;
 
     /**
@@ -58,6 +75,7 @@ export class CdnOriginGroup extends pulumi.CustomResource {
             resourceInputs["folderId"] = state?.folderId;
             resourceInputs["name"] = state?.name;
             resourceInputs["origins"] = state?.origins;
+            resourceInputs["providerType"] = state?.providerType;
             resourceInputs["timeouts"] = state?.timeouts;
             resourceInputs["useNext"] = state?.useNext;
         } else {
@@ -69,6 +87,7 @@ export class CdnOriginGroup extends pulumi.CustomResource {
             resourceInputs["folderId"] = args?.folderId;
             resourceInputs["name"] = args?.name;
             resourceInputs["origins"] = args?.origins;
+            resourceInputs["providerType"] = args?.providerType;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["useNext"] = args?.useNext;
         }
@@ -82,10 +101,27 @@ export class CdnOriginGroup extends pulumi.CustomResource {
  */
 export interface CdnOriginGroupState {
     cdnOriginGroupId?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of available origins, an origins group must contain at least one enabled origin with fields below.
+     */
     origins?: pulumi.Input<pulumi.Input<inputs.CdnOriginGroupOrigin>[]>;
+    /**
+     * CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+     */
+    providerType?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.CdnOriginGroupTimeouts>;
+    /**
+     * If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from
+     * the list.
+     */
     useNext?: pulumi.Input<boolean>;
 }
 
@@ -94,9 +130,26 @@ export interface CdnOriginGroupState {
  */
 export interface CdnOriginGroupArgs {
     cdnOriginGroupId?: pulumi.Input<string>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * A set of available origins, an origins group must contain at least one enabled origin with fields below.
+     */
     origins: pulumi.Input<pulumi.Input<inputs.CdnOriginGroupOrigin>[]>;
+    /**
+     * CDN provider is a content delivery service provider. Possible values: "ourcdn" (default) or "gcore"
+     */
+    providerType?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.CdnOriginGroupTimeouts>;
+    /**
+     * If the option is active (has true value), in case the origin responds with 4XX or 5XX codes, use the next origin from
+     * the list.
+     */
     useNext?: pulumi.Input<boolean>;
 }

@@ -1,0 +1,29 @@
+import type { etcd } from "@highstate/library"
+import { type LifetimeScopeHooks, l4EndpointToString, resolveEndpoint } from "@highstate/common"
+import { getEntityId, getOrCreate } from "@highstate/contract"
+import { Provider } from "@highstate/etcd-sdk"
+import { type Input, toPromise } from "@highstate/pulumi"
+
+const providers = new Map<string, Promise<ResolvedProvider>>()
+
+export type ResolvedProvider = {
+  provider: Provider
+  hooks: LifetimeScopeHooks
+}
+
+export async function getProvider(connection: Input<etcd.Connection>): Promise<ResolvedProvider> {
+  const resolvedConnection = await toPromise(connection)
+
+  return await getOrCreate(providers, getEntityId(resolvedConnection), async entityId => {
+    const { endpoint, hooks } = await resolveEndpoint(resolvedConnection.endpoints)
+
+    const provider = new Provider(entityId, {
+      endpoints: l4EndpointToString(endpoint),
+      username: resolvedConnection.credentials?.username,
+      password: resolvedConnection.credentials?.password.value,
+      skipTls: true,
+    })
+
+    return { provider, hooks }
+  })
+}

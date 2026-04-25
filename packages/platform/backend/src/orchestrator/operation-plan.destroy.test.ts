@@ -1,3 +1,5 @@
+import type { InstanceState } from "../shared"
+import { getInstanceId } from "@highstate/contract"
 import { describe } from "vitest"
 import { createOperationPlan } from "./operation-plan"
 import { operationPlanTest } from "./operation-plan.fixtures"
@@ -140,7 +142,7 @@ describe("OperationPlan - Destroy Operations", () => {
   )
 
   operationPlanTest(
-    "4. should not propagate beyond compositional inclusion",
+    "4. should include full ancestor chain for compositional inclusion",
     async ({ testBuilder, expect }) => {
       // arrange
       const { context, operation } = await testBuilder()
@@ -189,6 +191,11 @@ describe("OperationPlan - Destroy Operations", () => {
                 "id": "composite.v1:Parent",
                 "message": "parent of included child "component.v1:A"",
                 "parentId": "composite.v1:GrandParent",
+              },
+              {
+                "id": "composite.v1:GrandParent",
+                "message": "parent of included child "composite.v1:Parent"",
+                "parentId": undefined,
               },
             ],
             "type": "destroy",
@@ -306,6 +313,11 @@ describe("OperationPlan - Destroy Operations", () => {
                 "id": "composite.v1:Parent1",
                 "message": "parent of included child "component.v1:Child1"",
                 "parentId": "composite.v1:GrandParent",
+              },
+              {
+                "id": "composite.v1:GrandParent",
+                "message": "parent of included child "composite.v1:Parent1"",
+                "parentId": undefined,
               },
             ],
             "type": "destroy",
@@ -542,7 +554,7 @@ describe("OperationPlan - Destroy Operations", () => {
   )
 
   operationPlanTest(
-    "11. should isolate boundaries in deep composite hierarchies",
+    "11. should include deep ancestor chain without ancestor siblings",
     async ({ testBuilder, expect }) => {
       // arrange
       const { context, operation } = await testBuilder()
@@ -588,6 +600,16 @@ describe("OperationPlan - Destroy Operations", () => {
                 "id": "composite.v1:Parent",
                 "message": "parent of included child "component.v1:Child"",
                 "parentId": "composite.v1:GrandParent",
+              },
+              {
+                "id": "composite.v1:GrandParent",
+                "message": "parent of included child "composite.v1:Parent"",
+                "parentId": "composite.v1:GreatGrandParent",
+              },
+              {
+                "id": "composite.v1:GreatGrandParent",
+                "message": "parent of included child "composite.v1:GrandParent"",
+                "parentId": undefined,
               },
             ],
             "type": "destroy",
@@ -763,6 +785,122 @@ describe("OperationPlan - Destroy Operations", () => {
               {
                 "id": "composite.v1:Parent",
                 "message": "parent of included child "component.v1:Child1"",
+                "parentId": undefined,
+              },
+            ],
+            "type": "destroy",
+          },
+        ]
+      `)
+    },
+  )
+
+  operationPlanTest(
+    "15. should include state-only dependents when model instance is missing",
+    async ({ createContext, createTestOperation, expect }) => {
+      // arrange
+      const requestedId = getInstanceId("component.v1", "requested")
+      const dependentId = getInstanceId("component.v1", "dependent")
+
+      const context = await createContext(
+        [
+          {
+            id: requestedId,
+            name: "requested",
+            type: "component.v1",
+            kind: "unit",
+            parentId: undefined,
+            inputs: {},
+            args: {},
+            outputs: {},
+            resolvedInputs: {},
+            resolvedOutputs: {},
+          },
+        ],
+        [
+          {
+            id: requestedId,
+            instanceId: requestedId,
+            status: "deployed",
+            source: "resident",
+            kind: "unit",
+            hasResourceHooks: false,
+            parentId: null,
+            parentInstanceId: null,
+            selfHash: null,
+            inputHash: null,
+            outputHash: null,
+            dependencyOutputHash: null,
+            statusFields: null,
+            exportedArtifactIds: null,
+            inputHashNonce: null,
+            currentResourceCount: null,
+            model: null,
+            resolvedInputs: null,
+            lastOperationState: undefined,
+            evaluationState: {} as InstanceState["evaluationState"],
+          },
+          {
+            id: dependentId,
+            instanceId: dependentId,
+            status: "deployed",
+            source: "resident",
+            kind: "unit",
+            hasResourceHooks: false,
+            parentId: null,
+            parentInstanceId: null,
+            selfHash: null,
+            inputHash: null,
+            outputHash: null,
+            dependencyOutputHash: null,
+            statusFields: null,
+            exportedArtifactIds: null,
+            inputHashNonce: null,
+            currentResourceCount: null,
+            model: {
+              id: dependentId,
+              name: "dependent",
+              type: "component.v1",
+              kind: "unit",
+              parentId: undefined,
+              inputs: {},
+              args: {},
+              outputs: {},
+              resolvedInputs: {},
+              resolvedOutputs: {},
+            },
+            resolvedInputs: {
+              dependency: [{ stateId: requestedId, output: "default" }],
+            },
+            lastOperationState: undefined,
+            evaluationState: {} as InstanceState["evaluationState"],
+          },
+        ],
+      )
+
+      const operation = createTestOperation("destroy", [requestedId])
+
+      // act
+      const plan = createOperationPlan(
+        context,
+        operation.type,
+        operation.requestedInstanceIds,
+        operation.options,
+      )
+
+      // assert
+      expect(plan).toMatchInlineSnapshot(`
+        [
+          {
+            "instances": [
+              {
+                "id": "component.v1:dependent",
+                "message": "dependent of destroyed "component.v1:requested"",
+                "parentId": undefined,
+              },
+              {
+                "id": "component.v1:requested",
+                "message": "explicitly requested",
                 "parentId": undefined,
               },
             ],

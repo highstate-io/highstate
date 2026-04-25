@@ -35,11 +35,29 @@ export class ContainerRepositoryLifecyclePolicy extends pulumi.CustomResource {
     }
 
     declare public readonly containerRepositoryLifecyclePolicyId: pulumi.Output<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * The ID of the repository that the resource belongs to.
+     */
     declare public readonly repositoryId: pulumi.Output<string>;
+    /**
+     * Repository rules.
+     */
     declare public readonly rules: pulumi.Output<outputs.ContainerRepositoryLifecyclePolicyRule[] | undefined>;
+    /**
+     * The status of lifecycle policy. Must be `active` or `disabled`.
+     */
     declare public readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ContainerRepositoryLifecyclePolicyTimeouts | undefined>;
 
@@ -91,11 +109,29 @@ export class ContainerRepositoryLifecyclePolicy extends pulumi.CustomResource {
  */
 export interface ContainerRepositoryLifecyclePolicyState {
     containerRepositoryLifecyclePolicyId?: pulumi.Input<string>;
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The ID of the repository that the resource belongs to.
+     */
     repositoryId?: pulumi.Input<string>;
+    /**
+     * Repository rules.
+     */
     rules?: pulumi.Input<pulumi.Input<inputs.ContainerRepositoryLifecyclePolicyRule>[]>;
+    /**
+     * The status of lifecycle policy. Must be `active` or `disabled`.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRepositoryLifecyclePolicyTimeouts>;
 }
@@ -105,10 +141,25 @@ export interface ContainerRepositoryLifecyclePolicyState {
  */
 export interface ContainerRepositoryLifecyclePolicyArgs {
     containerRepositoryLifecyclePolicyId?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * The ID of the repository that the resource belongs to.
+     */
     repositoryId: pulumi.Input<string>;
+    /**
+     * Repository rules.
+     */
     rules?: pulumi.Input<pulumi.Input<inputs.ContainerRepositoryLifecyclePolicyRule>[]>;
+    /**
+     * The status of lifecycle policy. Must be `active` or `disabled`.
+     */
     status: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ContainerRepositoryLifecyclePolicyTimeouts>;
 }

@@ -1,8 +1,9 @@
-import type { Metadata, MetadataContainer } from "@highstate/library"
+import type { BooleanPatch, Metadata, MetadataContainer } from "@highstate/library"
 import { compile } from "filter-expression"
 
 /**
  * Filter a list of items using a filter expression.
+ * If the expression is undefined, all items will be returned.
  *
  * See [filter-expression](https://github.com/tronghieu/filter-expression?tab=readme-ov-file#language) for more details on the expression syntax.
  *
@@ -13,9 +14,13 @@ import { compile } from "filter-expression"
  */
 export function filterByExpression<T>(
   items: T[],
-  expression: string,
+  expression: string | undefined,
   getContext = (item: T) => item as Record<string, unknown>,
 ): T[] {
+  if (!expression) {
+    return items
+  }
+
   const { evaluate } = compile(expression)
 
   return items.filter(item => evaluate(getContext(item)))
@@ -90,4 +95,54 @@ export function flattenMetadata(metadata: Metadata): Record<string, unknown> {
   }
 
   return result
+}
+
+export function applyBooleanPatch<T extends boolean>(value: T, patch: BooleanPatch): T {
+  switch (patch) {
+    case "true":
+      return true as T
+    case "false":
+      return false as T
+    case "keep":
+      return value
+  }
+}
+
+/**
+ * Parses a human-readable size string (e.g., "10MB", "5GB") into its equivalent number of bytes.
+ *
+ * @param size The size string to parse.
+ * @returns The equivalent number of bytes.
+ * @throws Will throw an error if the input string is not in a valid format or contains an invalid unit.
+ */
+export function parseSizeString(size: string): number {
+  const units: Record<string, number> = {
+    b: 1,
+    kb: 1024,
+    mb: 1024 ** 2,
+    gb: 1024 ** 3,
+    tb: 1024 ** 4,
+    pb: 1024 ** 5,
+    eb: 1024 ** 6,
+    zb: 1024 ** 7,
+    yb: 1024 ** 8,
+  }
+
+  const match = size
+    .trim()
+    .toLowerCase()
+    .match(/^(\d+(?:\.\d+)?)\s*([a-z]+)?$/)
+
+  if (!match) {
+    throw new Error(`Invalid size string: ${size}`)
+  }
+
+  const value = parseFloat(match[1])
+  const unit = match[2] || "b"
+
+  if (!(unit in units)) {
+    throw new Error(`Invalid size unit: ${unit}`)
+  }
+
+  return Math.round(value * units[unit])
 }

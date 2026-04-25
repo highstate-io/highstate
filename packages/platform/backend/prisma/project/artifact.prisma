@@ -49,4 +49,7 @@ model Artifact {
 
     /// The pages using this artifact.
     pages Page[]
+
+    /// The entity snapshots referenced this artifact.
+    entitySnapshots EntitySnapshot[]
 }

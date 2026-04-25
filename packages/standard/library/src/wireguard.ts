@@ -5,13 +5,15 @@ import {
   defineEntity,
   defineUnit,
   type EntityInput,
+  type EntityValue,
   genericNameSchema,
+  secretSchema,
   z,
 } from "@highstate/contract"
 import { pick } from "remeda"
 import { fileEntity } from "./common"
 import { serverEntity } from "./common/server"
-import { etcdEntity } from "./databases"
+import { etcd } from "./databases"
 import { clusterEntity, networkInterfaceEntity, workloadEntity } from "./k8s"
 import {
   addressEntity,
@@ -25,14 +27,37 @@ import { toPatchArgs } from "./utils"
 export const backendSchema = z.enum(["wireguard", "amneziawg"])
 
 export type Backend = z.infer<typeof backendSchema>
+export type AmneziaParameters = z.infer<typeof amneziaParametersSchema>
 
-const networkArgs = {
+export const amneziaParametersSchema = z.object({
+  i1: z.string().optional(),
+  i2: z.string().optional(),
+  i3: z.string().optional(),
+  i4: z.string().optional(),
+  i5: z.string().optional(),
+
+  s1: z.number().optional(),
+  s2: z.number().optional(),
+  s3: z.number().optional(),
+  s4: z.number().optional(),
+
+  jc: z.number().optional(),
+  jmin: z.number().optional(),
+  jmax: z.number().optional(),
+
+  h1: z.string().optional(),
+  h2: z.string().optional(),
+  h3: z.string().optional(),
+  h4: z.string().optional(),
+})
+
+export const networkArgs = {
   /**
    * The backend to use for the WireGuard network.
    *
    * Possible values are:
    * - `wireguard` - the default backend;
-   * - `amneziawg` - the censorship-resistant fork of WireGuard (NOT SUPPORTED YET).
+   * - `amneziawg` - the censorship-resistant fork of WireGuard.
    */
   backend: backendSchema.default("wireguard"),
 
@@ -51,7 +76,30 @@ const networkArgs = {
    * By default, IPv6 support is disabled.
    */
   ipv6: z.boolean().default(false),
+
+  /**
+   * The extra parameters for the amneziawg backend.
+   */
+  amnezia: amneziaParametersSchema.optional(),
 }
+
+const configSharedArgs = $args({
+  /**
+   * The filter to use when selecting endpoints for each peer.
+   *
+   * The first matching endpoint will be used.
+   *
+   * If not provided, all endpoints will be considered.
+   */
+  peerEndpointFilter: z.string().optional().meta({ language: "javascript" }),
+
+  /**
+   * Whether to include the `ListenPort` in the generated config.
+   *
+   * By default, is `false` because in most cases the config is used for peers which don't listen for incoming connections.
+   */
+  listen: z.boolean().default(false),
+})
 
 /**
  * The entity representing the WireGuard network configuration.
@@ -62,127 +110,17 @@ export const networkEntity = defineEntity({
   type: "wireguard.network.v1",
 
   schema: z.object(networkArgs),
+
+  meta: {
+    color: "#88171a",
+    title: "WireGuard Network",
+    icon: "simple-icons:wireguard",
+    iconColor: "#88171a",
+    secondaryIcon: "mdi:local-area-network-connect",
+  },
 })
 
 export const nodeExposePolicySchema = z.enum(["always", "when-has-endpoint", "never"])
-
-export const peerEntity = defineEntity({
-  type: "wireguard.peer.v1",
-
-  includes: {
-    /**
-     * The endpoints where the WireGuard peer can be reached.
-     */
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
-  },
-
-  schema: z.object({
-    /**
-     * The name of the WireGuard peer.
-     */
-    name: genericNameSchema,
-
-    /**
-     * The network to which the WireGuard peer belongs.
-     *
-     * Holds shared configuration for all identities, peers, and nodes.
-     */
-    network: networkEntity.schema.optional(),
-
-    /**
-     * The addresses of the WireGuard interface.
-     */
-    addresses: addressEntity.schema.array(),
-
-    /**
-     * The allowed subnets of the WireGuard peer.
-     *
-     * Will be used to configure the `AllowedIPs` of the peer.
-     */
-    allowedSubnets: subnetEntity.schema.array(),
-
-    /**
-     * The public key of the WireGuard peer.
-     */
-    publicKey: z.string(),
-
-    /**
-     * The pre-shared key of the WireGuard peer.
-     *
-     * If one of two peers has `presharedKey` set, the other peer must have `presharedKey` set too and they must be equal.
-     *
-     * Will be ignored if both peers have `presharedKeyPart` set.
-     */
-    presharedKey: z.string().optional(),
-
-    /**
-     * The pre-shared key part of the WireGuard peer.
-     *
-     * If both peers have `presharedKeyPart` set, their `presharedKey` will be calculated as sha256 of the two parts.
-     */
-    presharedKeyPart: z.string().optional(),
-
-    /**
-     * The list of DNS servers to setup for the interface connected to the WireGuard peer.
-     */
-    dns: addressEntity.schema.array(),
-
-    /**
-     * The port where the WireGuard peer is listening.
-     *
-     * Will be used:
-     * 1. For implementations if the listen port is not set elsewhere.
-     * 2. To map L3 endpoints to L4 endpoints with this port.
-     */
-    listenPort: z.number().default(51820),
-
-    /**
-     * The keepalive interval in seconds that will be used by all nodes connecting to this peer.
-     *
-     * If set to 0, keepalive is disabled.
-     */
-    persistentKeepalive: z.number().int().nonnegative().default(0),
-
-    /**
-     * The peers which are relayed through this peer.
-     *
-     * All their allowed IPs will be added to this peer's allowed IPs
-     * and will be used to setup routing for all other peers except the relayed ones.
-     */
-    get relayedPeers() {
-      return peerEntity.schema.array().optional()
-    },
-  }),
-
-  meta: {
-    color: "#673AB7",
-  },
-})
-
-export const identityEntity = defineEntity({
-  type: "wireguard.identity.v1",
-
-  includes: {
-    /**
-     * The WireGuard peer representing this identity.
-     */
-    peer: peerEntity,
-  },
-
-  schema: z.object({
-    /**
-     * The private key of the WireGuard identity.
-     */
-    privateKey: z.string(),
-  }),
-
-  meta: {
-    color: "#F44336",
-  },
-})
 
 export const feedDisplayInfoSchema = z.object({
   /**
@@ -215,9 +153,173 @@ export const feedMetadataSchema = z.object({
   name: genericNameSchema,
 
   /**
+   * Whether the tunnel should be enabled by the client.
+   */
+  enabled: z.boolean().default(false),
+
+  /**
+   * Whether the tunnel state must be forced by the client.
+   */
+  forced: z.boolean().default(false),
+
+  /**
+   * Whether the tunnel is exclusive and should not be enabled with other tunnels.
+   */
+  exclusive: z.boolean().default(false),
+
+  /**
    * The display information of the tunnel.
    */
   displayInfo: feedDisplayInfoSchema,
+})
+
+export const peerEntity = defineEntity({
+  type: "wireguard.peer.v1",
+
+  includes: {
+    /**
+     * The network to which the WireGuard peer belongs.
+     *
+     * Holds shared configuration for all identities, peers, and nodes.
+     */
+    network: {
+      entity: networkEntity,
+      required: false,
+    },
+
+    /**
+     * The addresses of the WireGuard interface.
+     */
+    addresses: {
+      entity: addressEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The list of DNS servers to setup for the interface connected to the WireGuard peer.
+     */
+    dns: {
+      entity: addressEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The allowed subnets of the WireGuard peer.
+     *
+     * Will be used to configure the `AllowedIPs` of the peer.
+     */
+    allowedSubnets: {
+      entity: subnetEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The endpoints where the WireGuard peer can be reached.
+     */
+    endpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+
+    /**
+     * The peers which are relayed through this peer.
+     *
+     * All their allowed IPs will be added to this peer's allowed IPs
+     * and will be used to setup routing for all other peers except the relayed ones.
+     */
+    relayedPeers: {
+      entity: () => peerEntity,
+      multiple: true,
+      required: false,
+    },
+  },
+
+  schema: z.object({
+    /**
+     * The name of the WireGuard peer.
+     */
+    name: genericNameSchema,
+
+    /**
+     * The public key of the WireGuard peer.
+     */
+    publicKey: z.string(),
+
+    /**
+     * The pre-shared key of the WireGuard peer.
+     *
+     * If one of two peers has `presharedKey` set, the other peer must have `presharedKey` set too and they must be equal.
+     *
+     * Will be ignored if both peers have `presharedKeyPart` set.
+     */
+    presharedKey: secretSchema(z.string()).optional(),
+
+    /**
+     * The pre-shared key part of the WireGuard peer.
+     *
+     * If both peers have `presharedKeyPart` set, their `presharedKey` will be calculated as sha256 of the two parts.
+     */
+    presharedKeyPart: secretSchema(z.string()).optional(),
+
+    /**
+     * The port where the WireGuard peer is listening.
+     *
+     * Will be used:
+     * 1. For implementations if the listen port is not set elsewhere.
+     * 2. To map L3 endpoints to L4 endpoints with this port.
+     */
+    listenPort: z.number().default(51820),
+
+    /**
+     * The keepalive interval in seconds that will be used by all nodes connecting to this peer.
+     *
+     * If set to 0, keepalive is disabled.
+     */
+    persistentKeepalive: z.number().int().nonnegative().default(0),
+
+    /**
+     * The wg-feed metadata of the WireGuard peer.
+     *
+     * Will be used in the config referencing this peer (not the peer itself).
+     */
+    feedMetadata: feedMetadataSchema.optional(),
+  }),
+
+  meta: {
+    color: "#673AB7",
+    icon: "simple-icons:wireguard",
+    secondaryIcon: "mdi:badge-account-horizontal",
+    iconColor: "#88171a",
+  },
+})
+
+export const identityEntity = defineEntity({
+  type: "wireguard.identity.v1",
+
+  includes: {
+    /**
+     * The WireGuard peer representing this identity.
+     */
+    peer: peerEntity,
+  },
+
+  schema: z.object({
+    /**
+     * The private key of the WireGuard identity.
+     */
+    privateKey: secretSchema(z.string()),
+  }),
+
+  meta: {
+    color: "#F44336",
+    icon: "simple-icons:wireguard",
+    secondaryIcon: "mdi:account",
+    iconColor: "#88171a",
+  },
 })
 
 export const configEntity = defineEntity({
@@ -238,18 +340,29 @@ export const configEntity = defineEntity({
      */
     feedMetadata: feedMetadataSchema.optional(),
   }),
+
+  meta: {
+    color: "#455A64",
+    title: "WireGuard Config",
+    icon: "simple-icons:wireguard",
+    iconColor: "#88171a",
+    secondaryIcon: "mdi:settings",
+  },
 })
 
-export type Network = z.infer<typeof networkEntity.schema>
-export type Identity = z.infer<typeof identityEntity.schema>
-export type Peer = z.infer<typeof peerEntity.schema>
+export type Network = EntityValue<typeof networkEntity>
+export type Identity = EntityValue<typeof identityEntity>
+export type Peer = EntityValue<typeof peerEntity>
 export type NodeExposePolicy = z.infer<typeof nodeExposePolicySchema>
-export type Config = z.infer<typeof configEntity.schema>
+export type Config = EntityValue<typeof configEntity>
 
 export type NetworkInput = EntityInput<typeof networkEntity>
 export type IdentityInput = EntityInput<typeof identityEntity>
 export type PeerInput = EntityInput<typeof peerEntity>
 export type ConfigInput = EntityInput<typeof configEntity>
+
+export type FeedDisplayInfo = z.infer<typeof feedDisplayInfoSchema>
+export type FeedMetadata = z.infer<typeof feedMetadataSchema>
 
 /**
  * Holds the shared configuration for WireGuard identities, peers, and nodes.
@@ -274,6 +387,35 @@ export const network = defineUnit({
     package: "@highstate/wireguard",
     path: "network",
   },
+})
+
+const sharedFeedArgs = $args({
+  /**
+   * The metadata to include in the wg-feed for this config.
+   */
+  feedMetadata: z
+    .discriminatedUnion("provided", [
+      z.object({
+        /**
+         * Whether this config is enabled for upload to wg-feed.
+         *
+         * You must fill the metadata fields.
+         */
+        provided: z.literal("yes"),
+
+        ...pick(feedMetadataSchema.shape, ["id", "name", "enabled", "forced", "exclusive"]),
+
+        // Highstate does not support nested objects in UI
+        ...feedDisplayInfoSchema.shape,
+      }),
+      z.object({
+        /**
+         * Whether this config is enabled for upload to wg-feed.
+         */
+        provided: z.literal("no"),
+      }),
+    ])
+    .prefault({ provided: "no" }),
 })
 
 const sharedPeerArgs = $args({
@@ -363,6 +505,8 @@ const sharedPeerArgs = $args({
    * If set to 0, keepalive is disabled.
    */
   persistentKeepalive: z.number().int().nonnegative().default(0),
+
+  ...sharedFeedArgs,
 })
 
 const sharedPeerInputs = $inputs({
@@ -600,7 +744,12 @@ export const nodeK8s = defineUnit({
       required: false,
     },
 
-    interface: {
+    downstreamInterface: {
+      entity: networkInterfaceEntity,
+      required: false,
+    },
+
+    fallbackInterface: {
       entity: networkInterfaceEntity,
       required: false,
     },
@@ -641,6 +790,120 @@ export const nodeK8s = defineUnit({
 })
 
 /**
+ * The wg-feed daemon deployed in the Kubernetes cluster.
+ *
+ * It runs `wg-feed-daemon` which continuously reconciles local WireGuard tunnels
+ * from one or more wg-feed Setup URLs.
+ */
+export const nodeFeedK8s = defineUnit({
+  type: "wireguard.node.feed.k8s.v1",
+
+  args: {
+    /**
+     * The name of the namespace/deployment/statefulset where the daemon will be deployed.
+     *
+     * By default, the name is `wg-${identity.name}`.
+     */
+    appName: z.string().optional(),
+
+    /**
+     * Whether to expose the WireGuard node to the outside world.
+     */
+    external: z.boolean().default(false),
+
+    /**
+     * Whether to create a Service and allow ingress.
+     */
+    expose: z.boolean().default(false),
+
+    /**
+     * The UDP port that will be exposed by the Service.
+     *
+     * This is required for consumers that need to know the port ahead of time.
+     */
+    listenPort: z.number().default(51820),
+
+    /**
+     * The name of the WireGuard interface to export as `interface` output.
+     *
+     * Note: wg-feed may manage multiple tunnels.
+     * This output is a convenience handle for downstream units.
+     */
+    interfaceName: z.string().default("wg0"),
+
+    /**
+     * List of CIDR blocks that should be blocked from forwarding through this WireGuard node.
+     *
+     * This prevents other peers from reaching these destination CIDRs while still allowing
+     * the peers in those CIDRs to access the internet and other allowed endpoints.
+     *
+     * Useful for peer isolation where you want to prevent cross-peer communication.
+     */
+    forwardRestrictedSubnets: z.string().array().default([]),
+
+    /**
+     * The extra specification of the container which runs the wg-feed daemon.
+     *
+     * Will override any overlapping fields.
+     */
+    containerSpec: z.record(z.string(), z.unknown()).optional(),
+  },
+
+  inputs: {
+    k8sCluster: clusterEntity,
+    endpoints: {
+      entity: l7EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+
+    peer: {
+      entity: peerEntity,
+      required: false,
+    },
+
+    workload: {
+      entity: workloadEntity,
+      required: false,
+    },
+
+    interface: {
+      entity: networkInterfaceEntity,
+      required: false,
+    },
+  },
+
+  outputs: {
+    workload: {
+      entity: workloadEntity,
+    },
+
+    interface: {
+      entity: networkInterfaceEntity,
+    },
+
+    peer: {
+      entity: peerEntity,
+      required: false,
+    },
+  },
+
+  meta: {
+    title: "WireGuard Feed Kubernetes Node",
+    description: "The wg-feed daemon deployed in the Kubernetes cluster.",
+    icon: "simple-icons:wireguard",
+    iconColor: "#88171a",
+    secondaryIcon: "devicon:kubernetes",
+    category: "VPN",
+  },
+
+  source: {
+    package: "@highstate/wireguard",
+    path: "node.feed.k8s",
+  },
+})
+
+/**
  * The WireGuard node deployed on a server using wg-quick systemd service.
  */
 export const node = defineUnit({
@@ -670,6 +933,8 @@ export const node = defineUnit({
      * By default, IP masquerading is enabled.
      */
     enableMasquerade: z.boolean().default(true),
+
+    ...configSharedArgs,
 
     /**
      * Script to run before bringing up the interface.
@@ -711,12 +976,6 @@ export const node = defineUnit({
       entity: peerEntity,
       required: false,
     },
-
-    endpoints: {
-      entity: l4EndpointEntity,
-      required: false,
-      multiple: true,
-    },
   },
 
   meta: {
@@ -733,17 +992,6 @@ export const node = defineUnit({
   },
 })
 
-const sharedArgs = $args({
-  /**
-   * The filter to use when selecting endpoints for each peer.
-   *
-   * The first matching endpoint will be used.
-   *
-   * If not provided, all endpoints will be considered.
-   */
-  peerEndpointFilter: z.string().optional().meta({ language: "javascript" }),
-})
-
 /**
  * Just the WireGuard configuration for the identity and peers.
  */
@@ -751,34 +999,8 @@ export const config = defineUnit({
   type: "wireguard.config.v1",
 
   args: {
-    ...sharedArgs,
-
-    /**
-     * The metadata to include in the wg-feed for this config.
-     */
-    feedMetadata: z
-      .discriminatedUnion("enabled", [
-        z.object({
-          /**
-           * Whether this config is enabled for upload to wg-feed.
-           *
-           * You must fill the metadata fields.
-           */
-          enabled: z.literal("true"),
-
-          ...pick(feedMetadataSchema.shape, ["id", "name"]),
-
-          // Highstate does not support nested objects in UI
-          ...feedDisplayInfoSchema.shape,
-        }),
-        z.object({
-          /**
-           * Whether this config is enabled for upload to wg-feed.
-           */
-          enabled: z.literal("false"),
-        }),
-      ])
-      .prefault({ enabled: "false" }),
+    ...configSharedArgs,
+    ...sharedFeedArgs,
   },
 
   inputs: {
@@ -786,6 +1008,10 @@ export const config = defineUnit({
     peers: {
       entity: peerEntity,
       multiple: true,
+      required: false,
+    },
+    network: {
+      entity: networkEntity,
       required: false,
     },
   },
@@ -815,7 +1041,7 @@ export const configBundle = defineUnit({
   type: "wireguard.config-bundle.v1",
 
   args: {
-    ...sharedArgs,
+    ...configSharedArgs,
   },
 
   inputs: {
@@ -909,7 +1135,7 @@ export const feed = defineUnit({
   },
 
   inputs: {
-    etcd: etcdEntity,
+    etcd: etcd.connectionEntity,
     serverEndpoints: {
       entity: l4EndpointEntity,
       required: false,

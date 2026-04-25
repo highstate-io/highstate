@@ -1,6 +1,7 @@
 import type { LibraryBackend, ProjectEvaluationResult } from "../library"
 import type { PubSubManager } from "../pubsub"
 import type { LibraryModel, ProjectModel } from "../shared"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
 import { defineComponent, defineUnit, getInstanceId, type InstanceModel } from "@highstate/contract"
@@ -141,6 +142,9 @@ describe("ProjectEvaluationSubsystem", () => {
         projectModelService,
         pubsubManager,
         projectUnlockService,
+        vi.mockObject({
+          track: vi.fn().mockResolvedValue(undefined),
+        } as unknown as ObjectRefIndexService),
         logger,
       )
 
@@ -315,6 +319,58 @@ describe("ProjectEvaluationSubsystem", () => {
       const payload = getLastProjectEvent(publishEvents)
       expect(payload?.updatedGhostInstances ?? []).toHaveLength(0)
       expect(payload?.deletedGhostInstanceIds).toEqual([virtualInstance.id])
+    },
+  )
+
+  evaluationTest(
+    "deduplicates evaluation states and prioritizes errors",
+    async ({
+      subsystem,
+      project,
+      projectDatabase,
+      projectModelService,
+      libraryBackend,
+      expect,
+    }) => {
+      // arrange
+      const virtualInstance = createVirtualInstance("overlap")
+
+      const evaluationResult: ProjectEvaluationResult = {
+        success: true,
+        virtualInstances: [virtualInstance],
+        topLevelErrors: {
+          [virtualInstance.id]: "failed to evaluate subtree",
+        },
+      }
+
+      projectModelService.resolveProject.mockResolvedValue({
+        project,
+        library: clone(libraryModel),
+        instances: [
+          {
+            ...virtualInstance,
+            kind: "composite",
+            type: "composite.v1",
+          },
+        ],
+        stateMap: new Map(),
+        resolvedInputs: {},
+      })
+
+      libraryBackend.evaluateCompositeInstances.mockResolvedValue(evaluationResult)
+
+      // act
+      await subsystem.evaluateProject(project.id)
+
+      // assert
+      const state = await projectDatabase.instanceState.findUniqueOrThrow({
+        where: { instanceId: virtualInstance.id },
+        include: { evaluationState: true },
+      })
+
+      expect(state.evaluationState).toBeDefined()
+      expect(state.evaluationState?.status).toBe("error")
+      expect(state.evaluationState?.message).toBe("failed to evaluate subtree")
     },
   )
 })

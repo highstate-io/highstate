@@ -83,6 +83,9 @@ model Operation {
 
     /// The logs of the operation.
     logs OperationLog[]
+
+    /// The entity snapshots created by this operation.
+    entitySnapshots EntitySnapshot[]
 }
 
 model InstanceOperationState {

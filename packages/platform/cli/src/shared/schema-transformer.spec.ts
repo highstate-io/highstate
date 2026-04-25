@@ -696,4 +696,19 @@ export const testUnit = defineUnit({
     const metaMatches = (result.match(/meta\s*:\s*\{/g) || []).length
     expect(metaMatches).toBe(1)
   })
+
+  it("should not transform runtime call input objects", async () => {
+    const input = `
+const { addressSpace } = network.addressSpace({
+  name: "demo",
+  inputs: {
+    excludedL4Endpoints: l4Endpoints,
+  },
+})`
+
+    const result = await applySchemaTransformations(input)
+
+    expect(result).toContain("excludedL4Endpoints: l4Endpoints")
+    expect(result).not.toContain("$addInputDescription(l4Endpoints")
+  })
 })

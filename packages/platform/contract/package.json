@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
+    "@noble/hashes": "^2.0.0",
     "remeda": "^2.21.0",
     "type-fest": "^4.41.0",
     "yaml": "^2.8.0",

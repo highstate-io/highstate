@@ -125,6 +125,9 @@ model InstanceState {
     /// [InstanceStatusFields]
     statusFields Json?
 
+    /// Whether the instance has resource hooks and requires running program on destroy to properly clean up resources.
+    hasResourceHooks Boolean @default(false)
+
     /// The parent instance.
     parent InstanceState? @relation("InstanceHierarchy", fields: [parentId], references: [id])
 
@@ -166,4 +169,7 @@ model InstanceState {
 
     /// The user viewports associated with this instance.
     userViewports UserCompositeViewport[]
+
+    /// The entity snapshots associated with this instance.
+    entitySnapshots EntitySnapshot[]
 }

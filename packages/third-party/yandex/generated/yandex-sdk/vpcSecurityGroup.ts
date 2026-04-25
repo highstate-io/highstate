@@ -34,14 +34,41 @@ export class VpcSecurityGroup extends pulumi.CustomResource {
         return obj['__pulumiType'] === VpcSecurityGroup.__pulumiType;
     }
 
+    /**
+     * The creation timestamp of the resource.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
+    /**
+     * The resource description.
+     */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * A list of egress rules.
+     */
     declare public readonly egresses: pulumi.Output<outputs.VpcSecurityGroupEgress[] | undefined>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * A list of ingress rules.
+     */
     declare public readonly ingresses: pulumi.Output<outputs.VpcSecurityGroupIngress[] | undefined>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * The resource name.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the network this security group belongs to.
+     */
     declare public readonly networkId: pulumi.Output<string>;
+    /**
+     * Status of this security group.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.VpcSecurityGroupTimeouts | undefined>;
     declare public readonly vpcSecurityGroupId: pulumi.Output<string>;
@@ -96,14 +123,41 @@ export class VpcSecurityGroup extends pulumi.CustomResource {
  * Input properties used for looking up and filtering VpcSecurityGroup resources.
  */
 export interface VpcSecurityGroupState {
+    /**
+     * The creation timestamp of the resource.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * A list of egress rules.
+     */
     egresses?: pulumi.Input<pulumi.Input<inputs.VpcSecurityGroupEgress>[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A list of ingress rules.
+     */
     ingresses?: pulumi.Input<pulumi.Input<inputs.VpcSecurityGroupIngress>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the network this security group belongs to.
+     */
     networkId?: pulumi.Input<string>;
+    /**
+     * Status of this security group.
+     */
     status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.VpcSecurityGroupTimeouts>;
     vpcSecurityGroupId?: pulumi.Input<string>;
@@ -113,12 +167,33 @@ export interface VpcSecurityGroupState {
  * The set of arguments for constructing a VpcSecurityGroup resource.
  */
 export interface VpcSecurityGroupArgs {
+    /**
+     * The resource description.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * A list of egress rules.
+     */
     egresses?: pulumi.Input<pulumi.Input<inputs.VpcSecurityGroupEgress>[]>;
+    /**
+     * The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
+     */
     folderId?: pulumi.Input<string>;
+    /**
+     * A list of ingress rules.
+     */
     ingresses?: pulumi.Input<pulumi.Input<inputs.VpcSecurityGroupIngress>[]>;
+    /**
+     * A set of key/value label pairs which assigned to resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The resource name.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the network this security group belongs to.
+     */
     networkId: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.VpcSecurityGroupTimeouts>;
     vpcSecurityGroupId?: pulumi.Input<string>;

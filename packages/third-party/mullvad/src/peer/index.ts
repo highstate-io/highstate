@@ -5,8 +5,8 @@ import {
   parseEndpoint,
   parseSubnet,
 } from "@highstate/common"
-import { mullvad } from "@highstate/library"
-import { forUnit, output, toPromise } from "@highstate/pulumi"
+import { mullvad, wireguard } from "@highstate/library"
+import { forUnit, makeEntityOutput, output, toPromise } from "@highstate/pulumi"
 import { map } from "remeda"
 import { ServerList } from "./server-list"
 
@@ -42,14 +42,21 @@ if (network?.ipv6) {
 }
 
 export default outputs({
-  peer: {
-    name,
-    publicKey: server.pubkey,
-    addresses: [],
-    endpoints,
-    allowedSubnets: allowedIps.map(parseSubnet),
-    dns,
-  },
+  peer: makeEntityOutput({
+    entity: wireguard.peerEntity,
+    identity: server.pubkey,
+    meta: {
+      title: hostname,
+    },
+    value: {
+      name,
+      publicKey: server.pubkey,
+      addresses: [],
+      endpoints,
+      allowedSubnets: allowedIps.map(parseSubnet),
+      dns,
+    },
+  }),
 
   endpoints,
 

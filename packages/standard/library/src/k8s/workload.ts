@@ -1,19 +1,48 @@
-import { defineEntity, type EntityInput, z } from "@highstate/contract"
-import { l4EndpointEntity } from "../network"
+import { defineEntity, type EntityInput, type EntityValue, z } from "@highstate/contract"
 import { namespacedResourceEntity } from "./resources"
 import { serviceEntity } from "./service"
 
 /**
  * The entity which represents a Kubernetes workload.
+ *
+ * Can optionally include a service associated with the workload.
  */
 export const workloadEntity = defineEntity({
   type: "k8s.workload.v1",
 
   extends: { namespacedResourceEntity },
-  schema: z.unknown(),
+
+  includes: {
+    service: {
+      entity: serviceEntity,
+      required: false,
+    },
+  },
+
+  schema: z.object({
+    spec: z.object({
+      template: z.object({
+        spec: z.object({
+          containers: z.array(
+            z.object({
+              name: z.string(),
+              ports: z.array(
+                z.object({
+                  containerPort: z.number(),
+                }),
+              ),
+            }),
+          ),
+        }),
+      }),
+    }),
+  }),
 
   meta: {
     color: "#9C27B0",
+    title: "Workload",
+    icon: "devicon:kubernetes",
+    iconColor: "#9C27B0",
   },
 })
 
@@ -29,6 +58,9 @@ export const jobEntity = defineEntity({
 
   meta: {
     color: "#FF5722",
+    title: "Job",
+    icon: "devicon:kubernetes",
+    iconColor: "#FF5722",
   },
 })
 
@@ -44,35 +76,9 @@ export const cronJobEntity = defineEntity({
 
   meta: {
     color: "#FF9800",
-  },
-})
-
-/**
- * The entity which represents a Kubernetes workload (optionally) exposed via a service.
- *
- * Includes both the workload and its associated service.
- */
-export const exposableWorkloadEntity = defineEntity({
-  type: "k8s.exposable-workload.v1",
-
-  extends: { workloadEntity },
-
-  includes: {
-    service: {
-      entity: serviceEntity,
-      required: false,
-    },
-
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
-  },
-
-  schema: z.unknown(),
-
-  meta: {
-    color: "#4CAF50",
+    title: "CronJob",
+    icon: "devicon:kubernetes",
+    iconColor: "#FF9800",
   },
 })
 
@@ -84,11 +90,14 @@ export const exposableWorkloadEntity = defineEntity({
 export const deploymentEntity = defineEntity({
   type: "k8s.deployment.v1",
 
-  extends: { exposableWorkloadEntity },
+  extends: { workloadEntity },
   schema: z.unknown(),
 
   meta: {
     color: "#4CAF50",
+    title: "Deployment",
+    icon: "devicon:kubernetes",
+    iconColor: "#4CAF50",
   },
 })
 
@@ -100,7 +109,7 @@ export const deploymentEntity = defineEntity({
 export const statefulSetEntity = defineEntity({
   type: "k8s.stateful-set.v1",
 
-  extends: { exposableWorkloadEntity },
+  extends: { workloadEntity },
 
   includes: {
     service: serviceEntity,
@@ -110,6 +119,9 @@ export const statefulSetEntity = defineEntity({
 
   meta: {
     color: "#FFC107",
+    title: "Stateful Set",
+    icon: "devicon:kubernetes",
+    iconColor: "#FFC107",
   },
 })
 
@@ -119,27 +131,31 @@ export const statefulSetEntity = defineEntity({
 export const networkInterfaceEntity = defineEntity({
   type: "k8s.network-interface.v1",
 
+  includes: {
+    workload: workloadEntity,
+  },
+
   schema: z.object({
     name: z.string(),
-    workload: workloadEntity.schema,
   }),
 
   meta: {
     color: "#2196F3",
+    title: "Network Interface",
+    icon: "devicon:kubernetes",
+    iconColor: "#2196F3",
   },
 })
 
-export type Workload = z.infer<typeof workloadEntity.schema>
+export type Workload = EntityValue<typeof workloadEntity>
 export type WorkloadInput = EntityInput<typeof workloadEntity>
-export type Job = z.infer<typeof jobEntity.schema>
+export type Job = EntityValue<typeof jobEntity>
 export type JobInput = EntityInput<typeof jobEntity>
-export type CronJob = z.infer<typeof cronJobEntity.schema>
+export type CronJob = EntityValue<typeof cronJobEntity>
 export type CronJobInput = EntityInput<typeof cronJobEntity>
-export type ExposableWorkload = z.infer<typeof exposableWorkloadEntity.schema>
-export type ExposableWorkloadInput = EntityInput<typeof exposableWorkloadEntity>
-export type Deployment = z.infer<typeof deploymentEntity.schema>
+export type Deployment = EntityValue<typeof deploymentEntity>
 export type DeploymentInput = EntityInput<typeof deploymentEntity>
-export type StatefulSet = z.infer<typeof statefulSetEntity.schema>
+export type StatefulSet = EntityValue<typeof statefulSetEntity>
 export type StatefulSetInput = EntityInput<typeof statefulSetEntity>
-export type NetworkInterface = z.infer<typeof networkInterfaceEntity.schema>
+export type NetworkInterface = EntityValue<typeof networkInterfaceEntity>
 export type NetworkInterfaceInput = EntityInput<typeof networkInterfaceEntity>

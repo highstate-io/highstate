@@ -49,10 +49,25 @@ export const booleanPatchSchema = z.enum(["keep", "true", "false"]).default("kee
  */
 export type BooleanPatch = z.infer<typeof booleanPatchSchema>
 
+export type IsZodType<
+  TActual extends z.ZodType,
+  TExpected extends z.ZodType,
+> = TActual extends TExpected
+  ? true
+  : TActual extends z.ZodDefault<infer TInner>
+    ? TInner extends TExpected
+      ? true
+      : false
+    : TActual extends z.ZodOptional<infer TInner>
+      ? TInner extends TExpected
+        ? true
+        : false
+      : false
+
 export function toPatchArgs<T extends Record<string, FullComponentArgumentOptions>>(
   args: T,
 ): {
-  [K in keyof T]: T[K]["schema"] extends z.ZodBoolean
+  [K in keyof T]: IsZodType<T[K]["schema"], z.ZodBoolean> extends true
     ? Omit<T[K], "schema"> & { schema: typeof booleanPatchSchema }
     : T[K]
 } {

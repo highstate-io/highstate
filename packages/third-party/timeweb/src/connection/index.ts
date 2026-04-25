@@ -1,11 +1,18 @@
 import { timeweb } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
+import { forUnit, makeEntityOutput } from "@highstate/pulumi"
 
-const { name, secrets, outputs } = forUnit(timeweb.connection)
+const { stateId, name, secrets, outputs } = forUnit(timeweb.connection)
 
 export default outputs({
-  connection: {
-    name,
-    apiToken: secrets.apiToken,
-  },
+  connection: makeEntityOutput({
+    entity: timeweb.connectionEntity,
+    identity: stateId,
+    meta: {
+      title: name,
+    },
+    value: {
+      name,
+      apiToken: secrets.apiToken,
+    },
+  }),
 })

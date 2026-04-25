@@ -1,4 +1,10 @@
-import { defineEntity, defineUnit, type EntityInput, z } from "@highstate/contract"
+import {
+  defineEntity,
+  defineUnit,
+  type EntityInput,
+  type EntityValue,
+  z,
+} from "@highstate/contract"
 import { mapValues, pick } from "remeda"
 import { serverEntity } from "./common/server"
 import { implementationReferenceSchema } from "./impl-ref"
@@ -8,11 +14,6 @@ export const providerEntity = defineEntity({
   type: "dns.provider.v1",
 
   schema: z.object({
-    /**
-     * The ID of the DNS provider unique within the system.
-     */
-    id: z.string(),
-
     /**
      * The zones managed by the DNS provider.
      */
@@ -26,6 +27,9 @@ export const providerEntity = defineEntity({
 
   meta: {
     color: "#FF5722",
+    title: "DNS Provider",
+    icon: "mdi:dns",
+    iconColor: "#FF5722",
   },
 })
 
@@ -179,5 +183,5 @@ export const inputs = {
   },
 } as const
 
-export type Provider = z.infer<typeof providerEntity.schema>
+export type Provider = EntityValue<typeof providerEntity>
 export type ProviderInput = EntityInput<typeof providerEntity>

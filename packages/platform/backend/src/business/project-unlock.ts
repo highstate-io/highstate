@@ -2,6 +2,7 @@ import type { Logger } from "pino"
 import type { DatabaseManager } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { ProjectUnlockBackend } from "../unlock"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import { randomBytes } from "node:crypto"
 import { armor, Decrypter, Encrypter } from "age-encryption"
 import { z } from "zod"
@@ -32,6 +33,7 @@ export class ProjectUnlockService {
     private readonly database: DatabaseManager,
     private readonly pubsubManager: PubSubManager,
     private readonly projectUnlockBackend: ProjectUnlockBackend,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly config: z.infer<typeof projectUnlockServiceConfig>,
     private readonly logger: Logger,
   ) {}
@@ -92,7 +94,12 @@ export class ProjectUnlockService {
     const database = await this.database.setupDatabase(projectId)
 
     // persist unlock method (now we can do it since the database is set up and unlocked)
-    await database.unlockMethod.create({ data: unlockMethodInput })
+    const unlockMethod = await database.unlockMethod.create({
+      data: unlockMethodInput,
+      select: { id: true },
+    })
+
+    await this.objectRefIndexService.track(projectId, [unlockMethod.id])
 
     const unlockSuite: ProjectUnlockSuite = {
       encryptedIdentities: [unlockMethodInput.encryptedIdentity],
@@ -175,6 +182,8 @@ export class ProjectUnlockService {
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
 
+    let createdUnlockMethodId: string | null = null
+
     await database.$transaction(async tx => {
       // 1. fetch all unlock method recipients for the project
       const unlockMethods = await tx.unlockMethod.findMany({
@@ -187,7 +196,12 @@ export class ProjectUnlockService {
       const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, allUnlockMethods)
 
       // 3. persist the new unlock method
-      await tx.unlockMethod.create({ data: inputUnlockMethod })
+      const created = await tx.unlockMethod.create({
+        data: inputUnlockMethod,
+        select: { id: true },
+      })
+
+      createdUnlockMethodId = created.id
 
       // 4. update the project with the new master key and unlock suite
       await this.database.backend.project.update({
@@ -198,6 +212,10 @@ export class ProjectUnlockService {
         },
       })
     })
+
+    if (createdUnlockMethodId) {
+      await this.objectRefIndexService.track(projectId, [createdUnlockMethodId])
+    }
   }
 
   /**
@@ -246,6 +264,11 @@ export class ProjectUnlockService {
    * @param handler The handler function for the unlock task. It receives the project ID as an argument.
    */
   registerUnlockTask(name: string, handler: (projectId: string) => Promise<void> | void): void {
+    const existingIndex = this.unlockTasks.findIndex(task => task.name === name)
+    if (existingIndex !== -1) {
+      this.unlockTasks.splice(existingIndex, 1)
+    }
+
     this.unlockTasks.push({ name, handler })
   }
 

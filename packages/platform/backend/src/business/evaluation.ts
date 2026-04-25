@@ -2,6 +2,7 @@ import type { InstanceId, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
 import { isNonNullish } from "remeda"
@@ -13,6 +14,7 @@ import {
   type InstanceEvaluationStateUpdateInput,
   type InstanceStatus,
 } from "../database"
+import { stableJsonStringify } from "../shared"
 
 type EvaluatedInstance = {
   instanceId: InstanceId
@@ -23,6 +25,8 @@ type EvaluatedInstance = {
 
 export class ProjectEvaluationSubsystem {
   private readonly projectWatchers = new Map<string, AbortController>()
+  private readonly evaluationPromises = new Map<string, Promise<void>>()
+  private readonly evaluationRequested = new Set<string>()
 
   constructor(
     private readonly database: DatabaseManager,
@@ -30,6 +34,7 @@ export class ProjectEvaluationSubsystem {
     private readonly projectModelService: ProjectModelService,
     private readonly pubsubManager: PubSubManager,
     private readonly projectUnlockService: ProjectUnlockService,
+    private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {
     this.projectUnlockService.registerUnlockTask(
@@ -46,6 +51,30 @@ export class ProjectEvaluationSubsystem {
   }
 
   async evaluateProject(projectId: string): Promise<void> {
+    const existingPromise = this.evaluationPromises.get(projectId)
+    if (existingPromise) {
+      this.evaluationRequested.add(projectId)
+      await existingPromise
+      return
+    }
+
+    const promise = this.evaluateProjectLoop(projectId).finally(() => {
+      this.evaluationPromises.delete(projectId)
+      this.evaluationRequested.delete(projectId)
+    })
+
+    this.evaluationPromises.set(projectId, promise)
+    await promise
+  }
+
+  private async evaluateProjectLoop(projectId: string): Promise<void> {
+    do {
+      this.evaluationRequested.delete(projectId)
+      await this.evaluateProjectNow(projectId)
+    } while (this.evaluationRequested.has(projectId))
+  }
+
+  private async evaluateProjectNow(projectId: string): Promise<void> {
     const { project, instances, resolvedInputs } =
       await this.projectModelService.resolveProject(projectId)
 
@@ -88,10 +117,13 @@ export class ProjectEvaluationSubsystem {
           model: null,
         }))
 
-        await this.setInstanceEvaluationStates(project.id, [
-          ...evaluatedInstances,
-          ...errorEvaluatedInstances,
-        ])
+        await this.setInstanceEvaluationStates(
+          project.id,
+          ProjectEvaluationSubsystem.mergeEvaluatedInstances(
+            evaluatedInstances,
+            errorEvaluatedInstances,
+          ),
+        )
       } else {
         // set all composite instances to error state in evaluation
         const errorEvaluationStates: EvaluatedInstance[] = compositeInstanceIds.map(instanceId => ({
@@ -135,7 +167,7 @@ export class ProjectEvaluationSubsystem {
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
 
-    await database.$transaction(async tx => {
+    const { stateIds } = await database.$transaction(async tx => {
       const previousVirtualStates = await tx.instanceState.findMany({
         where: { source: "virtual" },
         select: {
@@ -186,6 +218,9 @@ export class ProjectEvaluationSubsystem {
       const existingStates = await tx.instanceEvaluationState.findMany({
         select: {
           stateId: true,
+          status: true,
+          message: true,
+          model: true,
           state: {
             select: {
               instanceId: true,
@@ -197,9 +232,21 @@ export class ProjectEvaluationSubsystem {
 
       const existingStateIds = new Set(existingStates.map(state => state.stateId))
       const actualStateIds = new Set(states.map(state => state.stateId))
+      const existingStateById = new Map(existingStates.map(state => [state.stateId, state]))
 
       const newStates = states.filter(state => !existingStateIds.has(state.stateId))
-      const statesToUpdate = states.filter(state => existingStateIds.has(state.stateId))
+      const statesToUpdate = states.filter(state => {
+        const existingState = existingStateById.get(state.stateId)
+        if (!existingState) {
+          return false
+        }
+
+        return (
+          existingState.status !== state.status ||
+          (existingState.message ?? null) !== (state.message ?? null) ||
+          stableJsonStringify(existingState.model) !== stableJsonStringify(state.model)
+        )
+      })
       const statesToDelete = existingStates.filter(state => !actualStateIds.has(state.stateId))
 
       // create new states
@@ -225,13 +272,15 @@ export class ProjectEvaluationSubsystem {
       })
 
       // 5. publish evaluation state updates
-      for (const state of updatedStates) {
+      if (updatedStates.length > 0) {
         void this.pubsubManager.publish(["instance-state", projectId], {
-          type: "patched",
-          stateId: state.stateId,
-          patch: {
-            evaluationState: state,
-          },
+          type: "patched-batch",
+          patches: updatedStates.map(state => ({
+            stateId: state.stateId,
+            patch: {
+              evaluationState: state,
+            },
+          })),
         })
       }
 
@@ -276,19 +325,33 @@ export class ProjectEvaluationSubsystem {
         }
       }
 
+      const updatedVirtualInstances = [...newStates, ...updatedStates]
+        .map(state => state.model as InstanceModel)
+        .filter(isNonNullish)
+      const deletedVirtualInstanceIds = statesToDelete.map(state => state.state.instanceId)
+      const updatedGhostInstances = newGhostInstances.filter(isNonNullish)
+
       // 6. publish project model update
-      void this.pubsubManager.publish(["project-model", projectId], {
-        updatedVirtualInstances: [...newStates, ...updatedStates]
-          .map(state => state.model as InstanceModel)
-          .filter(isNonNullish),
+      if (
+        updatedVirtualInstances.length > 0 ||
+        deletedVirtualInstanceIds.length > 0 ||
+        updatedGhostInstances.length > 0 ||
+        resolvedGhostInstanceIds.length > 0
+      ) {
+        void this.pubsubManager.publish(["project-model", projectId], {
+          updatedVirtualInstances,
+          deletedVirtualInstanceIds,
+          updatedGhostInstances,
+          deletedGhostInstanceIds: resolvedGhostInstanceIds,
+        })
+      }
 
-        deletedVirtualInstanceIds: statesToDelete.map(state => state.state.instanceId),
-
-        updatedGhostInstances: newGhostInstances.filter(isNonNullish),
-
-        deletedGhostInstanceIds: resolvedGhostInstanceIds,
-      })
+      return { stateIds: Array.from(instanceIdToStateMap.values()).map(state => state.id) }
     })
+
+    if (stateIds.length > 0) {
+      await this.objectRefIndexService.track(projectId, stateIds)
+    }
   }
 
   private async trackUnlockedProject(projectId: string): Promise<void> {
@@ -383,5 +446,22 @@ export class ProjectEvaluationSubsystem {
     const tree = renderTree(rootNode)
 
     return `Composite instance evaluation completed successfully.\n\nInstance Tree:\n${tree}`
+  }
+
+  private static mergeEvaluatedInstances(
+    evaluatedInstances: EvaluatedInstance[],
+    errorEvaluatedInstances: EvaluatedInstance[],
+  ): EvaluatedInstance[] {
+    const merged = new Map<InstanceId, EvaluatedInstance>()
+
+    for (const state of evaluatedInstances) {
+      merged.set(state.instanceId, state)
+    }
+
+    for (const state of errorEvaluatedInstances) {
+      merged.set(state.instanceId, state)
+    }
+
+    return Array.from(merged.values())
   }
 }

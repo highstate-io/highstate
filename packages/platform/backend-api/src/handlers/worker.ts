@@ -1,7 +1,15 @@
 import type { WorkerServiceImplementation } from "@highstate/api/worker.v1"
 import type { Services } from "@highstate/backend"
-import { commonObjectMetaSchema, z } from "@highstate/contract"
+import { commonObjectMetaSchema, serviceAccountMetaSchema, z } from "@highstate/contract"
 import { authenticate, parseArgument } from "../shared"
+
+const workerMetaUpdatePayloadSchema = z.union([
+  commonObjectMetaSchema,
+  z.object({
+    workerMeta: commonObjectMetaSchema,
+    serviceAccountMeta: serviceAccountMetaSchema,
+  }),
+])
 
 export function createWorkerService(services: Services): WorkerServiceImplementation {
   return {
@@ -69,9 +77,18 @@ export function createWorkerService(services: Services): WorkerServiceImplementa
       const [projectId] = await authenticate(services, context)
 
       const workerVersionId = parseArgument(request, "workerVersionId", z.string())
-      const meta = parseArgument(request, "meta", commonObjectMetaSchema)
+      const payload = parseArgument(request, "meta", workerMetaUpdatePayloadSchema)
 
-      await services.workerService.updateWorkerVersionMeta(projectId, workerVersionId, meta)
+      const workerMeta = "workerMeta" in payload ? payload.workerMeta : payload
+      const serviceAccountMeta =
+        "serviceAccountMeta" in payload ? payload.serviceAccountMeta : undefined
+
+      await services.workerService.updateWorkerVersionMeta(
+        projectId,
+        workerVersionId,
+        workerMeta,
+        serviceAccountMeta,
+      )
 
       return {}
     },

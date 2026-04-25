@@ -34,12 +34,38 @@ export class ResourcemanagerFolder extends pulumi.CustomResource {
         return obj['__pulumiType'] === ResourcemanagerFolder.__pulumiType;
     }
 
+    /**
+     * ID of the cloud that the folder belongs to.
+     */
     declare public readonly cloudId: pulumi.Output<string>;
+    /**
+     * Creation timestamp.
+     */
     declare public /*out*/ readonly createdAt: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string | undefined>;
-    declare public readonly labels: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Description of the folder. 0-256 characters long.
+     */
+    declare public readonly description: pulumi.Output<string>;
+    /**
+     * ID of the Folder resource to return. To get the folder ID, use a [FolderService.List] request.
+     */
+    declare public readonly folderId: pulumi.Output<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
+    declare public readonly labels: pulumi.Output<{[key: string]: string}>;
+    /**
+     * Name of the folder. The name is unique within the cloud. 3-63 characters long.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * ID of the Folder resource to return. To get the folder ID, use a [FolderService.List] request.
+     */
     declare public readonly resourcemanagerFolderId: pulumi.Output<string>;
+    /**
+     * Status of the folder.
+     */
+    declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public readonly timeouts: pulumi.Output<outputs.ResourcemanagerFolderTimeouts | undefined>;
 
     /**
@@ -58,19 +84,23 @@ export class ResourcemanagerFolder extends pulumi.CustomResource {
             resourceInputs["cloudId"] = state?.cloudId;
             resourceInputs["createdAt"] = state?.createdAt;
             resourceInputs["description"] = state?.description;
+            resourceInputs["folderId"] = state?.folderId;
             resourceInputs["labels"] = state?.labels;
             resourceInputs["name"] = state?.name;
             resourceInputs["resourcemanagerFolderId"] = state?.resourcemanagerFolderId;
+            resourceInputs["status"] = state?.status;
             resourceInputs["timeouts"] = state?.timeouts;
         } else {
             const args = argsOrState as ResourcemanagerFolderArgs | undefined;
             resourceInputs["cloudId"] = args?.cloudId;
             resourceInputs["description"] = args?.description;
+            resourceInputs["folderId"] = args?.folderId;
             resourceInputs["labels"] = args?.labels;
             resourceInputs["name"] = args?.name;
             resourceInputs["resourcemanagerFolderId"] = args?.resourcemanagerFolderId;
             resourceInputs["timeouts"] = args?.timeouts;
             resourceInputs["createdAt"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(ResourcemanagerFolder.__pulumiType, name, resourceInputs, opts, false /*dependency*/, utilities.getPackage());
@@ -81,12 +111,38 @@ export class ResourcemanagerFolder extends pulumi.CustomResource {
  * Input properties used for looking up and filtering ResourcemanagerFolder resources.
  */
 export interface ResourcemanagerFolderState {
+    /**
+     * ID of the cloud that the folder belongs to.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * Creation timestamp.
+     */
     createdAt?: pulumi.Input<string>;
+    /**
+     * Description of the folder. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the Folder resource to return. To get the folder ID, use a [FolderService.List] request.
+     */
+    folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the folder. The name is unique within the cloud. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the Folder resource to return. To get the folder ID, use a [FolderService.List] request.
+     */
     resourcemanagerFolderId?: pulumi.Input<string>;
+    /**
+     * Status of the folder.
+     */
+    status?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ResourcemanagerFolderTimeouts>;
 }
 
@@ -94,10 +150,29 @@ export interface ResourcemanagerFolderState {
  * The set of arguments for constructing a ResourcemanagerFolder resource.
  */
 export interface ResourcemanagerFolderArgs {
+    /**
+     * ID of the cloud that the folder belongs to.
+     */
     cloudId?: pulumi.Input<string>;
+    /**
+     * Description of the folder. 0-256 characters long.
+     */
     description?: pulumi.Input<string>;
+    /**
+     * ID of the Folder resource to return. To get the folder ID, use a [FolderService.List] request.
+     */
+    folderId?: pulumi.Input<string>;
+    /**
+     * Resource labels as `` key:value `` pairs. Maximum of 64 per resource.
+     */
     labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Name of the folder. The name is unique within the cloud. 3-63 characters long.
+     */
     name?: pulumi.Input<string>;
+    /**
+     * ID of the Folder resource to return. To get the folder ID, use a [FolderService.List] request.
+     */
     resourcemanagerFolderId?: pulumi.Input<string>;
     timeouts?: pulumi.Input<inputs.ResourcemanagerFolderTimeouts>;
 }

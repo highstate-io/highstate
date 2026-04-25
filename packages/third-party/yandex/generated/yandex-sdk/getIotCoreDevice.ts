@@ -33,6 +33,7 @@ export interface GetIotCoreDeviceResult {
     readonly description: string;
     readonly deviceId?: string;
     readonly id: string;
+    readonly labels: {[key: string]: string};
     readonly name?: string;
     readonly passwords: string[];
     readonly registryId: string;

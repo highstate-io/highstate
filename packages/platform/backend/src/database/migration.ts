@@ -23,6 +23,7 @@ export const migrationPacks = {
     migrationNames: [
       //
       "20250928124105_initial_migration",
+      "20260222113554_add_object_tracking",
     ],
   },
   project: {
@@ -32,6 +33,8 @@ export const migrationPacks = {
       //
       "20250928130725_initial_migration",
       "20260123000000_add_instance_state_self_hash",
+      "20260301210131_add_entity_tracking",
+      "20260302212734_add_resource_hooks_flag",
     ],
   },
 }
