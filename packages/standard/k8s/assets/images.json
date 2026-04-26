@@ -2,21 +2,21 @@
   "terminal-kubectl": {
     "name": "ghcr.io/highstate-io/highstate/terminal.kubectl",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/terminal.kubectl:latest@sha256:31cf095ec6acc0b3a5088c92483d88dc1e2e7dd7fcbf2ec8de29a0171debd8aa"
+    "image": "ghcr.io/highstate-io/highstate/terminal.kubectl:latest@sha256:cc0a15d9960422d77f4a8e2c8bff1161d171565e0fe81b5827f02a9bdac7bcd8"
   },
   "worker.k8s-monitor": {
     "name": "ghcr.io/highstate-io/highstate/worker.k8s-monitor",
-    "tag": "debug",
-    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:debug@sha256:808eccda739d1e963d345a92612f3ca64ecf64de71a6010daa0e1fffbfc7aa5c"
+    "tag": "latest",
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:5acae35c3163a75b83ee574e7274eb7692dfd3c7f615deceede9b44bc1e475f9"
   },
   "alpine": {
     "name": "alpine",
     "tag": "latest",
-    "image": "alpine:latest@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659"
+    "image": "alpine:latest@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11"
   },
   "ubuntu": {
     "name": "ubuntu",
     "tag": "latest",
-    "image": "ubuntu:latest@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b"
+    "image": "ubuntu:latest@sha256:c4a8d5503dfb2a3eb8ab5f807da5bc69a85730fb49b5cfca2330194ebcc41c7b"
   }
 }

@@ -1,13 +1,11 @@
 {
   "name": "@{{projectName}}/units",
   "private": true,
-  "exports":{
+  "exports": {
     "./my-unit": "./dist/my-unit/index.js"
   },
   "dependencies": {
-    {{#unless isNpm}}
     "@{{projectName}}/library": "workspace:*",
-    {{/unless}}
     "@highstate/contract": "^{{platformVersion}}",
     "@highstate/pulumi": "^{{platformVersion}}"
   },

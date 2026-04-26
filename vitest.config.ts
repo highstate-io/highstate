@@ -1,5 +1,7 @@
 import { defineConfig } from "vitest/config"
 
+const zodShimPath = Bun.fileURLToPath(new URL("./scripts/vitest.zod-shim.ts", import.meta.url))
+
 export default defineConfig({
   test: {
     coverage: {
@@ -8,5 +10,14 @@ export default defineConfig({
     },
     testTimeout: 60_000,
     isolate: false,
+  
+  },
+  resolve: {
+    alias: [
+      {
+        find: /^zod$/,
+        replacement: zodShimPath,
+      },
+    ],
   },
 })

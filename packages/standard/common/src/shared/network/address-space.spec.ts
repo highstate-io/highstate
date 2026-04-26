@@ -107,4 +107,32 @@ describe("createAddressSpace", () => {
 
     expect(result.subnets.map(subnetToString)).toEqual(["10.4.0.9/32"])
   })
+
+  it("filters out IPv4 subnets when ipv4 is false", () => {
+    const result = createAddressSpace({
+      included: ["10.0.0.0/24", "2001:db8::/32"],
+      ipv4: false,
+    })
+
+    expect(result.subnets.map(subnetToString)).toEqual(["2001:db8::/32"])
+  })
+
+  it("filters out IPv6 subnets when ipv6 is false", () => {
+    const result = createAddressSpace({
+      included: ["10.0.0.0/24", "2001:db8::/32"],
+      ipv6: false,
+    })
+
+    expect(result.subnets.map(subnetToString)).toEqual(["10.0.0.0/24"])
+  })
+
+  it("returns empty address space when both families are disabled", () => {
+    const result = createAddressSpace({
+      included: ["10.0.0.0/24", "2001:db8::/32"],
+      ipv4: false,
+      ipv6: false,
+    })
+
+    expect(result.subnets).toEqual([])
+  })
 })

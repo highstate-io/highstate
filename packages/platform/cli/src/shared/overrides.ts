@@ -1,9 +1,6 @@
-import type { PackageManagerName } from "nypm"
 import type { VersionBundle } from "./version-bundle"
-import { access } from "node:fs/promises"
 import { readPackageJSON, resolvePackageJSON } from "pkg-types"
 import { writeJsonFile } from "./package-json"
-import { readPnpmWorkspace, resolvePnpmWorkspacePath, writePnpmWorkspace } from "./pnpm-workspace"
 import { PLATFORM_PACKAGES, PULUMI_PACKAGES, STDLIB_PACKAGES } from "./version-sets"
 
 export type Overrides = Record<string, string>
@@ -23,51 +20,18 @@ export function buildOverrides(bundle: VersionBundle): Overrides {
 }
 
 export type ApplyOverridesArgs = {
-  packageManager: PackageManagerName
   overrides: Overrides
   projectRoot: string
 }
 
 export async function applyOverrides(args: ApplyOverridesArgs): Promise<void> {
-  const { packageManager, overrides, projectRoot } = args
-
-  if (packageManager === "pnpm") {
-    const pnpmWorkspacePath = resolvePnpmWorkspacePath(projectRoot)
-
-    try {
-      await access(pnpmWorkspacePath)
-    } catch {
-      throw new Error(`PNPM workspace file is missing: "${pnpmWorkspacePath}"`)
-    }
-
-    const workspace = await readPnpmWorkspace(pnpmWorkspacePath)
-    const nextWorkspace = {
-      ...workspace,
-      overrides,
-    }
-
-    await writePnpmWorkspace(pnpmWorkspacePath, nextWorkspace)
-    return
-  }
+  const { overrides, projectRoot } = args
 
   const packageJsonPath = await resolvePackageJSON(projectRoot)
   const packageJson = await readPackageJSON(projectRoot)
 
-  if (packageManager === "npm") {
-    await writeJsonFile(packageJsonPath, {
-      ...packageJson,
-      overrides,
-    })
-    return
-  }
-
-  if (packageManager === "yarn") {
-    await writeJsonFile(packageJsonPath, {
-      ...packageJson,
-      resolutions: overrides,
-    })
-    return
-  }
-
-  await writeJsonFile(packageJsonPath, packageJson)
+  await writeJsonFile(packageJsonPath, {
+    ...packageJson,
+    overrides,
+  })
 }

@@ -2,12 +2,19 @@
   "name": "highstate",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa",
+  "workspaces": [
+    "packages/platform/*",
+    "packages/standard/*",
+    "packages/third-party/*",
+    "packages/standard/*/generated/*",
+    "packages/third-party/*/generated/*"
+  ],
+  "packageManager": "bun@1.3.11",
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
   },
   "scripts": {
-    "ci:prepare": "nx run @highstate/cli:build && pnpm install",
+    "ci:prepare": "scripts/bootstrap-cli.sh && bun install",
     "ci:release": "nx run-many -t test,build,build-image,biome:check,push-image,deploy-image,typecheck",
     "ci:verify": "nx affected --base=origin/main -t test,biome:check,typecheck",
     "dev:build": "nx run-many -t build --exclude @highstate/designer --exclude @highstate/docs",
@@ -15,8 +22,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:*",
     "@nx/node": "21.6.4",
     "@types/node": "^24",
+    "bun-types": "^1.3.13",
     "nx": "^21.6.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",

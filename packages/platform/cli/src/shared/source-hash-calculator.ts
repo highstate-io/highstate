@@ -1,6 +1,7 @@
 import type { Logger } from "pino"
 import { readFile, writeFile } from "node:fs/promises"
-import { dirname, relative, resolve } from "node:path"
+import { builtinModules } from "node:module"
+import { dirname, isAbsolute, relative, resolve } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { crc32 } from "@aws-crypto/crc32"
 import { resolve as importMetaResolve } from "import-meta-resolve"
@@ -53,6 +54,19 @@ export function parseFileDependencies(filePath: string, content: string): FileDe
         fullPath,
       })
     } else if (npmPackage) {
+      const normalizedPackageName = npmPackage.startsWith("node:")
+        ? npmPackage.slice("node:".length)
+        : npmPackage
+      const builtinName = normalizedPackageName.split("/")[0]
+      if (
+        builtinModules.includes(normalizedPackageName) ||
+        builtinModules.includes(builtinName) ||
+        builtinModules.includes(`node:${normalizedPackageName}`) ||
+        builtinModules.includes(`node:${builtinName}`)
+      ) {
+        continue
+      }
+
       dependencies.push({
         type: "npm",
         id: `npm:${npmPackage}`,
@@ -255,7 +269,17 @@ export class SourceHashCalculator {
         //   throw new Error(`"${dependency.package}" imported without "node:" prefix`)
         // }
 
-        const resolvedPath = fileURLToPath(resolvedUrl)
+        const resolvedPath = this.resolveDependencyPath(dependency.package, resolvedUrl)
+        if (!resolvedPath) {
+          this.logger.debug(
+            `using package version as a fallback hash for "%s" due to unsupported resolver output "%s"`,
+            dependency.package,
+            resolvedUrl,
+          )
+
+          const [, depPackageJson] = await this.getPackageJsonFromPackageName(dependency.package)
+          return this.hashString(depPackageJson.version ?? "0.0.0")
+        }
 
         const [depPackageJsonPath, depPackageJson] = await this.getPackageJson(resolvedPath)
         const packageName = depPackageJson.name!
@@ -308,6 +332,35 @@ export class SourceHashCalculator {
         return this.hashString(depPackageJson.version ?? "0.0.0")
       }
     }
+  }
+
+  private resolveDependencyPath(packageName: string, resolvedUrl: string): string | null {
+    if (resolvedUrl.startsWith("file:")) {
+      return fileURLToPath(resolvedUrl)
+    }
+
+    if (isAbsolute(resolvedUrl)) {
+      return resolvedUrl
+    }
+
+    if (resolvedUrl.startsWith("node:")) {
+      return null
+    }
+
+    // Bun resolver may return non-file URL schemes for certain modules.
+    if (resolvedUrl.includes(":")) {
+      return null
+    }
+
+    const baseDir = dirname(this.packageJsonPath)
+    return resolve(baseDir, "node_modules", packageName)
+  }
+
+  private async getPackageJsonFromPackageName(packageName: string): Promise<[string, PackageJson]> {
+    const baseDir = dirname(this.packageJsonPath)
+    const packagePath = resolve(baseDir, "node_modules", packageName)
+
+    return await this.getPackageJson(packagePath)
   }
 
   private async getPackageJson(basePath: string): Promise<[string, PackageJson]> {

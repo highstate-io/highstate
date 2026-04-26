@@ -9,7 +9,7 @@ import {
   toPromise,
 } from "@highstate/pulumi"
 import { deepmerge } from "deepmerge-ts"
-import * as images from "../../assets/images.json"
+import images from "../../assets/images.json"
 
 const { name, args, inputs, outputs } = forUnit(wireguard.nodeFeedK8s)
 
@@ -58,13 +58,31 @@ for (const restrictedCidr of args.forwardRestrictedSubnets) {
   initCommands.push(`iptables -I FORWARD -d ${restrictedCidr} -j DROP`)
 }
 
-// TODO: add init container with commands
+if (args.lockdownUpstream) {
+  // add a catch-all rule to drop all traffic from the interface to prevent leaks before downstream interface is attached
+  initCommands.push(`ip route add blackhole default table 100`)
+  initCommands.push(`ip rule add iif ${args.interfaceName} lookup 100 priority 100`)
+}
 
 const workload = await toPromise(
   Workload.createOrPatchGeneric(appName, {
     defaultType: "Deployment",
     namespace,
     existing: existingWorkload,
+
+    initContainer: {
+      name: "init",
+      image: images.wgFeedDaemon.image,
+      command: ["sh", "-c", initCommands.join(" && ")],
+      securityContext: {
+        runAsUser: 0,
+        runAsGroup: 0,
+        runAsNonRoot: false,
+        capabilities: {
+          add: ["NET_ADMIN"],
+        },
+      },
+    },
 
     container: deepmerge(
       {

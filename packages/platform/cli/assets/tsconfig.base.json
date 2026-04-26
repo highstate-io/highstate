@@ -15,6 +15,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "verbatimModuleSyntax": true,
+    "types": ["bun-types"],
     "paths": {
       "@/*": ["./src/*"]
     }

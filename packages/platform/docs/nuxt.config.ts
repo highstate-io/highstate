@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  extends: ["docus", "../designer/layers/core"],
+  extends: ["./docus/layer", "../designer/layers/core"],
   ogImage: { enabled: false },
 
   modules: [

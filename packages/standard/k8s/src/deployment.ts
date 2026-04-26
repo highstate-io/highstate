@@ -332,6 +332,22 @@ class DeploymentPatch extends Deployment {
       )
     })
 
+    const filteredSpec = output({ spec: deployment.spec, podTemplate }).apply(
+      ({ spec, podTemplate }) => {
+        if (!spec.template) {
+          return spec
+        }
+
+        return {
+          ...spec,
+          template: filterPatchOwnedContainersInTemplate(
+            spec.template as Unwrap<types.input.core.v1.PodTemplateSpec>,
+            podTemplate,
+          ) as types.output.core.v1.PodTemplateSpec,
+        }
+      },
+    ) as Output<types.output.apps.v1.DeploymentSpec>
+
     super(
       "highstate:k8s:DeploymentPatch",
       name,
@@ -347,7 +363,7 @@ class DeploymentPatch extends Deployment {
       service,
       routes,
 
-      deployment.spec,
+      filteredSpec,
       deployment.status,
     )
   }

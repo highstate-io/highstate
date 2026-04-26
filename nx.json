@@ -1,5 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/nrwl/nx/refs/heads/master/packages/nx/schemas/nx-schema.json",
+  "cli": {
+    "packageManager": "bun"
+  },
   "namedInputs": {
     "default": [
       "{projectRoot}/**/*",

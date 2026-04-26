@@ -29,7 +29,8 @@
     "@highstate/contract": "workspace:*",
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
-    "@highstate/mysql-sdk": "workspace:*"
+    "@highstate/mysql-sdk": "workspace:*",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

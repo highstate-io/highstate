@@ -8,7 +8,7 @@ import {
   type Output,
   output,
 } from "@highstate/pulumi"
-import * as images from "../../assets/images.json"
+import images from "../../assets/images.json"
 
 export type DatabaseArgs = {
   /**

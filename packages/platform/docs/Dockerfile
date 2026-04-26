@@ -1,7 +1,7 @@
 # just copy built code to the image
-FROM node:24-alpine
+FROM oven/bun:1.3-alpine
 
 WORKDIR /app
 COPY .output .
 
-CMD ["node", "server/index.mjs"]
+CMD ["bun", "server/index.mjs"]

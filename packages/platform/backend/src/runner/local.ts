@@ -16,7 +16,7 @@ import type {
 import type { DualAbortSignal } from "./force-abort"
 import { EventEmitter, on } from "node:events"
 import { mkdir, rm } from "node:fs/promises"
-import { cpus } from "node:os"
+import { cpus, homedir } from "node:os"
 import { join, resolve } from "node:path"
 import {
   getInstanceId,
@@ -649,14 +649,19 @@ export class LocalRunnerBackend implements RunnerBackend {
     return options.stateId
   }
 
-  public static create(
+  public static async create(
     config: z.infer<typeof localRunnerBackendConfig>,
     pulumiProjectHost: LocalPulumiHost,
     libraryBackend: LibraryBackend,
     artifactManager: ArtifactService,
     artifactBackend: ArtifactBackend,
     logger: Logger,
-  ): RunnerBackend {
+  ): Promise<RunnerBackend> {
+    const { PulumiCommand } = await import("@pulumi/pulumi/automation/index.js")
+    await PulumiCommand.install({
+      root: resolve(homedir(), ".pulumi"),
+    })
+
     let cacheDir = config.HIGHSTATE_RUNNER_BACKEND_LOCAL_CACHE_DIR
     if (!cacheDir) {
       const homeDir = process.env.HOME ?? process.env.USERPROFILE

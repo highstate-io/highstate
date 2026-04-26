@@ -326,6 +326,20 @@ class JobPatch extends Job {
       )
     })
 
+    const filteredSpec = output({ spec: job.spec, podTemplate }).apply(({ spec, podTemplate }) => {
+      if (!spec.template) {
+        return spec
+      }
+
+      return {
+        ...spec,
+        template: filterPatchOwnedContainersInTemplate(
+          spec.template as Unwrap<types.input.core.v1.PodTemplateSpec>,
+          podTemplate,
+        ) as types.output.core.v1.PodTemplateSpec,
+      }
+    }) as Output<types.output.batch.v1.JobSpec>
+
     super(
       "highstate:k8s:JobPatch",
       name,
@@ -336,7 +350,7 @@ class JobPatch extends Job {
       output(args.terminal ?? {}),
       containers,
       networkPolicy,
-      job.spec,
+      filteredSpec,
       job.status,
     )
 

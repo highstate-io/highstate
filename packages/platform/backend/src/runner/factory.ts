@@ -12,19 +12,19 @@ export const runnerBackendConfig = z.object({
   ...localRunnerBackendConfig.shape,
 })
 
-export function createRunnerBackend(
+export async function createRunnerBackend(
   config: z.infer<typeof runnerBackendConfig>,
   libraryBackend: LibraryBackend,
   artifactManager: ArtifactService,
   artifactBackend: ArtifactBackend,
   secretService: SecretService,
   logger: Logger,
-): RunnerBackend {
+): Promise<RunnerBackend> {
   switch (config.HIGHSTATE_RUNNER_BACKEND_TYPE) {
     case "local": {
       const localPulumiHost = LocalPulumiHost.create(secretService, logger)
 
-      return LocalRunnerBackend.create(
+      return await LocalRunnerBackend.create(
         config,
         localPulumiHost,
         libraryBackend,

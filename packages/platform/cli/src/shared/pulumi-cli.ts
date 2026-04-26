@@ -3,9 +3,12 @@ import { promisify } from "node:util"
 
 const execFileAsync = promisify(execFile)
 
-export async function getPulumiCliVersion(cwd: string): Promise<string | null> {
+export async function getPulumiCliVersion(
+  cwd: string,
+  commandPath = "pulumi",
+): Promise<string | null> {
   try {
-    const { stdout } = await execFileAsync("pulumi", ["version"], {
+    const { stdout } = await execFileAsync(commandPath, ["version"], {
       cwd,
     })
 

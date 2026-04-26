@@ -1,0 +1,3 @@
+[submodule "packages/platform/docs/docus"]
+	path = packages/platform/docs/docus
+	url = https://github.com/nuxt-content/docus.git

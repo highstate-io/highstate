@@ -25,7 +25,7 @@ logs
 !.env.example
 
 # Template
-template/pnpm-lock.yaml
+template/bun.lock
 
 # npm pack
 *.tgz

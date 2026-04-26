@@ -19,12 +19,11 @@ import {
   componentModelSchema,
   defineComponent,
   type FullComponentArgumentOptions,
-  kind,
   mapArgument,
   type ToFullComponentArgumentOptions,
   toFullComponentArgumentOptions,
 } from "./component"
-import { boundaryInput } from "./evaluation"
+import { boundaryInput, kind } from "./shared"
 
 export const componentSecretSchema = componentArgumentSchema.extend({
   /**

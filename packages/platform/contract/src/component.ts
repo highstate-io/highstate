@@ -2,21 +2,20 @@
 
 import type { Simplify } from "type-fest"
 import type { Entity, implementedTypes } from "./entity"
+import type {
+  EntityInput,
+  InstanceId,
+  InstanceInput,
+  MultipleInput,
+  RequiredInput,
+  RequiredMultipleInput,
+  RuntimeInput,
+} from "./instance"
 import type { OptionalEmptyRecords, PartialKeys } from "./utils"
 import { isNonNullish, mapValues, pickBy, uniqueBy } from "remeda"
 import { z } from "zod"
-import { boundaryInput, registerInstance } from "./evaluation"
+import { registerInstance } from "./evaluation"
 import { camelCaseToHumanReadable } from "./i18n"
-import {
-  type EntityInput,
-  type InstanceId,
-  type InstanceInput,
-  inputKey,
-  type MultipleInput,
-  type RequiredInput,
-  type RequiredMultipleInput,
-  type RuntimeInput,
-} from "./instance"
 import {
   createDeepOutputAccessor,
   createInput,
@@ -31,17 +30,20 @@ import {
   type VersionedName,
   versionedNameSchema,
 } from "./meta"
-
-export const runtimeSchema = Symbol("runtimeSchema")
+import {
+  boundaryInput,
+  type ComponentKind,
+  componentKindSchema,
+  inputKey,
+  kind,
+  runtimeSchema,
+} from "./shared"
 
 let validationEnabled = true
 
 export function setValidationEnabled(enabled: boolean): void {
   validationEnabled = enabled
 }
-
-export const componentKindSchema = z.enum(["composite", "unit"])
-export type ComponentKind = z.infer<typeof componentKindSchema>
 
 export const componentArgumentSchema = z.object({
   /**
@@ -478,7 +480,6 @@ type ValidateCallInputs<
 }
 
 export const originalCreate = Symbol("originalCreate")
-export const kind = Symbol("kind")
 
 export type Component<
   TType extends VersionedName = VersionedName,

@@ -26,8 +26,8 @@
     ]
   },
   "scripts": {
-    "build": "highstate build",
-    "test": "vitest run",
+    "build": "bun run --bun highstate build",
+    "test": "bun run --bun vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
@@ -38,7 +38,7 @@
     "@highstate/contract": "workspace:*",
     "@inquirer/prompts": "^7.8.6",
     "@msgpack/msgpack": "^3.1.2",
-    "@pulumi/pulumi": "3.220.0",
+    "@pulumi/pulumi": "3.232.0",
     "age-encryption": "^0.2.4",
     "ajv": "^8.17.1",
     "clipanion": "^4.0.0-rc.4",
@@ -73,7 +73,6 @@
     "@types/semver": "^7.7.1",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "esbuild": "^0.25.11",
-    "highstate-cli-bootstrap": "npm:@highstate/cli",
     "vitest": "^3.2.4"
   },
   "repository": {

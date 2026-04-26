@@ -29,7 +29,8 @@
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
     "@highstate/contract": "workspace:*",
-    "@highstate/mongodb-sdk": "workspace:*"
+    "@highstate/mongodb-sdk": "workspace:*",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

@@ -7,17 +7,18 @@ import { LocalArtifactBackend, localArtifactBackendConfig } from "./local"
 
 export const artifactBackendConfig = z.object({
   HIGHSTATE_ARTIFACT_BACKEND_TYPE: z.enum(["local"]).default("local"),
+  HIGHSTATE_ENCRYPTION_ENABLED: z.stringbool().default(true),
   ...localArtifactBackendConfig.shape,
 })
 
 export async function createArtifactBackend(
-  config: z.infer<typeof artifactBackendConfig> & Record<string, unknown>,
+  config: z.infer<typeof artifactBackendConfig>,
   database: DatabaseManager,
   logger: Logger,
 ): Promise<ArtifactBackend> {
   let backend: ArtifactBackend
 
-  const fileExtension = config.HIGHSTATE_ARTIFACT_ENABLE_ENCRYPTION ? ".enc" : ".tgz"
+  const fileExtension = config.HIGHSTATE_ENCRYPTION_ENABLED ? ".tgz.enc" : ".tgz"
 
   switch (config.HIGHSTATE_ARTIFACT_BACKEND_TYPE) {
     case "local": {

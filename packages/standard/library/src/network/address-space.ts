@@ -62,6 +62,20 @@ export const addressSpace = defineUnit({
      * The supported formats are the same as in `addresses`.
      */
     excluded: z.string().array().default([]),
+
+    /**
+     * Whether to return IPv4 subnets or filter them out.
+     *
+     * By default, is set to `true`.
+     */
+    ipv4: z.boolean().default(true),
+
+    /**
+     * Whether to return IPv6 subnets or filter them out.
+     *
+     * By default, is set to `true`.
+     */
+    ipv6: z.boolean().default(true),
   },
 
   inputs: {

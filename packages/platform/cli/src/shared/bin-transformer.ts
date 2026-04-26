@@ -1,8 +1,7 @@
-import type { Plugin } from "esbuild"
 import { readFile } from "node:fs/promises"
 import { logger } from "./logger"
 
-export function createBinTransformerPlugin(sourceFilePaths: string[]): Plugin {
+export function createBinTransformerPlugin(sourceFilePaths: string[]): Bun.BunPlugin {
   const filter = new RegExp(`(${sourceFilePaths.join("|")})$`)
 
   logger.debug("created bin transformer plugin with filter: %s", filter)
@@ -14,7 +13,7 @@ export function createBinTransformerPlugin(sourceFilePaths: string[]): Plugin {
         const content = await readFile(args.path, "utf-8")
 
         return {
-          contents: `#!/usr/bin/env node\n\n${content}`,
+          contents: `#!/usr/bin/env bun\n\n${content}`,
           loader: "ts",
         }
       })

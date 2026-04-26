@@ -12,14 +12,10 @@ import {
   output,
   type Unwrap,
 } from "@pulumi/pulumi"
-import { serializeFunction } from "@pulumi/pulumi/runtime/index.js"
 import { deepmerge } from "deepmerge-ts"
-import { readPackageJSON } from "pkg-types"
-import { mapValues, omitBy } from "remeda"
 import { ConfigMap } from "../config-map"
 import {
   emptyScriptEnvironment,
-  functionScriptImages,
   type ResolvedScriptEnvironment,
   type ScriptDistribution,
   type ScriptEnvironment,
@@ -87,35 +83,19 @@ export class ScriptBundle extends ComponentResource {
       Unwrap<ResolvedScriptEnvironment>
     >
 
-    const hasFunctionScripts = scriptEnvironment.apply(scriptEnvironment => {
-      return Object.values(scriptEnvironment.files).some(file => typeof file === "function")
-    })
-
     this.distribution = args.distribution
     this.environment = scriptEnvironment.environment
 
-    this.image = hasFunctionScripts.apply(hasFunctionScripts =>
-      output(
-        hasFunctionScripts
-          ? functionScriptImages[args.distribution]
-          : scriptEnvironment[args.distribution].image,
-      ),
-    )
+    this.image = scriptEnvironment[args.distribution].image
 
-    this.allowedEndpoints = output({ scriptEnvironment, hasFunctionScripts }).apply(
-      ({ scriptEnvironment, hasFunctionScripts }) => {
-        const allowedEndpoints = [
-          ...scriptEnvironment.allowedEndpoints,
-          ...scriptEnvironment[args.distribution].allowedEndpoints,
-        ]
+    this.allowedEndpoints = scriptEnvironment.apply(scriptEnvironment => {
+      const allowedEndpoints = [
+        ...scriptEnvironment.allowedEndpoints,
+        ...scriptEnvironment[args.distribution].allowedEndpoints,
+      ]
 
-        if (hasFunctionScripts) {
-          allowedEndpoints.push("tcp://registry.npmjs.org:443")
-        }
-
-        return allowedEndpoints.map(endpoint => parseEndpoint(endpoint))
-      },
-    )
+      return allowedEndpoints.map(endpoint => parseEndpoint(endpoint))
+    })
 
     this.configMap = output({ scriptEnvironment, args }).apply(({ scriptEnvironment, args }) => {
       return ConfigMap.create(
@@ -129,47 +109,30 @@ export class ScriptBundle extends ComponentResource {
       )
     })
 
-    this.volumes = output({ hasFunctionScripts, volumes: scriptEnvironment.volumes }).apply(
-      ({ hasFunctionScripts, volumes }) => {
-        return [
-          ...volumes,
-          {
+    this.volumes = scriptEnvironment.volumes.apply(volumes => {
+      return [
+        ...volumes,
+        {
+          name: this.configMap.metadata.name,
+
+          configMap: {
             name: this.configMap.metadata.name,
-
-            configMap: {
-              name: this.configMap.metadata.name,
-              defaultMode: 0o550, // read and execute permissions
-            },
+            defaultMode: 0o550, // read and execute permissions
           },
-          ...(hasFunctionScripts ? [{ name: "node-modules", emptyDir: {} }] : []),
-        ]
-      },
-    )
+        },
+      ]
+    })
 
-    this.volumeMounts = output({
-      hasFunctionScripts,
-      volumeMounts: scriptEnvironment.volumeMounts,
-    }).apply(({ hasFunctionScripts, volumeMounts }) => {
+    this.volumeMounts = scriptEnvironment.volumeMounts.apply(volumeMounts => {
       return [
         ...volumeMounts,
         {
           volume: this.configMap,
           mountPath: "/scripts",
         },
-        ...(hasFunctionScripts
-          ? [{ name: "node-modules", mountPath: "/scripts/node_modules" }]
-          : []),
       ]
     })
   }
-}
-
-function stripWorkspacePrefix(value: string): string {
-  if (value.startsWith("workspace:")) {
-    return value.replace("workspace:", "")
-  }
-
-  return value
 }
 
 async function createScriptData(
@@ -182,48 +145,8 @@ async function createScriptData(
   const distributionEnvironment = environment[distribution]
   const setupScripts = { ...environment.setupScripts }
 
-  let hasFunctionScripts = false
-
   for (const key in environment.files) {
-    if (typeof environment.files[key] === "function") {
-      const serialized = await serializeFunction(environment.files[key])
-
-      scriptData[key] = text`
-        #!/usr/local/bin/bun
-        
-        ${serialized.text}
-
-        exports.${serialized.exportName}()
-      `
-
-      hasFunctionScripts = true
-    } else {
-      scriptData[key] = environment.files[key]
-    }
-  }
-
-  if (hasFunctionScripts) {
-    const packageJson = await readPackageJSON()
-
-    packageJson.dependencies = omitBy(
-      mapValues(packageJson.dependencies ?? {}, stripWorkspacePrefix),
-      (_, key) => key.startsWith("@highstate/"),
-    )
-
-    packageJson.devDependencies = omitBy(
-      mapValues(packageJson.devDependencies ?? {}, stripWorkspacePrefix),
-      (_, key) => key.startsWith("@highstate/"),
-    )
-
-    scriptData["package.json"] = JSON.stringify(packageJson, null, 2)
-
-    setupScripts["resolve-dependencies.sh"] = text`
-      #!/usr/local/bin/bun
-      set -e
-
-      cd /scripts
-      bun install --production
-    `
+    scriptData[key] = environment.files[key]
   }
 
   if (distributionEnvironment.preInstallPackages.length > 0) {

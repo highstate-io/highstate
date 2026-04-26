@@ -1,4 +1,3 @@
-import type { Plugin } from "esbuild"
 import { readFile } from "node:fs/promises"
 import MagicString from "magic-string"
 import {
@@ -10,7 +9,7 @@ import {
 } from "oxc-parser"
 import { type Node, walk } from "oxc-walker"
 
-export const schemaTransformerPlugin: Plugin = {
+export const schemaTransformerPlugin: Bun.BunPlugin = {
   name: "schema-transformer",
   setup(build) {
     build.onLoad({ filter: /src\/.*\.ts$/ }, async args => {

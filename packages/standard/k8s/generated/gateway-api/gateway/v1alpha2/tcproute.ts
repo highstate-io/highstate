@@ -4,7 +4,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../../types/input";
 import * as outputs from "../../types/output";
-import * as utilities from "../../utilities";
+import * as utilities from "../utilities";
 
 /**
  * TCPRoute provides a way to route TCP requests. When combined with a Gateway
@@ -41,17 +41,17 @@ export class TCPRoute extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    public readonly apiVersion!: pulumi.Output<"gateway.networking.k8s.io/v1alpha2">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1alpha2">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    public readonly kind!: pulumi.Output<"TCPRoute">;
+    declare public readonly kind: pulumi.Output<"TCPRoute">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    public readonly metadata!: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    public readonly spec!: pulumi.Output<outputs.gateway.v1alpha2.TCPRouteSpec>;
-    public /*out*/ readonly status!: pulumi.Output<outputs.gateway.v1alpha2.TCPRouteStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1alpha2.TCPRouteSpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1alpha2.TCPRouteStatus>;
 
     /**
      * Create a TCPRoute resource with the given unique name, arguments, and options.
@@ -66,8 +66,8 @@ export class TCPRoute extends pulumi.CustomResource {
         if (!opts.id) {
             resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1alpha2";
             resourceInputs["kind"] = "TCPRoute";
-            resourceInputs["metadata"] = args ? args.metadata : undefined;
-            resourceInputs["spec"] = args ? args.spec : undefined;
+            resourceInputs["metadata"] = args?.metadata;
+            resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;

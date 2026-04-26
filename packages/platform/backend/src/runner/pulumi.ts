@@ -2,6 +2,7 @@ import type {
   ConfigMap,
   OpMap,
   OpType,
+  ProjectRuntime,
   Stack,
   WhoAmIResult,
 } from "@pulumi/pulumi/automation/index.js"
@@ -63,7 +64,7 @@ export class LocalPulumiHost {
         {
           projectSettings: {
             name: pulumiProjectName,
-            runtime: "nodejs",
+            runtime: "bun" as ProjectRuntime,
           },
           envVars: {
             PULUMI_CONFIG_PASSPHRASE: await this.secretService.getPulumiPassword(projectId),
@@ -112,10 +113,7 @@ export class LocalPulumiHost {
           projectSettings: {
             name: pulumiProjectName,
             runtime: {
-              name: "nodejs",
-              options: {
-                nodeargs: "--no-deprecation",
-              },
+              name: "bun",
             },
             main: "index.js",
           },

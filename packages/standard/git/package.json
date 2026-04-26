@@ -34,7 +34,8 @@
     "@highstate/pulumi": "workspace:*",
     "remeda": "^2.21.0",
     "simple-git": "^3.27.0",
-    "tar": "^7.4.3"
+    "tar": "^7.4.3",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

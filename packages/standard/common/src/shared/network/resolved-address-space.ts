@@ -5,10 +5,32 @@ import { type AddressSpaceArgs, createAddressSpace, type InputAddressSpace } fro
 import { parseCidr, parseIp } from "./ip"
 
 export type HostnameResolver = (hostname: string) => Promise<string[]>
+export type AsnResolver = (asn: string) => Promise<string[]>
 
 const defaultHostnameResolver: HostnameResolver = async (hostname: string) => {
   const records = await lookup(hostname, { all: true })
   return records.map(record => record.address)
+}
+
+const defaultAsnResolver: AsnResolver = async (asn: string) => {
+  const response = await fetch(
+    `https://stat.ripe.net/data/announced-prefixes/data.json?resource=${asn}`,
+  )
+
+  if (!response.ok) {
+    throw new Error(`RIPE API request failed with status ${response.status}`)
+  }
+
+  const payload = (await response.json()) as {
+    data?: {
+      prefixes?: Array<{ prefix?: unknown }>
+    }
+  }
+
+  const prefixes = payload.data?.prefixes ?? []
+  return prefixes
+    .map(item => item.prefix)
+    .filter((prefix): prefix is string => typeof prefix === "string")
 }
 
 /**
@@ -27,21 +49,28 @@ const defaultHostnameResolver: HostnameResolver = async (hostname: string) => {
 export async function createResolvedAddressSpace(
   args: AddressSpaceArgs,
   resolver: HostnameResolver = defaultHostnameResolver,
+  asnResolver: AsnResolver = defaultAsnResolver,
 ): Promise<network.AddressSpace> {
-  const included = await resolveAddressSpaceInputs(args.included, resolver)
-  const excluded = await resolveAddressSpaceInputs(args.excluded ?? [], resolver)
+  const included = await resolveAddressSpaceInputs(args.included, resolver, asnResolver)
+  const excluded = await resolveAddressSpaceInputs(args.excluded ?? [], resolver, asnResolver)
 
-  return createAddressSpace({ included, excluded })
+  return createAddressSpace({
+    included,
+    excluded,
+    ipv4: args.ipv4,
+    ipv6: args.ipv6,
+  })
 }
 
 async function resolveAddressSpaceInputs(
   inputs: InputAddressSpace[],
   resolver: HostnameResolver,
+  asnResolver: AsnResolver,
 ): Promise<InputAddressSpace[]> {
   const resolved: InputAddressSpace[] = []
 
   for (const input of inputs) {
-    const expanded = await resolveSingleInput(input, resolver)
+    const expanded = await resolveSingleInput(input, resolver, asnResolver)
     resolved.push(...expanded)
   }
 
@@ -51,12 +80,17 @@ async function resolveAddressSpaceInputs(
 async function resolveSingleInput(
   input: InputAddressSpace,
   resolver: HostnameResolver,
+  asnResolver: AsnResolver,
 ): Promise<InputAddressSpace[]> {
   if (typeof input === "string") {
-    return await resolveStringInput(input, resolver)
+    return await resolveStringInput(input, resolver, asnResolver)
   }
 
   if (check(network.l3EndpointEntity.schema, input) && input.type === "hostname") {
+    if (isAsnString(input.hostname)) {
+      return await resolveAsn(input.hostname, asnResolver)
+    }
+
     return await resolveHostname(input.hostname, resolver)
   }
 
@@ -66,10 +100,15 @@ async function resolveSingleInput(
 async function resolveStringInput(
   value: string,
   resolver: HostnameResolver,
+  asnResolver: AsnResolver,
 ): Promise<InputAddressSpace[]> {
   const trimmed = value.trim()
   if (!trimmed) {
     throw new Error("Empty address string")
+  }
+
+  if (isAsnString(trimmed)) {
+    return await resolveAsn(trimmed, asnResolver)
   }
 
   if (isRangeString(trimmed) || isCidrString(trimmed) || isIpString(trimmed)) {
@@ -122,6 +161,10 @@ function isRangeString(value: string): boolean {
   }
 }
 
+function isAsnString(value: string): boolean {
+  return /^as\d+$/i.test(value.trim())
+}
+
 async function resolveHostname(
   hostname: string,
   resolver: HostnameResolver,
@@ -142,6 +185,33 @@ async function resolveHostname(
       parseIp(address)
     } catch {
       throw new Error(`Resolver returned a non-IP address for hostname "${hostname}": "${address}"`)
+    }
+  }
+
+  return unique
+}
+
+async function resolveAsn(asn: string, resolver: AsnResolver): Promise<InputAddressSpace[]> {
+  const normalized = asn.trim().toUpperCase()
+  let prefixes: string[]
+
+  try {
+    prefixes = await resolver(normalized)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Failed to resolve ASN "${normalized}": ${message}`)
+  }
+
+  const unique = [...new Set(prefixes.map(prefix => prefix.trim()).filter(Boolean))]
+  if (unique.length === 0) {
+    throw new Error(`ASN "${normalized}" did not return any announced prefixes`)
+  }
+
+  for (const prefix of unique) {
+    try {
+      parseCidr(prefix)
+    } catch {
+      throw new Error(`Resolver returned a non-CIDR prefix for ASN "${normalized}": "${prefix}"`)
     }
   }
 

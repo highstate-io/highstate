@@ -1,8 +1,7 @@
-import type { PackageManagerName } from "nypm"
 import { access, mkdir, readdir } from "node:fs/promises"
 import { resolve } from "node:path"
 import { fileURLToPath } from "node:url"
-import { input, select } from "@inquirer/prompts"
+import { input } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
 import { installDependencies } from "nypm"
 import {
@@ -24,10 +23,6 @@ export class InitCommand extends Command {
     description: "The path where the project should be initialized.",
   })
 
-  packageManager = Option.String("--package-manager", {
-    description: "The package manager to use (npm, yarn, pnpm).",
-  })
-
   name = Option.String("--name", {
     description: "The project name.",
   })
@@ -41,18 +36,13 @@ export class InitCommand extends Command {
   })
 
   async execute(): Promise<void> {
-    const availablePackageManagers = await detectAvailablePackageManagers(["npm", "pnpm", "yarn"])
-    if (availablePackageManagers.length === 0) {
-      throw new Error('No supported package managers found in PATH ("npm", "pnpm", "yarn")')
+    const isBunAvailable = await isExecutableInPath("bun")
+    if (!isBunAvailable) {
+      throw new Error('Required package manager "bun" was not found in PATH')
     }
 
     const projectName = await resolveProjectName(this.name)
     const destinationPath = await resolveDestinationPath(this.pathOption, projectName)
-
-    const selectedPackageManager = await resolvePackageManager(
-      this.packageManager,
-      availablePackageManagers,
-    )
 
     const templatePath = resolveTemplatePath()
 
@@ -75,23 +65,19 @@ export class InitCommand extends Command {
       packageName: projectName,
       platformVersion: versionBundle.platformVersion,
       libraryVersion: versionBundle.stdlibVersion,
-      isPnpm: selectedPackageManager === "pnpm" ? "true" : "",
-      isYarn: selectedPackageManager === "yarn" ? "true" : "",
-      isNpm: selectedPackageManager === "npm" ? "true" : "",
     })
 
     const overrides = buildOverrides(versionBundle)
     await applyOverrides({
       projectRoot: destinationPath,
-      packageManager: selectedPackageManager,
       overrides,
     })
 
-    logger.info("installing dependencies using %s...", selectedPackageManager)
+    logger.info("installing dependencies using bun...")
 
     await installDependencies({
       cwd: destinationPath,
-      packageManager: selectedPackageManager,
+      packageManager: "bun",
       silent: false,
     })
 
@@ -135,52 +121,6 @@ async function resolveProjectName(nameOption: string | undefined): Promise<strin
   })
 
   return value.trim()
-}
-
-async function resolvePackageManager(
-  packageManagerOption: string | undefined,
-  available: PackageManagerName[],
-): Promise<PackageManagerName> {
-  if (packageManagerOption) {
-    if (!isSupportedPackageManagerName(packageManagerOption)) {
-      throw new Error(`Unsupported package manager: "${packageManagerOption}"`)
-    }
-
-    const name = packageManagerOption
-    if (!available.includes(name)) {
-      throw new Error(`Package manager not found in PATH: "${name}"`)
-    }
-
-    return name
-  }
-
-  const preferredOrder: PackageManagerName[] = ["pnpm", "yarn", "npm"]
-  const defaultValue = preferredOrder.find(value => available.includes(value)) ?? available[0]
-
-  return await select({
-    message: "Package manager",
-    default: defaultValue,
-    choices: available.map(value => ({ name: value, value })),
-  })
-}
-
-function isSupportedPackageManagerName(value: string): value is PackageManagerName {
-  return value === "npm" || value === "pnpm" || value === "yarn"
-}
-
-async function detectAvailablePackageManagers(
-  candidates: PackageManagerName[],
-): Promise<PackageManagerName[]> {
-  const results: PackageManagerName[] = []
-
-  for (const candidate of candidates) {
-    const exists = await isExecutableInPath(candidate)
-    if (exists) {
-      results.push(candidate)
-    }
-  }
-
-  return results
 }
 
 async function isExecutableInPath(command: string): Promise<boolean> {

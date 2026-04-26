@@ -4,10 +4,10 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 COPY . .
 COPY package.json ./
-COPY pnpm-lock.yaml ./
+COPY bun.lock ./
 
-RUN corepack enable
-RUN pnpm install --node-linker=hoisted --shamefully-hoist --filter-prod @highstate/k8s.monitor-worker 
+RUN npm install -g bun
+RUN bun install --production --filter @highstate/k8s.monitor-worker
 
 # 2. at run stage, we copy only the node_modules and the built code for the app and local dependencies
 FROM node:24-alpine

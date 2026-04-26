@@ -349,6 +349,22 @@ class StatefulSetPatch extends StatefulSet {
       )
     })
 
+    const filteredSpec = output({ spec: statefulSet.spec, podTemplate }).apply(
+      ({ spec, podTemplate }) => {
+        if (!spec.template) {
+          return spec
+        }
+
+        return {
+          ...spec,
+          template: filterPatchOwnedContainersInTemplate(
+            spec.template as Unwrap<types.input.core.v1.PodTemplateSpec>,
+            podTemplate,
+          ) as types.output.core.v1.PodTemplateSpec,
+        }
+      },
+    ) as Output<types.output.apps.v1.StatefulSetSpec>
+
     super(
       "highstate:k8s:StatefulSetPatch",
       name,
@@ -364,7 +380,7 @@ class StatefulSetPatch extends StatefulSet {
       service,
       routes,
 
-      statefulSet.spec,
+      filteredSpec,
       statefulSet.status,
     )
   }

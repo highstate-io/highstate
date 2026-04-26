@@ -31,6 +31,20 @@ export type AddressSpaceArgs = {
    * The supported formats are the same as in `addresses`.
    */
   excluded?: InputAddressSpace[]
+
+  /**
+   * Whether to return IPv4 subnets or filter them out.
+   *
+   * By default, is set to `true`.
+   */
+  ipv4?: boolean
+
+  /**
+   * Whether to return IPv6 subnets or filter them out.
+   *
+   * By default, is set to `true`.
+   */
+  ipv6?: boolean
 }
 
 export type InputAddressSpace =
@@ -58,11 +72,19 @@ type IpRange = {
 export function createAddressSpace({
   included,
   excluded = [],
+  ipv4 = true,
+  ipv6 = true,
 }: AddressSpaceArgs): network.AddressSpace {
   const includedRanges = included.flatMap(resolveInputToRanges)
   const excludedRanges = excluded.flatMap(resolveInputToRanges)
 
-  const normalized = normalizeRanges(includedRanges, excludedRanges)
+  const normalized = normalizeRanges(includedRanges, excludedRanges).filter(range => {
+    if (range.family === "ipv4") {
+      return ipv4
+    }
+
+    return ipv6
+  })
   const subnets = rangesToCanonicalSubnets(normalized)
   const identity = getCombinedIdentity(subnets)
   const title =

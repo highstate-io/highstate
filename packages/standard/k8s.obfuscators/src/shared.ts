@@ -3,7 +3,7 @@ import type { Input } from "@pulumi/pulumi"
 import { parseEndpoint } from "@highstate/common"
 import { Namespace, requireBestEndpoint } from "@highstate/k8s"
 import { toPromise } from "@highstate/pulumi"
-import * as images from "../assets/images.json"
+import images from "../assets/images.json"
 
 type DeobfuscatorInputs = {
   k8sCluster: Input<k8s.Cluster>

@@ -23,10 +23,15 @@ for key in "\${filesKeys[@]}"; do
     continue
   fi
   
-  # Handle embedded content
-  if [ "$contentType" = "embedded" ]; then
-    content=$(jq -r ".files[\\"$key\\"].content.value" <<<"$data")
-    isBinary=$(jq -r ".files[\\"$key\\"].meta.isBinary // false" <<<"$data")
+  # Handle embedded and embedded-secret content
+  if [ "$contentType" = "embedded" ] || [ "$contentType" = "embedded-secret" ]; then
+    if [ "$contentType" = "embedded-secret" ]; then
+      content=$(jq -r ".files[\\"$key\\"].content.value.value" <<<"$data")
+    else
+      content=$(jq -r ".files[\\"$key\\"].content.value" <<<"$data")
+    fi
+
+    isBinary=$(jq -r ".files[\\"$key\\"].content.isBinary // .files[\\"$key\\"].meta.isBinary // false" <<<"$data")
     mode=$(jq -r ".files[\\"$key\\"].meta.mode // 0" <<<"$data")
     
     mkdir -p "$(dirname "$key")"

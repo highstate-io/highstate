@@ -12,7 +12,7 @@ import {
   type Unwrap,
 } from "@highstate/pulumi"
 import { core, Provider, type types } from "@pulumi/kubernetes"
-import * as images from "../assets/images.json"
+import images from "../assets/images.json"
 import { Namespace } from "./namespace"
 
 const providers = new Map<`${string}.${string}`, Provider>()
