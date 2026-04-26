@@ -293,6 +293,15 @@ export type GenericWorkloadArgs = Omit<WorkloadServiceArgs, "existing"> & {
   cronJob?: Input<JobArgs>
 }
 
+const genericWorkloadExtraArgs = [
+  "defaultType",
+  "existing",
+  "deployment",
+  "statefulSet",
+  "job",
+  "cronJob",
+] as const
+
 export function getWorkloadComponents(
   name: string,
   args: WorkloadArgs,
@@ -939,13 +948,17 @@ export abstract class Workload extends NamespacedResource {
     opts?: CustomResourceOptions,
   ): Output<Workload> {
     return output(args).apply(async args => {
+      const baseArgs = omit(args, genericWorkloadExtraArgs)
+
       if (args.existing?.kind === "Deployment") {
         const { Deployment } = await import("./deployment")
+
+        const deploymentArgs = deepmerge(baseArgs, args.deployment ?? {}) as DeploymentArgs
 
         return Deployment.patch(
           name,
           {
-            ...deepmerge(args, args.deployment),
+            ...deploymentArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -956,10 +969,12 @@ export abstract class Workload extends NamespacedResource {
       if (args.existing?.kind === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
+        const statefulSetArgs = deepmerge(baseArgs, args.statefulSet ?? {}) as StatefulSetArgs
+
         return StatefulSet.patch(
           name,
           {
-            ...deepmerge(args, args.statefulSet),
+            ...statefulSetArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -970,10 +985,12 @@ export abstract class Workload extends NamespacedResource {
       if (args.existing?.kind === "Job") {
         const { Job } = await import("./job")
 
+        const jobArgs = deepmerge(baseArgs, args.job ?? {}) as JobArgs
+
         return Job.patch(
           name,
           {
-            ...deepmerge(args, args.job),
+            ...jobArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -984,10 +1001,12 @@ export abstract class Workload extends NamespacedResource {
       if (args.existing?.kind === "CronJob") {
         const { CronJob } = await import("./cron-job")
 
+        const cronJobArgs = deepmerge(baseArgs, args.cronJob ?? {}) as JobArgs
+
         return CronJob.patch(
           name,
           {
-            ...deepmerge(args, args.cronJob),
+            ...cronJobArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -998,10 +1017,7 @@ export abstract class Workload extends NamespacedResource {
       if (args.defaultType === "Deployment") {
         const { Deployment } = await import("./deployment")
 
-        const deploymentArgs = deepmerge(
-          omit(args, ["defaultType", "existing", "deployment", "statefulSet", "job", "cronJob"]),
-          args.deployment ?? {},
-        ) as DeploymentArgs
+        const deploymentArgs = deepmerge(baseArgs, args.deployment ?? {}) as DeploymentArgs
 
         return Deployment.create(name, deploymentArgs, opts)
       }
@@ -1009,10 +1025,7 @@ export abstract class Workload extends NamespacedResource {
       if (args.defaultType === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
-        const statefulSetArgs = deepmerge(
-          omit(args, ["defaultType", "existing", "deployment", "statefulSet", "job", "cronJob"]),
-          args.statefulSet ?? {},
-        ) as StatefulSetArgs
+        const statefulSetArgs = deepmerge(baseArgs, args.statefulSet ?? {}) as StatefulSetArgs
 
         return StatefulSet.create(name, statefulSetArgs, opts)
       }
@@ -1020,13 +1033,17 @@ export abstract class Workload extends NamespacedResource {
       if (args.defaultType === "Job") {
         const { Job } = await import("./job")
 
-        return Job.create(name, deepmerge(args, args.job), opts)
+        const jobArgs = deepmerge(baseArgs, args.job ?? {}) as JobArgs
+
+        return Job.create(name, jobArgs, opts)
       }
 
       if (args.defaultType === "CronJob") {
         const { CronJob } = await import("./cron-job")
 
-        return CronJob.create(name, deepmerge(args, args.cronJob), opts)
+        const cronJobArgs = deepmerge(baseArgs, args.cronJob ?? {}) as JobArgs
+
+        return CronJob.create(name, cronJobArgs, opts)
       }
 
       throw new Error(`Unknown workload type: ${args.defaultType as string}`)

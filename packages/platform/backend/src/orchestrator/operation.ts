@@ -425,6 +425,8 @@ export class RuntimeOperation {
         state.status === "deployed" &&
         state.selfHash != null &&
         state.dependencyOutputHash != null &&
+        // do not short-circuit after destroy phase in recreate operations
+        state.lastOperationState?.status !== "destroyed" &&
         // ignore explicitly requested updates
         !this.operation.requestedInstanceIds.includes(instance.id) &&
         // ignore when side effects are requested

@@ -214,7 +214,7 @@ export async function createServices({
   )
   sessionService ??= new TerminalSessionService(database)
 
-  runnerBackend ??= createRunnerBackend(
+  runnerBackend ??= await createRunnerBackend(
     config,
     libraryBackend,
     artifactService,

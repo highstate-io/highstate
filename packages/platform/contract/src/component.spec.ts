@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { z } from "zod"
-import { defineComponent, kind } from "./component"
+import { defineComponent } from "./component"
 import { defineEntity } from "./entity"
-import { boundaryInput, getRuntimeInstances, resetEvaluation } from "./evaluation"
+import { getRuntimeInstances, resetEvaluation } from "./evaluation"
 import { type EntityInput, type InstanceInput, selectInput } from "./instance"
+import { boundaryInput, kind } from "./shared"
 
 describe("defineComponent", () => {
   beforeEach(resetEvaluation)

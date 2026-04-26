@@ -2,8 +2,6 @@
 
 import type { Entity, EntityIncludeRef, EntityTypes } from "./entity"
 import { z } from "zod"
-import { componentKindSchema } from "./component"
-import { boundaryInput } from "./evaluation"
 import { createInput, createNonProvidedInput } from "./instance-input"
 import {
   type GenericName,
@@ -12,6 +10,7 @@ import {
   type VersionedName,
   versionedNameSchema,
 } from "./meta"
+import { boundaryInput, componentKindSchema } from "./shared"
 
 declare const type: unique symbol
 
@@ -239,12 +238,6 @@ export type InstanceInputGroup<TTypes extends EntityTypes = EntityTypes> = Multi
 type SelectInputResult<TInput extends RuntimeInput> = TInput extends RequiredInput<infer TRuntime>
   ? TRuntime
   : TInput
-
-export function inputKey(input: InstanceInput): string {
-  return input.path
-    ? `${input.instanceId}:${input.output}:${input.path}`
-    : `${input.instanceId}:${input.output}`
-}
 
 export const positionSchema = z.object({
   x: z.number(),

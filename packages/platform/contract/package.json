@@ -29,25 +29,24 @@
     ]
   },
   "scripts": {
-    "build": "highstate build",
-    "test": "vitest run",
+    "build": "bun run --bun highstate build",
+    "test": "bun run --bun vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^2.2.2",
     "@noble/hashes": "^2.0.0",
+    "@paralleldrive/cuid2": "^2.2.2",
     "remeda": "^2.21.0",
     "type-fest": "^4.41.0",
     "yaml": "^2.8.0",
-    "zod": "^4.0.5"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "@vitest/coverage-v8": "2.1.8",
-    "highstate-cli-bootstrap": "npm:@highstate/cli",
     "vitest": "^3.2.4"
   },
   "repository": {

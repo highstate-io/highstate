@@ -1,13 +1,12 @@
 import type { Component } from "./component"
 import type { InstanceInput, InstanceModel, RuntimeInput } from "./instance"
 import { mapValues } from "remeda"
+import { boundaryInput } from "./shared"
 
 export type RuntimeInstance = {
   instance: InstanceModel
   component: Component
 }
-
-export const boundaryInput = Symbol("boundaryInput")
 
 function isStableInstanceInput(value: unknown): value is InstanceInput {
   return (

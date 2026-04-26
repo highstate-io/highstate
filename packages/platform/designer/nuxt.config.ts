@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     tsConfig: {
       compilerOptions: {
         allowImportingTsExtensions: true,
-        noUncheckedIndexedAccess: false
+        noUncheckedIndexedAccess: false,
       },
     },
   },
@@ -17,8 +17,9 @@ export default defineNuxtConfig({
     typescript: {
       tsConfig: {
         compilerOptions: {
+          types: ["bun-types"],
           allowImportingTsExtensions: true,
-          noUncheckedIndexedAccess: false
+          noUncheckedIndexedAccess: false,
         },
       },
     },

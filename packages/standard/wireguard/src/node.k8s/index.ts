@@ -4,7 +4,7 @@ import { k8s, wireguard } from "@highstate/library"
 import { forUnit, getCombinedIdentityOutput, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { deepmerge } from "deepmerge-ts"
 import { isNonNullish } from "remeda"
-import * as images from "../../assets/images.json"
+import images from "../../assets/images.json"
 import { generateIdentityConfig, getNextAvailablePort, isExitNode, shouldExpose } from "../shared"
 
 const { args, inputs, outputs } = forUnit(wireguard.nodeK8s)
@@ -70,6 +70,16 @@ for (const restrictedCidr of args.forwardRestrictedSubnets) {
   // block forwarding to restricted CIDR (prevents other peers from reaching these destinations)
   postUp.push(`iptables -I FORWARD -d ${restrictedCidr} -j DROP`)
   preDown.push(`iptables -D FORWARD -d ${restrictedCidr} -j DROP`)
+}
+
+if (args.lockdownUpstream) {
+  // add a catch-all rule to drop all traffic from the interface to prevent leaks before downstream interface is attached
+  postUp.push(`ip route add blackhole default table 100`)
+  postUp.push(`ip rule add iif %i lookup 100 priority 100`)
+
+  // remove the catch-all rule
+  preDown.push(`ip rule del iif %i lookup 100 priority 100`)
+  preDown.push(`ip route del blackhole default table 100`)
 }
 
 if (inputs.downstreamInterface) {

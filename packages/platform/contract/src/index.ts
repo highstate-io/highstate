@@ -53,13 +53,11 @@ export {
   getInstanceId,
   // for unit API
   type ComponentInputSpec,
-  runtimeSchema,
   // types
   type Component,
   type ComponentModel,
   type ComponentInput,
   type ComponentArgument,
-  type ComponentKind,
   // extra types
   type ComponentArgumentOptions,
   type FullComponentArgumentOptions,
@@ -75,6 +73,15 @@ export {
   // for evaluation
   originalCreate,
 } from "./component"
+
+export {
+  boundaryInput,
+  inputKey,
+  kind,
+  runtimeSchema,
+  componentKindSchema,
+  type ComponentKind,
+} from "./shared"
 
 // for runner <-> stack communication
 export * from "./pulumi"

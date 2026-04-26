@@ -28,8 +28,10 @@
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
     "@noble/curves": "^1.8.0",
+    "@pulumi/http": "^0.1.4",
     "@pulumi/kubernetes": "^4.18.0",
-    "remeda": "^2.21.0"
+    "remeda": "^2.21.0",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

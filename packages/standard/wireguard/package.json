@@ -47,7 +47,8 @@
     "zip-stream": "^7.0.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "uuid": "^11.1.0",
-    "age-encryption": "^0.2.4"
+    "age-encryption": "^0.2.4",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

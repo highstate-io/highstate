@@ -3,7 +3,10 @@
   "version": "0.10.0",
   "type": "module",
   "private": true,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "dependencies": {
     "@highstate/contract": "workspace:*",
     "@highstate/example.library": "workspace:*",
@@ -12,7 +15,8 @@
     "@highstate/pulumi": "workspace:*",
     "h3": "^1.15.3",
     "remeda": "^2.21.0",
-    "zx": "^8.5.3"
+    "zx": "^8.5.3",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

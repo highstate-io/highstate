@@ -25,7 +25,8 @@
   "dependencies": {
     "@highstate/library": "workspace:*",
     "@highstate/common": "workspace:*",
-    "@highstate/pulumi": "workspace:*"
+    "@highstate/pulumi": "workspace:*",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

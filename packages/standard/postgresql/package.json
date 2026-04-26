@@ -28,7 +28,8 @@
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
     "@highstate/contract": "workspace:*",
-    "@pulumi/postgresql": "^3.16.2"
+    "@pulumi/postgresql": "^3.16.2",
+    "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

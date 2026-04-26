@@ -1,6 +1,13 @@
 import { getSharedServices } from "@highstate/backend"
 import { PassThrough } from "node:stream"
 
+type TerminalBridgeState = {
+  abortController: AbortController
+  stdin: PassThrough
+}
+
+const terminalBridgeStateByPeerId = new Map<string, TerminalBridgeState>()
+
 export default defineWebSocketHandler({
   open: async peer => {
     if (!peer.request) {
@@ -10,13 +17,11 @@ export default defineWebSocketHandler({
     const services = await getSharedServices()
     const abortController = new AbortController()
 
-    const stdin = createInputStream(peer.websocket as Partial<WebSocket>)
-    const stdout = createOutputStream(peer.websocket as Partial<WebSocket>)
-
-    peer.websocket.onclose = () => {
-      abortController.abort()
-      stdin.end()
-    }
+    const stdin = new PassThrough()
+    const stdout = createOutputStream(
+      data => peer.send(data),
+      () => peer.websocket.close?.(),
+    )
 
     const parsedUrl = new URL(peer.request.url!)
     const pathRegex =
@@ -58,6 +63,11 @@ export default defineWebSocketHandler({
       throw new Error("Invalid screenSize")
     }
 
+    terminalBridgeStateByPeerId.set(peer.id, {
+      abortController,
+      stdin,
+    })
+
     services.terminalManager.attach(
       sessionId,
       stdin,
@@ -66,26 +76,36 @@ export default defineWebSocketHandler({
       abortController.signal,
     )
   },
+
+  message: (peer, message) => {
+    const state = terminalBridgeStateByPeerId.get(peer.id)
+    if (!state) {
+      return
+    }
+
+    state.stdin.write(message.data)
+  },
+
+  close: peer => {
+    const state = terminalBridgeStateByPeerId.get(peer.id)
+    if (!state) {
+      return
+    }
+
+    state.abortController.abort()
+    state.stdin.end()
+    terminalBridgeStateByPeerId.delete(peer.id)
+  },
 })
 
-function createInputStream(ws: Partial<WebSocket>) {
-  const stream = new PassThrough()
-
-  ws.onmessage = data => {
-    return stream.write(data.data)
-  }
-
-  return stream
-}
-
-function createOutputStream(ws: Partial<WebSocket>) {
+function createOutputStream(send: (data: string) => void, close: () => void) {
   const stream = new PassThrough()
 
   stream.on("data", data => {
-    ws.send!(String(data).replace(/\n/g, "\r\n"))
+    send(String(data).replace(/\n/g, "\r\n"))
   })
 
-  stream.on("end", () => ws.close!())
+  stream.on("end", close)
 
   return stream
 }

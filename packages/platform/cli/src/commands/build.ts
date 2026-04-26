@@ -1,11 +1,8 @@
-import type { Plugin } from "esbuild"
-import { writeFile } from "node:fs/promises"
+import { chmod, readFile, rm, writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
 import { encode } from "@msgpack/msgpack"
 import { Command, Option } from "clipanion"
 import { readPackageJSON, resolvePackageJSON } from "pkg-types"
-import { mapValues } from "remeda"
-import { build } from "tsup"
 import {
   createBinTransformerPlugin,
   extractEntryPoints,
@@ -23,7 +20,6 @@ export class BuildCommand extends Command {
     description: "Builds the Highstate library or unit package.",
   })
 
-  watch = Option.Boolean("--watch", false)
   library = Option.Boolean("--library", false)
   silent = Option.Boolean("--silent", true)
   noSourceHash = Option.Boolean("--no-source-hash", false)
@@ -50,35 +46,55 @@ export class BuildCommand extends Command {
       return
     }
 
-    const esbuildPlugins: Plugin[] = []
+    const bunPlugins: Bun.BunPlugin[] = []
 
     const binSourceFilePaths = Object.values(entryPoints)
       .filter(value => value.isBin)
       .map(value => value.entryPoint.slice(2)) // remove "./"
 
     if (this.library) {
-      esbuildPlugins.push(schemaTransformerPlugin)
+      bunPlugins.push(schemaTransformerPlugin)
     }
 
     if (binSourceFilePaths.length > 0) {
-      esbuildPlugins.push(createBinTransformerPlugin(binSourceFilePaths))
+      bunPlugins.push(createBinTransformerPlugin(binSourceFilePaths))
     }
 
-    await build({
-      entry: mapValues(entryPoints, value => value.entryPoint),
-      outDir: "dist",
-      watch: this.watch,
-      sourcemap: true,
-      clean: true,
+    await rm("dist", { recursive: true, force: true })
+
+    const bunEntryPoints = Object.values(entryPoints).map(value => value.entryPoint)
+
+    const result = await Bun.build({
+      entrypoints: bunEntryPoints,
+      outdir: "dist",
+      root: "./src",
       format: "esm",
-      target: "es2024",
-      platform: "node",
+      target: "bun",
       external: ["@pulumi/pulumi"],
-      esbuildPlugins,
-      treeshake: true,
-      removeNodeProtocol: false,
-      silent: this.silent || ["warn", "error", "fatal"].includes(logger.level),
+      packages: "external",
+      splitting: true,
+      plugins: bunPlugins,
     })
+
+    if (!result.success) {
+      for (const log of result.logs) {
+        logger.error(log.message)
+      }
+
+      throw new Error("build failed")
+    }
+
+    const binEntryPoints = Object.values(entryPoints).filter(value => value.isBin)
+    for (const binEntryPoint of binEntryPoints) {
+      const binPath = resolve(binEntryPoint.distPath)
+      const binContent = await readFile(binPath, "utf8")
+
+      if (!binContent.startsWith("#!/usr/bin/env bun\n")) {
+        await writeFile(binPath, `#!/usr/bin/env bun\n${binContent}`, "utf8")
+      }
+
+      await chmod(binPath, 0o755)
+    }
 
     const packageJsonPath = await resolvePackageJSON()
     const upToDatePackageJson = await readPackageJSON()

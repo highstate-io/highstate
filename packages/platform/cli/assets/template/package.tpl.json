@@ -1,15 +1,8 @@
 {
   "name": "{{packageName}}",
   "private": true,
-  {{#if isYarn}}
-  "packageManager": "yarn@4.12.0",
-  {{/if}}
-  {{#if isPnpm}}
-  "packageManager": "pnpm@10.26.1",
-  {{/if}}
-  {{#unless isPnpm}}
+  "packageManager": "bun@1.3.11",
   "workspaces": ["packages/*"],
-  {{/unless}}
   "dependencies": {
     "@highstate/contract": "{{platformVersion}}",
     "@highstate/pulumi": "{{platformVersion}}",

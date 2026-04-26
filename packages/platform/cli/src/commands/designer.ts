@@ -4,14 +4,9 @@ import { consola } from "consola"
 import { colorize } from "consola/utils"
 import { getPort } from "get-port-please"
 import { resolve as importMetaResolve } from "import-meta-resolve"
-import { addDevDependency, detectPackageManager } from "nypm"
+import { addDevDependency } from "nypm"
 import { readPackageJSON, resolvePackageJSON } from "pkg-types"
-import {
-  getBackendServices,
-  getProjectPulumiSdkVersion,
-  getPulumiCliVersion,
-  logger,
-} from "../shared"
+import { getBackendServices, logger } from "../shared"
 
 export class DesignerCommand extends Command {
   static paths = [["designer"]]
@@ -36,24 +31,6 @@ export class DesignerCommand extends Command {
       logger.info("Installing @highstate/designer...")
 
       await addDevDependency(["@highstate/designer", "classic-level"])
-    }
-
-    const projectRoot = process.cwd()
-    const detected = await detectPackageManager(projectRoot)
-    const packageManager = detected?.name
-
-    if (packageManager === "npm" || packageManager === "pnpm" || packageManager === "yarn") {
-      const expectedPulumiSdk = await getProjectPulumiSdkVersion(projectRoot, { packageManager })
-      const actualPulumiCli = await getPulumiCliVersion(projectRoot)
-
-      if (expectedPulumiSdk && actualPulumiCli && expectedPulumiSdk !== actualPulumiCli) {
-        logger.warn(
-          `pulumi version mismatch detected, this may cause incompatibilities\nexpected "%s" (from overrides for "@pulumi/pulumi"), got "%s" (from "pulumi version")\nrecommended: run "highstate update" or downgrade your Pulumi CLI to "%s"`,
-          expectedPulumiSdk,
-          actualPulumiCli,
-          expectedPulumiSdk,
-        )
-      }
     }
 
     logger.info("starting highstate designer...")

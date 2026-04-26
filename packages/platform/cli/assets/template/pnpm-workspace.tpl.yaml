@@ -1,4 +1,0 @@
-{{#if isPnpm}}
-packages:
-  - "packages/*"
-{{/if}}

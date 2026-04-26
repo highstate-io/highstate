@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises"
 import { Command, Option } from "clipanion"
-import { detectPackageManager } from "nypm"
+import { readPackageJSON, resolvePackageJSON } from "pkg-types"
 import semver from "semver"
 import {
   applyOverrides,
@@ -10,6 +10,7 @@ import {
   getProjectPlatformVersion,
   logger,
   resolveVersionBundle,
+  writeJsonFile,
 } from "../shared"
 
 export class UpdateCommand extends Command {
@@ -42,7 +43,7 @@ export class UpdateCommand extends Command {
   async execute(): Promise<void> {
     const projectRoot = process.cwd()
 
-    const packageManager = await resolveProjectPackageManager(projectRoot)
+    await assertPackageJsonExists(projectRoot)
 
     if (this.platformOnly && this.stdlibOnly) {
       throw new Error('Flags "--platform" and "--stdlib" cannot be used together')
@@ -52,9 +53,7 @@ export class UpdateCommand extends Command {
     const updateStdlib = this.stdlibOnly || !this.platformOnly
 
     if (this.stdlibOnly) {
-      const currentPlatformVersion = await getProjectPlatformVersion(projectRoot, {
-        packageManager,
-      })
+      const currentPlatformVersion = await getProjectPlatformVersion(projectRoot)
       if (!currentPlatformVersion) {
         throw new Error('Current platform version is not set in overrides for "@highstate/pulumi"')
       }
@@ -97,8 +96,11 @@ export class UpdateCommand extends Command {
     const overrides = buildOverrides(bundle)
     await applyOverrides({
       projectRoot,
-      packageManager,
       overrides,
+    })
+    await syncRootPulumiDependency({
+      projectRoot,
+      pulumiVersion: bundle.pulumiVersion,
     })
 
     logger.info(
@@ -111,11 +113,11 @@ export class UpdateCommand extends Command {
     if (this.install) {
       const { installDependencies } = await import("nypm")
 
-      logger.info("installing dependencies using %s...", packageManager)
+      logger.info("installing dependencies using bun...")
 
       await installDependencies({
         cwd: projectRoot,
-        packageManager,
+        packageManager: "bun",
         silent: false,
       })
     }
@@ -124,33 +126,26 @@ export class UpdateCommand extends Command {
   }
 }
 
-async function resolveProjectPackageManager(projectRoot: string) {
-  const detected = await detectPackageManager(projectRoot)
-  if (!detected?.name) {
-    throw new Error("Unable to detect package manager for this project")
-  }
-
-  if (detected.name === "bun") {
-    throw new Error('Package manager "bun" is not supported')
-  }
-
-  if (detected.name === "deno") {
-    throw new Error('Package manager "deno" is not supported')
-  }
-
-  if (detected.name !== "npm" && detected.name !== "pnpm" && detected.name !== "yarn") {
-    throw new Error(`Unsupported package manager: "${detected.name}"`)
-  }
-
-  await assertPackageJsonExists(projectRoot)
-
-  return detected.name
-}
-
 async function assertPackageJsonExists(projectRoot: string): Promise<void> {
   try {
     await readFile(`${projectRoot}/package.json`, "utf8")
   } catch {
     throw new Error(`File "package.json" not found in "${projectRoot}"`)
   }
+}
+
+async function syncRootPulumiDependency(args: {
+  projectRoot: string
+  pulumiVersion: string
+}): Promise<void> {
+  const packageJsonPath = await resolvePackageJSON(args.projectRoot)
+  const packageJson = await readPackageJSON(packageJsonPath)
+
+  await writeJsonFile(packageJsonPath, {
+    ...packageJson,
+    dependencies: {
+      ...(packageJson.dependencies ?? {}),
+      "@pulumi/pulumi": args.pulumiVersion,
+    },
+  })
 }

@@ -1,8 +1,8 @@
 import { realpath } from "node:fs/promises"
-import { findPackageJSON } from "node:module"
 import { dirname } from "node:path"
 import { parentPort, workerData } from "node:worker_threads"
 import pino, { type Level } from "pino"
+import { findPackageJSONCompat } from "./find-package-json"
 
 export type PackageResolutionWorkerData = {
   importPath: string
@@ -37,9 +37,13 @@ const results: PackageResult[] = []
 
 for (const packageName of packageNames) {
   try {
-    const path = findPackageJSON(packageName, rootDir)
+    const path = await findPackageJSONCompat(packageName, rootDir)
     if (!path) {
-      throw new Error(`Package "${packageName}" not found`)
+      results.push({
+        type: "not-found",
+        packageName,
+      })
+      continue
     }
 
     results.push({

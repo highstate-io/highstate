@@ -8,16 +8,16 @@ import {
 import { mullvad, wireguard } from "@highstate/library"
 import { forUnit, makeEntityOutput, output, toPromise } from "@highstate/pulumi"
 import { map } from "remeda"
-import { ServerList } from "./server-list"
+import { fetchServerList } from "./server-list"
 
 const { name, args, inputs, outputs } = forUnit(mullvad.peer)
 
 const network = await toPromise(inputs.network)
 
 const hostname = args.hostname ?? name
-const serverList = new ServerList("servers", { now: Date.now() })
+const serverList = fetchServerList()
 
-const server = serverList.servers.apply(servers => {
+const server = serverList.apply(servers => {
   const server = servers.find(server => server.hostname === hostname)
   if (!server) {
     throw new Error(`Server not found: ${args.hostname}`)

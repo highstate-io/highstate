@@ -98,7 +98,7 @@ const showProgress = computed(() => {
 
             <div class="d-flex flex-column">
               <div
-                class="font-weight-bold text-start"
+                class="font-weight-bold text-start text-uppercase"
                 :class="getColorClass(item.color)"
                 :style="getColorStyle(item.color)"
               >

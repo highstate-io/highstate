@@ -355,6 +355,31 @@ class CronJobPatch extends CronJob {
       )
     })
 
+    const filteredSpec = output({ spec: cronJob.spec, podTemplate }).apply(
+      ({ spec, podTemplate }) => {
+        const template = spec.jobTemplate?.spec?.template
+        if (!template) {
+          return spec
+        }
+
+        const filteredTemplate = filterPatchOwnedContainersInTemplate(
+          template as Unwrap<types.input.core.v1.PodTemplateSpec>,
+          podTemplate,
+        ) as types.output.core.v1.PodTemplateSpec
+
+        return {
+          ...spec,
+          jobTemplate: {
+            ...spec.jobTemplate,
+            spec: {
+              ...spec.jobTemplate.spec,
+              template: filteredTemplate,
+            },
+          },
+        }
+      },
+    ) as Output<types.output.batch.v1.CronJobSpec>
+
     super(
       "highstate:k8s:CronJobPatch",
       name,
@@ -365,7 +390,7 @@ class CronJobPatch extends CronJob {
       output(args.terminal ?? {}),
       containers,
       networkPolicy,
-      cronJob.spec,
+      filteredSpec,
       cronJob.status,
     )
   }

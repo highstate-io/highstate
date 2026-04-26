@@ -1,6 +1,7 @@
-import { type CustomResourceOptions, dynamic, type Output } from "@highstate/pulumi"
+import type { Output } from "@highstate/pulumi"
+import { getHttpOutput } from "@pulumi/http"
 
-type Server = {
+export type Server = {
   hostname: string
   country_code: string
   country_name: string
@@ -23,39 +24,13 @@ type Server = {
   status_messages: string[]
 }
 
-class ServerListProvider implements dynamic.ResourceProvider {
-  async create(): Promise<dynamic.CreateResult> {
-    const servers = await fetchServers()
+export function fetchServerList(): Output<Server[]> {
+  const response = getHttpOutput({
+    url: "https://api.mullvad.net/www/relays/all/",
+    requestHeaders: {
+      Accept: "application/json",
+    },
+  })
 
-    return { id: "all", outs: { servers } }
-  }
-
-  async update(): Promise<dynamic.UpdateResult> {
-    return { outs: { servers: await fetchServers() } }
-  }
-
-  async read(): Promise<dynamic.ReadResult> {
-    return { props: { servers: await fetchServers() } }
-  }
-}
-
-export type ServerListArgs = {
-  /**
-   * The current time from `Date.now()` to trigger a refresh.
-   */
-  now: number
-}
-
-export class ServerList extends dynamic.Resource {
-  declare readonly servers: Output<Server[]>
-
-  constructor(name: string, args: ServerListArgs, opts?: CustomResourceOptions) {
-    super(new ServerListProvider(), name, { servers: undefined, ...args }, opts)
-  }
-}
-
-async function fetchServers(): Promise<Server[]> {
-  const response = await fetch("https://api.mullvad.net/www/relays/all/")
-
-  return (await response.json()) as Server[]
+  return response.responseBody.apply(rawBody => JSON.parse(rawBody) as Server[])
 }

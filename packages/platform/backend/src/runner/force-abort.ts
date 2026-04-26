@@ -3,7 +3,8 @@
 
 import type { PulumiCommand } from "@pulumi/pulumi/automation/index.js"
 import * as os from "node:os"
-import path from "node:path"
+import { homedir } from "node:os"
+import path, { resolve } from "node:path"
 import { execa } from "execa"
 
 /**
@@ -20,7 +21,11 @@ export async function createForceAbortableCommand(): Promise<PulumiCommand> {
     "@pulumi/pulumi/automation/index.js"
   )
 
-  const command: any = await PulumiCommand.get()
+  const commandOptions = {
+    root: resolve(homedir(), ".pulumi"),
+  }
+
+  const command: any = await PulumiCommand.get(commandOptions)
 
   // replicate the run method from PulumiCommand
   command.run = function (

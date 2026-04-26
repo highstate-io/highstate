@@ -1,7 +1,7 @@
 import type { InputEndpoint } from "@highstate/common"
 import type { Input, InputArray, InputRecord } from "@highstate/pulumi"
 import type { ContainerEnvironment, ContainerVolumeMount, WorkloadVolume } from "../container"
-import { images } from ".."
+import images from "../../assets/images.json"
 
 export type ScriptDistribution = "alpine" | "ubuntu"
 
@@ -39,8 +39,6 @@ export type DistributionEnvironment = {
   allowedEndpoints?: InputArray<InputEndpoint>
 }
 
-export type ScriptProgram = () => unknown
-
 export type ScriptEnvironment = {
   [distribution in ScriptDistribution]?: DistributionEnvironment
 } & {
@@ -57,7 +55,7 @@ export type ScriptEnvironment = {
   /**
    * The arbitrary files available in the environment including scripts.
    */
-  files?: InputRecord<string | ScriptProgram>
+  files?: InputRecord<string>
 
   /**
    * The volumes that should be defined in the environment.
@@ -122,9 +120,4 @@ export const emptyScriptEnvironment: ResolvedScriptEnvironment = {
   volumeMounts: [],
   environment: {},
   allowedEndpoints: [],
-}
-
-export const functionScriptImages: Record<ScriptDistribution, string> = {
-  alpine: "oven/bun@sha256:6b14922b0885c3890cdb0b396090af1da486ba941df5ee94391eef64f7113c61",
-  ubuntu: "oven/bun@sha256:66b431441dc4c36d7e8164bfc61e6348ec1d7ce2862fc3a29f5dc9856e8205e4",
 }

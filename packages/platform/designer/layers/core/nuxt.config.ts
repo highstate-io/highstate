@@ -42,6 +42,7 @@ export default defineNuxtConfig({
     ),
   },
   nitro: {
+    preset: "bun",
     inlineDynamicImports: true,
     experimental: {
       websocket: true,
@@ -80,6 +81,10 @@ export default defineNuxtConfig({
   vite: {
     server: {
       allowedHosts: process.env.NUXT_ALLOWED_HOSTS?.split(","),
+    },
+
+    optimizeDeps: {
+      include: ["@dagrejs/dagre", "monaco-yaml/yaml.worker.js"]
     },
 
     build: {

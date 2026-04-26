@@ -34,7 +34,7 @@ import {
 } from "@highstate/pulumi"
 import { batch } from "@pulumi/kubernetes"
 import { join } from "remeda"
-import * as images from "../assets/images.json"
+import images from "../assets/images.json"
 import { backupEnvironment } from "./scripts"
 
 export type BackupJobPairArgs = ScopedResourceArgs & {

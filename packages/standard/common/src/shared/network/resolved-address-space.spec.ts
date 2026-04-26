@@ -71,4 +71,41 @@ describe("createResolvedAddressSpace", () => {
     expect(resolver).not.toHaveBeenCalled()
     expect(result.subnets.map(subnetToString)).toEqual(["10.1.0.0/24"])
   })
+
+  it("resolves ASN strings to announced prefixes", async () => {
+    const hostnameResolver = vi.fn(async () => [])
+    const asnResolver = vi.fn(async (asn: string) => {
+      if (asn === "AS424242") {
+        return ["198.51.100.0/24", "2001:db8:4242::/48"]
+      }
+
+      return []
+    })
+
+    const result = await createResolvedAddressSpace(
+      { included: ["AS424242"] },
+      hostnameResolver,
+      asnResolver,
+    )
+
+    expect(asnResolver).toHaveBeenCalledWith("AS424242")
+    expect(hostnameResolver).not.toHaveBeenCalled()
+    expect(result.subnets.map(subnetToString)).toEqual(["198.51.100.0/24", "2001:db8:4242::/48"])
+  })
+
+  it("resolves ASN values in hostname endpoints", async () => {
+    const hostnameResolver = vi.fn(async () => [])
+    const asnResolver = vi.fn(async () => ["203.0.113.0/24"])
+
+    const endpoint = parseEndpoint("AS424242")
+    const result = await createResolvedAddressSpace(
+      { included: [endpoint] },
+      hostnameResolver,
+      asnResolver,
+    )
+
+    expect(asnResolver).toHaveBeenCalledWith("AS424242")
+    expect(hostnameResolver).not.toHaveBeenCalled()
+    expect(result.subnets.map(subnetToString)).toEqual(["203.0.113.0/24"])
+  })
 })

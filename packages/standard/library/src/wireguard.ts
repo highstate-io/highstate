@@ -733,6 +733,14 @@ export const nodeK8s = defineUnit({
      * By default, is false.
      */
     allowClusterPods: z.boolean().default(false),
+
+    /**
+     * Whether to drop all traffic from the interface using ip rule with priority 100.
+     *
+     * This is useful for preventing the traffic leaks before upstream node is attached via `downstreamInterface` input.
+     * They will add their own ip rule with <100 priority which allows traffic from the interface.
+     */
+    lockdownUpstream: z.boolean().default(false),
   },
 
   inputs: {
@@ -840,6 +848,14 @@ export const nodeFeedK8s = defineUnit({
      * Useful for peer isolation where you want to prevent cross-peer communication.
      */
     forwardRestrictedSubnets: z.string().array().default([]),
+
+    /**
+     * Whether to drop all traffic from the interface using ip rule with priority 100.
+     *
+     * This is useful for preventing the traffic leaks before upstream node is attached via `downstreamInterface` input.
+     * They will add their own ip rule with <100 priority which allows traffic from the interface.
+     */
+    lockdownUpstream: z.boolean().default(false),
 
     /**
      * The extra specification of the container which runs the wg-feed daemon.

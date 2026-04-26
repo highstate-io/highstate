@@ -1,5 +1,5 @@
 import type { InstanceInput, MultipleInput, RequiredInput, RuntimeInput } from "./instance"
-import { boundaryInput } from "./evaluation"
+import { boundaryInput } from "./shared"
 
 type CreateInputOptions = {
   boundary?: InstanceInput

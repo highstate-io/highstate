@@ -11,26 +11,22 @@
     versionString = "7.4.1-55ae170b1ced7fc6ed07a15f110549408c501bb3";
   };
 in {
-  languages.javascript.enable = true;
-  languages.javascript.package = pkgs.nodejs_24;
-  languages.javascript.corepack.enable = true;
-
   env =
     prisma.env
     // {
+      # for making screenshots with playwright for documentation
       CHROMIUM_PATH = "${pkgs.chromium}/bin/chromium";
     };
 
   packages = with pkgs; [
-    pkgs-unstable.pulumi-bin
-    pkgs-unstable.pulumiPackages.pulumi-nodejs
+    bun
+    nodejs_24
     chromium
     crd2pulumi
     kubectl
     pkgs-unstable.kubernetes-helm
     cilium-cli
     talosctl
-    nodejs_24
     yq-go
     jq
     terraform

@@ -202,4 +202,90 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       })
     },
   )
+
+  operationTest(
+    "does not short-circuit update for instances destroyed earlier in recreate",
+    async ({
+      project,
+      logger,
+      runnerBackend,
+      libraryBackend,
+      artifactService,
+      instanceLockService,
+      operationService,
+      secretService,
+      instanceStateService,
+      projectModelService,
+      unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
+      createUnit,
+      createDeployedUnitState,
+      createContext,
+      createOperation,
+      setupImmediateLocking,
+      setupPersistenceMocks,
+      expect,
+    }) => {
+      // arrange
+      const unit = createUnit("A")
+      const state = createDeployedUnitState(unit)
+
+      const context = await createContext({ instances: [unit], states: [state] })
+
+      const expected = await context.getUpToDateInputHashOutput(unit)
+      state.selfHash = expected.selfHash
+      state.dependencyOutputHash = expected.dependencyOutputHash
+      instanceStateService.getInstanceStates.mockResolvedValue([state])
+
+      setupImmediateLocking()
+      setupPersistenceMocks({ instances: [unit] })
+
+      const operation = createOperation({
+        type: "recreate",
+        requestedInstanceIds: [unit.id],
+        phases: [
+          {
+            type: "destroy",
+            instances: [{ id: unit.id, message: "explicitly requested", parentId: undefined }],
+          },
+          {
+            type: "update",
+            instances: [{ id: unit.id, message: "explicitly requested", parentId: undefined }],
+          },
+        ],
+      })
+
+      const runtimeOperation = new RuntimeOperation(
+        project,
+        operation,
+        runnerBackend,
+        libraryBackend,
+        artifactService,
+        instanceLockService,
+        operationService,
+        secretService,
+        instanceStateService,
+        projectModelService,
+        unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
+        logger,
+      )
+
+      // act
+      await runtimeOperation.operateSafe()
+
+      // assert
+      expect(runnerBackend.destroy).toHaveBeenCalledTimes(1)
+      expect(runnerBackend.update).toHaveBeenCalledTimes(1)
+
+      const skipCall = instanceStateService.updateOperationState.mock.calls.find(
+        ([, stateId, , options]) =>
+          stateId === unit.id && options.operationState?.status === "skipped",
+      )
+
+      expect(skipCall).toBeUndefined()
+    },
+  )
 })
