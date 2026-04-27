@@ -30,4 +30,4 @@ export default defineNuxtConfig({
   extends: ["./layers/core"],
 })
 
-// hi23
+// hi234

@@ -4,11 +4,7 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 
-cli_version="$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)",/\1/p' "$repo_root/packages/platform/cli/package.json" | head -n 1)"
-if [[ -z "$cli_version" ]]; then
-  echo "Failed to detect @highstate/cli version from packages/platform/cli/package.json" >&2
-  exit 1
-fi
+cli_version="v0.19.1"
 
 tmp_dir="$(mktemp -d)"
 cleanup() {
