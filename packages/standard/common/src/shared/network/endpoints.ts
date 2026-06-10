@@ -711,7 +711,17 @@ export function mergeEndpoints<TEndpoint extends network.L3Endpoint>(
     const existing = mergedMap.get(key)
 
     if (existing) {
-      mergedMap.set(key, addEndpointMetadata(existing, endpoint.metadata ?? {}))
+      mergedMap.set(key, {
+        ...existing,
+        ...endpoint,
+        // keep optional include fields when one duplicate lacks them
+        network: existing.network ?? endpoint.network,
+        implRef: existing.implRef ?? endpoint.implRef,
+        metadata: {
+          ...existing.metadata,
+          ...endpoint.metadata,
+        },
+      } as TEndpoint)
     } else {
       mergedMap.set(key, endpoint)
     }

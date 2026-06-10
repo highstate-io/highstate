@@ -25,6 +25,7 @@ for (const peer of peers) {
     peers: [...sharedPeers, peer],
     peerEndpointFilter: args.peerEndpointFilter,
     listen: args.listen,
+    network: inputs.network ?? identity.peer.network,
   })
 
   const unsafeConfigContent = await toPromise(configContent)
@@ -85,6 +86,8 @@ for (const peer of peers) {
             },
           },
         }),
+        identity,
+        peers: [...sharedPeers, peer],
       },
     }),
   )

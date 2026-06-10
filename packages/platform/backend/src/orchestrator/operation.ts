@@ -5,8 +5,10 @@ import type {
   InstanceLockService,
   InstanceStatePatch,
   InstanceStateService,
+  LibraryService,
   OperationService,
   ProjectModelService,
+  ProjectPortService,
   SecretService,
   UnitExtraService,
   UnitOutputService,
@@ -65,6 +67,8 @@ export class RuntimeOperation {
     private readonly entitySnapshotService: EntitySnapshotService,
     private readonly unitOutputService: UnitOutputService,
     private readonly logger: Logger,
+    private readonly libraryService: LibraryService,
+    private readonly projectPortService: ProjectPortService,
   ) {}
 
   cancel(): void {
@@ -139,7 +143,7 @@ export class RuntimeOperation {
     // 1. create the context for the operation
     this.context = await OperationContext.load(
       this.project.id,
-      this.libraryBackend,
+      this.libraryService,
       this.instanceStateService,
       this.projectModelService,
       this.entitySnapshotService,
@@ -277,6 +281,10 @@ export class RuntimeOperation {
   }
 
   private getUnitPromise(instance: InstanceModel, state: InstanceState): Promise<void> {
+    if (this.isVirtualPort(instance.type)) {
+      return this.getVirtualPortPromise(instance, state)
+    }
+
     switch (this.workset.currentPhase) {
       case "update": {
         return this.updateUnit(instance, state)
@@ -291,6 +299,227 @@ export class RuntimeOperation {
         return this.previewUnit(instance, state)
       }
     }
+  }
+
+  private isVirtualPort(instanceType: string): boolean {
+    return (
+      this.projectPortService.isExportPortType(instanceType) ||
+      this.projectPortService.isImportPortType(instanceType)
+    )
+  }
+
+  private getVirtualPortPromise(instance: InstanceModel, state: InstanceState): Promise<void> {
+    switch (this.workset.currentPhase) {
+      case "update": {
+        return this.updateVirtualPort(instance, state)
+      }
+      case "refresh": {
+        return this.refreshVirtualPort(instance, state)
+      }
+      case "destroy": {
+        return this.destroyVirtualPort(instance, state)
+      }
+      case "preview": {
+        return this.previewVirtualPort(instance)
+      }
+    }
+  }
+
+  private previewVirtualPort(instance: InstanceModel): Promise<void> {
+    return this.getInstancePromise(instance.id, async logger => {
+      logger.info("previewing virtual port")
+
+      const now = new Date()
+
+      await this.workset.updateState(instance.id, {
+        operationState: {
+          status: this.workset.getStableStatusByOperationPhase(),
+          startedAt: now,
+          finishedAt: now,
+        },
+      })
+    })
+  }
+
+  private refreshVirtualPort(instance: InstanceModel, state: InstanceState): Promise<void> {
+    return this.getInstancePromise(instance.id, async logger => {
+      logger.info("refreshing virtual port")
+
+      await this.workset.updateState(instance.id, {
+        operationState: {
+          status: this.workset.getTransientStatusByOperationPhase(),
+          startedAt: new Date(),
+        },
+      })
+
+      await this.updateVirtualPortState(instance, state, null)
+    })
+  }
+
+  private updateVirtualPort(instance: InstanceModel, state: InstanceState): Promise<void> {
+    return this.getInstancePromise(instance.id, async logger => {
+      logger.info("updating virtual port")
+
+      await this.workset.updateState(instance.id, {
+        operationState: {
+          status: this.workset.getTransientStatusByOperationPhase(),
+          startedAt: new Date(),
+        },
+      })
+
+      let outputHash: number | null = null
+
+      if (this.projectPortService.isExportPortType(instance.type)) {
+        const exportPayload = await this.projectPortService.buildExportPayloadFromSnapshots({
+          projectName: this.project.name,
+          instance,
+          resolvedInputs: this.context.getResolvedInputs(instance.id) ?? {},
+          library: this.context.library,
+          tryGetInstance: instanceId => this.context.tryGetInstance(instanceId),
+          tryGetStateId: instanceId => this.context.getState(instanceId).id,
+          getExportedOutputGraph: async (stateId, output) =>
+            await this.entitySnapshotService.getLatestExportedOutputGraph(this.project.id, {
+              stateId,
+              output,
+            }),
+        })
+        const targetProjectNames = this.getExportTargetProjectNames(instance)
+
+        await this.projectPortService.syncExportPort({
+          projectId: this.project.id,
+          sourceStateId: state.id,
+          targetProjectNames,
+          payload: exportPayload,
+        })
+      } else {
+        const sourceStateId = this.projectPortService.extractImportSourceStateId(instance.type)
+        if (sourceStateId) {
+          const component = this.context.library.components[instance.type]
+          for (const outputName of Object.keys(component.outputs ?? {})) {
+            this.context.setCapturedOutputValues(instance.id, outputName, [])
+          }
+
+          const importPayload = await this.projectPortService.getImportPortPayload(
+            this.project.id,
+            sourceStateId,
+          )
+
+          if (importPayload) {
+            const capturedByOutput =
+              this.projectPortService.buildImportCapturedOutputValues(importPayload)
+
+            for (const [outputName, values] of Object.entries(capturedByOutput)) {
+              this.context.setCapturedOutputValues(instance.id, outputName, values)
+            }
+
+            const entitySnapshotPayload =
+              this.projectPortService.buildImportEntitySnapshotPayload(importPayload)
+
+            await this.entitySnapshotService.persistUnitEntitySnapshots({
+              projectId: this.project.id,
+              operationId: this.operation.id,
+              stateId: state.id,
+              payload: entitySnapshotPayload,
+            })
+          }
+
+          outputHash = await this.projectPortService.getImportPortContentHash(
+            this.project.id,
+            sourceStateId,
+          )
+        }
+      }
+
+      await this.updateVirtualPortState(instance, state, outputHash)
+    })
+  }
+
+  private destroyVirtualPort(instance: InstanceModel, state: InstanceState): Promise<void> {
+    return this.getInstancePromise(instance.id, async logger => {
+      logger.info("destroying virtual port")
+
+      await this.workset.updateState(instance.id, {
+        operationState: {
+          status: this.workset.getTransientStatusByOperationPhase(),
+          startedAt: new Date(),
+        },
+      })
+
+      if (this.projectPortService.isExportPortType(instance.type)) {
+        await this.projectPortService.clearExportPort(this.project.id, state.id)
+      }
+
+      await this.workset.updateState(instance.id, {
+        operationState: {
+          status: this.workset.getStableStatusByOperationPhase(),
+          finishedAt: new Date(),
+        },
+        instanceState: this.workset.isLastPhaseForInstance(instance.id)
+          ? {
+              status: this.workset.getNextStableInstanceStatus(instance.id),
+              selfHash: null,
+              inputHash: null,
+              dependencyOutputHash: null,
+              outputHash: null,
+              parentId: null,
+              model: null,
+              resolvedInputs: null,
+              exportedArtifactIds: null,
+              hasResourceHooks: false,
+            }
+          : undefined,
+      })
+    })
+  }
+
+  private async updateVirtualPortState(
+    instance: InstanceModel,
+    state: InstanceState,
+    outputHash: number | null,
+  ): Promise<void> {
+    state.outputHash = outputHash
+
+    const { selfHash, inputHash, dependencyOutputHash } =
+      await this.context.getUpToDateInputHashOutput(instance)
+
+    const data: InstanceStatePatch = {
+      status: this.workset.getNextStableInstanceStatus(instance.id),
+      selfHash,
+      inputHash,
+      dependencyOutputHash,
+      outputHash,
+      exportedArtifactIds: null,
+      hasResourceHooks: false,
+      parentId: instance.parentId ? this.context.getState(instance.parentId).id : null,
+      statusFields: null,
+    }
+
+    await this.workset.updateState(instance.id, {
+      operationState: {
+        status: this.workset.getStableStatusByOperationPhase(),
+        finishedAt: new Date(),
+      },
+      instanceState: this.workset.isLastPhaseForInstance(instance.id) ? data : undefined,
+      unitExtra: this.workset.isLastPhaseForInstance(instance.id)
+        ? {
+            pages: [],
+            terminals: [],
+            triggers: [],
+            workers: [],
+            secrets: {},
+            artifactIds: [],
+          }
+        : undefined,
+    })
+  }
+
+  private getExportTargetProjectNames(instance: InstanceModel): string[] {
+    const raw = (instance.args as Record<string, unknown>).projects
+    if (!Array.isArray(raw)) {
+      return []
+    }
+
+    return raw.filter((value): value is string => typeof value === "string")
   }
 
   private previewUnit(instance: InstanceModel, state: InstanceState): Promise<void> {
@@ -629,6 +858,7 @@ export class RuntimeOperation {
       })
 
       const [type, name] = parseInstanceId(instance.id)
+      const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
 
       await this.runnerBackend.destroy({
         projectId: this.project.id,
@@ -637,6 +867,7 @@ export class RuntimeOperation {
         libraryId: this.project.libraryId,
         instanceType: type,
         instanceName: name,
+        config: this.prepareUnitConfig(instance, state.id, secrets),
         refresh: this.operation.options.refresh,
         signal,
         forceSignal,
@@ -666,6 +897,7 @@ export class RuntimeOperation {
       logger.info("refreshing unit...")
 
       const [type, name] = parseInstanceId(instance.id)
+      const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
 
       await this.runnerBackend.refresh({
         projectId: this.project.id,
@@ -674,6 +906,7 @@ export class RuntimeOperation {
         libraryId: this.project.libraryId,
         instanceType: type,
         instanceName: name,
+        config: this.prepareUnitConfig(instance, state.id, secrets),
         signal,
         forceSignal,
         debug: this.operation.options.debug,
@@ -772,7 +1005,7 @@ export class RuntimeOperation {
   }
 
   private getUnitInputValues(inputName: string, input: ResolvedInstanceInput): UnitInputValue[] {
-    const dependencyInstance = this.context.getInstance(input.input.instanceId)
+    const dependencyInstance = this.getPhaseInstance(input.input.instanceId)
     const captured = this.context.getCapturedOutputValues(
       input.input.instanceId,
       input.input.output,
@@ -792,7 +1025,7 @@ export class RuntimeOperation {
       }
 
       try {
-        const instance = this.context.getInstance(instanceId as InstanceId)
+        const instance = this.getPhaseInstance(instanceId as InstanceId)
         const component = this.context.library.components[instance.type]
 
         if (!component) {
@@ -916,6 +1149,7 @@ export class RuntimeOperation {
           libraryId: this.context.project.libraryId,
           instanceType: instance.type,
           outputs: update.rawOutputs,
+          libraryModel: this.context.library,
         })
       : {
           outputHash: null,

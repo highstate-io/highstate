@@ -1,4 +1,9 @@
-import { type FullComponentArgumentOptions, genericNameSchema, z } from "@highstate/contract"
+import {
+  type FullComponentArgumentOptions,
+  genericNameSchema,
+  objectMetaSchema,
+  z,
+} from "@highstate/contract"
 import { mapValues } from "remeda"
 
 type PrefixWith<TString extends string, TPrefix extends string> = TPrefix extends ""
@@ -101,3 +106,13 @@ export const metadataSchema = z.record(metadataKeySchema, z.unknown())
 export type Metadata = z.infer<typeof metadataSchema>
 export type MetadataKey = z.infer<typeof metadataKeySchema>
 export type MetadataContainer = { metadata?: Metadata }
+
+export const entityMetaArgsSchema = objectMetaSchema
+  .pick({
+    title: true,
+    description: true,
+    icon: true,
+    iconColor: true,
+  })
+  .partial()
+  .prefault({})

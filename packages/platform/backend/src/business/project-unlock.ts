@@ -4,7 +4,7 @@ import type { PubSubManager } from "../pubsub"
 import type { ProjectUnlockBackend } from "../unlock"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { randomBytes } from "node:crypto"
-import { armor, Decrypter, Encrypter } from "age-encryption"
+import { armor, Decrypter, Encrypter, generateIdentity, identityToRecipient } from "age-encryption"
 import { z } from "zod"
 import { createProjectLogger } from "../common"
 import {
@@ -74,7 +74,7 @@ export class ProjectUnlockService {
    *
    * Creates databases, configures encryption and persists the unlock method inside the project database.
    *
-   * Then returns the encrypted master key and the unlock suite for further persisting in the backend database.
+   * Then returns the encrypted project keys and unlock suite for further persisting in the backend database.
    *
    * @param projectId The ID of the project to create the state for.
    * @param unlockMethod The unlock method to use to encrypt the master key. Should be provided by the frontend.
@@ -82,14 +82,26 @@ export class ProjectUnlockService {
   async setupProjectDatabase(
     projectId: string,
     unlockMethodInput: UnlockMethodInput,
-  ): Promise<[encryptedMasterKey: string, unlockSuite: ProjectUnlockSuite]> {
+  ): Promise<
+    [
+      encryptedMasterKey: string,
+      encryptedPrivateKey: string,
+      publicKey: string,
+      unlockSuite: ProjectUnlockSuite,
+    ]
+  > {
     // generate a new master key for the project
     const masterKey = randomBytes(32)
+    const privateKey = await generateIdentity()
+    const publicKey = await identityToRecipient(privateKey)
 
     // set the master key to setup the database encryption
-    await this.projectUnlockBackend.unlockProject(projectId, masterKey)
+    await this.projectUnlockBackend.unlockProject(projectId, masterKey, privateKey)
 
     const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, [unlockMethodInput])
+    const encryptedPrivateKey = await this.encryptProjectPrivateKey(projectId, privateKey, [
+      unlockMethodInput,
+    ])
 
     const database = await this.database.setupDatabase(projectId)
 
@@ -106,7 +118,7 @@ export class ProjectUnlockService {
       hasPasskey: unlockMethodInput.type === "passkey",
     }
 
-    return [encryptedMasterKey, unlockSuite]
+    return [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite]
   }
 
   /**
@@ -128,7 +140,7 @@ export class ProjectUnlockService {
     // load the encrypted master key for the project
     const project = await this.database.backend.project.findUnique({
       where: { id: projectId },
-      select: { encryptedMasterKey: true },
+      select: { encryptedMasterKey: true, encryptedPrivateKey: true },
     })
 
     if (!project) {
@@ -137,7 +149,7 @@ export class ProjectUnlockService {
 
     if (!this.config.HIGHSTATE_ENCRYPTION_ENABLED) {
       // no cryptography, just unlock with an empty master key
-      await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0))
+      await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0), "")
       await this.pubsubManager.publish(["project-unlock-state", projectId], { type: "unlocked" })
       await this.runUnlockTasks(projectId)
       return
@@ -150,9 +162,29 @@ export class ProjectUnlockService {
 
     // decrypt the master key using the provided identity
     const masterKey = await decrypter.decrypt(encryptedMasterKey)
+    let privateKey: string
+
+    if (project.encryptedPrivateKey) {
+      const encryptedPrivateKey = armor.decode(project.encryptedPrivateKey)
+      privateKey = await decrypter.decrypt(encryptedPrivateKey, "text")
+    } else {
+      privateKey = await generateIdentity()
+
+      // first unlock without the private key, to allow access to unlock methods
+      await this.projectUnlockBackend.unlockProject(projectId, Buffer.from(masterKey), "")
+
+      // then backfill the private key for the project
+      await this.backfillProjectPrivateKey(projectId, privateKey)
+
+      this.logger.warn(
+        { projectId },
+        'project "%s" has no encrypted private key, generated a new project identity during unlock',
+        projectId,
+      )
+    }
 
     // unlock the project in the backend
-    await this.projectUnlockBackend.unlockProject(projectId, Buffer.from(masterKey))
+    await this.projectUnlockBackend.unlockProject(projectId, Buffer.from(masterKey), privateKey)
     await this.pubsubManager.publish(["project-unlock-state", projectId], { type: "unlocked" })
 
     // run unlock tasks
@@ -167,6 +199,33 @@ export class ProjectUnlockService {
         this.logger.error({ error }, `unlock task "%s" failed`, task.name)
       }
     }
+  }
+
+  private async backfillProjectPrivateKey(projectId: string, privateKey: string): Promise<void> {
+    const database = await this.database.forProject(projectId)
+    const unlockMethods = await database.unlockMethod.findMany({
+      select: { type: true, recipient: true, encryptedIdentity: true },
+    })
+
+    if (unlockMethods.length === 0) {
+      this.logger.warn(
+        { projectId },
+        'project "%s" has no unlock methods, skipping private key backfill',
+        projectId,
+      )
+      return
+    }
+
+    const encryptedPrivateKey = await this.encryptForUnlockMethods(privateKey, unlockMethods)
+    const publicKey = await identityToRecipient(privateKey)
+
+    await this.database.backend.project.update({
+      where: { id: projectId },
+      data: {
+        encryptedPrivateKey,
+        publicKey,
+      },
+    })
   }
 
   /**
@@ -194,6 +253,16 @@ export class ProjectUnlockService {
 
       // 2. encrypt the project data for all recipients + the new recipient
       const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, allUnlockMethods)
+      const privateKey = await this.projectUnlockBackend.getProjectPrivateKey(projectId)
+      if (!privateKey) {
+        throw new Error(`Project "${projectId}" is unlocked without a private key`)
+      }
+
+      const encryptedPrivateKey = await this.encryptProjectPrivateKey(
+        projectId,
+        privateKey,
+        allUnlockMethods,
+      )
 
       // 3. persist the new unlock method
       const created = await tx.unlockMethod.create({
@@ -208,6 +277,7 @@ export class ProjectUnlockService {
         where: { id: projectId },
         data: {
           encryptedMasterKey,
+          encryptedPrivateKey,
           unlockSuite: ProjectUnlockService.createUnlockSuite(allUnlockMethods),
         },
       })
@@ -241,6 +311,16 @@ export class ProjectUnlockService {
 
       // 2. encrypt the project data for remaining recipients
       const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, unlockMethods)
+      const privateKey = await this.projectUnlockBackend.getProjectPrivateKey(projectId)
+      if (!privateKey) {
+        throw new Error(`Project "${projectId}" is unlocked without a private key`)
+      }
+
+      const encryptedPrivateKey = await this.encryptProjectPrivateKey(
+        projectId,
+        privateKey,
+        unlockMethods,
+      )
 
       // 3. delete the unlock method
       await tx.unlockMethod.delete({ where: { id: unlockMethodId } })
@@ -250,6 +330,7 @@ export class ProjectUnlockService {
         where: { id: projectId },
         data: {
           encryptedMasterKey,
+          encryptedPrivateKey,
           unlockSuite: ProjectUnlockService.createUnlockSuite(unlockMethods),
         },
       })
@@ -282,16 +363,35 @@ export class ProjectUnlockService {
       return "encryption disabled"
     }
 
-    // encrypt the master key for all unlock methods
+    return await this.encryptForUnlockMethods(masterKey, unlockMethods)
+  }
+
+  private async encryptProjectPrivateKey(
+    projectId: string,
+    privateKey: string,
+    unlockMethods: { recipient: string }[],
+  ): Promise<string> {
+    const masterKey = await this.database.getProjectMasterKey(projectId)
+    if (!masterKey) {
+      // окак
+      return "encryption disabled"
+    }
+
+    return await this.encryptForUnlockMethods(privateKey, unlockMethods)
+  }
+
+  private async encryptForUnlockMethods(
+    content: Uint8Array | string,
+    unlockMethods: { recipient: string }[],
+  ): Promise<string> {
     const encrypter = new Encrypter()
     for (const unlockMethod of unlockMethods) {
       encrypter.addRecipient(unlockMethod.recipient)
     }
 
-    const encryptedMasterKey = await encrypter.encrypt(masterKey)
-    const armoredMasterKey = armor.encode(encryptedMasterKey)
+    const encryptedContent = await encrypter.encrypt(content)
 
-    return armoredMasterKey
+    return armor.encode(encryptedContent)
   }
 
   /**
@@ -305,7 +405,7 @@ export class ProjectUnlockService {
       try {
         logger.info("auto-unlocking project (dev mode)")
 
-        await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0))
+        await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0), "")
         await this.pubsubManager.publish(["project-unlock-state", projectId], { type: "unlocked" })
         await this.runUnlockTasks(projectId)
       } catch (error) {

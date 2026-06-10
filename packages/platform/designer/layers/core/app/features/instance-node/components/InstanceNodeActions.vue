@@ -189,7 +189,7 @@ defineSlots<{
     </VBtn>
 
     <VBtn
-      v-if="!ghost && component.kind === 'composite' && !hideShowComposite"
+      v-if="component.kind === 'composite' && !hideShowComposite"
       size="small"
       variant="tonal"
       class="toolbar-button"

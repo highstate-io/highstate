@@ -231,7 +231,7 @@ const createUserTerminal = chart
 if (args.enableCinny) {
   const config = {
     defaultHomeserver: 0,
-    homeserverList: [args.fqdn, "vinaigrette.mktk.cc"],
+    homeserverList: [args.fqdn],
     allowCustomHomeservers: false,
 
     featuredCommunities: {

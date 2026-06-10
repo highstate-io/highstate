@@ -144,6 +144,25 @@ export class LocalLibraryBackend implements LibraryBackend {
 
       await this.ensureLibraryPackagesLoaded(packageNames, true)
 
+      const unresolvedUnits = units.filter(unit => !this.resolvedUnitSources.has(unit.type))
+
+      if (unresolvedUnits.length > 0) {
+        const unresolvedPackageNames = Object.keys(
+          groupBy(unresolvedUnits, unit => unit.source.package),
+        )
+
+        for (const packageName of unresolvedPackageNames) {
+          const libraryPackage = this.packages.get(packageName)
+
+          if (!libraryPackage) {
+            this.logger.warn(`resolved unit package not found: "%s"`, packageName)
+            continue
+          }
+
+          await this.reloadUnitManifest(libraryPackage)
+        }
+      }
+
       const result: ResolvedUnitSource[] = []
 
       for (const unitType of unitTypes) {
@@ -594,6 +613,11 @@ export class LocalLibraryBackend implements LibraryBackend {
     void this.buildQueue.add(async () => {
       try {
         await this.executePackageRebuild(packageName)
+      } catch (error) {
+        this.logger.error(
+          { error, packageName },
+          "failed to rebuild library package; keeping watcher alive",
+        )
       } finally {
         state.inProgress = false
 

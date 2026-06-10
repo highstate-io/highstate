@@ -5,7 +5,6 @@ import type { PulumiCommand } from "@pulumi/pulumi/automation/index.js"
 import * as os from "node:os"
 import { homedir } from "node:os"
 import path, { resolve } from "node:path"
-import { execa } from "execa"
 
 /**
  * The extended AbortSignal interface that includes an additional signal
@@ -69,40 +68,86 @@ export async function createForceAbortableCommand(): Promise<PulumiCommand> {
     const env = additionalEnv ? { ...additionalEnv } : undefined
 
     try {
-      const proc = execa(command, args, { env, cwd })
+      const proc = Bun.spawn([command, ...args], {
+        cwd,
+        env,
+        stdout: "pipe",
+        stderr: "pipe",
+      })
 
-      if (onError && proc.stderr) {
-        proc.stderr.on("data", (data: any) => {
-          if (data?.toString) {
-            data = data.toString()
-          }
-          onError(data)
-        })
-      }
+      const readStream = async (
+        stream: ReadableStream<Uint8Array> | null,
+        onData?: (data: string) => void,
+      ): Promise<string> => {
+        if (!stream) {
+          return ""
+        }
 
-      if (onOutput && proc.stdout) {
-        proc.stdout.on("data", (data: any) => {
-          if (data?.toString) {
-            data = data.toString()
+        const reader = stream.getReader()
+        const decoder = new TextDecoder()
+        let output = ""
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) {
+              break
+            }
+
+            const chunk = decoder.decode(value, { stream: true })
+            if (chunk.length > 0) {
+              output += chunk
+              onData?.(chunk)
+            }
           }
-          onOutput(data)
-        })
+
+          const tail = decoder.decode()
+          if (tail.length > 0) {
+            output += tail
+            onData?.(tail)
+          }
+        } finally {
+          reader.releaseLock()
+        }
+
+        return output
       }
 
       if (signal) {
-        signal.addEventListener("abort", () => {
+        const abortHandler = () => {
           proc.kill("SIGINT")
+        }
+
+        signal.addEventListener("abort", () => {
+          abortHandler()
         })
+
+        if (signal.aborted) {
+          abortHandler()
+        }
 
         // custom logic to handle force kill
         if (signal.forceSignal) {
-          signal.forceSignal.addEventListener("abort", () => {
+          const forceAbortHandler = () => {
             proc.kill("SIGKILL")
+          }
+
+          signal.forceSignal.addEventListener("abort", () => {
+            forceAbortHandler()
           })
+
+          if (signal.forceSignal.aborted) {
+            forceAbortHandler()
+          }
         }
       }
 
-      const { stdout, stderr, exitCode } = await proc
+      const [stdout, stderr, exitCode] = await Promise.all([
+        readStream(proc.stdout, onOutput),
+        readStream(proc.stderr, onError),
+        proc.exited,
+      ])
+
       const commandResult = new CommandResult(stdout, stderr, exitCode)
       if (exitCode !== 0) {
         throw createCommandError(commandResult)

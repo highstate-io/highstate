@@ -2,6 +2,7 @@ import { endpointToString } from "@highstate/common"
 import { Chart, ClusterAccessScope, Namespace } from "@highstate/k8s"
 import { common, k8s } from "@highstate/library"
 import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
+import { deepmerge } from "deepmerge-ts"
 import { charts } from "../shared"
 
 const { name, stateId, args, inputs, outputs } = forUnit(k8s.apps.traefik)
@@ -19,70 +20,73 @@ const chart = new Chart(args.appName, {
 
   skipCrds: true,
 
-  values: {
-    nodeSelector: args.nodeSelector,
+  values: deepmerge(
+    {
+      nodeSelector: args.nodeSelector,
 
-    global: {
-      // disable telemetry
-      checkNewVersion: false,
-      sendAnonymousUsage: false,
-    },
-
-    providers: {
-      kubernetesCRD: {
-        enabled: args.enableTraefikCrds,
+      global: {
+        // disable telemetry
+        checkNewVersion: false,
+        sendAnonymousUsage: false,
       },
 
-      kubernetesIngress: {
-        enabled: args.enableIngressApi,
+      providers: {
+        kubernetesCRD: {
+          enabled: args.enableTraefikCrds,
+        },
+
+        kubernetesIngress: {
+          enabled: args.enableIngressApi,
+        },
+
+        kubernetesGateway: {
+          enabled: args.enableGatewayApi,
+          experimentalChannel: true,
+        },
       },
 
-      kubernetesGateway: {
-        enabled: args.enableGatewayApi,
-        experimentalChannel: true,
+      deployment: {
+        replicas: args.replicas,
       },
-    },
 
-    deployment: {
-      replicas: args.replicas,
-    },
+      gateway: {
+        enabled: false,
+      },
 
-    gateway: {
-      enabled: false,
-    },
+      ingressClass: {
+        enabled: true,
+        isDefaultClass: false,
+        name: className,
+      },
 
-    ingressClass: {
-      enabled: true,
-      isDefaultClass: false,
-      name: className,
-    },
+      gatewayClass: {
+        name: className,
+      },
 
-    gatewayClass: {
-      name: className,
-    },
-
-    ports: {
-      web: {
-        redirections: {
-          entryPoint: {
-            to: "websecure",
-            scheme: "https",
+      ports: {
+        web: {
+          redirections: {
+            entryPoint: {
+              to: "websecure",
+              scheme: "https",
+            },
+          },
+        },
+        websecure: {
+          http: {
+            encodedCharacters: {
+              allowEncodedHash: true,
+            },
           },
         },
       },
-      websecure: {
-        http: {
-          encodedCharacters: {
-            allowEncodedHash: true,
-          },
-        },
-      },
     },
-  },
+    args.values,
+  ),
 
-  service: {
+  service: deepmerge(args.service, {
     external: args.external,
-  },
+  }),
 
   terminal: {
     shell: "sh",

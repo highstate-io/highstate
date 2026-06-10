@@ -1,6 +1,6 @@
 import { l4EndpointToString, subnetToString } from "@highstate/common"
 import { wireguard } from "@highstate/library"
-import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
+import { forUnit, makeEntityOutput, makeSecretOutput, toPromise } from "@highstate/pulumi"
 import {
   convertPrivateKeyToPublicKey,
   createPeerEntity,
@@ -27,7 +27,7 @@ const identity = makeEntityOutput({
   },
   value: {
     peer,
-    privateKey,
+    privateKey: makeSecretOutput(privateKey),
   },
 })
 

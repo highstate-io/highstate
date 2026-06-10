@@ -20,6 +20,8 @@ describe("Operation - Composite", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createComposite,
       createUnit,
       createDeployedUnitState,
@@ -84,6 +86,8 @@ describe("Operation - Composite", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       const compositeWasFinalized = () => {
@@ -141,6 +145,8 @@ describe("Operation - Composite", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createComposite,
       createUnit,
       createDeployedUnitState,
@@ -225,6 +231,8 @@ describe("Operation - Composite", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act
@@ -260,6 +268,8 @@ describe("Operation - Composite", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createComposite,
       createUnit,
       createDeployedUnitState,
@@ -334,6 +344,8 @@ describe("Operation - Composite", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act
@@ -373,6 +385,8 @@ describe("Operation - Composite", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createComposite,
       createUnit,
       createDeployedUnitState,
@@ -441,6 +455,8 @@ describe("Operation - Composite", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act

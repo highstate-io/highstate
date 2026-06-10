@@ -310,6 +310,7 @@ export class InstanceStateService {
     // collect instances to process cleanup after transaction
     const unitInstancesToCleanup: { id: string; instanceId: InstanceId }[] = []
     const updatedStateIds: string[] = []
+    const deletedTransientInstanceIds = new Set<InstanceId>()
 
     await database.$transaction(async tx => {
       for (const instanceId of uniqueInstanceIds) {
@@ -319,6 +320,7 @@ export class InstanceStateService {
             id: true,
             kind: true,
             instanceId: true,
+            source: true,
             lock: { select: { stateId: true } },
           },
         })
@@ -338,6 +340,7 @@ export class InstanceStateService {
           { deleteSecrets, clearTerminalData },
           unitInstancesToCleanup,
           updatedStateIds,
+          deletedTransientInstanceIds,
         )
       }
     })
@@ -369,6 +372,15 @@ export class InstanceStateService {
           triggerIds: [],
           evaluationState: null,
         },
+      })
+    }
+
+    if (deletedTransientInstanceIds.size > 0) {
+      const deletedIds = Array.from(deletedTransientInstanceIds)
+
+      void this.pubsubManager.publish(["project-model", projectId], {
+        deletedVirtualInstanceIds: deletedIds,
+        deletedGhostInstanceIds: deletedIds,
       })
     }
 
@@ -404,10 +416,16 @@ export class InstanceStateService {
   private async processInstanceDeletion(
     tx: ProjectTransaction,
     projectId: string,
-    state: { id: string; kind: ComponentKind; instanceId: InstanceId },
+    state: {
+      id: string
+      kind: ComponentKind
+      instanceId: InstanceId
+      source: "resident" | "virtual"
+    },
     options: ForgetInstanceStateOptions,
     unitInstancesToCleanup: { id: string; instanceId: InstanceId }[],
     updatedStateIds: string[],
+    deletedTransientInstanceIds: Set<InstanceId>,
   ): Promise<void> {
     const { deleteSecrets = false, clearTerminalData = false } = options
 
@@ -468,6 +486,10 @@ export class InstanceStateService {
       unitInstancesToCleanup.push({ id: state.id, instanceId: state.instanceId })
     }
 
+    if (state.source === "virtual") {
+      deletedTransientInstanceIds.add(state.instanceId)
+    }
+
     // track this instance as updated
     updatedStateIds.push(state.id)
 
@@ -484,6 +506,7 @@ export class InstanceStateService {
           id: true,
           kind: true,
           instanceId: true,
+          source: true,
         },
       })
 
@@ -496,6 +519,7 @@ export class InstanceStateService {
           options,
           unitInstancesToCleanup,
           updatedStateIds,
+          deletedTransientInstanceIds,
         )
       }
     }
@@ -683,15 +707,6 @@ export class InstanceStateService {
         data: operationState,
       })
 
-      const project = await this.database.backend.project.findUnique({
-        where: { id: projectId },
-        select: { libraryId: true },
-      })
-
-      if (!project) {
-        throw new ProjectNotFoundError(projectId)
-      }
-
       // update unit-specific data if provided
       if (unitExtra) {
         const [pageIds, terminalIds, triggerIds, secretUpdate, workerObjectIds] = await Promise.all(
@@ -699,12 +714,7 @@ export class InstanceStateService {
             this.unitExtraService.processUnitPages(tx, stateId, unitExtra.pages),
             this.unitExtraService.processUnitTerminals(tx, stateId, unitExtra.terminals),
             this.unitExtraService.processUnitTriggers(tx, stateId, unitExtra.triggers),
-            this.secretService.updateInstanceSecretsCore(
-              tx,
-              project.libraryId,
-              stateId,
-              unitExtra.secrets,
-            ),
+            this.secretService.updateInstanceSecretsCore(tx, projectId, stateId, unitExtra.secrets),
             this.workerService.updateUnitRegistrations(tx, projectId, stateId, unitExtra.workers),
           ],
         )

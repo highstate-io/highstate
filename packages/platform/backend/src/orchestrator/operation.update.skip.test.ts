@@ -19,6 +19,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createUnit,
       createDeployedUnitState,
       createContext,
@@ -67,6 +69,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act
@@ -114,6 +118,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createComposite,
       createUnit,
       createDeployedUnitState,
@@ -182,6 +188,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act
@@ -219,6 +227,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createUnit,
       createDeployedUnitState,
       createContext,
@@ -271,6 +281,8 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act

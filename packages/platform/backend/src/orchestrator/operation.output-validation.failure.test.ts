@@ -20,6 +20,8 @@ describe("Operation - Output Validation Failure", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -83,6 +85,8 @@ describe("Operation - Output Validation Failure", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       await runtimeOperation.operateSafe()

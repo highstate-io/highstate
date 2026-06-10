@@ -321,13 +321,17 @@ export function createEditorArguments(
   const expandableArguments: ExpandableEditorArgument[] = []
 
   for (const [name, arg] of Object.entries(args)) {
+    const unionSchemas =
+      (Array.isArray(arg.schema.anyOf) ? arg.schema.anyOf : undefined) ??
+      (Array.isArray(arg.schema.oneOf) ? arg.schema.oneOf : undefined)
+
     // 0. handle possible discriminated union
-    if (arg.schema.anyOf) {
-      const discriminatorField = findDiscriminatorField(arg.schema.anyOf)
+    if (unionSchemas) {
+      const discriminatorField = findDiscriminatorField(unionSchemas)
       if (discriminatorField) {
         const fields: Record<string, PlainEditorArgument[]> = {}
 
-        for (const schema of arg.schema.anyOf) {
+        for (const schema of unionSchemas) {
           if (typeof schema !== "object" || !schema.properties) {
             continue
           }

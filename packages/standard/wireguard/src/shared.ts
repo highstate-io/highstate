@@ -12,7 +12,14 @@ import {
 } from "@highstate/common"
 import { getBestEndpoint } from "@highstate/k8s"
 import { type k8s, type network, wireguard } from "@highstate/library"
-import { type Input, makeEntity, type Output, secret, type Unwrap } from "@highstate/pulumi"
+import {
+  type Input,
+  makeEntity,
+  makeSecret,
+  type Output,
+  secret,
+  type Unwrap,
+} from "@highstate/pulumi"
 import { x25519 } from "@noble/curves/ed25519"
 import { sha256 } from "@noble/hashes/sha2.js"
 import { randomBytes } from "@noble/hashes/utils.js"
@@ -136,6 +143,63 @@ export type IdentityConfigArgs = {
   table?: number | "off" | "auto"
 }
 
+export type ResolvedNodeInputs = {
+  identity: wireguard.Identity
+  peers: wireguard.Peer[]
+}
+
+export function resolveNodeInputs({
+  identity,
+  config,
+  peers = [],
+}: {
+  identity?: wireguard.Identity
+  config?: wireguard.Config
+  peers?: wireguard.Peer[]
+}): ResolvedNodeInputs {
+  if (!!identity === !!config) {
+    throw new Error('Exactly one of "identity" or "config" input must be provided.')
+  }
+
+  const resolvedIdentity = config?.identity ?? identity
+
+  if (!resolvedIdentity) {
+    throw new Error('Failed to resolve identity from "identity" or "config" input.')
+  }
+
+  return {
+    identity: resolvedIdentity,
+    peers: uniqueBy([...(config?.peers ?? []), ...peers], peer => peer.publicKey),
+  }
+}
+
+export function getNodeConfigContent(config: wireguard.Config): string {
+  switch (config.file.content.type) {
+    case "embedded": {
+      return config.file.content.value
+    }
+    case "embedded-secret": {
+      return config.file.content.value.value
+    }
+    default: {
+      throw new Error(
+        `Unsupported config file content type "${config.file.content.type}" for wireguard.node inputs.config. Expected embedded or embedded-secret content.`,
+      )
+    }
+  }
+}
+
+export function resolveNodeNetwork(
+  identity: wireguard.Identity,
+  peers: wireguard.Peer[],
+): wireguard.Network | undefined {
+  if (identity.peer.network) {
+    return identity.peer.network
+  }
+
+  return peers.find(peer => peer.network?.backend === "amneziawg")?.network
+}
+
 export function generateIdentityConfig({
   identity,
   peers,
@@ -148,7 +212,7 @@ export function generateIdentityConfig({
   cluster,
   peerEndpointFilter,
   listen = true,
-  network,
+  network = identity.peer.network,
   table,
 }: IdentityConfigArgs): Output<string> {
   const allDns = unique(
@@ -253,6 +317,13 @@ type SharedPeerInputs = {
   relayedPeers: Input<wireguard.Peer>[]
 }
 
+export function forceUdpEndpoints(endpoints: network.L4Endpoint[]): network.L4Endpoint[] {
+  return endpoints.map(endpoint => ({
+    ...endpoint,
+    protocol: "udp",
+  }))
+}
+
 export function calculateEndpoints(
   {
     endpoints: argsEnpoints,
@@ -261,10 +332,10 @@ export function calculateEndpoints(
   { endpoints }: Pick<Unwrap<SharedPeerInputs>, "endpoints">,
 ): network.L4Endpoint[] {
   return uniqueBy(
-    [
-      ...endpoints.map(e => l3EndpointToL4(e, e.port ?? listenPort ?? 51820)),
+    forceUdpEndpoints([
+      ...endpoints.map(e => l3EndpointToL4(e, e.port ?? listenPort ?? 51820, "udp")),
       ...argsEnpoints.map(endpoint => parseEndpoint(endpoint, 4)),
-    ],
+    ]),
     endpoint => l4EndpointToString(endpoint),
   )
 }
@@ -346,7 +417,7 @@ export async function createPeerEntity(
       publicKey,
       addresses,
       network: inputs.network,
-      presharedKeyPart,
+      presharedKeyPart: presharedKeyPart ? makeSecret(presharedKeyPart) : undefined,
       listenPort: args.listenPort ?? 51820,
       persistentKeepalive: args.persistentKeepalive,
       feedMetadata: feedMetadataFromArgs(args.feedMetadata),
@@ -380,6 +451,7 @@ export function feedMetadataFromArgs(
         enabled: feedMetadata.enabled,
         forced: feedMetadata.forced,
         exclusive: feedMetadata.exclusive,
+        warningMessage: feedMetadata.warningMessage,
         displayInfo: {
           title: feedMetadata.title,
           description: feedMetadata.description,

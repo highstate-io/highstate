@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
   Object: 'Object',
@@ -75,6 +76,17 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const ProjectImportPortScalarFieldEnum = {
+  projectId: 'projectId',
+  sourceProjectId: 'sourceProjectId',
+  sourceStateId: 'sourceStateId',
+  contentHash: 'contentHash',
+  encryptedContent: 'encryptedContent'
+} as const
+
+export type ProjectImportPortScalarFieldEnum = (typeof ProjectImportPortScalarFieldEnum)[keyof typeof ProjectImportPortScalarFieldEnum]
 
 
 export const UserWorkspaceLayoutScalarFieldEnum = {
@@ -111,6 +123,8 @@ export const ProjectScalarFieldEnum = {
   libraryId: 'libraryId',
   pulumiBackendId: 'pulumiBackendId',
   encryptedMasterKey: 'encryptedMasterKey',
+  encryptedPrivateKey: 'encryptedPrivateKey',
+  publicKey: 'publicKey',
   unlockSuite: 'unlockSuite',
   databaseVersion: 'databaseVersion',
   createdAt: 'createdAt',

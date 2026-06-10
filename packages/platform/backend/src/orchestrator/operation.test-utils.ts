@@ -4,14 +4,16 @@ import type {
   EntitySnapshotService,
   InstanceLockService,
   InstanceStateService,
+  LibraryService,
   OperationService,
   ProjectModelService,
+  ProjectPortService,
   SecretService,
   UnitExtraService,
   UnitOutputService,
 } from "../business"
 import type { Operation } from "../database"
-import type { LibraryBackend } from "../library"
+import type { LibraryBackend, ResolvedUnitSource } from "../library"
 import type {
   OperationType,
   RawPulumiOutputs,
@@ -115,6 +117,8 @@ export const operationTest = test.extend<{
   secretService: MockedObject<SecretService>
   instanceStateService: MockedObject<InstanceStateService>
   projectModelService: MockedObject<ProjectModelService>
+  libraryService: MockedObject<LibraryService>
+  projectPortService: MockedObject<ProjectPortService>
   unitExtraService: MockedObject<UnitExtraService>
   entitySnapshotService: MockedObject<EntitySnapshotService>
   unitOutputService: MockedObject<UnitOutputService>
@@ -350,6 +354,36 @@ export const operationTest = test.extend<{
     await use(projectModelService)
   },
 
+  libraryService: async ({}, use) => {
+    const libraryService = vi.mockObject({
+      getLibraryModel: vi.fn(),
+      getResolvedUnitSources: vi.fn(),
+    } as unknown as LibraryService)
+
+    await use(libraryService)
+  },
+
+  projectPortService: async ({}, use) => {
+    const projectPortService = vi.mockObject({
+      isExportPortType: vi.fn().mockReturnValue(false),
+      isImportPortType: vi.fn().mockReturnValue(false),
+      extractImportSourceStateId: vi.fn().mockReturnValue(null),
+      getImportPortContentHash: vi.fn().mockResolvedValue(null),
+      getImportPortPayload: vi.fn().mockResolvedValue(null),
+      buildImportCapturedOutputValues: vi.fn().mockReturnValue({}),
+      buildImportEntitySnapshotPayload: vi.fn().mockReturnValue({
+        nodes: [],
+        explicitReferences: [],
+        implicitReferences: [],
+      }),
+      buildExportPayload: vi.fn(),
+      syncExportPort: vi.fn().mockResolvedValue(undefined),
+      clearExportPort: vi.fn().mockResolvedValue(undefined),
+    } as unknown as ProjectPortService)
+
+    await use(projectPortService)
+  },
+
   unitExtraService: async ({}, use) => {
     const unitExtraService = vi.mockObject({
       getInstanceTriggers: vi.fn().mockResolvedValue([]),
@@ -550,7 +584,7 @@ export const operationTest = test.extend<{
     {
       project,
       logger,
-      libraryBackend,
+      libraryService,
       instanceStateService,
       projectModelService,
       createMockLibrary,
@@ -564,8 +598,7 @@ export const operationTest = test.extend<{
     }): Promise<OperationContext> => {
       const library = input.library ?? createMockLibrary()
 
-      libraryBackend.loadLibrary.mockResolvedValue(library)
-      libraryBackend.getResolvedUnitSources.mockResolvedValue([
+      const unitSources: ResolvedUnitSource[] = [
         {
           unitType: "component.v1",
           sourceHash: 12345,
@@ -578,7 +611,10 @@ export const operationTest = test.extend<{
           projectPath: "test",
           allowedDependencies: [],
         },
-      ])
+      ]
+
+      libraryService.getLibraryModel.mockResolvedValue(library)
+      libraryService.getResolvedUnitSources.mockResolvedValue(unitSources)
 
       projectModelService.getProjectModel.mockResolvedValue([
         {
@@ -594,7 +630,7 @@ export const operationTest = test.extend<{
 
       return await OperationContext.load(
         project.id,
-        libraryBackend,
+        libraryService,
         instanceStateService,
         projectModelService,
         undefined,

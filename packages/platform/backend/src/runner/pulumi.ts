@@ -1,5 +1,4 @@
 import type {
-  ConfigMap,
   OpMap,
   OpType,
   ProjectRuntime,
@@ -21,7 +20,6 @@ export type RunOptions = {
 
 export type RunLocalOptions = RunOptions & {
   projectPath: string
-  stackConfig?: ConfigMap
 }
 
 export class LocalPulumiHost {
@@ -98,8 +96,7 @@ export class LocalPulumiHost {
     fn: (stack: Stack) => Promise<T>,
     signal?: AbortSignal,
   ): Promise<T> {
-    const { projectId, pulumiProjectName, pulumiStackName, projectPath, stackConfig, envVars } =
-      options
+    const { projectId, pulumiProjectName, pulumiStackName, projectPath, envVars } = options
 
     return await this.lock.acquire(`${pulumiProjectName}.${pulumiStackName}`, async () => {
       const { LocalWorkspace } = await import("@pulumi/pulumi/automation/index.js")
@@ -117,13 +114,6 @@ export class LocalPulumiHost {
             },
             main: "index.js",
           },
-          stackSettings: stackConfig
-            ? {
-                [pulumiStackName]: {
-                  config: stackConfig,
-                },
-              }
-            : undefined,
           envVars: {
             PULUMI_CONFIG_PASSPHRASE: await this.secretService.getPulumiPassword(projectId),
             PULUMI_K8S_AWAIT_ALL: "true",

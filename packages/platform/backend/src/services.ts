@@ -9,9 +9,11 @@ import {
   GlobalSearchService,
   InstanceLockService,
   InstanceStateService,
+  LibraryService,
   ObjectRefIndexService,
   OperationService,
   ProjectModelService,
+  ProjectPortService,
   ProjectService,
   ProjectUnlockService,
   SecretService,
@@ -70,7 +72,6 @@ export type Services = {
   readonly terminalBackend: TerminalBackend
   readonly terminalManager: TerminalManager
   readonly terminalSessionService: TerminalSessionService
-
   readonly workerBackend: WorkerBackend
   readonly workerManager: WorkerManager
 
@@ -89,6 +90,8 @@ export type Services = {
   readonly workerService: WorkerService
   readonly projectModelService: ProjectModelService
   readonly projectService: ProjectService
+  readonly libraryService: LibraryService
+  readonly projectPortService: ProjectPortService
   readonly artifactService: ArtifactService
   readonly settingsService: SettingsService
   readonly unitExtraService: UnitExtraService
@@ -154,6 +157,8 @@ export async function createServices({
     workerService,
     projectService,
     projectModelService,
+    libraryService,
+    projectPortService,
     settingsService,
     unitExtraService,
     entitySnapshotService,
@@ -205,10 +210,17 @@ export async function createServices({
     logger.child({ service: "GlobalSearchService" }),
   )
 
+  libraryService ??= new LibraryService(
+    database,
+    libraryBackend,
+    projectUnlockBackend,
+    logger.child({ service: "LibraryService" }),
+  )
+
   secretService ??= new SecretService(
     database,
     pubsubManager,
-    libraryBackend,
+    libraryService,
     objectRefIndexService,
     logger.child({ service: "SecretService" }),
   )
@@ -310,7 +322,7 @@ export async function createServices({
 
   projectModelService ??= new ProjectModelService(
     database,
-    libraryBackend,
+    libraryService,
     instanceStateService,
     projectModelBackends,
     projectUnlockService,
@@ -333,10 +345,16 @@ export async function createServices({
     projectEvaluationSubsystem,
     projectModelService,
     projectModelBackends,
-    libraryBackend,
+    libraryService,
     pubsubManager,
     objectRefIndexService,
     logger.child({ service: "ProjectService" }),
+  )
+
+  projectPortService ??= new ProjectPortService(
+    database,
+    config.HIGHSTATE_ENCRYPTION_ENABLED,
+    projectUnlockBackend,
   )
 
   operationManager ??= new OperationManager(
@@ -352,6 +370,8 @@ export async function createServices({
     unitExtraService,
     entitySnapshotService,
     unitOutputService,
+    libraryService,
+    projectPortService,
     database,
     logger,
   )
@@ -403,6 +423,8 @@ export async function createServices({
     workerService,
     projectService,
     projectModelService,
+    libraryService,
+    projectPortService,
     settingsService,
     unitExtraService,
     entitySnapshotService,

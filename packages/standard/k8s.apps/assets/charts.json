@@ -35,6 +35,12 @@
     "version": "0.13.0",
     "sha256": "02abd6c12dc3a4d501e9dcc4d03c7b9d34d58c7999c055ee3b152fb589b6aed0"
   },
+  "vault": {
+    "repo": "https://helm.releases.hashicorp.com",
+    "name": "vault",
+    "version": "0.31.0",
+    "sha256": "fe80fae6a8838c75da9fbde1398f2c10bb4b5c31c425e559507ba99373297de2"
+  },
   "etcd": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "etcd",

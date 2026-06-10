@@ -18,6 +18,7 @@ import {
   type l7AppInfoSchema,
   l7EndpointSchema,
 } from "./endpoint-schema"
+import { networkEntity } from "./network"
 import { subnetEntity } from "./subnet"
 
 /**
@@ -46,6 +47,16 @@ export const l3EndpointEntity = defineEntity({
      */
     address: {
       entity: addressEntity,
+      required: false,
+    },
+
+    /**
+     * The optional network to which the endpoint belongs.
+     *
+     * Can be set for both IP and hostname endpoints.
+     */
+    network: {
+      entity: networkEntity,
       required: false,
     },
   },

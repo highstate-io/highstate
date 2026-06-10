@@ -12,6 +12,10 @@
         "mode": "manual",
         "version": "1"
       },
+      "./filter": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/access-point": {
         "mode": "manual",
         "version": "1"
@@ -21,6 +25,10 @@
         "version": "1"
       },
       "./units/network/address-space": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/network/network": {
         "mode": "manual",
         "version": "1"
       },
@@ -75,9 +83,11 @@
       "types": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./filter": "./dist/filter/index.js",
     "./units/access-point": "./dist/units/access-point/index.js",
     "./units/dns/record-set": "./dist/units/dns/record-set/index.js",
     "./units/network/address-space": "./dist/units/network/address-space/index.js",
+    "./units/network/network": "./dist/units/network/network/index.js",
     "./units/network/endpoint-filter": "./dist/units/network/endpoint-filter/index.js",
     "./units/network/l3-endpoint": "./dist/units/network/l3-endpoint/index.js",
     "./units/network/l3-endpoint-replacer": "./dist/units/network/l3-endpoint-replacer/index.js",

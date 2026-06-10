@@ -5,6 +5,7 @@ import {
   IdTableCell,
   TimeTableCell,
   baseHeaders,
+  getSettingsEntityDisplayFromMeta,
 } from "#layers/core/app/features/settings"
 import { ComponentIcon } from "#layers/core/app/features/shared"
 import type { EntityUiMeta } from "#layers/core/app/features/entity-explorer"
@@ -28,17 +29,28 @@ const sortBy = defineModel<CollectionQuery["sortBy"]>("sortBy")
 const page = defineModel<number>("page")
 const itemsPerPage = defineModel<number>("itemsPerPage")
 
+const { libraryStore } = useProjectStores()
+
+const getEntityDisplay = (item: EntitySnapshotListItemOutput) => {
+  return getSettingsEntityDisplayFromMeta({
+    entities: libraryStore.library.entities,
+    entityType: item.entityType,
+    meta: item.meta,
+  })
+}
+
 const getEntityTitle = (item: EntitySnapshotListItemOutput) => {
-  return item.meta.title || item.id
+  return getEntityDisplay(item).title
 }
 
 const getEntitySubtitle = (item: EntitySnapshotListItemOutput) => {
-  return item.meta.description || item.id
+  return getEntityDisplay(item).subtitle || item.id
 }
 
 const getEntityIconMeta = (item: EntitySnapshotListItemOutput) => {
-  if (item.meta.icon) {
-    return item.meta
+  const displayMeta = getEntityDisplay(item).metaForIcon
+  if (displayMeta?.icon) {
+    return displayMeta
   }
 
   if (!fallbackIconMeta?.icon) {

@@ -25,6 +25,12 @@ model Project {
     /// Encrypted project master key in AGE format.
     encryptedMasterKey String
 
+    /// The encrypted private key of the project in AGE format used for encrypting exported entities for this project.
+    encryptedPrivateKey String?
+
+    /// The public key of the project in AGE format used for encrypting exported entities for this project.
+    publicKey String?
+
     /// The unlock suite for this project.
     ///
     /// [ProjectUnlockSuite]
@@ -51,6 +57,12 @@ model Project {
 
     /// The Pulumi backend used by this project.
     pulumiBackend PulumiBackend @relation(fields: [pulumiBackendId], references: [id])
+
+    /// The import ports in this project.
+    importPorts ProjectImportPort[]
+
+    /// The import ports in this project where this project is the source.
+    exportPorts ProjectImportPort[] @relation("ProjectImportSource")
 
     @@unique([spaceId, name])
 }

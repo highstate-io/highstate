@@ -133,7 +133,9 @@ export class ProjectEvaluationSubsystem {
           model: instancesMap.get(instanceId) ?? null,
         }))
 
-        await this.setInstanceEvaluationStates(project.id, errorEvaluationStates)
+        await this.setInstanceEvaluationStates(project.id, errorEvaluationStates, {
+          preserveMissingVirtualEvaluationStates: true,
+        })
       }
 
       this.logger.info(
@@ -151,7 +153,9 @@ export class ProjectEvaluationSubsystem {
         model: instancesMap.get(instanceId) ?? null,
       }))
 
-      await this.setInstanceEvaluationStates(project.id, internalErrorStates)
+      await this.setInstanceEvaluationStates(project.id, internalErrorStates, {
+        preserveMissingVirtualEvaluationStates: true,
+      })
     }
   }
 
@@ -164,6 +168,9 @@ export class ProjectEvaluationSubsystem {
   private async setInstanceEvaluationStates(
     projectId: string,
     evaluatedInstances: EvaluatedInstance[],
+    options?: {
+      preserveMissingVirtualEvaluationStates?: boolean
+    },
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
 
@@ -247,7 +254,17 @@ export class ProjectEvaluationSubsystem {
           stableJsonStringify(existingState.model) !== stableJsonStringify(state.model)
         )
       })
-      const statesToDelete = existingStates.filter(state => !actualStateIds.has(state.stateId))
+      const statesToDelete = existingStates.filter(state => {
+        if (actualStateIds.has(state.stateId)) {
+          return false
+        }
+
+        if (options?.preserveMissingVirtualEvaluationStates && state.state.source === "virtual") {
+          return false
+        }
+
+        return true
+      })
 
       // create new states
       await tx.instanceEvaluationState.createMany({ data: newStates })

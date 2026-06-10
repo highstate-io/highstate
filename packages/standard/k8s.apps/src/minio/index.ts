@@ -13,7 +13,7 @@ import { charts, createBootstrapServiceEndpoint, images } from "../shared"
 
 const { stateId, args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.minio)
 
-const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
+const namespace = Namespace.create(args.namespace ?? args.appName, { cluster: inputs.k8sCluster })
 
 const adminPassword = getSecret("adminPassword", generatePassword)
 const backupKey = getSecret("backupKey", generateKey)

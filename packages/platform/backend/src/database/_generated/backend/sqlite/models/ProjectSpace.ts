@@ -355,10 +355,6 @@ export type ProjectSpaceUncheckedCreateNestedManyWithoutParentInput = {
   connect?: Prisma.ProjectSpaceWhereUniqueInput | Prisma.ProjectSpaceWhereUniqueInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type ProjectSpaceUpdateOneWithoutChildrenNestedInput = {
   create?: Prisma.XOR<Prisma.ProjectSpaceCreateWithoutChildrenInput, Prisma.ProjectSpaceUncheckedCreateWithoutChildrenInput>
   connectOrCreate?: Prisma.ProjectSpaceCreateOrConnectWithoutChildrenInput

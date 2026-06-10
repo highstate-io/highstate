@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
   Object: 'Object',
@@ -407,10 +408,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendUnlockMethod"
+    modelProps: "projectImportPort" | "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendUnlockMethod"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    ProjectImportPort: {
+      payload: Prisma.$ProjectImportPortPayload<ExtArgs>
+      fields: Prisma.ProjectImportPortFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectImportPortFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectImportPortFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectImportPortFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectImportPortFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectImportPortFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectImportPortCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectImportPortCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectImportPortCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectImportPortDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>
+        }
+        update: {
+          args: Prisma.ProjectImportPortUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectImportPortDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectImportPortUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectImportPortUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectImportPortUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectImportPortPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectImportPortAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectImportPort>
+        }
+        groupBy: {
+          args: Prisma.ProjectImportPortGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectImportPortGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectImportPortCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectImportPortCountAggregateOutputType> | number
+        }
+      }
+    }
     UserWorkspaceLayout: {
       payload: Prisma.$UserWorkspaceLayoutPayload<ExtArgs>
       fields: Prisma.UserWorkspaceLayoutFieldRefs
@@ -1039,6 +1114,17 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const ProjectImportPortScalarFieldEnum = {
+  projectId: 'projectId',
+  sourceProjectId: 'sourceProjectId',
+  sourceStateId: 'sourceStateId',
+  contentHash: 'contentHash',
+  encryptedContent: 'encryptedContent'
+} as const
+
+export type ProjectImportPortScalarFieldEnum = (typeof ProjectImportPortScalarFieldEnum)[keyof typeof ProjectImportPortScalarFieldEnum]
+
+
 export const UserWorkspaceLayoutScalarFieldEnum = {
   userId: 'userId',
   layout: 'layout'
@@ -1073,6 +1159,8 @@ export const ProjectScalarFieldEnum = {
   libraryId: 'libraryId',
   pulumiBackendId: 'pulumiBackendId',
   encryptedMasterKey: 'encryptedMasterKey',
+  encryptedPrivateKey: 'encryptedPrivateKey',
+  publicKey: 'publicKey',
   unlockSuite: 'unlockSuite',
   databaseVersion: 'databaseVersion',
   createdAt: 'createdAt',
@@ -1303,6 +1391,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  projectImportPort?: Prisma.ProjectImportPortOmit
   userWorkspaceLayout?: Prisma.UserWorkspaceLayoutOmit
   library?: Prisma.LibraryOmit
   object?: Prisma.ObjectOmit

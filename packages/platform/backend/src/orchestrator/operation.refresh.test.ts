@@ -20,6 +20,8 @@ describe("Operation - Refresh", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -64,6 +66,8 @@ describe("Operation - Refresh", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act

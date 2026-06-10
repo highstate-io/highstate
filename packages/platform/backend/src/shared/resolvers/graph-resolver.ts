@@ -112,6 +112,46 @@ export abstract class GraphResolver<TNode, TOutput> {
   }
 
   /**
+   * Checks if the given node can be added as a dependency to the given node without creating a circular dependency.
+   */
+  canAddDependency(nodeId: string, dependencyId: string): boolean {
+    if (nodeId === dependencyId) {
+      return false
+    }
+
+    const stack: string[] = [nodeId]
+    const visited = new Set<string>()
+
+    while (stack.length > 0) {
+      const currentNodeId = stack.pop()!
+      if (currentNodeId === dependencyId) {
+        return false
+      }
+
+      if (visited.has(currentNodeId)) {
+        continue
+      }
+
+      visited.add(currentNodeId)
+
+      const dependents = this.dependentMap.get(currentNodeId)
+      if (!dependents) {
+        continue
+      }
+
+      for (const dependentId of dependents) {
+        if (!this.nodes.has(dependentId)) {
+          continue
+        }
+
+        stack.push(dependentId)
+      }
+    }
+
+    return true
+  }
+
+  /**
    * Invalidates a single node without invalidating its dependents.
    *
    * Also adds the node to the work set for processing.

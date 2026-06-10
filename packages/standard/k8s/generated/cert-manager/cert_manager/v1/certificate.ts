@@ -4,7 +4,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../../types/input";
 import * as outputs from "../../types/output";
-import * as utilities from "../utilities";
+import * as utilities from "../../utilities";
 
 /**
  * A Certificate resource should be created to ensure an up to date and signed

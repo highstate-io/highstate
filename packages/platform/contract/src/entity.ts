@@ -383,6 +383,37 @@ type AddSchemaInclusions<
   ? TSchema
   : z.ZodIntersection<TSchema, z.ZodObject<InclusionShape<TImplements>>>
 
+/**
+ * The common ancestor of all entities. Any entity can be assigned to this entity.
+ */
+export const objectEntity = {
+  type: "system.object.v1",
+  schema: z.object().loose(),
+  model: {
+    type: "system.object.v1",
+    definitionHash: 0,
+    schema: z.object().loose().toJSONSchema(),
+    meta: {
+      title: "Object",
+      description:
+        "The common ancestor of all entities. Any entity can be assigned to this entity.",
+      color: "#9e9e9e",
+      icon: "mdi:cube",
+      iconColor: "#9e9e9e",
+    },
+  },
+} as unknown as Entity<"system.object.v1", { "system.object.v1": true }, z.ZodUnknown>
+
+type DefineEntityTypeExtensions<
+  TImplementedTypes extends EntityTypes,
+  TExtends extends Record<string, Entity>,
+> = AddTypeExtensions<TImplementedTypes, TExtends> & (typeof objectEntity)[typeof implementedTypes]
+
+type DefineEntitySchemaExtensions<
+  TSchema extends z.ZodTypeAny,
+  TExtends extends Record<string, Entity>,
+> = AddSchemaExtensions<TSchema, TExtends>
+
 export function defineEntity<
   TType extends VersionedName,
   TSchema extends z.ZodType,
@@ -392,8 +423,8 @@ export function defineEntity<
   options: EntityOptions<TType, TSchema, TExtends, TIncludes>,
 ): Entity<
   TType,
-  Simplify<AddTypeExtensions<{ [K in TType]: true }, TExtends>>,
-  MakeEntitySchema<AddSchemaExtensions<AddSchemaInclusions<TSchema, TIncludes>, TExtends>>,
+  DefineEntityTypeExtensions<{ [K in TType]: true }, TExtends>,
+  MakeEntitySchema<DefineEntitySchemaExtensions<AddSchemaInclusions<TSchema, TIncludes>, TExtends>>,
   DefineEntityValue<TSchema, TExtends, AddIncludeExtensions<TIncludes, TExtends>>,
   DefineEntityInput<TSchema, TExtends, AddIncludeExtensions<TIncludes, TExtends>>,
   AddIncludeExtensions<TIncludes, TExtends>
@@ -455,16 +486,34 @@ export function defineEntity<
     {} as Record<string, z.ZodTypeAny>,
   )
 
-  let finalSchema = Object.values(options.extends ?? {}).reduce(
-    (schema, entity) => z.intersection(schema, entity.schema),
-    options.schema as z.ZodType,
+  const inheritedExtensions = [...Object.values(options.extends ?? {}), objectEntity].filter(
+    entity => entity.type !== options.type,
+  )
+
+  const uniqueExtensions = Array.from(
+    new Map(inheritedExtensions.map(entity => [entity.type, entity])).values(),
+  )
+
+  const schemaExtensions = uniqueExtensions.filter(entity => entity.type !== objectEntity.type)
+
+  const strictIntersectionBase = (schema: z.ZodTypeAny): z.ZodTypeAny => {
+    if (schema instanceof z.ZodObject) {
+      return schema.strict()
+    }
+
+    return schema
+  }
+
+  let finalSchema = schemaExtensions.reduce(
+    (schema, entity) => z.intersection(schema, strictIntersectionBase(entity.schema)),
+    strictIntersectionBase(options.schema as z.ZodTypeAny),
   )
 
   if (includeRefs.length > 0) {
-    finalSchema = z.intersection(finalSchema, z.object(inclusionShape))
+    finalSchema = z.intersection(finalSchema, strictIntersectionBase(z.object(inclusionShape)))
   }
 
-  finalSchema = z.intersection(finalSchema, entityWithMetaSchema)
+  finalSchema = z.intersection(finalSchema, strictIntersectionBase(entityWithMetaSchema))
 
   const directInclusions = () =>
     includeRefs.map(includeRef => ({
@@ -473,12 +522,12 @@ export function defineEntity<
       multiple: includeRef.multiple,
       field: includeRef.field,
     }))
-  const directExtensions = Object.values(options.extends ?? {}).map(entity => entity.type)
+  const directExtensions = uniqueExtensions.map(entity => entity.type)
 
   const getInclusions = () => {
     const incs = [...directInclusions()]
 
-    for (const entity of Object.values(options.extends ?? {})) {
+    for (const entity of uniqueExtensions) {
       if (entity.model.inclusions) {
         incs.push(...entity.model.inclusions)
       }
@@ -487,7 +536,7 @@ export function defineEntity<
     return incs
   }
 
-  const extensions = Object.values(options.extends ?? {}).reduce((exts, entity) => {
+  const extensions = uniqueExtensions.reduce((exts, entity) => {
     exts.push(...(entity.model.extensions ?? []), entity.type)
 
     return exts

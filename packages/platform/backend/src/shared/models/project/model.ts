@@ -7,6 +7,20 @@ import {
 } from "@highstate/contract"
 import { z } from "zod"
 
+export const projectModelInstanceSchema = instanceModelSchema.pick({
+  id: true,
+  kind: true,
+  type: true,
+  name: true,
+  args: true,
+  inputs: true,
+  hubInputs: true,
+  injectionInputs: true,
+  position: true,
+})
+
+export type ProjectModelInstance = z.infer<typeof projectModelInstanceSchema>
+
 export const projectModelEventSchema = z.object({
   updatedInstances: instanceModelSchema.array().optional(),
   updatedHubs: hubModelSchema.array().optional(),

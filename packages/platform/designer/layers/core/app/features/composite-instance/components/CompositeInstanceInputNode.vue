@@ -17,7 +17,7 @@ const { instancesStore, libraryStore, stateStore, validationStore, operationsSto
 
 const instanceLock = computed(() => stateStore.instanceLocks.get(instance.id))
 
-const component = computed(() => libraryStore.library.components[instance.type])
+const component = computed(() => instancesStore.getInstanceComponent(instance))
 const state = computed(() => stateStore.getInstanceState(instance.id))
 
 const contextMenu = useTemplateRef("contextMenu")
@@ -25,6 +25,7 @@ const contextMenu = useTemplateRef("contextMenu")
 
 <template>
   <InstanceNode
+    v-if="component"
     :instance="instance"
     :component="component"
     :entities="libraryStore.library.entities"

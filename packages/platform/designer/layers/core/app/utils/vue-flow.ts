@@ -1,11 +1,16 @@
 import {
   isAssignableTo,
+  type ComponentInput,
   type ComponentModel,
   type HubModel,
   type InstanceInput,
   type InstanceModel,
 } from "@highstate/contract"
-import { type InputResolverOutput, resolveEffectiveOutputType } from "@highstate/backend/shared"
+import {
+  SYSTEM_EXPORT_COMPONENT_TYPE,
+  type InputResolverOutput,
+  resolveEffectiveOutputType,
+} from "@highstate/backend/shared"
 import type { Connection, VueFlowStore } from "@vue-flow/core"
 
 import LayoutWorker from "#layers/core/app/workers/graph-layout?sharedworker"
@@ -17,6 +22,8 @@ import type {
   OutputNode,
 } from "#layers/core/app/workers/graph-layout"
 import { createId } from "@paralleldrive/cuid2"
+
+export const EXPORT_CREATE_INPUT_HANDLE = "__createInput__"
 
 const { onMessage, postMessage } = useHSWebWorker<LayoutInput, LayoutOutput>(LayoutWorker, {
   name: "graph-layout",
@@ -129,6 +136,73 @@ export const validateConnection = (
   const { outputInstance, inputInstance, inputHub, outputHub, outputKey, inputKey } =
     getConnectionNodes(vueFlowStore, connection)
 
+  const buildLiveExportInputComponent = (instance: InstanceModel): ComponentModel | undefined => {
+    if (instance.type !== SYSTEM_EXPORT_COMPONENT_TYPE) {
+      return undefined
+    }
+
+    const baseComponent = libraryStore.components[instance.type]
+    if (!baseComponent) {
+      return undefined
+    }
+
+    const outputNames = new Set<string>([
+      ...Object.keys(instance.inputs ?? {}),
+      ...Object.keys(instance.hubInputs ?? {}),
+    ])
+
+    const inputs: Record<string, ComponentInput> = {}
+
+    for (const outputName of outputNames) {
+      const firstInput = instance.inputs?.[outputName]?.[0]
+      const sourceOutput = firstInput
+        ? inputResolverOutputs.get(`instance:${firstInput.instanceId}`)
+        : undefined
+
+      const inferredType =
+        firstInput && sourceOutput?.kind === "instance"
+          ? sourceOutput.component.outputs[firstInput.output]?.type
+          : undefined
+
+      const instanceResolverOutput = inputResolverOutputs.get(`instance:${instance.id}`)
+      const fallbackInputType =
+        instanceResolverOutput?.kind === "instance"
+          ? instanceResolverOutput.component.inputs[outputName]?.type
+          : undefined
+
+      const connectionCount =
+        (instance.inputs?.[outputName]?.length ?? 0) + (instance.hubInputs?.[outputName]?.length ?? 0)
+
+      inputs[outputName] = {
+        type: inferredType ?? fallbackInputType ?? "any.v1",
+        required: true,
+        multiple: connectionCount > 1,
+        meta: {
+          title: outputName,
+        },
+      }
+    }
+
+    return {
+      ...baseComponent,
+      inputs,
+    }
+  }
+
+  const getInstanceComponent = (instance: InstanceModel): ComponentModel | undefined => {
+    const liveExportComponent = buildLiveExportInputComponent(instance)
+    if (liveExportComponent) {
+      return liveExportComponent
+    }
+
+    const output = inputResolverOutputs.get(`instance:${instance.id}`)
+    if (output?.kind === "instance") {
+      return output.component
+    }
+
+    return libraryStore.components[instance.type]
+  }
+
   const logRejectedConnection = (reason: string, details?: Record<string, unknown>) => {
     globalLogger.warn(
       {
@@ -149,7 +223,7 @@ export const validateConnection = (
   }
 
   const inputComponent: ComponentModel | undefined = inputInstance
-    ? libraryStore.components[inputInstance.type]
+    ? getInstanceComponent(inputInstance)
     : undefined
 
   if (outputHub && inputComponent && isForwardedSourceInput(inputComponent, inputKey)) {
@@ -158,14 +232,70 @@ export const validateConnection = (
     return false
   }
 
+  if (outputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE) {
+    logRejectedConnection("export_port_cannot_be_source")
+    return false
+  }
+
+  if (outputHub && inputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE && !inputKey) {
+    logRejectedConnection("hub_to_export_input_forbidden")
+    return false
+  }
+
+  if (inputInstance && inputKey === EXPORT_CREATE_INPUT_HANDLE) {
+    if (inputHub || outputHub || !outputInstance) {
+      logRejectedConnection("create_input_handle_requires_instance_output")
+      return false
+    }
+  }
+
   if (inputHub || outputHub) {
     // hub wiring remains permissive except forwarded-source inputs
     return true
   }
 
   const outputComponent: ComponentModel | undefined = outputInstance
-    ? libraryStore.components[outputInstance.type]
+    ? getInstanceComponent(outputInstance)
     : undefined
+
+  if (inputInstance && inputKey === EXPORT_CREATE_INPUT_HANDLE) {
+    if (inputInstance.type !== SYSTEM_EXPORT_COMPONENT_TYPE) {
+      logRejectedConnection("create_input_handle_not_export")
+      return false
+    }
+
+    if (!outputComponent) {
+      logRejectedConnection("missing_output_component_for_create_input")
+      return false
+    }
+
+    const output = outputComponent.outputs[outputKey]
+    if (!output) {
+      logRejectedConnection("missing_output_handle_for_create_input")
+      return false
+    }
+
+    const outputEntityType = resolveEffectiveOutputTypeForConnection(
+      vueFlowStore,
+      libraryStore,
+      inputResolverOutputs,
+      {
+        instanceId: outputInstance!.id,
+        output: outputKey,
+      },
+      output.type,
+    )
+
+    const outputEntity = libraryStore.entities[outputEntityType]
+    if (!outputEntity) {
+      logRejectedConnection("missing_output_entity_for_create_input", {
+        outputEntityType,
+      })
+      return false
+    }
+
+    return true
+  }
 
   if (!outputComponent || !inputComponent) {
     logRejectedConnection("missing_component", {
@@ -219,7 +349,13 @@ export const validateConnection = (
     return false
   }
 
+  const allowsMultipleForExport = inputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE
+
   if (!input.multiple && hasAnotherConnectionForInput(vueFlowStore, connection)) {
+    if (allowsMultipleForExport) {
+      return true
+    }
+
     logRejectedConnection("single_input_already_connected", {
       inputMultiple: input.multiple,
     })

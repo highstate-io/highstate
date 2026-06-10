@@ -9,6 +9,7 @@ import {
   isUnitModel,
 } from "@highstate/contract"
 import { fromEntries, mapValues } from "remeda"
+import { SYSTEM_EXPORT_COMPONENT_TYPE } from "../constants"
 import { resolveEffectiveOutputType } from "./effective-output-type"
 import { GraphResolver } from "./graph-resolver"
 
@@ -225,7 +226,9 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
 
     const addInstanceInput = (inputName: string, input: InstanceInput) => {
       const componentInput = node.component.inputs[inputName]
-      if (!componentInput) {
+      const isDynamicExportInput = node.instance.type === SYSTEM_EXPORT_COMPONENT_TYPE
+
+      if (!componentInput && !isDynamicExportInput) {
         this.logger.warn({
           msg: "input not found in the component",
           input,
@@ -241,10 +244,20 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
         return
       }
 
+      const fallbackType = componentInput?.type ?? component.outputs[input.output]?.type
+
+      if (!fallbackType) {
+        this.logger.warn(
+          { instanceId: node.instance.id, input, component },
+          "cannot resolve input type for dynamic export input",
+        )
+        return
+      }
+
       if (isUnitModel(component)) {
         addInstanceResult(inputName, {
           input,
-          type: this.resolveOutputTypeForInput(input, componentInput.type),
+          type: this.resolveOutputTypeForInput(input, fallbackType),
         })
         return
       }
@@ -263,7 +276,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
                 output: input.output,
                 path: input.path ?? output.path,
               },
-              componentInput.type,
+              fallbackType,
             ),
           })
         }
@@ -271,7 +284,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
         // if the instance is not evaluated, we a forced to use the input as is
         addInstanceResult(inputName, {
           input,
-          type: this.resolveOutputTypeForInput(input, componentInput.type),
+          type: this.resolveOutputTypeForInput(input, fallbackType),
         })
       }
     }

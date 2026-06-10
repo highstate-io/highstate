@@ -7,7 +7,7 @@ import {
   type EntityValue,
   z,
 } from "@highstate/contract"
-import { l3EndpointContainer, l3EndpointEntity } from "../network"
+import { l3EndpointContainer, l3EndpointEntity, networkEntity } from "../network"
 import * as ssh from "../ssh"
 
 /**
@@ -104,6 +104,12 @@ export const existingServer = defineUnit({
   inputs: {
     endpoints: {
       entity: l3EndpointEntity,
+      required: false,
+      multiple: true,
+    },
+
+    networks: {
+      entity: networkEntity,
       required: false,
       multiple: true,
     },

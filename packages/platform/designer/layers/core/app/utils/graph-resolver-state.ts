@@ -21,6 +21,7 @@ export type GraphResolverState<TInput, TOutput> = {
 
   set: (key: string, value: TInput) => void
   delete: (key: string) => void
+  canAddDependency: (nodeId: string, dependencyId: string) => Promise<boolean>
 
   dispatchInitialNodes: () => Promise<void>
 }
@@ -48,6 +49,7 @@ export function useGraphResolverState<
   const pendingUpdates = new Map<string, TInput>()
   const pendingDeletes = new Set<string>()
   let flushTimer: ReturnType<typeof setTimeout> | null = null
+  const canAddDependencyRequests = new Map<string, (result: boolean) => void>()
 
   const inputs = shallowReactive(new Map()) as Map<string, TInput>
   const outputs = shallowReactive(new Map()) as Map<string, TOutput>
@@ -155,6 +157,16 @@ export function useGraphResolverState<
         }
         break
       }
+      case "can-add-dependency-result": {
+        const resolveRequest = canAddDependencyRequests.get(message.requestId)
+        if (!resolveRequest) {
+          break
+        }
+
+        canAddDependencyRequests.delete(message.requestId)
+        resolveRequest(message.result)
+        break
+      }
     }
   })
 
@@ -181,6 +193,8 @@ export function useGraphResolverState<
     if (ready.value) {
       worker.postMessage({ type: "dispose-resolver", resolverId })
     }
+
+    canAddDependencyRequests.clear()
   })
 
   const set = (key: string, value: TInput) => {
@@ -208,6 +222,28 @@ export function useGraphResolverState<
     scheduleFlush()
   }
 
+  const canAddDependency = async (nodeId: string, dependencyId: string): Promise<boolean> => {
+    if (nodeId === dependencyId) {
+      return false
+    }
+
+    await until(ready).toBe(true)
+
+    const requestId = createId()
+
+    return await new Promise(resolve => {
+      canAddDependencyRequests.set(requestId, resolve)
+
+      worker.postMessage({
+        type: "can-add-dependency",
+        resolverId,
+        requestId,
+        nodeId,
+        dependencyId,
+      })
+    })
+  }
+
   return {
     inputs,
     outputs,
@@ -215,6 +251,7 @@ export function useGraphResolverState<
     onOutput,
     set,
     delete: del,
+    canAddDependency,
     dispatchInitialNodes,
   }
 }

@@ -10,13 +10,15 @@ definePageMeta({
       route.params.projectId as string,
     )
     const state = stateStore.stateIdToStateMap.get(route.params.stateId as string)
-    const instance = state ? instancesStore.instances.get(state.instanceId) : undefined
+    const instance = state
+      ? instancesStore.instances.get(state.instanceId)
+      : instancesStore.instances.get(route.params.stateId as string)
     const component = instance ? libraryStore.library.components[instance.type] : undefined
 
     const title =
       component && instance
         ? `${component.meta.title} | ${instance.name}`
-        : (route.params.stateId as string)
+        : (instance?.name ?? (route.params.stateId as string))
 
     return {
       title,
@@ -36,11 +38,13 @@ const { params } = defineProps<{
 
 const { instancesStore, stateStore } = ensureProjectStoresCreated(params.projectId)
 
-// get the instance state and instance
+// Resolve by state ID for resident instances, and by instance ID for ghost/virtual ones.
 const instanceState = computed(() => stateStore.stateIdToStateMap.get(params.stateId))
 const instance = computed(() => {
   const state = instanceState.value
-  return state ? instancesStore.instances.get(state.instanceId) : undefined
+  return state
+    ? instancesStore.instances.get(state.instanceId)
+    : instancesStore.instances.get(params.stateId)
 })
 
 const isCompositeReady = computed(
@@ -48,7 +52,7 @@ const isCompositeReady = computed(
     instancesStore.initializationPhase === "ready" && stateStore.initializationPhase === "ready",
 )
 
-const hasCompositeInstance = computed(() => Boolean(instanceState.value && instance.value))
+const hasCompositeInstance = computed(() => Boolean(instance.value))
 </script>
 
 <template>
@@ -62,8 +66,8 @@ const hasCompositeInstance = computed(() => Boolean(instanceState.value && insta
     />
     <div v-else-if="isCompositeReady" class="d-flex justify-center align-center h-100">
       <div class="text-center">
-        <h3>Instance state not found</h3>
-        <p>No instance state found for state ID: {{ params.stateId }}</p>
+        <h3>Instance not found</h3>
+        <p>No composite instance found for identifier: {{ params.stateId }}</p>
       </div>
     </div>
     <div v-else class="d-flex justify-center align-center h-100">

@@ -51,7 +51,14 @@ new Chart(
 
       operator: {
         replicas: 1,
-        tolerations: args.operatorTolerations,
+        tolerations:
+          args.operatorTolerations && args.operatorTolerations.length > 0
+            ? args.operatorTolerations
+            : undefined,
+        nodeSelector:
+          args.operatorNodeSelector && Object.keys(args.operatorNodeSelector).length > 0
+            ? args.operatorNodeSelector
+            : undefined,
       },
 
       envoy: {

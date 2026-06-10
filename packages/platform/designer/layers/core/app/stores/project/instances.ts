@@ -1,7 +1,12 @@
-import type { ResolvedInstanceInput, TerminalSessionOutput } from "@highstate/backend/shared"
+import {
+  SYSTEM_EXPORT_COMPONENT_TYPE,
+  type ResolvedInstanceInput,
+  type TerminalSessionOutput,
+} from "@highstate/backend/shared"
 import {
   getInstanceId,
   isUnitModel,
+  type ComponentInput,
   type ComponentModel,
   type HubInput,
   type HubModel,
@@ -41,8 +46,32 @@ export const useProjectInstancesStore = defineMultiStore({
         onOutput: onInputResolverOutput,
         set: setInputResolverInput,
         delete: deleteInputResolverInput,
+        canAddDependency: canAddInputResolverDependency,
         dispatchInitialNodes: dispatchInitialInputResolverNodes,
       } = useGraphResolverState("InputResolver", logger, mainResolverWorker, true)
+
+      const canAddInputDependency = async (
+        node: { instance?: InstanceModel; hub?: HubModel },
+        dependency: { instance?: InstanceModel; hub?: HubModel },
+      ): Promise<boolean> => {
+        const nodeId = node.instance
+          ? `instance:${node.instance.id}`
+          : node.hub
+            ? `hub:${node.hub.id}`
+            : undefined
+
+        const dependencyId = dependency.instance
+          ? `instance:${dependency.instance.id}`
+          : dependency.hub
+            ? `hub:${dependency.hub.id}`
+            : undefined
+
+        if (!nodeId || !dependencyId) {
+          return true
+        }
+
+        return await canAddInputResolverDependency(nodeId, dependencyId)
+      }
 
       const { on: onInstanceCreated, trigger: triggerInstanceCreated } = createEventHook<{
         instance: InstanceModel
@@ -137,8 +166,208 @@ export const useProjectInstancesStore = defineMultiStore({
         scheduleInstanceUpdatedFlush()
       })
 
-      const updateInstanceStateCore = (instance: InstanceModel) => {
+      const isEditableExportInstance = (instance: InstanceModel): boolean => {
+        return instance.type === SYSTEM_EXPORT_COMPONENT_TYPE
+      }
+
+      const getInputConnectionCount = (instance: InstanceModel, inputName: string): number => {
+        const instanceInputs = instance.inputs?.[inputName]?.length ?? 0
+        const hubInputs = instance.hubInputs?.[inputName]?.length ?? 0
+
+        return instanceInputs + hubInputs
+      }
+
+      const fieldNameRegex = /^[a-z][a-zA-Z0-9]+$/
+
+      const isValidExportInputName = (name: string): boolean => {
+        return name.length >= 2 && name.length <= 64 && fieldNameRegex.test(name)
+      }
+
+      const toCamelCase = (value: string): string => {
+        const tokens = value.match(/[a-zA-Z0-9]+/g) ?? []
+        if (tokens.length === 0) {
+          return "input"
+        }
+
+        const normalized = tokens.map(token => {
+          return token.charAt(0).toUpperCase() + token.slice(1).toLowerCase()
+        })
+
+        const [head, ...tail] = normalized
+        return head.charAt(0).toLowerCase() + head.slice(1) + tail.join("")
+      }
+
+      const getExportInputNameBase = (title?: string): string => {
+        const source = title?.trim() || "input"
+        const words = source.match(/[a-zA-Z0-9]+/g) ?? ["input"]
+        const lastWord = words[words.length - 1] ?? "input"
+
+        return toCamelCase(lastWord)
+      }
+
+      const getNextExportInputName = (instance: InstanceModel, baseName: string): string => {
+        const existingInputNames = new Set<string>([
+          ...Object.keys(instance.inputs ?? {}),
+          ...Object.keys(instance.hubInputs ?? {}),
+        ])
+        const safeBaseName = isValidExportInputName(baseName) ? baseName : "input"
+
+        if (!existingInputNames.has(safeBaseName)) {
+          return safeBaseName
+        }
+
+        let suffix = 2
+        let candidateName = `${safeBaseName}${suffix}`
+
+        while (existingInputNames.has(candidateName)) {
+          suffix += 1
+          candidateName = `${safeBaseName}${suffix}`
+        }
+
+        return candidateName
+      }
+
+      const createEditableExportInput = (
+        instance: InstanceModel,
+        params: {
+          outputTitle?: string
+        },
+      ): string => {
+        if (!isEditableExportInstance(instance)) {
+          throw new Error(`Instance "${instance.id}" is not an export component`)
+        }
+
+        const baseName = getExportInputNameBase(params.outputTitle)
+        const inputName = getNextExportInputName(instance, baseName)
+
+        return inputName
+      }
+
+      const renameEditableExportInput = async (
+        instance: InstanceModel,
+        oldName: string,
+        newName: string,
+      ): Promise<void> => {
+        if (!isEditableExportInstance(instance)) {
+          throw new Error(`Instance "${instance.id}" is not an export component`)
+        }
+
+        const trimmedName = newName.trim()
+        if (!isValidExportInputName(trimmedName)) {
+          throw new Error(
+            `Invalid export input name "${trimmedName}" (must be 2-64 chars camelCase)`,
+          )
+        }
+
+        if (trimmedName === oldName) {
+          return
+        }
+
+        if ((instance.inputs ?? {})[trimmedName] || (instance.hubInputs ?? {})[trimmedName]) {
+          throw new Error(`Export input "${trimmedName}" already exists`)
+        }
+
+        const previousInstanceInputs = instance.inputs?.[oldName] ?? []
+        if (previousInstanceInputs.length > 0) {
+          const nextInputs = { ...(instance.inputs ?? {}) }
+          nextInputs[trimmedName] = previousInstanceInputs
+          delete nextInputs[oldName]
+          instance.inputs = nextInputs
+
+          for (const input of previousInstanceInputs) {
+            triggerInstanceInputRemoved({ instance, inputName: oldName, input })
+            triggerInstanceInputAdded({ instance, inputName: trimmedName, input })
+          }
+        }
+
+        const previousHubInputs = instance.hubInputs?.[oldName] ?? []
+        if (previousHubInputs.length > 0) {
+          const nextHubInputs = { ...(instance.hubInputs ?? {}) }
+          nextHubInputs[trimmedName] = previousHubInputs
+          delete nextHubInputs[oldName]
+          instance.hubInputs = nextHubInputs
+
+          for (const input of previousHubInputs) {
+            triggerInstanceHubInputRemoved({ instance, inputName: oldName, input })
+            triggerInstanceHubInputAdded({ instance, inputName: trimmedName, input })
+          }
+        }
+
+        updateInstanceState(instance)
+
+        const keysToPatch: (keyof InstanceModelPatch)[] = []
+
+        if (previousInstanceInputs.length > 0) {
+          keysToPatch.push("inputs")
+        }
+
+        if (previousHubInputs.length > 0) {
+          keysToPatch.push("hubInputs")
+        }
+
+        if (keysToPatch.length === 0) {
+          throw new Error(`Export input "${oldName}" not found in instance "${instance.id}"`)
+        }
+
+        await patchInstance(instance, keysToPatch)
+      }
+
+      const getEditableExportOutputs = (
+        instance: InstanceModel,
+      ): Record<string, ComponentInput> => {
+        if (!isEditableExportInstance(instance)) {
+          return {}
+        }
+
+        const outputNames = new Set<string>([
+          ...Object.keys(instance.inputs ?? {}),
+          ...Object.keys(instance.hubInputs ?? {}),
+        ])
+
+        const outputs: Record<string, ComponentInput> = {}
+
+        for (const outputName of outputNames) {
+          const firstInput = instance.inputs?.[outputName]?.[0]
+          const sourceOutput = firstInput
+            ? inputResolverOutputs.get(`instance:${firstInput.instanceId}`)
+            : undefined
+
+          const inferredType =
+            firstInput && sourceOutput?.kind === "instance"
+              ? sourceOutput.component.outputs[firstInput.output]?.type
+              : undefined
+
+          outputs[outputName] = {
+            type: inferredType ?? "any.v1",
+            required: true,
+            multiple: getInputConnectionCount(instance, outputName) > 1,
+            meta: {
+              title: outputName,
+            },
+          }
+        }
+
+        return outputs
+      }
+
+      const getInstanceComponent = (instance: InstanceModel): ComponentModel | undefined => {
         const component = libraryStore.library.components[instance.type]
+        if (!component) {
+          return undefined
+        }
+
+        if (!isEditableExportInstance(instance)) {
+          return component
+        }
+
+        return {
+          ...component,
+          inputs: getEditableExportOutputs(instance),
+        }
+      }
+
+      const updateInstanceStateCore = (instance: InstanceModel) => {
+        const component = getInstanceComponent(instance)
         if (!component) {
           return
         }
@@ -257,13 +486,15 @@ export const useProjectInstancesStore = defineMultiStore({
           }
         }
 
-        const { off: stopWatchingComponentUpdates } = libraryStore.library.onComponentUpdated(() => {
-          if (initializationPhase.value !== "ready") {
-            return
-          }
+        const { off: stopWatchingComponentUpdates } = libraryStore.library.onComponentUpdated(
+          () => {
+            if (initializationPhase.value !== "ready") {
+              return
+            }
 
-          refreshAllResolverNodes()
-        })
+            refreshAllResolverNodes()
+          },
+        )
 
         const { off: stopWatchingEntityUpdates } = libraryStore.library.onEntityUpdated(() => {
           if (initializationPhase.value !== "ready") {
@@ -396,7 +627,7 @@ export const useProjectInstancesStore = defineMultiStore({
       }
 
       const populateInstanceUnitTypes = (unitTypes: Set<string>, instance: InstanceModel) => {
-        const component = libraryStore.library.components[instance.type]
+        const component = getInstanceComponent(instance)
         if (component && isUnitModel(component)) {
           unitTypes.add(instance.type)
         }
@@ -790,11 +1021,11 @@ export const useProjectInstancesStore = defineMultiStore({
         instanceNameSet.add(instance.name)
         addComponentInstance(instance)
 
-        const component = libraryStore.library.components[instance.type]
+        const component = getInstanceComponent(instance)
 
         await triggerInstanceCreated({ instance, blueprint: true })
 
-        if (isUnitModel(component)) {
+        if (component && isUnitModel(component)) {
           void libraryStore.library.ensureUnitSourceHashesLoaded([instance.type], true)
         }
       }
@@ -1111,6 +1342,10 @@ export const useProjectInstancesStore = defineMultiStore({
         // for debugging
         inputResolverInputs,
         inputResolverOutputs,
+        canAddInputDependency,
+        getInstanceComponent,
+        createEditableExportInput,
+        renameEditableExportInput,
         instanceNameSet,
         virtualInstanceIds,
         residentInstanceIds,

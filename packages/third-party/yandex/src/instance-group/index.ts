@@ -3,7 +3,6 @@ import {
   generatePassword,
   generateSshPrivateKey,
   l3EndpointToString,
-  parseEndpoint,
   sshPrivateKeyToKeyPair,
 } from "@highstate/common"
 import { trimIndentation, type UnitTerminal } from "@highstate/contract"
@@ -12,10 +11,10 @@ import { forUnit, getResourceComment, interpolate, type Output, toPromise } from
 import {
   ComputeDisk,
   ComputeInstanceGroup,
-  getVpcSubnet,
   KmsSymmetricKey,
   VpcAddress,
 } from "@highstate/yandex-sdk"
+import { buildEndpointsFromInstance, detectSubnetId, fetchNetworkContext } from "../network"
 import { createProvider } from "../provider"
 
 const { name, args, getSecret, inputs, outputs } = forUnit(yandex.instanceGroup)
@@ -30,26 +29,8 @@ const sshKeyPair =
 
 const rootPassword = getSecret("rootPassword", generatePassword)
 
-// auto-discover subnet if not specified
-let subnetId = args.network.subnetId
-if (!subnetId) {
-  const defaultSubnetName = await toPromise(interpolate`default-${inputs.connection.defaultZone}`)
-  const subnet = await getVpcSubnet(
-    {
-      folderId: await toPromise(inputs.connection.defaultFolderId),
-      name: defaultSubnetName,
-    },
-    { provider },
-  )
-
-  if (!subnet.id) {
-    throw new Error(
-      `Could not find default subnet '${defaultSubnetName}' in zone ${inputs.connection.defaultZone}`,
-    )
-  }
-
-  subnetId = subnet.id
-}
+const subnetId = await detectSubnetId(args.network.subnetId, inputs.connection, provider)
+const networkContext = await fetchNetworkContext(subnetId, provider)
 
 // create single key for all disks in the group
 let encryptionKeyId: Output<string> | undefined
@@ -212,25 +193,20 @@ const instanceGroup = new ComputeInstanceGroup(
 
 const terminals: UnitTerminal[] = []
 const instances = await toPromise(instanceGroup.instances)
+const sshArgs = args.network.assignPublicIp ? args.ssh : { ...(args.ssh ?? {}), enabled: false }
 
 const servers = await toPromise(
   instances.map(async (instance, i) => {
-    // get the IP address
-    const firstInterface = instance.networkInterfaces[0]
-    const publicIp = args.network.assignPublicIp
-      ? firstInterface?.natIpAddress
-      : firstInterface?.ipAddress
-
-    if (!publicIp) {
-      throw new Error("No IP address assigned to instance")
-    }
-
-    const endpoint = parseEndpoint(publicIp, 3)
+    const endpoints = buildEndpointsFromInstance(
+      instance,
+      args.network.assignPublicIp,
+      networkContext,
+    )
 
     const { server, terminal } = await createServerBundle({
       name: `${groupName}-${i + 1}`,
-      endpoints: [endpoint],
-      sshArgs: args.ssh,
+      endpoints,
+      sshArgs,
       sshPassword: rootPassword,
       sshKeyPair,
     })

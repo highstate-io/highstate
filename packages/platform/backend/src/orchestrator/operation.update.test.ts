@@ -21,6 +21,8 @@ describe("Operation - Update", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -95,6 +97,8 @@ describe("Operation - Update", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act

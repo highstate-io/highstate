@@ -2,13 +2,13 @@ import {
   componentModelSchema,
   entityModelSchema,
   hubModelSchema,
-  instanceModelSchema,
   objectMetaSchema,
   type EntityModel,
   type HubModel,
   type InstanceModel,
   type Position,
 } from "@highstate/contract"
+import { projectModelInstanceSchema } from "@highstate/backend/shared"
 import { decode, encode } from "@msgpack/msgpack"
 import { uniqueBy } from "remeda"
 import { z } from "zod"
@@ -41,7 +41,7 @@ export const blueprintSchema = z.object({
   /**
    * The instances that are part of the blueprint.
    */
-  instances: instanceModelSchema.array(),
+  instances: projectModelInstanceSchema.array(),
 
   /**
    * The hubs that are part of the blueprint.
@@ -68,6 +68,10 @@ export const blueprintSchema = z.object({
 export type Blueprint = z.infer<typeof blueprintSchema>
 
 const blueprintPrefix = "highstate.io/share#"
+
+function stripTransientInstanceFields(instance: InstanceModel): InstanceModel {
+  return projectModelInstanceSchema.parse(instance)
+}
 
 /**
  * Serializes the blueprint for the given instances. All their components and entities must be provided.
@@ -112,7 +116,9 @@ export function createBlueprint(
   const rect = getRectOfNodes(nodes)
 
   // move all instances and hubs to the top-left corner of the blueprint
-  const movedInstances = instances.map(instance => moveCanvasNode(instance, rect))
+  const movedInstances = instances.map(instance =>
+    stripTransientInstanceFields(moveCanvasNode(instance, rect)),
+  )
   const movedHubs = hubs.map(hub => moveCanvasNode(hub, rect))
 
   if (!libraryStore) {
@@ -175,7 +181,12 @@ export function parseBlueprint(blueprint: string): Blueprint | null {
     const encoded = Base64.toUint8Array(base64)
     const decoded = decode(encoded)
 
-    return blueprintSchema.parse(decoded)
+    const parsed = blueprintSchema.parse(decoded)
+
+    return {
+      ...parsed,
+      instances: parsed.instances.map(stripTransientInstanceFields),
+    }
   } catch (error) {
     // TODO: indicate the error in the UI
 

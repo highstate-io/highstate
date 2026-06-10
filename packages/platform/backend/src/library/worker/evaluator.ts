@@ -4,9 +4,11 @@ import type { ProjectEvaluationResult } from "../abstractions"
 import {
   type Component,
   getRuntimeInstances,
+  type InstanceId,
   type InstanceModel,
   InstanceNameConflictError,
   parseArgumentValue,
+  type RuntimeInstance,
 } from "@highstate/contract"
 import { mapValues } from "remeda"
 import { errorToString } from "../../common"
@@ -24,11 +26,13 @@ export function evaluateProject(
   resolvedInputs: Record<string, Record<string, ResolvedInstanceInput[]>>,
 ): ProjectEvaluationResult {
   const allInstancesMap = new Map(allInstances.map(instance => [instance.id, instance]))
+  const allCompositeInstances = allInstances.filter(instance => instance.kind === "composite")
 
   const instanceErrors: Record<string, unknown> = {}
   const topLevelErrors: Record<string, string> = {}
 
   const instanceOutputs = new Map<string, Record<string, unknown>>()
+  const evaluatingInstanceIds = new Set<string>()
 
   for (const instance of allInstances) {
     try {
@@ -55,7 +59,7 @@ export function evaluateProject(
     topLevelErrors,
   }
 
-  function evaluateInstance(instanceId: InstanceModel["id"]): Record<string, unknown> {
+  function evaluateInstance(instanceId: InstanceId): Record<string, unknown> {
     let outputs = instanceOutputs.get(instanceId)
     if (outputs) {
       return outputs
@@ -69,9 +73,20 @@ export function evaluateProject(
     }
 
     const instance = allInstancesMap.get(instanceId)
+
     if (!instance) {
-      throw new Error(`Instance not found: ${instanceId}`)
+      const runtimeInstance = resolveRuntimeInstance(instanceId)
+      if (!runtimeInstance) {
+        throw new Error(`Instance not found: ${instanceId}`)
+      }
+
+      outputs = getRuntimeInstanceOutputs(runtimeInstance)
+      instanceOutputs.set(instanceId, outputs)
+
+      return outputs
     }
+
+    evaluatingInstanceIds.add(instanceId)
 
     try {
       outputs = _evaluateInstance(instance)
@@ -85,7 +100,55 @@ export function evaluateProject(
 
       instanceErrors[instanceId] = error
       throw error
+    } finally {
+      evaluatingInstanceIds.delete(instanceId)
     }
+  }
+
+  function resolveRuntimeInstance(instanceId: InstanceId) {
+    let runtimeInstance = getRuntimeInstances().find(entry => entry.instance.id === instanceId)
+    if (runtimeInstance) {
+      return runtimeInstance
+    }
+
+    for (const composite of allCompositeInstances) {
+      if (instanceOutputs.has(composite.id)) {
+        continue
+      }
+
+      if (instanceErrors[composite.id]) {
+        continue
+      }
+
+      if (evaluatingInstanceIds.has(composite.id)) {
+        continue
+      }
+
+      try {
+        evaluateInstance(composite.id)
+      } catch {
+        // ignore here; if materialization fails globally, caller keeps the original error path
+      }
+
+      runtimeInstance = getRuntimeInstances().find(entry => entry.instance.id === instanceId)
+      if (runtimeInstance) {
+        return runtimeInstance
+      }
+    }
+
+    return undefined
+  }
+
+  function getRuntimeInstanceOutputs(runtimeInstance: RuntimeInstance) {
+    const outputs: Record<string, unknown> = {}
+    const modelOutputs = runtimeInstance.component.model.outputs
+
+    for (const [outputName, outputRefs] of Object.entries(runtimeInstance.instance.outputs ?? {})) {
+      const multiple = modelOutputs[outputName]?.multiple ?? false
+      outputs[outputName] = multiple ? outputRefs : outputRefs?.[0]
+    }
+
+    return outputs
   }
 
   function _evaluateInstance(instance: InstanceModel): Record<string, unknown> {

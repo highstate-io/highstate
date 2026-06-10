@@ -7,15 +7,15 @@ import {
 } from "@highstate/common"
 import { wireguard } from "@highstate/library"
 import { forUnit, toPromise } from "@highstate/pulumi"
-import { feedMetadataFromArgs } from "../shared"
+import { feedMetadataFromArgs, forceUdpEndpoints } from "../shared"
 
 const { args, inputs, outputs } = forUnit(wireguard.peerPatch)
 
 const peer = await toPromise(inputs.peer)
-const endpoints = parseEndpoints([...args.endpoints, ...inputs.endpoints], 4)
+const endpoints = forceUdpEndpoints(parseEndpoints([...args.endpoints, ...inputs.endpoints], 4))
 const allowedSubnets = await parseSubnets(args.allowedSubnets, inputs.allowedSubnets)
 
-const newEndpoints = endpoints.length > 0 ? endpoints : peer.endpoints
+const newEndpoints = endpoints.length > 0 ? endpoints : forceUdpEndpoints(peer.endpoints)
 const newAllowedSubnets = allowedSubnets.length > 0 ? allowedSubnets : peer.allowedSubnets
 
 export default outputs({

@@ -375,6 +375,199 @@ describe("SettingsService", () => {
     )
   })
 
+  describe("queryEntities", () => {
+    settingsTest(
+      "sorts entities by latest snapshot createdAt",
+      async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
+        await projectDatabase.entitySnapshotReference.deleteMany()
+        await projectDatabase.entitySnapshot.deleteMany()
+        await projectDatabase.entitySnapshotContent.deleteMany()
+        await projectDatabase.entity.deleteMany()
+        await projectDatabase.operation.deleteMany()
+        await projectDatabase.instanceState.deleteMany()
+
+        const instance = await createInstanceState(project.id)
+        const entityAId = `entity-a-${createId()}`
+        const entityBId = `entity-b-${createId()}`
+        const entityCId = `entity-c-${createId()}`
+        const hashA = `hash-${createId()}`
+        const hashB = `hash-${createId()}`
+        const snapshotAId = createId()
+        const snapshotBId = createId()
+
+        const operation = await projectDatabase.operation.create({
+          data: {
+            id: createId(),
+            type: "update",
+            status: "completed",
+            meta: { title: "Entity Snapshot Operation" },
+            options: {},
+            requestedInstanceIds: [],
+            startedAt: new Date("2023-01-01T00:00:00.000Z"),
+            updatedAt: new Date("2023-01-01T00:00:00.000Z"),
+          },
+        })
+
+        await projectDatabase.entity.createMany({
+          data: [
+            { id: entityAId, type: "db", identity: "alpha" },
+            { id: entityBId, type: "db", identity: "beta" },
+            { id: entityCId, type: "db", identity: "gamma" },
+          ],
+        })
+
+        await projectDatabase.entitySnapshotContent.createMany({
+          data: [
+            {
+              hash: hashA,
+              meta: { title: "Entity A" },
+              content: { payload: "a" },
+            },
+            {
+              hash: hashB,
+              meta: { title: "Entity B" },
+              content: { payload: "b" },
+            },
+          ],
+        })
+
+        await projectDatabase.entitySnapshot.createMany({
+          data: [
+            {
+              id: snapshotAId,
+              entityId: entityAId,
+              operationId: operation.id,
+              stateId: instance.id,
+              referencedInOutputs: [],
+              exportedInOutputs: [],
+              contentHash: hashA,
+              createdAt: new Date("2023-01-02T00:00:00.000Z"),
+            },
+            {
+              id: snapshotBId,
+              entityId: entityBId,
+              operationId: operation.id,
+              stateId: instance.id,
+              referencedInOutputs: [],
+              exportedInOutputs: [],
+              contentHash: hashB,
+              createdAt: new Date("2023-01-03T00:00:00.000Z"),
+            },
+          ],
+        })
+
+        const result = await settingsService.queryEntities(project.id, {
+          sortBy: [{ key: "createdAt", order: "desc" }],
+        })
+
+        expect(result.total).toBe(3)
+        expect(result.items.map(item => item.id)).toEqual([entityBId, entityAId, entityCId])
+      },
+    )
+
+    settingsTest(
+      "paginates correctly when createdAt sort crosses entities without snapshots",
+      async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
+        await projectDatabase.entitySnapshotReference.deleteMany()
+        await projectDatabase.entitySnapshot.deleteMany()
+        await projectDatabase.entitySnapshotContent.deleteMany()
+        await projectDatabase.entity.deleteMany()
+        await projectDatabase.operation.deleteMany()
+        await projectDatabase.instanceState.deleteMany()
+
+        const instance = await createInstanceState(project.id)
+        const entityAId = `entity-a-${createId()}`
+        const entityBId = `entity-b-${createId()}`
+        const entityCId = `entity-c-${createId()}`
+        const entityDId = `entity-d-${createId()}`
+        const hashA = `hash-${createId()}`
+        const hashB = `hash-${createId()}`
+        const snapshotAId = createId()
+        const snapshotBId = createId()
+
+        const operation = await projectDatabase.operation.create({
+          data: {
+            id: createId(),
+            type: "update",
+            status: "completed",
+            meta: { title: "Entity Pagination Operation" },
+            options: {},
+            requestedInstanceIds: [],
+            startedAt: new Date("2023-01-01T00:00:00.000Z"),
+            updatedAt: new Date("2023-01-01T00:00:00.000Z"),
+          },
+        })
+
+        await projectDatabase.entity.createMany({
+          data: [
+            { id: entityAId, type: "db", identity: "alpha" },
+            { id: entityBId, type: "db", identity: "beta" },
+            { id: entityCId, type: "db", identity: "gamma" },
+            { id: entityDId, type: "db", identity: "delta" },
+          ],
+        })
+
+        await projectDatabase.entitySnapshotContent.createMany({
+          data: [
+            {
+              hash: hashA,
+              meta: { title: "Entity A" },
+              content: { payload: "a" },
+            },
+            {
+              hash: hashB,
+              meta: { title: "Entity B" },
+              content: { payload: "b" },
+            },
+          ],
+        })
+
+        await projectDatabase.entitySnapshot.createMany({
+          data: [
+            {
+              id: snapshotAId,
+              entityId: entityAId,
+              operationId: operation.id,
+              stateId: instance.id,
+              referencedInOutputs: [],
+              exportedInOutputs: [],
+              contentHash: hashA,
+              createdAt: new Date("2023-01-02T00:00:00.000Z"),
+            },
+            {
+              id: snapshotBId,
+              entityId: entityBId,
+              operationId: operation.id,
+              stateId: instance.id,
+              referencedInOutputs: [],
+              exportedInOutputs: [],
+              contentHash: hashB,
+              createdAt: new Date("2023-01-03T00:00:00.000Z"),
+            },
+          ],
+        })
+
+        const secondRow = await settingsService.queryEntities(project.id, {
+          sortBy: [{ key: "createdAt", order: "desc" }],
+          skip: 1,
+          count: 1,
+        })
+
+        expect(secondRow.total).toBe(4)
+        expect(secondRow.items.map(item => item.id)).toEqual([entityAId])
+
+        const noSnapshotPage = await settingsService.queryEntities(project.id, {
+          sortBy: [{ key: "createdAt", order: "desc" }],
+          skip: 2,
+          count: 2,
+        })
+
+        expect(noSnapshotPage.total).toBe(4)
+        expect(noSnapshotPage.items.map(item => item.id)).toEqual([entityCId, entityDId])
+      },
+    )
+  })
+
   describe("queryWorkers", () => {
     settingsTest(
       "returns workers and searches by id and identity",
@@ -604,6 +797,8 @@ describe("SettingsService", () => {
       async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
         // clear secrets and instance state tables
         await projectDatabase.secret.deleteMany()
+        await projectDatabase.entitySnapshotReference.deleteMany()
+        await projectDatabase.entitySnapshot.deleteMany()
         await projectDatabase.instanceState.deleteMany()
 
         // arrange
@@ -652,6 +847,8 @@ describe("SettingsService", () => {
       async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
         // clear triggers and instance state tables
         await projectDatabase.trigger.deleteMany()
+        await projectDatabase.entitySnapshotReference.deleteMany()
+        await projectDatabase.entitySnapshot.deleteMany()
         await projectDatabase.instanceState.deleteMany()
 
         // arrange

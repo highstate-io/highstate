@@ -161,6 +161,100 @@ describe("ProjectEvaluationSubsystem", () => {
   }
 
   evaluationTest(
+    "does not promote existing virtual instances to ghosts when evaluation fails",
+    async ({
+      subsystem,
+      publishEvents,
+      project,
+      projectDatabase,
+      projectModelService,
+      libraryBackend,
+      expect,
+    }) => {
+      // arrange
+      const virtualInstance = createVirtualInstance("ghost-on-failure")
+      const storedModel = clone(virtualInstance)
+
+      const state = await projectDatabase.instanceState.create({
+        data: {
+          instanceId: virtualInstance.id,
+          kind: "unit",
+          source: "virtual",
+          status: "deployed",
+          model: storedModel,
+        },
+      })
+
+      await projectDatabase.instanceEvaluationState.create({
+        data: {
+          stateId: state.id,
+          status: "evaluated",
+          message: "ok",
+          model: storedModel,
+        },
+      })
+
+      const compositeInstance: InstanceModel = {
+        id: getInstanceId("composite.v1", "root"),
+        kind: "composite",
+        type: "composite.v1",
+        name: "root",
+        args: {},
+        inputs: {},
+        hubInputs: {},
+        injectionInputs: [],
+        resolvedInputs: {},
+        outputs: {},
+        resolvedOutputs: {},
+      }
+
+      const evaluationResult: ProjectEvaluationResult = {
+        success: false,
+        error: "failed to evaluate",
+      }
+
+      projectModelService.resolveProject.mockResolvedValue({
+        project,
+        library: clone(libraryModel),
+        instances: [compositeInstance],
+        stateMap: new Map(),
+        resolvedInputs: {},
+      })
+      libraryBackend.evaluateCompositeInstances.mockResolvedValue(evaluationResult)
+
+      // act
+      publishEvents.length = 0
+      await subsystem.evaluateProject(project.id)
+
+      // assert
+      const payload = getLastProjectEvent(publishEvents)
+      expect(payload?.updatedGhostInstances ?? []).toHaveLength(0)
+      expect(payload?.deletedGhostInstanceIds ?? []).toHaveLength(0)
+
+      const persisted = await projectDatabase.instanceState.findUniqueOrThrow({
+        where: { instanceId: virtualInstance.id },
+        include: { evaluationState: true },
+      })
+
+      expect(persisted.evaluationState?.status).toBe("evaluated")
+      expect(persisted.evaluationState?.message).toBe("ok")
+
+      await projectDatabase.instanceEvaluationState.deleteMany({
+        where: {
+          state: {
+            instanceId: virtualInstance.id,
+          },
+        },
+      })
+      await projectDatabase.instanceState.deleteMany({
+        where: {
+          instanceId: virtualInstance.id,
+        },
+      })
+    },
+  )
+
+  evaluationTest(
     "publishes ghost creation when evaluation output is missing",
     async ({
       subsystem,

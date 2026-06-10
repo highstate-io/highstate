@@ -3,7 +3,7 @@ import { parseEndpoint } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { common, distributions } from "@highstate/library"
 import { forUnit, makeEntityOutput } from "@highstate/pulumi"
-import * as ubuntu from "../../assets/ubuntu.json"
+import ubuntu from "../../assets/ubuntu.json"
 
 const { args, outputs, stateId } = forUnit(distributions.ubuntu)
 

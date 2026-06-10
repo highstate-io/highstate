@@ -3,19 +3,13 @@ import {
   generatePassword,
   generateSshPrivateKey,
   l3EndpointToString,
-  parseEndpoint,
   sshPrivateKeyToKeyPair,
 } from "@highstate/common"
 import { trimIndentation } from "@highstate/contract"
 import { yandex } from "@highstate/library"
 import { forUnit, getResourceComment, interpolate, type Output, toPromise } from "@highstate/pulumi"
-import {
-  ComputeDisk,
-  ComputeInstance,
-  getVpcSubnet,
-  KmsSymmetricKey,
-  VpcAddress,
-} from "@highstate/yandex-sdk"
+import { ComputeDisk, ComputeInstance, KmsSymmetricKey, VpcAddress } from "@highstate/yandex-sdk"
+import { buildEndpointsFromInstance, detectSubnetId, fetchNetworkContext } from "../network"
 import { createProvider } from "../provider"
 
 const { name, args, getSecret, inputs, outputs } = forUnit(yandex.virtualMachine)
@@ -30,26 +24,8 @@ const sshKeyPair =
 
 const rootPassword = getSecret("rootPassword", generatePassword)
 
-// auto-discover subnet if not specified
-let subnetId = args.network.subnetId
-if (!subnetId) {
-  const defaultSubnetName = await toPromise(interpolate`default-${inputs.connection.defaultZone}`)
-  const subnet = await getVpcSubnet(
-    {
-      folderId: await toPromise(inputs.connection.defaultFolderId),
-      name: defaultSubnetName,
-    },
-    { provider },
-  )
-
-  if (!subnet.id) {
-    throw new Error(
-      `Could not find default subnet '${defaultSubnetName}' in zone ${inputs.connection.defaultZone}`,
-    )
-  }
-
-  subnetId = subnet.id
-}
+const subnetId = await detectSubnetId(args.network.subnetId, inputs.connection, provider)
+const networkContext = await fetchNetworkContext(subnetId, provider)
 
 // create key for disk
 let encryptionKeyId: Output<string> | undefined
@@ -153,24 +129,22 @@ const instance = new ComputeInstance(
   { provider, ignoreChanges: ["bootDisk"] },
 )
 
-// get the IP address
-const publicIp = await toPromise(
-  instance.networkInterfaces.apply(ni => {
-    const firstInterface = ni[0]
-    return args.network.assignPublicIp ? firstInterface?.natIpAddress : firstInterface?.ipAddress
-  }),
+const resolvedInstance = await toPromise(
+  instance.networkInterfaces.apply(networkInterfaces => ({ networkInterfaces })),
 )
 
-if (!publicIp) {
-  throw new Error("No IP address assigned to instance")
-}
+const endpoints = buildEndpointsFromInstance(
+  resolvedInstance,
+  args.network.assignPublicIp,
+  networkContext,
+)
 
-const endpoint = parseEndpoint(publicIp, 3)
+const sshArgs = args.network.assignPublicIp ? args.ssh : { ...(args.ssh ?? {}), enabled: false }
 
 const { server, terminal } = await createServerBundle({
   name: vmName,
-  endpoints: [endpoint],
-  sshArgs: args.ssh,
+  endpoints,
+  sshArgs,
   sshPassword: rootPassword,
   sshKeyPair,
 })
@@ -180,7 +154,7 @@ export default outputs({
 
   $statusFields: {
     id: instance.id,
-    endpoints: [l3EndpointToString(endpoint)],
+    endpoints: endpoints.map(l3EndpointToString),
     hostname: server.hostname,
   },
 

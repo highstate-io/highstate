@@ -117,6 +117,21 @@ export class SettingsService {
     return defaultOrderBy
   }
 
+  private isCreatedAtEntitySort(query: EntityQuery): query is EntityQuery & {
+    sortBy: [{ key: "createdAt"; order: "asc" | "desc" }]
+  } {
+    if (!query.sortBy || query.sortBy.length !== 1) {
+      return false
+    }
+
+    const [sort] = query.sortBy
+    if (!sort) {
+      return false
+    }
+
+    return sort.key === "createdAt"
+  }
+
   private buildEntitySnapshotWhere(
     query: CollectionQuery,
     snapshotIdField: "fromId" | "toId",
@@ -160,36 +175,106 @@ export class SettingsService {
     query: EntityQuery,
   ): Promise<CollectionQueryResult<EntityOutput>> {
     const parsedQuery = entityQuerySchema.parse(query)
+    const skip = parsedQuery.skip ?? 0
+    const count = parsedQuery.count ?? 20
     const db = await this.database.forProject(projectId)
     const whereClause = this.buildEntityWhere(parsedQuery)
 
-    const [total, items] = await Promise.all([
-      db.entity.count({ where: whereClause }),
-      db.entity.findMany({
-        where: whereClause,
-        orderBy: this.buildEntityOrderBy(parsedQuery),
-        skip: parsedQuery.skip,
-        take: parsedQuery.count,
+    const select = {
+      id: true,
+      type: true,
+      identity: true,
+      snapshots: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
         select: {
           id: true,
-          type: true,
-          identity: true,
-          snapshots: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
+          content: {
             select: {
-              id: true,
-              content: {
-                select: {
-                  meta: true,
-                },
-              },
-              createdAt: true,
+              meta: true,
             },
           },
+          createdAt: true,
         },
-      }),
-    ])
+      },
+    } as const
+
+    const total = await db.entity.count({ where: whereClause })
+
+    const items = await (async () => {
+      if (!this.isCreatedAtEntitySort(parsedQuery)) {
+        return await db.entity.findMany({
+          where: whereClause,
+          orderBy: this.buildEntityOrderBy(parsedQuery),
+          skip,
+          take: count,
+          select,
+        })
+      }
+
+      const createdAtOrder = parsedQuery.sortBy[0].order
+
+      const entitiesWithSnapshotsCount = await db.entity.count({
+        where: {
+          AND: [whereClause, { snapshots: { some: {} } }],
+        },
+      })
+
+      const rowsFromEntitiesWithSnapshots =
+        skip < entitiesWithSnapshotsCount ? Math.min(count, entitiesWithSnapshotsCount - skip) : 0
+
+      const groupedEntities =
+        rowsFromEntitiesWithSnapshots > 0
+          ? await db.entitySnapshot.groupBy({
+              by: ["entityId"],
+              where: {
+                entity: whereClause,
+              },
+              _max: {
+                createdAt: true,
+              },
+              orderBy: [{ _max: { createdAt: createdAtOrder } }, { entityId: "asc" }],
+              skip,
+              take: rowsFromEntitiesWithSnapshots,
+            })
+          : []
+
+      const entityIds = groupedEntities.map(grouped => grouped.entityId)
+
+      const entitiesWithSnapshots =
+        entityIds.length > 0
+          ? await db.entity.findMany({
+              where: {
+                id: { in: entityIds },
+              },
+              select,
+            })
+          : []
+
+      const entitiesById = new Map(entitiesWithSnapshots.map(item => [item.id, item]))
+      const orderedEntitiesWithSnapshots = entityIds
+        .map(id => entitiesById.get(id))
+        .filter(item => !!item)
+
+      const remainingRows = count - orderedEntitiesWithSnapshots.length
+      if (remainingRows <= 0) {
+        return orderedEntitiesWithSnapshots
+      }
+
+      const rowsToSkipWithoutSnapshots = Math.max(0, skip - entitiesWithSnapshotsCount)
+
+      const entitiesWithoutSnapshots = await db.entity.findMany({
+        where: {
+          AND: [whereClause, { snapshots: { none: {} } }],
+        },
+        orderBy: [{ id: "asc" }],
+        skip: rowsToSkipWithoutSnapshots,
+        take: remainingRows,
+        select,
+      })
+
+      return [...orderedEntitiesWithSnapshots, ...entitiesWithoutSnapshots]
+    })()
 
     const outputItems = items.map(item => {
       const lastSnapshot = item.snapshots[0] ?? null
@@ -362,6 +447,7 @@ export class SettingsService {
           createdAt: true,
           entity: {
             select: {
+              type: true,
               identity: true,
             },
           },
@@ -374,6 +460,7 @@ export class SettingsService {
 
       return entitySnapshotListItemOutputSchema.parse({
         id: item.id,
+        entityType: item.entity.type,
         meta: meta.title ? meta : { ...meta, title: item.entity.identity },
         operationId: item.operationId,
         stateId: item.stateId,
@@ -427,6 +514,7 @@ export class SettingsService {
           createdAt: true,
           entity: {
             select: {
+              type: true,
               identity: true,
             },
           },
@@ -439,6 +527,7 @@ export class SettingsService {
 
       return entitySnapshotListItemOutputSchema.parse({
         id: item.id,
+        entityType: item.entity.type,
         meta: meta.title ? meta : { ...meta, title: item.entity.identity },
         operationId: item.operationId,
         stateId: item.stateId,

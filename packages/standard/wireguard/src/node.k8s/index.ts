@@ -5,11 +5,26 @@ import { forUnit, getCombinedIdentityOutput, makeEntityOutput, toPromise } from 
 import { deepmerge } from "deepmerge-ts"
 import { isNonNullish } from "remeda"
 import images from "../../assets/images.json"
-import { generateIdentityConfig, getNextAvailablePort, isExitNode, shouldExpose } from "../shared"
+import {
+  generateIdentityConfig,
+  getNextAvailablePort,
+  getNodeConfigContent,
+  isExitNode,
+  resolveNodeInputs,
+  resolveNodeNetwork,
+  shouldExpose,
+} from "../shared"
 
 const { args, inputs, outputs } = forUnit(wireguard.nodeK8s)
 
-const { identity, peers } = await toPromise(inputs)
+const { identity: inputIdentity, config, peers: inputPeers } = await toPromise(inputs)
+const { identity, peers } = resolveNodeInputs({
+  identity: inputIdentity,
+  config,
+  peers: inputPeers,
+})
+
+const network = resolveNodeNetwork(identity, peers)
 
 const identityName = identity.peer.name.replaceAll(".", "-")
 const appName = args.appName ?? `wg-${identityName}`
@@ -111,17 +126,19 @@ const configSecret = Secret.create(appName, {
   namespace,
 
   stringData: {
-    [`${interfaceName}.conf`]: generateIdentityConfig({
-      identity,
-      peers,
-      listenPort: containerPort,
-      preUp,
-      postUp,
-      preDown,
-      cluster: await toPromise(inputs.k8sCluster),
-      network: identity.peer.network,
-      table: inputs.downstreamInterface ? containerPort : undefined, // use the same table number as its port to avoid conflicts
-    }),
+    [`${interfaceName}.conf`]: config
+      ? getNodeConfigContent(config)
+      : generateIdentityConfig({
+          identity,
+          peers,
+          listenPort: containerPort,
+          preUp,
+          postUp,
+          preDown,
+          cluster: await toPromise(inputs.k8sCluster),
+          network,
+          table: inputs.downstreamInterface ? containerPort : undefined, // use the same table number as its port to avoid conflicts
+        }),
   },
 })
 

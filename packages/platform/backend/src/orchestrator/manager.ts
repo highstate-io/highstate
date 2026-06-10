@@ -4,8 +4,10 @@ import type {
   EntitySnapshotService,
   InstanceLockService,
   InstanceStateService,
+  LibraryService,
   OperationService,
   ProjectModelService,
+  ProjectPortService,
   ProjectUnlockService,
   SecretService,
   UnitExtraService,
@@ -41,6 +43,8 @@ export class OperationManager {
     private readonly unitExtraService: UnitExtraService,
     private readonly entitySnapshotService: EntitySnapshotService,
     private readonly unitOutputService: UnitOutputService,
+    private readonly libraryService: LibraryService,
+    private readonly projectPortService: ProjectPortService,
     private readonly database: DatabaseManager,
     private readonly logger: Logger,
   ) {
@@ -72,7 +76,7 @@ export class OperationManager {
 
     const context = await OperationContext.load(
       request.projectId,
-      this.libraryBackend,
+      this.libraryService,
       this.instanceStateService,
       this.projectModelService,
       undefined,
@@ -149,6 +153,8 @@ export class OperationManager {
       this.entitySnapshotService,
       this.unitOutputService,
       this.logger.child({ operationId: operation.id }),
+      this.libraryService,
+      this.projectPortService,
     )
 
     this.runtimeOperations.set(operation.id, runtimeOperation)

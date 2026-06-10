@@ -18,6 +18,7 @@
     "./refluxdb": "./dist/refluxdb/index.js",
     "./mongodb": "./dist/mongodb/index.js",
     "./valkey": "./dist/valkey/index.js",
+    "./vault": "./dist/vault/index.js",
     "./minio": "./dist/minio/index.js",
     "./syncthing": "./dist/syncthing/index.js",
     "./traefik": "./dist/traefik/index.js",

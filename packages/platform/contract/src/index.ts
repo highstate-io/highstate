@@ -12,6 +12,7 @@ export {
   defineEntity,
   entityModelSchema,
   getEntityId,
+  objectEntity,
 } from "./entity"
 
 export * from "./instance"

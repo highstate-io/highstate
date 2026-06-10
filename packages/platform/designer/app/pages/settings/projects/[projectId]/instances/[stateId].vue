@@ -265,6 +265,7 @@ if (entitySnapshots) {
           :project-id="params.projectId"
           :data="entitySnapshots.data.value"
           :loading="entitySnapshots.isLoading.value"
+          :fallback-icon-meta="componentMeta"
           hide-header
         />
       </RelatedDataPanel>

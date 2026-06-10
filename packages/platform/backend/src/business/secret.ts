@@ -1,7 +1,7 @@
 import type { Logger } from "pino"
 import type { DatabaseManager, ProjectTransaction } from "../database"
-import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { randomBytes } from "node:crypto"
 import { type CommonObjectMeta, isUnitModel, parseInstanceId } from "@highstate/contract"
@@ -16,7 +16,7 @@ export class SecretService {
   constructor(
     private readonly database: DatabaseManager,
     private readonly pubsubManager: PubSubManager,
-    private readonly libraryBackend: LibraryBackend,
+    private readonly libraryService: LibraryService,
     private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
   ) {}
@@ -26,14 +26,14 @@ export class SecretService {
    * Only works with unit instances.
    *
    * @param tx The database transaction to use.
-   * @param libraryId The ID of the library containing the component.
+   * @param projectId The ID of the project containing the component.
    * @param stateId The ID of the instance state.
    * @param secretValues The secrets to create or update. Existing secrets not in this update are preserved.
    * @returns The list of secret names that were updated or created.
    */
   async updateInstanceSecretsCore(
     tx: ProjectTransaction,
-    libraryId: string,
+    projectId: string,
     stateId: string,
     secretValues: Record<string, unknown>,
   ): Promise<{ secretNames: string[]; secretIds: string[] }> {
@@ -44,20 +44,24 @@ export class SecretService {
     })
 
     if (!state) {
-      throw new InstanceStateNotFoundError("", stateId)
+      throw new InstanceStateNotFoundError(projectId, stateId)
     }
 
     if (state.kind !== "unit") {
-      throw new InvalidInstanceKindError("", stateId, "unit", state.kind)
+      throw new InvalidInstanceKindError(projectId, stateId, "unit", state.kind)
     }
 
-    const library = await this.libraryBackend.loadLibrary(libraryId)
+    if (Object.keys(secretValues).length === 0) {
+      return { secretNames: [], secretIds: [] }
+    }
+
+    const library = await this.libraryService.getLibraryModel(projectId)
 
     const [componentType] = parseInstanceId(state.instanceId)
     const component = library.components[componentType]
 
     if (!component) {
-      throw new Error(`Component type "${componentType}" not found in library "${libraryId}"`)
+      throw new Error(`Component type "${componentType}" not found in project "${projectId}"`)
     }
 
     if (!isUnitModel(component)) {
@@ -124,11 +128,7 @@ export class SecretService {
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
 
-    const project = await this.database.backend.project.findUnique({
-      where: { id: projectId },
-      select: { libraryId: true },
-    })
-
+    const project = await this.database.backend.project.findUnique({ where: { id: projectId } })
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -136,7 +136,7 @@ export class SecretService {
     const statePatch = await database.$transaction(async tx => {
       const { secretNames } = await this.updateInstanceSecretsCore(
         tx,
-        project.libraryId,
+        projectId,
         stateId,
         secretValues,
       )

@@ -13,7 +13,7 @@ export const traefik = defineUnit({
 
   args: {
     ...appName("traefik"),
-    ...pick(sharedArgs, ["external", "replicas"]),
+    ...pick(sharedArgs, ["external", "replicas", "values"]),
 
     /**
      * The name of the class to configure for ingress and gateway resources.
@@ -41,6 +41,11 @@ export const traefik = defineUnit({
      * Whether to enable reconciliation for Gateway API resources and create gateway class.
      */
     enableGatewayApi: z.boolean().default(false),
+
+    /**
+     * The extra patch to the Traefik service.
+     */
+    service: z.record(z.string(), z.unknown()).default({}),
   },
 
   inputs: {

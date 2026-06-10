@@ -9,7 +9,6 @@ import {
   camelCaseToHumanReadable,
   type EntityValue,
   type EntityValueInput,
-  HighstateConfigKey,
   HighstateSignature,
   type InstanceStatusField,
   type InstanceStatusFieldValue,
@@ -30,14 +29,7 @@ import {
   type VersionedName,
   z,
 } from "@highstate/contract"
-import {
-  Config,
-  type Input,
-  type Output,
-  output,
-  secret as pulumiSecret,
-  type Unwrap,
-} from "@pulumi/pulumi"
+import { type Input, type Output, secret as pulumiSecret, type Unwrap } from "@pulumi/pulumi"
 import { isPlainObject, mapValues } from "remeda"
 import { getHasResourceHooks } from "./resource-hooks"
 import { type DeepInput, toPromise } from "./utils"
@@ -148,6 +140,23 @@ let instanceId: string | undefined
 let stateId: string | undefined
 let instanceName: string | undefined
 let importBaseUrl: URL | undefined
+const highstateConfigEndpointEnvVar = "HIGHSTATE_CONFIG_ENDPOINT"
+const highstateConfigEndpoint = process.env[highstateConfigEndpointEnvVar]
+
+async function loadUnitConfigFromEndpoint(
+  endpoint: string,
+): Promise<z.infer<typeof unitConfigSchema>> {
+  const response = await fetch(endpoint)
+  if (!response.ok) {
+    throw new Error(`Failed to fetch unit config: ${response.status}`)
+  }
+
+  return unitConfigSchema.parse(await response.json())
+}
+
+const hsConfig = highstateConfigEndpoint
+  ? await loadUnitConfigFromEndpoint(highstateConfigEndpoint)
+  : undefined
 
 /**
  * Returns the current unit instance id.
@@ -253,9 +262,9 @@ export function forUnit<
   { [K in keyof TOutputs]: OutputSpecToValue<TOutputs[K]> },
   { [K in keyof TSecrets]: z.output<TSecrets[K]> }
 > {
-  const config = new Config()
-  const rawHSConfig = config.requireObject(HighstateConfigKey.Config)
-  const hsConfig = unitConfigSchema.parse(rawHSConfig)
+  if (!hsConfig) {
+    throw new Error(`${highstateConfigEndpointEnvVar} is required`)
+  }
 
   const args = mapValues(unit.model.args, (arg, argName) => {
     const value = parseArgumentValue(hsConfig.args[argName])
@@ -522,9 +531,9 @@ function mapStatusFields(status: Unwrap<ExtraOutputs["$statusFields"]>): Instanc
     .filter((field): field is InstanceStatusField => field?.value !== undefined)
 }
 
-function mapPages(pages: Unwrap<ExtraOutputs["$pages"]>): Output<UnitPage[]> {
+function mapPages(pages: Unwrap<ExtraOutputs["$pages"]>): UnitPage[] {
   if (!pages) {
-    return output([])
+    return []
   }
 
   if (!Array.isArray(pages)) {
@@ -537,12 +546,12 @@ function mapPages(pages: Unwrap<ExtraOutputs["$pages"]>): Output<UnitPage[]> {
     })
   }
 
-  return output(pages.filter((page): page is NonNullable<UnitPage> => !!page))
+  return pages.filter((page): page is NonNullable<UnitPage> => !!page)
 }
 
-function mapTerminals(terminals: Unwrap<ExtraOutputs["$terminals"]>): Output<UnitTerminal[]> {
+function mapTerminals(terminals: Unwrap<ExtraOutputs["$terminals"]>): UnitTerminal[] {
   if (!terminals) {
-    return output([])
+    return []
   }
 
   if (!Array.isArray(terminals)) {
@@ -555,12 +564,12 @@ function mapTerminals(terminals: Unwrap<ExtraOutputs["$terminals"]>): Output<Uni
     })
   }
 
-  return output(terminals.filter((terminal): terminal is NonNullable<UnitTerminal> => !!terminal))
+  return terminals.filter((terminal): terminal is NonNullable<UnitTerminal> => !!terminal)
 }
 
-function mapTriggers(triggers: Unwrap<ExtraOutputs["$triggers"]>): Output<UnitTrigger[]> {
+function mapTriggers(triggers: Unwrap<ExtraOutputs["$triggers"]>): UnitTrigger[] {
   if (!triggers) {
-    return output([])
+    return []
   }
 
   if (!Array.isArray(triggers)) {
@@ -573,12 +582,12 @@ function mapTriggers(triggers: Unwrap<ExtraOutputs["$triggers"]>): Output<UnitTr
     })
   }
 
-  return output(triggers.filter((trigger): trigger is NonNullable<UnitTrigger> => !!trigger))
+  return triggers.filter((trigger): trigger is NonNullable<UnitTrigger> => !!trigger)
 }
 
-function mapWorkers(workers: Unwrap<ExtraOutputs["$workers"]>): Output<Unwrap<UnitWorker>[]> {
+function mapWorkers(workers: Unwrap<ExtraOutputs["$workers"]>): Unwrap<UnitWorker>[] {
   if (!workers) {
-    return output([])
+    return []
   }
 
   if (!Array.isArray(workers)) {
@@ -591,7 +600,7 @@ function mapWorkers(workers: Unwrap<ExtraOutputs["$workers"]>): Output<Unwrap<Un
     })
   }
 
-  return output(workers.filter((worker): worker is NonNullable<Unwrap<UnitWorker>> => !!worker))
+  return workers.filter((worker): worker is NonNullable<Unwrap<UnitWorker>> => !!worker)
 }
 
 /**

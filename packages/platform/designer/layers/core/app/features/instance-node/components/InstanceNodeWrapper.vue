@@ -18,7 +18,7 @@ const { projectStore, stateStore, instancesStore, libraryStore, operationsStore,
 const instance = computed(() => data.instance)
 
 const component = computed(() => {
-  const component = libraryStore.library.components[instance.value.type]
+  const component = instancesStore.getInstanceComponent(instance.value)
 
   if (!component) {
     throw new Error(
@@ -147,6 +147,12 @@ const openSecretsEditor = async () => {
   }
 }
 
+const openComposite = async () => {
+  const compositeId = state.value?.id ?? instance.value.id
+
+  await workspaceStore.openCompositeInstancePanel(projectStore.projectId, compositeId)
+}
+
 const contextMenu = useTemplateRef("contextMenu")
 const vueFlowStore = useVueFlow()
 const defaultNodeState = ref<{ connectable: boolean; draggable: boolean } | null>(null)
@@ -241,7 +247,7 @@ watch(
       )
     "
     @contextmenu="contextMenu?.showContextMenu($event)"
-    @open:composite="workspaceStore.openCompositeInstancePanel(projectStore.projectId, state!.id)"
+    @open:composite="openComposite"
     @open:page="openPage"
   >
     <template #status>

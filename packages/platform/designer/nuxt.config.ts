@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   typescript: {
     tsConfig: {
       compilerOptions: {
+        types: ["bun-types"],
         allowImportingTsExtensions: true,
         noUncheckedIndexedAccess: false,
       },

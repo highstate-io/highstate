@@ -47,6 +47,11 @@ export const sharedArgs = $args({
    * If not provided, defaults to the appName.
    */
   namespace: z.string().optional(),
+
+  /**
+   * The deep merge patch to apply to the values of the Helm chart.
+   */
+  values: z.record(z.string(), z.unknown()).default({}),
 })
 
 type ToOptionalArgs<T extends Record<string, FullComponentArgumentOptions>> = Simplify<{

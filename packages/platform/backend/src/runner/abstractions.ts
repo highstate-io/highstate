@@ -106,6 +106,13 @@ export type UnitOptions = {
   forceSignal?: AbortSignal
 
   /**
+   * The configuration to pass to the unit.
+   *
+   * Optional for operations that do not need to execute the unit program.
+   */
+  config?: UnitConfig
+
+  /**
    * Enable debug logging for Pulumi engine and resource providers.
    *
    * May expose sensitive information including credentials in the logs.
@@ -114,9 +121,6 @@ export type UnitOptions = {
 }
 
 export type UnitUpdateOptions = UnitOptions & {
-  /**
-   * The configuration to pass to the unit.
-   */
   config: UnitConfig
 
   /**

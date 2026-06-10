@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: не ори на меня */
 
-import type { ConfigMap, Stack } from "@pulumi/pulumi/automation/index.js"
+import type { Stack } from "@pulumi/pulumi/automation/index.js"
 import type { Logger } from "pino"
 import type { ArtifactBackend, ArtifactService } from "../artifact"
 import type { LibraryBackend, ResolvedUnitSource } from "../library"
@@ -14,16 +14,12 @@ import type {
   UnitUpdateOptions,
 } from "./abstractions"
 import type { DualAbortSignal } from "./force-abort"
+import { randomUUID } from "node:crypto"
 import { EventEmitter, on } from "node:events"
 import { mkdir, rm } from "node:fs/promises"
 import { cpus, homedir } from "node:os"
 import { join, resolve } from "node:path"
-import {
-  getInstanceId,
-  HighstateConfigKey,
-  type InstanceId,
-  unitArtifactSchema,
-} from "@highstate/contract"
+import { getInstanceId, type InstanceId, unitArtifactSchema } from "@highstate/contract"
 import { ensureDependencyInstalled } from "nypm"
 import PQueue from "p-queue"
 import { z } from "zod"
@@ -33,6 +29,7 @@ import {
   collectAndStoreArtifacts,
   setupArtifactEnvironment,
 } from "./artifact-env"
+import { highstateConfigEndpointEnvVar, LocalConfigServer } from "./local-config-server"
 import { type LocalPulumiHost, pulumiErrorToString, updateResourceCount } from "./pulumi"
 
 type Events = {
@@ -62,6 +59,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     private readonly cacheDir: string,
     concurrency: number,
     private readonly pulumiProjectHost: LocalPulumiHost,
+    private readonly configServer: LocalConfigServer,
     private readonly libraryBackend: LibraryBackend,
     private readonly arttifactManager: ArtifactService,
     private readonly artifactBackend: ArtifactBackend,
@@ -149,12 +147,9 @@ export class LocalRunnerBackend implements RunnerBackend {
   }
 
   private async updateWorker(options: UnitUpdateOptions, preview: boolean): Promise<void> {
-    const configMap: ConfigMap = {
-      [HighstateConfigKey.Config]: { value: JSON.stringify(options.config), secret: true },
-    }
-
     const unitId = LocalRunnerBackend.getInstanceId(options)
     const childLogger = this.logger.child({ unitId })
+    const configId = randomUUID()
 
     // create a dedicated temp directory for this unit execution
     let unitTempPath: string | null = null
@@ -186,6 +181,7 @@ export class LocalRunnerBackend implements RunnerBackend {
         HIGHSTATE_CACHE_DIR: this.cacheDir,
         PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
         HIGHSTATE_PULUMI_COMMAND: preview ? "preview" : "update",
+        [highstateConfigEndpointEnvVar]: this.configServer.set(configId, options.config),
         ...options.envVars,
       }
 
@@ -206,13 +202,10 @@ export class LocalRunnerBackend implements RunnerBackend {
           pulumiProjectName: options.instanceType,
           pulumiStackName: LocalRunnerBackend.getStackName(options),
           projectPath: resolvedSource.projectPath,
-          stackConfig: configMap,
           envVars,
         },
         async stack => {
           options.signal?.throwIfAborted()
-
-          await stack.setAllConfig(configMap)
           options.signal?.throwIfAborted()
 
           let currentResourceCount = 0
@@ -316,6 +309,7 @@ export class LocalRunnerBackend implements RunnerBackend {
         message: await pulumiErrorToString(error),
       })
     } finally {
+      this.configServer.delete(configId)
       // clean up unit temp directory as a second layer of reliability
       await this.cleanupTempPath(unitTempPath, unitId, "update", this.logger)
     }
@@ -344,6 +338,7 @@ export class LocalRunnerBackend implements RunnerBackend {
 
   private async destroyWorker(options: UnitDestroyOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
+    const configId = options.config ? randomUUID() : undefined
 
     const childLogger = this.logger.child({ unitId })
     let unitTempPath: string | null = null
@@ -374,6 +369,11 @@ export class LocalRunnerBackend implements RunnerBackend {
             HIGHSTATE_CACHE_DIR: this.cacheDir,
             PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
             HIGHSTATE_PULUMI_COMMAND: "destroy",
+            ...(options.config && configId
+              ? {
+                  [highstateConfigEndpointEnvVar]: this.configServer.set(configId, options.config),
+                }
+              : {}),
             ...(options.debug && { TF_LOG: "DEBUG" }),
           },
         },
@@ -460,12 +460,16 @@ export class LocalRunnerBackend implements RunnerBackend {
         message: await pulumiErrorToString(error),
       })
     } finally {
+      if (configId) {
+        this.configServer.delete(configId)
+      }
       await this.cleanupTempPath(unitTempPath, unitId, "destroy", this.logger)
     }
   }
 
   private async refreshWorker(options: UnitOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
+    const configId = options.config ? randomUUID() : undefined
 
     try {
       await this.pulumiProjectHost.runEmpty(
@@ -473,6 +477,12 @@ export class LocalRunnerBackend implements RunnerBackend {
           projectId: options.projectId,
           pulumiProjectName: options.instanceType,
           pulumiStackName: LocalRunnerBackend.getStackName(options),
+          envVars:
+            options.config && configId
+              ? {
+                  [highstateConfigEndpointEnvVar]: this.configServer.set(configId, options.config),
+                }
+              : undefined,
         },
         async stack => {
           options.signal?.throwIfAborted()
@@ -549,6 +559,10 @@ export class LocalRunnerBackend implements RunnerBackend {
         unitId,
         message: await pulumiErrorToString(error),
       })
+    } finally {
+      if (configId) {
+        this.configServer.delete(configId)
+      }
     }
   }
 
@@ -674,11 +688,14 @@ export class LocalRunnerBackend implements RunnerBackend {
       cacheDir = resolve(homeDir, ".cache", "highstate")
     }
 
+    const configServer = await LocalConfigServer.create()
+
     return new LocalRunnerBackend(
       config.HIGHSTATE_RUNNER_BACKEND_LOCAL_PRINT_OUTPUT,
       cacheDir,
       config.HIGHSTATE_RUNNER_BACKEND_LOCAL_CONCURRENCY,
       pulumiProjectHost,
+      configServer,
       libraryBackend,
       artifactManager,
       artifactBackend,

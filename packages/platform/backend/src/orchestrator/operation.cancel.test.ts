@@ -22,6 +22,8 @@ describe("Operation - Cancel", () => {
       unitExtraService,
       entitySnapshotService,
       unitOutputService,
+      libraryService,
+      projectPortService,
       createUnit,
       createDeployedUnitState,
       createOperation,
@@ -91,6 +93,8 @@ describe("Operation - Cancel", () => {
         entitySnapshotService,
         unitOutputService,
         logger,
+        libraryService,
+        projectPortService,
       )
 
       // act

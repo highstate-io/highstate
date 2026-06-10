@@ -10,7 +10,7 @@ import {
 } from "@highstate/backend/shared"
 import { unique } from "remeda"
 import { useVueFlow } from "@vue-flow/core"
-import type { ComponentModel, EntityModel } from "@highstate/contract"
+import type { ComponentModel, EntityModel, InstanceModel } from "@highstate/contract"
 import type { RoutedEdgeData } from "../business"
 
 const lineWidth = 3
@@ -46,6 +46,19 @@ const { inputInstance, outputInstance, inputHub, outputHub, outputKey, inputKey,
     targetHandle: targetHandleId,
   })
 
+const getInstanceComponent = (instance: InstanceModel | undefined): ComponentModel | undefined => {
+  if (!instance) {
+    return undefined
+  }
+
+  const resolved = inputResolverOutputs.get(`instance:${instance.id}`)
+  if (resolved?.kind === "instance") {
+    return resolved.component
+  }
+
+  return components[instance.type]
+}
+
 const entityTypes = computed<{
   all: string[]
   visible?: string[]
@@ -53,7 +66,10 @@ const entityTypes = computed<{
   if (inputNodeType === "outputs") {
     // special case for outputs in composite instances
 
-    const component = components[inputInstance!.type]
+    const component = getInstanceComponent(inputInstance)
+    if (!component) {
+      return { all: [] }
+    }
     const componentInput = component.outputs[inputKey!]
 
     return { all: componentInput ? [componentInput.type] : [] }
@@ -62,11 +78,14 @@ const entityTypes = computed<{
   if (outputInstance && inputInstance) {
     // instance: direct input
 
-    const component = components[inputInstance.type]
-    const componentInput = component.inputs[inputKey]
-
     const resolved = getResolvedInstanceInputs(inputResolverOutputs, inputInstance.id)
     const visible = unique((resolved[inputKey] ?? []).map(input => input.type))
+
+    const component = getInstanceComponent(inputInstance)
+    if (!component) {
+      return { all: [], visible }
+    }
+    const componentInput = component.inputs[inputKey]
 
     if (visible.length > 0) {
       return {
@@ -116,7 +135,10 @@ const entityTypes = computed<{
       return { all: unique(resolvedTypes) }
     }
 
-    const component = components[outputInstance.type]
+    const component = getInstanceComponent(outputInstance)
+    if (!component) {
+      return { all: [] }
+    }
     const componentOutput = component.outputs[outputKey]
 
     return { all: componentOutput ? [componentOutput.type] : [] }
@@ -173,7 +195,10 @@ const typedInputExpectedTypeForGhost = computed((): string | undefined => {
     return undefined
   }
 
-  const component = components[inputInstance!.type]
+  const component = getInstanceComponent(inputInstance)
+  if (!component) {
+    return undefined
+  }
   return component.inputs[inputKey!]?.type
 })
 
@@ -234,6 +259,10 @@ const showGhostLine = computed(() => {
   return outputHub ? entityTypes.value.all.length === 0 : false
 })
 
+const isTypedHubToComponentInput = computed(() => {
+  return !!outputHub && !!inputInstance && !!inputKey
+})
+
 const lineCount = computed(() => {
   if (!outputHub) {
     return showGhostLine.value ? 1 : connectedEntities.value.length
@@ -260,10 +289,6 @@ const isGhostLane = (index: number) => {
 
   return hubGhostLaneEnabled.value && index === lineCount.value - 1
 }
-
-const isTypedHubToComponentInput = computed(() => {
-  return !!outputHub && !!inputInstance && !!inputKey
-})
 
 const getTypedInputExpectedType = (): string | undefined => {
   if (!isTypedHubToComponentInput.value) {

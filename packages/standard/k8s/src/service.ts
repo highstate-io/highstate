@@ -288,22 +288,21 @@ export abstract class Service extends NamespacedResource {
         ),
       )
 
-      const externalHosts =
+      const externalL3Endpoints =
         spec.type === "NodePort" || spec.type === "LoadBalancer"
           ? [
-              ...spec.externalIPs,
+              ...spec.externalIPs.map(endpoint => parseEndpoint(endpoint)),
               ...cluster.endpoints,
-              ...(status.loadBalancer?.ingress?.map(ingress => ingress.ip ?? ingress.hostname) ??
-                []),
+              ...(status.loadBalancer?.ingress
+                ?.map(ingress => ingress.ip ?? ingress.hostname)
+                .map(endpoint => parseEndpoint(endpoint)) ?? []),
             ]
           : []
 
-      const externalEndpoints = externalHosts.flatMap(ip =>
+      const externalEndpoints = externalL3Endpoints.flatMap(l3Endpoint =>
         spec.ports.map(port =>
           pipe(
-            ip,
-            parseEndpoint,
-            endpoint => l3EndpointToL4(endpoint, port.nodePort, parseL4Protocol(port.protocol)),
+            l3EndpointToL4(l3Endpoint, port.nodePort, parseL4Protocol(port.protocol)),
             endpoint => addEndpointMetadata(endpoint, createMetadata(false)),
             endpoint => (implRef ? { ...endpoint, implRef } : endpoint),
           ),

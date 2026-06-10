@@ -682,3 +682,192 @@ describe("reconstructLatestExportedOutputValues", () => {
     },
   )
 })
+
+describe("getLatestExportedOutputGraph", () => {
+  entitySnapshotTest(
+    "returns empty graph when output has no exported snapshots",
+    async ({ entitySnapshotService, projectDatabase, project, createInstanceState, expect }) => {
+      const operation = await createOperation(projectDatabase)
+      const state = await createInstanceState(project.id)
+
+      const entityId = getEntityId({
+        $meta: { type: "test.entity.v1", identity: "id-1" },
+      })
+
+      await entitySnapshotService.persistUnitEntitySnapshots({
+        projectId: project.id,
+        operationId: operation.id,
+        stateId: state.id,
+        payload: {
+          nodes: [
+            {
+              entityId,
+              entityType: "test.entity.v1",
+              identity: "id-1",
+              meta: { title: "Entity" },
+              content: { value: "hello" },
+              referencedOutputs: [],
+              exportedOutputs: ["other"],
+            },
+          ],
+          implicitReferences: [],
+          explicitReferences: [],
+        },
+      })
+
+      const graph = await entitySnapshotService.getLatestExportedOutputGraph(project.id, {
+        stateId: state.id,
+        output: "missing",
+      })
+
+      expect(graph).toEqual({
+        rootEntityIds: [],
+        entities: [],
+        references: [],
+      })
+    },
+  )
+
+  entitySnapshotTest(
+    "uses latest operation and traverses only inclusion references",
+    async ({ entitySnapshotService, projectDatabase, project, createInstanceState, expect }) => {
+      const state = await createInstanceState(project.id)
+      const oldOperation = await createOperation(projectDatabase)
+      const newOperation = await createOperation(projectDatabase)
+
+      const oldRootId = getEntityId({
+        $meta: { type: "old.root.v1", identity: "old-root" },
+      })
+
+      const rootId = getEntityId({
+        $meta: { type: "root.v1", identity: "root-1" },
+      })
+      const childId = getEntityId({
+        $meta: { type: "child.v1", identity: "child-1" },
+      })
+      const dependencyId = getEntityId({
+        $meta: { type: "dep.v1", identity: "dep-1" },
+      })
+
+      await entitySnapshotService.persistUnitEntitySnapshots({
+        projectId: project.id,
+        operationId: oldOperation.id,
+        stateId: state.id,
+        payload: {
+          nodes: [
+            {
+              entityId: oldRootId,
+              entityType: "old.root.v1",
+              identity: "old-root",
+              meta: { title: "Old Root" },
+              content: { value: "old" },
+              referencedOutputs: [],
+              exportedOutputs: ["out"],
+            },
+          ],
+          implicitReferences: [],
+          explicitReferences: [],
+        },
+      })
+
+      await entitySnapshotService.persistUnitEntitySnapshots({
+        projectId: project.id,
+        operationId: newOperation.id,
+        stateId: state.id,
+        payload: {
+          nodes: [
+            {
+              entityId: rootId,
+              entityType: "root.v1",
+              identity: "root-1",
+              meta: { title: "Root" },
+              content: { value: "new" },
+              referencedOutputs: [],
+              exportedOutputs: ["out"],
+            },
+            {
+              entityId: childId,
+              entityType: "child.v1",
+              identity: "child-1",
+              meta: { title: "Child" },
+              content: { value: "child" },
+              referencedOutputs: ["out"],
+              exportedOutputs: [],
+            },
+            {
+              entityId: dependencyId,
+              entityType: "dep.v1",
+              identity: "dep-1",
+              meta: { title: "Dependency" },
+              content: { value: "dep" },
+              referencedOutputs: ["out"],
+              exportedOutputs: [],
+            },
+          ],
+          implicitReferences: [{ fromEntityId: rootId, toEntityId: childId, group: "child" }],
+          explicitReferences: [{ fromEntityId: rootId, toEntityId: dependencyId, group: "deps" }],
+        },
+      })
+
+      const oldDate = new Date("2020-01-01T00:00:00.000Z")
+      const newDate = new Date("2020-01-02T00:00:00.000Z")
+
+      const oldSnapshots = await projectDatabase.entitySnapshot.findMany({
+        where: { operationId: oldOperation.id },
+        select: { id: true },
+      })
+      const newSnapshots = await projectDatabase.entitySnapshot.findMany({
+        where: { operationId: newOperation.id },
+        select: { id: true },
+      })
+
+      for (const snapshot of oldSnapshots) {
+        await projectDatabase.entitySnapshot.update({
+          where: { id: snapshot.id },
+          data: { createdAt: oldDate },
+        })
+      }
+
+      for (const snapshot of newSnapshots) {
+        await projectDatabase.entitySnapshot.update({
+          where: { id: snapshot.id },
+          data: { createdAt: newDate },
+        })
+      }
+
+      const graph = await entitySnapshotService.getLatestExportedOutputGraph(project.id, {
+        stateId: state.id,
+        output: "out",
+      })
+
+      expect(graph.rootEntityIds).toEqual([rootId])
+      expect(graph.entities).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            entityId: rootId,
+            type: "root.v1",
+            identity: "root-1",
+            content: { value: "new" },
+            meta: { title: "Root" },
+          }),
+          expect.objectContaining({
+            entityId: childId,
+            type: "child.v1",
+            identity: "child-1",
+            content: { value: "child" },
+            meta: { title: "Child" },
+          }),
+        ]),
+      )
+
+      expect(graph.entities.some(entity => entity.entityId === oldRootId)).toBe(false)
+      expect(graph.references).toEqual([
+        {
+          fromEntityId: rootId,
+          toEntityId: childId,
+          group: "child",
+        },
+      ])
+    },
+  )
+})

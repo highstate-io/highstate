@@ -34,6 +34,22 @@ export type OutputReferencedEntitySnapshot = {
   content: unknown
 }
 
+export type OutputExportedSnapshotGraph = {
+  rootEntityIds: string[]
+  entities: Array<{
+    entityId: string
+    type: string
+    identity: string
+    meta: Record<string, unknown>
+    content: Record<string, unknown>
+  }>
+  references: Array<{
+    fromEntityId: string
+    toEntityId: string
+    group: string
+  }>
+}
+
 export class EntitySnapshotService {
   constructor(
     private readonly database: DatabaseManager,
@@ -198,9 +214,9 @@ export class EntitySnapshotService {
               snapshotId: rootId,
               entityType: snapshot?.entity.type,
               entityIdentity: snapshot?.entity.identity,
-              error: message,
             },
-            "failed to reconstruct captured entity snapshot",
+            "failed to reconstruct captured entity snapshot: %s",
+            message,
           )
 
           reconstructed.push({
@@ -219,6 +235,150 @@ export class EntitySnapshotService {
     }
 
     return result
+  }
+
+  /**
+   * Loads the latest persisted flat entity graph for a concrete state output.
+   *
+   * The returned graph is based on stored snapshot nodes and inclusion references.
+   * It does not rematerialize nested entities from reconstructed runtime values.
+   *
+   * @param projectId The ID of the project.
+   * @param key The state/output selector and optional operation ID.
+   * @returns The output graph represented as flat entities and inclusion references.
+   */
+  async getLatestExportedOutputGraph(
+    projectId: string,
+    key: { stateId: string; output: string; operationId?: string },
+  ): Promise<OutputExportedSnapshotGraph> {
+    const projectDatabase = await this.database.forProject(projectId)
+
+    const operationId =
+      key.operationId ??
+      (await this.findLatestOperationIdForExportedOutput(projectDatabase, key.stateId, key.output))
+
+    if (!operationId) {
+      return {
+        rootEntityIds: [],
+        entities: [],
+        references: [],
+      }
+    }
+
+    const rootSnapshotsRaw = await projectDatabase.entitySnapshot.findMany({
+      where: {
+        stateId: key.stateId,
+        operationId,
+      },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        entityId: true,
+        content: {
+          select: {
+            meta: true,
+            content: true,
+          },
+        },
+        exportedInOutputs: true,
+        entity: {
+          select: {
+            type: true,
+            identity: true,
+          },
+        },
+      },
+    })
+
+    const rootSnapshots = rootSnapshotsRaw
+      .filter(snapshot => this.jsonStringArrayIncludes(snapshot.exportedInOutputs, key.output))
+      .map(snapshot => ({
+        id: snapshot.id,
+        entityId: snapshot.entityId,
+        content: snapshot.content.content,
+        meta: snapshot.content.meta,
+        exportedInOutputs: snapshot.exportedInOutputs,
+        referencedInOutputs: [],
+        entity: snapshot.entity,
+      }))
+
+    if (rootSnapshots.length === 0) {
+      return {
+        rootEntityIds: [],
+        entities: [],
+        references: [],
+      }
+    }
+
+    const { snapshotById, referencesByFromId } = await this.loadSnapshotGraph(
+      projectDatabase,
+      rootSnapshots,
+    )
+
+    const rootEntityIds = rootSnapshots.map(snapshot => snapshot.entityId)
+
+    const entities: OutputExportedSnapshotGraph["entities"] = []
+    const entityIds = new Set<string>()
+
+    for (const snapshot of snapshotById.values()) {
+      if (entityIds.has(snapshot.entityId)) {
+        continue
+      }
+
+      if (
+        typeof snapshot.content !== "object" ||
+        snapshot.content === null ||
+        Array.isArray(snapshot.content)
+      ) {
+        continue
+      }
+
+      entityIds.add(snapshot.entityId)
+      entities.push({
+        entityId: snapshot.entityId,
+        type: snapshot.entity.type,
+        identity: snapshot.entity.identity,
+        meta: this.normalizeSnapshotMeta(snapshot.meta) ?? {},
+        content: { ...(snapshot.content as Record<string, unknown>) },
+      })
+    }
+
+    const references: OutputExportedSnapshotGraph["references"] = []
+    const uniqueReferenceKeys = new Set<string>()
+
+    for (const [fromSnapshotId, groups] of referencesByFromId) {
+      const fromSnapshot = snapshotById.get(fromSnapshotId)
+      if (!fromSnapshot) {
+        continue
+      }
+
+      for (const [group, toSnapshotIds] of groups) {
+        for (const toSnapshotId of toSnapshotIds) {
+          const toSnapshot = snapshotById.get(toSnapshotId)
+          if (!toSnapshot) {
+            continue
+          }
+
+          const keyValue = `${fromSnapshot.entityId}:${toSnapshot.entityId}:${group}`
+          if (uniqueReferenceKeys.has(keyValue)) {
+            continue
+          }
+
+          uniqueReferenceKeys.add(keyValue)
+          references.push({
+            fromEntityId: fromSnapshot.entityId,
+            toEntityId: toSnapshot.entityId,
+            group,
+          })
+        }
+      }
+    }
+
+    return {
+      rootEntityIds,
+      entities,
+      references,
+    }
   }
 
   /**
@@ -612,6 +772,9 @@ export class EntitySnapshotService {
     }
 
     const refsByGroup = options.referencesByFromId.get(snapshot.id) ?? new Map<string, string[]>()
+    const availableInclusionGroups = Array.from(refsByGroup.keys()).sort()
+    const availableInclusionGroupsText =
+      availableInclusionGroups.length > 0 ? availableInclusionGroups.join(", ") : "none"
 
     for (const inclusion of entityModel.inclusions ?? []) {
       const toIds = refsByGroup.get(inclusion.field) ?? []
@@ -620,7 +783,7 @@ export class EntitySnapshotService {
         if (toIds.length === 0) {
           if (inclusion.required) {
             throw new Error(
-              `Missing required inclusion "${inclusion.field}" on entity "${snapshot.entity.type}"`,
+              `Missing required inclusion "${inclusion.field}" on entity "${snapshot.entity.type}" (snapshotId="${snapshot.id}", entityId="${snapshot.entityId}", availableGroups=${availableInclusionGroupsText})`,
             )
           }
 
@@ -644,7 +807,7 @@ export class EntitySnapshotService {
       if (toIds.length === 0) {
         if (inclusion.required) {
           throw new Error(
-            `Missing required inclusion "${inclusion.field}" on entity "${snapshot.entity.type}"`,
+            `Missing required inclusion "${inclusion.field}" on entity "${snapshot.entity.type}" (snapshotId="${snapshot.id}", entityId="${snapshot.entityId}", availableGroups=${availableInclusionGroupsText})`,
           )
         }
 

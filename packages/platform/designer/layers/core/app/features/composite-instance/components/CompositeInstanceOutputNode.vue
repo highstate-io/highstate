@@ -11,14 +11,14 @@ const { instance } = defineProps<
   }
 >()
 
-const { projectStore, libraryStore, stateStore } = useProjectStores()
+const { projectStore, instancesStore, libraryStore, stateStore } = useProjectStores()
 
-const component = computed(() => libraryStore.library.components[instance.type])
+const component = computed(() => instancesStore.getInstanceComponent(instance))
 const state = computed(() => stateStore.getInstanceState(instance.id))
 </script>
 
 <template>
-  <ComponentCard :component="component" subtitle="Outputs" style="overflow: visible">
+  <ComponentCard v-if="component" :component="component" subtitle="Outputs" style="overflow: visible">
     <InstanceNodeIO
       :instance="instance"
       :component="component"

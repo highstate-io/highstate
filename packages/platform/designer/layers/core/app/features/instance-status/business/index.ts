@@ -7,6 +7,7 @@ import type {
   Operation,
 } from "@highstate/backend"
 import {
+  SYSTEM_EXPORT_COMPONENT_TYPE,
   isTransientInstanceOperationStatus,
   isTransientOperationStatus,
   type InstanceState,
@@ -107,7 +108,41 @@ const evaluationStatusColors: Record<InstanceEvaluationStatus, string> = {
   evaluating: "primary",
 }
 
+function isExportPortState(state: InstanceState): boolean {
+  return state.instanceId.startsWith(`${SYSTEM_EXPORT_COMPONENT_TYPE}:`)
+}
+
+function isImportPortState(state: InstanceState): boolean {
+  return state.instanceId.startsWith("system.import.")
+}
+
 function createInstanceStateTab(state: InstanceState, expectedInputHash?: number): StatusPanelTab {
+  if (isExportPortState(state) && state.status === "deployed") {
+    return {
+      name: "instance-state",
+      status: "exported",
+      title: "State",
+      message: "All entities from this instance are exported and can be imported in other projects.",
+      icon: "export",
+      color: "success",
+      order: 5,
+      important: false,
+    }
+  }
+
+  if (isImportPortState(state) && state.status === "deployed") {
+    return {
+      name: "instance-state",
+      status: "imported",
+      title: "State",
+      message: "Entities from another project are imported and available for other instances.",
+      icon: "import",
+      color: "success",
+      order: 5,
+      important: false,
+    }
+  }
+
   if (state.inputHash && state.inputHash !== expectedInputHash) {
     return {
       name: "instance-state",

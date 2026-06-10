@@ -52,6 +52,7 @@ export type EntitySnapshotOutput = z.infer<typeof entitySnapshotOutputSchema>
 
 export const entitySnapshotListItemOutputSchema = z.object({
   id: z.string(),
+  entityType: z.string(),
   meta: commonObjectMetaSchema,
   operationId: z.string(),
   stateId: z.string(),

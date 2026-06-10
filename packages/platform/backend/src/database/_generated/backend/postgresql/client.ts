@@ -29,8 +29,8 @@ export * from "./enums.ts"
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more UserWorkspaceLayouts
- * const userWorkspaceLayouts = await prisma.userWorkspaceLayout.findMany()
+ * // Fetch zero or more ProjectImportPorts
+ * const projectImportPorts = await prisma.projectImportPort.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -39,6 +39,11 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model ProjectImportPort
+ * 
+ */
+export type ProjectImportPort = Prisma.ProjectImportPortModel
 /**
  * Model UserWorkspaceLayout
  * 

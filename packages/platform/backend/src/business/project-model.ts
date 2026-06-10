@@ -1,9 +1,9 @@
 import type { InstanceInput, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { DatabaseManager } from "../database"
-import type { LibraryBackend } from "../library"
 import type { ProjectModelBackend } from "../project-model"
 import type { InstanceStateService } from "./instance-state"
+import type { LibraryService } from "./library"
 import type { ProjectUnlockService } from "./project-unlock"
 import { isNonNullish } from "remeda"
 import {
@@ -15,6 +15,7 @@ import {
   type ProjectOutput,
   projectOutputSchema,
   type ResolvedInstanceInput,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
 } from "../shared"
 
 export type GetProjectModelOptions = {
@@ -36,7 +37,7 @@ export type GetProjectModelOptions = {
 export class ProjectModelService {
   constructor(
     private readonly database: DatabaseManager,
-    private readonly libraryBackend: LibraryBackend,
+    private readonly libraryService: LibraryService,
     private readonly instanceStateService: InstanceStateService,
     private readonly projectModelBackends: Record<string, ProjectModelBackend>,
     private readonly projectUnlockService: ProjectUnlockService,
@@ -69,7 +70,7 @@ export class ProjectModelService {
 
     const [{ instances, hubs }, library] = await Promise.all([
       backend.getProjectModel(project, spec),
-      this.libraryBackend.loadLibrary(project.libraryId),
+      this.libraryService.getLibraryModel(projectId),
     ])
 
     const filteredInstances = this.filterInstancesWithKnownComponents(
@@ -108,7 +109,7 @@ export class ProjectModelService {
       this.instanceStateService.getInstanceStates(projectId, { includeEvaluationState: true }),
     ])
 
-    const library = await this.libraryBackend.loadLibrary(project.libraryId)
+    const library = await this.libraryService.getLibraryModel(projectId)
 
     const stateMap = new Map(states.map(state => [state.id, state]))
 
@@ -311,7 +312,7 @@ export class ProjectModelService {
 
     const [{ instances, hubs }, library] = await Promise.all([
       backend.getProjectModel(project, spec),
-      this.libraryBackend.loadLibrary(project.libraryId),
+      this.libraryService.getLibraryModel(projectId),
     ])
 
     const instanceById = new Map(instances.map(instance => [instance.id, instance]))
@@ -336,6 +337,11 @@ export class ProjectModelService {
     let removedHubInputs = 0
 
     for (const instance of instances) {
+      // export inputs are dynamic and intentionally not present in static component schema
+      if (instance.type === SYSTEM_EXPORT_COMPONENT_TYPE) {
+        continue
+      }
+
       const component = library.components[instance.type]
       if (!component || !instance.inputs) {
         continue

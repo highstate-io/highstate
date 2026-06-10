@@ -30,6 +30,13 @@ export type GraphResolverInput =
       type: "dispose-resolver"
       resolverId: string
     }
+  | {
+      type: "can-add-dependency"
+      resolverId: string
+      requestId: string
+      nodeId: string
+      dependencyId: string
+    }
 
 export type OutputItem = {
   nodeId: string
@@ -62,6 +69,12 @@ export type GraphResolverOutput =
   | {
       type: "resolver-ready"
       resolverId: string
+    }
+  | {
+      type: "can-add-dependency-result"
+      resolverId: string
+      requestId: string
+      result: boolean
     }
 
 const postMessage = (port: MessagePort, message: GraphResolverOutput) => {
@@ -278,6 +291,26 @@ const disposeResolver = (resolverId: string) => {
   resolvers.delete(resolverId)
 }
 
+const canAddDependency = (
+  port: MessagePort,
+  resolverId: string,
+  requestId: string,
+  nodeId: string,
+  dependencyId: string,
+) => {
+  const state = resolvers.get(resolverId)
+  if (!state) {
+    throw new Error(`Unknown state: ${resolverId}`)
+  }
+
+  postMessage(port, {
+    type: "can-add-dependency-result",
+    resolverId,
+    requestId,
+    result: state.resolver.canAddDependency(nodeId, dependencyId),
+  })
+}
+
 ;(self as unknown as SharedWorkerGlobalScope).onconnect = (event: MessageEvent) => {
   const port = event.ports[0]
 
@@ -300,6 +333,10 @@ const disposeResolver = (resolverId: string) => {
       }
       case "dispose-resolver": {
         disposeResolver(data.resolverId)
+        break
+      }
+      case "can-add-dependency": {
+        canAddDependency(port, data.resolverId, data.requestId, data.nodeId, data.dependencyId)
         break
       }
     }

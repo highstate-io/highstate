@@ -1,7 +1,12 @@
 import type { InstanceId, InstanceModel } from "@highstate/contract"
-import type { InstanceLockService, InstanceStateService, ProjectModelService } from "../business"
+import type {
+  InstanceLockService,
+  InstanceStateService,
+  LibraryService,
+  ProjectModelService,
+} from "../business"
 import type { Operation } from "../database"
-import type { LibraryBackend } from "../library"
+import type { LibraryBackend, ResolvedUnitSource } from "../library"
 import type { InstanceState, LibraryModel, OperationOptions } from "../shared"
 import type { PlanTestBuilder } from "./plan-test-builder"
 import { defineComponent, defineEntity, defineUnit, z } from "@highstate/contract"
@@ -13,6 +18,7 @@ import { OperationContext } from "./operation-context"
 export const operationPlanTest = test.extend<{
   // mock services
   libraryBackend: MockedObject<LibraryBackend>
+  libraryService: MockedObject<LibraryService>
   instanceLockService: MockedObject<InstanceLockService>
   instanceStateService: MockedObject<InstanceStateService>
   projectModelService: MockedObject<ProjectModelService>
@@ -46,6 +52,15 @@ export const operationPlanTest = test.extend<{
       tryLockInstances: vi.fn(),
       unlockInstancesUnconditionally: vi.fn(),
     } as unknown as InstanceLockService)
+
+    await use(mock)
+  },
+
+  libraryService: async ({}, use) => {
+    const mock = vi.mocked({
+      getLibraryModel: vi.fn(),
+      getResolvedUnitSources: vi.fn(),
+    } as unknown as LibraryService)
 
     await use(mock)
   },
@@ -151,7 +166,7 @@ export const operationPlanTest = test.extend<{
   createContext: async (
     {
       project,
-      libraryBackend,
+      libraryService,
       instanceStateService,
       projectModelService,
       logger,
@@ -175,8 +190,7 @@ export const operationPlanTest = test.extend<{
         },
         project,
       ])
-      libraryBackend.loadLibrary.mockResolvedValue(library)
-      libraryBackend.getResolvedUnitSources.mockResolvedValue([
+      const unitSources: ResolvedUnitSource[] = [
         {
           unitType: "component.v1",
           sourceHash: 12345,
@@ -189,13 +203,16 @@ export const operationPlanTest = test.extend<{
           projectPath: "test",
           allowedDependencies: [],
         },
-      ])
+      ]
+
+      libraryService.getLibraryModel.mockResolvedValue(library)
+      libraryService.getResolvedUnitSources.mockResolvedValue(unitSources)
       instanceStateService.getInstanceStates.mockResolvedValue(states)
 
       // create context
       return await OperationContext.load(
         project.id,
-        libraryBackend,
+        libraryService,
         instanceStateService,
         projectModelService,
         undefined,

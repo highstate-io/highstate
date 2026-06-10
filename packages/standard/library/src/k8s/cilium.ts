@@ -40,6 +40,11 @@ export const cilium = defineUnit({
      * The tolerations of the cilium operator in the cluster.
      */
     operatorTolerations: tolerationSchema.array().optional(),
+
+    /**
+     * The node selector for the cilium operator in the cluster.
+     */
+    operatorNodeSelector: z.record(z.string(), z.string()).optional(),
   },
 
   inputs: {

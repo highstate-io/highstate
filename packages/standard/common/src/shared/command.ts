@@ -175,6 +175,13 @@ export type TextFileArgs = {
    * The content to write to the file.
    */
   content: Input<string>
+
+  /**
+   * The permissions to set on the file (e.g. "600").
+   *
+   * By default, no permissions will be set (the file will be created with the default permissions of the host).
+   */
+  mode?: Input<string>
 }
 
 export type WaitForArgs = CommandArgs & {
@@ -455,11 +462,17 @@ export class Command extends ComponentResource {
     options: TextFileArgs,
     opts?: ComponentResourceOptions,
   ): Command {
+    const create = output(options.mode).apply(mode =>
+      mode
+        ? interpolate`mkdir -p $(dirname "${options.path}") && cat > ${options.path} && chmod ${mode} ${options.path}`
+        : interpolate`mkdir -p $(dirname "${options.path}") && cat > ${options.path}`,
+    )
+
     return new Command(
       name,
       {
         host: options.host,
-        create: interpolate`mkdir -p $(dirname "${options.path}") && cat > ${options.path}`,
+        create,
         delete: interpolate`rm -rf ${options.path}`,
         stdin: options.content,
       },

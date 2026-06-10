@@ -1,0 +1,25 @@
+model ProjectImportPort {
+    /// The CUIDv2 of the project where import port is located.
+    projectId String
+
+    /// The ID of the project exporting to this import port.
+    sourceProjectId String
+
+    /// The ID of the instance state representing paired export port in the source project.
+    sourceStateId String
+
+    /// The SHA256 of the encrypted content before armoring.
+    contentHash String
+
+    /// The encrypted content of the import port armored in AGE format.
+    encryptedContent String
+
+    /// The project this import port belongs to.
+    project Project @relation(fields: [projectId], references: [id])
+
+    /// The project that is the source of the import content.
+    sourceProject Project @relation("ProjectImportSource", fields: [sourceProjectId], references: [id])
+
+    @@id([projectId, sourceStateId]) // don't allow different source projects use the same state id (state id is cuidv2 and must be globally unique)
+    @@index([sourceProjectId, sourceStateId])
+}

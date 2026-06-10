@@ -1452,13 +1452,13 @@ export type $EntitySnapshotPayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     stateId: string
     /**
-     * The name of the instance outputs where this entity were referenced (including nested entities).
+     * The names of the instance outputs where this entity was referenced (including nested entities).
      * 
      * ![string[]]
      */
     referencedInOutputs:(string[])
     /**
-     * The name of the outputs that exported this entity directly.
+     * The names of the outputs that exported this entity directly.
      * 
      * ![string[]]
      */

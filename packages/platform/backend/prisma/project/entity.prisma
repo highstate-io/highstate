@@ -36,12 +36,12 @@ model EntitySnapshot {
     /// The ID of the instance state produced this entity snapshot.
     stateId String
 
-    /// The name of the instance outputs where this entity were referenced (including nested entities).
+    /// The names of the instance outputs where this entity was referenced (including nested entities).
     ///
     /// ![string[]]
     referencedInOutputs Json
 
-    /// The name of the outputs that exported this entity directly.
+    /// The names of the outputs that exported this entity directly.
     ///
     /// ![string[]]
     exportedInOutputs Json

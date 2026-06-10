@@ -1,5 +1,6 @@
 import type { Logger } from "pino"
 import type { LibraryBackend } from "../library"
+import type { LibraryModel } from "../shared"
 import { crc32 } from "node:zlib"
 import {
   type EntityWithMeta,
@@ -90,6 +91,7 @@ export class UnitOutputService {
     libraryId: string
     instanceType: VersionedName
     outputs: RawPulumiOutputs
+    libraryModel?: LibraryModel
     signal?: AbortSignal
   }): Promise<ParsedUnitOutputs> {
     const unitOutputs = omitBy(options.outputs, (_value, key) => key.startsWith("$"))
@@ -135,6 +137,7 @@ export class UnitOutputService {
         libraryId: options.libraryId,
         instanceType: options.instanceType,
         unitOutputs,
+        libraryModel: options.libraryModel,
         signal: options.signal,
       })
     } catch (error) {
@@ -188,6 +191,7 @@ export class UnitOutputService {
     libraryId: string
     instanceType: VersionedName
     unitOutputs: RawPulumiOutputs
+    libraryModel?: LibraryModel
     signal?: AbortSignal
   }): Promise<UnitEntitySnapshotPayload | null> {
     const unitOutputNames = Object.keys(options.unitOutputs)
@@ -195,7 +199,9 @@ export class UnitOutputService {
       return null
     }
 
-    const library = await this.libraryBackend.loadLibrary(options.libraryId, options.signal)
+    const library =
+      options.libraryModel ??
+      (await this.libraryBackend.loadLibrary(options.libraryId, options.signal))
     const component = library.components[options.instanceType]
 
     if (!component) {

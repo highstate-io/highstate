@@ -273,10 +273,22 @@ export class Chart extends ComponentResource {
                 )
 
                 const serviceSpec = await toPromise(createServiceSpec(args.service ?? {}, cluster))
+                const serviceMetadata = await toPromise(args.service?.metadata ?? {})
 
                 return {
                   props: {
                     ...resourceArgs.props,
+                    metadata: {
+                      ...resourceArgs.props.metadata,
+                      labels: {
+                        ...resourceArgs.props.metadata?.labels,
+                        ...serviceMetadata.labels,
+                      },
+                      annotations: {
+                        ...resourceArgs.props.metadata?.annotations,
+                        ...serviceMetadata.annotations,
+                      },
+                    },
                     spec: {
                       ...spec,
                       ...(serviceSpec.ports?.length !== 0

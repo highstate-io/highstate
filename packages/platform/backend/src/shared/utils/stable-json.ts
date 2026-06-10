@@ -27,7 +27,7 @@ export function stableJsonStringify(value: unknown): string {
       for (const key of keys) {
         const item = record[key]
         if (item === undefined) {
-          throw new Error("Snapshot content contains undefined")
+          continue
         }
 
         parts.push(`${JSON.stringify(key)}:${stableJsonStringify(item)}`)

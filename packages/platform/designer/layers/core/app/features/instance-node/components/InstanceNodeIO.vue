@@ -8,6 +8,7 @@ const { type = "both" } = defineProps<{
   instance: InstanceModel
   component: ComponentModel
   entities: Record<string, EntityModel | undefined>
+  editable?: boolean
   projectId?: string
   stateId?: string
   type?: "inputs" | "outputs" | "both"
@@ -29,6 +30,7 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :editable="editable"
         :project-id="projectId"
         :state-id="stateId"
         :is-valid-connection="isValidConnection"
@@ -47,6 +49,7 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :editable="editable"
         :project-id="projectId"
         :state-id="stateId"
         :is-valid-connection="isValidConnection"
@@ -65,6 +68,7 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :editable="editable"
         :project-id="projectId"
         :state-id="stateId"
         :is-valid-connection="isValidConnection"
@@ -83,6 +87,7 @@ const { type = "both" } = defineProps<{
         :instance="instance"
         :component="component"
         :entities="entities"
+        :editable="editable"
         :project-id="projectId"
         :state-id="stateId"
         :is-valid-connection="isValidConnection"

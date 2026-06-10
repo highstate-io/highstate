@@ -1,4 +1,5 @@
 import type { k8s, network } from "@highstate/library"
+import { getEntityId } from "@highstate/contract"
 import { isEndpointFromCluster } from "./service"
 
 export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
@@ -23,6 +24,19 @@ export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
     if (clusterEndpoint) {
       return clusterEndpoint
     }
+  }
+
+  // then try to find any endpoint from the same network
+  const sameNetworkEndpoint = endpoints.find(endpoint =>
+    cluster?.endpoints.some(
+      clusterEndpoint =>
+        clusterEndpoint.network &&
+        endpoint.network &&
+        getEntityId(clusterEndpoint.network) === getEntityId(endpoint.network),
+    ),
+  )
+  if (sameNetworkEndpoint) {
+    return sameNetworkEndpoint
   }
 
   // if there is no internal endpoint, try to find any public endpoint

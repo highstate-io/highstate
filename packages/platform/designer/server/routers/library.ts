@@ -5,6 +5,13 @@ export const libraryRouter = router({
   get: publicProcedure.input(z.object({ libraryId: z.string() })).query(async ({ ctx, input }) => {
     return await ctx.libraryBackend.loadLibrary(input.libraryId)
   }),
+
+  getProjectVirtualComponents: publicProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input, signal }) => {
+      return await ctx.libraryService.getVirtualComponents(input.projectId, signal)
+    }),
+
   watch: publicProcedure.input(z.object({ libraryId: z.string() })).subscription(async function* ({
     ctx,
     input,
@@ -12,6 +19,7 @@ export const libraryRouter = router({
   }) {
     yield* ctx.libraryBackend.watchLibrary(input.libraryId, signal)
   }),
+
   getUnitSourceHashes: publicProcedure
     .input(z.object({ libraryId: z.string(), unitTypes: z.string().array() }))
     .query(async ({ ctx, input }) => {
@@ -22,6 +30,7 @@ export const libraryRouter = router({
 
       return resolvedSources.map(({ unitType, sourceHash }) => ({ unitType, sourceHash }))
     }),
+
   watchUnitSourceHashes: publicProcedure
     .input(z.object({ libraryId: z.string() }))
     .subscription(async function* ({ ctx, input, signal }) {

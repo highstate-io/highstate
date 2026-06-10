@@ -20,7 +20,7 @@ export const minio = defineUnit({
 
   args: {
     ...appName("minio"),
-    ...pick(optionalSharedArgs, ["fqdn"]),
+    ...pick(optionalSharedArgs, ["fqdn", "namespace"]),
     ...pick(sharedArgs, ["external"]),
 
     /**

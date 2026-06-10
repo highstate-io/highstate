@@ -1,7 +1,7 @@
 import type { InputJsonValue } from "@prisma/client/runtime/client"
 import type { Logger } from "pino"
-import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
@@ -44,7 +44,7 @@ export class ProjectService {
     private readonly projectEvaluationSubsystem: ProjectEvaluationSubsystem,
     private readonly projectModelService: ProjectModelService,
     private readonly projectModelBackends: Record<string, ProjectModelBackend>,
-    private readonly libraryBackend: LibraryBackend,
+    private readonly libraryService: LibraryService,
     private readonly pubsubManager: PubSubManager,
     private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
@@ -78,10 +78,8 @@ export class ProjectService {
     logger.info("creating new project")
 
     // setup project database
-    const [encryptedMasterKey, unlockSuite] = await this.projectUnlockService.setupProjectDatabase(
-      projectId,
-      unlockMethodInput,
-    )
+    const [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite] =
+      await this.projectUnlockService.setupProjectDatabase(projectId, unlockMethodInput)
 
     logger.info("project database set up")
 
@@ -93,6 +91,8 @@ export class ProjectService {
         meta: projectInput.meta,
         databaseVersion: projectDatabaseVersion,
         encryptedMasterKey,
+        encryptedPrivateKey,
+        publicKey,
         unlockSuite,
         spaceId: projectInput.spaceId,
         modelStorageId: projectInput.modelStorageId,
@@ -267,13 +267,14 @@ export class ProjectService {
       const { project, backend, spec } = await this.getProjectWithBackend(projectId)
       try {
         const instance = await backend.updateInstance(project, spec, instanceId, patch)
-        const library = await this.libraryBackend.loadLibrary(project.libraryId)
+        const library = await this.libraryService.getLibraryModel(projectId)
+        const component = library.components[instance.type]
 
         await this.pubsubManager.publish(["project-model", projectId], {
           updatedInstances: [instance],
         })
 
-        if (!isUnitModel(library.components[instance.type]) && patch.args) {
+        if (component && !isUnitModel(component) && patch.args) {
           // evaluate the project if arguments changed for composite instancer
           void this.projectEvaluationSubsystem.evaluateProject(projectId)
         } else if (patch.hubInputs || patch.injectionInputs || patch.inputs) {

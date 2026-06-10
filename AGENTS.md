@@ -10,6 +10,7 @@ Some simple rules to follow:
 - When given a task, first research related files in the codebase and then propose a plan of action.
 - Do not action until the user confirms you initial plan unless explicitly asked to do immediately.
 - If you discovered that something changed after your edits, stick with the new (user-provided) changes and do not revert them.
+- If user say that something is not working, assume he did correctly compile/rerun the code and information is up to date.
 
 Some additional notes:
 

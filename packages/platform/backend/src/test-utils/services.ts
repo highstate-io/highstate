@@ -77,6 +77,8 @@ export const test = baseTest.extend<{
             ...resolvedInput,
             databaseVersion: projectDatabaseVersion,
             encryptedMasterKey: "",
+            encryptedPrivateKey: "",
+            publicKey: null,
             unlockSuite: { encryptedIdentities: [], hasPasskey: false },
           },
         })

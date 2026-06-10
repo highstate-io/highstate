@@ -27,6 +27,7 @@ import {
   type Input,
   type InputArray,
   makeFile,
+  makeSecret,
   normalize,
   type Output,
   output,
@@ -165,7 +166,7 @@ export class BackupJobPair extends ComponentResource {
 
         stringData: {
           password: args.backupKey,
-          "rclone.conf": output(args.resticRepo).rcloneConfig,
+          "rclone.conf": output(args.resticRepo).rcloneConfig.value,
         },
       },
       { ...opts, parent: this },
@@ -384,15 +385,15 @@ export class BackupJobPair extends ComponentResource {
           "/credentials/password": {
             meta: { name: "/credentials/password" },
             content: {
-              type: "embedded" as const,
-              value: backupPassword,
+              type: "embedded-secret" as const,
+              value: makeSecret(backupPassword),
             },
           },
 
           "/root/.config/rclone/rclone.conf": {
             meta: { name: "/root/.config/rclone/rclone.conf" },
             content: {
-              type: "embedded" as const,
+              type: "embedded-secret" as const,
               value: resticRepo.rcloneConfig,
             },
           },

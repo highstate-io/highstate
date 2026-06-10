@@ -12,6 +12,7 @@ const globalSearchTest = test.extend<{
     const projectUnlockBackend = vi.mockObject({
       checkProjectUnlocked: vi.fn().mockResolvedValue(false),
       getProjectMasterKey: vi.fn().mockResolvedValue(null),
+      getProjectPrivateKey: vi.fn().mockResolvedValue(null),
       unlockProject: vi.fn().mockResolvedValue(undefined),
       lockProject: vi.fn().mockResolvedValue(undefined),
     } as unknown as ProjectUnlockBackend)

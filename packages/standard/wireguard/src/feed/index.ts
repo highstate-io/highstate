@@ -40,6 +40,8 @@ const document: WgFeedDocument = await toPromise({
     icon_url: args.displayInfo.iconUrl,
   },
 
+  warning_message: args.warningMessage,
+
   endpoints: serverEndpoints.map(endpoint => `https://${l3EndpointToString(endpoint)}/${feedId}`),
 
   tunnels: configs.map(async config => {
@@ -59,6 +61,7 @@ const document: WgFeedDocument = await toPromise({
       enabled: config.feedMetadata.enabled,
       forced: config.feedMetadata.forced,
       exclusive: config.feedMetadata.exclusive,
+      warning_message: config.feedMetadata.warningMessage,
 
       display_info: {
         title: config.feedMetadata.displayInfo.title,

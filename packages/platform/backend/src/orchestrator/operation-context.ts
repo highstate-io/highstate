@@ -3,9 +3,9 @@ import type {
   CapturedEntitySnapshotValue,
   EntitySnapshotService,
   InstanceStateService,
+  LibraryService,
   ProjectModelService,
 } from "../business"
-import type { LibraryBackend } from "../library"
 import {
   type ComponentModel,
   type InstanceId,
@@ -138,6 +138,14 @@ export class OperationContext {
   ): CapturedEntitySnapshotValue[] {
     const key = `${instanceId}:${output}`
     return this.capturedOutputValueMap.get(key) ?? []
+  }
+
+  public setCapturedOutputValues(
+    instanceId: InstanceId,
+    output: string,
+    values: CapturedEntitySnapshotValue[],
+  ): void {
+    this.capturedOutputValueMap.set(`${instanceId}:${output}`, values)
   }
 
   public updateCapturedOutputValuesFromUnitOutputs(options: {
@@ -403,7 +411,7 @@ export class OperationContext {
 
   public static async load(
     projectId: string,
-    libraryBackend: LibraryBackend,
+    librarySource: LibraryService,
     instanceStateService: InstanceStateService,
     projectModelService: ProjectModelService,
     entitySnapshotService: EntitySnapshotService | undefined,
@@ -416,7 +424,7 @@ export class OperationContext {
       })
 
     const [library, states] = await Promise.all([
-      libraryBackend.loadLibrary(project.libraryId),
+      librarySource.getLibraryModel(projectId),
       instanceStateService.getInstanceStates(projectId, {
         includeEvaluationState: true,
         includeParentInstanceId: true,
@@ -457,9 +465,10 @@ export class OperationContext {
       }
     }
 
-    const unitSources = await libraryBackend.getResolvedUnitSources(
+    const unitSourceTypes = unique(Array.from(context.instanceMap.values()).map(i => i.type))
+    const unitSources = await librarySource.getResolvedUnitSources(
       project.libraryId,
-      unique(Array.from(context.instanceMap.values()).map(i => i.type)),
+      unitSourceTypes,
     )
 
     for (const unitSource of unitSources) {

@@ -1,9 +1,11 @@
-import { Deployment, Namespace } from "@highstate/k8s"
+import { generateKey } from "@highstate/common"
+import { Deployment, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit } from "@highstate/pulumi"
+import { BackupJobPair } from "@highstate/restic"
 import { createMysqlCredentialsSecret, images } from "../shared"
 
-const { args, inputs, outputs } = forUnit(k8s.apps.vaultwarden)
+const { args, getSecret, inputs, outputs } = forUnit(k8s.apps.vaultwarden)
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
@@ -12,6 +14,38 @@ const mysqlCredentials = createMysqlCredentialsSecret(
   namespace,
   inputs.mysql,
 )
+
+const backupKey = getSecret("backupKey", generateKey)
+
+const adminTokenSecret = args.enableAdminPanel
+  ? Secret.create(`${args.appName}-admin-token`, {
+      namespace,
+      stringData: {
+        token: getSecret("adminToken", generateKey),
+      },
+    })
+  : undefined
+
+const dataVolumeClaim = PersistentVolumeClaim.create(
+  `${args.appName}-data`,
+  { namespace },
+  { deletedWith: namespace },
+)
+
+const backupJobPair = inputs.resticRepo
+  ? new BackupJobPair(
+      args.appName,
+      {
+        namespace,
+
+        resticRepo: inputs.resticRepo,
+        backupKey,
+
+        volume: dataVolumeClaim,
+      },
+      { dependsOn: dataVolumeClaim, deletedWith: namespace },
+    )
+  : undefined
 
 const deployment = Deployment.create(args.appName, {
   namespace,
@@ -25,10 +59,26 @@ const deployment = Deployment.create(args.appName, {
     },
 
     environment: {
+      DOMAIN: `https://${args.fqdn}`,
+
       DATABASE_URL: {
         secret: mysqlCredentials,
         key: "url",
       },
+
+      SIGNUPS_ALLOWED: args.allowSignup.toString(),
+
+      ADMIN_TOKEN: adminTokenSecret
+        ? {
+            secret: adminTokenSecret,
+            key: "token",
+          }
+        : undefined,
+    },
+
+    volumeMount: {
+      volume: dataVolumeClaim,
+      mountPath: "/data",
     },
   },
 
@@ -41,8 +91,8 @@ const deployment = Deployment.create(args.appName, {
 
 export default outputs({
   $statusFields: {
-    url: `http://${args.fqdn}`,
+    url: `https://${args.fqdn}`,
   },
 
-  $terminals: deployment.terminals,
+  $terminals: [...deployment.terminals, backupJobPair?.terminal],
 })

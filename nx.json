@@ -74,7 +74,6 @@
     "version": {
       "conventionalCommits": true
     },
-
     "groups": {
       "platform": {
         "projects": ["tag:platform"],
@@ -98,5 +97,6 @@
       }
     }
   },
-  "nxCloudId": "68ec0fb6bfeabbab18190388"
+  "nxCloudId": "68ec0fb6bfeabbab18190388",
+  "analytics": false
 }

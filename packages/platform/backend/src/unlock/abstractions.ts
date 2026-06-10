@@ -15,12 +15,20 @@ export interface ProjectUnlockBackend {
   getProjectMasterKey(projectId: string): Promise<Buffer | null>
 
   /**
+   * Gets the project AGE private identity or null if the project is not unlocked.
+   *
+   * @param projectId The ID of the project to get the private key for.
+   */
+  getProjectPrivateKey(projectId: string): Promise<string | null>
+
+  /**
    * Unlocks the project by setting its master key.
    *
    * @param projectId The ID of the project to unlock.
    * @param masterKey The base64-encoded master key for the project.
+   * @param privateKey The AGE private identity for the project.
    */
-  unlockProject(projectId: string, masterKey: Buffer): Promise<void>
+  unlockProject(projectId: string, masterKey: Buffer, privateKey: string): Promise<void>
 
   /**
    * Locks the project by wiping its master key.

@@ -1,26 +1,32 @@
 import type { ProjectUnlockBackend } from "./abstractions"
 
 export class MemoryProjectUnlockBackend implements ProjectUnlockBackend {
-  private readonly masterKeys = new Map<string, Buffer>()
+  private readonly unlockData = new Map<string, { masterKey: Buffer; privateKey: string }>()
 
   checkProjectUnlocked(projectId: string): Promise<boolean> {
-    return Promise.resolve(this.masterKeys.has(projectId))
+    return Promise.resolve(this.unlockData.has(projectId))
   }
 
   getProjectMasterKey(projectId: string): Promise<Buffer | null> {
-    const masterKey = this.masterKeys.get(projectId)
+    const masterKey = this.unlockData.get(projectId)?.masterKey
 
     return Promise.resolve(masterKey ?? null)
   }
 
+  getProjectPrivateKey(projectId: string): Promise<string | null> {
+    const privateKey = this.unlockData.get(projectId)?.privateKey
+
+    return Promise.resolve(privateKey ?? null)
+  }
+
   lockProject(projectId: string): Promise<void> {
-    this.masterKeys.delete(projectId)
+    this.unlockData.delete(projectId)
 
     return Promise.resolve()
   }
 
-  unlockProject(projectId: string, masterKey: Buffer): Promise<void> {
-    this.masterKeys.set(projectId, masterKey)
+  unlockProject(projectId: string, masterKey: Buffer, privateKey: string): Promise<void> {
+    this.unlockData.set(projectId, { masterKey, privateKey })
 
     return Promise.resolve()
   }

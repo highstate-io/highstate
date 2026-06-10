@@ -19,18 +19,32 @@ export const useCompositeStore = defineMultiStore({
       const { instancesStore, stateStore } = useExplicitProjectStores(projectId)
 
       const instanceState = computed(() => stateStore.stateIdToStateMap.get(stateId))
+      const resolvedInstanceId = computed(() => {
+        const mappedInstanceId = instanceState.value?.instanceId
+        if (mappedInstanceId) {
+          return mappedInstanceId
+        }
+
+        if (instancesStore.instances.has(stateId)) {
+          return stateId
+        }
+
+        return undefined
+      })
       const instance = computed(() => {
-        const state = instanceState.value
-        return state ? instancesStore.instances.get(state.instanceId) : undefined
+        const instanceId = resolvedInstanceId.value
+        return instanceId ? instancesStore.instances.get(instanceId) : undefined
       })
 
       const initialize = async () => {
         logger.info({ projectId }, "initializing composite instance store")
 
-        const viewport = await $client.workspace.getCompositeViewport.query({
-          projectId,
-          stateId,
-        })
+        const viewport = instanceState.value
+          ? await $client.workspace.getCompositeViewport.query({
+              projectId,
+              stateId,
+            })
+          : null
 
         if (viewport) {
           vueFlowStore.defaultViewport.value = viewport as ViewportTransform
@@ -101,6 +115,10 @@ export const useCompositeStore = defineMultiStore({
       }
 
       const debouncedSetViewport = useDebounceFn(async (viewport: ViewportTransform) => {
+        if (!instanceState.value) {
+          return
+        }
+
         await $client.workspace.setCompositeViewport.mutate({
           projectId,
           stateId,

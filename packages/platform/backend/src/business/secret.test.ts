@@ -1,16 +1,21 @@
-import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { defineEntity, defineUnit, z } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, type MockedObject, vi } from "vitest"
-import { InstanceStateNotFoundError, InvalidInstanceKindError, SystemSecretNames } from "../shared"
+import {
+  InstanceStateNotFoundError,
+  InvalidInstanceKindError,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
+  SystemSecretNames,
+} from "../shared"
 import { test } from "../test-utils"
 import { SecretService } from "./secret"
 
 const secretTest = test.extend<{
   pubsubManager: PubSubManager
-  libraryBackend: LibraryBackend
+  libraryService: LibraryService
   objectRefIndexService: MockedObject<ObjectRefIndexService>
   secretService: SecretService
 }>({
@@ -24,7 +29,7 @@ const secretTest = test.extend<{
     await use(pubsubManager)
   },
 
-  libraryBackend: async ({}, use) => {
+  libraryService: async ({}, use) => {
     // create test entity
     const testEntity = defineEntity({
       type: "test.entity.v1",
@@ -88,12 +93,12 @@ const secretTest = test.extend<{
       },
     }
 
-    const libraryBackend = vi.mocked({
-      loadLibrary: vi.fn().mockResolvedValue(library),
+    const libraryService = vi.mocked({
+      getLibraryModel: vi.fn().mockResolvedValue(library),
       getResolvedUnitSources: vi.fn(),
-    } as unknown as LibraryBackend)
+    } as unknown as LibraryService)
 
-    await use(libraryBackend)
+    await use(libraryService)
   },
 
   objectRefIndexService: async ({}, use) => {
@@ -105,13 +110,13 @@ const secretTest = test.extend<{
   },
 
   secretService: async (
-    { database, pubsubManager, libraryBackend, objectRefIndexService, logger },
+    { database, pubsubManager, libraryService, objectRefIndexService, logger },
     use,
   ) => {
     const service = new SecretService(
       database,
       pubsubManager,
-      libraryBackend,
+      libraryService,
       objectRefIndexService,
       logger.child({ service: "SecretService" }),
     )
@@ -233,6 +238,22 @@ describe("updateInstanceSecrets", () => {
         where: { stateId: instance.id },
       })
       expect(secrets).toHaveLength(2)
+    },
+  )
+
+  secretTest(
+    "allows empty secret updates for unit instances without unit model definition",
+    async ({ secretService, projectDatabase, project, createInstanceState, expect }) => {
+      // arrange
+      const instance = await createInstanceState(project.id, SYSTEM_EXPORT_COMPONENT_TYPE, "unit")
+
+      // act & assert
+      await expect(secretService.updateInstanceSecrets(project.id, instance.id, {})).resolves.toBe(
+        undefined,
+      )
+
+      const secrets = await projectDatabase.secret.findMany({ where: { stateId: instance.id } })
+      expect(secrets).toHaveLength(0)
     },
   )
 

@@ -6,6 +6,7 @@ defineProps<{
   side: "left" | "right"
   handleColor?: string
   isValidConnection?: ValidConnectionFunc
+  compact?: boolean
 }>()
 </script>
 
@@ -15,7 +16,7 @@ defineProps<{
     :type="side === 'left' ? 'target' : 'source'"
     :position="side === 'left' ? Position.Left : Position.Right"
     class="handle"
-    :class="[side === 'left' ? 'left-handle' : 'right-handle']"
+    :class="[side === 'left' ? 'left-handle' : 'right-handle', compact ? 'handle-compact' : '']"
     :is-valid-connection="isValidConnection"
   />
   <div
@@ -41,6 +42,10 @@ defineProps<{
 
 .right-handle {
   transform: translateY(-50%) translateX(13px);
+}
+
+.handle-compact {
+  width: 18px;
 }
 
 .handle-dot {

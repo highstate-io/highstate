@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  SYSTEM_EXPORT_COMPONENT_TYPE,
   getResolvedInjectionInstanceInputs,
   getResolvedInstanceInputs,
   type InputResolverOutput,
@@ -96,8 +97,13 @@ const canEditSecrets = computed(() => editable || isNestedInstance.value)
 
 const hasInputs = computed(() => Object.keys(component.inputs).length > 0)
 const hasOutputs = computed(() => Object.keys(component.outputs).length > 0)
+const canCreateExportInput = computed(
+  () => editable && instance.type === SYSTEM_EXPORT_COMPONENT_TYPE,
+)
 
-const hasInputsOrOutputs = computed(() => hasInputs.value || hasOutputs.value)
+const hasInputsOrOutputs = computed(() => {
+  return hasInputs.value || hasOutputs.value || canCreateExportInput.value
+})
 
 const resolvedInputs = computed(() => getResolvedInstanceInputs(inputResolverOutputs, instance.id))
 const resolvedInjectionInput = computed(() =>
@@ -243,6 +249,7 @@ const overlayIconSize = computed(() =>
         :component="component"
         :instance="instance"
         :entities="entities"
+        :editable="editable"
         :project-id="projectId"
         :state-id="state?.id"
         :is-valid-connection="isValidConnection"

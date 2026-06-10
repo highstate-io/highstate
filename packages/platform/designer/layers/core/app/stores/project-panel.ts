@@ -1,5 +1,7 @@
 import type { Connection, Edge, ViewportTransform } from "@vue-flow/core"
+import { SYSTEM_EXPORT_COMPONENT_TYPE } from "@highstate/backend/shared"
 import { useCanvasStore } from "./canvas"
+import { EXPORT_CREATE_INPUT_HANDLE } from "#layers/core/app/utils/vue-flow"
 
 export const useProjectPanelStore = defineMultiStore({
   name: "project-panel",
@@ -7,7 +9,7 @@ export const useProjectPanelStore = defineMultiStore({
 
   create: ({ storeId, id: [projectId], logger }) => {
     return defineStore(storeId, () => {
-      const { instancesStore } = useExplicitProjectStores(projectId)
+      const { instancesStore, libraryStore } = useExplicitProjectStores(projectId)
       const instanceFocusRequest = shallowRef<{ instanceId: string; requestId: number }>()
       let nextFocusRequestId = 0
 
@@ -79,38 +81,90 @@ export const useProjectPanelStore = defineMultiStore({
         void instancesStore.deleteInstance(node.data.instance, !node.data.blueprint)
       })
 
-      const addInput = (connection: Connection) => {
+      const addInput = async (connection: Connection) => {
         const { inputInstance, outputInstance, inputHub, outputHub, outputKey, inputKey } =
           getConnectionNodes(vueFlowStore, connection)
 
+        let effectiveInputKey = inputKey
+
+        if (outputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE) {
+          throw new Error("Export port cannot be a connection source")
+        }
+
+        if (outputHub && inputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE && !inputKey) {
+          throw new Error("Export port does not allow injection inputs")
+        }
+
+        const canAddDependency = await instancesStore.canAddInputDependency(
+          { instance: inputInstance, hub: inputHub },
+          { instance: outputInstance, hub: outputHub },
+        )
+
+        if (!canAddDependency) {
+          logger.warn(
+            {
+              connection,
+              inputInstanceId: inputInstance?.id,
+              inputHubId: inputHub?.id,
+              outputInstanceId: outputInstance?.id,
+              outputHubId: outputHub?.id,
+            },
+            "connection rejected by cycle",
+          )
+          throw new Error("Circular dependency")
+        }
+
+        if (
+          inputInstance &&
+          inputKey === EXPORT_CREATE_INPUT_HANDLE &&
+          inputInstance.type === SYSTEM_EXPORT_COMPONENT_TYPE
+        ) {
+          if (!outputInstance) {
+            throw new Error("Create-input handle supports only instance outputs")
+          }
+
+          const outputComponent = instancesStore.getInstanceComponent(outputInstance)
+          const output = outputComponent?.outputs[outputKey]
+
+          if (!output) {
+            throw new Error(`Output "${outputKey}" not found in instance "${outputInstance.id}"`)
+          }
+
+          const outputEntity = libraryStore.library.entities[output.type]
+
+          effectiveInputKey = instancesStore.createEditableExportInput(inputInstance, {
+            outputTitle: outputEntity?.meta.title,
+          })
+        }
+
         if (inputInstance && outputInstance) {
-          return instancesStore.addInstanceInput(inputInstance, inputKey, {
+          return await instancesStore.addInstanceInput(inputInstance, effectiveInputKey, {
             instanceId: outputInstance.id,
             output: outputKey,
           })
         }
 
-        if (outputHub && inputInstance && inputKey) {
-          return instancesStore.addInstanceHubInput(inputInstance, inputKey, {
+        if (outputHub && inputInstance && effectiveInputKey) {
+          return await instancesStore.addInstanceHubInput(inputInstance, effectiveInputKey, {
             hubId: outputHub.id,
           })
         }
 
         if (outputHub && inputInstance) {
-          return instancesStore.addInstanceInjectionInput(inputInstance, {
+          return await instancesStore.addInstanceInjectionInput(inputInstance, {
             hubId: outputHub.id,
           })
         }
 
         if (outputInstance && inputHub) {
-          return instancesStore.addHubInput(inputHub, {
+          return await instancesStore.addHubInput(inputHub, {
             instanceId: outputInstance.id,
             output: outputKey,
           })
         }
 
         if (outputHub && inputHub) {
-          return instancesStore.addHubInjectionInput(inputHub, {
+          return await instancesStore.addHubInjectionInput(inputHub, {
             hubId: outputHub.id,
           })
         }

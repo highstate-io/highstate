@@ -41,6 +41,8 @@ export default outputs({
     },
     value: {
       file,
+      identity,
+      peers,
       feedMetadata: feedMetadataFromPeers(peers) ?? feedMetadataFromArgs(args.feedMetadata),
     },
   }),

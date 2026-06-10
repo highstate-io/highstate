@@ -80,7 +80,7 @@ export const networkArgs = {
   /**
    * The extra parameters for the amneziawg backend.
    */
-  amnezia: amneziaParametersSchema.optional(),
+  amnezia: amneziaParametersSchema.default({}),
 }
 
 const configSharedArgs = $args({
@@ -171,6 +171,11 @@ export const feedMetadataSchema = z.object({
    * The display information of the tunnel.
    */
   displayInfo: feedDisplayInfoSchema,
+
+  /**
+   * The warning message to display for the tunnel.
+   */
+  warningMessage: z.string().optional(),
 })
 
 export const peerEntity = defineEntity({
@@ -330,6 +335,19 @@ export const configEntity = defineEntity({
      * The file containing the wg-quick configuration.
      */
     file: fileEntity,
+
+    /**
+     * The identity for which the config is generated.
+     */
+    identity: identityEntity,
+
+    /**
+     * The peers included in the config.
+     */
+    peers: {
+      entity: peerEntity,
+      multiple: true,
+    },
   },
 
   schema: z.object({
@@ -403,7 +421,14 @@ const sharedFeedArgs = $args({
          */
         provided: z.literal("yes"),
 
-        ...pick(feedMetadataSchema.shape, ["id", "name", "enabled", "forced", "exclusive"]),
+        ...pick(feedMetadataSchema.shape, [
+          "id",
+          "name",
+          "enabled",
+          "forced",
+          "exclusive",
+          "warningMessage",
+        ]),
 
         // Highstate does not support nested objects in UI
         ...feedDisplayInfoSchema.shape,
@@ -744,7 +769,16 @@ export const nodeK8s = defineUnit({
   },
 
   inputs: {
-    identity: identityEntity,
+    identity: {
+      entity: identityEntity,
+      required: false,
+    },
+
+    config: {
+      entity: configEntity,
+      required: false,
+    },
+
     k8sCluster: clusterEntity,
 
     workload: {
@@ -974,7 +1008,16 @@ export const node = defineUnit({
   },
 
   inputs: {
-    identity: identityEntity,
+    identity: {
+      entity: identityEntity,
+      required: false,
+    },
+
+    config: {
+      entity: configEntity,
+      required: false,
+    },
+
     server: {
       entity: serverEntity,
       required: true,
@@ -1071,6 +1114,10 @@ export const configBundle = defineUnit({
       multiple: true,
       required: false,
     },
+    network: {
+      entity: networkEntity,
+      required: false,
+    },
   },
 
   outputs: {
@@ -1129,6 +1176,11 @@ export const feed = defineUnit({
      * The display information of the feed.
      */
     displayInfo: feedDisplayInfoSchema,
+
+    /**
+     * The warning message to display for the feed.
+     */
+    warningMessage: z.string().optional(),
   },
 
   secrets: {

@@ -4,7 +4,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../../types/input";
 import * as outputs from "../../types/output";
-import * as utilities from "../utilities";
+import * as utilities from "../../utilities";
 
 /**
  * A ClusterIssuer represents a certificate issuing authority which can be

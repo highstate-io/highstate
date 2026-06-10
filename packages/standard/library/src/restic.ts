@@ -3,6 +3,7 @@ import {
   defineUnit,
   type EntityInput,
   type EntityValue,
+  secretSchema,
   z,
 } from "@highstate/contract"
 import { l3EndpointEntity, l4EndpointEntity } from "./network"
@@ -14,7 +15,7 @@ export const repositoryEntity = defineEntity({
     remoteEndpoints: z.union([l3EndpointEntity.schema, l4EndpointEntity.schema]).array(),
 
     type: z.literal("rclone"),
-    rcloneConfig: z.string(),
+    rcloneConfig: secretSchema(z.string()),
     remoteName: z.string(),
     pathPattern: z.string(),
   }),

@@ -79,3 +79,13 @@ export class ProjectModelOperationError extends ProjectModelError {
     this.name = "ProjectModelOperationError"
   }
 }
+
+/**
+ * Error thrown when project inputs introduce a circular reference.
+ */
+export class ProjectModelCircularInputReferenceError extends ProjectModelError {
+  constructor(projectId: string, cycle: string[]) {
+    super(`Circular input reference detected in project "${projectId}": ${cycle.join(" -> ")}`)
+    this.name = "ProjectModelCircularInputReferenceError"
+  }
+}

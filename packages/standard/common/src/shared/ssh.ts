@@ -259,7 +259,7 @@ export async function createServerBundle(options: ServerOptions): Promise<Server
 
   return {
     server,
-    terminal: ssh ? await createSshTerminal(ssh) : undefined,
+    terminal: ssh ? createSshTerminal(ssh) : undefined,
   }
 }
 
@@ -377,7 +377,7 @@ export async function createServerEntity(options: ServerOptions): Promise<common
           endpoints: [l3EndpointToL4(sshHost, sshArgs.port ?? 22)],
           user,
           hostKey,
-          password: connection.password,
+          password: sshPassword ? makeSecret(sshPassword) : undefined,
           keyPair: sshKeyPair
             ? sshKeyPair
             : sshPrivateKey

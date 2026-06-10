@@ -24,6 +24,7 @@ export const migrationPacks = {
       //
       "20250928124105_initial_migration",
       "20260222113554_add_object_tracking",
+      "20260503160615_add_entity_sharing_system",
     ],
   },
   project: {

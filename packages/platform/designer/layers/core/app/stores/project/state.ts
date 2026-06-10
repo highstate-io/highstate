@@ -413,21 +413,12 @@ export const useProjectStateStore = defineMultiStore({
           return
         }
 
-        const ghostInstanceIds = instanceIds.filter(instanceId => {
-          return instancesStore.isGhostInstance(instanceId)
-        })
-
         await $client.state.forgetInstanceStates.mutate({
           projectId,
           instanceIds,
           deleteSecrets,
           clearTerminalData,
         })
-
-        for (const ghostInstanceId of ghostInstanceIds) {
-          // TODO: drop local removal once backend emits deletedGhostInstanceIds for forget operations
-          instancesStore.removeInstanceLocally(ghostInstanceId)
-        }
       }
 
       const isNodeDeletable = (node: GraphNode) => {

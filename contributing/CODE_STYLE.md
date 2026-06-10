@@ -20,6 +20,33 @@ interface ArtifactBackend {
 }
 ```
 
+## Type References
+
+Prefer explicit domain types over utility-composed type expressions for declarations.
+
+- Do not use composed utility expressions like `Awaited<ReturnType<typeof fn>>["field"]` for local variables, parameters, or return types when a direct type can be imported or declared.
+- Prefer explicit imports (for example `TracerProvider`) or a named exported local alias from the source module.
+- Do not add pass-through aliases that only rename an existing type (for example `type LocalPrisma = PrismaClient`). Use the original type directly.
+
+**GOOD:**
+
+```typescript
+import type { TracerProvider } from "@opentelemetry/api"
+
+let tracerProvider: TracerProvider | undefined
+```
+
+**BAD:**
+
+```typescript
+let tracerProvider: Awaited<ReturnType<typeof setupTelemetry>>["tracerProvider"]
+
+type Services = Awaited<ReturnType<typeof createServices>>
+let prisma: Services["prisma"]
+
+type LocalPrisma = PrismaClient
+```
+
 ## Constructor Parameter Injection
 
 Inject dependencies through the constructor and mark them `private readonly`.

@@ -1,25 +1,5 @@
 set -euo pipefail
 
-_fix_generated_source_imports() {
-    local package="$1"
-    local generated_path="generated/$package"
-
-    if [ ! -d "$generated_path" ]; then
-        return
-    fi
-
-    find "$generated_path" \
-        -type d \( -name node_modules -o -name bin \) -prune -o \
-        -type f \( -name "*.ts" -o -name "*.d.ts" \) -print | while IFS= read -r file_path; do
-        sed -E \
-            -e 's#from "\.\./types/input";#from "../../types/input";#g' \
-            -e 's#from "\.\./types/output";#from "../../types/output";#g' \
-            "$file_path" > "$file_path.tmp"
-
-        mv "$file_path.tmp" "$file_path"
-    done
-}
-
 _post_process_generated_package() {
     echo "[+] Post-processing generated package $package"
 
@@ -43,8 +23,6 @@ _post_process_generated_package() {
 
     # Remove scripts directory
     rm -rf "generated/$package/scripts"
-
-    _fix_generated_source_imports "$package"
 }
 
 # Generates CRDs for a given package.
