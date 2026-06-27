@@ -6,7 +6,7 @@ COPY . .
 COPY package.json ./
 COPY bun.lock ./
 
-RUN npm install -g bun
+RUN npm install -g bun@1.3.11
 RUN bun install --production --filter @highstate/k8s.monitor-worker
 
 # 2. at run stage, we copy only the node_modules and the built code for the app and local dependencies

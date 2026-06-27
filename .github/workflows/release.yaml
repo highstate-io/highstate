@@ -55,7 +55,6 @@ jobs:
       - name: Run release tasks
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-          DOCS_KUBECONFIG: ${{ secrets.DOCS_KUBECONFIG }}
         run: |
           bunx nx-cloud start-ci-run --no-distribution
           bun run ci:prepare

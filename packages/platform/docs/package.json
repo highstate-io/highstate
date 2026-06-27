@@ -3,10 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "nuxt dev",
-    "build": "cd docus/layer && nuxt build && cd ../.. && NODE_OPTIONS=--max-old-space-size=4096 nuxt build",
-    "build-image": "docker build . -t ghcr.io/highstate-io/highstate/docs --load",
-    "push-image": "docker push ghcr.io/highstate-io/highstate/docs",
-    "deploy-image": "./scripts/deploy.sh",
+    "build": "cd docus/layer && nuxt build && cd ../.. && NODE_OPTIONS=--max-old-space-size=4096 nuxt generate",
+    "generate": "bun run build",
     "update-thumbnails": "ts-node ./scripts/update-thumbnails.mts"
   },
   "dependencies": {
