@@ -1,6 +1,6 @@
 {
   "name": "@highstate/gcp",
-  "version": "0.20.0",
+  "version": "0.22.0",
   "type": "module",
   "files": [
     "dist"
