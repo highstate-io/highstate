@@ -16,6 +16,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pages: write
       id-token: write # needed for provenance data generation
     steps:
       - name: Checkout
@@ -55,7 +56,6 @@ jobs:
       - name: Run release tasks
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-          DOCS_KUBECONFIG: ${{ secrets.DOCS_KUBECONFIG }}
         run: |
           bunx nx-cloud start-ci-run --no-distribution
           bun run ci:prepare
@@ -68,3 +68,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Upload docs artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: packages/platform/docs/.output/public
+
+      - name: Deploy docs to GitHub Pages
+        id: deploy-docs
+        uses: actions/deploy-pages@v4
