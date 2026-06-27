@@ -63,7 +63,7 @@ jobs:
           bunx nx-cloud stop-all-agents
 
       - name: Publish packages
-        run: bun nx release -y
+        run: bun nx release -y || echo "Failed to publish packages, but continuing to deploy docs"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
