@@ -81,7 +81,6 @@ const backupJobPair = inputs.resticRepo
           volumeMount: {
             volume: dataVolumeClaim,
             mountPath: "/data",
-            subPath: "18/docker",
           },
         },
 

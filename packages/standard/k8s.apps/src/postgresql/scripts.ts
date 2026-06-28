@@ -14,7 +14,8 @@ export const backupEnvironment: ScriptEnvironment = {
       set -e
 
       echo "| Starting online backup using pg_basebackup..."
-      pg_basebackup -h $DATABASE_HOST -p $DATABASE_PORT -U postgres -D /data --checkpoint=fast --wal-method=stream
+      mkdir -p /data/18/docker
+      pg_basebackup -h $DATABASE_HOST -p $DATABASE_PORT -U postgres -D /data/18/docker --checkpoint=fast --wal-method=stream
       echo "| Online backup completed"
     `,
 
@@ -23,7 +24,7 @@ export const backupEnvironment: ScriptEnvironment = {
       set -e
 
       echo "Restoring database permissions..."
-      chown -R 999:999 /data
+      chown -R 999:999 /data/18
     `,
   },
 }
