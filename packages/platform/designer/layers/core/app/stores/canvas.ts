@@ -89,6 +89,7 @@ export const useCanvasStore = defineMultiStore({
         cursorMode,
         blueprint,
         selection,
+        selectionActive,
         // TODO: find out why events are not triggered when using vueFlowRef
         // vueFlowStore.vueFlowRef,
         window.document,
@@ -112,6 +113,7 @@ export const useCanvasStore = defineMultiStore({
           instancesStore,
           cursorMode,
           blueprint,
+          selectionActive,
           triggerNodesMoved,
           deleteNode,
         )

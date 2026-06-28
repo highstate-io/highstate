@@ -9,6 +9,7 @@ export function useBlueprintClipboard(
   cursorMode: Ref<CursorMode>,
   blueprint: Ref<Blueprint | undefined>,
   seleciton: CanvasSelection,
+  active: Ref<boolean>,
   target: MaybeRef<EventTarget | null>,
 ) {
   const localClipboard = ref<Blueprint | undefined>(undefined)
@@ -17,6 +18,10 @@ export function useBlueprintClipboard(
 
   watch(ctrl_c, pressed => {
     if (!pressed) {
+      return
+    }
+
+    if (!active.value) {
       return
     }
 
@@ -57,6 +62,10 @@ export function useBlueprintClipboard(
   })
 
   useEventListener(window, "paste", async () => {
+    if (!active.value) {
+      return
+    }
+
     let globalContent: string | undefined
     let blueprintValue: Blueprint | null | undefined
 

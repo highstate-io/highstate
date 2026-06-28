@@ -44,6 +44,7 @@ export function useBlueprintPlacement(
   instancesStore: ProjectInstancesStore,
   cursorMode: Ref<CursorMode>,
   blueprint: Ref<Blueprint | undefined>,
+  active: Ref<boolean>,
   triggerNodesMoved: EventHookTrigger<[GraphNode[], GraphEdge[]]>,
   deleteNode: (node: GraphNode) => void,
 ) {
@@ -104,6 +105,10 @@ export function useBlueprintPlacement(
   }
 
   const createBlueprint = async (blueprint: Blueprint) => {
+    if (!active.value) {
+      return
+    }
+
     const instanceRenameMap = new Map<string, InstanceId>()
     const hubRenameMap = new Map<string, string>()
 
@@ -208,6 +213,10 @@ export function useBlueprintPlacement(
   }
 
   const commitBlueprint = async (blueprint: Blueprint) => {
+    if (!active.value) {
+      return
+    }
+
     // update positions of instances and hubs
     for (const node of blueprintNodes) {
       if (node.data.instance) {
@@ -236,6 +245,11 @@ export function useBlueprintPlacement(
     }
 
     if (newBlueprint) {
+      if (!active.value) {
+        blueprint.value = undefined
+        return
+      }
+
       cursorMode.value = "blueprint"
       createBlueprint(newBlueprint)
     } else {
@@ -244,13 +258,13 @@ export function useBlueprintPlacement(
   })
 
   watch([blueprintCenter.x, blueprintCenter.y], () => {
-    if (blueprint.value) {
+    if (blueprint.value && active.value) {
       updateBlueprintPosition(blueprint.value)
     }
   })
 
   watch(escape, pressed => {
-    if (pressed && blueprint.value) {
+    if (pressed && blueprint.value && active.value) {
       // clear the current blueprint when escape is pressed
       clearBlueprint()
       blueprint.value = undefined
@@ -259,11 +273,21 @@ export function useBlueprintPlacement(
   })
 
   watch(mouseButton, () => {
-    if (blueprint.value) {
+    if (blueprint.value && active.value) {
       // commit the blueprint when the left mouse button is pressed/released
       commitBlueprint(blueprint.value)
       blueprint.value = undefined
       cursorMode.value = "default"
     }
+  })
+
+  watch(active, isActive => {
+    if (isActive || !blueprint.value) {
+      return
+    }
+
+    clearBlueprint()
+    blueprint.value = undefined
+    cursorMode.value = "default"
   })
 }
