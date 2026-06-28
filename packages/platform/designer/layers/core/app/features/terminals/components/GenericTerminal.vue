@@ -34,7 +34,7 @@ function fitTerminal() {
 }
 
 onMounted(() => {
-  terminal = new Terminal({ fontFamily: "monospace" })
+  terminal = new Terminal({ fontFamily: "monospace", scrollback: 10_000 })
   fitAddon = new FitAddon()
   const webglAddon = new WebglAddon()
 
