@@ -17,6 +17,7 @@
     "./postgresql": "./dist/postgresql/index.js",
     "./refluxdb": "./dist/refluxdb/index.js",
     "./mongodb": "./dist/mongodb/index.js",
+    "./signoz": "./dist/signoz/index.js",
     "./valkey": "./dist/valkey/index.js",
     "./vault": "./dist/vault/index.js",
     "./minio": "./dist/minio/index.js",

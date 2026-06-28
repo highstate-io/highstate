@@ -58,5 +58,11 @@
     "name": "matrix-stack",
     "version": "26.3.2",
     "sha256": "e0bddd952f5472e955f88f2d8910a7b66807e4e1d2b3c7d81de6f8cf5aebfa53"
+  },
+  "signoz": {
+    "repo": "https://charts.signoz.io",
+    "name": "signoz",
+    "version": "0.130.1",
+    "sha256": "a27f5ce0d4be438c4dbf7297dad8bef5be650ebc6f233cce1c3c1a76ca186171"
   }
 }

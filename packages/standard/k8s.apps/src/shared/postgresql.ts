@@ -3,7 +3,7 @@ import type { Input } from "@highstate/pulumi"
 import { l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { getEntityId } from "@highstate/contract"
 import { type Namespace, requireBestEndpoint, Secret } from "@highstate/k8s"
-import { output } from "@pulumi/pulumi"
+import { type ComponentResourceOptions, output } from "@pulumi/pulumi"
 
 /**
  * Constructs a PostgreSQL connection URL from the given connection entity and cluster.
@@ -28,8 +28,12 @@ export function getPostgresqlConnectionUrl(
   }
 
   const endpoint = requireBestEndpoint(endpoints, cluster)
+  const sslMode = connection.insecure ? "disable" : "require"
+  const encodedUsername = encodeURIComponent(username)
+  const encodedPassword = encodeURIComponent(password.value)
+  const encodedDatabase = encodeURIComponent(database)
 
-  return `postgresql://${username}:${password.value}@${l4EndpointToString(endpoint)}/${database}`
+  return `postgresql://${encodedUsername}:${encodedPassword}@${l4EndpointToString(endpoint)}/${encodedDatabase}?sslmode=${sslMode}`
 }
 
 /**
@@ -45,6 +49,7 @@ export function createPostgresqlCredentialsSecret(
   name: string,
   namespace: Input<Namespace>,
   connection: postgresql.Connection,
+  opts?: ComponentResourceOptions,
 ): Secret {
   const {
     credentials: { username, password },
@@ -55,30 +60,35 @@ export function createPostgresqlCredentialsSecret(
     throw new Error(`Connection "${getEntityId(connection)}" does not have a database specified`)
   }
 
-  return Secret.create(name, {
-    namespace,
-    stringData: {
-      username,
-      password: password.value,
-      database,
-      endpoint: output(namespace).cluster.apply(cluster => {
-        const endpoint = requireBestEndpoint(connection.endpoints, cluster)
+  return Secret.create(
+    name,
+    {
+      namespace,
+      stringData: {
+        username,
+        password: password.value,
+        database,
+        sslmode: connection.insecure ? "disable" : "require",
+        endpoint: output(namespace).cluster.apply(cluster => {
+          const endpoint = requireBestEndpoint(connection.endpoints, cluster)
 
-        return l4EndpointToString(endpoint)
-      }),
-      host: output(namespace).cluster.apply(cluster => {
-        const endpoint = requireBestEndpoint(connection.endpoints, cluster)
+          return l4EndpointToString(endpoint)
+        }),
+        host: output(namespace).cluster.apply(cluster => {
+          const endpoint = requireBestEndpoint(connection.endpoints, cluster)
 
-        return l3EndpointToString(endpoint)
-      }),
-      port: output(namespace).cluster.apply(cluster => {
-        const endpoint = requireBestEndpoint(connection.endpoints, cluster)
+          return l3EndpointToString(endpoint)
+        }),
+        port: output(namespace).cluster.apply(cluster => {
+          const endpoint = requireBestEndpoint(connection.endpoints, cluster)
 
-        return endpoint.port.toString()
-      }),
-      url: output(namespace).cluster.apply(cluster =>
-        getPostgresqlConnectionUrl(connection, cluster),
-      ),
+          return endpoint.port.toString()
+        }),
+        url: output(namespace).cluster.apply(cluster =>
+          getPostgresqlConnectionUrl(connection, cluster),
+        ),
+      },
     },
-  })
+    opts,
+  )
 }

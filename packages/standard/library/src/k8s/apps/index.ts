@@ -19,6 +19,7 @@ export {
   sharedInputs,
   sharedSecrets,
 } from "./shared"
+export * from "./signoz"
 export * from "./syncthing"
 // export * from "./zitadel"
 // export * from "./gitea"
