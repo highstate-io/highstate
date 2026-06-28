@@ -173,6 +173,40 @@ export type EditorArguments = {
   expandableArguments: ExpandableEditorArgument[]
 }
 
+export type CreateEditorArgumentsOptions = {
+  treatStringArraysAsStructured?: boolean
+}
+
+function isStringArraySchema(schema: z.core.JSONSchema.BaseSchema) {
+  if (schema.type !== "array") {
+    return false
+  }
+
+  if (typeof schema.items !== "object" || Array.isArray(schema.items)) {
+    return false
+  }
+
+  return schema.items.type === "string"
+}
+
+function shouldUseStructuredEditor(
+  schema: z.core.JSONSchema.BaseSchema,
+  options: CreateEditorArgumentsOptions,
+) {
+  if (schema.type === "object") {
+    return schema.complex === true
+  }
+
+  if (schema.type !== "array") {
+    return false
+  }
+
+  return (
+    schema.complex === true ||
+    (options.treatStringArraysAsStructured && isStringArraySchema(schema))
+  )
+}
+
 function tryCreatePlainArgument(
   name: string,
   title: string,
@@ -316,6 +350,7 @@ function findDiscriminatorField(
 export function createEditorArguments(
   componentType: string,
   args: Record<string, ComponentArgument>,
+  options: CreateEditorArgumentsOptions = {},
 ): EditorArguments {
   const plainArguments: PlainEditorArgument[] = []
   const expandableArguments: ExpandableEditorArgument[] = []
@@ -387,9 +422,24 @@ export function createEditorArguments(
       }
     }
 
-    // 1. object args are either plain arg groups or code editor args
+    // 1. explicitly complex args are code editor args
+    if (shouldUseStructuredEditor(arg.schema, options)) {
+      updateComponentSchema(componentType, name, arg.schema)
+
+      expandableArguments.push({
+        name,
+        title: arg.meta.title,
+        description: arg.meta.description ?? arg.schema.description,
+        kind: "structured",
+        default: clone(arg.schema.default),
+      })
+
+      continue
+    }
+
+    // 2. object args are either plain arg groups or code editor args
     if (arg.schema.type === "object") {
-      if (arg.schema.complex || isRecordSchema(arg.schema)) {
+      if (isRecordSchema(arg.schema)) {
         updateComponentSchema(componentType, name, arg.schema)
 
         expandableArguments.push({
@@ -440,7 +490,7 @@ export function createEditorArguments(
       continue
     }
 
-    // 2. string args can be code editor args
+    // 3. string args can be code editor args
     if (arg.schema.type === "string" && (arg.schema.language || arg.schema.multiline)) {
       expandableArguments.push({
         name,
@@ -454,7 +504,7 @@ export function createEditorArguments(
       continue
     }
 
-    // 3. then try to create a plain argument
+    // 4. then try to create a plain argument
     const plainArg = tryCreatePlainArgument(
       name,
       arg.meta.title,
@@ -467,7 +517,7 @@ export function createEditorArguments(
       continue
     }
 
-    // 4. all other arguments are structured arguments
+    // 5. all other arguments are structured arguments
     updateComponentSchema(componentType, name, arg.schema)
 
     expandableArguments.push({

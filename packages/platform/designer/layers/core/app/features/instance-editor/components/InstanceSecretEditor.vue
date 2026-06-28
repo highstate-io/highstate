@@ -41,6 +41,7 @@ const save = async () => {
 const { plainArguments, expandableArguments } = createEditorArguments(
   component.type,
   component.secrets,
+  { treatStringArraysAsStructured: true },
 )
 </script>
 

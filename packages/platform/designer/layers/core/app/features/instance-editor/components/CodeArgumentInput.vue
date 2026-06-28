@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { HighstateSignature, yamlValueSchema, type InstanceModel } from "@highstate/contract"
 import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
+import { stringify } from "yaml"
 import type { CodeEditorArgument } from "../business"
 import ArgumentDescription from "./ArgumentDescription.vue"
 
@@ -15,7 +16,8 @@ const currentValue = ref("")
 if (typeof modelValue === "string") {
   currentValue.value = modelValue
 } else {
-  currentValue.value = yamlValueSchema.safeParse(modelValue)?.data?.value ?? ""
+  const yamlValue = yamlValueSchema.safeParse(modelValue)?.data?.value
+  currentValue.value = yamlValue ?? (modelValue == null ? "" : stringify(modelValue))
 }
 
 const emit = defineEmits<{
