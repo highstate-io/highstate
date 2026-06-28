@@ -1,4 +1,5 @@
 export * from "./access-point"
+export * from "./artifacts"
 export * from "./command"
 export * from "./dns"
 export * from "./files"

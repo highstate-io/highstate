@@ -16,6 +16,7 @@ import {
 import { sha256 } from "@noble/hashes/sha2"
 import { local, remote, type types } from "@pulumi/command"
 import { flat, isNonNullish } from "remeda"
+import { type ArtifactFile, artifactArchValues, resolveArtifactFile } from "./artifacts"
 import { mergeResourceHooks } from "./lifetime"
 import { l3EndpointToString } from "./network/endpoints"
 
@@ -184,6 +185,37 @@ export type TextFileArgs = {
   mode?: Input<string>
 }
 
+export type DownloadArtifactCommandArgs = {
+  /**
+   * The host to download the artifact on.
+   */
+  host: CommandHost
+
+  /**
+   * The host path where the downloaded artifact should be installed.
+   */
+  path: Input<string>
+
+  /**
+   * The permissions to set on the downloaded artifact.
+   *
+   * By default, the file is installed with 644 permissions.
+   */
+  mode?: Input<string>
+}
+
+export type DetectArtifactArchCommandArgs = {
+  /**
+   * The host to detect the architecture on.
+   */
+  host: CommandHost
+
+  /**
+   * The logging level for the command.
+   */
+  logging?: Input<local.Logging>
+}
+
 export type WaitForArgs = CommandArgs & {
   /**
    * The timeout in seconds to wait for the command to complete.
@@ -254,6 +286,109 @@ function shellQuotePosix(value: string): string {
   const escaped = value.replaceAll("'", `"'"'"'"`)
 
   return `'${escaped}'`
+}
+
+function getSingleArtifactSha(file: ArtifactFile): string | undefined {
+  const entries = Object.entries(file.sha256)
+  if (entries.length !== 1) {
+    return undefined
+  }
+
+  return entries[0][1]
+}
+
+function createDownloadScript(url: string, sha256: string, path: string, mode: string): string {
+  const quotedPath = shellQuotePosix(path)
+  const quotedTempTemplate = shellQuotePosix(`${path}.tmp.XXXXXX`)
+  const quotedUrl = shellQuotePosix(url)
+  const quotedSha256 = shellQuotePosix(sha256)
+  const quotedMode = shellQuotePosix(mode)
+
+  return [
+    "set -euo pipefail",
+    `install_dir=$(dirname ${quotedPath})`,
+    'mkdir -p "$install_dir"',
+    `tmp_file=$(mktemp ${quotedTempTemplate})`,
+    "trap 'rm -f \"$tmp_file\"' EXIT",
+    `curl -fL --retry 3 ${quotedUrl} -o "$tmp_file"`,
+    "actual_sha256=$(sha256sum \"$tmp_file\" | awk '{print $1}')",
+    `expected_sha256=${quotedSha256}`,
+    'if [ "$actual_sha256" != "$expected_sha256" ]; then',
+    '  echo "Checksum mismatch: expected=$expected_sha256, actual=$actual_sha256" >&2',
+    "  exit 1",
+    "fi",
+    `install -m ${quotedMode} "$tmp_file" ${quotedPath}`,
+  ].join("\n")
+}
+
+function detectArtifactArchScript(variableName: string = "artifact_arch"): string {
+  return [
+    `${variableName}=$(uname -m)`,
+    `case "$${variableName}" in`,
+    "  x86_64|amd64)",
+    `    ${variableName}=amd64`,
+    "    ;;",
+    "  aarch64|arm64)",
+    `    ${variableName}=arm64`,
+    "    ;;",
+    "  *)",
+    `    echo "Unsupported architecture: $${variableName}" >&2`,
+    "    exit 1",
+    "    ;;",
+    "esac",
+  ].join("\n")
+}
+
+function createArchDownloadScript(file: ArtifactFile, path: string, mode: string): string {
+  const cases: string[] = []
+
+  for (const arch of artifactArchValues) {
+    const resolved = resolveArtifactFile(file, { arch })
+    const sha256 = getSingleArtifactSha(resolved)
+    if (!sha256) {
+      continue
+    }
+
+    cases.push(
+      [
+        `${arch})`,
+        `  artifact_url=${shellQuotePosix(resolved.url)}`,
+        `  artifact_sha256=${shellQuotePosix(sha256)}`,
+        "  ;;",
+      ].join("\n"),
+    )
+  }
+
+  if (cases.length === 0) {
+    throw new Error("Artifact has no matching hashes for supported architectures")
+  }
+
+  const quotedPath = shellQuotePosix(path)
+  const quotedTempTemplate = shellQuotePosix(`${path}.tmp.XXXXXX`)
+  const quotedMode = shellQuotePosix(mode)
+
+  return [
+    "set -euo pipefail",
+    detectArtifactArchScript("artifact_arch"),
+    'case "$artifact_arch" in',
+    ...cases,
+    "  *)",
+    '    echo "Unsupported artifact architecture: $artifact_arch" >&2',
+    "    exit 1",
+    "    ;;",
+    "esac",
+    `install_dir=$(dirname ${quotedPath})`,
+    'mkdir -p "$install_dir"',
+    `tmp_file=$(mktemp ${quotedTempTemplate})`,
+    "trap 'rm -f \"$tmp_file\"' EXIT",
+    'curl -fL --retry 3 "$artifact_url" -o "$tmp_file"',
+    "actual_sha256=$(sha256sum \"$tmp_file\" | awk '{print $1}')",
+    'if [ "$actual_sha256" != "$artifact_sha256" ]; then',
+    '  echo "Checksum mismatch: expected=$artifact_sha256, actual=$actual_sha256" >&2',
+    "  exit 1",
+    "fi",
+    `install -m ${quotedMode} "$tmp_file" ${quotedPath}`,
+  ].join("\n")
 }
 
 function wrapWithPodman(
@@ -449,6 +584,75 @@ export class Command extends ComponentResource {
    */
   async wait(): Promise<string> {
     return await toPromise(this.stdout)
+  }
+
+  /**
+   * Creates a command that prints the target machine architecture.
+   *
+   * The detected value is normalized to a well-known artifact architecture value.
+   *
+   * @param name The name of the command resource.
+   * @param args The command target options.
+   * @param opts Optional resource options.
+   * @returns The command resource that prints the normalized architecture.
+   */
+  static detectArtifactArch(
+    name: string,
+    args: DetectArtifactArchCommandArgs,
+    opts?: ComponentResourceOptions,
+  ): Command {
+    return new Command(
+      name,
+      {
+        host: args.host,
+        create: `${detectArtifactArchScript("artifact_arch")}\nprintf '%s\\n' "$artifact_arch"`,
+        logging: args.logging,
+      },
+      opts,
+    )
+  }
+
+  /**
+   * Creates a command that downloads an artifact and verifies its SHA256 hash.
+   *
+   * If the artifact URL contains an `arch` parameter, the generated command detects the target
+   * architecture and selects the matching URL and hash in the same command execution.
+   *
+   * @param name The name of the command resource.
+   * @param file The artifact file definition from an artifacts manifest.
+   * @param args The download target options.
+   * @param opts Optional resource options.
+   * @returns The command resource that installs the verified artifact.
+   */
+  static downloadArtifactFile(
+    name: string,
+    file: Input<ArtifactFile>,
+    args: DownloadArtifactCommandArgs,
+    opts?: ComponentResourceOptions,
+  ): Command {
+    const command = output({ file, path: args.path, mode: args.mode ?? "644" }).apply(
+      ({ file, path, mode }) => {
+        const resolved = resolveArtifactFile(file)
+        const sha256 = getSingleArtifactSha(resolved)
+        if (sha256) {
+          return createDownloadScript(resolved.url, sha256, path, mode)
+        }
+
+        return createArchDownloadScript(file, path, mode)
+      },
+    )
+
+    return new Command(
+      name,
+      {
+        host: args.host,
+        create: command,
+        update: command,
+        delete: interpolate`rm -f ${args.path}`,
+        updateTriggers: [file, args.path, args.mode ?? "644"],
+      },
+      opts,
+    )
   }
 
   /**
