@@ -356,10 +356,10 @@ export class BackupJobPair extends ComponentResource {
       resticRepo: this.args.resticRepo,
       resticRepoPath: this.resticRepoPath,
     }).apply(({ backupPassword, resticRepo, resticRepoPath }) => ({
-      name: "restic",
+      name: `restic-${this.name}`,
 
       meta: {
-        title: "Restic",
+        title: `Restic | ${this.name}`,
         description: "Manage Restic repository",
         icon: "material-symbols:backup",
       },
@@ -509,10 +509,10 @@ export class BackupJobPair extends ComponentResource {
       )
 
       return {
-        name: "backup-trigger",
+        name: `backup-trigger-${this.name}`,
 
         meta: {
-          title: "Trigger Backup",
+          title: `Trigger Backup | ${this.name}`,
           description: "Create a backup job from cron job and stream logs until completion",
           icon: "material-symbols:play-arrow",
         },

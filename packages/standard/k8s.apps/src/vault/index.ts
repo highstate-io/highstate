@@ -1,44 +1,17 @@
 import { generateKey } from "@highstate/common"
-import { Chart, Namespace, PersistentVolumeClaim, Secret } from "@highstate/k8s"
+import { Chart, Namespace, Secret } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
-import { forUnit, type Resource, toPromise } from "@highstate/pulumi"
+import { forUnit, output, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
 import { charts } from "../shared"
 
-const { args, getSecret, inputs, outputs } = forUnit(k8s.apps.vault)
+const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.vault)
 
 const { k8sCluster, s3Bucket, resticRepo } = await toPromise(inputs)
 
 const namespace = Namespace.create(args.namespace ?? args.appName, { cluster: k8sCluster })
 
 const backupKey = getSecret("backupKey", generateKey)
-
-// prepare PVC for `file` backend
-const dataVolumeClaim =
-  args.backend === "file"
-    ? PersistentVolumeClaim.create(
-        `${args.appName}-data`,
-        { namespace },
-        { deletedWith: namespace },
-      )
-    : undefined
-
-// if restic repo provided and file backend, configure backup job pair
-const backupJobPair =
-  resticRepo && args.backend === "file"
-    ? new BackupJobPair(
-        args.appName,
-        {
-          namespace,
-
-          resticRepo,
-          backupKey,
-
-          volume: dataVolumeClaim!,
-        },
-        { dependsOn: dataVolumeClaim, deletedWith: namespace },
-      )
-    : undefined
 
 // prepare secrets and values for chart
 // biome-ignore lint/suspicious/noExplicitAny: dynamic chart values
@@ -55,18 +28,7 @@ let chartValues: any = {
 
 let s3Secret: Secret | undefined
 
-if (args.backend === "file") {
-  chartValues = {
-    ...chartValues,
-    server: {
-      ...chartValues.server,
-      dataStorage: {
-        storageClass: "",
-        existingClaim: dataVolumeClaim ? dataVolumeClaim.metadata.name : undefined,
-      },
-    },
-  }
-} else {
+if (args.backend === "s3") {
   if (!s3Bucket) {
     throw new Error("s3Bucket input is required when backend is 's3'")
   }
@@ -98,10 +60,6 @@ if (args.backend === "file") {
   }
 }
 
-const chartDependsOn: Resource[] = []
-if (backupJobPair) chartDependsOn.push(backupJobPair)
-if (s3Secret) chartDependsOn.push(s3Secret)
-
 const chart = new Chart(
   args.appName,
   {
@@ -124,8 +82,30 @@ const chart = new Chart(
         }
       : {},
   },
-  { dependsOn: chartDependsOn, deletedWith: namespace },
+  { dependsOn: s3Secret, deletedWith: namespace },
 )
+
+const backupJobPairs =
+  resticRepo && args.backend === "file"
+    ? chart.statefulSet.apply(statefulSet => {
+        return statefulSet.persistentVolumeClaims.apply(persistentVolumeClaims => {
+          return persistentVolumeClaims.map((volume, index) => {
+            return new BackupJobPair(
+              `${args.appName}-${index}`,
+              {
+                namespace,
+
+                resticRepo,
+                backupKey,
+
+                volume,
+              },
+              { dependsOn: volume, deletedWith: namespace },
+            )
+          })
+        })
+      })
+    : output([] as BackupJobPair[])
 
 export default outputs({
   statefulSet: chart.statefulSet.entity,
@@ -134,5 +114,13 @@ export default outputs({
     endpoint: args.fqdn ? `https://${args.fqdn}` : undefined,
   },
 
-  $terminals: chart.terminals.apply(terminals => [...terminals, backupJobPair?.terminal]),
+  $triggers: backupJobPairs.apply(backupJobPairs => {
+    return backupJobPairs.map(backupJobPair => backupJobPair.handleTrigger(invokedTriggers))
+  }),
+
+  $terminals: output({ backupJobPairs, terminals: chart.terminals }).apply(
+    ({ backupJobPairs, terminals }) => {
+      return [...terminals, ...backupJobPairs.flatMap(backupJobPair => backupJobPair.terminals)]
+    },
+  ),
 })

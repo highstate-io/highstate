@@ -19,6 +19,7 @@ import { apps, type types } from "@pulumi/kubernetes"
 import { deepmerge } from "deepmerge-ts"
 import { omit } from "remeda"
 import { Namespace } from "./namespace"
+import { PersistentVolumeClaim } from "./pvc"
 import { getProvider, mapMetadata } from "./shared"
 import {
   filterPatchOwnedContainersInTemplate,
@@ -47,6 +48,11 @@ export type CreateOrGetStatefulSetArgs = StatefulSetArgs & {
 export abstract class StatefulSet extends Workload {
   static apiVersion = "apps/v1"
   static kind = "StatefulSet"
+
+  /**
+   * The PVCs created from the StatefulSet volume claim templates.
+   */
+  readonly persistentVolumeClaims: Output<PersistentVolumeClaim[]>
 
   protected constructor(
     type: string,
@@ -87,6 +93,8 @@ export abstract class StatefulSet extends Workload {
       service,
       routes,
     )
+
+    this.persistentVolumeClaims = this.getPersistentVolumeClaims(name, opts)
   }
 
   protected override get templateMetadata(): Output<types.output.meta.v1.ObjectMeta> {
@@ -253,6 +261,48 @@ export abstract class StatefulSet extends Workload {
 
   protected get resourceType(): string {
     return "statefulset"
+  }
+
+  private getPersistentVolumeClaims(
+    name: string,
+    opts: ComponentResourceOptions | undefined,
+  ): Output<PersistentVolumeClaim[]> {
+    return output({
+      metadata: this.metadata,
+      namespace: this.namespace,
+      spec: this.spec,
+      status: this.status,
+    }).apply(({ metadata, namespace, spec, status }) => {
+      const templates = spec.volumeClaimTemplates ?? []
+      if (templates.length === 0) {
+        return []
+      }
+
+      if (!metadata.name) {
+        throw new Error(`StatefulSet "${name}" metadata name is not available`)
+      }
+
+      const replicas = Math.max(0, spec.replicas ?? status.replicas ?? 1)
+
+      return templates.flatMap((template, templateIndex) => {
+        const templateName = template.metadata?.name
+        if (!templateName) {
+          throw new Error(
+            `StatefulSet "${metadata.name}" volume claim template ${templateIndex} name is not available`,
+          )
+        }
+
+        return Array.from({ length: replicas }, (_, ordinal) => {
+          const pvcName = `${templateName}-${metadata.name}-${ordinal}`
+
+          return PersistentVolumeClaim.get(
+            `${name}.pvc.${templateName}.${ordinal}`,
+            { name: pvcName, namespace },
+            { ...opts, parent: this },
+          )
+        })
+      })
+    })
   }
 }
 
