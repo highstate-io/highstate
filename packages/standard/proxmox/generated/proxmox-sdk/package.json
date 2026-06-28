@@ -1,0 +1,31 @@
+{
+  "name": "@highstate/proxmox-sdk",
+  "version": "0.22.0",
+  "description": "A Pulumi provider dynamically bridged from proxmox.",
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  },
+  "main": "bin/index.js",
+  "scripts": {
+    "build": "tsc && cp package.json bin/package.json"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "3.232.0",
+    "@types/node": "^20",
+    "async-mutex": "^0.5.0",
+    "typescript": "^5.9.3"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "terraform-provider",
+    "version": "0.7.0",
+    "parameterization": {
+      "name": "proxmox",
+      "version": "0.111.0",
+      "value": "eyJyZW1vdGUiOnsidXJsIjoicmVnaXN0cnkudGVycmFmb3JtLmlvL2JwZy9wcm94bW94IiwidmVyc2lvbiI6IjAuMTExLjAifX0="
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

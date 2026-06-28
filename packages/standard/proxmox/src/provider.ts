@@ -1,7 +1,7 @@
 import type { proxmox } from "@highstate/library"
 import { l7EndpointToString } from "@highstate/common"
+import { Provider } from "@highstate/proxmox-sdk"
 import { type Input, output, toPromise } from "@highstate/pulumi"
-import { Provider } from "@muhlba91/pulumi-proxmoxve"
 
 export function createProvider(cluster: Input<proxmox.Cluster>): Promise<Provider> {
   return toPromise(

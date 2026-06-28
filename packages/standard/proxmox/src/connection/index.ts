@@ -1,8 +1,8 @@
 import type { UnitTerminal } from "@highstate/contract"
 import { createServerBundle, parseEndpoint } from "@highstate/common"
 import { type common, proxmox, type ssh } from "@highstate/library"
-import { forUnit, makeEntityOutput, output, toPromise } from "@highstate/pulumi"
-import { cluster, Provider, storage } from "@muhlba91/pulumi-proxmoxve"
+import { getDatastores, getVirtualEnvironmentNodes, Provider } from "@highstate/proxmox-sdk"
+import { forUnit, makeEntityOutput, makeSecretOutput, output, toPromise } from "@highstate/pulumi"
 
 const { stateId, name, args, secrets, inputs, outputs } = forUnit(proxmox.connection)
 
@@ -20,7 +20,7 @@ const provider = await toPromise(
   }),
 )
 
-const nodes = await cluster.getNodes({ provider })
+const nodes = await getVirtualEnvironmentNodes({}, { provider })
 if (nodes.names.length === 0) {
   throw new Error("No nodes found")
 }
@@ -30,13 +30,13 @@ if (!nodes.names.includes(nodeName)) {
   throw new Error(`Node "${nodeName}" not found in the cluster`)
 }
 
-const datastores = await storage.getDatastores({ nodeName }, { provider })
-if (datastores.datastoreIds.length === 0) {
+const { datastores } = await getDatastores({ nodeName }, { provider })
+if (!datastores || datastores.length === 0) {
   throw new Error(`No datastores found in the node "${nodeName}"`)
 }
 
-const datastoreId = args.defaultDatastoreId ?? datastores.datastoreIds[0]
-if (!datastores.datastoreIds.includes(datastoreId)) {
+const datastoreId = args.defaultDatastoreId ?? datastores[0].id
+if (!datastores.some(ds => ds.id === datastoreId)) {
   throw new Error(`Datastore "${datastoreId}" not found in the node "${nodeName}"`)
 }
 
@@ -70,8 +70,8 @@ const proxmoxCluster = makeEntityOutput({
     username: args.username,
     defaultNodeName: nodeName,
     defaultDatastoreId: datastoreId,
-    password: secrets.password,
-    apiToken: secrets.apiToken,
+    password: secrets.password ? makeSecretOutput(secrets.password) : undefined,
+    apiToken: secrets.apiToken ? makeSecretOutput(secrets.apiToken) : undefined,
     ssh: sshCredentials,
   },
 })

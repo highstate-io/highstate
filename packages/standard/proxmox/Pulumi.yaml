@@ -1,0 +1,8 @@
+name: stub
+runtime: nodejs
+packages:
+  proxmox:
+    source: terraform-provider
+    version: 0.7.0
+    parameters:
+      - registry.terraform.io/bpg/proxmox

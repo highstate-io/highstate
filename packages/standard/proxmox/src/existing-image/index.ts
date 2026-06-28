@@ -1,21 +1,26 @@
 import { proxmox } from "@highstate/library"
+import { getFiles } from "@highstate/proxmox-sdk"
 import { forUnit, getCombinedIdentityOutput, makeEntityOutput } from "@highstate/pulumi"
-import { storage } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
 const { args, inputs, outputs } = forUnit(proxmox.existingImage)
 
 const provider = await createProvider(inputs.proxmoxCluster)
 
-const image = storage.File.get(
-  "image",
-  args.id,
+const { files } = await getFiles(
   {
     datastoreId: inputs.proxmoxCluster.defaultDatastoreId,
     nodeName: inputs.proxmoxCluster.defaultNodeName,
   },
   { provider },
 )
+
+const image = files.find(file => file.id === args.id)
+if (!image) {
+  throw new Error(
+    `Image with ID "${args.id}" not found in the datastore "${inputs.proxmoxCluster.defaultDatastoreId}" on node "${inputs.proxmoxCluster.defaultNodeName}".`,
+  )
+}
 
 export default outputs({
   image: makeEntityOutput({

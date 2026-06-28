@@ -1,10 +1,13 @@
 set -euo pipefail
 
-_post_process_generated_package() {
-    echo "[+] Post-processing generated package $package"
+readonly SHARED_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+_post_process_generated_package() {
     local package="$1"
-    local version=$(node -p "require('./package.json').version")
+    local version
+    version=$(node -p "require('./package.json').version")
+
+    echo "[+] Post-processing generated package $package"
 
     jq " \
         .name = \"@highstate/$package\" | \
@@ -15,11 +18,12 @@ _post_process_generated_package() {
         .repository = {\"url\": \"https://github.com/highstate-io/highstate\"} | \
         .scripts.build = \"tsc && cp package.json bin/package.json\" | \
         del(.scripts.postinstall) \
-    " generated/$package/package.json > generated/$package/package.json.tmp
-    mv generated/$package/package.json.tmp generated/$package/package.json
+    " "generated/$package/package.json" > "generated/$package/package.json.tmp"
+    mv "generated/$package/package.json.tmp" "generated/$package/package.json"
 
-    jq ".compilerOptions.noCheck = true" generated/$package/tsconfig.json > generated/$package/tsconfig.json.tmp
-    mv generated/$package/tsconfig.json.tmp generated/$package/tsconfig.json
+    local tsconfig_path="generated/$package/tsconfig.json"
+    bun "$SHARED_SCRIPT_DIR/post-process-tsconfig.ts" "$tsconfig_path"
+    mv "$tsconfig_path.tmp" "$tsconfig_path"
 
     # Remove scripts directory
     rm -rf "generated/$package/scripts"
@@ -50,25 +54,33 @@ generate_terraform_sdks() {
     local kind="$1"
     local package="$2"
     local source="$3"
-    local version=$(node -p "require('./package.json').version")
     local sdkPath="./sdks"
 
     echo "[+] Generating Terraform Bridge SDKs for $package ($kind)"
 
     mkdir -p generated
-    rm -rf generated/$package   
+    rm -rf "$sdkPath"
 
     if [ "$kind" = "provider" ]; then
-        pulumi package add terraform-provider $source || echo "[!] That's fine, ignore this error"
+        pulumi package add terraform-provider "$source"
     elif [ "$kind" = "module" ]; then
-        pulumi package add terraform-module $source $package || echo "[!] That's fine, ignore this error"
+        pulumi package add terraform-module "$source" "$package"
     else
         echo "Unknown kind: $kind. Use 'provider' or 'module'."
         return 1
     fi
 
+    local sdk_entries=()
+    mapfile -t sdk_entries < <(find "$sdkPath" -mindepth 1 -maxdepth 1 -type d)
+
+    if [ "${#sdk_entries[@]}" -ne 1 ]; then
+        echo "Expected exactly one generated SDK directory in $sdkPath, found ${#sdk_entries[@]}."
+        return 1
+    fi
+
     # Move the SDK to the generated directory
-    located_sdk_path=$sdkPath/$(ls $sdkPath)
+    local located_sdk_path="${sdk_entries[0]}"
+    rm -rf "generated/$package"
     mv "$located_sdk_path" "generated/$package"
     rm -rf "$sdkPath"
 

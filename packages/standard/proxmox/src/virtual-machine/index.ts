@@ -1,4 +1,7 @@
-import type { VM } from "@muhlba91/pulumi-proxmoxve/types/input"
+import type {
+  VirtualEnvironmentVmInitialization,
+  VirtualEnvironmentVmNetworkDevice,
+} from "@highstate/proxmox-sdk/types/input"
 import {
   createServerBundle,
   generatePassword,
@@ -8,8 +11,8 @@ import {
   sshPrivateKeyToKeyPair,
 } from "@highstate/common"
 import { proxmox } from "@highstate/library"
+import { VirtualEnvironmentFile, VirtualEnvironmentVm } from "@highstate/proxmox-sdk"
 import { forUnit, getResourceComment, type Input, output, toPromise } from "@highstate/pulumi"
-import { storage, vm } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
 const { name, args, getSecret, inputs, outputs } = forUnit(proxmox.virtualMachine)
@@ -28,7 +31,7 @@ const sshKeyPair =
 
 const rootPassword = getSecret("rootPassword", generatePassword)
 
-const machine = new vm.VirtualMachine(
+const machine = new VirtualEnvironmentVm(
   "virtual-machine",
   {
     name: vmName,
@@ -59,7 +62,7 @@ const machine = new vm.VirtualMachine(
       {
         bridge: args.network.bridge,
       },
-    ],
+    ] as Input<VirtualEnvironmentVmNetworkDevice>[],
     initialization: createCloudInit(),
   },
   { provider, ignoreChanges: ["disks", "cdrom"] },
@@ -79,7 +82,7 @@ function deriveIpV4Gateway(ip: string): string {
   return `${ip.split(".").slice(0, 3).join(".")}.1`
 }
 
-function createCloudInit(): VM.VirtualMachineInitialization {
+function createCloudInit(): VirtualEnvironmentVmInitialization {
   let vendorDataFileId: Input<string> | undefined
 
   if (args.vendorData || inputVendorData) {
@@ -93,7 +96,7 @@ function createCloudInit(): VM.VirtualMachineInitialization {
       vendorData = inputVendorData!.content.value
     }
 
-    const file = new storage.File(
+    const file = new VirtualEnvironmentFile(
       "vendor-data",
       {
         datastoreId,

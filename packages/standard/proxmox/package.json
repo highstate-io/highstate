@@ -23,14 +23,15 @@
     "build": "highstate build",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
-    "biome:check": "biome check --error-on-warnings"
+    "biome:check": "biome check --error-on-warnings",
+    "generate-sdks": "./scripts/generate-sdks.sh"
   },
   "dependencies": {
     "@highstate/common": "workspace:*",
     "@highstate/contract": "workspace:*",
     "@highstate/library": "workspace:*",
     "@highstate/pulumi": "workspace:*",
-    "@muhlba91/pulumi-proxmoxve": "^6.17.1",
+    "@highstate/proxmox-sdk": "workspace:*",
     "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {

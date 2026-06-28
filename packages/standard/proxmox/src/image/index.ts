@@ -1,5 +1,6 @@
 import { l7EndpointToString } from "@highstate/common"
 import { type common, proxmox } from "@highstate/library"
+import { DownloadFile } from "@highstate/proxmox-sdk"
 import {
   forUnit,
   getCombinedIdentityOutput,
@@ -7,7 +8,6 @@ import {
   output,
   toPromise,
 } from "@highstate/pulumi"
-import { download } from "@muhlba91/pulumi-proxmoxve"
 import { createProvider } from "../provider"
 
 const { args, inputs, outputs } = forUnit(proxmox.image)
@@ -31,7 +31,7 @@ if (!url) {
   checksum = file.content.checksum
 }
 
-const file = new download.File(
+const file = new DownloadFile(
   "image",
   {
     contentType: "iso",
