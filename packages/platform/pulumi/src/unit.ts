@@ -74,7 +74,11 @@ type OutputMapToDeepInputMap<
   TArgName extends string,
 > = IsEmptyObject<T> extends true
   ? ExtraOutputs
-  : { [K in keyof T]: DeepInput<T[K]> } & ExtraOutputs<TArgName>
+  : {
+      [K in keyof T as undefined extends T[K] ? never : K]: DeepInput<T[K]>
+    } & {
+      [K in keyof T as undefined extends T[K] ? K : never]?: DeepInput<T[K]>
+    } & ExtraOutputs<TArgName>
 
 interface UnitContext<
   TArgs extends Record<string, unknown>,
@@ -351,26 +355,34 @@ export function forUnit<
 
     outputs: async (outputs: any = {}) => {
       const resolvedOutputs = await toPromise(outputs)
+      const resolvedOutputEntries = Object.entries(resolvedOutputs as Record<string, any>)
 
-      const result: any = mapValues(resolvedOutputs, (outputValue, outputName) => {
+      const result: any = {}
+
+      for (const [outputName, outputValue] of resolvedOutputEntries) {
         if (outputName === "$statusFields") {
-          return mapStatusFields(outputValue)
+          result[outputName] = mapStatusFields(outputValue)
+          continue
         }
 
         if (outputName === "$pages") {
-          return mapPages(outputValue)
+          result[outputName] = mapPages(outputValue)
+          continue
         }
 
         if (outputName === "$terminals") {
-          return mapTerminals(outputValue)
+          result[outputName] = mapTerminals(outputValue)
+          continue
         }
 
         if (outputName === "$triggers") {
-          return mapTriggers(outputValue)
+          result[outputName] = mapTriggers(outputValue)
+          continue
         }
 
         if (outputName === "$workers") {
-          return mapWorkers(outputValue)
+          result[outputName] = mapWorkers(outputValue)
+          continue
         }
 
         if (outputName.startsWith("$")) {
@@ -384,6 +396,10 @@ export function forUnit<
           )
         }
 
+        if (outputValue === undefined && !outputModel.required) {
+          continue
+        }
+
         const entity = unit.entities.get(outputModel.type)
         if (!entity) {
           throw new Error(
@@ -392,26 +408,25 @@ export function forUnit<
         }
 
         const schema = outputModel.multiple ? entity.schema.array() : entity.schema
-        const result = schema.safeParse(outputValue)
+        const parseResult = schema.safeParse(outputValue)
 
-        if (!result.success) {
+        if (!parseResult.success) {
           throw new Error(
             `Invalid value for output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
-              result.error,
+              parseResult.error,
             )}`,
           )
         }
 
-        return result.data
-      })
+        result[outputName] = parseResult.data
+      }
 
       result.$secrets = secrets
 
       // collect artifacts from all outputs
       const artifactsMap: Record<string, UnitArtifact[]> = {}
-      for (const [outputName, outputValue] of Object.entries(outputs)) {
-        const resolvedValue = await toPromise(outputValue)
-        const artifacts = extractObjectsFromValue(unitArtifactSchema, resolvedValue)
+      for (const [outputName, outputValue] of resolvedOutputEntries) {
+        const artifacts = extractObjectsFromValue(unitArtifactSchema, outputValue)
         if (artifacts.length > 0) {
           artifactsMap[outputName] = artifacts
         }
