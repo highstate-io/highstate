@@ -4,6 +4,8 @@ Some simple rules to follow:
 
 - Before doing anything, load `contributing/OVERVIEW.md` in your context window.
 - Before writing code, load `contributing/CODE_STYLE.md` in your context window and strictly follow the guidelines there.
+- Before writing Pulumi units, load `contributing/PULUMI.md` in your context window and strictly follow the guidelines
+  there.
 - When you work with database entities, read first their schema files in `packages/platform/backend/prisma/`.
 - Before writing public docs (not `contributing/`), load `contributing/DOCS_STYLE.md`.
 - Before writing docs, read `packages/platform/docs/content/1.getting-started/2.concepts.mdc` and `packages/platform/docs/content/2.fundamentals/2.units.mdc` as good human-written examples of how to write docs.
@@ -17,6 +19,15 @@ Some additional notes:
 - Try to use LSP tools to check your code first. Using `bun run build` in most cases will not perform type checking. You can also use `bun run typecheck` where possible. In some cases, LSP tool may provide outdated diagnostics, so you can fall back to `bun run typecheck` if you suspect that.
 - Never call `bun run build` on Nuxt projects, it is very slow.
 - Use `bun run test` in desired package to run tests, not LSP tools.
+
+Commit requirements:
+
+- Scope commits by functionality and preferably by package when applicable.
+- Use conventional commits with only these types: `fix`, `feat`, `refactor`, `style`, `docs`, `chore`.
+- Use scopes only for npm packages or omit them entirely.
+- When used, scopes must be full package names, such as `@highstate/library`.
+- Scopes must be lowercase.
+- Commit messages must be a single sentence without an extra body.
 
 After you finish your task, verify that your code follow the guidelines
 in `contributing/CODE_STYLE.md` and `contributing/DOCS_STYLE.md` rule by rule.
