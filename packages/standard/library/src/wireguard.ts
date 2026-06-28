@@ -121,6 +121,14 @@ export const networkEntity = defineEntity({
 })
 
 export const nodeExposePolicySchema = z.enum(["always", "when-has-endpoint", "never"])
+export const feedDaemonSyncModeSchema = z.enum(["sse", "polling"])
+export const feedDaemonBackendTypeSchema = z.enum([
+  "wg-quick",
+  "networkmanager",
+  "netns",
+  "windows",
+  "windows-manager",
+])
 
 export const feedDisplayInfoSchema = z.object({
   /**
@@ -372,6 +380,8 @@ export type Network = EntityValue<typeof networkEntity>
 export type Identity = EntityValue<typeof identityEntity>
 export type Peer = EntityValue<typeof peerEntity>
 export type NodeExposePolicy = z.infer<typeof nodeExposePolicySchema>
+export type FeedDaemonSyncMode = z.infer<typeof feedDaemonSyncModeSchema>
+export type FeedDaemonBackendType = z.infer<typeof feedDaemonBackendTypeSchema>
 export type Config = EntityValue<typeof configEntity>
 
 export type NetworkInput = EntityInput<typeof networkEntity>
@@ -381,6 +391,40 @@ export type ConfigInput = EntityInput<typeof configEntity>
 
 export type FeedDisplayInfo = z.infer<typeof feedDisplayInfoSchema>
 export type FeedMetadata = z.infer<typeof feedMetadataSchema>
+
+const feedDaemonArgs = $args({
+  /**
+   * The label of the feed in the wg-feed daemon config.
+   */
+  feedName: genericNameSchema.default("main"),
+
+  /**
+   * The label of the backend in the wg-feed daemon config.
+   */
+  backendName: genericNameSchema.default("default"),
+
+  /**
+   * The backend type used by the wg-feed daemon.
+   */
+  backendType: feedDaemonBackendTypeSchema.default("wg-quick"),
+
+  /**
+   * The sync mode used by the wg-feed daemon.
+   */
+  syncMode: feedDaemonSyncModeSchema.default("sse"),
+
+  /**
+   * The polling interval in seconds.
+   *
+   * If set to 0, wg-feed daemon uses the server-provided TTL.
+   */
+  pollingInterval: z.number().int().nonnegative().default(0),
+
+  /**
+   * The state file path used by the wg-feed daemon.
+   */
+  statePath: z.string().default("/var/lib/wg-feed/state.json"),
+})
 
 /**
  * Holds the shared configuration for WireGuard identities, peers, and nodes.
@@ -873,6 +917,13 @@ export const nodeFeedK8s = defineUnit({
      */
     interfaceName: z.string().default("wg0"),
 
+    ...feedDaemonArgs,
+
+    /**
+     * The wg-feed tunnel IDs to force-enable in the daemon config.
+     */
+    enabledTunnels: z.string().array().default([]),
+
     /**
      * List of CIDR blocks that should be blocked from forwarding through this WireGuard node.
      *
@@ -950,6 +1001,114 @@ export const nodeFeedK8s = defineUnit({
   source: {
     package: "@highstate/wireguard",
     path: "node.feed.k8s",
+  },
+})
+
+/**
+ * The wg-feed daemon deployed on a server using a systemd service.
+ */
+export const nodeFeed = defineUnit({
+  type: "wireguard.node.feed.v1",
+
+  args: {
+    /**
+     * The name of the wg-feed daemon systemd service.
+     *
+     * By default, the name is `wg-feed-${unitName}`.
+     */
+    serviceName: z.string().optional(),
+
+    /**
+     * The UDP port that will be exposed by the output peer.
+     */
+    listenPort: z.number().default(51820),
+
+    /**
+     * The name of the WireGuard interface to use for lockdown rules.
+     *
+     * Note: wg-feed may manage multiple tunnels.
+     */
+    interfaceName: z.string().default("wg0"),
+
+    /**
+     * The path where the wg-feed daemon binary should be installed.
+     */
+    daemonPath: z.string().default("/usr/local/bin/wg-feed-daemon"),
+
+    /**
+     * The path where the wg-feed daemon config should be written.
+     */
+    configPath: z.string().default("/etc/wg-feed/config.yaml"),
+
+    ...feedDaemonArgs,
+
+    /**
+     * The wg-feed tunnel IDs to force-enable in the daemon config.
+     */
+    enabledTunnels: z.string().array().default([]),
+
+    /**
+     * List of CIDR blocks that should be blocked from forwarding through this WireGuard node.
+     *
+     * This prevents other peers from reaching these destination CIDRs while still allowing
+     * the peers in those CIDRs to access the internet and other allowed endpoints.
+     */
+    forwardRestrictedSubnets: z.string().array().default([]),
+
+    /**
+     * Whether to drop all traffic from the interface using ip rule with priority 100.
+     *
+     * This is useful for preventing traffic leaks before another routing rule is installed.
+     */
+    lockdownUpstream: z.boolean().default(false),
+  },
+
+  secrets: {
+    /**
+     * The wg-feed setup URLs to configure on the daemon.
+     *
+     * This is useful for URLs that include secret fragments such as age keys.
+     */
+    endpoints: z.string().array().default([]),
+  },
+
+  inputs: {
+    server: {
+      entity: serverEntity,
+      required: true,
+    },
+
+    endpoints: {
+      entity: l7EndpointEntity,
+      multiple: true,
+      required: false,
+    },
+
+    peer: {
+      entity: peerEntity,
+      required: false,
+    },
+  },
+
+  outputs: {
+    peer: {
+      entity: peerEntity,
+      required: false,
+    },
+  },
+
+  meta: {
+    title: "WireGuard Feed Server Node",
+    description: "The wg-feed daemon deployed on a server.",
+    icon: "simple-icons:wireguard",
+    iconColor: "#88171a",
+    secondaryIcon: "mdi:server",
+    category: "VPN",
+  },
+
+  source: {
+    package: "@highstate/wireguard",
+    path: "node.feed",
   },
 })
 

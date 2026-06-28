@@ -1,3 +1,4 @@
+import { posix } from "node:path"
 import { l7EndpointToString } from "@highstate/common"
 import { Namespace, NetworkPolicy, Secret, Workload } from "@highstate/k8s"
 import { k8s, wireguard } from "@highstate/library"
@@ -10,6 +11,7 @@ import {
 } from "@highstate/pulumi"
 import { deepmerge } from "deepmerge-ts"
 import images from "../../assets/images.json"
+import { generateFeedDaemonConfigContent } from "../shared"
 
 const { name, args, inputs, outputs } = forUnit(wireguard.nodeFeedK8s)
 
@@ -35,13 +37,26 @@ if (endpoints.length === 0) {
   throw new Error("At least one endpoint must be provided via inputs.endpoints")
 }
 
-const setupUrls = endpoints.map(l7EndpointToString).join(",")
+const setupUrls = endpoints.map(l7EndpointToString)
 
-const setupUrlsSecret = Secret.create(appName, {
+const configPath = "/etc/wg-feed/config.yaml"
+const stateDirectory = posix.dirname(args.statePath)
+const configContent = generateFeedDaemonConfigContent({
+  statePath: args.statePath,
+  feedName: args.feedName,
+  backendName: args.backendName,
+  backendType: args.backendType,
+  syncMode: args.syncMode,
+  pollingInterval: args.pollingInterval,
+  endpoints: setupUrls,
+  enabledTunnels: args.enabledTunnels,
+})
+
+const configSecret = Secret.create(appName, {
   namespace,
 
   stringData: {
-    setup_urls: secret(setupUrls),
+    "config.yaml": secret(configContent),
   },
 })
 
@@ -103,30 +118,19 @@ const workload = await toPromise(
           protocol: "UDP",
         },
 
-        env: [
+        args: ["--config", configPath],
+
+        volumeMounts: [
           {
-            name: "BACKEND",
-            value: "wg-quick",
+            volume: configSecret,
+            mountPath: "/etc/wg-feed",
+            readOnly: true,
           },
           {
-            name: "SETUP_URLS",
-            valueFrom: {
-              secretKeyRef: {
-                name: setupUrlsSecret.metadata.name,
-                key: "setup_urls",
-              },
-            },
+            volume: stateVolume,
+            mountPath: stateDirectory,
           },
         ],
-
-        environment: {
-          STATE_PATH: "/state/state.json",
-        },
-
-        volumeMount: {
-          volume: stateVolume,
-          mountPath: "/state",
-        },
       },
       args.containerSpec ?? {},
     ),

@@ -1,0 +1,13 @@
+{
+  "wgFeedDaemon": {
+    "url": "https://github.com/Exeteres/wg-feed/releases/download/v{version}/wg-feed-daemon_{version}_linux_{arch}",
+    "params": {
+      "version": "0.7.1",
+      "arch": ["amd64", "arm64"]
+    },
+    "sha256": {
+      "0.7.1-amd64": "2dc9c10eff7d51731cd593967eef0fe3334f4e0e63403fbdcf48018f56294617",
+      "0.7.1-arm64": "35f0c0bf5cee7014d8e97646fe328cd87123e9daa31fe0b3433237e90a3f53fc"
+    }
+  }
+}
