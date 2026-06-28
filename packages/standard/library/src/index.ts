@@ -2,6 +2,7 @@ import { noop } from "./abbreviations"
 
 noop()
 
+export * from "./apps"
 export * as common from "./common"
 export * from "./databases"
 export * as distributions from "./distributions"
@@ -20,5 +21,3 @@ export * as talos from "./talos"
 export * from "./third-party"
 export * from "./utils"
 export * as wireguard from "./wireguard"
-
-// hi234
