@@ -178,6 +178,7 @@ export class LocalRunnerBackend implements RunnerBackend {
       options.signal?.throwIfAborted()
 
       const envVars: Record<string, string> = {
+        HOME: homedir(), // pulumi for some reason does not set HOME in bun runtime
         HIGHSTATE_CACHE_DIR: this.cacheDir,
         PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
         HIGHSTATE_PULUMI_COMMAND: preview ? "preview" : "update",
@@ -366,6 +367,7 @@ export class LocalRunnerBackend implements RunnerBackend {
           pulumiStackName: LocalRunnerBackend.getStackName(options),
           projectPath: resolvedSource.projectPath,
           envVars: {
+            HOME: homedir(), // pulumi for some reason does not set HOME in bun runtime
             HIGHSTATE_CACHE_DIR: this.cacheDir,
             PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
             HIGHSTATE_PULUMI_COMMAND: "destroy",
