@@ -85,7 +85,7 @@ function buildWorkloadExecCommand(
   }).apply(({ command, kind, name }) => {
     const type = kind.toLowerCase()
 
-    return `exec -it ${type}/${name} -- ${createCommand(command)}`
+    return `exec -i ${type}/${name} -- ${createCommand(command)}`
   })
 }
 

@@ -1,4 +1,4 @@
-import type { common, MetadataKey } from "@highstate/library"
+import type { common, MetadataKey, tls } from "@highstate/library"
 import { getOrCreate, z } from "@highstate/contract"
 import {
   ComponentResource,
@@ -8,9 +8,21 @@ import {
   normalizeInputs,
   type Output,
   output,
-  Resource,
+  type Resource,
 } from "@highstate/pulumi"
 import { ImplementationMediator } from "./impl-ref"
+
+export type TlsCertificateResult = {
+  /**
+   * The underlying resource created by the implementation.
+   */
+  resource: Resource
+
+  /**
+   * The common TLS certificate entity.
+   */
+  certificate: Output<tls.Certificate>
+}
 
 export const tlsCertificateMediator = new ImplementationMediator(
   "tls-certificate",
@@ -19,7 +31,7 @@ export const tlsCertificateMediator = new ImplementationMediator(
     spec: z.custom<TlsCertificateSpec>(),
     opts: z.custom<ComponentResourceOptions>().optional(),
   }),
-  z.instanceof(Resource),
+  z.custom<TlsCertificateResult>(),
 )
 
 export type TlsCertificateSpec = {
@@ -32,6 +44,11 @@ export type TlsCertificateSpec = {
    * The alternative DNS names for the certificate.
    */
   dnsNames?: InputArray<string>
+
+  /**
+   * The private key configuration for the certificate.
+   */
+  privateKey?: Input<tls.PrivateKeySpec>
 
   /**
    * The extra metadata to pass to the TLS certificate implementation.
@@ -59,16 +76,22 @@ export class TlsCertificate extends ComponentResource {
    */
   readonly resource: Output<Resource>
 
+  /**
+   * The issued certificate entity.
+   */
+  readonly certificate: Output<tls.Certificate>
+
   constructor(name: string, args: TlsCertificateArgs, opts?: ComponentResourceOptions) {
     super("highstate:common:TlsCertificate", name, args, opts)
 
     const issuers = normalizeInputs(args.issuer, args.issuers)
 
-    this.resource = output({
+    const result = output({
       issuers,
       commonName: args.commonName,
       dnsNames: args.dnsNames,
-    }).apply(async ({ issuers, commonName, dnsNames }) => {
+      privateKey: args.privateKey,
+    }).apply(async ({ issuers, commonName, dnsNames, privateKey }) => {
       // for now, we require single issuer to match all requested names
       const matchedIssuer = issuers.find(issuer => {
         if (commonName && !issuer.zones.some(zone => commonName.endsWith(zone))) {
@@ -106,9 +129,17 @@ export class TlsCertificate extends ComponentResource {
 
       return await tlsCertificateMediator.call(matchedIssuer.implRef, {
         name,
-        spec: args,
+        spec: {
+          commonName,
+          dnsNames,
+          privateKey,
+          metadata: args.metadata,
+        },
       })
     })
+
+    this.resource = result.resource
+    this.certificate = result.certificate
   }
 
   private static readonly tlsCertificateCache = new Map<string, TlsCertificate>()

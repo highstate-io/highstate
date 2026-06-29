@@ -68,6 +68,10 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/tls/certificate": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/script": {
         "mode": "manual",
         "version": "1"
@@ -97,6 +101,7 @@
     "./units/network/l7-endpoint-replacer": "./dist/units/network/l7-endpoint-replacer/index.js",
     "./units/existing-server": "./dist/units/existing-server/index.js",
     "./units/ssh/key-pair": "./dist/units/ssh/key-pair/index.js",
+    "./units/tls/certificate": "./dist/units/tls/certificate/index.js",
     "./units/script": "./dist/units/script/index.js",
     "./units/server-patch": "./dist/units/server-patch/index.js"
   },

@@ -1,5 +1,6 @@
 import { tlsCertificateMediator } from "@highstate/common"
-import { k8s } from "@highstate/library"
+import { common, k8s, tls } from "@highstate/library"
+import { makeEntityOutput, makeSecretOutput, output } from "@highstate/pulumi"
 import { Namespace } from "../namespace"
 import { getProvider } from "../shared"
 import { Certificate } from "../tls"
@@ -19,13 +20,19 @@ export const createCertificate = tlsCertificateMediator.implement(
           ? Namespace.for(metadataNamespace as k8s.Namespace, data.cluster)
           : Namespace.get("cert-manager", { name: "cert-manager", cluster: data.cluster })
 
-    return Certificate.create(
+    const certificate = Certificate.create(
       name,
       {
         namespace,
 
         commonName: spec.commonName,
         dnsNames: spec.dnsNames,
+        privateKey: spec.privateKey
+          ? output(spec.privateKey).apply(privateKey => ({
+              algorithm: privateKey.algorithm,
+              ...(privateKey.size ? { size: privateKey.size } : {}),
+            }))
+          : undefined,
         issuerRef: {
           name: data.clusterIssuerName,
           kind: "ClusterIssuer",
@@ -34,5 +41,94 @@ export const createCertificate = tlsCertificateMediator.implement(
       },
       { ...opts, provider },
     )
+
+    const secret = certificate.secret
+    const certificatePem = secret.apply(secret => secret.getValue("tls.crt"))
+    const privateKeyPem = secret.apply(secret => secret.getValue("tls.key"))
+    const chain = makeEntityOutput({
+      entity: common.fileEntity,
+      identity: `${name}:tls.crt`,
+      meta: {
+        title: "tls.crt",
+      },
+      value: {
+        meta: {
+          name: "tls.crt",
+          contentType: "application/x-pem-file",
+        },
+        content: {
+          type: "embedded-secret",
+          value: makeSecretOutput(certificatePem),
+        },
+      },
+    })
+    const root = secret.apply(secret => {
+      return secret.data.apply(data => {
+        if (!data["ca.crt"]) {
+          return undefined
+        }
+
+        return makeEntityOutput({
+          entity: common.fileEntity,
+          identity: `${name}:ca.crt`,
+          meta: {
+            title: "ca.crt",
+          },
+          value: {
+            meta: {
+              name: "ca.crt",
+              contentType: "application/x-pem-file",
+            },
+            content: {
+              type: "embedded",
+              value: Buffer.from(data["ca.crt"], "base64").toString(),
+            },
+          },
+        })
+      })
+    })
+    const privateKey = makeEntityOutput({
+      entity: common.fileEntity,
+      identity: `${name}:tls.key`,
+      meta: {
+        title: "tls.key",
+      },
+      value: {
+        meta: {
+          name: "tls.key",
+          contentType: "application/x-pem-file",
+        },
+        content: {
+          type: "embedded-secret",
+          value: makeSecretOutput(privateKeyPem),
+        },
+      },
+    })
+    const certificateChain = makeEntityOutput({
+      entity: tls.certificateChainEntity,
+      identity: `${name}:chain`,
+      meta: {
+        title: name,
+      },
+      value: {
+        chain,
+        root,
+      },
+    })
+
+    return {
+      resource: certificate,
+      certificate: makeEntityOutput({
+        entity: tls.certificateEntity,
+        identity: certificate.metadata.uid,
+        meta: {
+          title: name,
+        },
+        value: {
+          chain: certificateChain,
+          privateKey,
+        },
+      }),
+    }
   },
 )

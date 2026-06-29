@@ -1,4 +1,5 @@
 import { defineUnit, z } from "@highstate/contract"
+import * as vault from "../apps/vault"
 import { tlsIssuerEntity } from "../common"
 import * as dns from "../dns"
 import { clusterEntity } from "./shared"
@@ -89,13 +90,51 @@ export const dns01TlsIssuer = defineUnit({
 
   meta: {
     title: "DNS01 Issuer",
-    icon: "mdi:certificate",
+    icon: "iconoir:dns",
+    iconColor: "#2196F3",
+    secondaryIcon: "mdi:certificate",
     category: "Kubernetes",
   },
 
   source: {
     package: "@highstate/k8s",
     path: "units/dns01-issuer",
+  },
+})
+
+/**
+ * The Vault TLS issuer for issuing certificates using a Vault PKI backend.
+ */
+export const vaultTlsIssuer = defineUnit({
+  type: "k8s.vault-issuer.v1",
+
+  inputs: {
+    /**
+     * The Kubernetes cluster where the Vault issuer should be configured.
+     */
+    k8sCluster: clusterEntity,
+
+    /**
+     * The Vault PKI issuer to use for issuing certificates.
+     */
+    vaultPkiIssuer: vault.pkiIssuerEntity,
+  },
+
+  outputs: {
+    tlsIssuer: tlsIssuerEntity,
+  },
+
+  meta: {
+    title: "Vault Issuer",
+    icon: "simple-icons:vault",
+    iconColor: "#2196F3",
+    secondaryIcon: "mdi:certificate",
+    category: "Kubernetes",
+  },
+
+  source: {
+    package: "@highstate/k8s",
+    path: "units/vault-issuer",
   },
 })
 
