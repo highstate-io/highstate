@@ -14,6 +14,7 @@ export default outputs({
       title: name,
     },
     value: {
+      ca: inputs.ca,
       endpoints,
       region: args.region,
       credentials: {

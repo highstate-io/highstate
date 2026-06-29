@@ -89,7 +89,7 @@ export class Database extends ComponentResource {
     this.owner = output(args.owner)
 
     this.database = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeDatabase(
         name,
@@ -99,7 +99,7 @@ export class Database extends ComponentResource {
           lcCollate: args.lcCollate,
           lcCtype: args.lcCtype,
         },
-        mergeOptions(opts, { provider, hooks, parent: this }),
+        mergeOptions(opts, { provider, parent: this }),
       )
     })
   }

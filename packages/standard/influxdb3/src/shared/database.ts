@@ -41,7 +41,7 @@ export class Database extends ComponentResource {
     super("highstate:influxdb3:Database", name, args, opts)
 
     this.command = output(args.connection).apply(async connection => {
-      const { endpoint, hooks } = await resolveEndpoint(connection.endpoints)
+      const endpoint = await resolveEndpoint(connection.endpoints)
 
       return new Command(
         `influxdb3-database-${name}`,
@@ -62,7 +62,7 @@ export class Database extends ComponentResource {
           stdin: "yes", // to confirm delete operations
           delete: ["delete database", args.name ?? name, "--hard-delete now"],
         },
-        { ...opts, hooks: { ...opts?.hooks, ...hooks } },
+        opts,
       )
     })
   }

@@ -43,7 +43,7 @@ export class ServiceAccount extends ComponentResource {
     this.connection = output(args.connection)
 
     this.serviceAccount = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new IamServiceAccount(
         name,
@@ -54,7 +54,6 @@ export class ServiceAccount extends ComponentResource {
         {
           ...opts,
           provider,
-          hooks,
           parent: this,
         },
       )

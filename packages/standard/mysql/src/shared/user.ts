@@ -52,7 +52,7 @@ export class User extends ComponentResource {
     this.password = secret(args.password)
 
     this.user = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeUser(
         name,
@@ -64,7 +64,6 @@ export class User extends ComponentResource {
         {
           ...opts,
           provider,
-          hooks,
           parent: this,
         },
       )

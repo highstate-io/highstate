@@ -53,7 +53,7 @@ export class ResourceToken extends ComponentResource {
     super("highstate:influxdb3:ResourceToken", name, args, opts)
 
     this.command = output(args.connection).apply(async connection => {
-      const { endpoint, hooks } = await resolveEndpoint(connection.endpoints)
+      const endpoint = await resolveEndpoint(connection.endpoints)
 
       return new Command(
         `influxdb3-resource-token-${name}`,
@@ -88,7 +88,7 @@ export class ResourceToken extends ComponentResource {
           stdin: "yes", // to confirm delete operations
           delete: ["delete token", "--token-name", args.name ?? name],
         },
-        { ...opts, hooks: { ...opts?.hooks, ...hooks } },
+        opts,
       )
     })
 

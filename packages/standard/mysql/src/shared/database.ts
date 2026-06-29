@@ -40,7 +40,7 @@ export class Database extends ComponentResource {
     this.connection = output(args.connection)
 
     this.database = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeDatabase(
         name,
@@ -50,7 +50,6 @@ export class Database extends ComponentResource {
         {
           ...opts,
           provider,
-          hooks,
           parent: this,
         },
       )

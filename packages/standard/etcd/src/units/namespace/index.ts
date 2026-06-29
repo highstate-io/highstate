@@ -46,7 +46,7 @@ export default outputs({
       title: roleName,
     },
     value: {
-      certificate: inputs.connection.certificate,
+      ca: inputs.connection.ca,
       endpoints: inputs.connection.endpoints,
       credentials: {
         type: "password",

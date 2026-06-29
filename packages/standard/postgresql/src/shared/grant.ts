@@ -95,7 +95,7 @@ export class Grant extends ComponentResource {
     })
 
     this.grant = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeGrant(
         name,
@@ -105,7 +105,7 @@ export class Grant extends ComponentResource {
           objectType: "database",
           privileges: args.privileges,
         },
-        mergeOptions(opts, { provider, hooks, parent: this }),
+        mergeOptions(opts, { provider, parent: this }),
       )
     })
   }

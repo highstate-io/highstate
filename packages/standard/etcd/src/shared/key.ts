@@ -44,7 +44,7 @@ export class Key extends ComponentResource {
     this.connection = output(args.connection)
 
     this.key = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeKey(
         name,
@@ -54,7 +54,6 @@ export class Key extends ComponentResource {
         },
         mergeOptions(opts, {
           provider,
-          hooks,
           parent: this,
         }),
       )

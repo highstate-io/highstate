@@ -6,8 +6,8 @@ import {
   secretSchema,
   z,
 } from "@highstate/contract"
+import { fileEntity } from "../common"
 import { l4EndpointContainer, l4EndpointEntity } from "../network"
-import { certificateEntity } from "../tls"
 
 export const credentialsSchema = z.discriminatedUnion("type", [
   z.object({
@@ -35,10 +35,10 @@ export const connectionEntity = defineEntity({
 
   includes: {
     /**
-     * The TLS certificate of the server if any.
+     * The CA certificate file used to verify the server if any.
      */
-    certificate: {
-      entity: certificateEntity,
+    ca: {
+      entity: fileEntity,
       required: false,
     },
   },
@@ -85,6 +85,14 @@ export const connection = defineUnit({
     endpoints: {
       entity: l4EndpointEntity,
       multiple: true,
+      required: false,
+    },
+
+    /**
+     * The CA certificate file used to verify the server if any.
+     */
+    ca: {
+      entity: fileEntity,
       required: false,
     },
   },

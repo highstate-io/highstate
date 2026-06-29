@@ -94,7 +94,7 @@ export class Grant extends ComponentResource {
     })
 
     this.grant = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeGrant(
         name,
@@ -107,7 +107,6 @@ export class Grant extends ComponentResource {
         {
           ...opts,
           provider,
-          hooks,
           parent: this,
         },
       )

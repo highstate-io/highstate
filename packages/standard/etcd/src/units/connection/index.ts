@@ -32,6 +32,7 @@ export default outputs({
       title: name,
     },
     value: {
+      ca: inputs.ca,
       endpoints: parseEndpoints([...args.endpoints, ...inputs.endpoints], 4),
       credentials,
     },

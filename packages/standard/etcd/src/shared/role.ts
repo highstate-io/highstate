@@ -48,7 +48,7 @@ export class Role extends ComponentResource {
     this.connection = output(args.connection)
 
     this.role = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new NativeRole(
         name,
@@ -58,7 +58,6 @@ export class Role extends ComponentResource {
         },
         mergeOptions(opts, {
           provider,
-          hooks,
           parent: this,
         }),
       )

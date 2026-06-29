@@ -6,6 +6,7 @@ import {
   secretSchema,
   z,
 } from "@highstate/contract"
+import { fileEntity } from "../common"
 import { l7EndpointContainer, l7EndpointEntity } from "../network"
 import { bucketEntity } from "./s3"
 
@@ -28,6 +29,16 @@ export const connectionEntity = defineEntity({
   type: "minio.connection.v1",
 
   extends: { l7EndpointContainer },
+
+  includes: {
+    /**
+     * The CA certificate file used to verify the server if any.
+     */
+    ca: {
+      entity: fileEntity,
+      required: false,
+    },
+  },
 
   schema: z.object({
     /**
@@ -78,6 +89,14 @@ export const connection = defineUnit({
     endpoints: {
       entity: l7EndpointEntity,
       multiple: true,
+      required: false,
+    },
+
+    /**
+     * The CA certificate file used to verify the server if any.
+     */
+    ca: {
+      entity: fileEntity,
       required: false,
     },
   },

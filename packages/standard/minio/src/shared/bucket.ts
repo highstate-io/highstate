@@ -48,7 +48,7 @@ export class Bucket extends ComponentResource {
     this.connection = output(args.connection)
 
     this.bucket = this.connection.apply(async connection => {
-      const { provider, hooks } = await getProvider(connection)
+      const provider = await getProvider(connection)
 
       return new S3Bucket(
         name,
@@ -60,7 +60,6 @@ export class Bucket extends ComponentResource {
         {
           ...opts,
           provider,
-          hooks,
           parent: this,
         },
       )
