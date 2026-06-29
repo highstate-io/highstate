@@ -98,7 +98,9 @@ function createNode(server: common.Server, type: "server" | "agent", env: InputR
   const baseConfig = type === "server" ? serverConfig : agentConfig
   const nodeSpecificConfig = args.nodeConfig?.[server.hostname] ?? {}
 
-  const mergedConfig = mergeDeep(baseConfig, nodeSpecificConfig)
+  const mergedConfig = mergeDeep(mergeDeep(baseConfig, nodeSpecificConfig), {
+    "node-ip": l3EndpointToString(server.endpoints[0]),
+  })
 
   const configFileCommand = Command.createTextFile(`config-${server.hostname}`, {
     host: server,
