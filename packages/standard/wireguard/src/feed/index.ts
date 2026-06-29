@@ -6,7 +6,7 @@ import {
   parseEndpoint,
   parseEndpoints,
 } from "@highstate/common"
-import { getProvider, Key } from "@highstate/etcd"
+import { Key } from "@highstate/etcd"
 import { wireguard } from "@highstate/library"
 import { forUnit, type Output, secret, toPromise } from "@highstate/pulumi"
 import { sha256 } from "@noble/hashes/sha2.js"
@@ -100,19 +100,12 @@ const entry: WgFeedEtcdEntry = {
   encrypted_data: armored,
 }
 
-// TODO: investigate why hooks not attached to internal resource
-const { hooks } = await getProvider(inputs.etcd)
-
 // store the feed in etcd
-new Key(
-  "feed",
-  {
-    connection: inputs.etcd,
-    key: `wg-feed/feeds/${feedId}` satisfies WgFeedEtcdKey,
-    value: JSON.stringify(entry),
-  },
-  { hooks },
-)
+new Key("feed", {
+  connection: inputs.etcd,
+  key: `wg-feed/feeds/${feedId}` satisfies WgFeedEtcdKey,
+  value: JSON.stringify(entry),
+})
 
 const encKey = await toPromise(
   privateKey?.apply(key => key.replace("AGE-SECRET-KEY-", "").toLowerCase()),
