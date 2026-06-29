@@ -27,6 +27,7 @@ Commit requirements:
 - Use scopes only for npm packages or omit them entirely.
 - When used, scopes must be full package names, such as `@highstate/library`.
 - Scopes must be lowercase.
+- Commit messages must start with a lowercase letter and be in the imperative mood.
 - Commit messages must be a single sentence without an extra body.
 
 After you finish your task, verify that your code follow the guidelines
