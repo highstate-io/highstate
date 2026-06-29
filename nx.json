@@ -32,18 +32,13 @@
       "outputs": ["{projectRoot}/coverage"]
     },
     "build-image": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["build"],
       "outputs": []
     },
     "push-image": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["build-image"],
-      "outputs": []
-    },
-    "deploy-image": {
-      "cache": true,
-      "dependsOn": ["push-image"],
       "outputs": []
     },
     "biome": {
