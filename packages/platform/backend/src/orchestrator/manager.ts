@@ -158,7 +158,15 @@ export class OperationManager {
     )
 
     this.runtimeOperations.set(operation.id, runtimeOperation)
-    void runtimeOperation.operateSafe().finally(() => this.runtimeOperations.delete(operation.id))
+    void runtimeOperation.operateSafe().finally(async () => {
+      try {
+        await this.runnerBackend.finishOperation?.(project.id, operation.id)
+      } catch (error) {
+        this.logger.warn({ error, operationId: operation.id }, "failed to cleanup runner operation")
+      } finally {
+        this.runtimeOperations.delete(operation.id)
+      }
+    })
   }
 
   private async recoverSystemState(projectId: string): Promise<void> {

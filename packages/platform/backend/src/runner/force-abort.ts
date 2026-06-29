@@ -14,7 +14,13 @@ export interface DualAbortSignal extends AbortSignal {
   forceSignal?: AbortSignal
 }
 
-export async function createForceAbortableCommand(): Promise<PulumiCommand> {
+export type ForceAbortableCommandOptions = {
+  hostsFilePath?: string
+}
+
+export async function createForceAbortableCommand(
+  options: ForceAbortableCommandOptions = {},
+): Promise<PulumiCommand> {
   // @ts-expect-error some symbols are internal, but we still can import them
   const { PulumiCommand, CommandResult, createCommandError } = await import(
     "@pulumi/pulumi/automation/index.js"
@@ -68,9 +74,35 @@ export async function createForceAbortableCommand(): Promise<PulumiCommand> {
     const env = additionalEnv ? { ...additionalEnv } : undefined
 
     try {
-      const proc = Bun.spawn([command, ...args], {
+      const commandLine = options.hostsFilePath
+        ? [
+            "unshare",
+            "--user",
+            "--map-current-user",
+            "--keep-caps",
+            "--mount",
+            "--propagation",
+            "private",
+            "--forward-signals",
+            "--kill-child=SIGKILL",
+            "--",
+            "sh",
+            "-c",
+            'mount --bind "$HIGHSTATE_HOSTS_FILE" /etc/hosts && exec "$@"',
+            "sh",
+            command,
+            ...args,
+          ]
+        : [command, ...args]
+
+      const proc = Bun.spawn(commandLine, {
         cwd,
-        env,
+        env: options.hostsFilePath
+          ? {
+              ...env,
+              HIGHSTATE_HOSTS_FILE: options.hostsFilePath,
+            }
+          : env,
         stdout: "pipe",
         stderr: "pipe",
       })

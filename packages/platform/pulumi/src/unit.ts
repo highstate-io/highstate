@@ -9,7 +9,6 @@ import {
   camelCaseToHumanReadable,
   type EntityValue,
   type EntityValueInput,
-  HighstateSignature,
   type InstanceStatusField,
   type InstanceStatusFieldValue,
   type PartialKeys,
@@ -25,13 +24,18 @@ import {
   type UnitTrigger,
   type UnitWorker,
   unitArtifactSchema,
-  unitConfigSchema,
   type VersionedName,
   z,
 } from "@highstate/contract"
 import { type Input, type Output, secret as pulumiSecret, type Unwrap } from "@pulumi/pulumi"
-import { isPlainObject, mapValues } from "remeda"
+import { mapValues } from "remeda"
 import { getHasResourceHooks } from "./resource-hooks"
+import {
+  getHighstateRuntime,
+  highstateRuntimeEndpointEnvVar,
+  highstateRuntimeTokenEnvVar,
+  isHighstateRuntimeAvaiable,
+} from "./runtime"
 import { type DeepInput, toPromise } from "./utils"
 
 type StatusField<TArgName extends string = string> = Omit<
@@ -121,7 +125,7 @@ interface UnitContext<
   outputs(
     this: void,
     outputs?: OutputMapToDeepInputMap<TOutputs, keyof TArgs & string>,
-  ): Promise<unknown>
+  ): Promise<void>
 }
 
 // z.output since the values are validated/transformed and passed to the user
@@ -144,23 +148,7 @@ let instanceId: string | undefined
 let stateId: string | undefined
 let instanceName: string | undefined
 let importBaseUrl: URL | undefined
-const highstateConfigEndpointEnvVar = "HIGHSTATE_CONFIG_ENDPOINT"
-const highstateConfigEndpoint = process.env[highstateConfigEndpointEnvVar]
-
-async function loadUnitConfigFromEndpoint(
-  endpoint: string,
-): Promise<z.infer<typeof unitConfigSchema>> {
-  const response = await fetch(endpoint)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch unit config: ${response.status}`)
-  }
-
-  return unitConfigSchema.parse(await response.json())
-}
-
-const hsConfig = highstateConfigEndpoint
-  ? await loadUnitConfigFromEndpoint(highstateConfigEndpoint)
-  : undefined
+const hsConfig = isHighstateRuntimeAvaiable ? await getHighstateRuntime().config.get() : undefined
 
 /**
  * Returns the current unit instance id.
@@ -267,7 +255,9 @@ export function forUnit<
   { [K in keyof TSecrets]: z.output<TSecrets[K]> }
 > {
   if (!hsConfig) {
-    throw new Error(`${highstateConfigEndpointEnvVar} is required`)
+    throw new Error(
+      `Runtime config is required. Set "${highstateRuntimeEndpointEnvVar}" and "${highstateRuntimeTokenEnvVar}".`,
+    )
   }
 
   const args = mapValues(unit.model.args, (arg, argName) => {
@@ -438,60 +428,11 @@ export function forUnit<
 
       result.$hasResourceHooks = getHasResourceHooks()
 
-      return wrapHighstateSecretValues(result)
+      await getHighstateRuntime().result.submit(await toPromise(result))
+
+      return undefined
     },
   }
-}
-
-function wrapHighstateSecretValues<T>(data: T): T {
-  const cache = new WeakMap<object, unknown>()
-
-  const traverse = (value: unknown): unknown => {
-    if (value === null || value === undefined || typeof value !== "object") {
-      return value
-    }
-
-    if (Array.isArray(value)) {
-      const cached = cache.get(value)
-      if (cached) {
-        return cached
-      }
-
-      const mapped: unknown[] = []
-      cache.set(value, mapped)
-
-      for (const item of value) {
-        mapped.push(traverse(item))
-      }
-
-      return mapped
-    }
-
-    if (!isPlainObject(value)) {
-      return value
-    }
-
-    const cached = cache.get(value)
-    if (cached) {
-      return cached
-    }
-
-    const record = value as Record<string, unknown>
-    const mapped: Record<string, unknown> = {}
-    cache.set(value, mapped)
-
-    for (const [key, nestedValue] of Object.entries(record)) {
-      mapped[key] = traverse(nestedValue)
-    }
-
-    if (record[HighstateSignature.Secret] === true && "value" in record) {
-      return pulumiSecret(mapped)
-    }
-
-    return mapped
-  }
-
-  return traverse(data) as T
 }
 
 function mapStatusFields(status: Unwrap<ExtraOutputs["$statusFields"]>): InstanceStatusField[] {

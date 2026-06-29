@@ -16,6 +16,7 @@ export type RunOptions = {
   pulumiProjectName: string
   pulumiStackName: string
   envVars?: Record<string, string>
+  hostsFilePath?: string
 }
 
 export type RunLocalOptions = RunOptions & {
@@ -48,7 +49,7 @@ export class LocalPulumiHost {
     fn: (stack: Stack) => Promise<T>,
     signal?: AbortSignal,
   ): Promise<T> {
-    const { projectId, pulumiProjectName, pulumiStackName, envVars } = options
+    const { projectId, pulumiProjectName, pulumiStackName, envVars, hostsFilePath } = options
 
     return await this.lock.acquire(`${pulumiProjectName}.${pulumiStackName}`, async () => {
       const { LocalWorkspace } = await import("@pulumi/pulumi/automation/index.js")
@@ -70,7 +71,7 @@ export class LocalPulumiHost {
             PULUMI_DEBUG_PROMISE_LEAKS: "true",
             ...envVars,
           },
-          pulumiCommand: await createForceAbortableCommand(),
+          pulumiCommand: await createForceAbortableCommand({ hostsFilePath }),
         },
       )
 
@@ -96,7 +97,8 @@ export class LocalPulumiHost {
     fn: (stack: Stack) => Promise<T>,
     signal?: AbortSignal,
   ): Promise<T> {
-    const { projectId, pulumiProjectName, pulumiStackName, projectPath, envVars } = options
+    const { projectId, pulumiProjectName, pulumiStackName, projectPath, envVars, hostsFilePath } =
+      options
 
     return await this.lock.acquire(`${pulumiProjectName}.${pulumiStackName}`, async () => {
       const { LocalWorkspace } = await import("@pulumi/pulumi/automation/index.js")
@@ -119,7 +121,7 @@ export class LocalPulumiHost {
             PULUMI_K8S_AWAIT_ALL: "true",
             ...envVars,
           },
-          pulumiCommand: await createForceAbortableCommand(),
+          pulumiCommand: await createForceAbortableCommand({ hostsFilePath }),
         },
       )
 

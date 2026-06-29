@@ -1,20 +1,20 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: не ори на меня */
 
-import type { Stack } from "@pulumi/pulumi/automation/index.js"
 import type { Logger } from "pino"
 import type { ArtifactBackend, ArtifactService } from "../artifact"
 import type { LibraryBackend, ResolvedUnitSource } from "../library"
 import type {
   OperationType,
+  RawPulumiOutputs,
   RunnerBackend,
   TypedUnitStateUpdate,
   UnitDestroyOptions,
   UnitOptions,
+  UnitStateOptions,
   UnitStateUpdate,
   UnitUpdateOptions,
 } from "./abstractions"
 import type { DualAbortSignal } from "./force-abort"
-import { randomUUID } from "node:crypto"
 import { EventEmitter, on } from "node:events"
 import { mkdir, rm } from "node:fs/promises"
 import { cpus, homedir } from "node:os"
@@ -29,8 +29,13 @@ import {
   collectAndStoreArtifacts,
   setupArtifactEnvironment,
 } from "./artifact-env"
-import { highstateConfigEndpointEnvVar, LocalConfigServer } from "./local-config-server"
+import {
+  highstateRuntimeEndpointEnvVar,
+  highstateRuntimeTokenEnvVar,
+  LocalRuntimeServer,
+} from "./local-runtime-server"
 import { type LocalPulumiHost, pulumiErrorToString, updateResourceCount } from "./pulumi"
+import { SidecarTracker } from "./sidecar-tracker"
 
 type Events = {
   [K in `update:${string}`]: [UnitStateUpdate]
@@ -39,6 +44,9 @@ type Events = {
 export const localRunnerBackendConfig = z.object({
   HIGHSTATE_RUNNER_BACKEND_LOCAL_PRINT_OUTPUT: z.coerce.boolean().default(true),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_CACHE_DIR: z.string().optional(),
+  HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_BINARY: z.string().default("docker"),
+  HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_USE_SUDO: z.coerce.boolean().default(false),
+  HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_HOST: z.string().optional(),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_CONCURRENCY: z.coerce
     .number()
     .int()
@@ -59,7 +67,8 @@ export class LocalRunnerBackend implements RunnerBackend {
     private readonly cacheDir: string,
     concurrency: number,
     private readonly pulumiProjectHost: LocalPulumiHost,
-    private readonly configServer: LocalConfigServer,
+    private readonly runtimeServer: LocalRuntimeServer,
+    private readonly sidecarTracker: SidecarTracker,
     private readonly libraryBackend: LibraryBackend,
     private readonly arttifactManager: ArtifactService,
     private readonly artifactBackend: ArtifactBackend,
@@ -149,7 +158,9 @@ export class LocalRunnerBackend implements RunnerBackend {
   private async updateWorker(options: UnitUpdateOptions, preview: boolean): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
     const childLogger = this.logger.child({ unitId })
-    const configId = randomUUID()
+    const operationId = LocalRunnerBackend.getOperationId(options)
+    const hostsFilePath = await this.sidecarTracker.registerExecution(operationId, false)
+    const runtimeToken = this.runtimeServer.setConfig(operationId, unitId, options.config)
 
     // create a dedicated temp directory for this unit execution
     let unitTempPath: string | null = null
@@ -182,7 +193,8 @@ export class LocalRunnerBackend implements RunnerBackend {
         HIGHSTATE_CACHE_DIR: this.cacheDir,
         PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
         HIGHSTATE_PULUMI_COMMAND: preview ? "preview" : "update",
-        [highstateConfigEndpointEnvVar]: this.configServer.set(configId, options.config),
+        [highstateRuntimeEndpointEnvVar]: this.runtimeServer.endpoint,
+        [highstateRuntimeTokenEnvVar]: runtimeToken,
         ...options.envVars,
       }
 
@@ -204,6 +216,7 @@ export class LocalRunnerBackend implements RunnerBackend {
           pulumiStackName: LocalRunnerBackend.getStackName(options),
           projectPath: resolvedSource.projectPath,
           envVars,
+          hostsFilePath,
         },
         async stack => {
           options.signal?.throwIfAborted()
@@ -257,7 +270,7 @@ export class LocalRunnerBackend implements RunnerBackend {
                 },
               })
 
-              const outputs = await stack.outputs()
+              const outputs = this.runtimeServer.getSubmittedOutputs(runtimeToken)
               const completionUpdate: TypedUnitStateUpdate<"completion"> = {
                 unitId,
                 type: "completion",
@@ -310,13 +323,14 @@ export class LocalRunnerBackend implements RunnerBackend {
         message: await pulumiErrorToString(error),
       })
     } finally {
-      this.configServer.delete(configId)
+      this.runtimeServer.deleteConfig(runtimeToken)
+      await this.sidecarTracker.releaseExecution(operationId, unitId)
       // clean up unit temp directory as a second layer of reliability
       await this.cleanupTempPath(unitTempPath, unitId, "update", this.logger)
     }
   }
 
-  async deleteState(options: UnitOptions): Promise<void> {
+  async deleteState(options: UnitStateOptions): Promise<void> {
     await this.pulumiProjectHost.runEmpty(
       {
         projectId: options.projectId,
@@ -339,7 +353,13 @@ export class LocalRunnerBackend implements RunnerBackend {
 
   private async destroyWorker(options: UnitDestroyOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
-    const configId = options.config ? randomUUID() : undefined
+    const operationId = LocalRunnerBackend.getOperationId(options)
+    const hostsFilePath = options.config
+      ? await this.sidecarTracker.registerExecution(operationId, false)
+      : undefined
+    const runtimeToken = options.config
+      ? this.runtimeServer.setConfig(operationId, unitId, options.config)
+      : undefined
 
     const childLogger = this.logger.child({ unitId })
     let unitTempPath: string | null = null
@@ -366,14 +386,16 @@ export class LocalRunnerBackend implements RunnerBackend {
           pulumiProjectName: options.instanceType,
           pulumiStackName: LocalRunnerBackend.getStackName(options),
           projectPath: resolvedSource.projectPath,
+          hostsFilePath,
           envVars: {
             HOME: homedir(), // pulumi for some reason does not set HOME in bun runtime
             HIGHSTATE_CACHE_DIR: this.cacheDir,
             PULUMI_K8S_DELETE_UNREACHABLE: options.deleteUnreachable ? "true" : "",
             HIGHSTATE_PULUMI_COMMAND: "destroy",
-            ...(options.config && configId
+            ...(runtimeToken
               ? {
-                  [highstateConfigEndpointEnvVar]: this.configServer.set(configId, options.config),
+                  [highstateRuntimeEndpointEnvVar]: this.runtimeServer.endpoint,
+                  [highstateRuntimeTokenEnvVar]: runtimeToken,
                 }
               : {}),
             ...(options.debug && { TF_LOG: "DEBUG" }),
@@ -429,7 +451,11 @@ export class LocalRunnerBackend implements RunnerBackend {
                   },
                 })
 
-                await this.emitCompletionStateUpdate("destroy", unitId, stack)
+                await this.emitCompletionStateUpdate(
+                  "destroy",
+                  unitId,
+                  runtimeToken ? this.runtimeServer.getSubmittedOutputs(runtimeToken) : {},
+                )
               },
               error => this.pulumiProjectHost.tryUnlockStack(stack, error),
             )
@@ -462,8 +488,11 @@ export class LocalRunnerBackend implements RunnerBackend {
         message: await pulumiErrorToString(error),
       })
     } finally {
-      if (configId) {
-        this.configServer.delete(configId)
+      if (runtimeToken) {
+        this.runtimeServer.deleteConfig(runtimeToken)
+      }
+      if (hostsFilePath) {
+        await this.sidecarTracker.releaseExecution(operationId, unitId)
       }
       await this.cleanupTempPath(unitTempPath, unitId, "destroy", this.logger)
     }
@@ -471,7 +500,13 @@ export class LocalRunnerBackend implements RunnerBackend {
 
   private async refreshWorker(options: UnitOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
-    const configId = options.config ? randomUUID() : undefined
+    const operationId = LocalRunnerBackend.getOperationId(options)
+    const hostsFilePath = options.config
+      ? await this.sidecarTracker.registerExecution(operationId, false)
+      : undefined
+    const runtimeToken = options.config
+      ? this.runtimeServer.setConfig(operationId, unitId, options.config)
+      : undefined
 
     try {
       await this.pulumiProjectHost.runEmpty(
@@ -479,12 +514,13 @@ export class LocalRunnerBackend implements RunnerBackend {
           projectId: options.projectId,
           pulumiProjectName: options.instanceType,
           pulumiStackName: LocalRunnerBackend.getStackName(options),
-          envVars:
-            options.config && configId
-              ? {
-                  [highstateConfigEndpointEnvVar]: this.configServer.set(configId, options.config),
-                }
-              : undefined,
+          hostsFilePath,
+          envVars: runtimeToken
+            ? {
+                [highstateRuntimeEndpointEnvVar]: this.runtimeServer.endpoint,
+                [highstateRuntimeTokenEnvVar]: runtimeToken,
+              }
+            : undefined,
         },
         async stack => {
           options.signal?.throwIfAborted()
@@ -562,8 +598,11 @@ export class LocalRunnerBackend implements RunnerBackend {
         message: await pulumiErrorToString(error),
       })
     } finally {
-      if (configId) {
-        this.configServer.delete(configId)
+      if (runtimeToken) {
+        this.runtimeServer.deleteConfig(runtimeToken)
+      }
+      if (hostsFilePath) {
+        await this.sidecarTracker.releaseExecution(operationId, unitId)
       }
     }
   }
@@ -571,14 +610,13 @@ export class LocalRunnerBackend implements RunnerBackend {
   private async emitCompletionStateUpdate(
     opType: OperationType,
     unitId: InstanceId,
-    stack: Stack,
+    rawOutputs?: RawPulumiOutputs,
   ): Promise<TypedUnitStateUpdate<"completion">> {
-    const output = await stack.outputs()
     const update: TypedUnitStateUpdate<"completion"> = {
       unitId,
       type: "completion",
       operationType: opType,
-      rawOutputs: output,
+      rawOutputs,
     }
 
     return this.emitStateUpdate(update)
@@ -621,6 +659,14 @@ export class LocalRunnerBackend implements RunnerBackend {
     return getInstanceId(options.instanceType, options.instanceName)
   }
 
+  private static getOperationId(options: UnitOptions): string {
+    return options.operationId
+  }
+
+  async finishOperation(_projectId: string, operationId: string): Promise<void> {
+    await this.sidecarTracker.finishOperation(operationId)
+  }
+
   private async tryInstallMissingDependencies(
     error: unknown,
     allowedDependencies: string[],
@@ -661,7 +707,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     return source
   }
 
-  private static getStackName(options: UnitOptions) {
+  private static getStackName(options: { stateId: string }) {
     return options.stateId
   }
 
@@ -690,18 +736,31 @@ export class LocalRunnerBackend implements RunnerBackend {
       cacheDir = resolve(homeDir, ".cache", "highstate")
     }
 
-    const configServer = await LocalConfigServer.create()
+    let runner: LocalRunnerBackend | undefined
+    const sidecarTracker = new SidecarTracker({
+      dockerBinary: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_BINARY,
+      dockerUseSudo: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_USE_SUDO,
+      dockerHost: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_HOST,
+      logger: logger.child({ service: "SidecarTracker" }),
+      onUnitLog: (unitId, message) => {
+        runner?.emitStateUpdate({ type: "message", unitId, message })
+      },
+    })
+    const runtimeServer = await LocalRuntimeServer.create(sidecarTracker)
 
-    return new LocalRunnerBackend(
+    runner = new LocalRunnerBackend(
       config.HIGHSTATE_RUNNER_BACKEND_LOCAL_PRINT_OUTPUT,
       cacheDir,
       config.HIGHSTATE_RUNNER_BACKEND_LOCAL_CONCURRENCY,
       pulumiProjectHost,
-      configServer,
+      runtimeServer,
+      sidecarTracker,
       libraryBackend,
       artifactManager,
       artifactBackend,
       logger,
     )
+
+    return runner
   }
 }

@@ -37,6 +37,7 @@
   "dependencies": {
     "@highstate/contract": "workspace:*",
     "@pulumi/pulumi": "3.232.0",
+    "@trpc/client": "^11.0.1",
     "deepmerge-ts": "^7.1.5",
     "remeda": "^2.21.0",
     "type-fest": "^4.41.0"

@@ -1,4 +1,4 @@
-import { crc32 } from "node:zlib"
+import { readFile } from "node:fs/promises"
 import {
   dynamicEndpointResolverMediator,
   endpointToString,
@@ -6,11 +6,11 @@ import {
   parseEndpoint,
   rebaseEndpoint,
 } from "@highstate/common"
-import { z } from "@highstate/contract"
+import { getEntityId, z } from "@highstate/contract"
 import { k8s } from "@highstate/library"
-import { getUnitStateId } from "@highstate/pulumi"
-import spawn, { type Subprocess, SubprocessError } from "nano-spawn"
+import { getHighstateRuntime } from "@highstate/pulumi"
 import { isEndpointFromCluster } from "../service"
+import { images } from "../shared"
 
 export const resolveDynamicEndpoint = dynamicEndpointResolverMediator.implement(
   z.object({ cluster: k8s.clusterEntity.schema }),
@@ -23,87 +23,49 @@ export const resolveDynamicEndpoint = dynamicEndpointResolverMediator.implement(
 
     const { name, namespace } = endpoint.metadata["k8s.service"]
 
-    const localPort = getStablePort(`${cluster.id}:${namespace}:${name}`)
+    const config = MaterializedFile.for(cluster.kubeconfig)
+    await using _ = await config.open()
+    const kubeconfig = await readFile(config.path, "utf-8")
 
-    let subprocess: Subprocess
+    const identity = getEntityId(endpoint)
 
-    return {
-      endpoint: rebaseEndpoint(endpoint, parseEndpoint(`localhost:${localPort}`)),
-
-      setup: async () => {
-        console.log(
-          `[port-forward] starting port-forward for service "${name}" in namespace "${namespace}" on local port ${localPort}`,
-        )
-
-        const config = MaterializedFile.for(cluster.kubeconfig)
-        await using _ = await config.open()
-
-        subprocess = spawn("kubectl", [
-          "--kubeconfig",
-          config.path,
-          "port-forward",
-          `service/${name}`,
-          "-n",
-          namespace,
-          `${localPort}:${endpoint.port}`,
-        ])
-
-        // catch the error when the process is killed to prevent unhandled promise rejection
-        subprocess.catch(err => {
-          if (err instanceof SubprocessError && err.signalName === "SIGTERM") {
-            // correct termination
-            return
-          }
-
-          throw err
-        })
-
-        const nodeProcess = await subprocess.nodeChildProcess
-
-        await new Promise<void>((resolve, reject) => {
-          nodeProcess.stdout?.once("data", (data: Buffer) => {
-            const output = data.toString()
-
-            if (output.includes("Forwarding from")) {
-              resolve()
-            } else {
-              reject(new Error(`Failed to start port-forward: ${output}`))
-            }
-          })
-
-          nodeProcess.stderr?.once("data", (data: Buffer) => {
-            reject(new Error(`Failed to start port-forward: ${data.toString()}`))
-          })
-        })
-
-        console.log(
-          `[port-forward] port-forward is ready for service "${name}" in namespace "${namespace}" on local port ${localPort}`,
-        )
+    await getHighstateRuntime().sidecar.start({
+      identity,
+      image: images["terminal-kubectl"].image,
+      command: ["bash", "-lc"],
+      args: [
+        [
+          "set -euo pipefail",
+          'kubectl --kubeconfig /highstate/kubeconfig port-forward --address "$HIGHSTATE_SIDECAR_IP" "service/$SERVICE_NAME" -n "$NAMESPACE" "$TARGET_PORT:$TARGET_PORT"',
+        ].join("\n"),
+      ],
+      env: {
+        NAMESPACE: namespace,
+        SERVICE_NAME: name,
+        TARGET_PORT: String(endpoint.port),
       },
-
-      dispose: async () => {
-        console.log(
-          `[port-forward] stopping port-forward for service "${name}" in namespace "${namespace}" on local port ${localPort}`,
-        )
-
-        const nodeProcess = await subprocess.nodeChildProcess
-        nodeProcess.kill()
+      files: [
+        {
+          path: "/highstate/kubeconfig",
+          content: kubeconfig,
+          secret: true,
+          mode: 0o600,
+        },
+      ],
+      ports: [
+        {
+          name: "service",
+          containerPort: endpoint.port,
+          protocol: "tcp",
+        },
+      ],
+      readiness: {
+        type: "tcp",
+        port: "service",
+        timeoutSeconds: 30,
       },
-    }
+    })
+
+    return rebaseEndpoint(endpoint, parseEndpoint(`${identity}.highstate.local:${endpoint.port}`))
   },
 )
-
-/**
- * Return a stable port number based on the given id.
- * This is important because Pulumi stores the resolved endpoint in the state,
- * and uses it in destroy operations.
- */
-function getStablePort(id: string): number {
-  // also add state ID to ensure different ports for the same service in different states which may run in parallel
-  const hash = crc32(`${getUnitStateId()}:${id}`)
-
-  const minPort = 30000
-  const maxPort = 60000
-
-  return (Math.abs(hash) % (maxPort - minPort)) + minPort
-}

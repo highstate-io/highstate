@@ -73,7 +73,7 @@ export type UnitOptions = {
   /**
    * The operation ID that triggered this run.
    */
-  operationId?: string
+  operationId: string
 
   /**
    * The state ID to use as the stack name.
@@ -144,6 +144,33 @@ export type UnitUpdateOptions = UnitOptions & {
   deleteUnreachable?: boolean
 }
 
+export type UnitStateOptions = {
+  /**
+   * The project ID containing the instance.
+   */
+  projectId: string
+
+  /**
+   * The state ID to use as the stack name.
+   */
+  stateId: string
+
+  /**
+   * The library ID containing the unit definitions.
+   */
+  libraryId: string
+
+  /**
+   * The type of the instance to run.
+   */
+  instanceType: VersionedName
+
+  /**
+   * The name of the instance to run.
+   */
+  instanceName: GenericName
+}
+
 export type UnitDestroyOptions = UnitOptions & {
   /**
    * Whether to refresh the state before updating.
@@ -169,6 +196,14 @@ export type UnitDestroyOptions = UnitOptions & {
 }
 
 export interface RunnerBackend {
+  /**
+   * Cleans up runner-owned resources associated with an operation.
+   *
+   * @param projectId The project ID containing the operation.
+   * @param operationId The completed operation ID.
+   */
+  finishOperation?(projectId: string, operationId: string): Promise<void>
+
   /**
    * Watches the instance state and emits state updates.
    *
@@ -213,5 +248,5 @@ export interface RunnerBackend {
    *
    * Should throw an error if state cannot be deleted.
    */
-  deleteState(options: UnitOptions): Promise<void>
+  deleteState(options: UnitStateOptions): Promise<void>
 }

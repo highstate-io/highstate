@@ -47,6 +47,7 @@
         "@prisma/client": "7.4.1",
         "@prisma/driver-adapter-utils": "7.4.1",
         "@pulumi/pulumi": "3.232.0",
+        "@trpc/server": "^11.0.1",
         "age-encryption": "^0.2.3",
         "ajv": "^8.17.1",
         "ansi-colors": "^4.1.3",
@@ -319,6 +320,7 @@
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "@pulumi/pulumi": "3.232.0",
+        "@trpc/client": "^11.0.1",
         "deepmerge-ts": "^7.1.5",
         "remeda": "^2.21.0",
         "type-fest": "^4.41.0",
@@ -969,6 +971,23 @@
         "@pulumi/pulumi": "3.232.0",
         "@pulumiverse/talos": "^0.6.0",
         "remeda": "^2.21.0",
+      },
+      "devDependencies": {
+        "@biomejs/biome": "2.2.0",
+        "@highstate/cli": "workspace:*",
+        "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+      },
+    },
+    "packages/standard/vault": {
+      "name": "@highstate/vault",
+      "version": "0.22.0",
+      "dependencies": {
+        "@highstate/common": "workspace:*",
+        "@highstate/contract": "workspace:*",
+        "@highstate/library": "workspace:*",
+        "@highstate/pulumi": "workspace:*",
+        "@pulumi/pulumi": "3.232.0",
+        "@pulumi/vault": "^7.10.0",
       },
       "devDependencies": {
         "@biomejs/biome": "2.2.0",
@@ -1709,6 +1728,8 @@
 
     "@highstate/timeweb-sdk": ["@highstate/timeweb-sdk@workspace:packages/third-party/timeweb/generated/timeweb-sdk"],
 
+    "@highstate/vault": ["@highstate/vault@workspace:packages/standard/vault"],
+
     "@highstate/wireguard": ["@highstate/wireguard@workspace:packages/standard/wireguard"],
 
     "@highstate/worker-sdk": ["@highstate/worker-sdk@workspace:packages/platform/worker-sdk"],
@@ -2440,6 +2461,8 @@
     "@pulumi/pulumi": ["@pulumi/pulumi@3.232.0", "", { "dependencies": { "@grpc/grpc-js": "^1.10.1", "@logdna/tail-file": "^2.0.6", "@npmcli/arborist": "^9.0.0", "@opentelemetry/api": "^1.9", "@opentelemetry/exporter-trace-otlp-grpc": "^0.57", "@opentelemetry/exporter-zipkin": "^1.30", "@opentelemetry/instrumentation": "^0.57", "@opentelemetry/instrumentation-grpc": "^0.57", "@opentelemetry/resources": "^1.30", "@opentelemetry/sdk-trace-base": "^1.30", "@opentelemetry/sdk-trace-node": "^1.30", "@types/google-protobuf": "^3.15.5", "@types/semver": "^7.5.6", "@types/tmp": "^0.2.6", "execa": "^5.1.0", "fdir": "^6.5.0", "google-protobuf": "^3.21.4", "ini": "^2.0.0", "js-yaml": "^3.14.2", "minimist": "^1.2.6", "normalize-package-data": "^6.0.0", "picomatch": "^4.0.0", "require-from-string": "^2.0.1", "semver": "^7.5.2", "source-map-support": "^0.5.6", "tmp": "^0.2.4", "upath": "^1.1.0" }, "peerDependencies": { "ts-node": ">= 7.0.1 < 12", "typescript": ">= 3.8.3 < 7" }, "optionalPeers": ["ts-node", "typescript"] }, "sha512-5Pl48cCwOOZEvG7b6w6sErrD1D/QiEwiPqEtHCIzF/alU0yzFjo95uxNteKFlt0LsnzWsZ58DJHgBe9gurjIFg=="],
 
     "@pulumi/query": ["@pulumi/query@0.6.0", "", {}, "sha512-iw6W0xjzBWy/kLPkoejMeuXp0WjesHEJDVvImKED9YB9pcLc7e8NVfXOKzeRrRc+LlqbJ+ZN96EfpU577cV+2A=="],
+
+    "@pulumi/vault": ["@pulumi/vault@7.10.0", "", { "dependencies": { "@pulumi/pulumi": "^3.142.0" } }, "sha512-nIhb1UqMpn+VsXTSy7k4tOQ7RYn89plDUEBp2uJghPIriQ8T2zWpE5sIm0GS3wVF4r4noc1+sbgzbmXg7pSVwA=="],
 
     "@pulumiverse/talos": ["@pulumiverse/talos@0.6.1", "", { "dependencies": { "@pulumi/pulumi": "^3.0.0" } }, "sha512-kMtx5R/qYvfl4+mh662N2sKrL+xQ1tBghoSEzUTH5/cnn67CcOw3IoQZOLNqAuHNq3g/RxK3FCHnmoJVOVKnIw=="],
 
