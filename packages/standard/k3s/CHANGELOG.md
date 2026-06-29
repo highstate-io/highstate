@@ -1,3 +1,19 @@
+## 0.23.0 (2026-06-29)
+
+### 🚀 Features
+
+- add operation-scoped runtime sidecars ([f0a882b](https://github.com/highstate-io/highstate/commit/f0a882b))
+- **@highstate/proxmox:** use generated provider sdk ([1ad9314](https://github.com/highstate-io/highstate/commit/1ad9314))
+- **@highstate/common:** add artifact file resolution ([c4e9aa7](https://github.com/highstate-io/highstate/commit/c4e9aa7))
+
+### 🩹 Fixes
+
+- **@highstate/k3s:** set node IP in cluster config ([2a55b5b](https://github.com/highstate-io/highstate/commit/2a55b5b))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.22.0 (2026-06-27)
 
 ### 🚀 Features

@@ -1,3 +1,23 @@
+## 0.23.0 (2026-06-29)
+
+### 🚀 Features
+
+- add database CA connection support ([7883ee1](https://github.com/highstate-io/highstate/commit/7883ee1))
+- add Vault PKI TLS issuers ([be5d7f5](https://github.com/highstate-io/highstate/commit/be5d7f5))
+- add operation-scoped runtime sidecars ([f0a882b](https://github.com/highstate-io/highstate/commit/f0a882b))
+- **@highstate/proxmox:** use generated provider sdk ([1ad9314](https://github.com/highstate-io/highstate/commit/1ad9314))
+- **@highstate/k8s.apps:** add signoz app ([5e91b29](https://github.com/highstate-io/highstate/commit/5e91b29))
+- **@highstate/wireguard:** add feed daemon node unit ([c47ba32](https://github.com/highstate-io/highstate/commit/c47ba32))
+- **@highstate/common:** add artifact file resolution ([c4e9aa7](https://github.com/highstate-io/highstate/commit/c4e9aa7))
+
+### 🩹 Fixes
+
+- **@highstate/library:** export TLS entities ([850631d](https://github.com/highstate-io/highstate/commit/850631d))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.22.0 (2026-06-27)
 
 ### 🚀 Features
