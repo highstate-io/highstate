@@ -1,3 +1,13 @@
+## 0.25.0 (2026-07-15)
+
+### 🚀 Features
+
+- **@highstate/cli:** resolve compatible stdlib updates ([5bc2674](https://github.com/highstate-io/highstate/commit/5bc2674))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.24.0 (2026-07-15)
 
 ### 🚀 Features

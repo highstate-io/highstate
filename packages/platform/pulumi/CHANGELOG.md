@@ -1,3 +1,7 @@
+## 0.25.0 (2026-07-15)
+
+This was a version bump only for @highstate/pulumi to align it with other projects, there were no code changes.
+
 ## 0.24.0 (2026-07-15)
 
 ### 🚀 Features
