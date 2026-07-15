@@ -116,10 +116,16 @@ export class ClusterAccessScope extends ComponentResource {
       )
 
       const createRoleBinding = (namespace: Input<string>) => {
+        const roleBindingName = createBindingName(
+          namespace,
+          serviceAccount.metadata.name,
+          clusterRole.metadata.name,
+        )
+
         return new rbac.v1.RoleBinding(
           name,
           {
-            metadata: { name, namespace },
+            metadata: { name: roleBindingName, namespace },
             roleRef: {
               kind: "ClusterRole",
               name: clusterRole.metadata.name,
@@ -138,10 +144,16 @@ export class ClusterAccessScope extends ComponentResource {
       }
 
       if (args.clusterWide) {
+        const clusterRoleBindingName = createBindingName(
+          namespaceName,
+          serviceAccount.metadata.name,
+          clusterRole.metadata.name,
+        )
+
         new rbac.v1.ClusterRoleBinding(
           name,
           {
-            metadata: { name },
+            metadata: { name: clusterRoleBindingName },
             roleRef: {
               kind: "ClusterRole",
               name: clusterRole.metadata.name,
@@ -232,6 +244,22 @@ export class ClusterAccessScope extends ComponentResource {
       }
     })
   }
+}
+
+function createBindingName(
+  namespace: Input<string>,
+  serviceAccount: Input<string>,
+  role: Input<string>,
+): Output<string> {
+  return output({ namespace, serviceAccount, role }).apply(
+    ({ namespace, serviceAccount, role }) => {
+      return `${namespace}:${serviceAccount}:${normalizeBindingRole(role)}`
+    },
+  )
+}
+
+function normalizeBindingRole(role: string): string {
+  return role.replaceAll(":", ".")
 }
 
 async function mergeResources(
