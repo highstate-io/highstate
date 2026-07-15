@@ -1,4 +1,4 @@
-import { type tls, vault } from "@highstate/library"
+import { common, type tls, vault } from "@highstate/library"
 import {
   ComponentResource,
   type ComponentResourceOptions,
@@ -150,6 +150,23 @@ export class PkiCa extends ComponentResource {
       },
       value: {
         connection: this.appRole.authenticatedConnection,
+        ca: makeEntityOutput({
+          entity: common.fileEntity,
+          identity: getCombinedIdentityOutput([this.connection, this.mount.mount.path, "ca.crt"]),
+          meta: {
+            title: "ca.crt",
+          },
+          value: {
+            meta: {
+              name: "ca.crt",
+              contentType: "application/x-pem-file",
+            },
+            content: {
+              type: "embedded",
+              value: this.rootCert.certificate,
+            },
+          },
+        }),
         path: this.mount.mount.path,
         intermediatePath: this.intermediateMount.mount.path,
         commonName: this.rootCert.commonName,

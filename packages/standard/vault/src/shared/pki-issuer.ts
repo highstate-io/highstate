@@ -143,7 +143,7 @@ export class PkiIssuer extends ComponentResource {
           allowIpSans: false,
           allowLocalhost: false,
           requireCn: false,
-          clientFlag: false,
+          clientFlag: true,
           serverFlag: true,
           ttl: "24h",
           maxTtl: "720h",

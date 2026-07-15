@@ -5,6 +5,13 @@ import { Namespace } from "../namespace"
 import { getProvider } from "../shared"
 import { Certificate } from "../tls"
 
+const certManagerUsages: Record<tls.CertificateUsage, string> = {
+  digitalSignature: "digital signature",
+  keyEncipherment: "key encipherment",
+  serverAuth: "server auth",
+  clientAuth: "client auth",
+}
+
 export const createCertificate = tlsCertificateMediator.implement(
   k8s.tlsIssuerDataSchema,
   ({ name, spec, opts }, data) => {
@@ -27,6 +34,9 @@ export const createCertificate = tlsCertificateMediator.implement(
 
         commonName: spec.commonName,
         dnsNames: spec.dnsNames,
+        usages: spec.usages
+          ? output(spec.usages).apply(usages => usages.map(mapCertificateUsage))
+          : undefined,
         privateKey: spec.privateKey
           ? output(spec.privateKey).apply(privateKey => ({
               algorithm: privateKey.algorithm,
@@ -132,3 +142,7 @@ export const createCertificate = tlsCertificateMediator.implement(
     }
   },
 )
+
+function mapCertificateUsage(usage: tls.CertificateUsage): string {
+  return certManagerUsages[usage]
+}

@@ -1,5 +1,10 @@
 import type { Secret } from "../secret"
-import { gatewayRouteMediator, type TlsCertificate } from "@highstate/common"
+import {
+  gatewayClientAuthMediator,
+  gatewayRouteMediator,
+  type NormalizedGatewayClientAuthArgs,
+  type TlsCertificate,
+} from "@highstate/common"
 import { type common, k8s, type network } from "@highstate/library"
 import { type ComponentResourceOptions, type Input, toPromise } from "@highstate/pulumi"
 import { core } from "@pulumi/kubernetes"
@@ -25,6 +30,14 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       : undefined
 
     const routeProtocol = resolveRouteProtocol(spec)
+
+    if (spec.clientAuth && routeProtocol !== "http") {
+      throw new Error("Gateway client authentication is only supported for HTTP routes.")
+    }
+
+    if (spec.clientAuth && !certificateRef) {
+      throw new Error("Gateway client authentication requires a TLS certificate.")
+    }
 
     if (routeProtocol === "http") {
       return await createHttpGatewayRoute({
@@ -72,6 +85,7 @@ type GatewayRouteSpec = {
   metadata: Record<string, unknown>
   fqdns: string[]
   certificate?: TlsCertificate
+  clientAuth?: NormalizedGatewayClientAuthArgs
   port?: number
   rules: Record<string, GatewayRouteRuleSpec>
 }
@@ -125,6 +139,8 @@ async function createHttpGatewayRoute({
     },
     opts,
   )
+
+  await configureGatewayClientAuth({ name, spec, opts, data, gateway })
 
   const ruleSpecs = Object.values(spec.rules)
 
@@ -284,6 +300,39 @@ async function createL4GatewayRoute({
     resource: route,
     endpoints: await toPromise(gateway.endpoints),
   }
+}
+
+async function configureGatewayClientAuth({
+  name,
+  spec,
+  opts,
+  data,
+  gateway,
+}: {
+  name: string
+  spec: GatewayRouteSpec
+  opts: ComponentResourceOptions | undefined
+  data: k8s.GatewayData
+  gateway: Gateway
+}): Promise<void> {
+  if (!spec.clientAuth) {
+    return
+  }
+
+  if (spec.clientAuth.ca.length === 0) {
+    throw new Error("Gateway client authentication requires at least one CA certificate.")
+  }
+
+  if (!data.controllerImplRef) {
+    throw new Error("Gateway implementation does not support client authentication.")
+  }
+
+  await gatewayClientAuthMediator.call(data.controllerImplRef, {
+    name,
+    args: spec.clientAuth,
+    gateway,
+    opts,
+  })
 }
 
 async function getCertificateSecret(

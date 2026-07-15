@@ -26,6 +26,13 @@ export const privateKeySchema = z
     size: 4096,
   })
 
+export const certificateUsageSchema = z.enum([
+  "digitalSignature",
+  "keyEncipherment",
+  "serverAuth",
+  "clientAuth",
+])
+
 export const certificateChainEntity = defineEntity({
   type: "tls.certificate-chain.v1",
 
@@ -101,6 +108,13 @@ export const certificate = defineUnit({
      * The private key configuration for the certificate.
      */
     privateKey: privateKeySchema,
+
+    /**
+     * The requested key usages for the certificate.
+     *
+     * If not provided, the issuer default usages will be used.
+     */
+    usages: certificateUsageSchema.array().default(["digitalSignature", "keyEncipherment"]),
   },
 
   inputs: {
@@ -134,3 +148,4 @@ export type CertificateInput = EntityInput<typeof certificateEntity>
 
 export type PrivateKeyAlgorithm = z.infer<typeof privateKeyAlgorithmSchema>
 export type PrivateKeySpec = z.infer<typeof privateKeySchema>
+export type CertificateUsage = z.infer<typeof certificateUsageSchema>

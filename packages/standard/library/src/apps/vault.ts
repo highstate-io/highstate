@@ -96,6 +96,13 @@ export const pkiCaEntity = defineEntity({
     connection: {
       entity: connectionEntity,
     },
+
+    /**
+     * The root CA certificate in PEM format.
+     */
+    ca: {
+      entity: fileEntity,
+    },
   },
 
   schema: z.object({

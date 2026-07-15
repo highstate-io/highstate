@@ -51,6 +51,11 @@ export type TlsCertificateSpec = {
   privateKey?: Input<tls.PrivateKeySpec>
 
   /**
+   * The requested key usages for the certificate.
+   */
+  usages?: InputArray<tls.CertificateUsage>
+
+  /**
    * The extra metadata to pass to the TLS certificate implementation.
    */
   metadata?: Input<Record<MetadataKey, Input<unknown>>>
@@ -91,6 +96,7 @@ export class TlsCertificate extends ComponentResource {
       commonName: args.commonName,
       dnsNames: args.dnsNames,
       privateKey: args.privateKey,
+      usages: args.usages,
     }).apply(async ({ issuers, commonName, dnsNames, privateKey }) => {
       // for now, we require single issuer to match all requested names
       const matchedIssuer = issuers.find(issuer => {
@@ -133,6 +139,7 @@ export class TlsCertificate extends ComponentResource {
           commonName,
           dnsNames,
           privateKey,
+          usages: args.usages,
           metadata: args.metadata,
         },
       })
