@@ -1,4 +1,5 @@
 export * from "./code-server"
+export * from "./envoy-gateway"
 export * from "./etcd"
 export * from "./grafana"
 export * from "./grocy"

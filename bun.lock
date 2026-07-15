@@ -654,6 +654,7 @@
         "@sinclair/typebox": "^0.34.33",
         "deepmerge-ts": "^7.1.5",
         "remeda": "^2.21.0",
+        "yaml": "^2.8.1",
       },
       "devDependencies": {
         "@biomejs/biome": "2.2.0",

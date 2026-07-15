@@ -33,6 +33,11 @@ export const traefik = defineUnit({
     enableTraefikCrds: z.boolean().default(true),
 
     /**
+     * Whether to install CRDs bundled with the Traefik Helm chart.
+     */
+    installCrds: z.boolean().default(true),
+
+    /**
      * Whether to enable reconciliation for Ingress resources and create ingress class.
      */
     enableIngressApi: z.boolean().default(true),

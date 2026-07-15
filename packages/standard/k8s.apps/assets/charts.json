@@ -5,6 +5,12 @@
     "version": "38.0.2",
     "sha256": "9a3307a1bdba400e8c6f0627807421a3cfc181767e957bfdfc4b447bdf18a603"
   },
+  "envoy-gateway": {
+    "repo": "oci://docker.io/envoyproxy",
+    "name": "gateway-helm",
+    "version": "1.8.1",
+    "sha256": "251a38715d533bdce2ed11fa5d6c6663a80222a3b170adf1fe7a48d6fe0f0087"
+  },
   "mariadb": {
     "repo": "oci://ghcr.io/cloudpirates-io/helm-charts",
     "name": "mariadb",

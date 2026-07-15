@@ -7,6 +7,7 @@
   ],
   "exports": {
     "./code-server": "./dist/code-server/index.js",
+    "./envoy-gateway": "./dist/envoy-gateway/index.js",
     "./etcd": "./dist/etcd/index.js",
     "./grafana": "./dist/grafana/index.js",
     "./grocy": "./dist/grocy/index.js",
@@ -18,6 +19,7 @@
     "./refluxdb": "./dist/refluxdb/index.js",
     "./mongodb": "./dist/mongodb/index.js",
     "./signoz": "./dist/signoz/index.js",
+    "./scripts/process-helm-resources": "./dist/scripts/process-helm-resources.js",
     "./valkey": "./dist/valkey/index.js",
     "./vault": "./dist/vault/index.js",
     "./minio": "./dist/minio/index.js",
@@ -47,6 +49,7 @@
     "@highstate/cert-manager": "workspace:*",
     "@highstate/common": "workspace:*",
     "@highstate/contract": "workspace:*",
+    "@highstate/envoy-gateway-crds": "workspace:*",
     "@highstate/gateway-api": "workspace:*",
     "@highstate/k8s": "workspace:*",
     "@highstate/library": "workspace:*",
@@ -58,7 +61,8 @@
     "@pulumi/pulumi": "3.232.0",
     "@sinclair/typebox": "^0.34.33",
     "deepmerge-ts": "^7.1.5",
-    "remeda": "^2.21.0"
+    "remeda": "^2.21.0",
+    "yaml": "^2.8.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

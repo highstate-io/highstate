@@ -3,7 +3,7 @@ import { Chart, ClusterAccessScope, Namespace } from "@highstate/k8s"
 import { common, k8s } from "@highstate/library"
 import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { deepmerge } from "deepmerge-ts"
-import { charts } from "../shared"
+import { charts, processHelmResourcesPostRenderer } from "../shared"
 
 const { name, stateId, args, inputs, outputs } = forUnit(k8s.apps.traefik)
 
@@ -18,7 +18,8 @@ const chart = new Chart(args.appName, {
   chart: charts.traefik,
   serviceName: args.appName === "traefik" ? "traefik" : `${args.appName}-traefik`,
 
-  skipCrds: true,
+  skipCrds: !args.installCrds,
+  postRenderer: processHelmResourcesPostRenderer("remove-gateway-api-crds"),
 
   values: deepmerge(
     {
@@ -104,7 +105,7 @@ const chart = new Chart(args.appName, {
 
 // create a scope to manage cluster gateway resources
 // this is not ideal in terms of permissions, but it is most restrictive way to grant generic access
-const clusterScope = new ClusterAccessScope(name, {
+const clusterScope = new ClusterAccessScope(args.appName, {
   namespace,
   clusterWide: true,
 
