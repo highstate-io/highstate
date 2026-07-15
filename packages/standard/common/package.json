@@ -20,6 +20,10 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/access-point-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/dns/record-set": {
         "mode": "manual",
         "version": "1"
@@ -64,6 +68,10 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/gateway-patch": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/ssh/key-pair": {
         "mode": "manual",
         "version": "1"
@@ -89,6 +97,7 @@
     },
     "./filter": "./dist/filter/index.js",
     "./units/access-point": "./dist/units/access-point/index.js",
+    "./units/access-point-patch": "./dist/units/access-point-patch/index.js",
     "./units/dns/record-set": "./dist/units/dns/record-set/index.js",
     "./units/network/address-space": "./dist/units/network/address-space/index.js",
     "./units/network/network": "./dist/units/network/network/index.js",
@@ -100,6 +109,7 @@
     "./units/network/l7-endpoint": "./dist/units/network/l7-endpoint/index.js",
     "./units/network/l7-endpoint-replacer": "./dist/units/network/l7-endpoint-replacer/index.js",
     "./units/existing-server": "./dist/units/existing-server/index.js",
+    "./units/gateway-patch": "./dist/units/gateway-patch/index.js",
     "./units/ssh/key-pair": "./dist/units/ssh/key-pair/index.js",
     "./units/tls/certificate": "./dist/units/tls/certificate/index.js",
     "./units/script": "./dist/units/script/index.js",

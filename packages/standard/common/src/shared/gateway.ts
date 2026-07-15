@@ -14,6 +14,23 @@ import {
 } from "@highstate/pulumi"
 import { ImplementationMediator } from "./impl-ref"
 
+export type GatewayClientAuthArgs = {
+  /**
+   * The PEM-encoded CA certificates used to validate client certificates.
+   */
+  ca: Input<string[]>
+
+  /**
+   * The DNS SAN patterns to validate on client certificates.
+   */
+  dnsNames?: Input<string[]>
+}
+
+export type NormalizedGatewayClientAuthArgs = {
+  ca: string[]
+  dnsNames: string[]
+}
+
 export const gatewayRouteMediator = new ImplementationMediator(
   "gateway-route",
   z.object({
@@ -28,6 +45,19 @@ export const gatewayRouteMediator = new ImplementationMediator(
      * The endpoints of the gateway that will serve the route.
      */
     endpoints: network.l3EndpointEntity.schema.array(),
+  }),
+)
+
+export const gatewayClientAuthMediator = new ImplementationMediator(
+  "gateway-client-auth",
+  z.object({
+    name: z.string(),
+    args: z.custom<NormalizedGatewayClientAuthArgs>(),
+    gateway: z.instanceof(Resource),
+    opts: z.custom<ComponentResourceOptions>().optional(),
+  }),
+  z.object({
+    resources: z.custom<Resource[]>(),
   }),
 )
 
@@ -101,6 +131,11 @@ export type GatewayRouteArgs = {
   certificate?: Input<TlsCertificate>
 
   /**
+   * The client certificate validation configuration for TLS termination.
+   */
+  clientAuth?: Input<GatewayClientAuthArgs>
+
+  /**
    * The port to listen on.
    *
    * If not specified, the default port for the protocol will be used (80 for HTTP, 443 for HTTPS, etc.).
@@ -166,8 +201,22 @@ type NormalizedGatewayRouteArgs = {
   fqdns: string[]
   type: "http" | "tcp" | "udp"
   certificate?: TlsCertificate
+  clientAuth?: NormalizedGatewayClientAuthArgs
   port?: number
   rules: Record<string, NormalizedGatewayRuleArgs>
+}
+
+function normalizeGatewayClientAuth(
+  clientAuth: Unwrap<GatewayClientAuthArgs> | NormalizedGatewayClientAuthArgs | undefined,
+): NormalizedGatewayClientAuthArgs | undefined {
+  if (!clientAuth) {
+    return undefined
+  }
+
+  return {
+    ca: clientAuth.ca,
+    dnsNames: clientAuth.dnsNames ?? [],
+  }
 }
 
 export class GatewayRoute extends ComponentResource {
@@ -238,6 +287,7 @@ export class GatewayRoute extends ComponentResource {
       fqdns: normalize(args.fqdn, args.fqdns),
       type: args.type,
       certificate: args.certificate,
+      clientAuth: normalizeGatewayClientAuth(args.clientAuth ?? args.gateway.clientAuth),
       port: args.port,
       rules: GatewayRoute.mergeRules(defaultRule ? { default: defaultRule } : {}, namedRules),
     }

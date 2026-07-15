@@ -8,6 +8,42 @@ import {
 import * as dns from "../dns"
 import { implementationReferenceSchema } from "../impl-ref"
 import { l3EndpointEntity } from "../network"
+import { booleanPatchSchema } from "../utils"
+import { fileEntity } from "./files"
+
+const gatewayClientAuthSchema = z.object({
+  /**
+   * The PEM-encoded CA certificates used to validate client certificates.
+   */
+  ca: z.string().array(),
+
+  /**
+   * The DNS SAN patterns to validate on client certificates.
+   */
+  dnsNames: z.string().array().default([]),
+})
+
+const gatewayPatchArgs = {
+  /**
+   * The public L3 endpoints to set on the gateway.
+   *
+   * If not specified, the existing endpoints will be kept.
+   */
+  endpoints: z.string().array().default([]),
+
+  /**
+   * The DNS SAN patterns to validate on client certificates.
+   */
+  clientAuthDnsNames: z.string().array().default([]),
+}
+
+const gatewayPatchInputs = {
+  clientAuthCa: {
+    entity: fileEntity,
+    required: false,
+    multiple: true,
+  },
+} as const
 
 export const gatewayEntity = defineEntity({
   type: "common.gateway.v1",
@@ -24,6 +60,11 @@ export const gatewayEntity = defineEntity({
      * If not provided, should be automatically detected by the implementation.
      */
     endpoints: l3EndpointEntity.schema.array().default([]),
+
+    /**
+     * The default client certificate validation configuration for routes using this gateway.
+     */
+    clientAuth: gatewayClientAuthSchema.optional(),
   }),
 
   meta: {
@@ -137,6 +178,89 @@ export const accessPoint = defineUnit({
   source: {
     package: "@highstate/common",
     path: "units/access-point",
+  },
+})
+
+/**
+ * Patches some properties of the gateway and outputs the updated gateway.
+ */
+export const gatewayPatch = defineUnit({
+  type: "common.gateway-patch.v1",
+
+  args: gatewayPatchArgs,
+
+  inputs: {
+    gateway: gatewayEntity,
+    ...gatewayPatchInputs,
+  },
+
+  outputs: {
+    gateway: gatewayEntity,
+  },
+
+  meta: {
+    title: "Gateway Patch",
+    icon: "mdi:router-network",
+    secondaryIcon: "fluent:patch-20-filled",
+    category: "Kubernetes",
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/gateway-patch",
+  },
+})
+
+/**
+ * Patches some properties of the access point and outputs the updated access point.
+ */
+export const accessPointPatch = defineUnit({
+  type: "common.access-point-patch.v1",
+
+  args: {
+    ...gatewayPatchArgs,
+
+    /**
+     * Whether the DNS records created for the access point should be proxied.
+     *
+     * If not specified, the existing value will be kept.
+     */
+    proxied: booleanPatchSchema,
+  },
+
+  inputs: {
+    accessPoint: accessPointEntity,
+    gateway: {
+      entity: gatewayEntity,
+      required: false,
+    },
+    tlsIssuers: {
+      entity: tlsIssuerEntity,
+      required: false,
+      multiple: true,
+    },
+    dnsProviders: {
+      entity: dns.providerEntity,
+      required: false,
+      multiple: true,
+    },
+    ...gatewayPatchInputs,
+  },
+
+  outputs: {
+    accessPoint: accessPointEntity,
+  },
+
+  meta: {
+    title: "Access Point Patch",
+    icon: "mdi:access-point",
+    secondaryIcon: "fluent:patch-20-filled",
+    category: "Kubernetes",
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/access-point-patch",
   },
 })
 
