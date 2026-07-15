@@ -32,7 +32,17 @@ function createVaultInitScript(): string {
     "  vault status >/dev/null 2>&1 || status_code=$?",
     '  if [ "$status_code" -eq 1 ]; then sleep 2; fi',
     "done",
-    `vault operator init -format=json -key-shares=${args.autoInit.shares} -key-threshold=${args.autoInit.threshold}`,
+    `init_output=$(vault operator init -format=json -key-shares=${args.autoInit.shares} -key-threshold=${args.autoInit.threshold} 2>&1) && { printf '%s\n' "$init_output"; exit 0; }`,
+    "init_status=$?",
+    'case "$init_output" in',
+    '  *"Vault is already initialized"*)',
+    "    exit 0",
+    "    ;;",
+    "  *)",
+    "    printf '%s\n' \"$init_output\" >&2",
+    '    exit "$init_status"',
+    "    ;;",
+    "esac",
   ].join("\n")
 }
 
@@ -140,15 +150,15 @@ if (args.autoInit.enabled) {
     { dependsOn: chart, deletedWith: namespace },
   )
 
-  const initOutput = initCommand.stdout.apply(parseVaultInitOutput)
-  const generatedRootToken = initOutput.apply(value => value.rootToken)
-  rootToken = generatedRootToken
+  const initStdout = (await toPromise(initCommand.stdout)).trim()
 
-  setSecret(
-    "unsealKeys",
-    initOutput.apply(value => value.unsealKeys),
-  )
-  setSecret("rootToken", generatedRootToken)
+  if (initStdout !== "") {
+    const initOutput = parseVaultInitOutput(initStdout)
+    rootToken = output(initOutput.rootToken)
+
+    setSecret("unsealKeys", initOutput.unsealKeys)
+    setSecret("rootToken", initOutput.rootToken)
+  }
 }
 
 const service = await toPromise(chart.service)
