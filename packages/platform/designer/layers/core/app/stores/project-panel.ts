@@ -2,6 +2,15 @@ import type { Connection, Edge, ViewportTransform } from "@vue-flow/core"
 import { SYSTEM_EXPORT_COMPONENT_TYPE } from "@highstate/backend/shared"
 import { useCanvasStore } from "./canvas"
 import { EXPORT_CREATE_INPUT_HANDLE } from "#layers/core/app/utils/vue-flow"
+import {
+  createOutputExpressionOptions,
+  type OutputExpressionOption,
+} from "#layers/core/app/features/output-expression"
+import type { EntityModel } from "@highstate/contract"
+
+const isInheritedAssignableTo = (entity: EntityModel, targetType: string) => {
+  return entity.type === targetType || (entity.extensions?.includes(targetType) ?? false)
+}
 
 export const useProjectPanelStore = defineMultiStore({
   name: "project-panel",
@@ -11,6 +20,15 @@ export const useProjectPanelStore = defineMultiStore({
     return defineStore(storeId, () => {
       const { instancesStore, libraryStore } = useExplicitProjectStores(projectId)
       const instanceFocusRequest = shallowRef<{ instanceId: string; requestId: number }>()
+      const pendingOutputExpression = shallowRef<{
+        connection: Connection
+        targetLabel: string
+        rootType: string
+        targetType: string
+        options: OutputExpressionOption[]
+        x: number
+        y: number
+      }>()
       let nextFocusRequestId = 0
 
       const {
@@ -65,6 +83,66 @@ export const useProjectPanelStore = defineMultiStore({
         }
       }
 
+      const getConnectionPopoverPosition = (connection: Connection) => {
+        const targetNode = vueFlowStore.findNode(connection.target)
+        if (!targetNode) {
+          return { x: 120, y: 120 }
+        }
+
+        const viewport = vueFlowStore.viewport.value
+        return {
+          x: targetNode.position.x * viewport.zoom + viewport.x + 24,
+          y: targetNode.position.y * viewport.zoom + viewport.y + 24,
+        }
+      }
+
+      const maybeOpenOutputExpressionPicker = (connection: Connection): boolean => {
+        const { inputInstance, outputInstance, outputKey, inputKey } = getConnectionNodes(
+          vueFlowStore,
+          connection,
+        )
+
+        if (!inputInstance || !outputInstance) {
+          return false
+        }
+
+        const outputComponent = instancesStore.getInstanceComponent(outputInstance)
+        const inputComponent = instancesStore.getInstanceComponent(inputInstance)
+        const output = outputComponent?.outputs[outputKey]
+        const input = inputComponent?.inputs[inputKey]
+
+        if (!output || !input) {
+          return false
+        }
+
+        const outputEntity = libraryStore.library.entities[output.type]
+        if (outputEntity && isInheritedAssignableTo(outputEntity, input.type)) {
+          return false
+        }
+
+        const options = createOutputExpressionOptions({
+          rootType: output.type,
+          targetType: input.type,
+          entities: libraryStore.library.entities,
+        })
+        const compatibleOptions = options.filter(option => option.path && option.assignable)
+
+        if (compatibleOptions.length === 0) {
+          return false
+        }
+
+        pendingOutputExpression.value = {
+          connection,
+          targetLabel: inputKey,
+          rootType: output.type,
+          targetType: input.type,
+          options,
+          ...getConnectionPopoverPosition(connection),
+        }
+
+        return true
+      }
+
       onInstanceMoved(instance => {
         void instancesStore.patchInstance(instance, ["position"])
       })
@@ -81,7 +159,7 @@ export const useProjectPanelStore = defineMultiStore({
         void instancesStore.deleteInstance(node.data.instance, !node.data.blueprint)
       })
 
-      const addInput = async (connection: Connection) => {
+      const addInput = async (connection: Connection, path?: string) => {
         const { inputInstance, outputInstance, inputHub, outputHub, outputKey, inputKey } =
           getConnectionNodes(vueFlowStore, connection)
 
@@ -137,10 +215,15 @@ export const useProjectPanelStore = defineMultiStore({
           })
         }
 
+        if (!path && maybeOpenOutputExpressionPicker(connection)) {
+          return
+        }
+
         if (inputInstance && outputInstance) {
           return await instancesStore.addInstanceInput(inputInstance, effectiveInputKey, {
             instanceId: outputInstance.id,
             output: outputKey,
+            path,
           })
         }
 
@@ -160,6 +243,7 @@ export const useProjectPanelStore = defineMultiStore({
           return await instancesStore.addHubInput(inputHub, {
             instanceId: outputInstance.id,
             output: outputKey,
+            path,
           })
         }
 
@@ -186,11 +270,13 @@ export const useProjectPanelStore = defineMultiStore({
       const removeInput = (edge: Edge) => {
         const { inputInstance, outputInstance, inputHub, outputHub, outputKey, inputKey } =
           getConnectionNodes(vueFlowStore, edge)
+        const path = (edge.data as { path?: string } | undefined)?.path
 
         if (inputInstance && outputInstance) {
           return instancesStore.removeInstanceInput(inputInstance, inputKey, {
             instanceId: outputInstance.id,
             output: outputKey,
+            path,
           })
         }
 
@@ -210,6 +296,7 @@ export const useProjectPanelStore = defineMultiStore({
           return instancesStore.removeHubInput(inputHub, {
             instanceId: outputInstance.id,
             output: outputKey,
+            path,
           })
         }
 
@@ -234,6 +321,20 @@ export const useProjectPanelStore = defineMultiStore({
       }
 
       vueFlowStore.onConnect(addInput)
+
+      const selectPendingOutputExpression = async (path: string | undefined) => {
+        const pending = pendingOutputExpression.value
+        if (!pending) {
+          return
+        }
+
+        pendingOutputExpression.value = undefined
+        await addInput(pending.connection, path)
+      }
+
+      const closePendingOutputExpression = () => {
+        pendingOutputExpression.value = undefined
+      }
 
       let edgeUpdated = false
 
@@ -367,6 +468,9 @@ export const useProjectPanelStore = defineMultiStore({
         instanceFocusRequest,
         requestInstanceFocus,
         clearInstanceFocusRequest,
+        pendingOutputExpression,
+        selectPendingOutputExpression,
+        closePendingOutputExpression,
       }
     })
   },

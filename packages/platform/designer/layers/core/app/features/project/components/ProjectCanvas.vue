@@ -10,6 +10,7 @@ import { type Blueprint } from "#layers/core/app/features/blueprint"
 import { getInstanceId } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import { getComponentTypeFromDragData, isHubDragData } from "#layers/core/app/features/shared"
+import { OutputExpressionPicker } from "#layers/core/app/features/output-expression"
 
 const canvasStore = useCanvasStore()
 const projectPanelStore = useProjectPanelStore()
@@ -180,6 +181,20 @@ const onDragOver = (event: DragEvent) => {
 
     <template #panel-bottom-right>
       <ExtraElementPanel />
+    </template>
+
+    <template #overlay>
+      <OutputExpressionPicker
+        v-if="projectPanelStore.pendingOutputExpression"
+        :target-label="projectPanelStore.pendingOutputExpression.targetLabel"
+        :root-type="projectPanelStore.pendingOutputExpression.rootType"
+        :target-type="projectPanelStore.pendingOutputExpression.targetType"
+        :options="projectPanelStore.pendingOutputExpression.options"
+        :x="projectPanelStore.pendingOutputExpression.x"
+        :y="projectPanelStore.pendingOutputExpression.y"
+        @select="projectPanelStore.selectPendingOutputExpression"
+        @close="projectPanelStore.closePendingOutputExpression"
+      />
     </template>
   </GenericCanvas>
 </template>

@@ -5,6 +5,7 @@ import {
 } from "@highstate/backend/shared"
 import {
   getInstanceId,
+  inputKey,
   isUnitModel,
   type ComponentInput,
   type ComponentModel,
@@ -892,9 +893,7 @@ export const useProjectInstancesStore = defineMultiStore({
         const inputs = instance.inputs ?? {}
         let inputList = inputs[inputName] ?? []
 
-        inputList = inputList.filter(item => {
-          return item.instanceId !== input.instanceId || item.output !== input.output
-        })
+        inputList = inputList.filter(item => inputKey(item) !== inputKey(input))
 
         inputs[inputName] = inputList
         deleteArrayIfEmpty(inputs, inputName)
@@ -957,9 +956,7 @@ export const useProjectInstancesStore = defineMultiStore({
         patch = true,
       ): Promise<void> => {
         const inputs = hub.inputs ?? []
-        const inputList = inputs.filter(item => {
-          return item.instanceId !== input.instanceId || item.output !== input.output
-        })
+        const inputList = inputs.filter(item => inputKey(item) !== inputKey(input))
 
         hub.inputs = inputList
 

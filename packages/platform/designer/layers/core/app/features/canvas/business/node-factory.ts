@@ -1,5 +1,6 @@
 import type { Edge, Node, VueFlowStore } from "@vue-flow/core"
 import {
+  inputKey,
   parseInstanceId,
   type HubInput,
   type HubModel,
@@ -130,7 +131,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     const targetNodeId = getInstanceNodeId(instance.id)
     if (!targetNodeId) return
 
-    const edgeId = `${input.instanceId}:${input.output}->${instance.id}:${inputName}`
+    const edgeId = `${inputKey(input)}->${instance.id}:${inputName}`
     if (vueFlowStore.findEdge(edgeId)) return
 
     vueFlowStore.addEdges({
@@ -141,6 +142,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
       target: targetNodeId,
       targetHandle: inputName,
       ...commonEdgeOptions,
+      data: { path: input.path },
     })
 
     return edgeId
@@ -182,7 +184,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     )
 
     vueFlowStore.addEdges({
-      id: `${instance.id}:${output.output}->outputs:${outputName}`,
+      id: `${inputKey(output)}->outputs:${outputName}`,
       type: "custom",
       source: sourceNodeId,
       sourceHandle: output.output,
@@ -190,6 +192,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
       targetHandle: outputName,
       ...commonEdgeOptions,
       data: {
+        path: output.path,
         isOutputProjection: options.projection,
         isOutputProjectionUnresolved: options.projectionUnresolved,
       },
@@ -280,7 +283,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     const sourceNodeId = getInstanceNodeId(input.instanceId)
     if (!sourceNodeId) return
 
-    const edgeId = `${input.instanceId}:${input.output}->${hub.id}`
+    const edgeId = `${inputKey(input)}->${hub.id}`
     if (vueFlowStore.findEdge(edgeId)) return
 
     vueFlowStore.addEdges({
@@ -290,6 +293,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
       sourceHandle: input.output,
       target: hub.id,
       ...commonEdgeOptions,
+      data: { path: input.path },
     })
 
     return edgeId
@@ -349,7 +353,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     inputName: string,
     input: InstanceInput,
   ) => {
-    vueFlowStore.removeEdges(`${input.instanceId}:${input.output}->${instance.id}:${inputName}`)
+    vueFlowStore.removeEdges(`${inputKey(input)}->${instance.id}:${inputName}`)
   }
 
   const removeEdgeForInstanceHubInput = (
@@ -365,7 +369,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
   }
 
   const removeEdgeForHubInput = (hub: HubModel, input: InstanceInput) => {
-    vueFlowStore.removeEdges(`${input.instanceId}:${input.output}->${hub.id}`)
+    vueFlowStore.removeEdges(`${inputKey(input)}->${hub.id}`)
   }
 
   const removeEdgeForHubInjectionInput = (hub: HubModel, input: HubInput) => {

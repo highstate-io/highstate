@@ -405,6 +405,56 @@ const calculateAnimationDelay = (index: number) => {
 
   return `-${index * delayStep}s`
 }
+
+const expressionLabel = computed(() => data.path)
+
+const expressionLabelPoint = computed(() => {
+  if (!data.points) {
+    return { x: (sourceX + targetX) / 2, y: (sourceY + targetY) / 2 }
+  }
+
+  const points = [
+    [sourceX, data.routedSourceY ?? sourceY],
+    ...data.points,
+    [targetX, data.routedTargetY ?? targetY],
+  ]
+
+  let totalLength = 0
+  for (let i = 1; i < points.length; i++) {
+    const previous = points[i - 1]
+    const current = points[i]
+    totalLength += Math.hypot(current[0] - previous[0], current[1] - previous[1])
+  }
+
+  if (totalLength === 0) {
+    return { x: (sourceX + targetX) / 2, y: (sourceY + targetY) / 2 }
+  }
+
+  let traversedLength = 0
+  const midpoint = totalLength / 2
+
+  for (let i = 1; i < points.length; i++) {
+    const previous = points[i - 1]
+    const current = points[i]
+    const segmentLength = Math.hypot(current[0] - previous[0], current[1] - previous[1])
+
+    if (traversedLength + segmentLength >= midpoint) {
+      const ratio = (midpoint - traversedLength) / segmentLength
+      return {
+        x: previous[0] + (current[0] - previous[0]) * ratio,
+        y: previous[1] + (current[1] - previous[1]) * ratio,
+      }
+    }
+
+    traversedLength += segmentLength
+  }
+
+  return { x: (sourceX + targetX) / 2, y: (sourceY + targetY) / 2 }
+})
+
+const expressionLabelWidth = computed(() => {
+  return Math.min((expressionLabel.value?.length ?? 0) * 7 + 18, 220)
+})
 </script>
 
 <template>
@@ -430,6 +480,25 @@ const calculateAnimationDelay = (index: number) => {
       :style="{ animationDelay: calculateAnimationDelay(index) }"
     />
   </template>
+
+  <g v-if="expressionLabel">
+    <rect
+      :x="expressionLabelPoint.x - expressionLabelWidth / 2"
+      :y="expressionLabelPoint.y - 12"
+      :width="expressionLabelWidth"
+      height="24"
+      rx="6"
+      class="expression-label-background"
+    />
+    <text
+      :x="expressionLabelPoint.x"
+      :y="expressionLabelPoint.y + 4"
+      text-anchor="middle"
+      class="expression-label-text"
+    >
+      {{ expressionLabel }}
+    </text>
+  </g>
 </template>
 
 <style scoped>
@@ -442,6 +511,17 @@ const calculateAnimationDelay = (index: number) => {
 .animated-highlight {
   stroke-dasharray: 10 80;
   animation: highlight-animation 1s linear infinite;
+}
+
+.expression-label-background {
+  fill: rgb(var(--v-theme-surface));
+  stroke: rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.expression-label-text {
+  fill: rgb(var(--v-theme-on-surface));
+  font-size: 12px;
+  pointer-events: none;
 }
 
 @keyframes highlight-animation {

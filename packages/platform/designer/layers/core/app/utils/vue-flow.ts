@@ -1,7 +1,7 @@
 import {
-  isAssignableTo,
   type ComponentInput,
   type ComponentModel,
+  type EntityModel,
   type HubModel,
   type InstanceInput,
   type InstanceModel,
@@ -22,8 +22,13 @@ import type {
   OutputNode,
 } from "#layers/core/app/workers/graph-layout"
 import { createId } from "@paralleldrive/cuid2"
+import { createOutputExpressionOptions } from "#layers/core/app/features/output-expression"
 
 export const EXPORT_CREATE_INPUT_HANDLE = "__createInput__"
+
+const isInheritedAssignableTo = (entity: EntityModel, targetType: string) => {
+  return entity.type === targetType || (entity.extensions?.includes(targetType) ?? false)
+}
 
 const { onMessage, postMessage } = useHSWebWorker<LayoutInput, LayoutOutput>(LayoutWorker, {
   name: "graph-layout",
@@ -323,6 +328,7 @@ export const validateConnection = (
     {
       instanceId: outputInstance!.id,
       output: outputKey,
+      path: (connection as { path?: string }).path,
     },
     output.type,
   )
@@ -335,13 +341,19 @@ export const validateConnection = (
     return false
   }
 
-  if (!isAssignableTo(outputEntity, input.type)) {
-    // type mismatch
-    logRejectedConnection("type_mismatch", {
-      outputEntityType,
-      inputEntityType: input.type,
+  if (!isInheritedAssignableTo(outputEntity, input.type)) {
+    const expressionOptions = createOutputExpressionOptions({
+      rootType: outputEntity.type,
+      targetType: input.type,
+      entities: libraryStore.entities,
     })
-    return false
+    if (!expressionOptions.some(option => option.path && option.assignable)) {
+      logRejectedConnection("type_mismatch", {
+        outputEntityType,
+        inputEntityType: input.type,
+      })
+      return false
+    }
   }
 
   if (hasDuplicateConnection(vueFlowStore, connection)) {
@@ -370,12 +382,15 @@ function isForwardedSourceInput(component: ComponentModel, inputName: string): b
 }
 
 function hasDuplicateConnection(vueFlowStore: VueFlowStore, connection: Connection): boolean {
+  const path = (connection as { path?: string }).path
+
   return vueFlowStore.edges.value.some(edge => {
     return (
       edge.source === connection.source &&
       edge.sourceHandle === connection.sourceHandle &&
       edge.target === connection.target &&
-      edge.targetHandle === connection.targetHandle
+      edge.targetHandle === connection.targetHandle &&
+      (edge.data as { path?: string } | undefined)?.path === path
     )
   })
 }

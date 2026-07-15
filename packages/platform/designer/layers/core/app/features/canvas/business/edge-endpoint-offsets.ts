@@ -14,6 +14,7 @@ export type RoutedEdgeData = RoutedEdgeEndpoints & {
   isPendingHubTyped?: boolean
   isOutputProjection?: boolean
   isOutputProjectionUnresolved?: boolean
+  path?: string
   points?: number[][]
 }
 

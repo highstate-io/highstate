@@ -34,6 +34,7 @@ defineSlots<{
   "node-outputs"(props: NodeProps): VNode
   "panel-bottom-left"(): VNode
   "panel-bottom-right"(): VNode
+  overlay(): VNode
 }>()
 
 const canvasStore = useCanvasStore.ensureCreated(...canvasId)
@@ -109,6 +110,8 @@ emit("init", canvasStore)
         <Panel position="bottom-left">
           <slot name="panel-bottom-left" />
         </Panel>
+
+        <slot name="overlay" />
 
         <SelectionRectangle
           :selection-mode="canvasStore.selection.selectionMode"
