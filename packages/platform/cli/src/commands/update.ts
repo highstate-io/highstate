@@ -162,9 +162,7 @@ type StdlibPlatformCompatibilityArgs = {
   stdlibVersion: string
 }
 
-async function assertStdlibSupportsPlatform(
-  args: StdlibPlatformCompatibilityArgs,
-): Promise<void> {
+async function assertStdlibSupportsPlatform(args: StdlibPlatformCompatibilityArgs): Promise<void> {
   const stdlibManifest = await fetchManifest("@highstate/library", args.stdlibVersion)
   const supportedPlatformRange = getDependencyRange(stdlibManifest, "@highstate/pulumi")
   if (!supportedPlatformRange) {
