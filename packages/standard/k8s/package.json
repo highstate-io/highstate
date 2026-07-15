@@ -69,6 +69,7 @@
   "scripts": {
     "build": "highstate build",
     "update-charts": "../../../scripts/update-charts.sh ./assets/charts.json",
+    "update-artifacts": "../../../scripts/update-artifacts.ts ./assets/artifacts.json",
     "update-images": "../../../scripts/update-images.sh ./assets/images.json",
     "generate-crds": "./scripts/generate-crds.sh",
     "typecheck": "tsgo --noEmit --skipLibCheck",

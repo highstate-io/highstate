@@ -1,0 +1,14 @@
+{
+  "influxdb3": {
+    "url": "https://dl.influxdata.com/influxdb/releases/influxdb3-core-{version}_linux_{arch}.tar.gz",
+    "path": "influxdb3-core-{version}/influxdb3",
+    "params": {
+      "version": "3.10.0",
+      "arch": ["amd64", "arm64"]
+    },
+    "sha256": {
+      "3.10.0-amd64": "7cae06192e322323eba6b8f6b3fc9279505638487e79394c0a9e19b559def389",
+      "3.10.0-arm64": "07302213ff25a7f09e3dedf5f658c999ba8cfac710fb3f17db3b9d5ebf1fa178"
+    }
+  }
+}

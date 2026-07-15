@@ -21,7 +21,8 @@
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings",
-    "update-ubuntu": "./scripts/update-ubuntu.sh ./assets/ubuntu.json"
+    "update-artifacts": "./scripts/update-ubuntu.sh ./assets/artifacts.json",
+    "update-ubuntu": "./scripts/update-ubuntu.sh ./assets/artifacts.json"
   },
   "dependencies": {
     "@highstate/common": "workspace:*",

@@ -19,7 +19,7 @@
   "scripts": {
     "build": "highstate build",
     "typecheck": "tsgo --noEmit --skipLibCheck",
-    "update-images": "../../../scripts/update-images.sh ./assets/images.json",
+    "update-artifacts": "../../../scripts/update-artifacts.ts ./assets/artifacts.json",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
   },

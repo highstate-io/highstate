@@ -15,8 +15,13 @@ import {
 } from "@highstate/pulumi"
 import { sha256 } from "@noble/hashes/sha2"
 import { local, remote, type types } from "@pulumi/command"
-import { flat, isNonNullish } from "remeda"
-import { type ArtifactFile, artifactArchValues, resolveArtifactFile } from "./artifacts"
+import { flat } from "remeda"
+import {
+  type ArtifactFile,
+  artifactArchValues,
+  resolveArtifact,
+  resolveArtifactFile,
+} from "./artifacts"
 import { mergeResourceHooks } from "./lifetime"
 import { l3EndpointToString } from "./network/endpoints"
 
@@ -42,8 +47,6 @@ export function getServerConnection(
 
 export type CommandHost = "local" | Input<common.Server>
 export type CommandRunMode = "auto" | "prefer-host"
-
-export type CommandContainerShell = "none" | "sh" | "bash"
 
 export type CommandArgs = {
   /**
@@ -113,43 +116,19 @@ export type CommandArgs = {
   environment?: Input<Record<string, Input<string>>>
 
   /**
-   * The container image to use to run the command.
-   */
-  image?: Input<string>
-
-  /**
-   * How to execute the command inside the container.
+   * The binaries to resolve before running the command.
    *
-   * - "none" runs the command as container argv (default).
-   *   This preserves ENTRYPOINT-style images.
-   * - "sh" runs `sh -lc '<command>'` inside the container.
-   * - "bash" runs `bash -lc '<command>'` inside the container.
-   *
-   * Use a shell mode when the command relies on shell features like pipes,
-   * redirects, globbing, or compound statements.
+   * Each artifact will be downloaded to the local Highstate cache, symlinked by its record key
+   * into a temporary bin directory, and made available through PATH for the command execution.
    */
-  containerShell?: CommandContainerShell
-
-  /**
-   * Whether to run the command with host network (only applicable for container commands).
-   */
-  hostNetwork?: boolean
+  binaries?: Record<string, ArtifactFile>
 
   /**
    * The files to pass to the command.
    *
-   * They will we automatically materialized when command is executed + mounted in the container if `image` is set.
-   *
    * For now, files are only supported for local commands.
    */
   files?: MaterializedFile[]
-
-  /**
-   * The paths to mount if the command runs in a container.
-   *
-   * They will be mounted to the same paths in the container.
-   */
-  mounts?: InputArray<string>
 
   /**
    * Whether to ignore all changes to the command's create, update, and delete properties.
@@ -240,12 +219,7 @@ function createCommand(command: string | string[]): string {
   return command
 }
 
-function wrapWithWorkDir(dir?: Input<string>, image?: Input<string>) {
-  if (image) {
-    // do not wrap with work dir for container commands, as the command will be run with -w option
-    return (command: string) => output(command)
-  }
-
+function wrapWithWorkDir(dir?: Input<string>) {
   if (!dir) {
     return (command: string) => output(command)
   }
@@ -253,15 +227,7 @@ function wrapWithWorkDir(dir?: Input<string>, image?: Input<string>) {
   return (command: string) => interpolate`cd "${dir}" && ${command}`
 }
 
-function wrapWithEnvironment(
-  environment?: Input<Record<string, Input<string>>>,
-  image?: Input<string>,
-) {
-  if (image) {
-    // do not wrap with environment for container commands, as the command will be run with -e option
-    return (command: string) => output(command)
-  }
-
+function wrapWithEnvironment(environment?: Input<Record<string, Input<string>>>) {
   if (!environment) {
     return (command: string) => output(command)
   }
@@ -286,6 +252,39 @@ function shellQuotePosix(value: string): string {
   const escaped = value.replaceAll("'", `"'"'"'"`)
 
   return `'${escaped}'`
+}
+
+function assertBinaryName(name: string): void {
+  if (!name || name.includes("/")) {
+    throw new Error(`Invalid binary name: "${name}"`)
+  }
+}
+
+function wrapWithBinaries(binaries?: Record<string, ArtifactFile>) {
+  if (!binaries || Object.keys(binaries).length === 0) {
+    return (command: string) => output(command)
+  }
+
+  return (command: string) =>
+    output({ command, binaries }).apply(async ({ command, binaries }) => {
+      const symlinks: string[] = []
+
+      for (const [name, file] of Object.entries(binaries)) {
+        assertBinaryName(name)
+        const path = await resolveArtifact(name, file)
+        symlinks.push(
+          `ln -sf ${shellQuotePosix(path)} "$highstate_bin_dir"/${shellQuotePosix(name)}`,
+        )
+      }
+
+      return [
+        "highstate_bin_dir=$(mktemp -d)",
+        "trap 'rm -rf \"$highstate_bin_dir\"' EXIT",
+        ...symlinks,
+        'export PATH="$highstate_bin_dir:$PATH"',
+        command,
+      ].join("\n")
+    })
 }
 
 function getSingleArtifactSha(file: ArtifactFile): string | undefined {
@@ -391,89 +390,15 @@ function createArchDownloadScript(file: ArtifactFile, path: string, mode: string
   ].join("\n")
 }
 
-function wrapWithPodman(
-  dir?: Input<string>,
-  environment?: Input<Record<string, Input<string>>>,
-  image?: Input<string> | undefined,
-  mounts?: InputOrArray<string> | undefined,
-  shell?: CommandContainerShell | undefined,
-  hostNetwork?: boolean | undefined,
-  stdin?: Input<string>,
-  files?: MaterializedFile[] | undefined,
-) {
-  if (!image) {
-    return (command: string) => output(command)
-  }
-
-  return (command: string) =>
-    output({ command, image, mounts, stdin, files }).apply(({ command, image, mounts, files }) => {
-      const allMounts = [...(mounts ?? []), ...(files?.map(file => file.path) ?? [])]
-
-      const mountsArgs = allMounts
-        .filter(isNonNullish)
-        .map(mount => `-v ${mount}:${mount}`)
-        .join(" ")
-
-      const workDirArg = dir ? `-w ${dir}` : ""
-
-      const envArgs = environment
-        ? Object.entries(environment)
-            .map(([key, value]) => `-e ${key}="${value}"`)
-            .join(" ")
-        : ""
-
-      const hostNetworkArg = hostNetwork ? "--network host" : ""
-      const stdinArg = stdin ? "-i" : ""
-
-      const containerShell = shell ?? "none"
-      if (containerShell !== "none") {
-        const shellBinary = containerShell
-        const shellCommand = shellQuotePosix(command)
-
-        return `podman run --rm ${workDirArg} ${envArgs} ${mountsArgs} ${hostNetworkArg} ${stdinArg} ${image} ${shellBinary} -lc ${shellCommand}`
-      }
-
-      return `podman run --rm ${workDirArg} ${envArgs} ${mountsArgs} ${hostNetworkArg} ${stdinArg} ${image} ${command}`
-    })
-}
-
-function buildLocalCommand(
-  command: InputOrArray<string>,
-  args: CommandArgs,
-  files?: MaterializedFile[] | undefined,
-): Output<string> {
-  return output(command)
-    .apply(createCommand)
-    .apply(
-      wrapWithPodman(
-        args.cwd,
-        args.environment,
-        args.image,
-        args.mounts,
-        args.containerShell,
-        args.hostNetwork,
-        args.stdin,
-        files,
-      ),
-    )
+function buildLocalCommand(command: InputOrArray<string>, args: CommandArgs): Output<string> {
+  return output(command).apply(createCommand).apply(wrapWithBinaries(args.binaries))
 }
 
 function buildRemoteCommand(command: InputOrArray<string>, args: CommandArgs): Output<string> {
   return output(command)
     .apply(createCommand)
-    .apply(wrapWithWorkDir(args.cwd, args.image))
-    .apply(wrapWithEnvironment(args.environment, args.image))
-    .apply(
-      wrapWithPodman(
-        args.cwd,
-        args.environment,
-        args.image,
-        args.mounts,
-        args.containerShell,
-        args.hostNetwork,
-        args.stdin,
-      ),
-    )
+    .apply(wrapWithWorkDir(args.cwd))
+    .apply(wrapWithEnvironment(args.environment))
 }
 
 function wrapWithWaitFor(timeout: Input<number> = 300, interval: Input<number> = 5) {
@@ -517,6 +442,10 @@ export class Command extends ComponentResource {
       throw new Error("Files are only supported for local commands")
     }
 
+    if (args.binaries && args.host !== "local") {
+      throw new Error("Binaries are only supported for local commands")
+    }
+
     const hooks = mergeResourceHooks(args.files?.map(file => file.hooks) ?? [])
 
     const command =
@@ -524,17 +453,13 @@ export class Command extends ComponentResource {
         ? new local.Command(
             name,
             {
-              create: buildLocalCommand(args.create, args, args.files),
+              create: buildLocalCommand(args.create, args),
               update: args.update ? buildLocalCommand(args.update, args) : undefined,
               delete: args.delete ? buildLocalCommand(args.delete, args) : undefined,
               logging: args.logging,
               triggers: args.triggers ? output(args.triggers).apply(flat) : undefined,
-
-              // don't set working directory for container commands, as it will be passed in the command itself
-              dir: args.image ? undefined : (args.cwd ?? homedir()),
-
-              // don't pass environment for container commands, as it will be passed in the command itself
-              environment: args.image ? undefined : environment,
+              dir: args.cwd ?? homedir(),
+              environment,
 
               stdin: args.stdin,
               addPreviousOutputInEnv: false,

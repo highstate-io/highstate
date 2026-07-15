@@ -1,0 +1,13 @@
+{
+  "kubectl": {
+    "url": "https://dl.k8s.io/release/v{version}/bin/linux/{arch}/kubectl",
+    "params": {
+      "version": "1.36.2",
+      "arch": ["amd64", "arm64"]
+    },
+    "sha256": {
+      "1.36.2-amd64": "1e9045ec32bea85da43de85f0065358529ea7c7a152eca78154fba5b58c27d82",
+      "1.36.2-arm64": "c957eb8c4bea27a3bb35b269edd9082e27f027f7b76b20b5bf4afebc726c6d3e"
+    }
+  }
+}

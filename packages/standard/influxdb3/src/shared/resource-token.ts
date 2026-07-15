@@ -8,7 +8,7 @@ import {
   type Output,
   output,
 } from "@highstate/pulumi"
-import images from "../../assets/images.json"
+import artifacts from "../../assets/artifacts.json"
 
 export type ResourceAction = "read" | "write"
 
@@ -59,15 +59,15 @@ export class ResourceToken extends ComponentResource {
         `influxdb3-resource-token-${name}`,
         {
           host: "local",
-          image: images.influxdb.image,
+          binaries: {
+            influxdb3: artifacts.influxdb3,
+          },
           environment: {
             INFLUXDB3_HOST_URL: l7EndpointToString(endpoint),
             INFLUXDB3_AUTH_TOKEN: connection.credentials.token.value,
           },
-          // to access forwarded endpoint
-          hostNetwork: true,
           create: [
-            "create token",
+            "influxdb3 create token",
             "--format json",
             "--name",
             args.name ?? name,
@@ -86,7 +86,7 @@ export class ResourceToken extends ComponentResource {
             ),
           ],
           stdin: "yes", // to confirm delete operations
-          delete: ["delete token", "--token-name", args.name ?? name],
+          delete: ["influxdb3 delete token", "--token-name", args.name ?? name],
         },
         opts,
       )

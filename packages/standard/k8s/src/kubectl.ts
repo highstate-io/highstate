@@ -10,7 +10,7 @@ import {
   type Output,
   output,
 } from "@pulumi/pulumi"
-import { images } from "./shared"
+import artifacts from "../assets/artifacts.json"
 
 export type KubeCommandArgs = {
   /**
@@ -117,8 +117,9 @@ export class KubeCommand extends ComponentResource {
         update: args.update ? buildKubeCommand(args.update, args.namespace) : undefined,
         delete: args.delete ? buildKubeCommand(args.delete, args.namespace) : undefined,
         files: [kubeconfig],
-        image: images["terminal-kubectl"].image,
-        containerShell: "bash",
+        binaries: {
+          kubectl: artifacts.kubectl,
+        },
         environment: {
           KUBECONFIG: kubeconfig.path,
         },

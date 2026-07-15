@@ -1,0 +1,43 @@
+{
+  "ubuntu": {
+    "url": "https://cloud-images.ubuntu.com/releases/{codename}/release-{release}/ubuntu-{version}-server-cloudimg-{arch}.img",
+    "sha256Url": "https://cloud-images.ubuntu.com/releases/{codename}/release-{release}/SHA256SUMS",
+    "params": {
+      "base": {
+        "arch": ["amd64", "arm64"]
+      },
+      "groups": [
+        {
+          "version": "22.04",
+          "codename": "jammy",
+          "release": "20260705"
+        },
+        {
+          "version": "24.04",
+          "codename": "noble",
+          "release": "20260705"
+        },
+        {
+          "version": "25.04",
+          "codename": "plucky",
+          "release": "20260114"
+        },
+        {
+          "version": "25.10",
+          "codename": "questing",
+          "release": "20260703"
+        }
+      ]
+    },
+    "sha256": {
+      "jammy-20260705-22.04-amd64": "ec3cdc1bf496078f645ccc8ac823e17609658753477ebc4e5fb730729ac5b434",
+      "jammy-20260705-22.04-arm64": "9c2ddc65079f9a285ca7c9efabdee6d58ff7dd2b08a130114426d2020506db7a",
+      "noble-20260705-24.04-amd64": "ffe6203da54deeb6db5d2a98a83f9ec8e55f149d3f7ba622e1abe5fa966ee3d6",
+      "noble-20260705-24.04-arm64": "7df0201546f75b8bcc1044594c806c35749421ad3c9bc1be2a3ab806cfae39cc",
+      "plucky-20260114-25.04-amd64": "534cbf0c44e86862535502f853829cefb771d19991892a31d14827d985829612",
+      "plucky-20260114-25.04-arm64": "202945537a70805a41901e767d0ecb8b2badd824f9441b43880b98b63f963d63",
+      "questing-20260703-25.10-amd64": "8dcdab6de56c2f4b56236d33909a7c5d79217469c2a76b6cd3cde969d63522a8",
+      "questing-20260703-25.10-arm64": "3d0d12d76c2ae8ba4029f537c3b6094ee5fca28fd05c8d7fe2895ff39cc2a754"
+    }
+  }
+}

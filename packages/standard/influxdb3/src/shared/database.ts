@@ -8,7 +8,7 @@ import {
   type Output,
   output,
 } from "@highstate/pulumi"
-import images from "../../assets/images.json"
+import artifacts from "../../assets/artifacts.json"
 
 export type DatabaseArgs = {
   /**
@@ -47,20 +47,20 @@ export class Database extends ComponentResource {
         `influxdb3-database-${name}`,
         {
           host: "local",
-          image: images.influxdb.image,
+          binaries: {
+            influxdb3: artifacts.influxdb3,
+          },
           environment: {
             INFLUXDB3_HOST_URL: l7EndpointToString(endpoint),
             INFLUXDB3_AUTH_TOKEN: connection.credentials.token.value,
           },
-          // to access forwarded endpoint
-          hostNetwork: true,
           create: [
-            "create database",
+            "influxdb3 create database",
             args.retention_period ? interpolate`--retention-period ${args.retention_period}` : "",
             args.name ?? name,
           ],
           stdin: "yes", // to confirm delete operations
-          delete: ["delete database", args.name ?? name, "--hard-delete now"],
+          delete: ["influxdb3 delete database", args.name ?? name, "--hard-delete now"],
         },
         opts,
       )

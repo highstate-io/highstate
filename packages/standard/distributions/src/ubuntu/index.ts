@@ -1,14 +1,27 @@
 import { basename } from "node:path"
-import { parseEndpoint } from "@highstate/common"
+import { parseEndpoint, resolveArtifactFile } from "@highstate/common"
 import { text } from "@highstate/contract"
 import { common, distributions } from "@highstate/library"
 import { forUnit, makeEntityOutput } from "@highstate/pulumi"
-import ubuntu from "../../assets/ubuntu.json"
+import artifacts from "../../assets/artifacts.json"
 
 const { args, outputs, stateId } = forUnit(distributions.ubuntu)
 
-const ubuntuImage = ubuntu[args.version][args.architecture]
+const ubuntuImage = resolveArtifactFile(artifacts.ubuntu, {
+  version: args.version,
+  arch: args.architecture,
+})
+const ubuntuImageSha256 = getSingleSha256(ubuntuImage.sha256)
 const url = new URL(ubuntuImage.url)
+
+function getSingleSha256(sha256: Record<string, string>): string {
+  const values = Object.values(sha256)
+  if (values.length !== 1) {
+    throw new Error("Ubuntu image must resolve to exactly one SHA256 hash")
+  }
+
+  return values[0]
+}
 
 export default outputs({
   image: makeEntityOutput({
@@ -26,7 +39,7 @@ export default outputs({
         endpoint: parseEndpoint(ubuntuImage.url, 7),
         checksum: {
           algorithm: "sha256",
-          value: ubuntuImage.sha256,
+          value: ubuntuImageSha256,
         },
       },
     },
