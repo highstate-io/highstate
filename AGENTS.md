@@ -23,6 +23,7 @@ Some additional notes:
 Commit requirements:
 
 - Scope commits by functionality and preferably by package when applicable.
+- Split unrelated changes into separate commits instead of bundling them into one broad commit.
 - Use conventional commits with only these types: `fix`, `feat`, `refactor`, `style`, `docs`, `chore`.
 - Use scopes only for npm packages or omit them entirely.
 - When used, scopes must be full package names, such as `@highstate/library`.
