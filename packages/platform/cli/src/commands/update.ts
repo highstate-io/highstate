@@ -6,6 +6,7 @@ import {
   applyOverrides,
   buildOverrides,
   fetchManifest,
+  fetchNpmPackument,
   getDependencyRange,
   getProjectPlatformVersion,
   logger,
@@ -52,45 +53,25 @@ export class UpdateCommand extends Command {
     const updatePlatform = this.platformOnly || !this.stdlibOnly
     const updateStdlib = this.stdlibOnly || !this.platformOnly
 
+    let currentPlatformVersion: string | undefined
+    let resolvedStdlibVersion = this.stdlibVersion
+
     if (this.stdlibOnly) {
-      const currentPlatformVersion = await getProjectPlatformVersion(projectRoot)
-      if (!currentPlatformVersion) {
+      const projectPlatformVersion = await getProjectPlatformVersion(projectRoot)
+      if (!projectPlatformVersion) {
         throw new Error('Current platform version is not set in overrides for "@highstate/pulumi"')
       }
 
-      const targetStdlibVersion = (this.stdlibVersion ?? "").trim()
-      if (targetStdlibVersion.length === 0) {
-        throw new Error('Flag "--stdlib-version" must be provided when using "--stdlib"')
-      }
-
-      const stdlibManifest = await fetchManifest("@highstate/library", targetStdlibVersion)
-      const supportedPlatformRange = getDependencyRange(stdlibManifest, "@highstate/pulumi")
-      if (!supportedPlatformRange) {
-        throw new Error(
-          `Unable to infer "@highstate/pulumi" version from "@highstate/library@${targetStdlibVersion}"`,
-        )
-      }
-
-      const validPlatform = semver.valid(currentPlatformVersion)
-      if (!validPlatform) {
-        throw new Error(
-          `Current platform version is not a valid semver "${currentPlatformVersion}"`,
-        )
-      }
-
-      const ok = semver.satisfies(validPlatform, supportedPlatformRange, {
-        includePrerelease: true,
+      currentPlatformVersion = projectPlatformVersion
+      resolvedStdlibVersion = await resolveCompatibleStdlibVersion({
+        currentPlatformVersion: projectPlatformVersion,
+        stdlibVersion: this.stdlibVersion,
       })
-      if (!ok) {
-        throw new Error(
-          `Current platform version "${currentPlatformVersion}" does not satisfy requirement "${supportedPlatformRange}"`,
-        )
-      }
     }
 
     const bundle = await resolveVersionBundle({
-      platformVersion: updatePlatform ? this.platformVersion : undefined,
-      stdlibVersion: updateStdlib ? this.stdlibVersion : undefined,
+      platformVersion: updatePlatform ? this.platformVersion : currentPlatformVersion,
+      stdlibVersion: updateStdlib ? resolvedStdlibVersion : undefined,
     })
 
     const overrides = buildOverrides(bundle)
@@ -123,6 +104,82 @@ export class UpdateCommand extends Command {
     }
 
     logger.info("update completed successfully")
+  }
+}
+
+type ResolveCompatibleStdlibVersionArgs = {
+  currentPlatformVersion: string
+  stdlibVersion?: string
+}
+
+async function resolveCompatibleStdlibVersion(
+  args: ResolveCompatibleStdlibVersionArgs,
+): Promise<string> {
+  const validPlatform = semver.valid(args.currentPlatformVersion)
+  if (!validPlatform) {
+    throw new Error(
+      `Current platform version is not a valid semver "${args.currentPlatformVersion}"`,
+    )
+  }
+
+  const targetStdlibVersion = args.stdlibVersion?.trim()
+  if (targetStdlibVersion) {
+    await assertStdlibSupportsPlatform({
+      currentPlatformVersion: validPlatform,
+      stdlibVersion: targetStdlibVersion,
+    })
+
+    return targetStdlibVersion
+  }
+
+  const packument = await fetchNpmPackument("@highstate/library")
+  const sortedVersions = Object.entries(packument.versions ?? {})
+    .filter(([version]) => semver.valid(version))
+    .sort(([a], [b]) => semver.rcompare(a, b))
+
+  for (const [stdlibVersion, stdlibManifest] of sortedVersions) {
+    const supportedPlatformRange = getDependencyRange(stdlibManifest, "@highstate/pulumi")
+    if (!supportedPlatformRange) {
+      continue
+    }
+
+    const ok = semver.satisfies(validPlatform, supportedPlatformRange, {
+      includePrerelease: true,
+    })
+
+    if (ok) {
+      return stdlibVersion
+    }
+  }
+
+  throw new Error(
+    `Unable to find "@highstate/library" version compatible with platform "${validPlatform}"`,
+  )
+}
+
+type StdlibPlatformCompatibilityArgs = {
+  currentPlatformVersion: string
+  stdlibVersion: string
+}
+
+async function assertStdlibSupportsPlatform(
+  args: StdlibPlatformCompatibilityArgs,
+): Promise<void> {
+  const stdlibManifest = await fetchManifest("@highstate/library", args.stdlibVersion)
+  const supportedPlatformRange = getDependencyRange(stdlibManifest, "@highstate/pulumi")
+  if (!supportedPlatformRange) {
+    throw new Error(
+      `Unable to infer "@highstate/pulumi" version from "@highstate/library@${args.stdlibVersion}"`,
+    )
+  }
+
+  const ok = semver.satisfies(args.currentPlatformVersion, supportedPlatformRange, {
+    includePrerelease: true,
+  })
+  if (!ok) {
+    throw new Error(
+      `Current platform version "${args.currentPlatformVersion}" does not satisfy requirement "${supportedPlatformRange}"`,
+    )
   }
 }
 
