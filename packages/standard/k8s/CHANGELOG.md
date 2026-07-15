@@ -1,3 +1,20 @@
+## 0.24.0 (2026-07-15)
+
+### 🚀 Features
+
+- **@highstate/k8s.apps:** add Envoy Gateway ([7187f03](https://github.com/highstate-io/highstate/commit/7187f03))
+- **@highstate/k8s:** configure gateway api versions ([6cfb09a](https://github.com/highstate-io/highstate/commit/6cfb09a))
+- add gateway client authentication ([38c97dd](https://github.com/highstate-io/highstate/commit/38c97dd))
+- add artifact manifest support ([893624e](https://github.com/highstate-io/highstate/commit/893624e))
+
+### 🩹 Fixes
+
+- **@highstate/k8s:** make access scope bindings unique ([618ed27](https://github.com/highstate-io/highstate/commit/618ed27))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.23.0 (2026-06-29)
 
 ### 🚀 Features

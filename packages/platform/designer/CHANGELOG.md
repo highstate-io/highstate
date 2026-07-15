@@ -1,3 +1,15 @@
+## 0.24.0 (2026-07-15)
+
+### 🚀 Features
+
+- **@highstate/k8s.apps:** add Envoy Gateway ([7187f03](https://github.com/highstate-io/highstate/commit/7187f03))
+- add artifact manifest support ([893624e](https://github.com/highstate-io/highstate/commit/893624e))
+- **@highstate/designer:** add output expression picker ([df06c81](https://github.com/highstate-io/highstate/commit/df06c81))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.23.0 (2026-06-29)
 
 ### 🚀 Features
