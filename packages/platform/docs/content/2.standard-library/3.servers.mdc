@@ -62,16 +62,16 @@ If the server identity is changed and you want to update the host key, you can c
 
 ## Running Commands
 
-You can run commands on any server using the `common.command.v1` component:
+You can run shell scripts on any server using the `common.script.v1` component:
 
 ::designer-preview{title="Run Command on Server" type="snippet" id="standard-library/servers/run-command-on-server"}
 ::
 
 This component outputs the same `common.server.v1` as the input server,
-allowing you to define multiple commands to be run on the same server in sequence
+allowing you to define multiple scripts to be run on the same server in sequence
 before using it for other purposes.
 
-You can also run commands programmatically:
+You can also run commands programmatically from unit implementations using the `Command` helper:
 
 ```ts
 import { common } from "@highstate/library"

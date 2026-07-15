@@ -14,16 +14,16 @@ Right now it's a local development tool - cloud hosting and managed deployments 
 
 Before installing Highstate, ensure you have the following tools installed:
 
-- [**Node.js**](https://nodejs.org/) (v24 or later)
+- [**Bun**](https://bun.sh/) - Package manager and runtime used by Highstate components
 - [**Docker**](https://docker.com/) - Required for terminal containers and some unit operations
-- [**Pulumi CLI**](https://www.pulumi.com/docs/install/) - Infrastructure as code engine
+- [**Pulumi CLI**](https://www.pulumi.com/docs/install/) - Optional, the CLI downloads the needed version automatically when it is missing
 
 Some components may require additional tools depending on their functionality.
 
 ## Pulumi Setup
 
-Highstate uses Pulumi as its infrastructure engine. 
-Before creating a Highstate project, you need to configure Pulumi's state storage:
+Highstate uses Pulumi as its infrastructure engine.
+If you want to use Pulumi state directly, you can configure its state storage before deploying anything:
 
 ```bash
 # use local file system for state storage
@@ -42,19 +42,18 @@ For more details, see [Pulumi's state backend documentation](https://www.pulumi.
 
 ## Create New Project
 
-For now, Highstate does not provide scaffolding tools, but creating a new project is simple:
+The easiest way to create a project is to use the scaffolding command:
 
 ```bash
-# create new npm package using your preferred package manager
-yarn init -y highstate-project
-cd highstate-project
+# create a new Highstate project
+bun create highstate --name highstate-project --path highstate-project
 
-# add Highstate CLI
-yarn add -D @highstate/cli
+# enter the project
+cd highstate-project
 ```
 
-If you are not planning to develop custom components, the Highstate CLI is the only required package.
-All other packages will be installed automatically as needed.
+The generated project includes the Highstate CLI, the contract package, the Pulumi integration, and the Standard Library.
+Runtime implementation packages are still installed automatically as needed.
 
 ## Launch Highstate Designer
 
@@ -64,7 +63,7 @@ highstate designer
 ```
 
 Then you can open the designer in you browser by provided URL and create your first project.
-All the data will be stored in your project directory + configured Pulumi backend.
+Highstate stores its local data in `.highstate/`, keeps project models in `projects/`, and uses the configured Pulumi backend for Pulumi state.
 
 ::
 
@@ -76,7 +75,7 @@ Once installation is complete:
 ---
 title: Fundamentals
 icon: i-lucide-component
-to: /fundamentals/components
+to: /platform/components
 ---
 Learn how to implement custom components and entities, and how to use them in your projects.
 ::
@@ -85,7 +84,7 @@ Learn how to implement custom components and entities, and how to use them in yo
 ---
 title: Recipes
 icon: i-mdi-book-open-page-variant
-to: /recipes/proxmox
+to: /standard-library/proxmox
 ---
 Explore practical examples of using Highstate standard library to build real-world infrastructure.
 ::

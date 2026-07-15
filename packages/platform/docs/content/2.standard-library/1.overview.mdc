@@ -15,8 +15,8 @@ we may split in into multiple smaller parts that can be connected as needed.
 
 The stdlib like any other Highstate library is divided in two main parts:
 
-- `@highsate/library`: Definitions of entities and components (design time code).
-- `@highsate/*`: Implementations of unit components (runtime code).
+- `@highstate/library`: Definitions of entities and components (design time code).
+- `@highstate/*`: Implementations of unit components (runtime code).
 
 Both of them also include public helpers and utilities to use them in your own libraries.
 
@@ -31,11 +31,13 @@ installed when you place a component that requires them.
 To update the Standard Library in a local project, you can use the Highstate CLI:
 
 ```bash
-# Update only the Standard Library
-# Will throw an error if the stdlib cannot be updated without updating the platform
+# Update only the Standard Library to the latest version compatible with the current platform
 highstate update --stdlib
 
-# Update both the platform and the Standard Library
+# Or update to a specific Standard Library version
+highstate update --stdlib --stdlib-version 0.23.0
+
+# Update both the platform and the Standard Library to the latest possible versions
 highstate update
 ```
 

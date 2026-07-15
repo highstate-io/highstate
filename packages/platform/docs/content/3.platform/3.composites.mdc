@@ -532,16 +532,16 @@ Ready to implement the actual infrastructure? Check out:
 ---
 title: Units
 icon: i-mdi-cube
-to: /fundamentals/units
+to: /platform/units
 ---
 Learn how to implement units that create actual infrastructure using Pulumi.
 ::
 
 ::card
 ---
-title: Operations
+title: Units
 icon: i-lucide-play
-to: /fundamentals/operations
+to: /platform/units
 ---
-Understand how Highstate deploys your components to real infrastructure.
+Learn how to implement units that create actual infrastructure using Pulumi.
 ::

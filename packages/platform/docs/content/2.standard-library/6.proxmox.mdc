@@ -53,7 +53,7 @@ In Highstate, distributions are components that provide OS images and configurat
 They're not just download links - they include cloud-init configs, proper image formats, and checksums.
 
 Think of them as smart image providers.
-The `distributions.ubuntu` component knows where to get Ubuntu cloud images, how to configure them, and what cloud-init settings work best.
+The `distributions.ubuntu.v1` component knows where to get Ubuntu cloud images, how to configure them, and what cloud-init settings work best.
 You don't need to hunt for URLs or figure out cloud-init syntax.
 
 ## Uploading Images
@@ -118,7 +118,7 @@ Adjust the resources:
 ::designer-preview{title="Snippet: VM Custom Resources" type="snippet" id="recipes/proxmox/vm-custom-resources"}
 ::
 
-For now, you can only set CPU cores, RAM, and disk size.
+For now, you can set CPU type, CPU cores, RAM, and disk size.
 
 ## Kubernetes on Proxmox
 

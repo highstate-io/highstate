@@ -8,7 +8,7 @@ Some simple rules to follow:
   there.
 - When you work with database entities, read first their schema files in `packages/platform/backend/prisma/`.
 - Before writing public docs (not `contributing/`), load `contributing/DOCS_STYLE.md`.
-- Before writing docs, read `packages/platform/docs/content/1.getting-started/2.concepts.mdc` and `packages/platform/docs/content/2.fundamentals/2.units.mdc` as good human-written examples of how to write docs.
+- Before writing docs, read `packages/platform/docs/content/1.getting-started/2.concepts.mdc` and `packages/platform/docs/content/3.platform/2.units.mdc` as good human-written examples of how to write docs.
 - When given a task, first research related files in the codebase and then propose a plan of action.
 - Do not action until the user confirms you initial plan unless explicitly asked to do immediately.
 - If you discovered that something changed after your edits, stick with the new (user-provided) changes and do not revert them.

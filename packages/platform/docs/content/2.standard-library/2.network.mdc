@@ -63,7 +63,11 @@ The address is represented by `network.address.v1` entity.
 It consist of:
 - `type`: either `ipv4` or `ipv6`.
 - `value`: the canonical string representation of the address.
+
+It also includes two subnet views:
+
 - `subnet`: the subnet the address belongs to.
+- `asSubnet`: the single-address subnet, so an address can be used where a subnet is expected.
 
 You can work with addresses using the following utility functions:
 
@@ -106,7 +110,7 @@ You can also create address space at runtime using `createAddressSpace` utility 
 import { network } from "@highstate/library"
 import { createAddressSpace } from "@highstate/common"
 
-const addressSpace = await createAddressSpace({
+const addressSpace = createAddressSpace({
   included: ["0.0.0.0/0"],
   excluded: ["192.168.0.0/16"],
 }) // network.AddressSpace
@@ -162,7 +166,7 @@ The canonical string representation of L4 endpoints is:
 ### L7 Endpoints
 
 L7 endpoints extend L4 endpoints by adding application-level information.
-Currently, it includes `appInfo` field that can store arbitrary string describing the application-level protocol
+Currently, it includes `appProtocol` field that can store arbitrary string describing the application-level protocol
 and `path` field that can store URL path or similar information.
 
 The canonical string representation of L7 endpoints is similar to URLs: `appProtocol://l4endpoint[/path]`.
@@ -172,14 +176,14 @@ The canonical string representation of L7 endpoints is similar to URLs: `appProt
 The `@highstate/common` package provides utilities to work with endpoints at runtime,
 including parsing and stringifying them.
 
-You can parse endpoints using `parseL3Endpoint` function:
+You can parse endpoints using `parseEndpoint` function:
 
 ```ts
 import { network } from "@highstate/library"
 import { parseEndpoint } from "@highstate/common"
 
 // 1. parse L3 endpoint with hostname
-const endpoint1 = parseL3Endpoint("example.com") // network.L3Endpoint
+const endpoint1 = parseEndpoint("example.com") // network.L3Endpoint
 
 // 2. parse L4 endpoint with IP address and port
 const endpoint2 = parseEndpoint("192.168.1.1:80") // network.L4Endpoint
@@ -271,4 +275,3 @@ Just connect the outputs of both the DNS record set and the original endpoints t
 
 ::designer-preview{title="DNS Record Set Merged" type="snippet" id="standard-library/network/dns-record-set-merged"}
 ::
-

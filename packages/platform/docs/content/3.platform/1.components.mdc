@@ -7,7 +7,7 @@ navigation:
 
 ## Quick Reference
 
-If you haven't read the [concepts page](/concepts) yet, go there first! Here's a quick refresher:
+If you haven't read the [concepts page](/getting-started/concepts) yet, go there first! Here's a quick refresher:
 
 - **Component**: A reusable, self-contained unit of infrastructure (like a server, database, or entire application stack)
 - **Instance**: A specific usage of a component with its own configuration
@@ -21,22 +21,16 @@ Now let's learn how to build your own components!
 
 To understand this chapter, you should be familiar with the basic concepts of cloud infrastructure.
 
-You should also have basic knowledge of [TypeScript](https://www.typescriptlang.org/docs/) and [Node.js](https://nodejs.org/en/docs/) development.
+You should also have basic knowledge of [TypeScript](https://www.typescriptlang.org/docs/) development.
 
 ## Project Setup
 
 Before we start, we need to say a few words about the project setup.
 We assume you already created a basic project using the [Installation Guide](/getting-started/installation).
-But this project can only be used to create instances of existing components.
-Lets make it suitable for component development as well.
-
-First, we need to transform our project into a monorepo that can contain multiple packages.
-We will create single package for our component definitions and place their implementation into a separate package.
+The generated project is already a small monorepo with separate packages for component definitions and unit implementations.
 The standard library follows the same structure: `@highstate/library` contains component definitions, while packages like `@highstate/common`, `@highstate/k8s` and so on contain implementations.
 
-You can use any monorepo tool you like. In this guide, we will use Yarn Workspaces without any additional tooling.
-
-Here the folder structure we will create:
+Here the folder structure you get:
 
 ```
 .
@@ -56,10 +50,16 @@ Here the minimal `package.json` for root folder:
 {
   "name": "acme",
   "private": true,
+  "packageManager": "bun@1.3.11",
   "workspaces": ["packages/*"],
+  "dependencies": {
+    "@highstate/contract": "^0",
+    "@highstate/pulumi": "^0",
+    "@highstate/library": "^0"
+  },
   "devDependencies": {
     "@highstate/cli": "^0",
-    "typescript": "^5",
+    "typescript": "^5"
   }
 }
 ```
@@ -69,37 +69,35 @@ Here the `package.json` for the `library` package:
 ```json
 {
   "name": "@acme/library",
-  "type": "module",
-  "scripts": {
-    "build": "highstate build"
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
   },
   "dependencies": {
     "@highstate/contract": "^0",
-    "@highstate/library": "^0",
-  },
-  "devDependencies": {
-    "@highstate/cli": "^0",
+    "@highstate/library": "^0"
   }
 }
 ```
 
 Note that we depend on `@highstate/library` to reference existing entities and components from the standard library.
 We also depend on `@highstate/contract`. This is the core package to define shared contracts for components and entities.
-We also define a `build` script that compiles our components using the Highstate CLI.
 
 Here the `tsconfig.json` for the `library` package:
 
 ```json
 {
-  "extends": "./node_modules/@highstate/cli/assets/tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*.ts",
   ]
 }
 ```
 
-In this case we reuse the base `tsconfig.json` provided by the Highstate CLI.
-Assuming that all packages are located in `packages` and all their dependencies are flat (no nested `node_modules` folders), this configuration should work fine.
+In this case we reuse the base `tsconfig.json` generated in the project root.
 
 Now we can define our components.
 You can use any file structure you like.
@@ -142,7 +140,7 @@ The type must also include a major version number, like `v1`, `v2`, etc.
 The components with different major versions are considered completely separate components and can be used side by side in the same project.
 
 The `source` field tells Highstate where to find the implementation of this component.
-We will cover implementations later in [Units](/fundamentals/units) guide.
+We will cover implementations later in [Units](/platform/units) guide.
 
 That's it!
 You've got a valid component.
@@ -328,7 +326,7 @@ You can introduce a special value like `"none"` or `"default"` to indicate that 
 
 Arguments are great for configuration, but the real magic happens when components talk to each other.
 
-Remember [entities from the concepts page](/concepts#entities)?
+Remember [entities from the concepts page](/getting-started/concepts#entities)?
 They're the data that flows between components.
 Our blog needs a Kubernetes cluster to run on and should expose a web service for other components.
 
@@ -336,7 +334,7 @@ Let's add some inputs and outputs:
 
 ```typescript
 import { defineUnit, z } from "@highstate/contract"
-import { k8s, databases } from "@highstate/library"  // NEW: import entities from the standard library
+import { k8s, mysql } from "@highstate/library"  // NEW: import entities from the standard library
 
 export const blogApp = defineUnit({
   type: "acme.blog-app.v1",
@@ -351,7 +349,7 @@ export const blogApp = defineUnit({
     // this blog needs a Kubernetes cluster to deploy to
     cluster: k8s.clusterEntity,
     // and a database to store posts
-    database: databases.mariadbEntity,
+    database: mysql.connectionEntity,
   },
 
   outputs: {
@@ -409,7 +407,7 @@ Components can have multiple inputs and outputs.
 Each of them can be `multiple` and `optional`.
 This affects how they can connect.
 
-The designer won't let you make invalid connections, but it's good to understand the rules.
+The designer won't let you make invalid connections, but it's good to understand the basic rules.
 Here's what works and what doesn't:
 
 - `S` = single
@@ -428,7 +426,7 @@ Here's what works and what doesn't:
 | `MO`    | `MO`    | ✅      | Multiple optional entities from the output are passed to an optional input that accepts multiple entities.          |
 
 Only one rule is strictly forbidden: you can't connect multiple outputs to single inputs (because which one would it pick?).
-The ⚠️ cases work but might fail at runtime if optional dependencies aren't met.
+The ⚠️ cases work, but they still depend on optional outputs being present at runtime.
 
 Here are some real examples of using different connection types from the standard library:
 
@@ -507,7 +505,7 @@ You can customize how components, arguments, and inputs/outputs appear in the de
 
 ## What's Next?
 
-Remember [units and composites from the concepts page](/concepts#units)? Now let's see how to actually build them:
+Remember [units and composites from the concepts page](/getting-started/concepts#units)? Now let's see how to actually build them:
 
 ### Units
 
@@ -520,7 +518,7 @@ Start big if you want! Create one massive unit for your whole infrastructure, th
 ---
 title: Units
 icon: i-mdi-cube
-to: /fundamentals/units
+to: /platform/units
 ---
 Learn how to create atomic building blocks that manage infrastructure resources.
 ::
@@ -536,15 +534,7 @@ Your team can use the composite without knowing all the gory details inside.
 ---
 title: Composites
 icon: i-mdi-cube-outline
-to: /fundamentals/composite-components
+to: /platform/composites
 ---
 Discover how to combine components into higher-level abstractions.
 ::
-
-## What's Next?
-
-Ready to build your own components? Here's where to go:
-
-- **Units** - Create new infrastructure patterns or integrate services not in the standard library
-- **Composites** - Package existing components into higher-level, reusable patterns  
-- **Standard Library** - See real examples of both units and composites in action

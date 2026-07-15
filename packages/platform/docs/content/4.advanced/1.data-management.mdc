@@ -83,8 +83,8 @@ To share backend data across machines, you need that each trusted machine has it
 
 To copy backend data to another machine:
 
-1. On the machine that you share data with, run `yarn highstate backend identity` to fetch its AGE recipient and copy it.
-2. On the machine that owns the backend data, run `yarn highstate backend unlock-method add <recipient>` to reencrypt the database master key with the new recipient.
+1. On the machine that you share data with, run `highstate backend identity` to fetch its AGE recipient and copy it.
+2. On the machine that owns the backend data, run `highstate backend unlock-method add <recipient>` to reencrypt the database master key with the new recipient.
 3. Deliver the entire `.highstate/` folder to the other machine (via git or any sync service).
 
 ::warning
@@ -116,13 +116,7 @@ Artifacts live under `.highstate/projects/<id>/artifacts/` and use SHA256 hashes
 Each 1 MB chunk is encrypted with XChaCha20-Poly1305 using the project master key before it hits disk, so artifact storage inherits the same isolation rules as the project database.
 When no references remain, garbage collection removes the encrypted file.
 
-Project models can stay in your workspace or move inside the project database.
-The default `codebase` option writes YAML files to `projects/<name>.yaml`.
-The optional `database` option stores the model beside the rest of the project data inside `project.db`.
-
-::note
-For now, it is not possible to switch to database storage. Leave an issue if you need that right away.
-::
+Project models stay in your workspace as YAML files under `projects/<name>.yaml`.
 
 ## Local Filesystem Layout
 
@@ -130,24 +124,26 @@ The local backend launched by Highstate Designer stores everything under the wor
 
 ```
 <workspace>/
-|-- .highstate/
-|   |-- backend.db           # Backend SQLite database (LibSQL)
-|   `-- projects/
-|       `-- <project-id>/
-|           |-- project.db   # Encrypted project SQLite database
-|           `-- artifacts/   # Artifact storage
-|               `-- <hash>.enc
-`-- projects/
-    `-- <project-name>.yaml  # Project model (codebase storage)
+├── .highstate/
+│   ├── backend.db           # Backend SQLite database (LibSQL)
+│   ├── backend.meta.yaml    # Backend database metadata and encrypted master key
+│   └── projects/
+│       └── <project-id>/
+│           ├── project.db   # Encrypted project SQLite database
+│           └── artifacts/   # Artifact storage
+│               └── <hash>.enc
+└── projects/
+    └── <project-name>.yaml  # Project model (codebase storage)
 ```
 
 The backend database keeps the encrypted master keys and global metadata.
-Each project folder holds its encrypted database and artifact files, plus model YAML when you use codebase storage.
+Each project folder holds its encrypted database and artifact files.
+Project model YAML files stay in the workspace `projects/` directory.
 
 ## Roadmap: Backend Federation
 
 Today Highstate ships with a single supported backend: the local runtime that launches with the designer.
+Project imports already let you share selected entities between projects, but all of that still happens inside the same local backend.
 We plan to add backend federation so your primary backend can spawn sub-backends, delegate individual projects, and proxy their requests while you stay in one control plane.
 That future setup would let you isolate production, staging, and hobby projects across different machines without losing the single entry point experience.
 Until federation arrives, run one backend per project to avoid conflicting writes.
-

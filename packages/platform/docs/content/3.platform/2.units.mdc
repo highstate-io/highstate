@@ -8,7 +8,6 @@ navigation:
 ## What Are Units?
 
 As we already known, the Highstate is buit on top of Pulumi.
-Every Highstate components ends up by creating some Pulumi resources.
 The components that runs Pulumi code are called **units**.
 Each unit has a single Pulumi program written in TypeScript and uses various Pulumi providers to create and manage cloud resources.
 
@@ -62,6 +61,7 @@ For example, for our `postgresUnit`, the implementation lives in `@acme/units` p
 
 ```typescript
 // packages/my-units/src/postgres/index.ts
+import { randomBytes } from "node:crypto"
 import { forUnit } from "@highstate/pulumi"
 import { postgresUnit } from "@mycompany/library"
 
@@ -251,7 +251,7 @@ const database = new Provider.Database(name, {
 You probably concerned whether secrets are encrypted or not.
 
 Well, in Highstate state, all project data is encrypted, not only the secrets.
-So, if you even leak some secret in operation logs, it's still encrypted.
+So, if you even leak some secret in operation logs, it's still encrypted (except for backend process logs, if you store them somewhere).
 
 Secrets are also encrypted in Pulumi state files with the password stored in Highstate state.
 But this mechanism is not managed by Highstate.
@@ -469,7 +469,7 @@ That's where composites come in:
 ---
 title: Composites
 icon: i-mdi-cube-scan
-to: /fundamentals/composites
+to: /platform/composites
 ---
 Learn how to combine units and other components into reusable patterns.
 ::

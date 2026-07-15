@@ -69,7 +69,7 @@ What can be an entity? How about `common.server.v1` which is part of the Highsta
 As can be inferred from the name, this is structure that describes a server.
 More specifically, it includes the server's name, IP address, SSH credentials, and other relevant information.
 
-Other examples of entities can be `k8s.cluster.v1` or `apps.mariadb.v1` which describe a Kubernetes cluster and a MariaDB database, respectively.
+Other examples of entities can be `k8s.cluster.v1` or `mysql.connection.v1` which describe a Kubernetes cluster and a MariaDB-compatible database connection, respectively.
 
 But wait, it seems that entity is also a reusable peace of infrastructure, just like a component? Well, the main point is that `entity` **describes** a piece of infrastructure, while `component` actually **implements** it.
 So, if we have an entity `common.server.v1`, the one of the components that implements this entity is `common.existing-server.v1`.
@@ -101,7 +101,7 @@ In short, we turn the whole infrastructure management into a **acyclic graph** o
 ---
 title: Components
 icon: i-mdi-cube
-to: /fundamentals/components
+to: /platform/components
 ---
 Learn how to define custom components and entities for your infrastructure.
 ::
@@ -128,7 +128,7 @@ A **unit** is a basic Highstate component that is implemented by a Pulumi progra
 ---
 title: Units
 icon: i-mdi-cube
-to: /fundamentals/units
+to: /platform/units
 ---
 Learn how to implement unit components using Pulumi.
 ::
@@ -158,7 +158,7 @@ but still allows to manage its parts independently.
 ---
 title: Composites
 icon: i-mdi-cube
-to: /fundamentals/composites
+to: /platform/composites
 ---
 Learn how to define composite components from other components.
 ::
@@ -172,8 +172,7 @@ Strictly speaking, we place instances at canvas, yes, but canvas is a part of th
 And each project has single canvas to work with.
 
 While simply being a container for components, the project also has one important property: it is isolated from other projects.
-Yes, completely isolated.
-We are planning to add a way to share entities between projects, but for now, each project is a separate entity.
+You can still share selected entities between projects explicitly, but nothing crosses project boundaries unless you wire it that way.
 Looking ahead, each project have its own SQLite database encrypted with a separate key, so all project are also cryptographically isolated.
 
 ## Hubs
@@ -224,7 +223,7 @@ How to install and use Highstate locally.
 ---
 title: Fundamentals
 icon: i-lucide-component
-to: /fundamentals/components
+to: /platform/components
 ---
 Learn how to implement custom components and entities, and how to use them in your projects.
 ::
