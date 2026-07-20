@@ -212,5 +212,129 @@ export const script = defineUnit({
   },
 })
 
+/**
+ * Runs a shell script on multiple servers.
+ */
+export const scriptV2 = defineUnit({
+  type: "common.script.v2",
+
+  args: {
+    /**
+     * The script to run when the unit is created.
+     */
+    script: z.string().meta({ language: "shell" }),
+
+    /**
+     * The script to run when the unit is updated.
+     */
+    updateScript: z.string().optional().meta({ language: "shell" }),
+
+    /**
+     * The script to run when the unit is deleted.
+     */
+    deleteScript: z.string().optional().meta({ language: "shell" }),
+  },
+
+  inputs: {
+    servers: {
+      entity: serverEntity,
+      multiple: true,
+    },
+  },
+
+  outputs: {
+    servers: {
+      entity: serverEntity,
+      multiple: true,
+    },
+  },
+
+  meta: {
+    title: "Shell Script",
+    icon: "mdi:bash",
+    category: "Infrastructure",
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/script-v2",
+  },
+})
+
+/**
+ * Runs a shell script as a systemd service on multiple servers.
+ */
+export const systemdUnit = defineUnit({
+  type: "common.systemd.unit.v1",
+
+  args: {
+    /**
+     * The script to run as the systemd service.
+     */
+    script: z.string().meta({ language: "shell" }),
+
+    /**
+     * The name of the systemd service.
+     *
+     * By default, the Highstate unit name is used with dots replaced by hyphens.
+     */
+    serviceName: z.string().optional(),
+
+    /**
+     * The systemd service type.
+     *
+     * Oneshot services remain active after the script exits and run again after each boot.
+     */
+    type: z.enum(["simple", "oneshot"]).default("simple"),
+
+    /**
+     * The systemd units that must be started before this service.
+     */
+    after: z.string().array().default(["network-online.target"]),
+
+    /**
+     * The systemd units that should be started with this service.
+     */
+    wants: z.string().array().default(["network-online.target"]),
+
+    /**
+     * The systemd units that are required by this service.
+     */
+    requires: z.string().array().default([]),
+
+    /**
+     * Additional systemd INI configuration appended to the generated service file.
+     *
+     * It can add sections or override generated directives using systemd's normal INI semantics.
+     */
+    extraConfig: z.string().default("").meta({ language: "ini" }),
+  },
+
+  inputs: {
+    servers: {
+      entity: serverEntity,
+      multiple: true,
+    },
+  },
+
+  outputs: {
+    servers: {
+      entity: serverEntity,
+      multiple: true,
+    },
+  },
+
+  meta: {
+    title: "Systemd Unit",
+    icon: "material-icon-theme:systemd",
+    category: "Infrastructure",
+  },
+
+  source: {
+    package: "@highstate/common",
+    path: "units/systemd/unit",
+  },
+})
+
 export type Server = EntityValue<typeof serverEntity>
 export type ServerInput = EntityInput<typeof serverEntity>

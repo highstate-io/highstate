@@ -84,6 +84,14 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/script-v2": {
+        "mode": "manual",
+        "version": "1"
+      },
+      "./units/systemd/unit": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/server-patch": {
         "mode": "manual",
         "version": "1"
@@ -113,6 +121,8 @@
     "./units/ssh/key-pair": "./dist/units/ssh/key-pair/index.js",
     "./units/tls/certificate": "./dist/units/tls/certificate/index.js",
     "./units/script": "./dist/units/script/index.js",
+    "./units/script-v2": "./dist/units/script-v2/index.js",
+    "./units/systemd/unit": "./dist/units/systemd/unit/index.js",
     "./units/server-patch": "./dist/units/server-patch/index.js"
   },
   "publishConfig": {

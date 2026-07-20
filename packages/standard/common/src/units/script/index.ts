@@ -1,5 +1,5 @@
 import { common } from "@highstate/library"
-import { forUnit } from "@highstate/pulumi"
+import { forUnit, toPromise } from "@highstate/pulumi"
 import { Command } from "../../shared"
 
 const { name, args, inputs, outputs } = forUnit(common.script)
@@ -12,6 +12,8 @@ new Command(name, {
   ignoreCommandChanges: false,
 })
 
+const server = await toPromise(inputs.server)
+
 export default outputs({
-  server: inputs.server,
+  server,
 })

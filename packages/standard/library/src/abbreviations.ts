@@ -16,6 +16,8 @@ registerKnownAbbreviations([
   "TLS",
   "HTTP",
   "HTTPS",
+  "ALB",
+  "NLB",
   "TCP",
   "UDP",
   "CIDR",
