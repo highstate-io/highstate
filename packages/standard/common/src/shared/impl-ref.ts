@@ -10,6 +10,23 @@ import {
 } from "@highstate/pulumi"
 import { resolve as importMetaResolve } from "import-meta-resolve"
 
+const implementationModules = new Map<string, Promise<Record<string, unknown>>>()
+
+function importImplementationModule(url: string): Promise<Record<string, unknown>> {
+  const existingModule = implementationModules.get(url)
+  if (existingModule) {
+    return existingModule
+  }
+
+  const modulePromise = import(url).catch(error => {
+    implementationModules.delete(url)
+    throw error
+  })
+  implementationModules.set(url, modulePromise)
+
+  return modulePromise
+}
+
 /**
  * The ImplementationMediator is used as a contract between the calling code and the implementation.
  *
@@ -78,7 +95,7 @@ export class ImplementationMediator<
     let impl: Record<string, unknown>
     try {
       const fullUrl = importMetaResolve(importPath, getImportBaseUrl().toString())
-      impl = await import(fullUrl)
+      impl = await importImplementationModule(fullUrl)
     } catch (error) {
       console.error(`Failed to import module "${importPath}":`, String(error))
 
