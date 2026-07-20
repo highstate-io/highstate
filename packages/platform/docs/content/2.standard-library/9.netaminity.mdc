@@ -1,0 +1,375 @@
+---
+title: Netaminity
+description: Connecting private TCP services through Kubernetes with Netaminity.
+navigation:
+  icon: i-eos-icons-proxy-outlined
+---
+
+## Give private services a way out
+
+[Netaminity](https://github.com/Exeteres/netaminity) connects a TCP service reachable from one
+Kubernetes cluster to consumers in another location.
+It runs a proxy agent on the consumer side and a target agent beside the private service.
+
+Highstate provides five components in the `netaminity.*` namespace:
+
+- `netaminity.operator.v1` installs the Kubernetes operator and its custom resource definitions.
+- `netaminity.proxy.v1` exposes a consumer port and accepts a connection from a target agent.
+- `netaminity.target.v1` connects a private TCP endpoint to a standalone proxy.
+- `netaminity.tunnel.v1` creates both sides inside one cluster.
+- `netaminity.tunnel.mc.v1` creates and connects replicated pairs across two clusters.
+
+The implementation lives in `@highstate/netaminity`, while the component and entity definitions
+are available from `@highstate/library`:
+
+```ts
+import { netaminity } from "@highstate/library"
+```
+
+## Install the operator first
+
+Every cluster that runs a Proxy, Target, or Tunnel needs one Netaminity operator.
+The operator component installs it into the fixed `netaminity-system` namespace and returns the
+same `k8s.cluster.v1` entity after installation.
+
+Why return the cluster unchanged?
+The output acts as a dependency barrier: connect resource components to this output and Highstate
+installs the operator and CRDs before creating their custom resources.
+
+::designer-preview{title="Netaminity Operator" type="snippet" id="standard-library/netaminity/operator"}
+::
+
+```ts
+const { k8sCluster: netaminityCluster } = netaminity.operator({
+  name: "netaminity",
+  args: {
+    replicas: 3,
+  },
+  inputs: {
+    k8sCluster,
+  },
+})
+```
+
+Only one Netaminity operator per cluster is supported.
+The release name and namespace are fixed by the component.
+Set `replicas` to an odd number when you want multiple operator pods for availability; leader
+election keeps one replica active at a time.
+The operator uses the cluster's first L3 endpoint as `proxyHost` for `NodePort` control Services.
+You can override it with the `proxyHost` argument or a `network.l3-endpoint.v1` input when targets
+need another reachable address.
+For `LoadBalancer` control Services, Netaminity uses the address assigned by Kubernetes instead.
+
+## Keep both sides in one cluster
+
+Use `netaminity.tunnel.v1` when the proxy and target agents belong to the same cluster.
+The operator generates the shared secret and manages the child Proxy and Target resources for you.
+
+::designer-preview{title="Same-cluster Tunnel" type="snippet" id="standard-library/netaminity/tunnel"}
+::
+
+```ts
+import { k8s, netaminity, network, postgresql } from "@highstate/library"
+
+const { k8sCluster } = k8s.existingCluster({
+  name: "cluster",
+  args: {
+    autoDetectExternalIps: false,
+    useKubeconfigApiEndpoint: false,
+    endpoints: ["192.168.1.10"],
+    apiEndpoints: ["192.168.1.10:6443"],
+  },
+})
+
+const { k8sCluster: netaminityCluster } = netaminity.operator({
+  name: "netaminity",
+  inputs: {
+    k8sCluster,
+  },
+})
+
+const { connection: privatePostgresql } = k8s.apps.postgresql({
+  name: "postgresql",
+  inputs: {
+    k8sCluster: netaminityCluster,
+  },
+})
+
+const { endpoints: tunnelEndpoints } = netaminity.tunnel({
+  name: "postgresql",
+  args: {
+    proxyServiceType: "ClusterIP",
+  },
+  inputs: {
+    k8sCluster: netaminityCluster,
+    endpoints: privatePostgresql.endpoints,
+  },
+})
+
+const { entity: proxiedPostgresql } = network.l4EndpointReplacer({
+  name: "proxied-postgresql",
+  args: {
+    includeCurrent: false,
+  },
+  inputs: {
+    entity: privatePostgresql,
+    endpoints: tunnelEndpoints,
+  },
+})
+
+postgresql.database({
+  name: "application",
+  inputs: {
+    connection: proxiedPostgresql,
+  },
+})
+```
+
+The Tunnel reads the private PostgreSQL connection's first L4 endpoint and resolves it from the
+target agent pod.
+You can still set the `endpoint` argument directly when the destination doesn't expose endpoint
+entities.
+
+The endpoint replacer returns the same PostgreSQL connection with the Tunnel's consumer endpoints.
+Credentials and other connection fields stay unchanged, so downstream units connect through the
+tunnel without special handling.
+
+The output Service uses the destination endpoint port unless you override `servicePort`, and it
+includes reusable L4 endpoint entities.
+
+Increase `replicas` to create several proxy and target pairs behind one consumer Service.
+Set `proxyReplicas` separately when every generated Proxy needs multiple interchangeable pods.
+When you set `proxyNodePort`, replica `0` uses that port, replica `1` uses the next port, and so on.
+
+## Replicate a tunnel across clusters
+
+Use `netaminity.tunnel.mc.v1` when you need the replicated behavior of Tunnel but the Proxy and
+Target agents belong to different clusters.
+Highstate creates the child resources directly because a Kubernetes controller can't manage
+resources through another cluster's API.
+
+::designer-preview{title="Multi-cluster Tunnel" type="snippet" id="standard-library/netaminity/tunnel.mc"}
+::
+
+```ts
+const { endpoints: tunnelEndpoints } = netaminity.tunnelMc({
+  name: "postgresql",
+  args: {
+    replicas: 3,
+  },
+  inputs: {
+    proxyK8sCluster: proxyNetaminityCluster,
+    targetK8sCluster: targetNetaminityCluster,
+    endpoints: privatePostgresql.endpoints,
+  },
+})
+```
+
+The unit creates pairs named `postgresql-0`, `postgresql-1`, and `postgresql-2` in their respective
+clusters.
+It generates one shared secret value, writes it to both namespaces, disables the individual Proxy
+consumer Services, and creates one shared consumer Service in the proxy cluster.
+
+Both `replicas` and `proxyReplicas` accept any positive integer and default to `1`.
+The first controls Proxy and Target pairs, while the second controls the pods behind each Proxy.
+
+The `proxyNamespace` and `targetNamespace` inputs select existing namespaces independently.
+Without them, the unit creates the same namespace name in both clusters using `resourceName` or the
+unit name.
+
+The shared Service behaves like the same-cluster Tunnel Service: it detects the destination port,
+supports `external`, and returns L4 endpoints for `network.l4EndpointReplacer`.
+
+## Put a proxy in front
+
+Use `netaminity.proxy.v1` to expose the consumer Service and a control endpoint for a target agent.
+
+::designer-preview{title="Standalone Proxy" type="snippet" id="standard-library/netaminity/proxy"}
+::
+
+```ts
+const { endpoint: privatePostgresql } = network.l4Endpoint({
+  name: "postgresql",
+  args: {
+    endpoint: "postgresql.private.svc:5432",
+  },
+})
+
+const { proxy } = netaminity.proxy({
+  name: "postgresql-proxy",
+  inputs: {
+    k8sCluster: publicNetaminityCluster,
+    endpoints: privatePostgresql,
+  },
+})
+```
+
+The Proxy generates one authentication secret and returns it inside `netaminity.proxy.v1`.
+Its `replicas` argument accepts any positive integer and creates interchangeable pods behind the
+same consumer and control Services.
+
+## Connect the target
+
+Use `netaminity.target.v1` in the cluster that can reach the private service.
+It consumes the Proxy entity even when the Proxy belongs to another cluster.
+
+::designer-preview{title="Cross-cluster Target" type="snippet" id="standard-library/netaminity/target"}
+::
+
+```ts
+import { k8s, netaminity, network, postgresql } from "@highstate/library"
+
+const { k8sCluster: publicCluster } = k8s.existingCluster({
+  name: "public-cluster",
+  args: {
+    autoDetectExternalIps: false,
+    useKubeconfigApiEndpoint: false,
+    endpoints: ["203.0.113.10"],
+    apiEndpoints: ["203.0.113.10:6443"],
+  },
+})
+
+const { k8sCluster: privateCluster } = k8s.existingCluster({
+  name: "private-cluster",
+  args: {
+    autoDetectExternalIps: false,
+    useKubeconfigApiEndpoint: false,
+    endpoints: ["192.168.1.10"],
+    apiEndpoints: ["192.168.1.10:6443"],
+  },
+})
+
+const { k8sCluster: publicNetaminityCluster } = netaminity.operator({
+  name: "public-netaminity",
+  inputs: {
+    k8sCluster: publicCluster,
+  },
+})
+
+const { k8sCluster: privateNetaminityCluster } = netaminity.operator({
+  name: "private-netaminity",
+  inputs: {
+    k8sCluster: privateCluster,
+  },
+})
+
+const { connection: privatePostgresql } = k8s.apps.postgresql({
+  name: "postgresql",
+  inputs: {
+    k8sCluster: privateNetaminityCluster,
+  },
+})
+
+const { proxy, endpoints: proxyEndpoints } = netaminity.proxy({
+  name: "postgresql-proxy",
+  inputs: {
+    k8sCluster: publicNetaminityCluster,
+    endpoints: privatePostgresql.endpoints,
+  },
+})
+
+netaminity.target({
+  name: "postgresql-target",
+  inputs: {
+    k8sCluster: privateNetaminityCluster,
+    proxy,
+    endpoints: privatePostgresql.endpoints,
+  },
+})
+
+const { entity: proxiedPostgresql } = network.l4EndpointReplacer({
+  name: "proxied-postgresql",
+  args: {
+    includeCurrent: false,
+  },
+  inputs: {
+    entity: privatePostgresql,
+    endpoints: proxyEndpoints,
+  },
+})
+
+postgresql.database({
+  name: "application",
+  inputs: {
+    connection: proxiedPostgresql,
+  },
+})
+```
+
+The Target takes the private PostgreSQL connection's first L4 endpoint and resolves it from its pod.
+You can still set the `endpoint` argument directly when the destination doesn't expose endpoint
+entities.
+
+The endpoint replacer keeps the PostgreSQL credentials, database name, TLS settings, and other
+entity data, but replaces its private endpoints with the Proxy's consumer endpoints.
+Downstream units receive an ordinary `postgresql.connection.v1` entity and connect through the
+tunnel without needing Netaminity-specific support.
+
+This pattern works with other entities that extend `network.l4-endpoint-container.v1`, including
+MySQL, MongoDB, Redis, and etcd connections.
+
+The Target also copies the Proxy's shared secret into its own cluster and uses the resolved control
+endpoint.
+
+This entity connection is important: you don't need to copy credentials between clusters or put a
+shared secret in ordinary arguments.
+You can still provide the Proxy's `sharedSecret` explicitly when you need a pre-existing value.
+
+## Choose the two Services carefully
+
+A standalone Proxy can create two Kubernetes Services:
+
+- **Consumer Service:** Exposes the private target port to applications using the tunnel
+- **Control Service:** Listens for the target agent and defaults to `NodePort`
+
+Connect the destination endpoints to the standalone Proxy so it can detect the consumer port.
+You can override it with `servicePort` and set an optional `serviceName`.
+Set `external` to expose the consumer Service outside the cluster; Highstate selects `NodePort` or
+`LoadBalancer` from the cluster configuration, so these components don't accept a consumer Service
+type directly.
+Configure the control side with `proxyServiceType`, optional `proxyServiceName`, and optional
+`proxyNodePort`.
+
+You can disable the consumer Service with `serviceEnabled` when another resource manages consumer
+traffic.
+The control Service is always required because the Target needs somewhere to connect.
+
+## Place the agents
+
+Proxy, Target, and Tunnel accept an optional `k8s.namespace.v1` input.
+MC Tunnel accepts separate `proxyNamespace` and `targetNamespace` inputs.
+If you don't provide it, the component creates a namespace named after the instance, or uses the
+`namespace` argument when set.
+
+Set `hostNetwork` when agents must use their node network namespace.
+Netaminity keeps cluster DNS available with `ClusterFirstWithHostNet`.
+
+`distributeByNodes` defaults to `true` and adds preferred pod anti-affinity across
+`kubernetes.io/hostname`.
+Disable it when co-locating agents is preferable.
+
+The `podTemplate`, `proxyPodTemplate`, and `targetPodTemplate` arguments pass raw Netaminity pod
+template fields to the operator and override the convenience arguments when they contain the same
+fields.
+Use them for node selectors, resources, affinity, tolerations, topology spread, runtime classes,
+and security contexts.
+
+::warning
+Netaminity authenticates agents with a shared secret, but its tunnel transport is not encrypted.
+Use it only across trusted networks, or put application-level TLS around traffic crossing an
+untrusted network.
+::
+
+## Where to go next
+
+Netaminity builds on the Kubernetes entities and Service endpoints described in the Kubernetes
+Standard Library page.
+
+::card
+---
+title: Kubernetes
+icon: i-mdi-kubernetes
+to: /standard-library/kubernetes
+---
+Learn how Highstate represents clusters, resources, Services, and endpoints.
+::

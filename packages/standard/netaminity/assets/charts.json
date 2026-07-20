@@ -1,0 +1,8 @@
+{
+  "netaminity": {
+    "repo": "oci://ghcr.io/exeteres/charts",
+    "name": "netaminity",
+    "version": "0.3.2",
+    "sha256": "f808ddad1e0ab016cc38c87036110749fbdd6e6e9a7b80c996ffea6b54aeed8d"
+  }
+}
