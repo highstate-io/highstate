@@ -7,42 +7,38 @@ import * as outputs from "../../types/output";
 import * as utilities from "../../utilities";
 
 /**
- * Patch resources are used to modify existing Kubernetes resources by using
- * Server-Side Apply updates. The name of the resource must be specified, but all other properties are optional. More than
- * one patch may be applied to the same resource, and a random FieldManager name will be used for each Patch resource.
- * Conflicts will result in an error by default, but can be forced using the "pulumi.com/patchForce" annotation. See the
- * [Server-Side Apply Docs](https://www.pulumi.com/registry/packages/kubernetes/how-to-guides/managing-resources-with-server-side-apply/) for
- * additional information about using Server-Side Apply to manage Kubernetes resources with Pulumi.
- * Gateway represents an instance of a service-traffic handling infrastructure
- * by binding Listeners to a set of IP addresses.
- * A Gateway name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
- * characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
+ * The TLSRoute resource is similar to TCPRoute, but can be configured
+ * to match against TLS-specific metadata. This allows more flexibility
+ * in matching streams for a given TLS listener.
+ *
+ * If you need to forward traffic to a single target for a TLS listener, you
+ * could choose to use a TCPRoute with a TLS listener.
  */
-export class GatewayPatch extends pulumi.CustomResource {
+export class TLSRoute extends pulumi.CustomResource {
     /**
-     * Get an existing GatewayPatch resource's state with the given name, ID, and optional extra
+     * Get an existing TLSRoute resource's state with the given name, ID, and optional extra
      * properties used to qualify the lookup.
      *
      * @param name The _unique_ name of the resulting resource.
      * @param id The _unique_ provider ID of the resource to lookup.
      * @param opts Optional settings to control the behavior of the CustomResource.
      */
-    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): GatewayPatch {
-        return new GatewayPatch(name, undefined as any, { ...opts, id: id });
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): TLSRoute {
+        return new TLSRoute(name, undefined as any, { ...opts, id: id });
     }
 
     /** @internal */
-    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1:GatewayPatch';
+    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1:TLSRoute';
 
     /**
-     * Returns true if the given object is an instance of GatewayPatch.  This is designed to work even
+     * Returns true if the given object is an instance of TLSRoute.  This is designed to work even
      * when multiple copies of the Pulumi SDK have been loaded into the same process.
      */
-    public static isInstance(obj: any): obj is GatewayPatch {
+    public static isInstance(obj: any): obj is TLSRoute {
         if (obj === undefined || obj === null) {
             return false;
         }
-        return obj['__pulumiType'] === GatewayPatch.__pulumiType;
+        return obj['__pulumiType'] === TLSRoute.__pulumiType;
     }
 
     /**
@@ -52,27 +48,27 @@ export class GatewayPatch extends pulumi.CustomResource {
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    declare public readonly kind: pulumi.Output<"Gateway">;
+    declare public readonly kind: pulumi.Output<"TLSRoute">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
-    declare public readonly spec: pulumi.Output<outputs.gateway.v1.GatewaySpecPatch>;
-    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1.GatewayStatusPatch>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1.TLSRouteSpec>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1.TLSRouteStatus>;
 
     /**
-     * Create a GatewayPatch resource with the given unique name, arguments, and options.
+     * Create a TLSRoute resource with the given unique name, arguments, and options.
      *
      * @param name The _unique_ name of the resource.
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args?: GatewayPatchArgs, opts?: pulumi.CustomResourceOptions) {
+    constructor(name: string, args?: TLSRouteArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
             resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1";
-            resourceInputs["kind"] = "Gateway";
+            resourceInputs["kind"] = "TLSRoute";
             resourceInputs["metadata"] = args?.metadata;
             resourceInputs["spec"] = args?.spec;
             resourceInputs["status"] = undefined /*out*/;
@@ -84,16 +80,16 @@ export class GatewayPatch extends pulumi.CustomResource {
             resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1beta1:GatewayPatch" }] };
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1alpha2:TLSRoute" }, { type: "kubernetes:gateway.networking.k8s.io/v1alpha3:TLSRoute" }] };
         opts = pulumi.mergeOptions(opts, aliasOpts);
-        super(GatewayPatch.__pulumiType, name, resourceInputs, opts);
+        super(TLSRoute.__pulumiType, name, resourceInputs, opts);
     }
 }
 
 /**
- * The set of arguments for constructing a GatewayPatch resource.
+ * The set of arguments for constructing a TLSRoute resource.
  */
-export interface GatewayPatchArgs {
+export interface TLSRouteArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
@@ -101,10 +97,10 @@ export interface GatewayPatchArgs {
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"Gateway">;
+    kind?: pulumi.Input<"TLSRoute">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMetaPatch>;
-    spec?: pulumi.Input<inputs.gateway.v1.GatewaySpecPatch>;
+    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+    spec?: pulumi.Input<inputs.gateway.v1.TLSRouteSpec>;
 }

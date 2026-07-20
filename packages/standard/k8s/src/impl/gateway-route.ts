@@ -5,10 +5,11 @@ import {
   type NormalizedGatewayClientAuthArgs,
   type TlsCertificate,
 } from "@highstate/common"
+import { gateway as gatewayApi } from "@highstate/gateway-api"
 import { type common, k8s, type network } from "@highstate/library"
 import { type ComponentResourceOptions, type Input, toPromise } from "@highstate/pulumi"
 import { core } from "@pulumi/kubernetes"
-import { Gateway, HttpRoute, TcpRoute, UdpRoute } from "../gateway"
+import { Gateway, HttpRoute, TcpRoute, TlsRoute, UdpRoute } from "../gateway"
 import { Namespace } from "../namespace"
 import { isEndpointFromCluster, l4EndpointToServicePort, Service } from "../service"
 import { getProvider, mapMetadata } from "../shared"
@@ -39,6 +40,10 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       throw new Error("Gateway client authentication requires a TLS certificate.")
     }
 
+    if (routeProtocol === "tls" && certificateRef) {
+      throw new Error("TLS passthrough routes cannot terminate a certificate")
+    }
+
     if (routeProtocol === "http") {
       return await createHttpGatewayRoute({
         name,
@@ -56,13 +61,13 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       opts,
       data,
       namespace,
-      protocol: routeProtocol === "tcp" ? "TCP" : "UDP",
+      protocol: routeProtocol === "udp" ? "UDP" : routeProtocol === "tls" ? "TLS" : "TCP",
     })
   },
 )
 
 type GatewayRouteRuleSpec = {
-  type: "http" | "tcp" | "udp"
+  type: "http" | "tcp" | "tls" | "udp"
   paths: string[]
   backends: {
     endpoints: network.L4Endpoint[]
@@ -202,7 +207,7 @@ type CreateL4GatewayRouteArgs = {
   opts: ComponentResourceOptions | undefined
   data: k8s.GatewayData
   namespace: Namespace
-  protocol: "TCP" | "UDP"
+  protocol: "TCP" | "TLS" | "UDP"
 }
 
 async function createL4GatewayRoute({
@@ -232,7 +237,7 @@ async function createL4GatewayRoute({
 
   const backendPort = await selectBackendPort({
     ports: backendData.ports,
-    protocol,
+    protocol: protocol === "TLS" ? "TCP" : protocol,
     targetPort: backendData.preferredTargetPort,
     serviceName: backendData.serviceName,
     routeName: name,
@@ -261,6 +266,8 @@ async function createL4GatewayRoute({
           name: listenerName,
           port: listenerPort,
           protocol,
+          hostname: protocol === "TLS" ? spec.fqdns[0] : undefined,
+          tls: protocol === "TLS" ? { mode: "Passthrough" } : undefined,
         },
       ],
     },
@@ -271,6 +278,36 @@ async function createL4GatewayRoute({
     name: backendData.serviceName,
     namespace: backendData.serviceNamespace,
     port: backendPort.port,
+  }
+
+  const routeNamespace = await toPromise(namespace.metadata.name)
+  if (backendData.serviceNamespace !== routeNamespace) {
+    new gatewayApi.v1.ReferenceGrant(
+      name,
+      {
+        metadata: {
+          name,
+          namespace: backendData.serviceNamespace,
+        },
+        spec: {
+          from: [
+            {
+              group: "gateway.networking.k8s.io",
+              kind: protocol === "TCP" ? "TCPRoute" : protocol === "TLS" ? "TLSRoute" : "UDPRoute",
+              namespace: routeNamespace,
+            },
+          ],
+          to: [
+            {
+              group: "",
+              kind: "Service",
+              name: backendData.serviceName,
+            },
+          ],
+        },
+      },
+      { ...opts, parent: gateway, provider: getProvider(data.cluster) },
+    )
   }
 
   const routeOpts = { ...opts, parent: gateway }
@@ -286,15 +323,26 @@ async function createL4GatewayRoute({
           },
           routeOpts,
         )
-      : new UdpRoute(
-          name,
-          {
-            gateway,
-            listenerName,
-            backend: backendRef,
-          },
-          routeOpts,
-        )
+      : protocol === "TLS"
+        ? new TlsRoute(
+            name,
+            {
+              gateway,
+              listenerName,
+              hostnames: spec.fqdns,
+              backend: backendRef,
+            },
+            routeOpts,
+          )
+        : new UdpRoute(
+            name,
+            {
+              gateway,
+              listenerName,
+              backend: backendRef,
+            },
+            routeOpts,
+          )
 
   return {
     resource: route,
@@ -480,7 +528,7 @@ function getServiceMetadataFromEndpoints(
 type ServicePortInfo = {
   name: string | undefined
   port: number
-  protocol: "TCP" | "UDP"
+  protocol: "TCP" | "TLS" | "UDP"
   targetPort?: number | string
 }
 
@@ -596,7 +644,7 @@ async function selectBackendPort({
   routeName,
 }: {
   ports: ServicePortInfo[]
-  protocol: "TCP" | "UDP"
+  protocol: "TCP" | "TLS" | "UDP"
   targetPort: Input<string | number | undefined> | undefined
   serviceName: string
   routeName: string
@@ -672,7 +720,7 @@ async function resolveListenerPort({
 }: {
   requestedPort: Input<number | undefined> | undefined
   backendPort: ServicePortInfo
-  protocol: "TCP" | "UDP"
+  protocol: "TCP" | "TLS" | "UDP"
   routeName: string
 }): Promise<number> {
   if (!requestedPort) {

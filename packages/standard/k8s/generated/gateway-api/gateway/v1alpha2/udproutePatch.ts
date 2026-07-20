@@ -83,6 +83,8 @@ export class UDPRoutePatch extends pulumi.CustomResource {
             resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:UDPRoutePatch" }] };
+        opts = pulumi.mergeOptions(opts, aliasOpts);
         super(UDPRoutePatch.__pulumiType, name, resourceInputs, opts);
     }
 }

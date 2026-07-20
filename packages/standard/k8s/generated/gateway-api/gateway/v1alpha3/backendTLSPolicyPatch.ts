@@ -82,6 +82,8 @@ export class BackendTLSPolicyPatch extends pulumi.CustomResource {
             resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicyPatch" }] };
+        opts = pulumi.mergeOptions(opts, aliasOpts);
         super(BackendTLSPolicyPatch.__pulumiType, name, resourceInputs, opts);
     }
 }

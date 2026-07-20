@@ -7,94 +7,99 @@ import * as outputs from "../../types/output";
 import * as utilities from "../../utilities";
 
 /**
- * XListenerSet defines a set of additional listeners
- * to attach to an existing Gateway.
+ * TLSRouteList is a list of TLSRoute
  */
-export class XListenerSet extends pulumi.CustomResource {
+export class TLSRouteList extends pulumi.CustomResource {
     /**
-     * Get an existing XListenerSet resource's state with the given name, ID, and optional extra
+     * Get an existing TLSRouteList resource's state with the given name, ID, and optional extra
      * properties used to qualify the lookup.
      *
      * @param name The _unique_ name of the resulting resource.
      * @param id The _unique_ provider ID of the resource to lookup.
      * @param opts Optional settings to control the behavior of the CustomResource.
      */
-    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): XListenerSet {
-        return new XListenerSet(name, undefined as any, { ...opts, id: id });
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): TLSRouteList {
+        return new TLSRouteList(name, undefined as any, { ...opts, id: id });
     }
 
     /** @internal */
-    public static readonly __pulumiType = 'kubernetes:gateway.networking.x-k8s.io/v1alpha1:XListenerSet';
+    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1:TLSRouteList';
 
     /**
-     * Returns true if the given object is an instance of XListenerSet.  This is designed to work even
+     * Returns true if the given object is an instance of TLSRouteList.  This is designed to work even
      * when multiple copies of the Pulumi SDK have been loaded into the same process.
      */
-    public static isInstance(obj: any): obj is XListenerSet {
+    public static isInstance(obj: any): obj is TLSRouteList {
         if (obj === undefined || obj === null) {
             return false;
         }
-        return obj['__pulumiType'] === XListenerSet.__pulumiType;
+        return obj['__pulumiType'] === TLSRouteList.__pulumiType;
     }
 
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    declare public readonly apiVersion: pulumi.Output<"gateway.networking.x-k8s.io/v1alpha1">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1">;
+    /**
+     * List of tlsroutes. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md
+     */
+    declare public readonly items: pulumi.Output<outputs.gateway.v1.TLSRoute[]>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    declare public readonly kind: pulumi.Output<"XListenerSet">;
+    declare public readonly kind: pulumi.Output<"TLSRouteList">;
     /**
-     * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+     * Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMeta>;
-    declare public readonly spec: pulumi.Output<outputs.gateway.v1alpha1.XListenerSetSpec>;
-    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1alpha1.XListenerSetStatus>;
+    declare public readonly metadata: pulumi.Output<outputs.meta.v1.ListMeta>;
 
     /**
-     * Create a XListenerSet resource with the given unique name, arguments, and options.
+     * Create a TLSRouteList resource with the given unique name, arguments, and options.
      *
      * @param name The _unique_ name of the resource.
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args?: XListenerSetArgs, opts?: pulumi.CustomResourceOptions) {
+    constructor(name: string, args?: TLSRouteListArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            resourceInputs["apiVersion"] = "gateway.networking.x-k8s.io/v1alpha1";
-            resourceInputs["kind"] = "XListenerSet";
+            if (args?.items === undefined && !opts.urn) {
+                throw new Error("Missing required property 'items'");
+            }
+            resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1";
+            resourceInputs["items"] = args?.items;
+            resourceInputs["kind"] = "TLSRouteList";
             resourceInputs["metadata"] = args?.metadata;
-            resourceInputs["spec"] = args?.spec;
-            resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
+            resourceInputs["items"] = undefined /*out*/;
             resourceInputs["kind"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
-            resourceInputs["spec"] = undefined /*out*/;
-            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        super(XListenerSet.__pulumiType, name, resourceInputs, opts);
+        super(TLSRouteList.__pulumiType, name, resourceInputs, opts);
     }
 }
 
 /**
- * The set of arguments for constructing a XListenerSet resource.
+ * The set of arguments for constructing a TLSRouteList resource.
  */
-export interface XListenerSetArgs {
+export interface TLSRouteListArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.x-k8s.io/v1alpha1">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+    /**
+     * List of tlsroutes. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md
+     */
+    items: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRoute>[]>;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"XListenerSet">;
+    kind?: pulumi.Input<"TLSRouteList">;
     /**
-     * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+     * Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-    spec?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpec>;
+    metadata?: pulumi.Input<inputs.meta.v1.ListMeta>;
 }

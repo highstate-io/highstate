@@ -8,6 +8,801 @@ import * as outputs from "../types/output";
 export namespace gateway {
     export namespace v1 {
         /**
+         * BackendTLSPolicy provides a way to configure how a Gateway
+         * connects to a Backend via TLS.
+         */
+        export interface BackendTLSPolicy {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: pulumi.Input<"BackendTLSPolicy">;
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+            spec?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpec>;
+            status?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatus>;
+        }
+
+        /**
+         * Spec defines the desired state of BackendTLSPolicy.
+         */
+        export interface BackendTLSPolicySpec {
+            /**
+             * Options are a list of key/value pairs to enable extended TLS
+             * configuration for each implementation. For example, configuring the
+             * minimum TLS version or supported cipher suites.
+             *
+             * A set of common keys MAY be defined by the API in the future. To avoid
+             * any ambiguity, implementation-specific definitions MUST use
+             * domain-prefixed names, such as `example.com/my-custom-option`.
+             * Un-prefixed names are reserved for key names defined by Gateway API.
+             *
+             * Support: Implementation-specific
+             */
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * TargetRefs identifies an API object to apply the policy to.
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
+             *
+             * TargetRefs must be _distinct_. This means either that:
+             *
+             * * They select different targets. If this is the case, then targetRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, and `name` must
+             *   be unique across all targetRef entries in the BackendTLSPolicy.
+             * * They select different sectionNames in the same target.
+             *
+             * When more than one BackendTLSPolicy selects the same target and
+             * sectionName, implementations MUST determine precedence using the
+             * following criteria, continuing on ties:
+             *
+             * * The older policy by creation timestamp takes precedence. For
+             *   example, a policy with a creation timestamp of "2021-07-15
+             *   01:02:03" MUST be given precedence over a policy with a
+             *   creation timestamp of "2021-07-15 01:02:04".
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
+             *
+             * For any BackendTLSPolicy that does not take precedence, the
+             * implementation MUST ensure the `Accepted` Condition is set to
+             * `status: False`, with Reason `Conflicted`.
+             *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
+             *
+             * Support Levels:
+             *
+             * * Extended: Kubernetes Service referenced by backendRefs used on a Route.
+             *   - HTTPRoute, GRPCRoute, TLSRoute with termination
+             *   - Filters that needs a backend of type Service, like Mirror and External Authorization
+             *
+             * * Implementation-Specific: Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
+             */
+            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecTargetRefs>[]>;
+            validation?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidation>;
+        }
+
+        /**
+         * Spec defines the desired state of BackendTLSPolicy.
+         */
+        export interface BackendTLSPolicySpecPatch {
+            /**
+             * Options are a list of key/value pairs to enable extended TLS
+             * configuration for each implementation. For example, configuring the
+             * minimum TLS version or supported cipher suites.
+             *
+             * A set of common keys MAY be defined by the API in the future. To avoid
+             * any ambiguity, implementation-specific definitions MUST use
+             * domain-prefixed names, such as `example.com/my-custom-option`.
+             * Un-prefixed names are reserved for key names defined by Gateway API.
+             *
+             * Support: Implementation-specific
+             */
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            /**
+             * TargetRefs identifies an API object to apply the policy to.
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
+             *
+             * TargetRefs must be _distinct_. This means either that:
+             *
+             * * They select different targets. If this is the case, then targetRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, and `name` must
+             *   be unique across all targetRef entries in the BackendTLSPolicy.
+             * * They select different sectionNames in the same target.
+             *
+             * When more than one BackendTLSPolicy selects the same target and
+             * sectionName, implementations MUST determine precedence using the
+             * following criteria, continuing on ties:
+             *
+             * * The older policy by creation timestamp takes precedence. For
+             *   example, a policy with a creation timestamp of "2021-07-15
+             *   01:02:03" MUST be given precedence over a policy with a
+             *   creation timestamp of "2021-07-15 01:02:04".
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
+             *
+             * For any BackendTLSPolicy that does not take precedence, the
+             * implementation MUST ensure the `Accepted` Condition is set to
+             * `status: False`, with Reason `Conflicted`.
+             *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
+             *
+             * Support Levels:
+             *
+             * * Extended: Kubernetes Service referenced by backendRefs used on a Route.
+             *   - HTTPRoute, GRPCRoute, TLSRoute with termination
+             *   - Filters that needs a backend of type Service, like Mirror and External Authorization
+             *
+             * * Implementation-Specific: Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
+             */
+            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecTargetRefsPatch>[]>;
+            validation?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationPatch>;
+        }
+
+        /**
+         * LocalPolicyTargetReferenceWithSectionName identifies an API object to apply a
+         * direct policy to. This should be used as part of Policy resources that can
+         * target single resources. For more information on how this policy attachment
+         * mode works, and a sample Policy resource, refer to the policy attachment
+         * documentation for Gateway API.
+         *
+         * Note: This should only be used for direct policy attachment when references
+         * to SectionName are actually needed. In all other cases,
+         * LocalPolicyTargetReference should be used.
+         */
+        export interface BackendTLSPolicySpecTargetRefs {
+            /**
+             * Group is the group of the target resource.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the target resource.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the target resource.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * SectionName is the name of a section within the target resource. When
+             * unspecified, this targetRef targets the entire resource. In the following
+             * resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name
+             * * HTTPRoute: HTTPRouteRule name
+             * * Service: Port name
+             *
+             * If a SectionName is specified, but does not exist on the targeted object,
+             * the Policy must fail to attach, and the policy implementation should record
+             * a `ResolvedRefs` or similar Condition in the Policy's status.
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * LocalPolicyTargetReferenceWithSectionName identifies an API object to apply a
+         * direct policy to. This should be used as part of Policy resources that can
+         * target single resources. For more information on how this policy attachment
+         * mode works, and a sample Policy resource, refer to the policy attachment
+         * documentation for Gateway API.
+         *
+         * Note: This should only be used for direct policy attachment when references
+         * to SectionName are actually needed. In all other cases,
+         * LocalPolicyTargetReference should be used.
+         */
+        export interface BackendTLSPolicySpecTargetRefsPatch {
+            /**
+             * Group is the group of the target resource.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the target resource.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the target resource.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * SectionName is the name of a section within the target resource. When
+             * unspecified, this targetRef targets the entire resource. In the following
+             * resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name
+             * * HTTPRoute: HTTPRouteRule name
+             * * Service: Port name
+             *
+             * If a SectionName is specified, but does not exist on the targeted object,
+             * the Policy must fail to attach, and the policy implementation should record
+             * a `ResolvedRefs` or similar Condition in the Policy's status.
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * Validation contains backend TLS validation configuration.
+         */
+        export interface BackendTLSPolicySpecValidation {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes objects that
+             * contain a PEM-encoded TLS CA certificate bundle, which is used to
+             * validate a TLS handshake between the Gateway and backend Pod.
+             *
+             * If CACertificateRefs is empty or unspecified, then WellKnownCACertificates must be
+             * specified. Only one of CACertificateRefs or WellKnownCACertificates may be specified,
+             * not both. If CACertificateRefs is empty or unspecified, the configuration for
+             * WellKnownCACertificates MUST be honored instead if supported by the implementation.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+             *   does not exist) or is misconfigured (e.g., a ConfigMap does not contain a key
+             *   named `ca.crt`). In this case, the Reason must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this case, the Reason
+             *   must be set to `InvalidKind` and the Message of the Condition must explain which
+             *   kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace. This may change in future
+             *   spec updates.
+             *
+             * Implementations MAY choose to perform further validation of the certificate
+             * content (e.g., checking expiry or enforcing specific formats). In such cases,
+             * an implementation-specific Reason and Message must be set for the invalid reference.
+             *
+             * In all cases, the implementation MUST ensure the `ResolvedRefs` Condition on
+             * the BackendTLSPolicy is set to `status: False`, with a Reason and Message
+             * that indicate the cause of the error. Connections using an invalid
+             * CACertificateRef MUST fail, and the client MUST receive an HTTP 5xx error
+             * response. If ALL CACertificateRefs are invalid, the implementation MUST also
+             * ensure the `Accepted` Condition on the BackendTLSPolicy is set to
+             * `status: False`, with a Reason `NoValidCACertificate`.
+             *
+             * A single CACertificateRef to a Kubernetes ConfigMap kind has "Core" support.
+             * Implementations MAY choose to support attaching multiple certificates to
+             * a backend, but this behavior is implementation-specific.
+             *
+             * Support: Core - An optional single reference to a Kubernetes ConfigMap,
+             * with the CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationCaCertificateRefs>[]>;
+            /**
+             * Hostname is used for two purposes in the connection between Gateways and
+             * backends:
+             *
+             * 1. Hostname MUST be used as the SNI to connect to the backend (RFC 6066).
+             * 2. Hostname MUST be used for authentication and MUST match the certificate
+             *    served by the matching backend, unless SubjectAltNames is specified.
+             * 3. If SubjectAltNames are specified, Hostname can be used for certificate selection
+             *    but MUST NOT be used for authentication. If you want to use the value
+             *    of the Hostname field for authentication, you MUST add it to the SubjectAltNames list.
+             *
+             * Support: Core
+             */
+            hostname?: pulumi.Input<string>;
+            /**
+             * SubjectAltNames contains one or more Subject Alternative Names.
+             * When specified the certificate served from the backend MUST
+             * have at least one Subject Alternate Name matching one of the specified SubjectAltNames.
+             *
+             * Support: Extended
+             */
+            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNames>[]>;
+            /**
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
+             *
+             * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
+             * must be specified with at least one entry for a valid configuration. Only one of
+             * CACertificateRefs or WellKnownCACertificates may be specified, not both.
+             * If an implementation does not support the WellKnownCACertificates field, or
+             * the supplied value is not recognized, the implementation MUST ensure the
+             * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
+             * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
+             *
+             * Support: Implementation-specific
+             */
+            wellKnownCACertificates?: pulumi.Input<string>;
+        }
+
+        /**
+         * LocalObjectReference identifies an API object within the namespace of the
+         * referrer.
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface BackendTLSPolicySpecValidationCaCertificateRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "HTTPRoute" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * LocalObjectReference identifies an API object within the namespace of the
+         * referrer.
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface BackendTLSPolicySpecValidationCaCertificateRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "HTTPRoute" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * Validation contains backend TLS validation configuration.
+         */
+        export interface BackendTLSPolicySpecValidationPatch {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes objects that
+             * contain a PEM-encoded TLS CA certificate bundle, which is used to
+             * validate a TLS handshake between the Gateway and backend Pod.
+             *
+             * If CACertificateRefs is empty or unspecified, then WellKnownCACertificates must be
+             * specified. Only one of CACertificateRefs or WellKnownCACertificates may be specified,
+             * not both. If CACertificateRefs is empty or unspecified, the configuration for
+             * WellKnownCACertificates MUST be honored instead if supported by the implementation.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+             *   does not exist) or is misconfigured (e.g., a ConfigMap does not contain a key
+             *   named `ca.crt`). In this case, the Reason must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this case, the Reason
+             *   must be set to `InvalidKind` and the Message of the Condition must explain which
+             *   kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace. This may change in future
+             *   spec updates.
+             *
+             * Implementations MAY choose to perform further validation of the certificate
+             * content (e.g., checking expiry or enforcing specific formats). In such cases,
+             * an implementation-specific Reason and Message must be set for the invalid reference.
+             *
+             * In all cases, the implementation MUST ensure the `ResolvedRefs` Condition on
+             * the BackendTLSPolicy is set to `status: False`, with a Reason and Message
+             * that indicate the cause of the error. Connections using an invalid
+             * CACertificateRef MUST fail, and the client MUST receive an HTTP 5xx error
+             * response. If ALL CACertificateRefs are invalid, the implementation MUST also
+             * ensure the `Accepted` Condition on the BackendTLSPolicy is set to
+             * `status: False`, with a Reason `NoValidCACertificate`.
+             *
+             * A single CACertificateRef to a Kubernetes ConfigMap kind has "Core" support.
+             * Implementations MAY choose to support attaching multiple certificates to
+             * a backend, but this behavior is implementation-specific.
+             *
+             * Support: Core - An optional single reference to a Kubernetes ConfigMap,
+             * with the CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationCaCertificateRefsPatch>[]>;
+            /**
+             * Hostname is used for two purposes in the connection between Gateways and
+             * backends:
+             *
+             * 1. Hostname MUST be used as the SNI to connect to the backend (RFC 6066).
+             * 2. Hostname MUST be used for authentication and MUST match the certificate
+             *    served by the matching backend, unless SubjectAltNames is specified.
+             * 3. If SubjectAltNames are specified, Hostname can be used for certificate selection
+             *    but MUST NOT be used for authentication. If you want to use the value
+             *    of the Hostname field for authentication, you MUST add it to the SubjectAltNames list.
+             *
+             * Support: Core
+             */
+            hostname?: pulumi.Input<string>;
+            /**
+             * SubjectAltNames contains one or more Subject Alternative Names.
+             * When specified the certificate served from the backend MUST
+             * have at least one Subject Alternate Name matching one of the specified SubjectAltNames.
+             *
+             * Support: Extended
+             */
+            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNamesPatch>[]>;
+            /**
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
+             *
+             * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
+             * must be specified with at least one entry for a valid configuration. Only one of
+             * CACertificateRefs or WellKnownCACertificates may be specified, not both.
+             * If an implementation does not support the WellKnownCACertificates field, or
+             * the supplied value is not recognized, the implementation MUST ensure the
+             * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
+             * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
+             *
+             * Support: Implementation-specific
+             */
+            wellKnownCACertificates?: pulumi.Input<string>;
+        }
+
+        /**
+         * SubjectAltName represents Subject Alternative Name.
+         */
+        export interface BackendTLSPolicySpecValidationSubjectAltNames {
+            /**
+             * Hostname contains Subject Alternative Name specified in DNS name format.
+             * Required when Type is set to Hostname, ignored otherwise.
+             *
+             * Support: Core
+             */
+            hostname?: pulumi.Input<string>;
+            /**
+             * Type determines the format of the Subject Alternative Name. Always required.
+             *
+             * Support: Core
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * URI contains Subject Alternative Name specified in a full URI format.
+             * It MUST include both a scheme (e.g., "http" or "ftp") and a scheme-specific-part.
+             * Common values include SPIFFE IDs like "spiffe://mycluster.example.com/ns/myns/sa/svc1sa".
+             * Required when Type is set to URI, ignored otherwise.
+             *
+             * Support: Core
+             */
+            uri?: pulumi.Input<string>;
+        }
+
+        /**
+         * SubjectAltName represents Subject Alternative Name.
+         */
+        export interface BackendTLSPolicySpecValidationSubjectAltNamesPatch {
+            /**
+             * Hostname contains Subject Alternative Name specified in DNS name format.
+             * Required when Type is set to Hostname, ignored otherwise.
+             *
+             * Support: Core
+             */
+            hostname?: pulumi.Input<string>;
+            /**
+             * Type determines the format of the Subject Alternative Name. Always required.
+             *
+             * Support: Core
+             */
+            type?: pulumi.Input<string>;
+            /**
+             * URI contains Subject Alternative Name specified in a full URI format.
+             * It MUST include both a scheme (e.g., "http" or "ftp") and a scheme-specific-part.
+             * Common values include SPIFFE IDs like "spiffe://mycluster.example.com/ns/myns/sa/svc1sa".
+             * Required when Type is set to URI, ignored otherwise.
+             *
+             * Support: Core
+             */
+            uri?: pulumi.Input<string>;
+        }
+
+        /**
+         * Status defines the current state of BackendTLSPolicy.
+         */
+        export interface BackendTLSPolicyStatus {
+            /**
+             * Ancestors is a list of ancestor resources (usually Gateways) that are
+             * associated with the policy, and the status of the policy with respect to
+             * each ancestor. When this policy attaches to a parent, the controller that
+             * manages the parent and the ancestors MUST add an entry to this list when
+             * the controller first sees the policy and SHOULD update the entry as
+             * appropriate when the relevant ancestor is modified.
+             *
+             * Note that choosing the relevant ancestor is left to the Policy designers;
+             * an important part of Policy design is designing the right object level at
+             * which to namespace this status.
+             *
+             * Note also that implementations MUST ONLY populate ancestor status for
+             * the Ancestor resources they are responsible for. Implementations MUST
+             * use the ControllerName field to uniquely identify the entries in this list
+             * that they are responsible for.
+             *
+             * Note that to achieve this, the list of PolicyAncestorStatus structs
+             * MUST be treated as a map with a composite key, made up of the AncestorRef
+             * and ControllerName fields combined.
+             *
+             * A maximum of 16 ancestors will be represented in this list. An empty list
+             * means the Policy is not relevant for any ancestors.
+             *
+             * If this slice is full, implementations MUST NOT add further entries.
+             * Instead they MUST consider the policy unimplementable and signal that
+             * on any related resources such as the ancestor that would be referenced
+             * here. For example, if this list was full on BackendTLSPolicy, no
+             * additional Gateways would be able to reference the Service targeted by
+             * the BackendTLSPolicy.
+             */
+            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestors>[]>;
+        }
+
+        /**
+         * PolicyAncestorStatus describes the status of a route with respect to an
+         * associated Ancestor.
+         *
+         * Ancestors refer to objects that are either the Target of a policy or above it
+         * in terms of object hierarchy. For example, if a policy targets a Service, the
+         * Policy's Ancestors are, in order, the Service, the HTTPRoute, the Gateway, and
+         * the GatewayClass. Almost always, in this hierarchy, the Gateway will be the most
+         * useful object to place Policy status on, so we recommend that implementations
+         * SHOULD use Gateway as the PolicyAncestorStatus object unless the designers
+         * have a _very_ good reason otherwise.
+         *
+         * In the context of policy attachment, the Ancestor is used to distinguish which
+         * resource results in a distinct application of this policy. For example, if a policy
+         * targets a Service, it may have a distinct result per attached Gateway.
+         *
+         * Policies targeting the same resource may have different effects depending on the
+         * ancestors of those resources. For example, different Gateways targeting the same
+         * Service may have different capabilities, especially if they have different underlying
+         * implementations.
+         *
+         * For example, in BackendTLSPolicy, the Policy attaches to a Service that is
+         * used as a backend in a HTTPRoute that is itself attached to a Gateway.
+         * In this case, the relevant object for status is the Gateway, and that is the
+         * ancestor object referred to in this status.
+         *
+         * Note that a parent is also an ancestor, so for objects where the parent is the
+         * relevant object for status, this struct SHOULD still be used.
+         *
+         * This struct is intended to be used in a slice that's effectively a map,
+         * with a composite key made up of the AncestorRef and the ControllerName.
+         */
+        export interface BackendTLSPolicyStatusAncestors {
+            ancestorRef?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestorsAncestorRef>;
+            /**
+             * Conditions describes the status of the Policy with respect to the given Ancestor.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestorsConditions>[]>;
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName?: pulumi.Input<string>;
+        }
+
+        /**
+         * AncestorRef corresponds with a ParentRef in the spec that this
+         * PolicyAncestorStatus struct describes the status of.
+         */
+        export interface BackendTLSPolicyStatusAncestorsAncestorRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface BackendTLSPolicyStatusAncestorsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime?: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message?: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason?: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status?: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type?: pulumi.Input<string>;
+        }
+
+        /**
          * GRPCRoute provides a way to route gRPC requests. This includes the capability
          * to match requests by hostname, gRPC service, gRPC method, or HTTP/2 header.
          * Filters can be used to specify additional processing steps. Backends specify
@@ -161,17 +956,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecParentRefs>[]>;
             /**
@@ -231,18 +1015,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -257,12 +1029,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -359,18 +1125,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -385,12 +1139,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -544,17 +1292,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecParentRefsPatch>[]>;
             /**
@@ -685,7 +1422,6 @@ export namespace gateway {
              * Support: Extended
              */
             name?: pulumi.Input<string>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesSessionPersistence>;
         }
 
         /**
@@ -695,21 +1431,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
          */
         export interface GRPCRouteSpecRulesBackendRefs {
             /**
@@ -1185,6 +1906,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef {
             /**
@@ -1259,6 +1984,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch {
             /**
@@ -1581,21 +2310,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
          */
         export interface GRPCRouteSpecRulesBackendRefsPatch {
             /**
@@ -2071,6 +2785,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface GRPCRouteSpecRulesFiltersRequestMirrorBackendRef {
             /**
@@ -2145,6 +2863,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface GRPCRouteSpecRulesFiltersRequestMirrorBackendRefPatch {
             /**
@@ -2473,8 +3195,8 @@ export namespace gateway {
          *   - method:
          *     type: Exact
          *     service: "foo"
-         *     headers:
-         *   - name: "version"
+         *   - headers:
+         *     name: "version"
          *     value "v1"
          *
          * ```
@@ -2612,8 +3334,8 @@ export namespace gateway {
          *   - method:
          *     type: Exact
          *     service: "foo"
-         *     headers:
-         *   - name: "version"
+         *   - headers:
+         *     name: "version"
          *     value "v1"
          *
          * ```
@@ -2750,159 +3472,6 @@ export namespace gateway {
              * Support: Extended
              */
             name?: pulumi.Input<string>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesSessionPersistencePatch>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the route rule.
-         *
-         * Support: Extended
-         */
-        export interface GRPCRouteSpecRulesSessionPersistence {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesSessionPersistenceCookieConfig>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface GRPCRouteSpecRulesSessionPersistenceCookieConfig {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface GRPCRouteSpecRulesSessionPersistenceCookieConfigPatch {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the route rule.
-         *
-         * Support: Extended
-         */
-        export interface GRPCRouteSpecRulesSessionPersistencePatch {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesSessionPersistenceCookieConfigPatch>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
         }
 
         /**
@@ -2952,7 +3521,7 @@ export namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParentsConditions>[]>;
             /**
@@ -3053,18 +3622,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -3079,12 +3636,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -3133,6 +3684,8 @@ export namespace gateway {
         /**
          * Gateway represents an instance of a service-traffic handling infrastructure
          * by binding Listeners to a set of IP addresses.
+         * A Gateway name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
+         * characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
          */
         export interface Gateway {
             /**
@@ -3169,6 +3722,9 @@ export namespace gateway {
          * Gateway is not deleted while in use.
          *
          * GatewayClass is a Cluster level resource.
+         *
+         * A GatewayClass name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
+         * characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
          */
         export interface GatewayClass {
             /**
@@ -3389,7 +3945,7 @@ export namespace gateway {
              * Addresses requested for this Gateway. This is optional and behavior can
              * depend on the implementation. If a value is set in the spec and the
              * requested address is invalid or unavailable, the implementation MUST
-             * indicate this in the associated entry in GatewayStatus.Addresses.
+             * indicate this in an associated entry in GatewayStatus.Conditions.
              *
              * The Addresses field represents a request for the address(es) on the
              * "outside of the Gateway", that traffic bound for this Gateway will use.
@@ -3409,7 +3965,6 @@ export namespace gateway {
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAddresses>[]>;
             allowedListeners?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListeners>;
-            backendTLS?: pulumi.Input<inputs.gateway.v1.GatewaySpecBackendTLS>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
@@ -3546,6 +4101,12 @@ export namespace gateway {
              * request to "foo.example.com" SHOULD only be routed using routes attached
              * to the "foo.example.com" Listener (and not the "*.example.com" Listener).
              *
+             * If traffic to a Gateway does not match any Listener's hostname (or if
+             * the Listener does not specify a hostname and the request does not match
+             * any attached Route), the request MUST be rejected. The specific mechanism
+             * for rejection depends on the protocol: HTTP returns a 404 status code,
+             * while gRPC returns an Unimplemented status code.
+             *
              * This concept is known as "Listener Isolation", and it is an Extended feature
              * of Gateway API. Implementations that do not support Listener Isolation MUST
              * clearly document this, and MUST NOT claim support for the
@@ -3580,6 +4141,7 @@ export namespace gateway {
              * Support: Core
              */
             listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListeners>[]>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTls>;
         }
 
         /**
@@ -3624,7 +4186,7 @@ export namespace gateway {
 
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListeners {
             namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespaces>;
@@ -3632,7 +4194,7 @@ export namespace gateway {
 
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersNamespaces {
             /**
@@ -3644,7 +4206,7 @@ export namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from?: pulumi.Input<string>;
             selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelector>;
@@ -3652,7 +4214,7 @@ export namespace gateway {
 
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersNamespacesPatch {
             /**
@@ -3664,7 +4226,7 @@ export namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from?: pulumi.Input<string>;
             selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorPatch>;
@@ -3754,120 +4316,10 @@ export namespace gateway {
 
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersPatch {
             namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesPatch>;
-        }
-
-        /**
-         * BackendTLS configures TLS settings for when this Gateway is connecting to
-         * backends with TLS.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLS {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecBackendTLSClientCertificateRef>;
-        }
-
-        /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
-         *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
-         *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
-         *
-         * This setting can be overridden on the service level by use of BackendTLSPolicy.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLSClientCertificateRef {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When unspecified or empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "Secret".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
-         *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
-         *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
-         *
-         * This setting can be overridden on the service level by use of BackendTLSPolicy.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLSClientCertificateRefPatch {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When unspecified or empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "Secret".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * BackendTLS configures TLS settings for when this Gateway is connecting to
-         * backends with TLS.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLSPatch {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecBackendTLSClientCertificateRefPatch>;
         }
 
         /**
@@ -4042,7 +4494,7 @@ export namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -4367,7 +4819,7 @@ export namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -4413,7 +4865,7 @@ export namespace gateway {
          * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
          * if the Protocol field is "HTTP", "TCP", or "UDP".
          *
-         * The association of SNIs to Certificate defined in GatewayTLSConfig is
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
          * defined based on the Hostname field for this listener.
          *
          * The GatewayClass MUST use the longest matching SNI out of all
@@ -4449,7 +4901,6 @@ export namespace gateway {
              * Support: Implementation-specific (More than one reference or other resource types)
              */
             certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsCertificateRefs>[]>;
-            frontendValidation?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsFrontendValidation>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -4560,159 +5011,11 @@ export namespace gateway {
         }
 
         /**
-         * FrontendValidation holds configuration information for validating the frontend (client).
-         * Setting this field will require clients to send a client certificate
-         * required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-         * that requests a user to specify the client certificate.
-         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
-         *
-         * Support: Extended
-         */
-        export interface GatewaySpecListenersTlsFrontendValidation {
-            /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
-             *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
-             *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
-             *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsFrontendValidationCaCertificateRefs>[]>;
-        }
-
-        /**
-         * ObjectReference identifies an API object including its namespace.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        export interface GatewaySpecListenersTlsFrontendValidationCaCertificateRefs {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When set to the empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "ConfigMap" or "Service".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * ObjectReference identifies an API object including its namespace.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        export interface GatewaySpecListenersTlsFrontendValidationCaCertificateRefsPatch {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When set to the empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "ConfigMap" or "Service".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * FrontendValidation holds configuration information for validating the frontend (client).
-         * Setting this field will require clients to send a client certificate
-         * required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-         * that requests a user to specify the client certificate.
-         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
-         *
-         * Support: Extended
-         */
-        export interface GatewaySpecListenersTlsFrontendValidationPatch {
-            /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
-             *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
-             *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
-             *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsFrontendValidationCaCertificateRefsPatch>[]>;
-        }
-
-        /**
          * TLS is the TLS configuration for the Listener. This field is required if
          * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
          * if the Protocol field is "HTTP", "TCP", or "UDP".
          *
-         * The association of SNIs to Certificate defined in GatewayTLSConfig is
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
          * defined based on the Hostname field for this listener.
          *
          * The GatewayClass MUST use the longest matching SNI out of all
@@ -4748,7 +5051,6 @@ export namespace gateway {
              * Support: Implementation-specific (More than one reference or other resource types)
              */
             certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsCertificateRefsPatch>[]>;
-            frontendValidation?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsFrontendValidationPatch>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -4788,7 +5090,7 @@ export namespace gateway {
              * Addresses requested for this Gateway. This is optional and behavior can
              * depend on the implementation. If a value is set in the spec and the
              * requested address is invalid or unavailable, the implementation MUST
-             * indicate this in the associated entry in GatewayStatus.Addresses.
+             * indicate this in an associated entry in GatewayStatus.Conditions.
              *
              * The Addresses field represents a request for the address(es) on the
              * "outside of the Gateway", that traffic bound for this Gateway will use.
@@ -4808,7 +5110,6 @@ export namespace gateway {
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAddressesPatch>[]>;
             allowedListeners?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersPatch>;
-            backendTLS?: pulumi.Input<inputs.gateway.v1.GatewaySpecBackendTLSPatch>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
@@ -4945,6 +5246,12 @@ export namespace gateway {
              * request to "foo.example.com" SHOULD only be routed using routes attached
              * to the "foo.example.com" Listener (and not the "*.example.com" Listener).
              *
+             * If traffic to a Gateway does not match any Listener's hostname (or if
+             * the Listener does not specify a hostname and the request does not match
+             * any attached Route), the request MUST be rejected. The specific mechanism
+             * for rejection depends on the protocol: HTTP returns a 404 status code,
+             * while gRPC returns an Unimplemented status code.
+             *
              * This concept is known as "Listener Isolation", and it is an Extended feature
              * of Gateway API. Implementations that do not support Listener Isolation MUST
              * clearly document this, and MUST NOT claim support for the
@@ -4979,6 +5286,725 @@ export namespace gateway {
              * Support: Core
              */
             listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersPatch>[]>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsPatch>;
+        }
+
+        /**
+         * TLS specifies frontend and backend tls configuration for entire gateway.
+         *
+         * Support: Extended
+         */
+        export interface GatewaySpecTls {
+            backend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackend>;
+            frontend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontend>;
+        }
+
+        /**
+         * Backend describes TLS configuration for gateway when connecting
+         * to backends.
+         *
+         * Note that this contains only details for the Gateway as a TLS client,
+         * and does _not_ imply behavior about how to choose which backend should
+         * get a TLS connection. That is determined by the presence of a BackendTLSPolicy.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsBackend {
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRef>;
+        }
+
+        /**
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
+         *
+         * A ClientCertificateRef is considered invalid if:
+         *
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
+         *
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
+         */
+        export interface GatewaySpecTlsBackendClientCertificateRef {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
+         *
+         * A ClientCertificateRef is considered invalid if:
+         *
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
+         *
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
+         */
+        export interface GatewaySpecTlsBackendClientCertificateRefPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Backend describes TLS configuration for gateway when connecting
+         * to backends.
+         *
+         * Note that this contains only details for the Gateway as a TLS client,
+         * and does _not_ imply behavior about how to choose which backend should
+         * get a TLS connection. That is determined by the presence of a BackendTLSPolicy.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsBackendPatch {
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRefPatch>;
+        }
+
+        /**
+         * Frontend describes TLS config when client connects to Gateway.
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontend {
+            default?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefault>;
+            /**
+             * PerPort specifies tls configuration assigned per port.
+             * Per port configuration is optional. Once set this configuration overrides
+             * the default configuration for all Listeners handling HTTPS traffic
+             * that match this port.
+             * Each override port requires a unique TLS configuration.
+             *
+             * support: Core
+             */
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPort>[]>;
+        }
+
+        /**
+         * Default specifies the default client certificate validation configuration
+         * for all Listeners handling HTTPS traffic, unless a per-port configuration
+         * is defined.
+         *
+         * support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefault {
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidation>;
+        }
+
+        /**
+         * Default specifies the default client certificate validation configuration
+         * for all Listeners handling HTTPS traffic, unless a per-port configuration
+         * is defined.
+         *
+         * support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefaultPatch {
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationPatch>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidation {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidationPatch {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * Frontend describes TLS config when client connects to Gateway.
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPatch {
+            default?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultPatch>;
+            /**
+             * PerPort specifies tls configuration assigned per port.
+             * Per port configuration is optional. Once set this configuration overrides
+             * the default configuration for all Listeners handling HTTPS traffic
+             * that match this port.
+             * Each override port requires a unique TLS configuration.
+             *
+             * support: Core
+             */
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortPatch>[]>;
+        }
+
+        export interface GatewaySpecTlsFrontendPerPort {
+            /**
+             * The Port indicates the Port Number to which the TLS configuration will be
+             * applied. This configuration will be applied to all Listeners handling HTTPS
+             * traffic that match this port.
+             *
+             * Support: Core
+             */
+            port?: pulumi.Input<number>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTls>;
+        }
+
+        export interface GatewaySpecTlsFrontendPerPortPatch {
+            /**
+             * The Port indicates the Port Number to which the TLS configuration will be
+             * applied. This configuration will be applied to all Listeners handling HTTPS
+             * traffic that match this port.
+             *
+             * Support: Core
+             */
+            port?: pulumi.Input<number>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsPatch>;
+        }
+
+        /**
+         * TLS store the configuration that will be applied to all Listeners handling
+         * HTTPS traffic and matching given port.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTls {
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidation>;
+        }
+
+        /**
+         * TLS store the configuration that will be applied to all Listeners handling
+         * HTTPS traffic and matching given port.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsPatch {
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationPatch>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidation {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidationPatch {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * TLS specifies frontend and backend tls configuration for entire gateway.
+         *
+         * Support: Extended
+         */
+        export interface GatewaySpecTlsPatch {
+            backend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendPatch>;
+            frontend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPatch>;
         }
 
         /**
@@ -4997,6 +6023,19 @@ export namespace gateway {
              *   * a specified address was unusable (e.g. already in use)
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusAddresses>[]>;
+            /**
+             * AttachedListenerSets represents the total number of ListenerSets that have been
+             * successfully attached to this Gateway.
+             *
+             * A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+             * - The ListenerSet is selected by the Gateway's AllowedListeners field
+             * - The ListenerSet has a valid ParentRef selecting the Gateway
+             * - The ListenerSet's status has the condition "Accepted: true"
+             *
+             * Uses for this field include troubleshooting AttachedListenerSets attachment and
+             * measuring blast radius/impact of changes to a Gateway.
+             */
+            attachedListenerSets?: pulumi.Input<number>;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -5090,8 +6129,11 @@ export namespace gateway {
              * attachment semantics can be found in the documentation on the various
              * Route kinds ParentRefs fields). Listener or Route status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -5107,7 +6149,7 @@ export namespace gateway {
             name?: pulumi.Input<string>;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -5305,17 +6347,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecParentRefs>[]>;
             /**
@@ -5375,18 +6406,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -5401,12 +6420,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -5503,18 +6516,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -5529,12 +6530,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -5691,17 +6686,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecParentRefsPatch>[]>;
             /**
@@ -5858,8 +6842,6 @@ export namespace gateway {
              * Support: Extended
              */
             name?: pulumi.Input<string>;
-            retry?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesRetry>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesSessionPersistence>;
             timeouts?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesTimeouts>;
         }
 
@@ -5870,21 +6852,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
          */
         export interface HTTPRouteSpecRulesBackendRefs {
             /**
@@ -6023,12 +6990,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -6037,14 +7004,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -6056,18 +7023,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -6079,7 +7048,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -6088,29 +7057,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -6141,7 +7110,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -6158,15 +7127,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -6188,19 +7162,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -6215,6 +7195,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -6230,12 +7213,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -6244,14 +7227,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -6263,18 +7246,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -6286,7 +7271,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -6295,29 +7280,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -6348,7 +7333,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -6365,15 +7350,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -6395,19 +7385,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -6422,6 +7418,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -6796,6 +7795,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef {
             /**
@@ -6870,6 +7873,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch {
             /**
@@ -7550,21 +8557,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
          */
         export interface HTTPRouteSpecRulesBackendRefsPatch {
             /**
@@ -7703,12 +8695,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -7717,14 +8709,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -7736,18 +8728,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -7759,7 +8753,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -7768,29 +8762,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -7821,7 +8815,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -7838,15 +8832,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -7868,19 +8867,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -7895,6 +8900,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -7910,12 +8918,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -7924,14 +8932,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -7943,18 +8951,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -7966,7 +8976,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -7975,29 +8985,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -8028,7 +9038,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -8045,15 +9055,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -8075,19 +9090,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -8102,6 +9123,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -8476,6 +9500,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorBackendRef {
             /**
@@ -8550,6 +9578,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorBackendRefPatch {
             /**
@@ -9669,295 +10701,7 @@ export namespace gateway {
              * Support: Extended
              */
             name?: pulumi.Input<string>;
-            retry?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesRetryPatch>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesSessionPersistencePatch>;
             timeouts?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesTimeoutsPatch>;
-        }
-
-        /**
-         * Retry defines the configuration for when to retry an HTTP request.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesRetry {
-            /**
-             * Attempts specifies the maximum number of times an individual request
-             * from the gateway to a backend should be retried.
-             *
-             * If the maximum number of retries has been attempted without a successful
-             * response from the backend, the Gateway MUST return an error.
-             *
-             * When this field is unspecified, the number of times to attempt to retry
-             * a backend request is implementation-specific.
-             *
-             * Support: Extended
-             */
-            attempts?: pulumi.Input<number>;
-            /**
-             * Backoff specifies the minimum duration a Gateway should wait between
-             * retry attempts and is represented in Gateway API Duration formatting.
-             *
-             * For example, setting the `rules[].retry.backoff` field to the value
-             * `100ms` will cause a backend request to first be retried approximately
-             * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
-             *
-             * An implementation MAY use an exponential or alternative backoff strategy
-             * for subsequent retry attempts, MAY cap the maximum backoff duration to
-             * some amount greater than the specified minimum, and MAY add arbitrary
-             * jitter to stagger requests, as long as unsuccessful backend requests are
-             * not retried before the configured minimum duration.
-             *
-             * If a Request timeout (`rules[].timeouts.request`) is configured on the
-             * route, the entire duration of the initial request and any retry attempts
-             * MUST not exceed the Request timeout duration. If any retry attempts are
-             * still in progress when the Request timeout duration has been reached,
-             * these SHOULD be canceled if possible and the Gateway MUST immediately
-             * return a timeout error.
-             *
-             * If a BackendRequest timeout (`rules[].timeouts.backendRequest`) is
-             * configured on the route, any retry attempts which reach the configured
-             * BackendRequest timeout duration without a response SHOULD be canceled if
-             * possible and the Gateway should wait for at least the specified backoff
-             * duration before attempting to retry the backend request again.
-             *
-             * If a BackendRequest timeout is _not_ configured on the route, retry
-             * attempts MAY time out after an implementation default duration, or MAY
-             * remain pending until a configured Request timeout or implementation
-             * default duration for total request time is reached.
-             *
-             * When this field is unspecified, the time to wait between retry attempts
-             * is implementation-specific.
-             *
-             * Support: Extended
-             */
-            backoff?: pulumi.Input<string>;
-            /**
-             * Codes defines the HTTP response status codes for which a backend request
-             * should be retried.
-             *
-             * Support: Extended
-             */
-            codes?: pulumi.Input<pulumi.Input<number>[]>;
-        }
-
-        /**
-         * Retry defines the configuration for when to retry an HTTP request.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesRetryPatch {
-            /**
-             * Attempts specifies the maximum number of times an individual request
-             * from the gateway to a backend should be retried.
-             *
-             * If the maximum number of retries has been attempted without a successful
-             * response from the backend, the Gateway MUST return an error.
-             *
-             * When this field is unspecified, the number of times to attempt to retry
-             * a backend request is implementation-specific.
-             *
-             * Support: Extended
-             */
-            attempts?: pulumi.Input<number>;
-            /**
-             * Backoff specifies the minimum duration a Gateway should wait between
-             * retry attempts and is represented in Gateway API Duration formatting.
-             *
-             * For example, setting the `rules[].retry.backoff` field to the value
-             * `100ms` will cause a backend request to first be retried approximately
-             * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
-             *
-             * An implementation MAY use an exponential or alternative backoff strategy
-             * for subsequent retry attempts, MAY cap the maximum backoff duration to
-             * some amount greater than the specified minimum, and MAY add arbitrary
-             * jitter to stagger requests, as long as unsuccessful backend requests are
-             * not retried before the configured minimum duration.
-             *
-             * If a Request timeout (`rules[].timeouts.request`) is configured on the
-             * route, the entire duration of the initial request and any retry attempts
-             * MUST not exceed the Request timeout duration. If any retry attempts are
-             * still in progress when the Request timeout duration has been reached,
-             * these SHOULD be canceled if possible and the Gateway MUST immediately
-             * return a timeout error.
-             *
-             * If a BackendRequest timeout (`rules[].timeouts.backendRequest`) is
-             * configured on the route, any retry attempts which reach the configured
-             * BackendRequest timeout duration without a response SHOULD be canceled if
-             * possible and the Gateway should wait for at least the specified backoff
-             * duration before attempting to retry the backend request again.
-             *
-             * If a BackendRequest timeout is _not_ configured on the route, retry
-             * attempts MAY time out after an implementation default duration, or MAY
-             * remain pending until a configured Request timeout or implementation
-             * default duration for total request time is reached.
-             *
-             * When this field is unspecified, the time to wait between retry attempts
-             * is implementation-specific.
-             *
-             * Support: Extended
-             */
-            backoff?: pulumi.Input<string>;
-            /**
-             * Codes defines the HTTP response status codes for which a backend request
-             * should be retried.
-             *
-             * Support: Extended
-             */
-            codes?: pulumi.Input<pulumi.Input<number>[]>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the route rule.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesSessionPersistence {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesSessionPersistenceCookieConfig>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface HTTPRouteSpecRulesSessionPersistenceCookieConfig {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface HTTPRouteSpecRulesSessionPersistenceCookieConfigPatch {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the route rule.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesSessionPersistencePatch {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesSessionPersistenceCookieConfigPatch>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
         }
 
         /**
@@ -10117,7 +10861,7 @@ export namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParentsConditions>[]>;
             /**
@@ -10218,18 +10962,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -10244,652 +10976,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
-             *
-             * Implementations MAY choose to support other parent resources.
-             * Implementations supporting other types of parent resources MUST clearly
-             * document how/if Port is interpreted.
-             *
-             * For the purpose of status, an attachment is considered successful as
-             * long as the parent resource accepts it partially. For example, Gateway
-             * listeners can restrict which Routes can attach to them by Route kind,
-             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
-             * from the referencing Route, the Route MUST be considered successfully
-             * attached. If no Gateway listeners accept attachment from this Route,
-             * the Route MUST be considered detached from the Gateway.
-             *
-             * Support: Extended
-             */
-            port?: pulumi.Input<number>;
-            /**
-             * SectionName is the name of a section within the target resource. In the
-             * following resources, SectionName is interpreted as the following:
-             *
-             * * Gateway: Listener name. When both Port (experimental) and SectionName
-             * are specified, the name and port of the selected listener must match
-             * both specified values.
-             * * Service: Port name. When both Port (experimental) and SectionName
-             * are specified, the name and port of the selected listener must match
-             * both specified values.
-             *
-             * Implementations MAY choose to support attaching Routes to other resources.
-             * If that is the case, they MUST clearly document how SectionName is
-             * interpreted.
-             *
-             * When unspecified (empty string), this will reference the entire resource.
-             * For the purpose of status, an attachment is considered successful if at
-             * least one section in the parent resource accepts it. For example, Gateway
-             * listeners can restrict which Routes can attach to them by Route kind,
-             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
-             * the referencing Route, the Route MUST be considered successfully
-             * attached. If no Gateway listeners accept attachment from this Route, the
-             * Route MUST be considered detached from the Gateway.
-             *
-             * Support: Core
-             */
-            sectionName?: pulumi.Input<string>;
-        }
-
-    }
-
-    export namespace v1alpha1 {
-        /**
-         * XBackendTrafficPolicy defines the configuration for how traffic to a
-         * target backend should be handled.
-         */
-        export interface XBackendTrafficPolicy {
-            /**
-             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-             */
-            apiVersion?: pulumi.Input<"gateway.networking.x-k8s.io/v1alpha1">;
-            /**
-             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-             */
-            kind?: pulumi.Input<"XBackendTrafficPolicy">;
-            /**
-             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-             */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicyStatus>;
-        }
-
-        /**
-         * Spec defines the desired state of BackendTrafficPolicy.
-         */
-        export interface XBackendTrafficPolicySpec {
-            retryConstraint?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecRetryConstraint>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecSessionPersistence>;
-            /**
-             * TargetRefs identifies API object(s) to apply this policy to.
-             * Currently, Backends (A grouping of like endpoints such as Service,
-             * ServiceImport, or any implementation-specific backendRef) are the only
-             * valid API target references.
-             *
-             * Currently, a TargetRef can not be scoped to a specific port on a
-             * Service.
-             */
-            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecTargetRefs>[]>;
-        }
-
-        /**
-         * Spec defines the desired state of BackendTrafficPolicy.
-         */
-        export interface XBackendTrafficPolicySpecPatch {
-            retryConstraint?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecRetryConstraintPatch>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecSessionPersistencePatch>;
-            /**
-             * TargetRefs identifies API object(s) to apply this policy to.
-             * Currently, Backends (A grouping of like endpoints such as Service,
-             * ServiceImport, or any implementation-specific backendRef) are the only
-             * valid API target references.
-             *
-             * Currently, a TargetRef can not be scoped to a specific port on a
-             * Service.
-             */
-            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecTargetRefsPatch>[]>;
-        }
-
-        /**
-         * RetryConstraint defines the configuration for when to allow or prevent
-         * further retries to a target backend, by dynamically calculating a 'retry
-         * budget'. This budget is calculated based on the percentage of incoming
-         * traffic composed of retries over a given time interval. Once the budget
-         * is exceeded, additional retries will be rejected.
-         *
-         * For example, if the retry budget interval is 10 seconds, there have been
-         * 1000 active requests in the past 10 seconds, and the allowed percentage
-         * of requests that can be retried is 20% (the default), then 200 of those
-         * requests may be composed of retries. Active requests will only be
-         * considered for the duration of the interval when calculating the retry
-         * budget. Retrying the same original request multiple times within the
-         * retry budget interval will lead to each retry being counted towards
-         * calculating the budget.
-         *
-         * Configuring a RetryConstraint in BackendTrafficPolicy is compatible with
-         * HTTPRoute Retry settings for each HTTPRouteRule that targets the same
-         * backend. While the HTTPRouteRule Retry stanza can specify whether a
-         * request will be retried, and the number of retry attempts each client
-         * may perform, RetryConstraint helps prevent cascading failures such as
-         * retry storms during periods of consistent failures.
-         *
-         * After the retry budget has been exceeded, additional retries to the
-         * backend MUST return a 503 response to the client.
-         *
-         * Additional configurations for defining a constraint on retries MAY be
-         * defined in the future.
-         *
-         * Support: Extended
-         */
-        export interface XBackendTrafficPolicySpecRetryConstraint {
-            budget?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecRetryConstraintBudget>;
-            minRetryRate?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecRetryConstraintMinRetryRate>;
-        }
-
-        /**
-         * Budget holds the details of the retry budget configuration.
-         */
-        export interface XBackendTrafficPolicySpecRetryConstraintBudget {
-            /**
-             * Interval defines the duration in which requests will be considered
-             * for calculating the budget for retries.
-             *
-             * Support: Extended
-             */
-            interval?: pulumi.Input<string>;
-            /**
-             * Percent defines the maximum percentage of active requests that may
-             * be made up of retries.
-             *
-             * Support: Extended
-             */
-            percent?: pulumi.Input<number>;
-        }
-
-        /**
-         * Budget holds the details of the retry budget configuration.
-         */
-        export interface XBackendTrafficPolicySpecRetryConstraintBudgetPatch {
-            /**
-             * Interval defines the duration in which requests will be considered
-             * for calculating the budget for retries.
-             *
-             * Support: Extended
-             */
-            interval?: pulumi.Input<string>;
-            /**
-             * Percent defines the maximum percentage of active requests that may
-             * be made up of retries.
-             *
-             * Support: Extended
-             */
-            percent?: pulumi.Input<number>;
-        }
-
-        /**
-         * MinRetryRate defines the minimum rate of retries that will be allowable
-         * over a specified duration of time.
-         *
-         * The effective overall minimum rate of retries targeting the backend
-         * service may be much higher, as there can be any number of clients which
-         * are applying this setting locally.
-         *
-         * This ensures that requests can still be retried during periods of low
-         * traffic, where the budget for retries may be calculated as a very low
-         * value.
-         *
-         * Support: Extended
-         */
-        export interface XBackendTrafficPolicySpecRetryConstraintMinRetryRate {
-            /**
-             * Count specifies the number of requests per time interval.
-             *
-             * Support: Extended
-             */
-            count?: pulumi.Input<number>;
-            /**
-             * Interval specifies the divisor of the rate of requests, the amount of
-             * time during which the given count of requests occur.
-             *
-             * Support: Extended
-             */
-            interval?: pulumi.Input<string>;
-        }
-
-        /**
-         * MinRetryRate defines the minimum rate of retries that will be allowable
-         * over a specified duration of time.
-         *
-         * The effective overall minimum rate of retries targeting the backend
-         * service may be much higher, as there can be any number of clients which
-         * are applying this setting locally.
-         *
-         * This ensures that requests can still be retried during periods of low
-         * traffic, where the budget for retries may be calculated as a very low
-         * value.
-         *
-         * Support: Extended
-         */
-        export interface XBackendTrafficPolicySpecRetryConstraintMinRetryRatePatch {
-            /**
-             * Count specifies the number of requests per time interval.
-             *
-             * Support: Extended
-             */
-            count?: pulumi.Input<number>;
-            /**
-             * Interval specifies the divisor of the rate of requests, the amount of
-             * time during which the given count of requests occur.
-             *
-             * Support: Extended
-             */
-            interval?: pulumi.Input<string>;
-        }
-
-        /**
-         * RetryConstraint defines the configuration for when to allow or prevent
-         * further retries to a target backend, by dynamically calculating a 'retry
-         * budget'. This budget is calculated based on the percentage of incoming
-         * traffic composed of retries over a given time interval. Once the budget
-         * is exceeded, additional retries will be rejected.
-         *
-         * For example, if the retry budget interval is 10 seconds, there have been
-         * 1000 active requests in the past 10 seconds, and the allowed percentage
-         * of requests that can be retried is 20% (the default), then 200 of those
-         * requests may be composed of retries. Active requests will only be
-         * considered for the duration of the interval when calculating the retry
-         * budget. Retrying the same original request multiple times within the
-         * retry budget interval will lead to each retry being counted towards
-         * calculating the budget.
-         *
-         * Configuring a RetryConstraint in BackendTrafficPolicy is compatible with
-         * HTTPRoute Retry settings for each HTTPRouteRule that targets the same
-         * backend. While the HTTPRouteRule Retry stanza can specify whether a
-         * request will be retried, and the number of retry attempts each client
-         * may perform, RetryConstraint helps prevent cascading failures such as
-         * retry storms during periods of consistent failures.
-         *
-         * After the retry budget has been exceeded, additional retries to the
-         * backend MUST return a 503 response to the client.
-         *
-         * Additional configurations for defining a constraint on retries MAY be
-         * defined in the future.
-         *
-         * Support: Extended
-         */
-        export interface XBackendTrafficPolicySpecRetryConstraintPatch {
-            budget?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecRetryConstraintBudgetPatch>;
-            minRetryRate?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecRetryConstraintMinRetryRatePatch>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the backend.
-         *
-         * Support: Extended
-         */
-        export interface XBackendTrafficPolicySpecSessionPersistence {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecSessionPersistenceCookieConfig>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface XBackendTrafficPolicySpecSessionPersistenceCookieConfig {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface XBackendTrafficPolicySpecSessionPersistenceCookieConfigPatch {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the backend.
-         *
-         * Support: Extended
-         */
-        export interface XBackendTrafficPolicySpecSessionPersistencePatch {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicySpecSessionPersistenceCookieConfigPatch>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
-        }
-
-        /**
-         * LocalPolicyTargetReference identifies an API object to apply a direct or
-         * inherited policy to. This should be used as part of Policy resources
-         * that can target Gateway API resources. For more information on how this
-         * policy attachment model works, and a sample Policy resource, refer to
-         * the policy attachment documentation for Gateway API.
-         */
-        export interface XBackendTrafficPolicySpecTargetRefs {
-            /**
-             * Group is the group of the target resource.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the target resource.
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the target resource.
-             */
-            name?: pulumi.Input<string>;
-        }
-
-        /**
-         * LocalPolicyTargetReference identifies an API object to apply a direct or
-         * inherited policy to. This should be used as part of Policy resources
-         * that can target Gateway API resources. For more information on how this
-         * policy attachment model works, and a sample Policy resource, refer to
-         * the policy attachment documentation for Gateway API.
-         */
-        export interface XBackendTrafficPolicySpecTargetRefsPatch {
-            /**
-             * Group is the group of the target resource.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the target resource.
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the target resource.
-             */
-            name?: pulumi.Input<string>;
-        }
-
-        /**
-         * Status defines the current state of BackendTrafficPolicy.
-         */
-        export interface XBackendTrafficPolicyStatus {
-            /**
-             * Ancestors is a list of ancestor resources (usually Gateways) that are
-             * associated with the policy, and the status of the policy with respect to
-             * each ancestor. When this policy attaches to a parent, the controller that
-             * manages the parent and the ancestors MUST add an entry to this list when
-             * the controller first sees the policy and SHOULD update the entry as
-             * appropriate when the relevant ancestor is modified.
-             *
-             * Note that choosing the relevant ancestor is left to the Policy designers;
-             * an important part of Policy design is designing the right object level at
-             * which to namespace this status.
-             *
-             * Note also that implementations MUST ONLY populate ancestor status for
-             * the Ancestor resources they are responsible for. Implementations MUST
-             * use the ControllerName field to uniquely identify the entries in this list
-             * that they are responsible for.
-             *
-             * Note that to achieve this, the list of PolicyAncestorStatus structs
-             * MUST be treated as a map with a composite key, made up of the AncestorRef
-             * and ControllerName fields combined.
-             *
-             * A maximum of 16 ancestors will be represented in this list. An empty list
-             * means the Policy is not relevant for any ancestors.
-             *
-             * If this slice is full, implementations MUST NOT add further entries.
-             * Instead they MUST consider the policy unimplementable and signal that
-             * on any related resources such as the ancestor that would be referenced
-             * here. For example, if this list was full on BackendTLSPolicy, no
-             * additional Gateways would be able to reference the Service targeted by
-             * the BackendTLSPolicy.
-             */
-            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicyStatusAncestors>[]>;
-        }
-
-        /**
-         * PolicyAncestorStatus describes the status of a route with respect to an
-         * associated Ancestor.
-         *
-         * Ancestors refer to objects that are either the Target of a policy or above it
-         * in terms of object hierarchy. For example, if a policy targets a Service, the
-         * Policy's Ancestors are, in order, the Service, the HTTPRoute, the Gateway, and
-         * the GatewayClass. Almost always, in this hierarchy, the Gateway will be the most
-         * useful object to place Policy status on, so we recommend that implementations
-         * SHOULD use Gateway as the PolicyAncestorStatus object unless the designers
-         * have a _very_ good reason otherwise.
-         *
-         * In the context of policy attachment, the Ancestor is used to distinguish which
-         * resource results in a distinct application of this policy. For example, if a policy
-         * targets a Service, it may have a distinct result per attached Gateway.
-         *
-         * Policies targeting the same resource may have different effects depending on the
-         * ancestors of those resources. For example, different Gateways targeting the same
-         * Service may have different capabilities, especially if they have different underlying
-         * implementations.
-         *
-         * For example, in BackendTLSPolicy, the Policy attaches to a Service that is
-         * used as a backend in a HTTPRoute that is itself attached to a Gateway.
-         * In this case, the relevant object for status is the Gateway, and that is the
-         * ancestor object referred to in this status.
-         *
-         * Note that a parent is also an ancestor, so for objects where the parent is the
-         * relevant object for status, this struct SHOULD still be used.
-         *
-         * This struct is intended to be used in a slice that's effectively a map,
-         * with a composite key made up of the AncestorRef and the ControllerName.
-         */
-        export interface XBackendTrafficPolicyStatusAncestors {
-            ancestorRef?: pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicyStatusAncestorsAncestorRef>;
-            /**
-             * Conditions describes the status of the Policy with respect to the given Ancestor.
-             */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XBackendTrafficPolicyStatusAncestorsConditions>[]>;
-            /**
-             * ControllerName is a domain/path string that indicates the name of the
-             * controller that wrote this status. This corresponds with the
-             * controllerName field on GatewayClass.
-             *
-             * Example: "example.net/gateway-controller".
-             *
-             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
-             * valid Kubernetes names
-             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
-             *
-             * Controllers MUST populate this field when writing status. Controllers should ensure that
-             * entries to status populated with their ControllerName are cleaned up when they are no
-             * longer necessary.
-             */
-            controllerName?: pulumi.Input<string>;
-        }
-
-        /**
-         * AncestorRef corresponds with a ParentRef in the spec that this
-         * PolicyAncestorStatus struct describes the status of.
-         */
-        export interface XBackendTrafficPolicyStatusAncestorsAncestorRef {
-            /**
-             * Group is the group of the referent.
-             * When unspecified, "gateway.networking.k8s.io" is inferred.
-             * To set the core API group (such as for a "Service" kind referent),
-             * Group must be explicitly set to "" (empty string).
-             *
-             * Support: Core
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent.
-             *
-             * There are two kinds of parent resources with "Core" support:
-             *
-             * * Gateway (Gateway conformance profile)
-             * * Service (Mesh conformance profile, ClusterIP Services only)
-             *
-             * Support for other resources is Implementation-Specific.
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             *
-             * Support: Core
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referent. When unspecified, this refers
-             * to the local namespace of the Route.
-             *
-             * Note that there are specific rules for ParentRefs which cross namespace
-             * boundaries. Cross-namespace references are only valid if they are explicitly
-             * allowed by something in the namespace they are referring to. For example:
-             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
-             * generic way to enable any other kind of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-            /**
-             * Port is the network port this Route targets. It can be interpreted
-             * differently based on the type of parent resource.
-             *
-             * When the parent resource is a Gateway, this targets all listeners
-             * listening on the specified port that also support this kind of Route(and
-             * select this Route). It's not recommended to set `Port` unless the
-             * networking behaviors specified in a Route must apply to a specific port
-             * as opposed to a listener(s) whose port(s) may be changed. When both Port
-             * and SectionName are specified, the name and port of the selected listener
-             * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -10936,68 +11022,56 @@ export namespace gateway {
         }
 
         /**
-         * Condition contains details for one aspect of the current state of this API Resource.
+         * ListenerSet defines a set of additional listeners to attach to an existing Gateway.
+         * This resource provides a mechanism to merge multiple listeners into a single Gateway.
+         *
+         * The parent Gateway must explicitly allow ListenerSet attachment through its
+         * AllowedListeners configuration. By default, Gateways do not allow ListenerSet
+         * attachment.
+         *
+         * Routes can attach to a ListenerSet by specifying it as a parentRef, and can
+         * optionally target specific listeners using the sectionName field.
+         *
+         * Policy Attachment:
+         * - Policies that attach to a ListenerSet apply to all listeners defined in that resource
+         * - Policies do not impact listeners in the parent Gateway
+         * - Different ListenerSets attached to the same Gateway can have different policies
+         * - If an implementation cannot apply a policy to specific listeners, it should reject the policy
+         *
+         * ReferenceGrant Semantics:
+         * - ReferenceGrants applied to a Gateway are not inherited by child ListenerSets
+         * - ReferenceGrants applied to a ListenerSet do not grant permission to the parent Gateway's listeners
+         * - A ListenerSet can reference secrets/backends in its own namespace without a ReferenceGrant
+         *
+         * Gateway Integration:
+         *   - The parent Gateway's status will include "AttachedListenerSets"
+         *     which is the count of ListenerSets that have successfully attached to a Gateway
+         *     A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+         *   - The ListenerSet is selected by the Gateway's AllowedListeners field
+         *   - The ListenerSet has a valid ParentRef selecting the Gateway
+         *   - The ListenerSet's status has the condition "Accepted: true"
          */
-        export interface XBackendTrafficPolicyStatusAncestorsConditions {
-            /**
-             * lastTransitionTime is the last time the condition transitioned from one status to another.
-             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-             */
-            lastTransitionTime?: pulumi.Input<string>;
-            /**
-             * message is a human readable message indicating details about the transition.
-             * This may be an empty string.
-             */
-            message?: pulumi.Input<string>;
-            /**
-             * observedGeneration represents the .metadata.generation that the condition was set based upon.
-             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-             * with respect to the current state of the instance.
-             */
-            observedGeneration?: pulumi.Input<number>;
-            /**
-             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-             * Producers of specific condition types may define expected values and meanings for this field,
-             * and whether the values are considered a guaranteed API.
-             * The value should be a CamelCase string.
-             * This field may not be empty.
-             */
-            reason?: pulumi.Input<string>;
-            /**
-             * status of the condition, one of True, False, Unknown.
-             */
-            status?: pulumi.Input<string>;
-            /**
-             * type of condition in CamelCase or in foo.example.com/CamelCase.
-             */
-            type?: pulumi.Input<string>;
-        }
-
-        /**
-         * XListenerSet defines a set of additional listeners
-         * to attach to an existing Gateway.
-         */
-        export interface XListenerSet {
+        export interface ListenerSet {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.x-k8s.io/v1alpha1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"XListenerSet">;
+            kind?: pulumi.Input<"ListenerSet">;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
             metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetStatus>;
+            spec?: pulumi.Input<inputs.gateway.v1.ListenerSetSpec>;
+            status?: pulumi.Input<inputs.gateway.v1.ListenerSetStatus>;
         }
 
         /**
          * Spec defines the desired state of ListenerSet.
          */
-        export interface XListenerSetSpec {
+        export interface ListenerSetSpec {
             /**
              * Listeners associated with this ListenerSet. Listeners define
              * logical endpoints that are bound on this referenced parent Gateway's addresses.
@@ -11013,10 +11087,10 @@ export namespace gateway {
              *
              * 1. "parent" Gateway
              * 2. ListenerSet ordered by creation time (oldest first)
-             * 3. ListenerSet ordered alphabetically by “{namespace}/{name}”.
+             * 3. ListenerSet ordered alphabetically by "{namespace}/{name}".
              *
              * An implementation MAY reject listeners by setting the ListenerEntryStatus
-             * `Accepted`` condition to False with the Reason `TooManyListeners`
+             * `Accepted` condition to False with the Reason `TooManyListeners`
              *
              * If a listener has a conflict, this will be reported in the
              * Status.ListenerEntryStatus setting the `Conflicted` condition to True.
@@ -11026,12 +11100,12 @@ export namespace gateway {
              * sensitive information that the child would not otherwise have access
              * to. This can include contents of secrets etc.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListeners>[]>;
-            parentRef?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecParentRef>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListeners>[]>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecParentRef>;
         }
 
-        export interface XListenerSetSpecListeners {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutes>;
+        export interface ListenerSetSpecListeners {
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutes>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -11077,7 +11151,7 @@ export namespace gateway {
              * Protocol specifies the network protocol this listener expects to receive.
              */
             protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTls>;
+            tls?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTls>;
         }
 
         /**
@@ -11104,7 +11178,7 @@ export namespace gateway {
          * example, even if a filter specified by a Route rule is invalid, the rest
          * of the rules within that Route should still be supported.
          */
-        export interface XListenerSetSpecListenersAllowedRoutes {
+        export interface ListenerSetSpecListenersAllowedRoutes {
             /**
              * Kinds specifies the groups and kinds of Routes that are allowed to bind
              * to this Gateway Listener. When unspecified or empty, the kinds of Routes
@@ -11118,14 +11192,14 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesKinds>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespaces>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKinds>[]>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespaces>;
         }
 
         /**
          * RouteGroupKind indicates the group and kind of a Route resource.
          */
-        export interface XListenerSetSpecListenersAllowedRoutesKinds {
+        export interface ListenerSetSpecListenersAllowedRoutesKinds {
             /**
              * Group is the group of the Route.
              */
@@ -11139,7 +11213,7 @@ export namespace gateway {
         /**
          * RouteGroupKind indicates the group and kind of a Route resource.
          */
-        export interface XListenerSetSpecListenersAllowedRoutesKindsPatch {
+        export interface ListenerSetSpecListenersAllowedRoutesKindsPatch {
             /**
              * Group is the group of the Route.
              */
@@ -11156,7 +11230,7 @@ export namespace gateway {
          *
          * Support: Core
          */
-        export interface XListenerSetSpecListenersAllowedRoutesNamespaces {
+        export interface ListenerSetSpecListenersAllowedRoutesNamespaces {
             /**
              * From indicates where Routes will be selected for this Gateway. Possible
              * values are:
@@ -11169,7 +11243,7 @@ export namespace gateway {
              * Support: Core
              */
             from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelector>;
+            selector?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelector>;
         }
 
         /**
@@ -11178,7 +11252,7 @@ export namespace gateway {
          *
          * Support: Core
          */
-        export interface XListenerSetSpecListenersAllowedRoutesNamespacesPatch {
+        export interface ListenerSetSpecListenersAllowedRoutesNamespacesPatch {
             /**
              * From indicates where Routes will be selected for this Gateway. Possible
              * values are:
@@ -11191,7 +11265,7 @@ export namespace gateway {
              * Support: Core
              */
             from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch>;
+            selector?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch>;
         }
 
         /**
@@ -11201,11 +11275,11 @@ export namespace gateway {
          *
          * Support: Core
          */
-        export interface XListenerSetSpecListenersAllowedRoutesNamespacesSelector {
+        export interface ListenerSetSpecListenersAllowedRoutesNamespacesSelector {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[]>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
@@ -11218,7 +11292,7 @@ export namespace gateway {
          * A label selector requirement is a selector that contains values, a key, and an operator that
          * relates the key and values.
          */
-        export interface XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions {
+        export interface ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions {
             /**
              * key is the label key that the selector applies to.
              */
@@ -11241,7 +11315,7 @@ export namespace gateway {
          * A label selector requirement is a selector that contains values, a key, and an operator that
          * relates the key and values.
          */
-        export interface XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch {
+        export interface ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch {
             /**
              * key is the label key that the selector applies to.
              */
@@ -11267,11 +11341,11 @@ export namespace gateway {
          *
          * Support: Core
          */
-        export interface XListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch {
+        export interface ListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[]>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
@@ -11304,7 +11378,7 @@ export namespace gateway {
          * example, even if a filter specified by a Route rule is invalid, the rest
          * of the rules within that Route should still be supported.
          */
-        export interface XListenerSetSpecListenersAllowedRoutesPatch {
+        export interface ListenerSetSpecListenersAllowedRoutesPatch {
             /**
              * Kinds specifies the groups and kinds of Routes that are allowed to bind
              * to this Gateway Listener. When unspecified or empty, the kinds of Routes
@@ -11318,12 +11392,12 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesKindsPatch>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesNamespacesPatch>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKindsPatch>[]>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesPatch>;
         }
 
-        export interface XListenerSetSpecListenersPatch {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersAllowedRoutesPatch>;
+        export interface ListenerSetSpecListenersPatch {
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesPatch>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -11369,7 +11443,7 @@ export namespace gateway {
              * Protocol specifies the network protocol this listener expects to receive.
              */
             protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsPatch>;
+            tls?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsPatch>;
         }
 
         /**
@@ -11377,13 +11451,13 @@ export namespace gateway {
          * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
          * if the Protocol field is "HTTP", "TCP", or "UDP".
          *
-         * The association of SNIs to Certificate defined in GatewayTLSConfig is
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
          * defined based on the Hostname field for this listener.
          *
          * The GatewayClass MUST use the longest matching SNI out of all
          * available certificates for any TLS handshake.
          */
-        export interface XListenerSetSpecListenersTls {
+        export interface ListenerSetSpecListenersTls {
             /**
              * CertificateRefs contains a series of references to Kubernetes objects that
              * contains TLS certificates and private keys. These certificates are used to
@@ -11410,8 +11484,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsCertificateRefs>[]>;
-            frontendValidation?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsFrontendValidation>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefs>[]>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -11454,7 +11527,7 @@ export namespace gateway {
          * be rejected by the implementation, with appropriate Conditions set
          * on the containing object.
          */
-        export interface XListenerSetSpecListenersTlsCertificateRefs {
+        export interface ListenerSetSpecListenersTlsCertificateRefs {
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
@@ -11493,7 +11566,7 @@ export namespace gateway {
          * be rejected by the implementation, with appropriate Conditions set
          * on the containing object.
          */
-        export interface XListenerSetSpecListenersTlsCertificateRefsPatch {
+        export interface ListenerSetSpecListenersTlsCertificateRefsPatch {
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
@@ -11522,165 +11595,17 @@ export namespace gateway {
         }
 
         /**
-         * FrontendValidation holds configuration information for validating the frontend (client).
-         * Setting this field will require clients to send a client certificate
-         * required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-         * that requests a user to specify the client certificate.
-         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
-         *
-         * Support: Extended
-         */
-        export interface XListenerSetSpecListenersTlsFrontendValidation {
-            /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
-             *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
-             *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
-             *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsFrontendValidationCaCertificateRefs>[]>;
-        }
-
-        /**
-         * ObjectReference identifies an API object including its namespace.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        export interface XListenerSetSpecListenersTlsFrontendValidationCaCertificateRefs {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When set to the empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "ConfigMap" or "Service".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * ObjectReference identifies an API object including its namespace.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        export interface XListenerSetSpecListenersTlsFrontendValidationCaCertificateRefsPatch {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When set to the empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "ConfigMap" or "Service".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * FrontendValidation holds configuration information for validating the frontend (client).
-         * Setting this field will require clients to send a client certificate
-         * required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-         * that requests a user to specify the client certificate.
-         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
-         *
-         * Support: Extended
-         */
-        export interface XListenerSetSpecListenersTlsFrontendValidationPatch {
-            /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
-             *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
-             *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
-             *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsFrontendValidationCaCertificateRefsPatch>[]>;
-        }
-
-        /**
          * TLS is the TLS configuration for the Listener. This field is required if
          * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
          * if the Protocol field is "HTTP", "TCP", or "UDP".
          *
-         * The association of SNIs to Certificate defined in GatewayTLSConfig is
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
          * defined based on the Hostname field for this listener.
          *
          * The GatewayClass MUST use the longest matching SNI out of all
          * available certificates for any TLS handshake.
          */
-        export interface XListenerSetSpecListenersTlsPatch {
+        export interface ListenerSetSpecListenersTlsPatch {
             /**
              * CertificateRefs contains a series of references to Kubernetes objects that
              * contains TLS certificates and private keys. These certificates are used to
@@ -11707,8 +11632,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsCertificateRefsPatch>[]>;
-            frontendValidation?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersTlsFrontendValidationPatch>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefsPatch>[]>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -11743,7 +11667,7 @@ export namespace gateway {
         /**
          * ParentRef references the Gateway that the listeners are attached to.
          */
-        export interface XListenerSetSpecParentRef {
+        export interface ListenerSetSpecParentRef {
             /**
              * Group is the group of the referent.
              */
@@ -11767,7 +11691,7 @@ export namespace gateway {
         /**
          * ParentRef references the Gateway that the listeners are attached to.
          */
-        export interface XListenerSetSpecParentRefPatch {
+        export interface ListenerSetSpecParentRefPatch {
             /**
              * Group is the group of the referent.
              */
@@ -11791,7 +11715,7 @@ export namespace gateway {
         /**
          * Spec defines the desired state of ListenerSet.
          */
-        export interface XListenerSetSpecPatch {
+        export interface ListenerSetSpecPatch {
             /**
              * Listeners associated with this ListenerSet. Listeners define
              * logical endpoints that are bound on this referenced parent Gateway's addresses.
@@ -11807,10 +11731,10 @@ export namespace gateway {
              *
              * 1. "parent" Gateway
              * 2. ListenerSet ordered by creation time (oldest first)
-             * 3. ListenerSet ordered alphabetically by “{namespace}/{name}”.
+             * 3. ListenerSet ordered alphabetically by "{namespace}/{name}".
              *
              * An implementation MAY reject listeners by setting the ListenerEntryStatus
-             * `Accepted`` condition to False with the Reason `TooManyListeners`
+             * `Accepted` condition to False with the Reason `TooManyListeners`
              *
              * If a listener has a conflict, this will be reported in the
              * Status.ListenerEntryStatus setting the `Conflicted` condition to True.
@@ -11820,14 +11744,14 @@ export namespace gateway {
              * sensitive information that the child would not otherwise have access
              * to. This can include contents of secrets etc.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecListenersPatch>[]>;
-            parentRef?: pulumi.Input<inputs.gateway.v1alpha1.XListenerSetSpecParentRefPatch>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersPatch>[]>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecParentRefPatch>;
         }
 
         /**
          * Status defines the current state of ListenerSet.
          */
-        export interface XListenerSetStatus {
+        export interface ListenerSetStatus {
             /**
              * Conditions describe the current conditions of the ListenerSet.
              *
@@ -11841,17 +11765,17 @@ export namespace gateway {
              * * "Accepted"
              * * "Programmed"
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetStatusConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusConditions>[]>;
             /**
              * Listeners provide status for each unique listener port defined in the Spec.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetStatusListeners>[]>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListeners>[]>;
         }
 
         /**
          * Condition contains details for one aspect of the current state of this API Resource.
          */
-        export interface XListenerSetStatusConditions {
+        export interface ListenerSetStatusConditions {
             /**
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -11889,7 +11813,7 @@ export namespace gateway {
         /**
          * ListenerStatus is the status associated with a Listener.
          */
-        export interface XListenerSetStatusListeners {
+        export interface ListenerSetStatusListeners {
             /**
              * AttachedRoutes represents the total number of Routes that have been
              * successfully attached to this Listener.
@@ -11901,10 +11825,13 @@ export namespace gateway {
              * AND the Route has a valid ParentRef selecting the whole Gateway
              * resource or a specific Listener as a parent resource (more detail on
              * attachment semantics can be found in the documentation on the various
-             * Route kinds ParentRefs fields). Listener or Route status does not impact
+             * Route kinds ParentRefs fields). Listener status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -11913,18 +11840,14 @@ export namespace gateway {
             /**
              * Conditions describe the current condition of this listener.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetStatusListenersConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListenersConditions>[]>;
             /**
              * Name is the name of the Listener that this status corresponds to.
              */
             name?: pulumi.Input<string>;
             /**
-             * Port is the network port the listener is configured to listen on.
-             */
-            port?: pulumi.Input<number>;
-            /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -11933,13 +11856,13 @@ export namespace gateway {
              * and invalid Route kinds are specified, the implementation MUST
              * reference the valid Route kinds that have been specified.
              */
-            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha1.XListenerSetStatusListenersSupportedKinds>[]>;
+            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListenersSupportedKinds>[]>;
         }
 
         /**
          * Condition contains details for one aspect of the current state of this API Resource.
          */
-        export interface XListenerSetStatusListenersConditions {
+        export interface ListenerSetStatusListenersConditions {
             /**
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -11977,7 +11900,7 @@ export namespace gateway {
         /**
          * RouteGroupKind indicates the group and kind of a Route resource.
          */
-        export interface XListenerSetStatusListenersSupportedKinds {
+        export interface ListenerSetStatusListenersSupportedKinds {
             /**
              * Group is the group of the Route.
              */
@@ -11988,9 +11911,220 @@ export namespace gateway {
             kind?: pulumi.Input<string>;
         }
 
-    }
+        /**
+         * ReferenceGrant identifies kinds of resources in other namespaces that are
+         * trusted to reference the specified kinds of resources in the same namespace
+         * as the policy.
+         *
+         * Each ReferenceGrant can be used to represent a unique trust relationship.
+         * Additional Reference Grants can be used to add to the set of trusted
+         * sources of inbound references for the namespace they are defined within.
+         *
+         * All cross-namespace references in Gateway API (with the exception of cross-namespace
+         * Gateway-route attachment) require a ReferenceGrant.
+         *
+         * ReferenceGrant is a form of runtime verification allowing users to assert
+         * which cross-namespace object references are permitted. Implementations that
+         * support ReferenceGrant MUST NOT permit cross-namespace references which have
+         * no grant, and MUST respond to the removal of a grant by revoking the access
+         * that the grant allowed.
+         */
+        export interface ReferenceGrant {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: pulumi.Input<"ReferenceGrant">;
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+            spec?: pulumi.Input<inputs.gateway.v1.ReferenceGrantSpec>;
+        }
 
-    export namespace v1alpha2 {
+        /**
+         * Spec defines the desired state of ReferenceGrant.
+         */
+        export interface ReferenceGrantSpec {
+            /**
+             * From describes the trusted namespaces and kinds that can reference the
+             * resources described in "To". Each entry in this list MUST be considered
+             * to be an additional place that references can be valid from, or to put
+             * this another way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecFrom>[]>;
+            /**
+             * To describes the resources that may be referenced by the resources
+             * described in "From". Each entry in this list MUST be considered to be an
+             * additional place that references can be valid to, or to put this another
+             * way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecTo>[]>;
+        }
+
+        /**
+         * ReferenceGrantFrom describes trusted namespaces and kinds.
+         */
+        export interface ReferenceGrantSpecFrom {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field.
+             *
+             * When used to permit a SecretObjectReference:
+             *
+             * * Gateway
+             *
+             * When used to permit a BackendObjectReference:
+             *
+             * * GRPCRoute
+             * * HTTPRoute
+             * * TCPRoute
+             * * TLSRoute
+             * * UDPRoute
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ReferenceGrantFrom describes trusted namespaces and kinds.
+         */
+        export interface ReferenceGrantSpecFromPatch {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field.
+             *
+             * When used to permit a SecretObjectReference:
+             *
+             * * Gateway
+             *
+             * When used to permit a BackendObjectReference:
+             *
+             * * GRPCRoute
+             * * HTTPRoute
+             * * TCPRoute
+             * * TLSRoute
+             * * UDPRoute
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Spec defines the desired state of ReferenceGrant.
+         */
+        export interface ReferenceGrantSpecPatch {
+            /**
+             * From describes the trusted namespaces and kinds that can reference the
+             * resources described in "To". Each entry in this list MUST be considered
+             * to be an additional place that references can be valid from, or to put
+             * this another way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecFromPatch>[]>;
+            /**
+             * To describes the resources that may be referenced by the resources
+             * described in "From". Each entry in this list MUST be considered to be an
+             * additional place that references can be valid to, or to put this another
+             * way, entries MUST be combined using OR.
+             *
+             * Support: Core
+             */
+            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecToPatch>[]>;
+        }
+
+        /**
+         * ReferenceGrantTo describes what Kinds are allowed as targets of the
+         * references.
+         */
+        export interface ReferenceGrantSpecTo {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field:
+             *
+             * * Secret when used to permit a SecretObjectReference
+             * * Service when used to permit a BackendObjectReference
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent. When unspecified, this policy
+             * refers to all resources of the specified Group and Kind in the local
+             * namespace.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * ReferenceGrantTo describes what Kinds are allowed as targets of the
+         * references.
+         */
+        export interface ReferenceGrantSpecToPatch {
+            /**
+             * Group is the group of the referent.
+             * When empty, the Kubernetes core API group is inferred.
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the kind of the referent. Although implementations may support
+             * additional resources, the following types are part of the "Core"
+             * support level for this field:
+             *
+             * * Secret when used to permit a SecretObjectReference
+             * * Service when used to permit a BackendObjectReference
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent. When unspecified, this policy
+             * refers to all resources of the specified Group and Kind in the local
+             * namespace.
+             */
+            name?: pulumi.Input<string>;
+        }
+
         /**
          * TCPRoute provides a way to route TCP requests. When combined with a Gateway
          * listener, it can be used to forward connections on the port specified by the
@@ -12000,7 +12134,7 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
@@ -12009,8 +12143,8 @@ export namespace gateway {
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
             metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatus>;
+            spec?: pulumi.Input<inputs.gateway.v1.TCPRouteSpec>;
+            status?: pulumi.Input<inputs.gateway.v1.TCPRouteStatus>;
         }
 
         /**
@@ -12068,23 +12202,12 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecParentRefs>[]>;
             /**
              * Rules are a list of TCP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRules>[]>;
         }
 
         /**
@@ -12138,18 +12261,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -12164,12 +12275,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -12266,18 +12371,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -12292,12 +12385,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -12398,23 +12485,12 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecParentRefsPatch>[]>;
             /**
              * Rules are a list of TCP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesPatch>[]>;
         }
 
         /**
@@ -12430,18 +12506,10 @@ export namespace gateway {
              * connections, then 80% of connections must be rejected instead.
              *
              * Support: Core for Kubernetes Service
-             *
-             * Support: Extended for Kubernetes ServiceImport
-             *
-             * Support: Implementation-specific for any other resource
-             *
-             * Support for weight: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesBackendRefs>[]>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name?: pulumi.Input<string>;
         }
@@ -12454,22 +12522,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
-         *
          *
          * Note that when the BackendTLSPolicy object is enabled by the implementation,
          * there are some extra rules about validity to consider here. See the fields
@@ -12548,22 +12600,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
-         *
          *
          * Note that when the BackendTLSPolicy object is enabled by the implementation,
          * there are some extra rules about validity to consider here. See the fields
@@ -12647,18 +12683,2381 @@ export namespace gateway {
              * connections, then 80% of connections must be rejected instead.
              *
              * Support: Core for Kubernetes Service
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesBackendRefsPatch>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * Status defines the current state of TCPRoute.
+         */
+        export interface TCPRouteStatus {
+            /**
+             * Parents is a list of parent resources (usually Gateways) that are
+             * associated with the route, and the status of the route with respect to
+             * each parent. When this route attaches to a parent, the controller that
+             * manages the parent must add an entry to this list when the controller
+             * first sees the route and should update the entry as appropriate when the
+             * route or gateway is modified.
+             *
+             * Note that parent references that cannot be resolved by an implementation
+             * of this API will not be added to this list. Implementations of this API
+             * can only populate Route status for the Gateways/parent resources they are
+             * responsible for.
+             *
+             * A maximum of 32 Gateways will be represented in this list. An empty list
+             * means the route has not been attached to any Gateway.
+             */
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteStatusParents>[]>;
+        }
+
+        /**
+         * RouteParentStatus describes the status of a route with respect to an
+         * associated Parent.
+         */
+        export interface TCPRouteStatusParents {
+            /**
+             * Conditions describes the status of the route with respect to the Gateway.
+             * Note that the route's availability is also subject to the Gateway's own
+             * status conditions and listener status.
+             *
+             * If the Route's ParentRef specifies an existing Gateway that supports
+             * Routes of this kind AND that Gateway's controller has sufficient access,
+             * then that Gateway's controller MUST set the "Accepted" condition on the
+             * Route, to indicate whether the route has been accepted or rejected by the
+             * Gateway, and why.
+             *
+             * A Route MUST be considered "Accepted" if at least one of the Route's
+             * rules is implemented by the Gateway.
+             *
+             * There are a number of cases where the "Accepted" condition may not be set
+             * due to lack of controller visibility, that includes when:
+             *
+             * * The Route refers to a nonexistent parent.
+             * * The Route is of a type that the controller does not support.
+             * * The Route is in a namespace to which the controller does not have access.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteStatusParentsConditions>[]>;
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName?: pulumi.Input<string>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.TCPRouteStatusParentsParentRef>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface TCPRouteStatusParentsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime?: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message?: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason?: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status?: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentRef corresponds with a ParentRef in the spec that this
+         * RouteParentStatus struct describes the status of.
+         */
+        export interface TCPRouteStatusParentsParentRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * The TLSRoute resource is similar to TCPRoute, but can be configured
+         * to match against TLS-specific metadata. This allows more flexibility
+         * in matching streams for a given TLS listener.
+         *
+         * If you need to forward traffic to a single target for a TLS listener, you
+         * could choose to use a TCPRoute with a TLS listener.
+         */
+        export interface TLSRoute {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: pulumi.Input<"TLSRoute">;
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+            spec?: pulumi.Input<inputs.gateway.v1.TLSRouteSpec>;
+            status?: pulumi.Input<inputs.gateway.v1.TLSRouteStatus>;
+        }
+
+        /**
+         * Spec defines the desired state of TLSRoute.
+         */
+        export interface TLSRouteSpec {
+            /**
+             * Hostnames defines a set of SNI hostnames that should match against the
+             * SNI attribute of TLS ClientHello message in TLS handshake. This matches
+             * the RFC 1123 definition of a hostname with 2 notable exceptions:
+             *
+             * 1. IPs are not allowed in SNI hostnames per RFC 6066.
+             * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+             *    label must appear by itself as the first label.
+             */
+            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecParentRefs>[]>;
+            /**
+             * Rules are a list of actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRules>[]>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface TLSRouteSpecParentRefs {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface TLSRouteSpecParentRefsPatch {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * Spec defines the desired state of TLSRoute.
+         */
+        export interface TLSRouteSpecPatch {
+            /**
+             * Hostnames defines a set of SNI hostnames that should match against the
+             * SNI attribute of TLS ClientHello message in TLS handshake. This matches
+             * the RFC 1123 definition of a hostname with 2 notable exceptions:
+             *
+             * 1. IPs are not allowed in SNI hostnames per RFC 6066.
+             * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+             *    label must appear by itself as the first label.
+             */
+            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecParentRefsPatch>[]>;
+            /**
+             * Rules are a list of actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesPatch>[]>;
+        }
+
+        /**
+         * TLSRouteRule is the configuration for a given rule.
+         */
+        export interface TLSRouteSpecRules {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or
+             * a Service with no endpoints), the rule performs no forwarding; if no
+             * filters are specified that would result in a response being sent, the
+             * underlying implementation must actively reject request attempts to this
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * When a TLSRoute is attached to a listener in Terminate mode, a BackendTLSPolicy
+             * can be used to enable re-encryption of the traffic to the backends.
+             *
+             * Support: Core for Kubernetes Service
              *
              * Support: Extended for Kubernetes ServiceImport
              *
              * Support: Implementation-specific for any other resource
              *
              * Support for weight: Extended
+             *
+             * Support for BackendTLSPolicy: Extended
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesBackendRefs>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface TLSRouteSpecRulesBackendRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface TLSRouteSpecRulesBackendRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * TLSRouteRule is the configuration for a given rule.
+         */
+        export interface TLSRouteSpecRulesPatch {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or
+             * a Service with no endpoints), the rule performs no forwarding; if no
+             * filters are specified that would result in a response being sent, the
+             * underlying implementation must actively reject request attempts to this
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * When a TLSRoute is attached to a listener in Terminate mode, a BackendTLSPolicy
+             * can be used to enable re-encryption of the traffic to the backends.
+             *
+             * Support: Core for Kubernetes Service
+             *
+             * Support: Extended for Kubernetes ServiceImport
+             *
+             * Support: Implementation-specific for any other resource
+             *
+             * Support for weight: Extended
+             *
+             * Support for BackendTLSPolicy: Extended
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesBackendRefsPatch>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * Status defines the current state of TLSRoute.
+         */
+        export interface TLSRouteStatus {
+            /**
+             * Parents is a list of parent resources (usually Gateways) that are
+             * associated with the route, and the status of the route with respect to
+             * each parent. When this route attaches to a parent, the controller that
+             * manages the parent must add an entry to this list when the controller
+             * first sees the route and should update the entry as appropriate when the
+             * route or gateway is modified.
+             *
+             * Note that parent references that cannot be resolved by an implementation
+             * of this API will not be added to this list. Implementations of this API
+             * can only populate Route status for the Gateways/parent resources they are
+             * responsible for.
+             *
+             * A maximum of 32 Gateways will be represented in this list. An empty list
+             * means the route has not been attached to any Gateway.
+             */
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteStatusParents>[]>;
+        }
+
+        /**
+         * RouteParentStatus describes the status of a route with respect to an
+         * associated Parent.
+         */
+        export interface TLSRouteStatusParents {
+            /**
+             * Conditions describes the status of the route with respect to the Gateway.
+             * Note that the route's availability is also subject to the Gateway's own
+             * status conditions and listener status.
+             *
+             * If the Route's ParentRef specifies an existing Gateway that supports
+             * Routes of this kind AND that Gateway's controller has sufficient access,
+             * then that Gateway's controller MUST set the "Accepted" condition on the
+             * Route, to indicate whether the route has been accepted or rejected by the
+             * Gateway, and why.
+             *
+             * A Route MUST be considered "Accepted" if at least one of the Route's
+             * rules is implemented by the Gateway.
+             *
+             * There are a number of cases where the "Accepted" condition may not be set
+             * due to lack of controller visibility, that includes when:
+             *
+             * * The Route refers to a nonexistent parent.
+             * * The Route is of a type that the controller does not support.
+             * * The Route is in a namespace to which the controller does not have access.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteStatusParentsConditions>[]>;
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName?: pulumi.Input<string>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.TLSRouteStatusParentsParentRef>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface TLSRouteStatusParentsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime?: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message?: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason?: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status?: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentRef corresponds with a ParentRef in the spec that this
+         * RouteParentStatus struct describes the status of.
+         */
+        export interface TLSRouteStatusParentsParentRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * UDPRoute provides a way to route UDP traffic. When combined with a Gateway
+         * listener, it can be used to forward traffic on the port specified by the
+         * listener to a set of backends specified by the UDPRoute.
+         */
+        export interface UDPRoute {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: pulumi.Input<"UDPRoute">;
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+            spec?: pulumi.Input<inputs.gateway.v1.UDPRouteSpec>;
+            status?: pulumi.Input<inputs.gateway.v1.UDPRouteStatus>;
+        }
+
+        /**
+         * Spec defines the desired state of UDPRoute.
+         */
+        export interface UDPRouteSpec {
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecParentRefs>[]>;
+            /**
+             * Rules are a list of UDP matchers and actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRules>[]>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface UDPRouteSpecParentRefs {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface UDPRouteSpecParentRefsPatch {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * Spec defines the desired state of UDPRoute.
+         */
+        export interface UDPRouteSpecPatch {
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecParentRefsPatch>[]>;
+            /**
+             * Rules are a list of UDP matchers and actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesPatch>[]>;
+        }
+
+        /**
+         * UDPRouteRule is the configuration for a given rule.
+         */
+        export interface UDPRouteSpecRules {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or a
+             * Service with no endpoints), the underlying implementation MUST actively
+             * reject connection attempts to this backend. Packet drops must
+             * respect weight; if an invalid backend is requested to have 80% of
+             * the packets, then 80% of packets must be dropped instead.
+             *
+             * Support: Extended for Kubernetes Service
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesBackendRefs>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface UDPRouteSpecRulesBackendRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface UDPRouteSpecRulesBackendRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * UDPRouteRule is the configuration for a given rule.
+         */
+        export interface UDPRouteSpecRulesPatch {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or a
+             * Service with no endpoints), the underlying implementation MUST actively
+             * reject connection attempts to this backend. Packet drops must
+             * respect weight; if an invalid backend is requested to have 80% of
+             * the packets, then 80% of packets must be dropped instead.
+             *
+             * Support: Extended for Kubernetes Service
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesBackendRefsPatch>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * Status defines the current state of UDPRoute.
+         */
+        export interface UDPRouteStatus {
+            /**
+             * Parents is a list of parent resources (usually Gateways) that are
+             * associated with the route, and the status of the route with respect to
+             * each parent. When this route attaches to a parent, the controller that
+             * manages the parent must add an entry to this list when the controller
+             * first sees the route and should update the entry as appropriate when the
+             * route or gateway is modified.
+             *
+             * Note that parent references that cannot be resolved by an implementation
+             * of this API will not be added to this list. Implementations of this API
+             * can only populate Route status for the Gateways/parent resources they are
+             * responsible for.
+             *
+             * A maximum of 32 Gateways will be represented in this list. An empty list
+             * means the route has not been attached to any Gateway.
+             */
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteStatusParents>[]>;
+        }
+
+        /**
+         * RouteParentStatus describes the status of a route with respect to an
+         * associated Parent.
+         */
+        export interface UDPRouteStatusParents {
+            /**
+             * Conditions describes the status of the route with respect to the Gateway.
+             * Note that the route's availability is also subject to the Gateway's own
+             * status conditions and listener status.
+             *
+             * If the Route's ParentRef specifies an existing Gateway that supports
+             * Routes of this kind AND that Gateway's controller has sufficient access,
+             * then that Gateway's controller MUST set the "Accepted" condition on the
+             * Route, to indicate whether the route has been accepted or rejected by the
+             * Gateway, and why.
+             *
+             * A Route MUST be considered "Accepted" if at least one of the Route's
+             * rules is implemented by the Gateway.
+             *
+             * There are a number of cases where the "Accepted" condition may not be set
+             * due to lack of controller visibility, that includes when:
+             *
+             * * The Route refers to a nonexistent parent.
+             * * The Route is of a type that the controller does not support.
+             * * The Route is in a namespace to which the controller does not have access.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteStatusParentsConditions>[]>;
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName?: pulumi.Input<string>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.UDPRouteStatusParentsParentRef>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface UDPRouteStatusParentsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime?: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message?: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason?: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status?: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentRef corresponds with a ParentRef in the spec that this
+         * RouteParentStatus struct describes the status of.
+         */
+        export interface UDPRouteStatusParentsParentRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+    }
+
+    export namespace v1alpha2 {
+        /**
+         * TCPRoute provides a way to route TCP requests. When combined with a Gateway
+         * listener, it can be used to forward connections on the port specified by the
+         * listener to a set of backends specified by the TCPRoute.
+         */
+        export interface TCPRoute {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2">;
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: pulumi.Input<"TCPRoute">;
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpec>;
+            status?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatus>;
+        }
+
+        /**
+         * Spec defines the desired state of TCPRoute.
+         */
+        export interface TCPRouteSpec {
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefs>[]>;
+            /**
+             * Rules are a list of TCP matchers and actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRules>[]>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface TCPRouteSpecParentRefs {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface TCPRouteSpecParentRefsPatch {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * Spec defines the desired state of TCPRoute.
+         */
+        export interface TCPRouteSpecPatch {
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefsPatch>[]>;
+            /**
+             * Rules are a list of TCP matchers and actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesPatch>[]>;
+        }
+
+        /**
+         * TCPRouteRule is the configuration for a given rule.
+         */
+        export interface TCPRouteSpecRules {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or a
+             * Service with no endpoints), the underlying implementation MUST actively
+             * reject connection attempts to this backend. Connection rejections must
+             * respect weight; if an invalid backend is requested to have 80% of
+             * connections, then 80% of connections must be rejected instead.
+             *
+             * Support: Core for Kubernetes Service
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefs>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface TCPRouteSpecRulesBackendRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface TCPRouteSpecRulesBackendRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * TCPRouteRule is the configuration for a given rule.
+         */
+        export interface TCPRouteSpecRulesPatch {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or a
+             * Service with no endpoints), the underlying implementation MUST actively
+             * reject connection attempts to this backend. Connection rejections must
+             * respect weight; if an invalid backend is requested to have 80% of
+             * connections, then 80% of connections must be rejected instead.
+             *
+             * Support: Core for Kubernetes Service
              */
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefsPatch>[]>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name?: pulumi.Input<string>;
         }
@@ -12710,7 +15109,7 @@ export namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParentsConditions>[]>;
             /**
@@ -12811,18 +15210,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -12837,12 +15224,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -12892,9 +15273,6 @@ export namespace gateway {
          * The TLSRoute resource is similar to TCPRoute, but can be configured
          * to match against TLS-specific metadata. This allows more flexibility
          * in matching streams for a given TLS listener.
-         *
-         * If you need to forward traffic to a single target for a TLS listener, you
-         * could choose to use a TCPRoute with a TLS listener.
          */
         export interface TLSRoute {
             /**
@@ -13004,17 +15382,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecParentRefs>[]>;
             /**
@@ -13074,18 +15441,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -13100,12 +15455,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -13202,18 +15551,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -13228,12 +15565,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -13370,17 +15701,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecParentRefsPatch>[]>;
             /**
@@ -13399,10 +15719,12 @@ export namespace gateway {
              * a Service with no endpoints), the rule performs no forwarding; if no
              * filters are specified that would result in a response being sent, the
              * underlying implementation must actively reject request attempts to this
-             * backend, by rejecting the connection or returning a 500 status code.
-             * Request rejections must respect weight; if an invalid backend is
-             * requested to have 80% of requests, then 80% of requests must be rejected
-             * instead.
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * When a TLSRoute is attached to a listener in Terminate mode, a BackendTLSPolicy
+             * can be used to enable re-encryption of the traffic to the backends.
              *
              * Support: Core for Kubernetes Service
              *
@@ -13411,12 +15733,12 @@ export namespace gateway {
              * Support: Implementation-specific for any other resource
              *
              * Support for weight: Extended
+             *
+             * Support for BackendTLSPolicy: Extended
              */
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefs>[]>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name?: pulumi.Input<string>;
         }
@@ -13429,22 +15751,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
-         *
          *
          * Note that when the BackendTLSPolicy object is enabled by the implementation,
          * there are some extra rules about validity to consider here. See the fields
@@ -13523,22 +15829,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
-         *
          *
          * Note that when the BackendTLSPolicy object is enabled by the implementation,
          * there are some extra rules about validity to consider here. See the fields
@@ -13619,10 +15909,12 @@ export namespace gateway {
              * a Service with no endpoints), the rule performs no forwarding; if no
              * filters are specified that would result in a response being sent, the
              * underlying implementation must actively reject request attempts to this
-             * backend, by rejecting the connection or returning a 500 status code.
-             * Request rejections must respect weight; if an invalid backend is
-             * requested to have 80% of requests, then 80% of requests must be rejected
-             * instead.
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * When a TLSRoute is attached to a listener in Terminate mode, a BackendTLSPolicy
+             * can be used to enable re-encryption of the traffic to the backends.
              *
              * Support: Core for Kubernetes Service
              *
@@ -13631,12 +15923,12 @@ export namespace gateway {
              * Support: Implementation-specific for any other resource
              *
              * Support for weight: Extended
+             *
+             * Support for BackendTLSPolicy: Extended
              */
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefsPatch>[]>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name?: pulumi.Input<string>;
         }
@@ -13688,7 +15980,7 @@ export namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParentsConditions>[]>;
             /**
@@ -13789,18 +16081,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -13815,12 +16095,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -13943,17 +16217,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecParentRefs>[]>;
             /**
@@ -14013,18 +16276,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -14039,12 +16290,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -14141,18 +16386,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -14167,12 +16400,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -14273,17 +16500,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecParentRefsPatch>[]>;
             /**
@@ -14304,19 +16520,11 @@ export namespace gateway {
              * respect weight; if an invalid backend is requested to have 80% of
              * the packets, then 80% of packets must be dropped instead.
              *
-             * Support: Core for Kubernetes Service
-             *
-             * Support: Extended for Kubernetes ServiceImport
-             *
-             * Support: Implementation-specific for any other resource
-             *
-             * Support for weight: Extended
+             * Support: Extended for Kubernetes Service
              */
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesBackendRefs>[]>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name?: pulumi.Input<string>;
         }
@@ -14329,22 +16537,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
-         *
          *
          * Note that when the BackendTLSPolicy object is enabled by the implementation,
          * there are some extra rules about validity to consider here. See the fields
@@ -14423,22 +16615,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
-         *
          *
          * Note that when the BackendTLSPolicy object is enabled by the implementation,
          * there are some extra rules about validity to consider here. See the fields
@@ -14521,19 +16697,11 @@ export namespace gateway {
              * respect weight; if an invalid backend is requested to have 80% of
              * the packets, then 80% of packets must be dropped instead.
              *
-             * Support: Core for Kubernetes Service
-             *
-             * Support: Extended for Kubernetes ServiceImport
-             *
-             * Support: Implementation-specific for any other resource
-             *
-             * Support for weight: Extended
+             * Support: Extended for Kubernetes Service
              */
             backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesBackendRefsPatch>[]>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
-             *
-             * Support: Extended
              */
             name?: pulumi.Input<string>;
         }
@@ -14585,7 +16753,7 @@ export namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParentsConditions>[]>;
             /**
@@ -14686,18 +16854,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -14712,12 +16868,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -14806,8 +16956,6 @@ export namespace gateway {
             options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
             /**
              * TargetRefs identifies an API object to apply the policy to.
-             * Only Services have Extended support. Implementations MAY support
-             * additional objects, with Implementation Specific support.
              * Note that this config applies to the entire referenced resource
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
@@ -14820,9 +16968,50 @@ export namespace gateway {
              *   be unique across all targetRef entries in the BackendTLSPolicy.
              * * They select different sectionNames in the same target.
              *
-             * Support: Extended for Kubernetes Service
+             * When more than one BackendTLSPolicy selects the same target and
+             * sectionName, implementations MUST determine precedence using the
+             * following criteria, continuing on ties:
              *
-             * Support: Implementation-specific for any other resource
+             * * The older policy by creation timestamp takes precedence. For
+             *   example, a policy with a creation timestamp of "2021-07-15
+             *   01:02:03" MUST be given precedence over a policy with a
+             *   creation timestamp of "2021-07-15 01:02:04".
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
+             *
+             * For any BackendTLSPolicy that does not take precedence, the
+             * implementation MUST ensure the `Accepted` Condition is set to
+             * `status: False`, with Reason `Conflicted`.
+             *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
+             *
+             * Support Levels:
+             *
+             * * Extended: Kubernetes Service referenced by backendRefs used on a Route.
+             *   - HTTPRoute, GRPCRoute, TLSRoute with termination
+             *   - Filters that needs a backend of type Service, like Mirror and External Authorization
+             *
+             * * Implementation-Specific: Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
              */
             targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefs>[]>;
             validation?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidation>;
@@ -14847,8 +17036,6 @@ export namespace gateway {
             options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
             /**
              * TargetRefs identifies an API object to apply the policy to.
-             * Only Services have Extended support. Implementations MAY support
-             * additional objects, with Implementation Specific support.
              * Note that this config applies to the entire referenced resource
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
@@ -14861,9 +17048,50 @@ export namespace gateway {
              *   be unique across all targetRef entries in the BackendTLSPolicy.
              * * They select different sectionNames in the same target.
              *
-             * Support: Extended for Kubernetes Service
+             * When more than one BackendTLSPolicy selects the same target and
+             * sectionName, implementations MUST determine precedence using the
+             * following criteria, continuing on ties:
              *
-             * Support: Implementation-specific for any other resource
+             * * The older policy by creation timestamp takes precedence. For
+             *   example, a policy with a creation timestamp of "2021-07-15
+             *   01:02:03" MUST be given precedence over a policy with a
+             *   creation timestamp of "2021-07-15 01:02:04".
+             * * The policy appearing first in alphabetical order by {namespace}/{name}.
+             *   For example, a policy named `foo/bar` is given precedence over a
+             *   policy named `foo/baz`.
+             *
+             * For any BackendTLSPolicy that does not take precedence, the
+             * implementation MUST ensure the `Accepted` Condition is set to
+             * `status: False`, with Reason `Conflicted`.
+             *
+             * Implementations SHOULD NOT support more than one targetRef at this
+             * time. Although the API technically allows for this, the current guidance
+             * for conflict resolution and status handling is lacking. Until that can be
+             * clarified in a future release, the safest approach is to support a single
+             * targetRef.
+             *
+             * Support Levels:
+             *
+             * * Extended: Kubernetes Service referenced by backendRefs used on a Route.
+             *   - HTTPRoute, GRPCRoute, TLSRoute with termination
+             *   - Filters that needs a backend of type Service, like Mirror and External Authorization
+             *
+             * * Implementation-Specific: Implementations MAY use BackendTLSPolicy for:
+             *   - Services not referenced by any Route (e.g., infrastructure services)
+             *   - Service mesh workload-to-service communication
+             *   - Other resource types beyond Service
+             *
+             * Implementations SHOULD aim to ensure that BackendTLSPolicy behavior is consistent,
+             * even outside of the extended HTTPRoute -(backendRef) -> Service path.
+             * They SHOULD clearly document how BackendTLSPolicy is interpreted in these
+             * scenarios, including:
+             *   - Which resources beyond Service are supported
+             *   - How the policy is discovered and applied
+             *   - Any implementation-specific semantics or restrictions
+             *
+             * Note that this config applies to the entire referenced resource
+             * by default, but this default may change in the future to provide
+             * a more granular application of the policy.
              */
             targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefsPatch>[]>;
             validation?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationPatch>;
@@ -14963,8 +17191,31 @@ export namespace gateway {
              * not both. If CACertificateRefs is empty or unspecified, the configuration for
              * WellKnownCACertificates MUST be honored instead if supported by the implementation.
              *
-             * References to a resource in a different namespace are invalid for the
-             * moment, although we will revisit this in the future.
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+             *   does not exist) or is misconfigured (e.g., a ConfigMap does not contain a key
+             *   named `ca.crt`). In this case, the Reason must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this case, the Reason
+             *   must be set to `InvalidKind` and the Message of the Condition must explain which
+             *   kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace. This may change in future
+             *   spec updates.
+             *
+             * Implementations MAY choose to perform further validation of the certificate
+             * content (e.g., checking expiry or enforcing specific formats). In such cases,
+             * an implementation-specific Reason and Message must be set for the invalid reference.
+             *
+             * In all cases, the implementation MUST ensure the `ResolvedRefs` Condition on
+             * the BackendTLSPolicy is set to `status: False`, with a Reason and Message
+             * that indicate the cause of the error. Connections using an invalid
+             * CACertificateRef MUST fail, and the client MUST receive an HTTP 5xx error
+             * response. If ALL CACertificateRefs are invalid, the implementation MUST also
+             * ensure the `Accepted` Condition on the BackendTLSPolicy is set to
+             * `status: False`, with a Reason `NoValidCACertificate`.
              *
              * A single CACertificateRef to a Kubernetes ConfigMap kind has "Core" support.
              * Implementations MAY choose to support attaching multiple certificates to
@@ -14973,8 +17224,8 @@ export namespace gateway {
              * Support: Core - An optional single reference to a Kubernetes ConfigMap,
              * with the CA certificate in a key named `ca.crt`.
              *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationCaCertificateRefs>[]>;
             /**
@@ -14982,9 +17233,11 @@ export namespace gateway {
              * backends:
              *
              * 1. Hostname MUST be used as the SNI to connect to the backend (RFC 6066).
-             * 2. Hostname MUST be used for authentication and MUST match the certificate served by the matching backend, unless SubjectAltNames is specified.
-             *    authentication and MUST match the certificate served by the matching
-             *    backend.
+             * 2. Hostname MUST be used for authentication and MUST match the certificate
+             *    served by the matching backend, unless SubjectAltNames is specified.
+             * 3. If SubjectAltNames are specified, Hostname can be used for certificate selection
+             *    but MUST NOT be used for authentication. If you want to use the value
+             *    of the Hostname field for authentication, you MUST add it to the SubjectAltNames list.
              *
              * Support: Core
              */
@@ -14998,15 +17251,23 @@ export namespace gateway {
              */
             subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNames>[]>;
             /**
-             * WellKnownCACertificates specifies whether system CA certificates may be used in
-             * the TLS handshake between the gateway and backend pod.
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
              *
              * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
              * must be specified with at least one entry for a valid configuration. Only one of
-             * CACertificateRefs or WellKnownCACertificates may be specified, not both. If an
-             * implementation does not support the WellKnownCACertificates field or the value
-             * supplied is not supported, the Status Conditions on the Policy MUST be
-             * updated to include an Accepted: False Condition with Reason: Invalid.
+             * CACertificateRefs or WellKnownCACertificates may be specified, not both.
+             * If an implementation does not support the WellKnownCACertificates field, or
+             * the supplied value is not recognized, the implementation MUST ensure the
+             * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
+             * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
              *
              * Support: Implementation-specific
              */
@@ -15079,8 +17340,31 @@ export namespace gateway {
              * not both. If CACertificateRefs is empty or unspecified, the configuration for
              * WellKnownCACertificates MUST be honored instead if supported by the implementation.
              *
-             * References to a resource in a different namespace are invalid for the
-             * moment, although we will revisit this in the future.
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+             *   does not exist) or is misconfigured (e.g., a ConfigMap does not contain a key
+             *   named `ca.crt`). In this case, the Reason must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this case, the Reason
+             *   must be set to `InvalidKind` and the Message of the Condition must explain which
+             *   kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace. This may change in future
+             *   spec updates.
+             *
+             * Implementations MAY choose to perform further validation of the certificate
+             * content (e.g., checking expiry or enforcing specific formats). In such cases,
+             * an implementation-specific Reason and Message must be set for the invalid reference.
+             *
+             * In all cases, the implementation MUST ensure the `ResolvedRefs` Condition on
+             * the BackendTLSPolicy is set to `status: False`, with a Reason and Message
+             * that indicate the cause of the error. Connections using an invalid
+             * CACertificateRef MUST fail, and the client MUST receive an HTTP 5xx error
+             * response. If ALL CACertificateRefs are invalid, the implementation MUST also
+             * ensure the `Accepted` Condition on the BackendTLSPolicy is set to
+             * `status: False`, with a Reason `NoValidCACertificate`.
              *
              * A single CACertificateRef to a Kubernetes ConfigMap kind has "Core" support.
              * Implementations MAY choose to support attaching multiple certificates to
@@ -15089,8 +17373,8 @@ export namespace gateway {
              * Support: Core - An optional single reference to a Kubernetes ConfigMap,
              * with the CA certificate in a key named `ca.crt`.
              *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
              */
             caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationCaCertificateRefsPatch>[]>;
             /**
@@ -15098,9 +17382,11 @@ export namespace gateway {
              * backends:
              *
              * 1. Hostname MUST be used as the SNI to connect to the backend (RFC 6066).
-             * 2. Hostname MUST be used for authentication and MUST match the certificate served by the matching backend, unless SubjectAltNames is specified.
-             *    authentication and MUST match the certificate served by the matching
-             *    backend.
+             * 2. Hostname MUST be used for authentication and MUST match the certificate
+             *    served by the matching backend, unless SubjectAltNames is specified.
+             * 3. If SubjectAltNames are specified, Hostname can be used for certificate selection
+             *    but MUST NOT be used for authentication. If you want to use the value
+             *    of the Hostname field for authentication, you MUST add it to the SubjectAltNames list.
              *
              * Support: Core
              */
@@ -15114,15 +17400,23 @@ export namespace gateway {
              */
             subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNamesPatch>[]>;
             /**
-             * WellKnownCACertificates specifies whether system CA certificates may be used in
-             * the TLS handshake between the gateway and backend pod.
+             * WellKnownCACertificates specifies whether a well-known set of CA certificates
+             * may be used in the TLS handshake between the gateway and backend pod.
              *
              * If WellKnownCACertificates is unspecified or empty (""), then CACertificateRefs
              * must be specified with at least one entry for a valid configuration. Only one of
-             * CACertificateRefs or WellKnownCACertificates may be specified, not both. If an
-             * implementation does not support the WellKnownCACertificates field or the value
-             * supplied is not supported, the Status Conditions on the Policy MUST be
-             * updated to include an Accepted: False Condition with Reason: Invalid.
+             * CACertificateRefs or WellKnownCACertificates may be specified, not both.
+             * If an implementation does not support the WellKnownCACertificates field, or
+             * the supplied value is not recognized, the implementation MUST ensure the
+             * `Accepted` Condition on the BackendTLSPolicy is set to `status: False`, with
+             * a Reason `Invalid`.
+             *
+             * Valid values include:
+             * * "System" - indicates that well-known system CA certificates should be used.
+             *
+             * Implementations MAY define their own sets of CA certificates. Such definitions
+             * MUST use an implementation-specific, prefixed name, such as
+             * `mycompany.com/my-custom-ca-certificates`.
              *
              * Support: Implementation-specific
              */
@@ -15320,18 +17614,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -15346,12 +17628,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -15433,6 +17709,828 @@ export namespace gateway {
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
             type?: pulumi.Input<string>;
+        }
+
+        /**
+         * The TLSRoute resource is similar to TCPRoute, but can be configured
+         * to match against TLS-specific metadata. This allows more flexibility
+         * in matching streams for a given TLS listener.
+         *
+         * If you need to forward traffic to a single target for a TLS listener, you
+         * could choose to use a TCPRoute with a TLS listener.
+         */
+        export interface TLSRoute {
+            /**
+             * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha3">;
+            /**
+             * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: pulumi.Input<"TLSRoute">;
+            /**
+             * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+             */
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpec>;
+            status?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatus>;
+        }
+
+        /**
+         * Spec defines the desired state of TLSRoute.
+         */
+        export interface TLSRouteSpec {
+            /**
+             * Hostnames defines a set of SNI hostnames that should match against the
+             * SNI attribute of TLS ClientHello message in TLS handshake. This matches
+             * the RFC 1123 definition of a hostname with 2 notable exceptions:
+             *
+             * 1. IPs are not allowed in SNI hostnames per RFC 6066.
+             * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+             *    label must appear by itself as the first label.
+             */
+            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecParentRefs>[]>;
+            /**
+             * Rules are a list of actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRules>[]>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface TLSRouteSpecParentRefs {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentReference identifies an API object (usually a Gateway) that can be considered
+         * a parent of this resource (usually a route). There are two kinds of parent resources
+         * with "Core" support:
+         *
+         * * Gateway (Gateway conformance profile)
+         * * Service (Mesh conformance profile, ClusterIP Services only)
+         *
+         * This API may be extended in the future to support additional kinds of parent
+         * resources.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         */
+        export interface TLSRouteSpecParentRefsPatch {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
+        }
+
+        /**
+         * Spec defines the desired state of TLSRoute.
+         */
+        export interface TLSRouteSpecPatch {
+            /**
+             * Hostnames defines a set of SNI hostnames that should match against the
+             * SNI attribute of TLS ClientHello message in TLS handshake. This matches
+             * the RFC 1123 definition of a hostname with 2 notable exceptions:
+             *
+             * 1. IPs are not allowed in SNI hostnames per RFC 6066.
+             * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+             *    label must appear by itself as the first label.
+             */
+            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            /**
+             * ParentRefs references the resources (usually Gateways) that a Route wants
+             * to be attached to. Note that the referenced parent resource needs to
+             * allow this for the attachment to be complete. For Gateways, that means
+             * the Gateway needs to allow attachment from Routes of this kind and
+             * namespace. For Services, that means the Service must either be in the same
+             * namespace for a "producer" route, or the mesh implementation must support
+             * and allow "consumer" routes for the referenced Service. ReferenceGrant is
+             * not applicable for governing ParentRefs to Services - it is not possible to
+             * create a "producer" route for a Service in a different namespace from the
+             * Route.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * This API may be extended in the future to support additional kinds of parent
+             * resources.
+             *
+             * ParentRefs must be _distinct_. This means either that:
+             *
+             * * They select different objects.  If this is the case, then parentRef
+             *   entries are distinct. In terms of fields, this means that the
+             *   multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+             *   be unique across all parentRef entries in the Route.
+             * * They do not select different objects, but for each optional field used,
+             *   each ParentRef that selects the same object must set the same set of
+             *   optional fields to different values. If one ParentRef sets a
+             *   combination of optional fields, all must set the same combination.
+             *
+             * Some examples:
+             *
+             * * If one ParentRef sets `sectionName`, all ParentRefs referencing the
+             *   same object must also set `sectionName`.
+             * * If one ParentRef sets `port`, all ParentRefs referencing the same
+             *   object must also set `port`.
+             * * If one ParentRef sets `sectionName` and `port`, all ParentRefs
+             *   referencing the same object must also set `sectionName` and `port`.
+             *
+             * It is possible to separately reference multiple distinct objects that may
+             * be collapsed by an implementation. For example, some implementations may
+             * choose to merge compatible Gateway Listeners together. If that is the
+             * case, the list of routes attached to those resources should also be
+             * merged.
+             *
+             * Note that for ParentRefs that cross namespace boundaries, there are specific
+             * rules. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example,
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable other kinds of cross-namespace reference.
+             */
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecParentRefsPatch>[]>;
+            /**
+             * Rules are a list of actions.
+             */
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesPatch>[]>;
+        }
+
+        /**
+         * TLSRouteRule is the configuration for a given rule.
+         */
+        export interface TLSRouteSpecRules {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or
+             * a Service with no endpoints), the rule performs no forwarding; if no
+             * filters are specified that would result in a response being sent, the
+             * underlying implementation must actively reject request attempts to this
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * When a TLSRoute is attached to a listener in Terminate mode, a BackendTLSPolicy
+             * can be used to enable re-encryption of the traffic to the backends.
+             *
+             * Support: Core for Kubernetes Service
+             *
+             * Support: Extended for Kubernetes ServiceImport
+             *
+             * Support: Implementation-specific for any other resource
+             *
+             * Support for weight: Extended
+             *
+             * Support for BackendTLSPolicy: Extended
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefs>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface TLSRouteSpecRulesBackendRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * BackendRef defines how a Route should forward a request to a Kubernetes
+         * resource.
+         *
+         * Note that when a namespace different than the local namespace is specified, a
+         * ReferenceGrant object is required in the referent namespace to allow that
+         * namespace's owner to accept the reference. See the ReferenceGrant
+         * documentation for details.
+         *
+         * Note that when the BackendTLSPolicy object is enabled by the implementation,
+         * there are some extra rules about validity to consider here. See the fields
+         * where this struct is used for more information about the exact behavior.
+         */
+        export interface TLSRouteSpecRulesBackendRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is the Kubernetes resource kind of the referent. For example
+             * "Service".
+             *
+             * Defaults to "Service" when not specified.
+             *
+             * ExternalName services can refer to CNAME DNS records that may live
+             * outside of the cluster and as such are difficult to reason about in
+             * terms of conformance. They also may not be safe to forward to (see
+             * CVE-2021-25740 for more information). Implementations SHOULD NOT
+             * support ExternalName Services.
+             *
+             * Support: Core (Services with a type other than ExternalName)
+             *
+             * Support: Implementation-specific (Services with type ExternalName)
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the backend. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port specifies the destination port number to use for this resource.
+             * Port is required when the referent is a Kubernetes Service. In this
+             * case, the port number is the service port number, not the target port.
+             * For other resources, destination port might be derived from the referent
+             * resource or this field.
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * Weight specifies the proportion of requests forwarded to the referenced
+             * backend. This is computed as weight/(sum of all weights in this
+             * BackendRefs list). For non-zero values, there may be some epsilon from
+             * the exact proportion defined here depending on the precision an
+             * implementation supports. Weight is not a percentage and the sum of
+             * weights does not need to equal 100.
+             *
+             * If only one backend is specified and it has a weight greater than 0, 100%
+             * of the traffic is forwarded to that backend. If weight is set to 0, no
+             * traffic should be forwarded for this entry. If unspecified, weight
+             * defaults to 1.
+             *
+             * Support for this field varies based on the context where used.
+             */
+            weight?: pulumi.Input<number>;
+        }
+
+        /**
+         * TLSRouteRule is the configuration for a given rule.
+         */
+        export interface TLSRouteSpecRulesPatch {
+            /**
+             * BackendRefs defines the backend(s) where matching requests should be
+             * sent. If unspecified or invalid (refers to a nonexistent resource or
+             * a Service with no endpoints), the rule performs no forwarding; if no
+             * filters are specified that would result in a response being sent, the
+             * underlying implementation must actively reject request attempts to this
+             * backend, by rejecting the connection. Request rejections must respect
+             * weight; if an invalid backend is requested to have 80% of requests, then
+             * 80% of requests must be rejected instead.
+             *
+             * When a TLSRoute is attached to a listener in Terminate mode, a BackendTLSPolicy
+             * can be used to enable re-encryption of the traffic to the backends.
+             *
+             * Support: Core for Kubernetes Service
+             *
+             * Support: Extended for Kubernetes ServiceImport
+             *
+             * Support: Implementation-specific for any other resource
+             *
+             * Support for weight: Extended
+             *
+             * Support for BackendTLSPolicy: Extended
+             */
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefsPatch>[]>;
+            /**
+             * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+             */
+            name?: pulumi.Input<string>;
+        }
+
+        /**
+         * Status defines the current state of TLSRoute.
+         */
+        export interface TLSRouteStatus {
+            /**
+             * Parents is a list of parent resources (usually Gateways) that are
+             * associated with the route, and the status of the route with respect to
+             * each parent. When this route attaches to a parent, the controller that
+             * manages the parent must add an entry to this list when the controller
+             * first sees the route and should update the entry as appropriate when the
+             * route or gateway is modified.
+             *
+             * Note that parent references that cannot be resolved by an implementation
+             * of this API will not be added to this list. Implementations of this API
+             * can only populate Route status for the Gateways/parent resources they are
+             * responsible for.
+             *
+             * A maximum of 32 Gateways will be represented in this list. An empty list
+             * means the route has not been attached to any Gateway.
+             */
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParents>[]>;
+        }
+
+        /**
+         * RouteParentStatus describes the status of a route with respect to an
+         * associated Parent.
+         */
+        export interface TLSRouteStatusParents {
+            /**
+             * Conditions describes the status of the route with respect to the Gateway.
+             * Note that the route's availability is also subject to the Gateway's own
+             * status conditions and listener status.
+             *
+             * If the Route's ParentRef specifies an existing Gateway that supports
+             * Routes of this kind AND that Gateway's controller has sufficient access,
+             * then that Gateway's controller MUST set the "Accepted" condition on the
+             * Route, to indicate whether the route has been accepted or rejected by the
+             * Gateway, and why.
+             *
+             * A Route MUST be considered "Accepted" if at least one of the Route's
+             * rules is implemented by the Gateway.
+             *
+             * There are a number of cases where the "Accepted" condition may not be set
+             * due to lack of controller visibility, that includes when:
+             *
+             * * The Route refers to a nonexistent parent.
+             * * The Route is of a type that the controller does not support.
+             * * The Route is in a namespace to which the controller does not have access.
+             */
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParentsConditions>[]>;
+            /**
+             * ControllerName is a domain/path string that indicates the name of the
+             * controller that wrote this status. This corresponds with the
+             * controllerName field on GatewayClass.
+             *
+             * Example: "example.net/gateway-controller".
+             *
+             * The format of this field is DOMAIN "/" PATH, where DOMAIN and PATH are
+             * valid Kubernetes names
+             * (https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names).
+             *
+             * Controllers MUST populate this field when writing status. Controllers should ensure that
+             * entries to status populated with their ControllerName are cleaned up when they are no
+             * longer necessary.
+             */
+            controllerName?: pulumi.Input<string>;
+            parentRef?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParentsParentRef>;
+        }
+
+        /**
+         * Condition contains details for one aspect of the current state of this API Resource.
+         */
+        export interface TLSRouteStatusParentsConditions {
+            /**
+             * lastTransitionTime is the last time the condition transitioned from one status to another.
+             * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+             */
+            lastTransitionTime?: pulumi.Input<string>;
+            /**
+             * message is a human readable message indicating details about the transition.
+             * This may be an empty string.
+             */
+            message?: pulumi.Input<string>;
+            /**
+             * observedGeneration represents the .metadata.generation that the condition was set based upon.
+             * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+             * with respect to the current state of the instance.
+             */
+            observedGeneration?: pulumi.Input<number>;
+            /**
+             * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+             * Producers of specific condition types may define expected values and meanings for this field,
+             * and whether the values are considered a guaranteed API.
+             * The value should be a CamelCase string.
+             * This field may not be empty.
+             */
+            reason?: pulumi.Input<string>;
+            /**
+             * status of the condition, one of True, False, Unknown.
+             */
+            status?: pulumi.Input<string>;
+            /**
+             * type of condition in CamelCase or in foo.example.com/CamelCase.
+             */
+            type?: pulumi.Input<string>;
+        }
+
+        /**
+         * ParentRef corresponds with a ParentRef in the spec that this
+         * RouteParentStatus struct describes the status of.
+         */
+        export interface TLSRouteStatusParentsParentRef {
+            /**
+             * Group is the group of the referent.
+             * When unspecified, "gateway.networking.k8s.io" is inferred.
+             * To set the core API group (such as for a "Service" kind referent),
+             * Group must be explicitly set to "" (empty string).
+             *
+             * Support: Core
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent.
+             *
+             * There are two kinds of parent resources with "Core" support:
+             *
+             * * Gateway (Gateway conformance profile)
+             * * Service (Mesh conformance profile, ClusterIP Services only)
+             *
+             * Support for other resources is Implementation-Specific.
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             *
+             * Support: Core
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referent. When unspecified, this refers
+             * to the local namespace of the Route.
+             *
+             * Note that there are specific rules for ParentRefs which cross namespace
+             * boundaries. Cross-namespace references are only valid if they are explicitly
+             * allowed by something in the namespace they are referring to. For example:
+             * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+             * generic way to enable any other kind of cross-namespace reference.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+            /**
+             * Port is the network port this Route targets. It can be interpreted
+             * differently based on the type of parent resource.
+             *
+             * When the parent resource is a Gateway, this targets all listeners
+             * listening on the specified port that also support this kind of Route(and
+             * select this Route). It's not recommended to set `Port` unless the
+             * networking behaviors specified in a Route must apply to a specific port
+             * as opposed to a listener(s) whose port(s) may be changed. When both Port
+             * and SectionName are specified, the name and port of the selected listener
+             * must match both specified values.
+             *
+             * Implementations MAY choose to support other parent resources.
+             * Implementations supporting other types of parent resources MUST clearly
+             * document how/if Port is interpreted.
+             *
+             * For the purpose of status, an attachment is considered successful as
+             * long as the parent resource accepts it partially. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+             * from the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route,
+             * the Route MUST be considered detached from the Gateway.
+             *
+             * Support: Extended
+             */
+            port?: pulumi.Input<number>;
+            /**
+             * SectionName is the name of a section within the target resource. In the
+             * following resources, SectionName is interpreted as the following:
+             *
+             * * Gateway: Listener name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             * * Service: Port name. When both Port (experimental) and SectionName
+             * are specified, the name and port of the selected listener must match
+             * both specified values.
+             *
+             * Implementations MAY choose to support attaching Routes to other resources.
+             * If that is the case, they MUST clearly document how SectionName is
+             * interpreted.
+             *
+             * When unspecified (empty string), this will reference the entire resource.
+             * For the purpose of status, an attachment is considered successful if at
+             * least one section in the parent resource accepts it. For example, Gateway
+             * listeners can restrict which Routes can attach to them by Route kind,
+             * namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+             * the referencing Route, the Route MUST be considered successfully
+             * attached. If no Gateway listeners accept attachment from this Route, the
+             * Route MUST be considered detached from the Gateway.
+             *
+             * Support: Core
+             */
+            sectionName?: pulumi.Input<string>;
         }
 
     }
@@ -15697,7 +18795,7 @@ export namespace gateway {
              * Addresses requested for this Gateway. This is optional and behavior can
              * depend on the implementation. If a value is set in the spec and the
              * requested address is invalid or unavailable, the implementation MUST
-             * indicate this in the associated entry in GatewayStatus.Addresses.
+             * indicate this in an associated entry in GatewayStatus.Conditions.
              *
              * The Addresses field represents a request for the address(es) on the
              * "outside of the Gateway", that traffic bound for this Gateway will use.
@@ -15717,7 +18815,6 @@ export namespace gateway {
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAddresses>[]>;
             allowedListeners?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListeners>;
-            backendTLS?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecBackendTLS>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
@@ -15854,6 +18951,12 @@ export namespace gateway {
              * request to "foo.example.com" SHOULD only be routed using routes attached
              * to the "foo.example.com" Listener (and not the "*.example.com" Listener).
              *
+             * If traffic to a Gateway does not match any Listener's hostname (or if
+             * the Listener does not specify a hostname and the request does not match
+             * any attached Route), the request MUST be rejected. The specific mechanism
+             * for rejection depends on the protocol: HTTP returns a 404 status code,
+             * while gRPC returns an Unimplemented status code.
+             *
              * This concept is known as "Listener Isolation", and it is an Extended feature
              * of Gateway API. Implementations that do not support Listener Isolation MUST
              * clearly document this, and MUST NOT claim support for the
@@ -15888,6 +18991,7 @@ export namespace gateway {
              * Support: Core
              */
             listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListeners>[]>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTls>;
         }
 
         /**
@@ -15932,7 +19036,7 @@ export namespace gateway {
 
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListeners {
             namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespaces>;
@@ -15940,7 +19044,7 @@ export namespace gateway {
 
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersNamespaces {
             /**
@@ -15952,7 +19056,7 @@ export namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from?: pulumi.Input<string>;
             selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelector>;
@@ -15960,7 +19064,7 @@ export namespace gateway {
 
         /**
          * Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersNamespacesPatch {
             /**
@@ -15972,7 +19076,7 @@ export namespace gateway {
              * * All: ListenerSets in all namespaces may be attached to this Gateway.
              * * None: Only listeners defined in the Gateway's spec are allowed
              *
-             * While this feature is experimental, the default value None
+             * The default value None
              */
             from?: pulumi.Input<string>;
             selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorPatch>;
@@ -16062,120 +19166,10 @@ export namespace gateway {
 
         /**
          * AllowedListeners defines which ListenerSets can be attached to this Gateway.
-         * While this feature is experimental, the default value is to allow no ListenerSets.
+         * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersPatch {
             namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesPatch>;
-        }
-
-        /**
-         * BackendTLS configures TLS settings for when this Gateway is connecting to
-         * backends with TLS.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLS {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecBackendTLSClientCertificateRef>;
-        }
-
-        /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
-         *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
-         *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
-         *
-         * This setting can be overridden on the service level by use of BackendTLSPolicy.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLSClientCertificateRef {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When unspecified or empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "Secret".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * ClientCertificateRef is a reference to an object that contains a Client
-         * Certificate and the associated private key.
-         *
-         * References to a resource in different namespace are invalid UNLESS there
-         * is a ReferenceGrant in the target namespace that allows the certificate
-         * to be attached. If a ReferenceGrant does not allow this reference, the
-         * "ResolvedRefs" condition MUST be set to False for this listener with the
-         * "RefNotPermitted" reason.
-         *
-         * ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-         * Secret, or implementation-specific custom resources.
-         *
-         * This setting can be overridden on the service level by use of BackendTLSPolicy.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLSClientCertificateRefPatch {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When unspecified or empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "Secret".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * BackendTLS configures TLS settings for when this Gateway is connecting to
-         * backends with TLS.
-         *
-         * Support: Core
-         */
-        export interface GatewaySpecBackendTLSPatch {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecBackendTLSClientCertificateRefPatch>;
         }
 
         /**
@@ -16350,7 +19344,7 @@ export namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -16675,7 +19669,7 @@ export namespace gateway {
              *   the Gateway SHOULD return a 421.
              * * If the current Listener (selected by SNI matching during ClientHello)
              *   does not match the Host:
-             *     * If another Listener does match the Host the Gateway SHOULD return a
+             *     * If another Listener does match the Host, the Gateway SHOULD return a
              *       421.
              *     * If no other Listener matches the Host, the Gateway MUST return a
              *       404.
@@ -16721,7 +19715,7 @@ export namespace gateway {
          * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
          * if the Protocol field is "HTTP", "TCP", or "UDP".
          *
-         * The association of SNIs to Certificate defined in GatewayTLSConfig is
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
          * defined based on the Hostname field for this listener.
          *
          * The GatewayClass MUST use the longest matching SNI out of all
@@ -16757,7 +19751,6 @@ export namespace gateway {
              * Support: Implementation-specific (More than one reference or other resource types)
              */
             certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsCertificateRefs>[]>;
-            frontendValidation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsFrontendValidation>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -16868,159 +19861,11 @@ export namespace gateway {
         }
 
         /**
-         * FrontendValidation holds configuration information for validating the frontend (client).
-         * Setting this field will require clients to send a client certificate
-         * required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-         * that requests a user to specify the client certificate.
-         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
-         *
-         * Support: Extended
-         */
-        export interface GatewaySpecListenersTlsFrontendValidation {
-            /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
-             *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
-             *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
-             *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsFrontendValidationCaCertificateRefs>[]>;
-        }
-
-        /**
-         * ObjectReference identifies an API object including its namespace.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        export interface GatewaySpecListenersTlsFrontendValidationCaCertificateRefs {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When set to the empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "ConfigMap" or "Service".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * ObjectReference identifies an API object including its namespace.
-         *
-         * The API object must be valid in the cluster; the Group and Kind must
-         * be registered in the cluster for this reference to be valid.
-         *
-         * References to objects with invalid Group and Kind are not valid, and must
-         * be rejected by the implementation, with appropriate Conditions set
-         * on the containing object.
-         */
-        export interface GatewaySpecListenersTlsFrontendValidationCaCertificateRefsPatch {
-            /**
-             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
-             * When set to the empty string, core API group is inferred.
-             */
-            group?: pulumi.Input<string>;
-            /**
-             * Kind is kind of the referent. For example "ConfigMap" or "Service".
-             */
-            kind?: pulumi.Input<string>;
-            /**
-             * Name is the name of the referent.
-             */
-            name?: pulumi.Input<string>;
-            /**
-             * Namespace is the namespace of the referenced object. When unspecified, the local
-             * namespace is inferred.
-             *
-             * Note that when a namespace different than the local namespace is specified,
-             * a ReferenceGrant object is required in the referent namespace to allow that
-             * namespace's owner to accept the reference. See the ReferenceGrant
-             * documentation for details.
-             *
-             * Support: Core
-             */
-            namespace?: pulumi.Input<string>;
-        }
-
-        /**
-         * FrontendValidation holds configuration information for validating the frontend (client).
-         * Setting this field will require clients to send a client certificate
-         * required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-         * that requests a user to specify the client certificate.
-         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
-         *
-         * Support: Extended
-         */
-        export interface GatewaySpecListenersTlsFrontendValidationPatch {
-            /**
-             * CACertificateRefs contains one or more references to
-             * Kubernetes objects that contain TLS certificates of
-             * the Certificate Authorities that can be used
-             * as a trust anchor to validate the certificates presented by the client.
-             *
-             * A single CA certificate reference to a Kubernetes ConfigMap
-             * has "Core" support.
-             * Implementations MAY choose to support attaching multiple CA certificates to
-             * a Listener, but this behavior is implementation-specific.
-             *
-             * Support: Core - A single reference to a Kubernetes ConfigMap
-             * with the CA certificate in a key named `ca.crt`.
-             *
-             * Support: Implementation-specific (More than one reference, or other kinds
-             * of resources).
-             *
-             * References to a resource in a different namespace are invalid UNLESS there
-             * is a ReferenceGrant in the target namespace that allows the certificate
-             * to be attached. If a ReferenceGrant does not allow this reference, the
-             * "ResolvedRefs" condition MUST be set to False for this listener with the
-             * "RefNotPermitted" reason.
-             */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsFrontendValidationCaCertificateRefsPatch>[]>;
-        }
-
-        /**
          * TLS is the TLS configuration for the Listener. This field is required if
          * the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
          * if the Protocol field is "HTTP", "TCP", or "UDP".
          *
-         * The association of SNIs to Certificate defined in GatewayTLSConfig is
+         * The association of SNIs to Certificate defined in ListenerTLSConfig is
          * defined based on the Hostname field for this listener.
          *
          * The GatewayClass MUST use the longest matching SNI out of all
@@ -17056,7 +19901,6 @@ export namespace gateway {
              * Support: Implementation-specific (More than one reference or other resource types)
              */
             certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsCertificateRefsPatch>[]>;
-            frontendValidation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsFrontendValidationPatch>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -17096,7 +19940,7 @@ export namespace gateway {
              * Addresses requested for this Gateway. This is optional and behavior can
              * depend on the implementation. If a value is set in the spec and the
              * requested address is invalid or unavailable, the implementation MUST
-             * indicate this in the associated entry in GatewayStatus.Addresses.
+             * indicate this in an associated entry in GatewayStatus.Conditions.
              *
              * The Addresses field represents a request for the address(es) on the
              * "outside of the Gateway", that traffic bound for this Gateway will use.
@@ -17116,7 +19960,6 @@ export namespace gateway {
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAddressesPatch>[]>;
             allowedListeners?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersPatch>;
-            backendTLS?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecBackendTLSPatch>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
@@ -17253,6 +20096,12 @@ export namespace gateway {
              * request to "foo.example.com" SHOULD only be routed using routes attached
              * to the "foo.example.com" Listener (and not the "*.example.com" Listener).
              *
+             * If traffic to a Gateway does not match any Listener's hostname (or if
+             * the Listener does not specify a hostname and the request does not match
+             * any attached Route), the request MUST be rejected. The specific mechanism
+             * for rejection depends on the protocol: HTTP returns a 404 status code,
+             * while gRPC returns an Unimplemented status code.
+             *
              * This concept is known as "Listener Isolation", and it is an Extended feature
              * of Gateway API. Implementations that do not support Listener Isolation MUST
              * clearly document this, and MUST NOT claim support for the
@@ -17287,6 +20136,725 @@ export namespace gateway {
              * Support: Core
              */
             listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersPatch>[]>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsPatch>;
+        }
+
+        /**
+         * TLS specifies frontend and backend tls configuration for entire gateway.
+         *
+         * Support: Extended
+         */
+        export interface GatewaySpecTls {
+            backend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackend>;
+            frontend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontend>;
+        }
+
+        /**
+         * Backend describes TLS configuration for gateway when connecting
+         * to backends.
+         *
+         * Note that this contains only details for the Gateway as a TLS client,
+         * and does _not_ imply behavior about how to choose which backend should
+         * get a TLS connection. That is determined by the presence of a BackendTLSPolicy.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsBackend {
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRef>;
+        }
+
+        /**
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
+         *
+         * A ClientCertificateRef is considered invalid if:
+         *
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
+         *
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
+         */
+        export interface GatewaySpecTlsBackendClientCertificateRef {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ClientCertificateRef references an object that contains a client certificate
+         * and its associated private key. It can reference standard Kubernetes resources,
+         * i.e., Secret, or implementation-specific custom resources.
+         *
+         * A ClientCertificateRef is considered invalid if:
+         *
+         * * It refers to a resource that cannot be resolved (e.g., the referenced resource
+         *   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+         *   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+         *   and the Message of the Condition MUST indicate why the reference is invalid.
+         *
+         * * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+         *   in the target namespace that allows the certificate to be attached.
+         *   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+         *   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
+         *
+         * Implementations MAY choose to perform further validation of the certificate
+         * content (e.g., checking expiry or enforcing specific formats). In such cases,
+         * an implementation-specific Reason and Message MUST be set.
+         *
+         * Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+         * Support: Implementation-specific - Other resource kinds or Secrets with a
+         * different type (e.g., `Opaque`).
+         */
+        export interface GatewaySpecTlsBackendClientCertificateRefPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When unspecified or empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "Secret".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Backend describes TLS configuration for gateway when connecting
+         * to backends.
+         *
+         * Note that this contains only details for the Gateway as a TLS client,
+         * and does _not_ imply behavior about how to choose which backend should
+         * get a TLS connection. That is determined by the presence of a BackendTLSPolicy.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsBackendPatch {
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRefPatch>;
+        }
+
+        /**
+         * Frontend describes TLS config when client connects to Gateway.
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontend {
+            default?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefault>;
+            /**
+             * PerPort specifies tls configuration assigned per port.
+             * Per port configuration is optional. Once set this configuration overrides
+             * the default configuration for all Listeners handling HTTPS traffic
+             * that match this port.
+             * Each override port requires a unique TLS configuration.
+             *
+             * support: Core
+             */
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPort>[]>;
+        }
+
+        /**
+         * Default specifies the default client certificate validation configuration
+         * for all Listeners handling HTTPS traffic, unless a per-port configuration
+         * is defined.
+         *
+         * support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefault {
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidation>;
+        }
+
+        /**
+         * Default specifies the default client certificate validation configuration
+         * for all Listeners handling HTTPS traffic, unless a per-port configuration
+         * is defined.
+         *
+         * support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefaultPatch {
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationPatch>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidation {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendDefaultValidationPatch {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * Frontend describes TLS config when client connects to Gateway.
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPatch {
+            default?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultPatch>;
+            /**
+             * PerPort specifies tls configuration assigned per port.
+             * Per port configuration is optional. Once set this configuration overrides
+             * the default configuration for all Listeners handling HTTPS traffic
+             * that match this port.
+             * Each override port requires a unique TLS configuration.
+             *
+             * support: Core
+             */
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortPatch>[]>;
+        }
+
+        export interface GatewaySpecTlsFrontendPerPort {
+            /**
+             * The Port indicates the Port Number to which the TLS configuration will be
+             * applied. This configuration will be applied to all Listeners handling HTTPS
+             * traffic that match this port.
+             *
+             * Support: Core
+             */
+            port?: pulumi.Input<number>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTls>;
+        }
+
+        export interface GatewaySpecTlsFrontendPerPortPatch {
+            /**
+             * The Port indicates the Port Number to which the TLS configuration will be
+             * applied. This configuration will be applied to all Listeners handling HTTPS
+             * traffic that match this port.
+             *
+             * Support: Core
+             */
+            port?: pulumi.Input<number>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsPatch>;
+        }
+
+        /**
+         * TLS store the configuration that will be applied to all Listeners handling
+         * HTTPS traffic and matching given port.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTls {
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidation>;
+        }
+
+        /**
+         * TLS store the configuration that will be applied to all Listeners handling
+         * HTTPS traffic and matching given port.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsPatch {
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationPatch>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidation {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * ObjectReference identifies an API object including its namespace.
+         *
+         * The API object must be valid in the cluster; the Group and Kind must
+         * be registered in the cluster for this reference to be valid.
+         *
+         * References to objects with invalid Group and Kind are not valid, and must
+         * be rejected by the implementation, with appropriate Conditions set
+         * on the containing object.
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch {
+            /**
+             * Group is the group of the referent. For example, "gateway.networking.k8s.io".
+             * When set to the empty string, core API group is inferred.
+             */
+            group?: pulumi.Input<string>;
+            /**
+             * Kind is kind of the referent. For example "ConfigMap" or "Service".
+             */
+            kind?: pulumi.Input<string>;
+            /**
+             * Name is the name of the referent.
+             */
+            name?: pulumi.Input<string>;
+            /**
+             * Namespace is the namespace of the referenced object. When unspecified, the local
+             * namespace is inferred.
+             *
+             * Note that when a namespace different than the local namespace is specified,
+             * a ReferenceGrant object is required in the referent namespace to allow that
+             * namespace's owner to accept the reference. See the ReferenceGrant
+             * documentation for details.
+             *
+             * Support: Core
+             */
+            namespace?: pulumi.Input<string>;
+        }
+
+        /**
+         * Validation holds configuration information for validating the frontend (client).
+         * Setting this field will result in mutual authentication when connecting to the gateway.
+         * In browsers this may result in a dialog appearing
+         * that requests a user to specify the client certificate.
+         * The maximum depth of a certificate chain accepted in verification is Implementation specific.
+         *
+         * Support: Core
+         */
+        export interface GatewaySpecTlsFrontendPerPortTlsValidationPatch {
+            /**
+             * CACertificateRefs contains one or more references to Kubernetes
+             * objects that contain a PEM-encoded TLS CA certificate bundle, which
+             * is used as a trust anchor to validate the certificates presented by
+             * the client.
+             *
+             * A CACertificateRef is invalid if:
+             *
+             * * It refers to a resource that cannot be resolved (e.g., the
+             *   referenced resource does not exist) or is misconfigured (e.g., a
+             *   ConfigMap does not contain a key named `ca.crt`). In this case, the
+             *   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+             *   and the Message of the Condition must indicate which reference is invalid and why.
+             *
+             * * It refers to an unknown or unsupported kind of resource. In this
+             *   case, the Reason on all matching HTTPS listeners must be set to
+             *   `InvalidCACertificateKind` and the Message of the Condition must explain
+             *   which kind of resource is unknown or unsupported.
+             *
+             * * It refers to a resource in another namespace UNLESS there is a
+             *   ReferenceGrant in the target namespace that allows the CA
+             *   certificate to be attached. If a ReferenceGrant does not allow this
+             *   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+             *   MUST be set with the Reason `RefNotPermitted`.
+             *
+             * Implementations MAY choose to perform further validation of the
+             * certificate content (e.g., checking expiry or enforcing specific formats).
+             * In such cases, an implementation-specific Reason and Message MUST be set.
+             *
+             * In all cases, the implementation MUST ensure that the `ResolvedRefs`
+             * condition is set to `status: False` on all targeted listeners (i.e.,
+             * listeners serving HTTPS on a matching port). The condition MUST
+             * include a Reason and Message that indicate the cause of the error. If
+             * ALL CACertificateRefs are invalid, the implementation MUST also ensure
+             * the `Accepted` condition on the listener is set to `status: False`, with
+             * the Reason `NoValidCACertificate`.
+             * Implementations MAY choose to support attaching multiple CA certificates
+             * to a listener, but this behavior is implementation-specific.
+             *
+             * Support: Core - A single reference to a Kubernetes ConfigMap, with the
+             * CA certificate in a key named `ca.crt`.
+             *
+             * Support: Implementation-specific - More than one reference, other kinds
+             * of resources, or a single reference that includes multiple certificates.
+             */
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch>[]>;
+            /**
+             * FrontendValidationMode defines the mode for validating the client certificate.
+             * There are two possible modes:
+             *
+             * - AllowValidOnly: In this mode, the gateway will accept connections only if
+             *   the client presents a valid certificate. This certificate must successfully
+             *   pass validation against the CA certificates specified in `CACertificateRefs`.
+             * - AllowInsecureFallback: In this mode, the gateway will accept connections
+             *   even if the client certificate is not presented or fails verification.
+             *
+             *   This approach delegates client authorization to the backend and introduce
+             *   a significant security risk. It should be used in testing environments or
+             *   on a temporary basis in non-testing environments.
+             *
+             * Defaults to AllowValidOnly.
+             *
+             * Support: Core
+             */
+            mode?: pulumi.Input<string>;
+        }
+
+        /**
+         * TLS specifies frontend and backend tls configuration for entire gateway.
+         *
+         * Support: Extended
+         */
+        export interface GatewaySpecTlsPatch {
+            backend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendPatch>;
+            frontend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPatch>;
         }
 
         /**
@@ -17305,6 +20873,19 @@ export namespace gateway {
              *   * a specified address was unusable (e.g. already in use)
              */
             addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusAddresses>[]>;
+            /**
+             * AttachedListenerSets represents the total number of ListenerSets that have been
+             * successfully attached to this Gateway.
+             *
+             * A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+             * - The ListenerSet is selected by the Gateway's AllowedListeners field
+             * - The ListenerSet has a valid ParentRef selecting the Gateway
+             * - The ListenerSet's status has the condition "Accepted: true"
+             *
+             * Uses for this field include troubleshooting AttachedListenerSets attachment and
+             * measuring blast radius/impact of changes to a Gateway.
+             */
+            attachedListenerSets?: pulumi.Input<number>;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -17398,8 +20979,11 @@ export namespace gateway {
              * attachment semantics can be found in the documentation on the various
              * Route kinds ParentRefs fields). Listener or Route status does not impact
              * successful attachment, i.e. the AttachedRoutes field count MUST be set
-             * for Listeners with condition Accepted: false and MUST count successfully
-             * attached Routes that may themselves have Accepted: false conditions.
+             * for Listeners, even if the Accepted condition of an individual Listener is set
+             * to "False". The AttachedRoutes number represents the number of Routes with
+             * the Accepted condition set to "True" that have been attached to this Listener.
+             * Routes with any other value for the Accepted condition MUST NOT be included
+             * in this count.
              *
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
@@ -17415,7 +20999,7 @@ export namespace gateway {
             name?: pulumi.Input<string>;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
-             * listener. This MUST represent the kinds an implementation supports for
+             * listener. This MUST represent the kinds supported by an implementation for
              * that Listener configuration.
              *
              * If kinds are specified in Spec that are not supported, they MUST NOT
@@ -17613,17 +21197,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecParentRefs>[]>;
             /**
@@ -17683,18 +21256,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -17709,12 +21270,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -17811,18 +21366,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -17837,12 +21380,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly
@@ -17999,17 +21536,6 @@ export namespace gateway {
              * allowed by something in the namespace they are referring to. For example,
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
-             *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
              */
             parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecParentRefsPatch>[]>;
             /**
@@ -18166,8 +21692,6 @@ export namespace gateway {
              * Support: Extended
              */
             name?: pulumi.Input<string>;
-            retry?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesRetry>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesSessionPersistence>;
             timeouts?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesTimeouts>;
         }
 
@@ -18178,21 +21702,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
          */
         export interface HTTPRouteSpecRulesBackendRefs {
             /**
@@ -18331,12 +21840,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -18345,14 +21854,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -18364,18 +21873,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -18387,7 +21898,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -18396,29 +21907,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -18449,7 +21960,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -18466,15 +21977,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -18496,19 +22012,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -18523,6 +22045,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -18538,12 +22063,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -18552,14 +22077,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -18571,18 +22096,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -18594,7 +22121,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -18603,29 +22130,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -18656,7 +22183,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -18673,15 +22200,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -18703,19 +22235,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -18730,6 +22268,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -19104,6 +22645,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef {
             /**
@@ -19178,6 +22723,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch {
             /**
@@ -19858,21 +23407,6 @@ export namespace gateway {
          * ReferenceGrant object is required in the referent namespace to allow that
          * namespace's owner to accept the reference. See the ReferenceGrant
          * documentation for details.
-         *
-         *
-         * When the BackendRef points to a Kubernetes Service, implementations SHOULD
-         * honor the appProtocol field if it is set for the target Service Port.
-         *
-         * Implementations supporting appProtocol SHOULD recognize the Kubernetes
-         * Standard Application Protocols defined in KEP-3726.
-         *
-         * If a Service appProtocol isn't specified, an implementation MAY infer the
-         * backend protocol through its own means. Implementations MAY infer the
-         * protocol from the Route type referring to the backend Service.
-         *
-         * If a Route is not able to send traffic to the backend using the specified
-         * protocol then the backend is considered invalid. Implementations MUST set the
-         * "ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
          */
         export interface HTTPRouteSpecRulesBackendRefsPatch {
             /**
@@ -20011,12 +23545,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -20025,14 +23559,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -20044,18 +23578,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -20067,7 +23603,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -20076,29 +23612,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -20129,7 +23665,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -20146,15 +23682,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -20176,19 +23717,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -20203,6 +23750,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -20218,12 +23768,12 @@ export namespace gateway {
              * AllowCredentials indicates whether the actual cross-origin request allows
              * to include credentials.
              *
-             * The only valid value for the `Access-Control-Allow-Credentials` response
-             * header is true (case-sensitive).
+             * When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+             * response header with value true (case-sensitive).
              *
-             * If the credentials are not allowed in cross-origin requests, the gateway
-             * will omit the header `Access-Control-Allow-Credentials` entirely rather
-             * than setting its value to false.
+             * When set to false or omitted the gateway will omit the header
+             * `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+             * behavior).
              *
              * Support: Extended
              */
@@ -20232,14 +23782,14 @@ export namespace gateway {
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Allow-Headers`
              * response header are separated by a comma (",").
              *
-             * When the `AllowHeaders` field is configured with one or more headers, the
+             * When the `allowHeaders` field is configured with one or more headers, the
              * gateway must return the `Access-Control-Allow-Headers` response header
-             * which value is present in the `AllowHeaders` field.
+             * which value is present in the `allowHeaders` field.
              *
              * If any header name in the `Access-Control-Request-Headers` request header
              * is not included in the list of header names specified by the response
@@ -20251,18 +23801,20 @@ export namespace gateway {
              * client side.
              *
              * A wildcard indicates that the requests with all HTTP headers are allowed.
-             * The `Access-Control-Allow-Headers` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
              *
-             * When the `AllowCredentials` field is specified and `AllowHeaders` field
-             * specified with the `*` wildcard, the gateway must specify one or more
-             * HTTP headers in the value of the `Access-Control-Allow-Headers` response
-             * header. The value of the header `Access-Control-Allow-Headers` is same as
-             * the `Access-Control-Request-Headers` header provided by the client. If
-             * the header `Access-Control-Request-Headers` is not included in the
-             * request, the gateway will omit the `Access-Control-Allow-Headers`
-             * response header, instead of specifying the `*` wildcard. A Gateway
-             * implementation may choose to add implementation-specific default headers.
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Headers` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowHeaders` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Headers` response header. Instead, it must
+             * return one or more header names matching the value of the
+             * `Access-Control-Request-Headers` request header.
+             * If the `Access-Control-Request-Headers` header is not present in the
+             * request, the gateway must omit the `Access-Control-Allow-Headers`
+             * response header.
              *
              * Support: Extended
              */
@@ -20274,7 +23826,7 @@ export namespace gateway {
              * Valid values are any method defined by RFC9110, along with the special
              * value `*`, which represents all HTTP methods are allowed.
              *
-             * Method names are case sensitive, so these values are also case-sensitive.
+             * Method names are case-sensitive, so these values are also case-sensitive.
              * (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
              *
              * Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -20283,29 +23835,29 @@ export namespace gateway {
              * A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
              * CORS-safelisted methods are always allowed, regardless of whether they
-             * are specified in the `AllowMethods` field.
+             * are specified in the `allowMethods` field.
              *
-             * When the `AllowMethods` field is configured with one or more methods, the
+             * When the `allowMethods` field is configured with one or more methods, the
              * gateway must return the `Access-Control-Allow-Methods` response header
-             * which value is present in the `AllowMethods` field.
+             * which value is present in the `allowMethods` field.
              *
              * If the HTTP method of the `Access-Control-Request-Method` request header
              * is not included in the list of methods specified by the response header
              * `Access-Control-Allow-Methods`, it will present an error on the client
              * side.
              *
-             * The `Access-Control-Allow-Methods` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Access-Control-Request-Method` request header.
              *
-             * When the `AllowCredentials` field is specified and `AllowMethods` field
-             * specified with the `*` wildcard, the gateway must specify one HTTP method
-             * in the value of the Access-Control-Allow-Methods response header. The
-             * value of the header `Access-Control-Allow-Methods` is same as the
-             * `Access-Control-Request-Method` header provided by the client. If the
-             * header `Access-Control-Request-Method` is not included in the request,
-             * the gateway will omit the `Access-Control-Allow-Methods` response header,
-             * instead of specifying the `*` wildcard. A Gateway implementation may
-             * choose to add implementation-specific default methods.
+             * If the configuration contains the wildcard `*` in `allowMethods` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Methods` response header. Instead, it must
+             * return a single HTTP method matching the value of the
+             * `Access-Control-Request-Method` request header.
+             * If the `Access-Control-Request-Method` header is not present in the request,
+             * the gateway must omit the `Access-Control-Allow-Methods` response header.
              *
              * Support: Extended
              */
@@ -20336,7 +23888,7 @@ export namespace gateway {
              * An origin value that includes _only_ the `*` character indicates requests
              * from all `Origin`s are allowed.
              *
-             * When the `AllowOrigins` field is configured with multiple origins, it
+             * When the `allowOrigins` field is configured with multiple origins, it
              * means the server supports clients from multiple origins. If the request
              * `Origin` matches the configured allowed origins, the gateway must return
              * the given `Origin` and sets value of the header
@@ -20353,15 +23905,20 @@ export namespace gateway {
              * the CORS headers. The cross-origin request fails on the client side.
              * Therefore, the client doesn't attempt the actual cross-origin request.
              *
-             * The `Access-Control-Allow-Origin` response header can only use `*`
-             * wildcard as value when the `AllowCredentials` field is unspecified.
+             * Conversely, if the request `Origin` matches one of the configured
+             * allowed origins, the gateway sets the response header
+             * `Access-Control-Allow-Origin` to the same value as the `Origin`
+             * header provided by the client.
              *
-             * When the `AllowCredentials` field is specified and `AllowOrigins` field
-             * specified with the `*` wildcard, the gateway must return a single origin
-             * in the value of the `Access-Control-Allow-Origin` response header,
-             * instead of specifying the `*` wildcard. The value of the header
-             * `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-             * the client.
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+             * response header may either contain the wildcard `*` or echo the value
+             * of the `Origin` request header.
+             *
+             * If the configuration contains the wildcard `*` in `allowOrigins` and
+             * `allowCredentials` is set to `true`, the gateway must not return `*`
+             * in the `Access-Control-Allow-Origin` response header. Instead, it must
+             * return a single origin matching the value of the `Origin` request header.
              *
              * Support: Extended
              */
@@ -20383,19 +23940,25 @@ export namespace gateway {
              * (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
              * The CORS-safelisted response headers are exposed to client by default.
              *
-             * When an HTTP header name is specified using the `ExposeHeaders` field,
+             * When an HTTP header name is specified using the `exposeHeaders` field,
              * this additional header will be exposed as part of the response to the
              * client.
              *
-             * Header names are not case sensitive.
+             * Header names are not case-sensitive.
              *
              * Multiple header names in the value of the `Access-Control-Expose-Headers`
              * response header are separated by a comma (",").
              *
              * A wildcard indicates that the responses with all HTTP headers are exposed
-             * to clients. The `Access-Control-Expose-Headers` response header can only
-             * use `*` wildcard as value when the `AllowCredentials` field is
-             * unspecified.
+             * to clients.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+             * response header can contain the wildcard `*`.
+             *
+             * If the configuration contains the wildcard `*` in `exposeHeaders` and
+             * `allowCredentials` is set to `true`, the gateway cannot use the `*`
+             * in the `Access-Control-Expose-Headers` response header.
              *
              * Support: Extended
              */
@@ -20410,6 +23973,9 @@ export namespace gateway {
              *
              * The default value of `Access-Control-Max-Age` response header is 5
              * (seconds).
+             *
+             * When the `MaxAge` field is unspecified, the gateway sets the response
+             * header "Access-Control-Max-Age: 5" by default.
              */
             maxAge?: pulumi.Input<number>;
         }
@@ -20784,6 +24350,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorBackendRef {
             /**
@@ -20858,6 +24428,10 @@ export namespace gateway {
          * Support: Extended for Kubernetes Service
          *
          * Support: Implementation-specific for any other resource
+         *
+         * If the backend service requires TLS, use BackendTLSPolicy to tell the
+         * implementation to supply the TLS details to be used to connect to that
+         * backend.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorBackendRefPatch {
             /**
@@ -21977,295 +25551,7 @@ export namespace gateway {
              * Support: Extended
              */
             name?: pulumi.Input<string>;
-            retry?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesRetryPatch>;
-            sessionPersistence?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesSessionPersistencePatch>;
             timeouts?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesTimeoutsPatch>;
-        }
-
-        /**
-         * Retry defines the configuration for when to retry an HTTP request.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesRetry {
-            /**
-             * Attempts specifies the maximum number of times an individual request
-             * from the gateway to a backend should be retried.
-             *
-             * If the maximum number of retries has been attempted without a successful
-             * response from the backend, the Gateway MUST return an error.
-             *
-             * When this field is unspecified, the number of times to attempt to retry
-             * a backend request is implementation-specific.
-             *
-             * Support: Extended
-             */
-            attempts?: pulumi.Input<number>;
-            /**
-             * Backoff specifies the minimum duration a Gateway should wait between
-             * retry attempts and is represented in Gateway API Duration formatting.
-             *
-             * For example, setting the `rules[].retry.backoff` field to the value
-             * `100ms` will cause a backend request to first be retried approximately
-             * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
-             *
-             * An implementation MAY use an exponential or alternative backoff strategy
-             * for subsequent retry attempts, MAY cap the maximum backoff duration to
-             * some amount greater than the specified minimum, and MAY add arbitrary
-             * jitter to stagger requests, as long as unsuccessful backend requests are
-             * not retried before the configured minimum duration.
-             *
-             * If a Request timeout (`rules[].timeouts.request`) is configured on the
-             * route, the entire duration of the initial request and any retry attempts
-             * MUST not exceed the Request timeout duration. If any retry attempts are
-             * still in progress when the Request timeout duration has been reached,
-             * these SHOULD be canceled if possible and the Gateway MUST immediately
-             * return a timeout error.
-             *
-             * If a BackendRequest timeout (`rules[].timeouts.backendRequest`) is
-             * configured on the route, any retry attempts which reach the configured
-             * BackendRequest timeout duration without a response SHOULD be canceled if
-             * possible and the Gateway should wait for at least the specified backoff
-             * duration before attempting to retry the backend request again.
-             *
-             * If a BackendRequest timeout is _not_ configured on the route, retry
-             * attempts MAY time out after an implementation default duration, or MAY
-             * remain pending until a configured Request timeout or implementation
-             * default duration for total request time is reached.
-             *
-             * When this field is unspecified, the time to wait between retry attempts
-             * is implementation-specific.
-             *
-             * Support: Extended
-             */
-            backoff?: pulumi.Input<string>;
-            /**
-             * Codes defines the HTTP response status codes for which a backend request
-             * should be retried.
-             *
-             * Support: Extended
-             */
-            codes?: pulumi.Input<pulumi.Input<number>[]>;
-        }
-
-        /**
-         * Retry defines the configuration for when to retry an HTTP request.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesRetryPatch {
-            /**
-             * Attempts specifies the maximum number of times an individual request
-             * from the gateway to a backend should be retried.
-             *
-             * If the maximum number of retries has been attempted without a successful
-             * response from the backend, the Gateway MUST return an error.
-             *
-             * When this field is unspecified, the number of times to attempt to retry
-             * a backend request is implementation-specific.
-             *
-             * Support: Extended
-             */
-            attempts?: pulumi.Input<number>;
-            /**
-             * Backoff specifies the minimum duration a Gateway should wait between
-             * retry attempts and is represented in Gateway API Duration formatting.
-             *
-             * For example, setting the `rules[].retry.backoff` field to the value
-             * `100ms` will cause a backend request to first be retried approximately
-             * 100 milliseconds after timing out or receiving a response code configured
-             * to be retryable.
-             *
-             * An implementation MAY use an exponential or alternative backoff strategy
-             * for subsequent retry attempts, MAY cap the maximum backoff duration to
-             * some amount greater than the specified minimum, and MAY add arbitrary
-             * jitter to stagger requests, as long as unsuccessful backend requests are
-             * not retried before the configured minimum duration.
-             *
-             * If a Request timeout (`rules[].timeouts.request`) is configured on the
-             * route, the entire duration of the initial request and any retry attempts
-             * MUST not exceed the Request timeout duration. If any retry attempts are
-             * still in progress when the Request timeout duration has been reached,
-             * these SHOULD be canceled if possible and the Gateway MUST immediately
-             * return a timeout error.
-             *
-             * If a BackendRequest timeout (`rules[].timeouts.backendRequest`) is
-             * configured on the route, any retry attempts which reach the configured
-             * BackendRequest timeout duration without a response SHOULD be canceled if
-             * possible and the Gateway should wait for at least the specified backoff
-             * duration before attempting to retry the backend request again.
-             *
-             * If a BackendRequest timeout is _not_ configured on the route, retry
-             * attempts MAY time out after an implementation default duration, or MAY
-             * remain pending until a configured Request timeout or implementation
-             * default duration for total request time is reached.
-             *
-             * When this field is unspecified, the time to wait between retry attempts
-             * is implementation-specific.
-             *
-             * Support: Extended
-             */
-            backoff?: pulumi.Input<string>;
-            /**
-             * Codes defines the HTTP response status codes for which a backend request
-             * should be retried.
-             *
-             * Support: Extended
-             */
-            codes?: pulumi.Input<pulumi.Input<number>[]>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the route rule.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesSessionPersistence {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesSessionPersistenceCookieConfig>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface HTTPRouteSpecRulesSessionPersistenceCookieConfig {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * CookieConfig provides configuration settings that are specific
-         * to cookie-based session persistence.
-         *
-         * Support: Core
-         */
-        export interface HTTPRouteSpecRulesSessionPersistenceCookieConfigPatch {
-            /**
-             * LifetimeType specifies whether the cookie has a permanent or
-             * session-based lifetime. A permanent cookie persists until its
-             * specified expiry time, defined by the Expires or Max-Age cookie
-             * attributes, while a session cookie is deleted when the current
-             * session ends.
-             *
-             * When set to "Permanent", AbsoluteTimeout indicates the
-             * cookie's lifetime via the Expires or Max-Age cookie attributes
-             * and is required.
-             *
-             * When set to "Session", AbsoluteTimeout indicates the
-             * absolute lifetime of the cookie tracked by the gateway and
-             * is optional.
-             *
-             * Defaults to "Session".
-             *
-             * Support: Core for "Session" type
-             *
-             * Support: Extended for "Permanent" type
-             */
-            lifetimeType?: pulumi.Input<string>;
-        }
-
-        /**
-         * SessionPersistence defines and configures session persistence
-         * for the route rule.
-         *
-         * Support: Extended
-         */
-        export interface HTTPRouteSpecRulesSessionPersistencePatch {
-            /**
-             * AbsoluteTimeout defines the absolute timeout of the persistent
-             * session. Once the AbsoluteTimeout duration has elapsed, the
-             * session becomes invalid.
-             *
-             * Support: Extended
-             */
-            absoluteTimeout?: pulumi.Input<string>;
-            cookieConfig?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesSessionPersistenceCookieConfigPatch>;
-            /**
-             * IdleTimeout defines the idle timeout of the persistent session.
-             * Once the session has been idle for more than the specified
-             * IdleTimeout duration, the session becomes invalid.
-             *
-             * Support: Extended
-             */
-            idleTimeout?: pulumi.Input<string>;
-            /**
-             * SessionName defines the name of the persistent session token
-             * which may be reflected in the cookie or the header. Users
-             * should avoid reusing session names to prevent unintended
-             * consequences, such as rejection or unpredictable behavior.
-             *
-             * Support: Implementation-specific
-             */
-            sessionName?: pulumi.Input<string>;
-            /**
-             * Type defines the type of session persistence such as through
-             * the use a header or cookie. Defaults to cookie based session
-             * persistence.
-             *
-             * Support: Core for "Cookie" type
-             *
-             * Support: Extended for "Header" type
-             */
-            type?: pulumi.Input<string>;
         }
 
         /**
@@ -22425,7 +25711,7 @@ export namespace gateway {
              *
              * * The Route refers to a nonexistent parent.
              * * The Route is of a type that the controller does not support.
-             * * The Route is in a namespace the controller does not have access to.
+             * * The Route is in a namespace to which the controller does not have access.
              */
             conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParentsConditions>[]>;
             /**
@@ -22526,18 +25812,6 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable any other kind of cross-namespace reference.
              *
-             *
-             * ParentRefs from a Route to a Service in the same namespace are "producer"
-             * routes, which apply default routing rules to inbound connections from
-             * any namespace to the Service.
-             *
-             * ParentRefs from a Route to a Service in a different namespace are
-             * "consumer" routes, and these routing rules are only applied to outbound
-             * connections originating from the same namespace as the Route, for which
-             * the intended destination of the connections are a Service targeted as a
-             * ParentRef of the Route.
-             *
-             *
              * Support: Core
              */
             namespace?: pulumi.Input<string>;
@@ -22552,12 +25826,6 @@ export namespace gateway {
              * as opposed to a listener(s) whose port(s) may be changed. When both Port
              * and SectionName are specified, the name and port of the selected listener
              * must match both specified values.
-             *
-             *
-             * When the parent resource is a Service, this targets a specific port in the
-             * Service spec. When both Port (experimental) and SectionName are specified,
-             * the name and port of the selected port must match both specified values.
-             *
              *
              * Implementations MAY choose to support other parent resources.
              * Implementations supporting other types of parent resources MUST clearly

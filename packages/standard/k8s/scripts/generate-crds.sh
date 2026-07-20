@@ -2,7 +2,7 @@
 source ../../../scripts/shared.sh
 
 # gateway-api
-generate_crds gateway-api https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
+generate_crds gateway-api https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml
 
 # cert-manager
 pull_chart ./assets/charts.json cert-manager

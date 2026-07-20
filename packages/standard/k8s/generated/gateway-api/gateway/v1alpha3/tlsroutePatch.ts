@@ -13,107 +13,100 @@ import * as utilities from "../../utilities";
  * Conflicts will result in an error by default, but can be forced using the "pulumi.com/patchForce" annotation. See the
  * [Server-Side Apply Docs](https://www.pulumi.com/registry/packages/kubernetes/how-to-guides/managing-resources-with-server-side-apply/) for
  * additional information about using Server-Side Apply to manage Kubernetes resources with Pulumi.
- * ReferenceGrant identifies kinds of resources in other namespaces that are
- * trusted to reference the specified kinds of resources in the same namespace
- * as the policy.
+ * The TLSRoute resource is similar to TCPRoute, but can be configured
+ * to match against TLS-specific metadata. This allows more flexibility
+ * in matching streams for a given TLS listener.
  *
- * Each ReferenceGrant can be used to represent a unique trust relationship.
- * Additional Reference Grants can be used to add to the set of trusted
- * sources of inbound references for the namespace they are defined within.
- *
- * All cross-namespace references in Gateway API (with the exception of cross-namespace
- * Gateway-route attachment) require a ReferenceGrant.
- *
- * ReferenceGrant is a form of runtime verification allowing users to assert
- * which cross-namespace object references are permitted. Implementations that
- * support ReferenceGrant MUST NOT permit cross-namespace references which have
- * no grant, and MUST respond to the removal of a grant by revoking the access
- * that the grant allowed.
+ * If you need to forward traffic to a single target for a TLS listener, you
+ * could choose to use a TCPRoute with a TLS listener.
  */
-export class ReferenceGrantPatch extends pulumi.CustomResource {
+export class TLSRoutePatch extends pulumi.CustomResource {
     /**
-     * Get an existing ReferenceGrantPatch resource's state with the given name, ID, and optional extra
+     * Get an existing TLSRoutePatch resource's state with the given name, ID, and optional extra
      * properties used to qualify the lookup.
      *
      * @param name The _unique_ name of the resulting resource.
      * @param id The _unique_ provider ID of the resource to lookup.
      * @param opts Optional settings to control the behavior of the CustomResource.
      */
-    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): ReferenceGrantPatch {
-        return new ReferenceGrantPatch(name, undefined as any, { ...opts, id: id });
+    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): TLSRoutePatch {
+        return new TLSRoutePatch(name, undefined as any, { ...opts, id: id });
     }
 
     /** @internal */
-    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1beta1:ReferenceGrantPatch';
+    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1alpha3:TLSRoutePatch';
 
     /**
-     * Returns true if the given object is an instance of ReferenceGrantPatch.  This is designed to work even
+     * Returns true if the given object is an instance of TLSRoutePatch.  This is designed to work even
      * when multiple copies of the Pulumi SDK have been loaded into the same process.
      */
-    public static isInstance(obj: any): obj is ReferenceGrantPatch {
+    public static isInstance(obj: any): obj is TLSRoutePatch {
         if (obj === undefined || obj === null) {
             return false;
         }
-        return obj['__pulumiType'] === ReferenceGrantPatch.__pulumiType;
+        return obj['__pulumiType'] === TLSRoutePatch.__pulumiType;
     }
 
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1beta1">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1alpha3">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    declare public readonly kind: pulumi.Output<"ReferenceGrant">;
+    declare public readonly kind: pulumi.Output<"TLSRoute">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
     declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
-    declare public readonly spec: pulumi.Output<outputs.gateway.v1beta1.ReferenceGrantSpecPatch>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1alpha3.TLSRouteSpecPatch>;
+    declare public /*out*/ readonly status: pulumi.Output<outputs.gateway.v1alpha3.TLSRouteStatusPatch>;
 
     /**
-     * Create a ReferenceGrantPatch resource with the given unique name, arguments, and options.
+     * Create a TLSRoutePatch resource with the given unique name, arguments, and options.
      *
      * @param name The _unique_ name of the resource.
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args?: ReferenceGrantPatchArgs, opts?: pulumi.CustomResourceOptions) {
+    constructor(name: string, args?: TLSRoutePatchArgs, opts?: pulumi.CustomResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1beta1";
-            resourceInputs["kind"] = "ReferenceGrant";
+            resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1alpha3";
+            resourceInputs["kind"] = "TLSRoute";
             resourceInputs["metadata"] = args?.metadata;
             resourceInputs["spec"] = args?.spec;
+            resourceInputs["status"] = undefined /*out*/;
         } else {
             resourceInputs["apiVersion"] = undefined /*out*/;
             resourceInputs["kind"] = undefined /*out*/;
             resourceInputs["metadata"] = undefined /*out*/;
             resourceInputs["spec"] = undefined /*out*/;
+            resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:ReferenceGrantPatch" }] };
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:TLSRoutePatch" }, { type: "kubernetes:gateway.networking.k8s.io/v1alpha2:TLSRoutePatch" }] };
         opts = pulumi.mergeOptions(opts, aliasOpts);
-        super(ReferenceGrantPatch.__pulumiType, name, resourceInputs, opts);
+        super(TLSRoutePatch.__pulumiType, name, resourceInputs, opts);
     }
 }
 
 /**
- * The set of arguments for constructing a ReferenceGrantPatch resource.
+ * The set of arguments for constructing a TLSRoutePatch resource.
  */
-export interface ReferenceGrantPatchArgs {
+export interface TLSRoutePatchArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha3">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
-    kind?: pulumi.Input<"ReferenceGrant">;
+    kind?: pulumi.Input<"TLSRoute">;
     /**
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
     metadata?: pulumi.Input<inputs.meta.v1.ObjectMetaPatch>;
-    spec?: pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecPatch>;
+    spec?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecPatch>;
 }

@@ -5,6 +5,21 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../../utilities";
 
 // Export members:
+export { BackendTLSPolicyArgs } from "./backendTLSPolicy";
+export type BackendTLSPolicy = import("./backendTLSPolicy").BackendTLSPolicy;
+export const BackendTLSPolicy: typeof import("./backendTLSPolicy").BackendTLSPolicy = null as any;
+utilities.lazyLoad(exports, ["BackendTLSPolicy"], () => require("./backendTLSPolicy"));
+
+export { BackendTLSPolicyListArgs } from "./backendTLSPolicyList";
+export type BackendTLSPolicyList = import("./backendTLSPolicyList").BackendTLSPolicyList;
+export const BackendTLSPolicyList: typeof import("./backendTLSPolicyList").BackendTLSPolicyList = null as any;
+utilities.lazyLoad(exports, ["BackendTLSPolicyList"], () => require("./backendTLSPolicyList"));
+
+export { BackendTLSPolicyPatchArgs } from "./backendTLSPolicyPatch";
+export type BackendTLSPolicyPatch = import("./backendTLSPolicyPatch").BackendTLSPolicyPatch;
+export const BackendTLSPolicyPatch: typeof import("./backendTLSPolicyPatch").BackendTLSPolicyPatch = null as any;
+utilities.lazyLoad(exports, ["BackendTLSPolicyPatch"], () => require("./backendTLSPolicyPatch"));
+
 export { GatewayArgs } from "./gateway";
 export type Gateway = import("./gateway").Gateway;
 export const Gateway: typeof import("./gateway").Gateway = null as any;
@@ -65,11 +80,92 @@ export type HTTPRoutePatch = import("./httproutePatch").HTTPRoutePatch;
 export const HTTPRoutePatch: typeof import("./httproutePatch").HTTPRoutePatch = null as any;
 utilities.lazyLoad(exports, ["HTTPRoutePatch"], () => require("./httproutePatch"));
 
+export { ListenerSetArgs } from "./listenerSet";
+export type ListenerSet = import("./listenerSet").ListenerSet;
+export const ListenerSet: typeof import("./listenerSet").ListenerSet = null as any;
+utilities.lazyLoad(exports, ["ListenerSet"], () => require("./listenerSet"));
+
+export { ListenerSetListArgs } from "./listenerSetList";
+export type ListenerSetList = import("./listenerSetList").ListenerSetList;
+export const ListenerSetList: typeof import("./listenerSetList").ListenerSetList = null as any;
+utilities.lazyLoad(exports, ["ListenerSetList"], () => require("./listenerSetList"));
+
+export { ListenerSetPatchArgs } from "./listenerSetPatch";
+export type ListenerSetPatch = import("./listenerSetPatch").ListenerSetPatch;
+export const ListenerSetPatch: typeof import("./listenerSetPatch").ListenerSetPatch = null as any;
+utilities.lazyLoad(exports, ["ListenerSetPatch"], () => require("./listenerSetPatch"));
+
+export { ReferenceGrantArgs } from "./referenceGrant";
+export type ReferenceGrant = import("./referenceGrant").ReferenceGrant;
+export const ReferenceGrant: typeof import("./referenceGrant").ReferenceGrant = null as any;
+utilities.lazyLoad(exports, ["ReferenceGrant"], () => require("./referenceGrant"));
+
+export { ReferenceGrantListArgs } from "./referenceGrantList";
+export type ReferenceGrantList = import("./referenceGrantList").ReferenceGrantList;
+export const ReferenceGrantList: typeof import("./referenceGrantList").ReferenceGrantList = null as any;
+utilities.lazyLoad(exports, ["ReferenceGrantList"], () => require("./referenceGrantList"));
+
+export { ReferenceGrantPatchArgs } from "./referenceGrantPatch";
+export type ReferenceGrantPatch = import("./referenceGrantPatch").ReferenceGrantPatch;
+export const ReferenceGrantPatch: typeof import("./referenceGrantPatch").ReferenceGrantPatch = null as any;
+utilities.lazyLoad(exports, ["ReferenceGrantPatch"], () => require("./referenceGrantPatch"));
+
+export { TCPRouteArgs } from "./tcproute";
+export type TCPRoute = import("./tcproute").TCPRoute;
+export const TCPRoute: typeof import("./tcproute").TCPRoute = null as any;
+utilities.lazyLoad(exports, ["TCPRoute"], () => require("./tcproute"));
+
+export { TCPRouteListArgs } from "./tcprouteList";
+export type TCPRouteList = import("./tcprouteList").TCPRouteList;
+export const TCPRouteList: typeof import("./tcprouteList").TCPRouteList = null as any;
+utilities.lazyLoad(exports, ["TCPRouteList"], () => require("./tcprouteList"));
+
+export { TCPRoutePatchArgs } from "./tcproutePatch";
+export type TCPRoutePatch = import("./tcproutePatch").TCPRoutePatch;
+export const TCPRoutePatch: typeof import("./tcproutePatch").TCPRoutePatch = null as any;
+utilities.lazyLoad(exports, ["TCPRoutePatch"], () => require("./tcproutePatch"));
+
+export { TLSRouteArgs } from "./tlsroute";
+export type TLSRoute = import("./tlsroute").TLSRoute;
+export const TLSRoute: typeof import("./tlsroute").TLSRoute = null as any;
+utilities.lazyLoad(exports, ["TLSRoute"], () => require("./tlsroute"));
+
+export { TLSRouteListArgs } from "./tlsrouteList";
+export type TLSRouteList = import("./tlsrouteList").TLSRouteList;
+export const TLSRouteList: typeof import("./tlsrouteList").TLSRouteList = null as any;
+utilities.lazyLoad(exports, ["TLSRouteList"], () => require("./tlsrouteList"));
+
+export { TLSRoutePatchArgs } from "./tlsroutePatch";
+export type TLSRoutePatch = import("./tlsroutePatch").TLSRoutePatch;
+export const TLSRoutePatch: typeof import("./tlsroutePatch").TLSRoutePatch = null as any;
+utilities.lazyLoad(exports, ["TLSRoutePatch"], () => require("./tlsroutePatch"));
+
+export { UDPRouteArgs } from "./udproute";
+export type UDPRoute = import("./udproute").UDPRoute;
+export const UDPRoute: typeof import("./udproute").UDPRoute = null as any;
+utilities.lazyLoad(exports, ["UDPRoute"], () => require("./udproute"));
+
+export { UDPRouteListArgs } from "./udprouteList";
+export type UDPRouteList = import("./udprouteList").UDPRouteList;
+export const UDPRouteList: typeof import("./udprouteList").UDPRouteList = null as any;
+utilities.lazyLoad(exports, ["UDPRouteList"], () => require("./udprouteList"));
+
+export { UDPRoutePatchArgs } from "./udproutePatch";
+export type UDPRoutePatch = import("./udproutePatch").UDPRoutePatch;
+export const UDPRoutePatch: typeof import("./udproutePatch").UDPRoutePatch = null as any;
+utilities.lazyLoad(exports, ["UDPRoutePatch"], () => require("./udproutePatch"));
+
 
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicy":
+                return new BackendTLSPolicy(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicyList":
+                return new BackendTLSPolicyList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:BackendTLSPolicyPatch":
+                return new BackendTLSPolicyPatch(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:GRPCRoute":
                 return new GRPCRoute(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:GRPCRouteList":
@@ -94,6 +190,36 @@ const _module = {
                 return new HTTPRouteList(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1:HTTPRoutePatch":
                 return new HTTPRoutePatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:ListenerSet":
+                return new ListenerSet(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:ListenerSetList":
+                return new ListenerSetList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:ListenerSetPatch":
+                return new ListenerSetPatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:ReferenceGrant":
+                return new ReferenceGrant(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:ReferenceGrantList":
+                return new ReferenceGrantList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:ReferenceGrantPatch":
+                return new ReferenceGrantPatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TCPRoute":
+                return new TCPRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TCPRouteList":
+                return new TCPRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TCPRoutePatch":
+                return new TCPRoutePatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TLSRoute":
+                return new TLSRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TLSRouteList":
+                return new TLSRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:TLSRoutePatch":
+                return new TLSRoutePatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:UDPRoute":
+                return new UDPRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:UDPRouteList":
+                return new UDPRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1:UDPRoutePatch":
+                return new UDPRoutePatch(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

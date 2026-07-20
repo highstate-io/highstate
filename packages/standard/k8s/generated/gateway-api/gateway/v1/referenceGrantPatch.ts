@@ -44,7 +44,7 @@ export class ReferenceGrantPatch extends pulumi.CustomResource {
     }
 
     /** @internal */
-    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1beta1:ReferenceGrantPatch';
+    public static readonly __pulumiType = 'kubernetes:gateway.networking.k8s.io/v1:ReferenceGrantPatch';
 
     /**
      * Returns true if the given object is an instance of ReferenceGrantPatch.  This is designed to work even
@@ -60,7 +60,7 @@ export class ReferenceGrantPatch extends pulumi.CustomResource {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1beta1">;
+    declare public readonly apiVersion: pulumi.Output<"gateway.networking.k8s.io/v1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
@@ -69,7 +69,7 @@ export class ReferenceGrantPatch extends pulumi.CustomResource {
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
     declare public readonly metadata: pulumi.Output<outputs.meta.v1.ObjectMetaPatch>;
-    declare public readonly spec: pulumi.Output<outputs.gateway.v1beta1.ReferenceGrantSpecPatch>;
+    declare public readonly spec: pulumi.Output<outputs.gateway.v1.ReferenceGrantSpecPatch>;
 
     /**
      * Create a ReferenceGrantPatch resource with the given unique name, arguments, and options.
@@ -82,7 +82,7 @@ export class ReferenceGrantPatch extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1beta1";
+            resourceInputs["apiVersion"] = "gateway.networking.k8s.io/v1";
             resourceInputs["kind"] = "ReferenceGrant";
             resourceInputs["metadata"] = args?.metadata;
             resourceInputs["spec"] = args?.spec;
@@ -93,7 +93,7 @@ export class ReferenceGrantPatch extends pulumi.CustomResource {
             resourceInputs["spec"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:ReferenceGrantPatch" }] };
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1beta1:ReferenceGrantPatch" }] };
         opts = pulumi.mergeOptions(opts, aliasOpts);
         super(ReferenceGrantPatch.__pulumiType, name, resourceInputs, opts);
     }
@@ -106,7 +106,7 @@ export interface ReferenceGrantPatchArgs {
     /**
      * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
      */
-    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1">;
+    apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
     /**
      * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
      */
@@ -115,5 +115,5 @@ export interface ReferenceGrantPatchArgs {
      * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
      */
     metadata?: pulumi.Input<inputs.meta.v1.ObjectMetaPatch>;
-    spec?: pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecPatch>;
+    spec?: pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecPatch>;
 }

@@ -5,6 +5,7 @@ import {
   type ComponentResourceOptions,
   type Input,
   type InputArray,
+  normalizeInputs,
   normalizeInputsAndMap,
   type Output,
   output,
@@ -12,7 +13,7 @@ import {
 import { getProvider, mapMetadata, type ScopedResourceArgs } from "../shared"
 import { type BackendRef, resolveBackendRef } from "./backend"
 
-export type UdpRouteArgs = Omit<ScopedResourceArgs, "namespace"> & {
+export type TlsRouteArgs = Omit<ScopedResourceArgs, "namespace"> & {
   /**
    * The gateway to associate with the route.
    */
@@ -22,6 +23,16 @@ export type UdpRouteArgs = Omit<ScopedResourceArgs, "namespace"> & {
    * The name of the listener to attach the route to.
    */
   listenerName: Input<string>
+
+  /**
+   * The hostname used to select TLS traffic by SNI.
+   */
+  hostname?: Input<string>
+
+  /**
+   * The hostnames used to select TLS traffic by SNI.
+   */
+  hostnames?: InputArray<string>
 
   /**
    * The backend reference handled by the route.
@@ -34,17 +45,16 @@ export type UdpRouteArgs = Omit<ScopedResourceArgs, "namespace"> & {
   backends?: InputArray<BackendRef>
 }
 
-export class UdpRoute extends ComponentResource {
+export class TlsRoute extends ComponentResource {
   /**
    * The underlying Kubernetes resource.
    */
-  public readonly route: Output<gateway.v1.UDPRoute>
+  public readonly route: Output<gateway.v1.TLSRoute>
 
-  constructor(name: string, args: UdpRouteArgs, opts?: ComponentResourceOptions) {
-    super("highstate:k8s:UdpRoute", name, args, opts)
+  constructor(name: string, args: TlsRouteArgs, opts?: ComponentResourceOptions) {
+    super("highstate:k8s:TlsRoute", name, args, opts)
 
     const gatewayOutput = output(args.gateway)
-
     const parentRefs = output({
       gateway: gatewayOutput,
       listenerName: args.listenerName,
@@ -58,13 +68,13 @@ export class UdpRoute extends ComponentResource {
             namespace: gateway.namespace.metadata.name,
             sectionName: listenerName,
           },
-        ] satisfies types.input.gateway.v1.UDPRouteSpecParentRefs[],
+        ] satisfies types.input.gateway.v1.TLSRouteSpecParentRefs[],
     )
 
     const backendRefs = normalizeInputsAndMap(args.backend, args.backends, resolveBackendRef)
 
     this.route = gatewayOutput.cluster.apply(cluster => {
-      return new gateway.v1.UDPRoute(
+      return new gateway.v1.TLSRoute(
         name,
         {
           metadata: mapMetadata(args, name).apply(metadata => ({
@@ -72,13 +82,10 @@ export class UdpRoute extends ComponentResource {
             namespace: gatewayOutput.namespace.metadata.name,
           })),
           spec: {
+            hostnames: normalizeInputs(args.hostname, args.hostnames),
             parentRefs,
-            rules: [
-              {
-                backendRefs,
-              },
-            ],
-          } satisfies types.input.gateway.v1.UDPRouteSpec,
+            rules: [{ backendRefs }],
+          } satisfies types.input.gateway.v1.TLSRouteSpec,
         },
         { ...opts, parent: this, provider: getProvider(cluster) },
       )

@@ -20,6 +20,21 @@ export type BackendTLSPolicyPatch = import("./backendTLSPolicyPatch").BackendTLS
 export const BackendTLSPolicyPatch: typeof import("./backendTLSPolicyPatch").BackendTLSPolicyPatch = null as any;
 utilities.lazyLoad(exports, ["BackendTLSPolicyPatch"], () => require("./backendTLSPolicyPatch"));
 
+export { TLSRouteArgs } from "./tlsroute";
+export type TLSRoute = import("./tlsroute").TLSRoute;
+export const TLSRoute: typeof import("./tlsroute").TLSRoute = null as any;
+utilities.lazyLoad(exports, ["TLSRoute"], () => require("./tlsroute"));
+
+export { TLSRouteListArgs } from "./tlsrouteList";
+export type TLSRouteList = import("./tlsrouteList").TLSRouteList;
+export const TLSRouteList: typeof import("./tlsrouteList").TLSRouteList = null as any;
+utilities.lazyLoad(exports, ["TLSRouteList"], () => require("./tlsrouteList"));
+
+export { TLSRoutePatchArgs } from "./tlsroutePatch";
+export type TLSRoutePatch = import("./tlsroutePatch").TLSRoutePatch;
+export const TLSRoutePatch: typeof import("./tlsroutePatch").TLSRoutePatch = null as any;
+utilities.lazyLoad(exports, ["TLSRoutePatch"], () => require("./tlsroutePatch"));
+
 
 const _module = {
     version: utilities.getVersion(),
@@ -31,6 +46,12 @@ const _module = {
                 return new BackendTLSPolicyList(name, <any>undefined, { urn })
             case "kubernetes:gateway.networking.k8s.io/v1alpha3:BackendTLSPolicyPatch":
                 return new BackendTLSPolicyPatch(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1alpha3:TLSRoute":
+                return new TLSRoute(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1alpha3:TLSRouteList":
+                return new TLSRouteList(name, <any>undefined, { urn })
+            case "kubernetes:gateway.networking.k8s.io/v1alpha3:TLSRoutePatch":
+                return new TLSRoutePatch(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

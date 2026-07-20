@@ -143,7 +143,7 @@ export type GatewayRouteArgs = {
   port?: Input<number>
 } & (
   | {
-      type: "tcp" | "udp"
+      type: "tcp" | "tls" | "udp"
       rules?: InputRecord<GatewayRuleArgs>
     }
   | {
@@ -190,7 +190,7 @@ type NormalizedGatewayBackend = {
 }
 
 type NormalizedGatewayRuleArgs = {
-  type: "http" | "tcp" | "udp"
+  type: "http" | "tcp" | "tls" | "udp"
   paths: string[]
   backends: NormalizedGatewayBackend[]
 }
@@ -199,7 +199,7 @@ type NormalizedGatewayRouteArgs = {
   gateway: common.Gateway
   metadata: Record<MetadataKey, unknown>
   fqdns: string[]
-  type: "http" | "tcp" | "udp"
+  type: "http" | "tcp" | "tls" | "udp"
   certificate?: TlsCertificate
   clientAuth?: NormalizedGatewayClientAuthArgs
   port?: number
@@ -294,7 +294,7 @@ export class GatewayRoute extends ComponentResource {
   }
 
   private static normalizeRuleArgs(
-    type: "http" | "tcp" | "udp",
+    type: "http" | "tcp" | "tls" | "udp",
     ruleArgs:
       | Unwrap<GatewayRuleArgs>
       | Unwrap<GatewayRuleArgs>[]

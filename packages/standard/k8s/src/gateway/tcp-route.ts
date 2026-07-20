@@ -38,7 +38,7 @@ export class TcpRoute extends ComponentResource {
   /**
    * The underlying Kubernetes resource.
    */
-  public readonly route: Output<gateway.v1alpha2.TCPRoute>
+  public readonly route: Output<gateway.v1.TCPRoute>
 
   constructor(name: string, args: TcpRouteArgs, opts?: ComponentResourceOptions) {
     super("highstate:k8s:TcpRoute", name, args, opts)
@@ -58,13 +58,13 @@ export class TcpRoute extends ComponentResource {
             namespace: gateway.namespace.metadata.name,
             sectionName: listenerName,
           },
-        ] satisfies types.input.gateway.v1alpha2.TCPRouteSpecParentRefs[],
+        ] satisfies types.input.gateway.v1.TCPRouteSpecParentRefs[],
     )
 
     const backendRefs = normalizeInputsAndMap(args.backend, args.backends, resolveBackendRef)
 
     this.route = gatewayOutput.cluster.apply(cluster => {
-      return new gateway.v1alpha2.TCPRoute(
+      return new gateway.v1.TCPRoute(
         name,
         {
           metadata: mapMetadata(args, name).apply(metadata => ({
@@ -78,7 +78,7 @@ export class TcpRoute extends ComponentResource {
                 backendRefs,
               },
             ],
-          } satisfies types.input.gateway.v1alpha2.TCPRouteSpec,
+          } satisfies types.input.gateway.v1.TCPRouteSpec,
         },
         { ...opts, parent: this, provider: getProvider(cluster) },
       )

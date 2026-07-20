@@ -38,6 +38,20 @@ const gatewayPatchArgs = {
 }
 
 const gatewayPatchInputs = {
+  /**
+   * The public L3 endpoints to set on the gateway.
+   *
+   * These endpoints take precedence over the endpoints argument.
+   */
+  endpoints: {
+    entity: l3EndpointEntity,
+    required: false,
+    multiple: true,
+  },
+
+  /**
+   * The CA certificate files used to validate client certificates.
+   */
   clientAuthCa: {
     entity: fileEntity,
     required: false,
@@ -101,22 +115,30 @@ export const tlsIssuerEntity = defineEntity({
 export const accessPointEntity = defineEntity({
   type: "common.access-point.v1",
 
-  schema: z.object({
+  includes: {
     /**
      * The gateway of the access point.
      */
-    gateway: gatewayEntity.schema,
+    gateway: gatewayEntity,
 
     /**
      * The TLS issuers used to manage TLS certificates for the access point.
      */
-    tlsIssuers: tlsIssuerEntity.schema.array(),
+    tlsIssuers: {
+      entity: tlsIssuerEntity,
+      multiple: true,
+    },
 
     /**
      * The DNS providers used to manage the DNS records for the access point.
      */
-    dnsProviders: dns.providerEntity.schema.array(),
+    dnsProviders: {
+      entity: dns.providerEntity,
+      multiple: true,
+    },
+  },
 
+  schema: z.object({
     /**
      * Whether the DNS records created for the access point should be proxied.
      */

@@ -77,6 +77,8 @@ export class TCPRoute extends pulumi.CustomResource {
             resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:TCPRoute" }] };
+        opts = pulumi.mergeOptions(opts, aliasOpts);
         super(TCPRoute.__pulumiType, name, resourceInputs, opts);
     }
 }

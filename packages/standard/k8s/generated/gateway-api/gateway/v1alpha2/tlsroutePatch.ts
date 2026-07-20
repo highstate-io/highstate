@@ -16,9 +16,6 @@ import * as utilities from "../../utilities";
  * The TLSRoute resource is similar to TCPRoute, but can be configured
  * to match against TLS-specific metadata. This allows more flexibility
  * in matching streams for a given TLS listener.
- *
- * If you need to forward traffic to a single target for a TLS listener, you
- * could choose to use a TCPRoute with a TLS listener.
  */
 export class TLSRoutePatch extends pulumi.CustomResource {
     /**
@@ -86,6 +83,8 @@ export class TLSRoutePatch extends pulumi.CustomResource {
             resourceInputs["status"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const aliasOpts = { aliases: [{ type: "kubernetes:gateway.networking.k8s.io/v1:TLSRoutePatch" }, { type: "kubernetes:gateway.networking.k8s.io/v1alpha3:TLSRoutePatch" }] };
+        opts = pulumi.mergeOptions(opts, aliasOpts);
         super(TLSRoutePatch.__pulumiType, name, resourceInputs, opts);
     }
 }
