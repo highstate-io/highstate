@@ -9,6 +9,7 @@
     "./network": "./dist/network/index.js",
     "./identity": "./dist/identity/index.js",
     "./config": "./dist/config/index.js",
+    "./existing-config": "./dist/existing-config/index.js",
     "./config-bundle": "./dist/config-bundle/index.js",
     "./feed": "./dist/feed/index.js",
     "./node": "./dist/node/index.js",

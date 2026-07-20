@@ -910,6 +910,11 @@ export const nodeFeedK8s = defineUnit({
     listenPort: z.number().default(51820),
 
     /**
+     * The NodePort to assign when the node is exposed.
+     */
+    nodePort: z.number().int().min(30000).max(32767).optional(),
+
+    /**
      * The name of the WireGuard interface to export as `interface` output.
      *
      * Note: wg-feed may manage multiple tunnels.
@@ -1249,6 +1254,43 @@ export const config = defineUnit({
   source: {
     package: "@highstate/wireguard",
     path: "config",
+  },
+})
+
+/**
+ * Parses an existing WireGuard configuration into config, identity, network, and peer entities.
+ */
+export const existingConfig = defineUnit({
+  type: "wireguard.existing-config.v1",
+
+  args: {
+    /**
+     * The existing wg-quick or awg-quick configuration content.
+     */
+    config: z.string().meta({ language: "ini" }),
+  },
+
+  outputs: {
+    config: configEntity,
+    identity: identityEntity,
+    network: networkEntity,
+    peers: {
+      entity: peerEntity,
+      multiple: true,
+    },
+  },
+
+  meta: {
+    title: "Existing WireGuard Config",
+    icon: "simple-icons:wireguard",
+    iconColor: "#88171a",
+    secondaryIcon: "mdi:file-import",
+    category: "VPN",
+  },
+
+  source: {
+    package: "@highstate/wireguard",
+    path: "existing-config",
   },
 })
 
