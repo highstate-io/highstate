@@ -12,6 +12,7 @@ export * from "./portal"
 export * from "./postgresql"
 export * from "./refluxdb"
 export * from "./remnawave"
+export * from "./rustfs"
 export {
   appName,
   optionalSharedArgs,

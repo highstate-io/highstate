@@ -1,0 +1,42 @@
+{
+  "name": "@highstate/rustfs",
+  "version": "0.24.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./connection": "./dist/connection/index.js",
+    "./bucket": "./dist/bucket/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "nx": {
+    "tags": [
+      "stdlib"
+    ]
+  },
+  "scripts": {
+    "build": "highstate build",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings"
+  },
+  "dependencies": {
+    "@highstate/common": "workspace:*",
+    "@highstate/contract": "workspace:*",
+    "@highstate/library": "workspace:*",
+    "@highstate/pulumi": "workspace:*",
+    "@pulumi/minio": "^0.16.7",
+    "@pulumi/pulumi": "3.232.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:*",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  }
+}
