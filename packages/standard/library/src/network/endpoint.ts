@@ -125,7 +125,7 @@ export const endpointArgs = $args({
    *
    * Can be used to filter them (for example, by environment, region, etc.).
    */
-  metadata: metadataSchema,
+  metadata: metadataSchema.default({}),
 })
 
 /**

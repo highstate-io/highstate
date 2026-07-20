@@ -475,34 +475,54 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
   const schemeMatch = /^([a-z]+):\/\/(.*)$/.exec(endpointString)
   if (schemeMatch) {
-    const appProtocol = schemeMatch[1]
+    const protocolOrAppProtocol = schemeMatch[1]
     const rest = schemeMatch[2]
 
     const pathIndex = rest.indexOf("/")
     const hostPortPart = pathIndex === -1 ? rest : rest.slice(0, pathIndex)
     const path = pathIndex === -1 ? undefined : rest.slice(pathIndex + 1)
-
-    const udpAppProtocols = ["dns", "dhcp"]
     const { host, port } = splitHostPort(hostPortPart)
     const l3Base = parseHostToL3(host)
 
-    const portNumber = port ?? 443
-    const protocol: network.L4Protocol = udpAppProtocols.includes(appProtocol) ? "udp" : "tcp"
+    if (protocolOrAppProtocol === "tcp" || protocolOrAppProtocol === "udp") {
+      if (port === undefined) {
+        throw new Error(`Endpoint "${endpointString}" must include a port`)
+      }
 
-    builtEndpoint = makeEndpoint({
-      ...(l3Base.type === "hostname"
-        ? l3Base
-        : {
-            ...l3Base,
-            address: l3Base.address,
-            subnet: l3Base.subnet,
-          }),
-      level: 7,
-      port: portNumber,
-      protocol,
-      appProtocol,
-      path: path || undefined,
-    })
+      builtEndpoint = makeEndpoint({
+        ...(l3Base.type === "hostname"
+          ? l3Base
+          : {
+              ...l3Base,
+              address: l3Base.address,
+              subnet: l3Base.subnet,
+            }),
+        level: 4,
+        port,
+        protocol: protocolOrAppProtocol,
+      })
+    } else {
+      const udpAppProtocols = ["dns", "dhcp"]
+      const portNumber = port ?? 443
+      const protocol: network.L4Protocol = udpAppProtocols.includes(protocolOrAppProtocol)
+        ? "udp"
+        : "tcp"
+
+      builtEndpoint = makeEndpoint({
+        ...(l3Base.type === "hostname"
+          ? l3Base
+          : {
+              ...l3Base,
+              address: l3Base.address,
+              subnet: l3Base.subnet,
+            }),
+        level: 7,
+        port: portNumber,
+        protocol,
+        appProtocol: protocolOrAppProtocol,
+        path: path || undefined,
+      })
+    }
   } else {
     const { host, port } = splitHostPort(endpointString)
     const l3Base = parseHostToL3(host)

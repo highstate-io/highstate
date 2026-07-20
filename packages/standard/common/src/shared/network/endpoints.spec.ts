@@ -56,6 +56,30 @@ describe("endpoints", () => {
     expect(network.l4EndpointEntity.schema.safeParse(endpoint).success).toBe(true)
   })
 
+  it("parses TCP scheme as L4 endpoint", () => {
+    const endpoint = parseEndpoint("tcp://10.0.0.2:443", 4)
+
+    expect(endpoint.$meta.type).toBe("network.l4-endpoint.v1")
+    expect(endpoint.level).toBe(4)
+    expect(endpoint.type).toBe("ipv4")
+    expect(endpoint.address?.value).toBe("10.0.0.2")
+    expect(endpoint.port).toBe(443)
+    expect(endpoint.protocol).toBe("tcp")
+    expect("appProtocol" in endpoint).toBe(false)
+  })
+
+  it("parses UDP scheme as L4 endpoint", () => {
+    const endpoint = parseEndpoint("udp://example.com:51820", 4)
+
+    expect(endpoint.$meta.type).toBe("network.l4-endpoint.v1")
+    expect(endpoint.level).toBe(4)
+    expect(endpoint.type).toBe("hostname")
+    expect(endpoint.hostname).toBe("example.com")
+    expect(endpoint.port).toBe(51820)
+    expect(endpoint.protocol).toBe("udp")
+    expect("appProtocol" in endpoint).toBe(false)
+  })
+
   it("parses L7 endpoint with app protocol", () => {
     const endpoint = parseEndpoint("https://10.0.0.2:8443/api", 7)
 
