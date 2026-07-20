@@ -9,15 +9,15 @@ Some simple rules to follow:
 - When you work with database entities, read first their schema files in `packages/platform/backend/prisma/`.
 - Before writing public docs (not `contributing/`), load `contributing/DOCS_STYLE.md`.
 - Before writing docs, read `packages/platform/docs/content/1.getting-started/2.concepts.mdc` and `packages/platform/docs/content/3.platform/2.units.mdc` as good human-written examples of how to write docs.
-- When given a task, first research related files in the codebase and then propose a plan of action.
-- Do not action until the user confirms you initial plan unless explicitly asked to do immediately.
 - If you discovered that something changed after your edits, stick with the new (user-provided) changes and do not revert them.
 - If user say that something is not working, assume he did correctly compile/rerun the code and information is up to date.
+- Don't use subagents unless explicitly asked to do so.
 
 Some additional notes:
 
 - Try to use LSP tools to check your code first. Using `bun run build` in most cases will not perform type checking. You can also use `bun run typecheck` where possible. In some cases, LSP tool may provide outdated diagnostics, so you can fall back to `bun run typecheck` if you suspect that.
 - Never call `bun run build` on Nuxt projects, it is very slow.
+- Generate documentation thumbnails only with `bun run update-thumbnails -- --filter ... --force` from the docs package.
 - Use `bun run test` in desired package to run tests, not LSP tools.
 
 Commit requirements:
