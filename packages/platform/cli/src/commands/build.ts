@@ -12,6 +12,22 @@ import {
   schemaTransformerPlugin,
 } from "../shared"
 
+function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.stack ?? error.message
+  }
+
+  if (typeof error === "string") {
+    return error
+  }
+
+  try {
+    return JSON.stringify(error)
+  } catch {
+    return String(error)
+  }
+}
+
 export class BuildCommand extends Command {
   static paths = [["build"]]
 
@@ -25,6 +41,18 @@ export class BuildCommand extends Command {
   noSourceHash = Option.Boolean("--no-source-hash", false)
 
   async execute(): Promise<void> {
+    try {
+      await this.build()
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error
+      }
+
+      throw new Error(`Build failed with non-error rejection: ${formatUnknownError(error)}`)
+    }
+  }
+
+  private async build(): Promise<void> {
     const packageJson = await readPackageJSON()
 
     const highstateConfig = highstateConfigSchema.parse(packageJson.highstate ?? {})
