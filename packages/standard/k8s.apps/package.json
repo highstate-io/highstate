@@ -17,6 +17,7 @@
     "./portal": "./dist/portal/index.js",
     "./postgresql": "./dist/postgresql/index.js",
     "./refluxdb": "./dist/refluxdb/index.js",
+    "./rustfs": "./dist/rustfs/index.js",
     "./mongodb": "./dist/mongodb/index.js",
     "./signoz": "./dist/signoz/index.js",
     "./scripts/process-helm-resources": "./dist/scripts/process-helm-resources.js",
@@ -60,7 +61,6 @@
     "@pulumi/kubernetes": "^4.18.0",
     "@pulumi/pulumi": "3.232.0",
     "@sinclair/typebox": "^0.34.33",
-    "deepmerge-ts": "^7.1.5",
     "remeda": "^2.21.0",
     "yaml": "^2.8.1"
   },

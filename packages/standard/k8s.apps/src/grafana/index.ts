@@ -29,10 +29,13 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
 
     chart: charts.grafana,
 
     values: {
+      ...args.scheduling,
+
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
@@ -45,6 +48,8 @@ const chart = new Chart(
       plugins: args.plugins,
 
       persistence: {},
+
+      imageRenderer: args.scheduling,
     },
 
     route: {

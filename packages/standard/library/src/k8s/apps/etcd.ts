@@ -18,7 +18,7 @@ export const etcd = defineUnit({
 
   args: {
     ...appName("etcd"),
-    ...pick(sharedArgs, ["external"]),
+    ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
   },
 
   secrets: {

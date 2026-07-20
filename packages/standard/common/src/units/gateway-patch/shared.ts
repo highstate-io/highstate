@@ -1,4 +1,4 @@
-import type { common } from "@highstate/library"
+import type { common, network } from "@highstate/library"
 import { readFile } from "node:fs/promises"
 import { MaterializedFile, parseEndpoints } from "../../shared"
 
@@ -8,6 +8,7 @@ export type GatewayPatchArgs = {
 }
 
 export type GatewayPatchInputs = {
+  endpoints: network.L3Endpoint[]
   clientAuthCa: common.File[]
 }
 
@@ -16,7 +17,8 @@ export async function patchGateway(
   args: GatewayPatchArgs,
   inputs: GatewayPatchInputs,
 ): Promise<common.Gateway> {
-  const endpoints = parseEndpoints(args.endpoints, 3)
+  const argumentEndpoints = parseEndpoints(args.endpoints, 3)
+  const endpoints = inputs.endpoints.length > 0 ? inputs.endpoints : argumentEndpoints
   const ca = await readClientAuthCa(inputs.clientAuthCa)
 
   return {

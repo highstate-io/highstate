@@ -78,7 +78,13 @@ export abstract class Secret extends NamespacedResource {
    * @returns The value of the secret.
    */
   getValue(key: string): Output<string> {
-    return this.data[key].apply(value => Buffer.from(value, "base64").toString())
+    return this.data[key].apply(value => {
+      if (value === undefined) {
+        return ""
+      }
+
+      return Buffer.from(value, "base64").toString()
+    })
   }
 
   /**

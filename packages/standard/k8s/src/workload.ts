@@ -1,6 +1,7 @@
 import type { k8s, network } from "@highstate/library"
 import type { types } from "@pulumi/kubernetes"
 import type { DistributedOmit, Except } from "type-fest"
+import type { DaemonSetArgs } from "./daemon-set"
 import type { DeploymentArgs } from "./deployment"
 import type { JobArgs } from "./job"
 import type { StatefulSetArgs } from "./stateful-set"
@@ -224,6 +225,29 @@ export type WorkloadRouteArgs = Except<AccessPointRouteArgs, "backend" | "backen
   )
 
 export type WorkloadServiceArgs = WorkloadArgs & {
+  /**
+   * The standard arguments used to configure the workload service.
+   */
+  args?: {
+    /**
+     * Whether the workload service should be exposed externally.
+     */
+    external?: Input<boolean>
+
+    /**
+     * The arguments to apply to the workload service.
+     */
+    service?: Input<Omit<ServiceArgs, "cluster" | "namespace">>
+
+    /**
+     * The Kubernetes scheduling options to apply to the workload pods.
+     */
+    scheduling?: Input<k8s.Scheduling>
+  }
+
+  /**
+   * The helper-side overrides to apply to the workload service.
+   */
   service?: Input<Omit<ServiceArgs, "cluster" | "namespace">>
 
   /**
@@ -249,7 +273,7 @@ export const workloadServiceExtraArgs = [
   "routes",
 ] as const
 
-export type WorkloadType = "Deployment" | "StatefulSet" | "Job" | "CronJob"
+export type WorkloadType = "Deployment" | "DaemonSet" | "StatefulSet" | "Job" | "CronJob"
 
 export type GenericWorkloadArgs = Omit<WorkloadServiceArgs, "existing"> & {
   /**
@@ -265,11 +289,45 @@ export type GenericWorkloadArgs = Omit<WorkloadServiceArgs, "existing"> & {
   existing: Input<k8s.Workload | undefined>
 
   /**
+   * The pod template patch shared by workload types that own pods directly.
+   *
+   * Applies to Deployment, DaemonSet, and StatefulSet workloads.
+   */
+  template?: Input<{
+    metadata?: types.input.meta.v1.ObjectMeta
+    spec?: Partial<types.input.core.v1.PodSpec>
+  }>
+
+  /**
+   * The rolling update strategy shared by workload types that support one.
+   *
+   * Applies to Deployment and DaemonSet workloads.
+   */
+  strategy?: Input<
+    | Partial<types.input.apps.v1.DeploymentStrategy>
+    | Partial<types.input.apps.v1.DaemonSetUpdateStrategy>
+  >
+
+  /**
+   * The number of replicas for workload types that support replicas.
+   *
+   * Applies to Deployment and StatefulSet workloads.
+   */
+  replicas?: Input<number>
+
+  /**
    * The args specific to the "Deployment" workload type.
    *
    * Will be ignored for other workload types.
    */
   deployment?: Input<Omit<DeploymentArgs, "name" | "namespace">>
+
+  /**
+   * The args specific to the "DaemonSet" workload type.
+   *
+   * Will be ignored for other workload types.
+   */
+  daemonSet?: Input<Omit<DaemonSetArgs, "name" | "namespace">>
 
   /**
    * The args specific to the "StatefulSet" workload type.
@@ -296,7 +354,11 @@ export type GenericWorkloadArgs = Omit<WorkloadServiceArgs, "existing"> & {
 const genericWorkloadExtraArgs = [
   "defaultType",
   "existing",
+  "template",
+  "strategy",
+  "replicas",
   "deployment",
+  "daemonSet",
   "statefulSet",
   "job",
   "cronJob",
@@ -441,10 +503,14 @@ export function getWorkloadServiceComponents(
 
   const service = output({
     existing: args.existing,
-    serviceArgs: args.service,
+    serviceArgs: args.args?.service,
+    serviceOverrides: args.service,
+    external: args.args?.external,
     containers,
-  }).apply(({ existing, serviceArgs, containers }) => {
-    if (!args.service && !args.route && !args.routes) {
+  }).apply(({ existing, serviceArgs, serviceOverrides, external, containers }) => {
+    const hasServiceArgs = Object.keys(serviceArgs ?? {}).length > 0 || external === true
+
+    if (!hasServiceArgs && !args.service && !args.route && !args.routes) {
       return undefined
     }
 
@@ -457,17 +523,22 @@ export function getWorkloadServiceComponents(
     }
 
     const ports = containers.flatMap(container => normalize(container.port, container.ports))
+    const resolvedServiceArgs = deepmerge(
+      serviceArgs ?? {},
+      serviceOverrides ?? {},
+      external === undefined ? {} : { external },
+    )
 
     return Service.create(name, {
-      ...serviceArgs,
+      ...resolvedServiceArgs,
       selector: labels,
       namespace: args.namespace,
 
       ports:
         // allow to completely override the ports
-        !serviceArgs?.port && !serviceArgs?.ports
+        !resolvedServiceArgs.port && !resolvedServiceArgs.ports
           ? ports.map(mapContainerPortToServicePort)
-          : serviceArgs?.ports,
+          : resolvedServiceArgs.ports,
     })
   })
 
@@ -949,16 +1020,51 @@ export abstract class Workload extends NamespacedResource {
   ): Output<Workload> {
     return output(args).apply(async args => {
       const baseArgs = omit(args, genericWorkloadExtraArgs)
+      const template = deepmerge(
+        {
+          spec: args.args?.scheduling ?? {},
+        },
+        args.template ?? {},
+      )
+      const deploymentArgs = {
+        replicas: args.replicas,
+        strategy: args.strategy as Partial<types.input.apps.v1.DeploymentStrategy> | undefined,
+        template,
+      }
+      const daemonSetArgs = {
+        updateStrategy: args.strategy as
+          | Partial<types.input.apps.v1.DaemonSetUpdateStrategy>
+          | undefined,
+        template,
+      }
+      const statefulSetArgs = {
+        replicas: args.replicas,
+        template,
+      }
+      const jobArgs = {
+        template,
+      }
+      const cronJobArgs = {
+        jobTemplate: {
+          spec: {
+            template,
+          },
+        },
+      }
 
       if (args.existing?.kind === "Deployment") {
         const { Deployment } = await import("./deployment")
 
-        const deploymentArgs = deepmerge(baseArgs, args.deployment ?? {}) as DeploymentArgs
+        const workloadArgs = deepmerge(
+          baseArgs,
+          deploymentArgs,
+          args.deployment ?? {},
+        ) as DeploymentArgs
 
         return Deployment.patch(
           name,
           {
-            ...deploymentArgs,
+            ...workloadArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -969,12 +1075,36 @@ export abstract class Workload extends NamespacedResource {
       if (args.existing?.kind === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
-        const statefulSetArgs = deepmerge(baseArgs, args.statefulSet ?? {}) as StatefulSetArgs
+        const workloadArgs = deepmerge(
+          baseArgs,
+          statefulSetArgs,
+          args.statefulSet ?? {},
+        ) as StatefulSetArgs
 
         return StatefulSet.patch(
           name,
           {
-            ...statefulSetArgs,
+            ...workloadArgs,
+            name: args.existing.metadata.name,
+            namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
+          },
+          opts,
+        )
+      }
+
+      if (args.existing?.kind === "DaemonSet") {
+        const { DaemonSet } = await import("./daemon-set")
+
+        const workloadArgs = deepmerge(
+          baseArgs,
+          daemonSetArgs,
+          args.daemonSet ?? {},
+        ) as DaemonSetArgs
+
+        return DaemonSet.patch(
+          name,
+          {
+            ...workloadArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -985,12 +1115,12 @@ export abstract class Workload extends NamespacedResource {
       if (args.existing?.kind === "Job") {
         const { Job } = await import("./job")
 
-        const jobArgs = deepmerge(baseArgs, args.job ?? {}) as JobArgs
+        const workloadArgs = deepmerge(baseArgs, jobArgs, args.job ?? {}) as JobArgs
 
         return Job.patch(
           name,
           {
-            ...jobArgs,
+            ...workloadArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -1001,12 +1131,12 @@ export abstract class Workload extends NamespacedResource {
       if (args.existing?.kind === "CronJob") {
         const { CronJob } = await import("./cron-job")
 
-        const cronJobArgs = deepmerge(baseArgs, args.cronJob ?? {}) as JobArgs
+        const workloadArgs = deepmerge(baseArgs, cronJobArgs, args.cronJob ?? {})
 
         return CronJob.patch(
           name,
           {
-            ...cronJobArgs,
+            ...workloadArgs,
             name: args.existing.metadata.name,
             namespace: Namespace.forResourceAsync(args.existing, output(args.namespace).cluster),
           },
@@ -1017,33 +1147,53 @@ export abstract class Workload extends NamespacedResource {
       if (args.defaultType === "Deployment") {
         const { Deployment } = await import("./deployment")
 
-        const deploymentArgs = deepmerge(baseArgs, args.deployment ?? {}) as DeploymentArgs
+        const workloadArgs = deepmerge(
+          baseArgs,
+          deploymentArgs,
+          args.deployment ?? {},
+        ) as DeploymentArgs
 
-        return Deployment.create(name, deploymentArgs, opts)
+        return Deployment.create(name, workloadArgs, opts)
       }
 
       if (args.defaultType === "StatefulSet") {
         const { StatefulSet } = await import("./stateful-set")
 
-        const statefulSetArgs = deepmerge(baseArgs, args.statefulSet ?? {}) as StatefulSetArgs
+        const workloadArgs = deepmerge(
+          baseArgs,
+          statefulSetArgs,
+          args.statefulSet ?? {},
+        ) as StatefulSetArgs
 
-        return StatefulSet.create(name, statefulSetArgs, opts)
+        return StatefulSet.create(name, workloadArgs, opts)
+      }
+
+      if (args.defaultType === "DaemonSet") {
+        const { DaemonSet } = await import("./daemon-set")
+
+        const workloadArgs = deepmerge(
+          baseArgs,
+          daemonSetArgs,
+          args.daemonSet ?? {},
+        ) as DaemonSetArgs
+
+        return DaemonSet.create(name, workloadArgs, opts)
       }
 
       if (args.defaultType === "Job") {
         const { Job } = await import("./job")
 
-        const jobArgs = deepmerge(baseArgs, args.job ?? {}) as JobArgs
+        const workloadArgs = deepmerge(baseArgs, jobArgs, args.job ?? {}) as JobArgs
 
-        return Job.create(name, jobArgs, opts)
+        return Job.create(name, workloadArgs, opts)
       }
 
       if (args.defaultType === "CronJob") {
         const { CronJob } = await import("./cron-job")
 
-        const cronJobArgs = deepmerge(baseArgs, args.cronJob ?? {}) as JobArgs
+        const workloadArgs = deepmerge(baseArgs, cronJobArgs, args.cronJob ?? {})
 
-        return CronJob.create(name, cronJobArgs, opts)
+        return CronJob.create(name, workloadArgs, opts)
       }
 
       throw new Error(`Unknown workload type: ${args.defaultType as string}`)

@@ -20,7 +20,15 @@ export const vault = defineUnit({
 
   args: {
     ...appName("vault"),
-    ...pick(sharedArgs, ["fqdn", "external", "namespace"]),
+    ...pick(sharedArgs, [
+      "fqdn",
+      "external",
+      "namespace",
+      "values",
+      "patches",
+      "service",
+      "scheduling",
+    ]),
 
     /**
      * The storage backend to use for Vault.

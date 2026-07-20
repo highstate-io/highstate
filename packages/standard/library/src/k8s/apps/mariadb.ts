@@ -19,7 +19,7 @@ export const mariadb = defineUnit({
 
   args: {
     ...appName("mariadb"),
-    ...pick(sharedArgs, ["external"]),
+    ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
   },
 
   secrets: {

@@ -28,6 +28,7 @@ const backupJobPair = inputs.resticRepo
 
         resticRepo: inputs.resticRepo,
         backupKey,
+        scheduling: args.scheduling,
 
         environments: [backupEnvironment],
 
@@ -57,10 +58,13 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
 
     chart: charts.valkey,
 
     values: {
+      ...args.scheduling,
+
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
@@ -77,10 +81,6 @@ const chart = new Chart(
       networkPolicy: {
         enabled: false,
       },
-    },
-
-    service: {
-      external: args.external,
     },
   },
   { dependsOn: backupJobPair, deletedWith: namespace },

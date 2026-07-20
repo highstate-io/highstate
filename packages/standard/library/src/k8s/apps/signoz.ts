@@ -11,7 +11,7 @@ export const signoz = defineUnit({
 
   args: {
     ...appName("signoz"),
-    ...pick(sharedArgs, ["fqdn", "namespace", "values"]),
+    ...pick(sharedArgs, ["fqdn", "namespace", "values", "patches", "service", "scheduling"]),
   },
 
   inputs: {

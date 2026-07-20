@@ -46,6 +46,7 @@ const backupJobPair = inputs.resticRepo
 
         resticRepo: inputs.resticRepo,
         backupKey,
+        scheduling: args.scheduling,
 
         environments: [backupEnvironment],
 
@@ -79,10 +80,13 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
 
     chart: charts.mongodb,
 
     values: {
+      ...args.scheduling,
+
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
@@ -94,10 +98,6 @@ const chart = new Chart(
       persistence: {
         existingClaim: dataVolumeClaim.metadata.name,
       },
-    },
-
-    service: {
-      external: args.external,
     },
   },
   { dependsOn: backupJobPair, deletedWith: namespace },

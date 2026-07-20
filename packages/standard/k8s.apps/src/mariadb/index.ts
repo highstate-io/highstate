@@ -61,6 +61,7 @@ const backupJobPair = inputs.resticRepo
 
         resticRepo: inputs.resticRepo,
         backupKey,
+        scheduling: args.scheduling,
 
         distribution: "ubuntu",
         environments: [baseEnvironment, backupEnvironment],
@@ -104,10 +105,13 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
 
     chart: charts.mariadb,
 
     values: {
+      ...args.scheduling,
+
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
@@ -135,10 +139,6 @@ const chart = new Chart(
       ingressRule: {
         fromAll: true,
       },
-    },
-
-    service: {
-      external: args.external,
     },
   },
   { dependsOn: backupJobPair, deletedWith: namespace },

@@ -2,9 +2,15 @@ import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { portSchema } from "../../network"
 import { namespaceEntity } from "../resources"
-import { serviceTypeSchema } from "../service"
 import { workloadEntity } from "../workload"
-import { optionalSharedInputs, sharedInputs, source } from "./shared"
+import {
+  optionalSharedInputs,
+  schedulingArg,
+  serviceArg,
+  sharedArgs,
+  sharedInputs,
+  source,
+} from "./shared"
 
 export const databaseConfigKeySchema = z.enum([
   "url",
@@ -60,6 +66,10 @@ export const workload = defineUnit({
      */
     existingNamespace: z.string().optional(),
 
+    ...pick(sharedArgs, ["external"]),
+    ...serviceArg,
+    ...schedulingArg,
+
     /**
      * The type of the workload to create.
      */
@@ -90,11 +100,6 @@ export const workload = defineUnit({
      * If specified, a service and an HTTP route will be created for the workload.
      */
     fqdn: z.string().optional(),
-
-    /**
-     * The type of the service to create for the workload.
-     */
-    serviceType: serviceTypeSchema.default("ClusterIP"),
 
     /**
      * The number of replicas for the workload.
@@ -143,13 +148,6 @@ export const workload = defineUnit({
      * Will be applied to the deployment manifest before it is created.
      */
     manifest: z.record(z.string(), z.unknown()).default({}),
-
-    /**
-     * The Kubernetes service manifest for the deployment.
-     *
-     * Will be applied to the service manifest before it is created.
-     */
-    serviceManifest: z.record(z.string(), z.unknown()).default({}),
 
     /**
      * The Kubernetes HTTP route manifest for the deployment.

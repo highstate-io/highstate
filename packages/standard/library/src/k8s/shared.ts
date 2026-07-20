@@ -12,6 +12,9 @@ import { addressEntity, l3EndpointEntity, l4EndpointEntity } from "../network"
 import { metadataSchema } from "../utils"
 import { namespacedResourceEntity } from "./resources"
 
+export { type Scheduling, schedulingArg, schedulingSchema } from "./scheduling"
+export { type ServiceArgs, serviceArg, serviceArgsSchema } from "./service-args"
+
 export const fallbackKubeApiAccessSchema = z.object({
   serverIp: z.string(),
   serverPort: z.number(),
@@ -30,6 +33,29 @@ export const tunDevicePolicySchema = z.discriminatedUnion("type", [
 
 export const externalServiceTypeSchema = z.enum(["NodePort", "LoadBalancer"])
 export const scheduleOnMastersPolicySchema = z.enum(["always", "when-no-workers", "never"])
+
+export const jsonPatchOperationSchema = z.discriminatedUnion("op", [
+  z.object({ op: z.literal("add"), path: z.string(), value: z.unknown() }),
+  z.object({ op: z.literal("remove"), path: z.string() }),
+  z.object({ op: z.literal("replace"), path: z.string(), value: z.unknown() }),
+  z.object({ op: z.literal("move"), path: z.string(), from: z.string() }),
+  z.object({ op: z.literal("copy"), path: z.string(), from: z.string() }),
+  z.object({ op: z.literal("test"), path: z.string(), value: z.unknown() }),
+])
+
+export const helmExtensionArgs = $args({
+  /**
+   * The values to deep merge over the component-provided Helm values.
+   */
+  values: z.record(z.string(), z.unknown()).default({}).meta({ complex: true }),
+
+  /**
+   * The JSON Patch operations to apply to the merged Helm values in order.
+   */
+  patches: jsonPatchOperationSchema.array().default([]).meta({ complex: true }),
+})
+
+export type JsonPatchOperation = z.infer<typeof jsonPatchOperationSchema>
 
 export const clusterQuirksSchema = z.object({
   /**

@@ -20,6 +20,10 @@
         "mode": "manual",
         "version": "1"
       },
+      "./units/coredns": {
+        "mode": "manual",
+        "version": "1"
+      },
       "./units/dns01-issuer": {
         "mode": "manual",
         "version": "1"
@@ -49,6 +53,7 @@
     },
     "./units/cert-manager": "./dist/units/cert-manager/index.js",
     "./units/cluster-patch": "./dist/units/cluster-patch/index.js",
+    "./units/coredns": "./dist/units/coredns/index.js",
     "./units/dns01-issuer": "./dist/units/dns01-issuer/index.js",
     "./units/existing-cluster": "./dist/units/existing-cluster/index.js",
     "./units/gateway-api": "./dist/units/gateway-api/index.js",
@@ -68,6 +73,7 @@
   },
   "scripts": {
     "build": "highstate build",
+    "test": "vitest run",
     "update-charts": "../../../scripts/update-charts.sh ./assets/charts.json",
     "update-artifacts": "../../../scripts/update-artifacts.ts ./assets/artifacts.json",
     "update-images": "../../../scripts/update-images.sh ./assets/images.json",
@@ -89,9 +95,10 @@
     "@pulumi/pulumi": "3.232.0",
     "crypto-hash": "^3.1.0",
     "deepmerge-ts": "^7.1.5",
-    "glob": "^11.0.1",
-    "nano-spawn": "^0.2.0",
     "get-port-please": "^3.1.2",
+    "glob": "^11.0.1",
+    "json-joy": "^18.28.0",
+    "nano-spawn": "^0.2.0",
     "pkg-types": "^2.1.0",
     "remeda": "^2.21.0",
     "yaml": "^2.8.1"
@@ -100,7 +107,8 @@
     "@biomejs/biome": "2.2.0",
     "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
-    "type-fest": "^4.41.0"
+    "type-fest": "^4.41.0",
+    "vitest": "^3.2.4"
   },
   "repository": {
     "url": "https://github.com/highstate-io/highstate"

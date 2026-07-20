@@ -9,7 +9,7 @@ type CertgenArgs = {
   appName: string
   namespace: Input<Namespace>
   cluster: Input<k8s.Cluster>
-  nodeSelector: Record<string, string>
+  scheduling: k8s.Scheduling
 }
 
 export async function createCertgenJob(args: CertgenArgs): Promise<batch.v1.Job> {
@@ -196,6 +196,7 @@ export async function createCertgenJob(args: CertgenArgs): Promise<batch.v1.Job>
             },
           },
           spec: {
+            ...args.scheduling,
             containers: [
               {
                 command: ["envoy-gateway", "certgen"],
@@ -234,7 +235,6 @@ export async function createCertgenJob(args: CertgenArgs): Promise<batch.v1.Job>
               },
             ],
             imagePullSecrets: [],
-            nodeSelector: args.nodeSelector,
             restartPolicy: "Never",
             serviceAccountName: serviceAccount.metadata.name,
           },

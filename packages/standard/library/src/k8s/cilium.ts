@@ -1,5 +1,5 @@
 import { defineUnit, z } from "@highstate/contract"
-import { clusterEntity, tolerationSchema } from "./shared"
+import { clusterEntity, helmExtensionArgs, schedulingArg } from "./shared"
 
 /**
  * The Cilium CNI deployed on Kubernetes.
@@ -25,26 +25,8 @@ export const cilium = defineUnit({
      * To expose the Hubble UI, you can use `k8s.apps.hubble-ui` unit.
      */
     enableHubble: z.boolean().default(true),
-
-    /**
-     * The tolerations of the cilium agent in the cluster.
-     */
-    agentTolerations: tolerationSchema.array().optional(),
-
-    /**
-     * The tolerations of the cilium envoy in the cluster.
-     */
-    envoyTolerations: tolerationSchema.array().optional(),
-
-    /**
-     * The tolerations of the cilium operator in the cluster.
-     */
-    operatorTolerations: tolerationSchema.array().optional(),
-
-    /**
-     * The node selector for the cilium operator in the cluster.
-     */
-    operatorNodeSelector: z.record(z.string(), z.string()).optional(),
+    ...helmExtensionArgs,
+    ...schedulingArg,
   },
 
   inputs: {

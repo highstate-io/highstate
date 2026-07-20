@@ -1,6 +1,7 @@
 export * as apps from "./apps"
 export * from "./cert-manager"
 export * from "./cilium"
+export * from "./coredns"
 export * as gameServers from "./game-servers"
 export * from "./gateway"
 export * as obfuscators from "./obfuscators"

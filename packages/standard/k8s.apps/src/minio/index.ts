@@ -47,6 +47,7 @@ const backupJobPair = inputs.resticRepo
 
         resticRepo: inputs.resticRepo,
         backupKey,
+        scheduling: args.scheduling,
 
         restoreContainer: {
           volume: dataVolumeClaim,
@@ -109,10 +110,13 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
 
     chart: charts.minio,
 
     values: {
+      ...args.scheduling,
+
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
@@ -135,10 +139,6 @@ const chart = new Chart(
       },
     },
 
-    service: {
-      external: args.external,
-    },
-
     routes,
   },
   { dependsOn: chartDependsOn, deletedWith: namespace },
@@ -147,6 +147,10 @@ const chart = new Chart(
 if (args.consoleFqdn && args.useConsoleFork) {
   Deployment.create(`${args.appName}-console`, {
     namespace,
+
+    template: {
+      spec: args.scheduling,
+    },
 
     container: {
       image: images["minio-console"].image,

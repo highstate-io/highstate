@@ -176,6 +176,7 @@ const backupJobPair =
           resticRepo: inputs.resticRepo,
           backupKey,
           volume: dataVolumeClaim,
+          scheduling: args.scheduling,
         },
         { dependsOn: dataVolumeClaim, deletedWith: namespace },
       )
@@ -187,6 +188,7 @@ const workload = Workload.createOrPatchGeneric(
     namespace,
     defaultType: "Deployment",
     existing: inputs.workload,
+    args,
 
     deployment: {
       replicas: args.replicas,
@@ -228,9 +230,7 @@ const workload = Workload.createOrPatchGeneric(
       }),
 
     ...(args.port && {
-      service: {
-        type: args.serviceType,
-      },
+      service: {},
     }),
   },
   {

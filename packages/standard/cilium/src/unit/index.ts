@@ -1,5 +1,5 @@
 import { l3EndpointToString } from "@highstate/common"
-import { Chart, Namespace } from "@highstate/k8s"
+import { Chart, Namespace, requireBestEndpoint } from "@highstate/k8s"
 import { k8s } from "@highstate/library"
 import { forUnit, ResourceHook, secret, setResourceHooks, toPromise } from "@highstate/pulumi"
 import { CoreV1Api, KubeConfig } from "@kubernetes/client-node"
@@ -8,6 +8,7 @@ import { chart } from "../shared"
 const { args, inputs, outputs } = forUnit(k8s.cilium)
 
 const cluster = await toPromise(inputs.k8sCluster)
+const apiEndpoint = requireBestEndpoint(cluster.apiEndpoints)
 
 const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   // restart (delete) all pods to make Cilium manage their networking
@@ -38,10 +39,11 @@ new Chart(
   "cilium",
   {
     namespace: Namespace.get("kube-system", { name: "kube-system", cluster }),
+    args,
     chart,
 
     values: {
-      tolerations: args.agentTolerations,
+      ...args.scheduling,
 
       ipam: {
         mode: "kubernetes",
@@ -51,26 +53,37 @@ new Chart(
 
       operator: {
         replicas: 1,
-        tolerations:
-          args.operatorTolerations && args.operatorTolerations.length > 0
-            ? args.operatorTolerations
-            : undefined,
-        nodeSelector:
-          args.operatorNodeSelector && Object.keys(args.operatorNodeSelector).length > 0
-            ? args.operatorNodeSelector
-            : undefined,
+        ...args.scheduling,
       },
 
-      envoy: {
-        tolerations: args.envoyTolerations,
-      },
+      envoy: args.scheduling,
+      nodeinit: args.scheduling,
+      preflight: args.scheduling,
+      certgen: args.scheduling,
 
       hubble: {
         relay: {
           enabled: args.enableHubble,
+          ...args.scheduling,
         },
         ui: {
           enabled: args.enableHubble,
+          ...args.scheduling,
+        },
+      },
+
+      clustermesh: {
+        apiserver: args.scheduling,
+      },
+
+      authentication: {
+        mutual: {
+          spire: {
+            install: {
+              agent: args.scheduling,
+              server: args.scheduling,
+            },
+          },
         },
       },
 
@@ -78,8 +91,8 @@ new Chart(
         dnsRejectResponseCode: "nameError",
       },
 
-      k8sServiceHost: l3EndpointToString(cluster.apiEndpoints[0]),
-      k8sServicePort: cluster.apiEndpoints[0].port.toString(),
+      k8sServiceHost: l3EndpointToString(apiEndpoint),
+      k8sServicePort: apiEndpoint.port.toString(),
     },
   },
   { hooks: { afterCreate: [afterCreateHook] } },

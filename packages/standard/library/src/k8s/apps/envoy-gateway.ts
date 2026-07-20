@@ -1,8 +1,6 @@
 import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { gatewayEntity } from "../../common"
-import { l4EndpointEntity } from "../../network"
-import { serviceEntity } from "../service"
 import { appName, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
@@ -13,7 +11,7 @@ export const envoyGateway = defineUnit({
 
   args: {
     ...appName("envoy-gateway"),
-    ...pick(sharedArgs, ["external", "replicas", "values"]),
+    ...pick(sharedArgs, ["external", "replicas", "values", "patches", "service", "scheduling"]),
 
     /**
      * The name of the GatewayClass to configure for Gateway API resources.
@@ -28,19 +26,9 @@ export const envoyGateway = defineUnit({
     controllerName: z.string().default("gateway.envoyproxy.io/gatewayclass-controller"),
 
     /**
-     * The node selector to apply to Envoy Gateway controller pods.
-     */
-    nodeSelector: z.record(z.string(), z.string()).default({}),
-
-    /**
      * Whether to install CRDs bundled with the Envoy Gateway Helm chart.
      */
     installCrds: z.boolean().default(true),
-
-    /**
-     * The extra patch to the Envoy Gateway controller service.
-     */
-    service: z.record(z.string(), z.unknown()).default({}),
   },
 
   inputs: {
@@ -49,11 +37,6 @@ export const envoyGateway = defineUnit({
 
   outputs: {
     gateway: gatewayEntity,
-    service: serviceEntity,
-    endpoints: {
-      entity: l4EndpointEntity,
-      multiple: true,
-    },
   },
 
   meta: {

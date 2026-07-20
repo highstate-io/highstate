@@ -19,7 +19,7 @@ export const valkey = defineUnit({
 
   args: {
     ...appName("valkey"),
-    ...pick(sharedArgs, ["external"]),
+    ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
   },
 
   secrets: {

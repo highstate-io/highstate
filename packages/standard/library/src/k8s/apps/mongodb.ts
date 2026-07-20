@@ -19,7 +19,7 @@ export const mongodb = defineUnit({
 
   args: {
     ...appName("mongodb"),
-    ...pick(sharedArgs, ["external"]),
+    ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
   },
 
   secrets: {

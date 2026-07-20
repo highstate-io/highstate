@@ -1,10 +1,16 @@
 import { endpointToString } from "@highstate/common"
 import { gateway as envoyGateway } from "@highstate/envoy-gateway-crds"
 import { gateway } from "@highstate/gateway-api"
-import { Chart, ClusterAccessScope, getProvider, Namespace } from "@highstate/k8s"
+import {
+  Chart,
+  ClusterAccessScope,
+  createServiceSpec,
+  getProvider,
+  Namespace,
+} from "@highstate/k8s"
 import { common, k8s } from "@highstate/library"
-import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
-import { deepmerge } from "deepmerge-ts"
+import { forUnit, makeEntityOutput, output, toPromise } from "@highstate/pulumi"
+import { omit } from "remeda"
 import { charts, processHelmResourcesPostRenderer } from "../shared"
 import { createCertgenJob } from "./certgen"
 
@@ -16,60 +22,50 @@ const certgenJob = await createCertgenJob({
   appName: args.appName,
   namespace,
   cluster: inputs.k8sCluster,
-  nodeSelector: args.nodeSelector,
+  scheduling: args.scheduling,
 })
 
 const chart = new Chart(
   args.appName,
   {
     namespace,
+    args: {
+      values: args.values,
+      patches: args.patches,
+    },
 
     chart: charts["envoy-gateway"],
-    serviceName: "envoy-gateway",
 
     skipCrds: !args.installCrds,
     postRenderer: processHelmResourcesPostRenderer("remove-gateway-api-crds"),
 
-    values: deepmerge(
-      {
-        deployment: {
-          replicas: args.replicas,
-          pod: {
-            nodeSelector: args.nodeSelector,
-          },
-        },
+    values: {
+      deployment: {
+        replicas: args.replicas,
+        pod: args.scheduling,
+      },
 
-        certgen: {
-          job: {
-            nodeSelector: args.nodeSelector,
-          },
-        },
+      certgen: {
+        job: args.scheduling,
+      },
 
-        config: {
-          envoyGateway: {
-            gateway: {
-              controllerName: args.controllerName,
-            },
+      config: {
+        envoyGateway: {
+          gateway: {
+            controllerName: args.controllerName,
           },
         },
       },
-      args.installCrds
-        ? {}
-        : {
-            crds: {
-              gatewayAPI: {
-                safeUpgradePolicy: {
-                  enabled: false,
-                },
-              },
+      ...(!args.installCrds && {
+        crds: {
+          gatewayAPI: {
+            safeUpgradePolicy: {
+              enabled: false,
             },
           },
-      args.values,
-    ),
-
-    service: deepmerge(args.service, {
-      external: args.external,
-    }),
+        },
+      }),
+    },
 
     terminal: {
       shell: "sh",
@@ -87,6 +83,25 @@ const chart = new Chart(
   { dependsOn: certgenJob },
 )
 
+const envoyService = output({ cluster: inputs.k8sCluster, service: args.service }).apply(
+  ({ cluster, service }) => {
+    const serviceSpec = createServiceSpec({ ...service, external: args.external }, cluster)
+
+    return output(serviceSpec).apply(serviceSpec => ({
+      name: service.name,
+      type: serviceSpec.type,
+      annotations: service.metadata?.annotations,
+      labels: service.metadata?.labels,
+      patch: {
+        type: "StrategicMerge",
+        value: {
+          spec: omit(serviceSpec, ["ports", "type"]),
+        },
+      },
+    }))
+  },
+)
+
 const envoyProxy = new envoyGateway.v1alpha1.EnvoyProxy(
   args.appName,
   {
@@ -96,6 +111,13 @@ const envoyProxy = new envoyGateway.v1alpha1.EnvoyProxy(
     },
     spec: {
       mergeGateways: true,
+      provider: {
+        type: "Kubernetes",
+        kubernetes: {
+          envoyDaemonSet: args.external ? {} : undefined,
+          envoyService,
+        },
+      },
     },
   },
   {
@@ -135,7 +157,14 @@ const clusterScope = new ClusterAccessScope(
     rules: [
       {
         apiGroups: ["gateway.networking.k8s.io"],
-        resources: ["gateways", "httproutes", "tcproutes", "udproutes"],
+        resources: [
+          "gateways",
+          "httproutes",
+          "referencegrants",
+          "tcproutes",
+          "tlsroutes",
+          "udproutes",
+        ],
         verbs: ["*"],
       },
       {
@@ -178,9 +207,6 @@ export default outputs({
       endpoints: clusterEndpoints,
     },
   }),
-
-  service: chart.service.entity,
-  endpoints: chart.service.endpoints,
 
   $terminals: chart.terminals,
 

@@ -47,6 +47,7 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
     chart: charts["matrix-stack"],
 
     values: {

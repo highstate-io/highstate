@@ -70,5 +70,11 @@
     "name": "signoz",
     "version": "0.130.1",
     "sha256": "a27f5ce0d4be438c4dbf7297dad8bef5be650ebc6f233cce1c3c1a76ca186171"
+  },
+  "rustfs": {
+    "repo": "https://charts.rustfs.com",
+    "name": "rustfs",
+    "version": "0.10.0",
+    "sha256": "ae77f8f345dc12621fc49053a88636e2f3a4270ca67a48a6382d7126e9668bc3"
   }
 }

@@ -43,6 +43,8 @@ export type ServiceArgs = ScopedResourceArgs & {
   external?: Input<boolean>
 } & types.input.core.v1.ServiceSpec
 
+const serviceSpecExtraArgs = ["internalTrafficPolicy"] as const
+
 export type CreateOrGetServiceArgs = ServiceArgs & {
   /**
    * The service entity to patch/retrieve.
@@ -327,24 +329,22 @@ export function createServiceSpec(
 ): Output<types.input.core.v1.ServiceSpec> {
   return output(args).apply(args => {
     return {
-      ...omit(args, serviceExtraArgs),
+      ...omit(args, [...serviceExtraArgs, ...serviceSpecExtraArgs]),
 
       ports: normalize(args.port, args.ports),
 
-      // externalIPs: args.external
-      //   ? args.externalIPs
-      //     ? args.externalIPs
-      //     : cluster.externalIps.map(ip => ip.value)
-      //   : normalize(undefined, args.externalIPs),
-
-      // TODO: check for args.external being falsey
-      // for now we always set externalIPs since it for some reason fails if its empty
       externalIPs:
         args.externalIPs && args.externalIPs.length > 0
           ? args.externalIPs
-          : cluster.externalIps.map(ip => ip.value),
+          : args.external
+            ? cluster.externalIps.map(ip => ip.value)
+            : undefined,
 
       type: getServiceType(args, cluster),
+
+      ...(args.internalTrafficPolicy
+        ? ({ internalTrafficPolicy: args.internalTrafficPolicy } as types.input.core.v1.ServiceSpec)
+        : {}),
     }
   })
 }

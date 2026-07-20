@@ -1,7 +1,7 @@
 import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { postgresql } from "../../databases"
-import { appName, sharedInputs, source } from "./shared"
+import { appName, sharedArgs, sharedInputs, source } from "./shared"
 
 /**
  * The Matrix stack deployed on Kubernetes.
@@ -11,6 +11,7 @@ export const matrixStack = defineUnit({
 
   args: {
     ...appName("matrix-stack"),
+    ...pick(sharedArgs, ["values", "patches", "service"]),
 
     /**
      * The base domain for the Matrix stack services.

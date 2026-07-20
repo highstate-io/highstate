@@ -76,6 +76,11 @@ export type ClusterAccessScopeArgs = {
 
 export class ClusterAccessScope extends ComponentResource {
   /**
+   * The name of the ServiceAccount created for this access scope.
+   */
+  readonly serviceAccountName: Output<string>
+
+  /**
    * The cluster entity with the reduced access.
    */
   readonly cluster: Output<k8s.Cluster>
@@ -181,6 +186,8 @@ export class ClusterAccessScope extends ComponentResource {
 
       return { serviceAccount, kubeconfig: cluster.kubeconfig }
     })
+
+    this.serviceAccountName = serviceAccount.metadata.name
 
     const accessTokenSecret = Secret.create(`${name}-token`, {
       namespace: args.namespace,

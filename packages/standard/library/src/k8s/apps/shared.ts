@@ -16,7 +16,18 @@ import { etcd, mongodb, mysql, postgresql, redis } from "../../databases"
 import { providerEntity } from "../../dns"
 import { repositoryEntity } from "../../restic"
 import { namespaceEntity, persistentVolumeClaimEntity } from "../resources"
-import { clusterEntity } from "../shared"
+import { clusterEntity, helmExtensionArgs, schedulingArg, serviceArg } from "../shared"
+
+export {
+  helmExtensionArgs,
+  type JsonPatchOperation,
+  jsonPatchOperationSchema,
+  type Scheduling,
+  type ServiceArgs,
+  schedulingArg,
+  schedulingSchema,
+  serviceArg,
+} from "../shared"
 
 export const sharedArgs = $args({
   /**
@@ -48,10 +59,9 @@ export const sharedArgs = $args({
    */
   namespace: z.string().optional(),
 
-  /**
-   * The deep merge patch to apply to the values of the Helm chart.
-   */
-  values: z.record(z.string(), z.unknown()).default({}),
+  ...helmExtensionArgs,
+  ...serviceArg,
+  ...schedulingArg,
 })
 
 type ToOptionalArgs<T extends Record<string, FullComponentArgumentOptions>> = Simplify<{

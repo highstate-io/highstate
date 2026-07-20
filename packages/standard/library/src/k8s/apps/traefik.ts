@@ -13,7 +13,7 @@ export const traefik = defineUnit({
 
   args: {
     ...appName("traefik"),
-    ...pick(sharedArgs, ["external", "replicas", "values"]),
+    ...pick(sharedArgs, ["external", "replicas", "values", "patches", "service", "scheduling"]),
 
     /**
      * The name of the class to configure for ingress and gateway resources.
@@ -21,11 +21,6 @@ export const traefik = defineUnit({
      * Defaults to "traefik".
      */
     className: z.string().default("traefik"),
-
-    /**
-     * The node selector to apply to all Traefik pods.
-     */
-    nodeSelector: z.record(z.string(), z.string()).default({}),
 
     /**
      * Whether to create and enable reconciliation for Traefik CRDs.
@@ -46,11 +41,6 @@ export const traefik = defineUnit({
      * Whether to enable reconciliation for Gateway API resources and create gateway class.
      */
     enableGatewayApi: z.boolean().default(false),
-
-    /**
-     * The extra patch to the Traefik service.
-     */
-    service: z.record(z.string(), z.unknown()).default({}),
   },
 
   inputs: {

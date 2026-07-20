@@ -1,4 +1,4 @@
-import type { network, restic } from "@highstate/library"
+import type { k8s, network, restic } from "@highstate/library"
 import {
   type TriggerInvocation,
   text,
@@ -33,7 +33,7 @@ import {
   output,
   toPromise,
 } from "@highstate/pulumi"
-import { batch } from "@pulumi/kubernetes"
+import { batch, type types } from "@pulumi/kubernetes"
 import { join } from "remeda"
 import images from "../assets/images.json"
 import { backupEnvironment } from "./scripts"
@@ -122,6 +122,11 @@ export type BackupJobPairArgs = ScopedResourceArgs & {
    * Extra allowed endpoints for the backup and restore jobs.
    */
   allowedEndpoints?: InputArray<network.L3Endpoint>
+
+  /**
+   * The Kubernetes scheduling options to apply to all backup and restore pods.
+   */
+  scheduling?: k8s.Scheduling
 }
 
 export class BackupJobPair extends ComponentResource {
@@ -141,6 +146,16 @@ export class BackupJobPair extends ComponentResource {
   readonly restoreJob: Job
 
   /**
+   * The init container spec which waits for the restore job to complete.
+   */
+  readonly restoreWaitContainer: types.input.core.v1.Container
+
+  /**
+   * The RBAC rule required by the restore wait container.
+   */
+  readonly restoreWaitRule: types.input.rbac.v1.PolicyRule
+
+  /**
    * The cron job resource which backups the volume regularly.
    */
   readonly backupJob: CronJob
@@ -158,6 +173,48 @@ export class BackupJobPair extends ComponentResource {
     super("highstate:restic:BackupJobPair", name, args, opts)
 
     const cluster = output(args.namespace).cluster
+    const restoreJobName = `${name}-restore`
+
+    this.restoreWaitContainer = {
+      name: "wait-for-restore",
+      image: k8sImages["terminal-kubectl"].image,
+      command: ["sh", "-c"],
+      args: [
+        text`
+          set -eu
+
+          while true; do
+            complete=$(kubectl get job "$RESTORE_JOB" -n "$RESTORE_NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>/dev/null || true)
+            failed=$(kubectl get job "$RESTORE_JOB" -n "$RESTORE_NAMESPACE" -o jsonpath='{.status.conditions[?(@.type=="Failed")].status}' 2>/dev/null || true)
+
+            if [ "$complete" = "True" ]; then
+              exit 0
+            fi
+
+            if [ "$failed" = "True" ]; then
+              echo "Restore job '$RESTORE_JOB' failed" >&2
+              exit 1
+            fi
+
+            sleep 2
+          done
+        `,
+      ],
+      env: [
+        { name: "RESTORE_JOB", value: restoreJobName },
+        {
+          name: "RESTORE_NAMESPACE",
+          valueFrom: { fieldRef: { fieldPath: "metadata.namespace" } },
+        },
+      ],
+    }
+
+    this.restoreWaitRule = {
+      apiGroups: ["batch"],
+      resources: ["jobs"],
+      resourceNames: [restoreJobName],
+      verbs: ["get"],
+    }
 
     this.credentials = Secret.create(
       `${name}-backup-credentials`,
@@ -285,7 +342,7 @@ export class BackupJobPair extends ComponentResource {
     )
 
     this.restoreJob = Job.create(
-      `${name}-restore`,
+      restoreJobName,
       {
         namespace: args.namespace,
 
@@ -298,6 +355,9 @@ export class BackupJobPair extends ComponentResource {
         ),
 
         backoffLimit: 2,
+        template: {
+          spec: args.scheduling,
+        },
       },
       { ...opts, parent: this },
     )
@@ -321,6 +381,9 @@ export class BackupJobPair extends ComponentResource {
         jobTemplate: {
           spec: {
             backoffLimit: 2,
+            template: {
+              spec: args.scheduling,
+            },
           },
         },
       },

@@ -2,7 +2,7 @@ import { defineUnit, z } from "@highstate/contract"
 import * as vault from "../apps/vault"
 import { tlsIssuerEntity } from "../common"
 import * as dns from "../dns"
-import { clusterEntity } from "./shared"
+import { clusterEntity, helmExtensionArgs, schedulingArg } from "./shared"
 
 export const tlsIssuerDataSchema = z.object({
   /**
@@ -23,6 +23,9 @@ export const certManager = defineUnit({
   type: "k8s.cert-manager.v1",
 
   args: {
+    ...helmExtensionArgs,
+    ...schedulingArg,
+
     /**
      * Whether to enable the native support for Gateway API in cert-manager.
      *

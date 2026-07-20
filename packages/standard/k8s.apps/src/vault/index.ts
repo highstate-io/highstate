@@ -1,6 +1,6 @@
 import { generateKey, l4EndpointToL7, l7EndpointToString } from "@highstate/common"
 import { z } from "@highstate/contract"
-import { Chart, KubeCommand, Namespace, Secret } from "@highstate/k8s"
+import { Chart, ClusterAccessScope, KubeCommand, Namespace, Secret } from "@highstate/k8s"
 import { k8s, vault } from "@highstate/library"
 import { forUnit, makeEntityOutput, makeSecretOutput, output, toPromise } from "@highstate/pulumi"
 import { BackupJobPair } from "@highstate/restic"
@@ -115,17 +115,66 @@ if (args.backend === "s3") {
   }
 }
 
+const backupJobPair =
+  resticRepo && args.backend === "file"
+    ? new BackupJobPair(
+        `${args.appName}-0`,
+        {
+          namespace,
+
+          resticRepo,
+          backupKey,
+          scheduling: args.scheduling,
+
+          volume: {
+            name: "data",
+            persistentVolumeClaim: {
+              claimName: `data-${args.appName}-0`,
+            },
+          },
+        },
+        { deletedWith: namespace },
+      )
+    : undefined
+
+const restoreAccess = backupJobPair
+  ? new ClusterAccessScope(
+      `${args.appName}-restore`,
+      {
+        namespace,
+        rule: backupJobPair.restoreWaitRule,
+      },
+      { deletedWith: namespace },
+    )
+  : undefined
+
 const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
     chart: charts.vault,
     values: {
       fullnameOverride: args.appName,
       nameOverride: args.appName,
       ...chartValues,
+      injector: args.scheduling,
+      server: {
+        ...chartValues.server,
+        ...args.scheduling,
+        ...(backupJobPair &&
+          restoreAccess && {
+            extraInitContainers: [backupJobPair.restoreWaitContainer],
+            serviceAccount: {
+              create: false,
+              name: restoreAccess.serviceAccountName,
+            },
+          }),
+      },
+      csi: {
+        pod: args.scheduling,
+      },
     },
-    service: { external: args.external },
     routes: args.fqdn
       ? {
           main: {
@@ -185,27 +234,7 @@ const connection = makeEntityOutput({
   },
 })
 
-const backupJobPairs =
-  resticRepo && args.backend === "file"
-    ? chart.statefulSet.apply(statefulSet => {
-        return statefulSet.persistentVolumeClaims.apply(persistentVolumeClaims => {
-          return persistentVolumeClaims.map((volume, index) => {
-            return new BackupJobPair(
-              `${args.appName}-${index}`,
-              {
-                namespace,
-
-                resticRepo,
-                backupKey,
-
-                volume,
-              },
-              { dependsOn: volume, deletedWith: namespace },
-            )
-          })
-        })
-      })
-    : output([] as BackupJobPair[])
+const backupJobPairs = output(backupJobPair ? [backupJobPair] : [])
 
 export default outputs({
   connection,

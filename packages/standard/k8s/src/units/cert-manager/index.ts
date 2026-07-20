@@ -10,10 +10,13 @@ const namespace = Namespace.create("cert-manager", { cluster: inputs.k8sCluster 
 
 new Chart("cert-manager", {
   namespace,
+  args,
 
   chart: charts["cert-manager"],
 
   values: {
+    ...args.scheduling,
+
     crds: {
       enabled: true,
     },
@@ -23,6 +26,10 @@ new Chart("cert-manager", {
       kind: "ControllerConfiguration",
       enableGatewayAPI: args.enableGatewayApi,
     },
+
+    webhook: args.scheduling,
+    cainjector: args.scheduling,
+    startupapicheck: args.scheduling,
   },
 })
 

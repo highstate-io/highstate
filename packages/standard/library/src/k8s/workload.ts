@@ -102,6 +102,25 @@ export const deploymentEntity = defineEntity({
 })
 
 /**
+ * The entity which represents a Kubernetes daemon set managed by Highstate.
+ *
+ * Also includes a service associated with the daemon set.
+ */
+export const daemonSetEntity = defineEntity({
+  type: "k8s.daemon-set.v1",
+
+  extends: { workloadEntity },
+  schema: z.unknown(),
+
+  meta: {
+    color: "#2196F3",
+    title: "Daemon Set",
+    icon: "devicon:kubernetes",
+    iconColor: "#2196F3",
+  },
+})
+
+/**
  * The entity which represents a Kubernetes stateful set managed by Highstate.
  *
  * Also includes a service associated with the stateful set.
@@ -155,6 +174,8 @@ export type CronJob = EntityValue<typeof cronJobEntity>
 export type CronJobInput = EntityInput<typeof cronJobEntity>
 export type Deployment = EntityValue<typeof deploymentEntity>
 export type DeploymentInput = EntityInput<typeof deploymentEntity>
+export type DaemonSet = EntityValue<typeof daemonSetEntity>
+export type DaemonSetInput = EntityInput<typeof daemonSetEntity>
 export type StatefulSet = EntityValue<typeof statefulSetEntity>
 export type StatefulSetInput = EntityInput<typeof statefulSetEntity>
 export type NetworkInterface = EntityValue<typeof networkInterfaceEntity>

@@ -19,7 +19,7 @@ export const postgresql = defineUnit({
 
   args: {
     ...appName("postgresql"),
-    ...pick(sharedArgs, ["namespace", "external"]),
+    ...pick(sharedArgs, ["namespace", "external", "values", "patches", "service", "scheduling"]),
   },
 
   secrets: {

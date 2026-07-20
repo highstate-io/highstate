@@ -21,7 +21,7 @@ export const minio = defineUnit({
   args: {
     ...appName("minio"),
     ...pick(optionalSharedArgs, ["fqdn", "namespace"]),
-    ...pick(sharedArgs, ["external"]),
+    ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
 
     /**
      * The FQDN of the MinIO console.

@@ -22,7 +22,9 @@ import {
   output,
 } from "@pulumi/pulumi"
 import { sha256 } from "crypto-hash"
+import { deepmerge } from "deepmerge-ts"
 import { glob } from "glob"
+import { applyPatch, type JsonPatchOperation } from "json-joy/lib/json-patch/index.js"
 import spawn from "nano-spawn"
 import { isNonNullish, omit } from "remeda"
 import { Deployment } from "./deployment"
@@ -142,6 +144,31 @@ export type ChartArgs = Omit<
   "chart" | "version" | "repositoryOpts" | "namespace"
 > & {
   /**
+   * The standard arguments used to extend the Helm values.
+   */
+  args?: {
+    /**
+     * Whether the chart service should be exposed externally.
+     */
+    external?: Input<boolean>
+
+    /**
+     * The arguments to apply to the chart service.
+     */
+    service?: Input<Omit<ServiceArgs, "cluster" | "namespace">>
+
+    /**
+     * The values to deep merge over the chart helper values.
+     */
+    values?: Input<Record<string, unknown>>
+
+    /**
+     * The JSON Patch operations to apply to the merged values in order.
+     */
+    patches?: Input<JsonPatchOperation[]>
+  }
+
+  /**
    * The namespace to deploy the chart into.
    */
   namespace: Input<Namespace>
@@ -239,6 +266,20 @@ export class Chart extends ComponentResource {
       output(namespace ? getNamespaceName(namespace) : "default"),
     )
 
+    const values = output({
+      chartValues: args.values ?? {},
+      values: args.args?.values ?? {},
+      patches: args.args?.patches ?? [],
+    }).apply(({ chartValues, values, patches }) => resolveChartValues(chartValues, values, patches))
+
+    const service = output({
+      service: args.args?.service ?? {},
+      overrides: args.service ?? {},
+      external: args.args?.external,
+    }).apply(({ service, overrides, external }) =>
+      deepmerge(service, overrides, external === undefined ? {} : { external }),
+    )
+
     this.chart = output(args.namespace).cluster.apply(cluster => {
       return new helm.v4.Chart(
         name,
@@ -247,8 +288,9 @@ export class Chart extends ComponentResource {
             ...args,
             chart: resolveHelmChart(args.chart),
             namespace,
+            values,
           },
-          ["route", "routes"],
+          ["args", "route", "routes"],
         ),
         {
           ...opts,
@@ -272,8 +314,9 @@ export class Chart extends ComponentResource {
                   resourceArgs.props.spec as types.input.core.v1.ServiceSpec,
                 )
 
-                const serviceSpec = await toPromise(createServiceSpec(args.service ?? {}, cluster))
-                const serviceMetadata = await toPromise(args.service?.metadata ?? {})
+                const resolvedService = await toPromise(service)
+                const serviceSpec = await toPromise(createServiceSpec(resolvedService, cluster))
+                const serviceMetadata = await toPromise(resolvedService.metadata ?? {})
 
                 return {
                   props: {
@@ -449,7 +492,7 @@ export class Chart extends ComponentResource {
                     {
                       namespace: args.namespace,
                       statefulSet: resource,
-                      service: this.getServiceOutput(name),
+                      service: this.getServiceOutput(args.serviceName ?? name),
                       terminal: args.terminal,
                     },
                     this.opts,
@@ -636,6 +679,36 @@ export class Chart extends ComponentResource {
   getStatefulSet(name: string): Promise<StatefulSet> {
     return toPromise(this.getStatefulSetOutput(name))
   }
+}
+
+/**
+ * Resolves the final values passed to a Helm chart.
+ *
+ * @param chartValues The values provided by the chart helper.
+ * @param values The values provided by the Chart caller.
+ * @param patches The JSON Patch operations to apply in order.
+ * @returns The merged and patched Helm values.
+ */
+export function resolveChartValues(
+  chartValues: Record<string, unknown>,
+  values: Record<string, unknown>,
+  patches: JsonPatchOperation[],
+): Record<string, unknown> {
+  let result: unknown = deepmerge(chartValues, values)
+
+  for (const [index, patch] of patches.entries()) {
+    try {
+      result = applyPatch(result, [patch], { mutate: false }).doc
+    } catch (error) {
+      throw new Error(`Failed to apply Helm values patch at index ${index}`, { cause: error })
+    }
+  }
+
+  if (typeof result !== "object" || result === null || Array.isArray(result)) {
+    throw new Error("Helm values patches must produce an object")
+  }
+
+  return result as Record<string, unknown>
 }
 
 export type RenderedChartArgs = {

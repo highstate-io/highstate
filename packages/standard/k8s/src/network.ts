@@ -51,12 +51,16 @@ export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
 
 export function requireBestEndpoint<TEndpoint extends network.L3Endpoint>(
   endpoints: TEndpoint[],
-  cluster: k8s.Cluster,
+  cluster?: k8s.Cluster,
 ): TEndpoint {
   const endpoint = getBestEndpoint(endpoints, cluster)
 
   if (!endpoint) {
-    throw new Error(`No best endpoint found for cluster "${cluster.name}" (${cluster.id})`)
+    if (cluster) {
+      throw new Error(`No best endpoint found for cluster "${cluster.name}" (${cluster.id})`)
+    }
+
+    throw new Error("No endpoints provided to requireBestEndpoint()")
   }
 
   return endpoint

@@ -61,6 +61,7 @@ const backupJobPair = inputs.resticRepo
 
         resticRepo: inputs.resticRepo,
         backupKey,
+        scheduling: args.scheduling,
 
         environments: [baseEnvironment, backupEnvironment],
 
@@ -94,10 +95,13 @@ const chart = new Chart(
   args.appName,
   {
     namespace,
+    args,
 
     chart: charts.postgresql,
 
     values: {
+      ...args.scheduling,
+
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
@@ -117,10 +121,6 @@ const chart = new Chart(
         existingClaim: dataVolumeClaim.metadata.name,
       },
     },
-
-    service: {
-      external: args.external,
-    },
   },
   { dependsOn: backupJobPair, deletedWith: namespace },
 )
@@ -135,7 +135,7 @@ const systemIdCommand = KubeCommand.execInto(`${args.appName}-system-id`, {
 
 const connection = makeEntityOutput({
   entity: postgresql.connectionEntity,
-  identity: systemIdCommand.stdout.apply(s => s.trim()),
+  identity: systemIdCommand.stdout.apply(systemId => systemId?.trim() ?? args.appName),
   meta: {
     title: args.appName,
   },
