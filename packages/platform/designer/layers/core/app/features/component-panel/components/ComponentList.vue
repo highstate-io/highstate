@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { groupBy, map, pipe, sortBy } from "remeda"
-import type { ComponentModel } from "@highstate/contract"
+import { parseVersionedName, type ComponentModel } from "@highstate/contract"
 import ComponentTemplate from "./ComponentTemplate.vue"
 
 const { projectId } = defineProps<{
@@ -10,23 +10,68 @@ const { projectId } = defineProps<{
 const libraryStore = await useProjectLibraryStore.async(projectId)
 await until(() => libraryStore.initialized).toBe(true)
 
+type ComponentGroup = {
+  baseName: string
+  components: ComponentModel[]
+}
+
+const getComponentBaseName = (component: ComponentModel): string => {
+  try {
+    return parseVersionedName(component.type)[0]
+  } catch {
+    return component.type
+  }
+}
+
+const getComponentVersion = (component: ComponentModel): number => {
+  try {
+    return parseVersionedName(component.type)[1]
+  } catch {
+    return 0
+  }
+}
+
 const componentsByCategory = computed(() => {
   if (!libraryStore.initialized) {
     return []
   }
 
+  const filteredBaseNames = new Set(
+    (libraryStore.library.filteredComponents as ComponentModel[]).map(getComponentBaseName),
+  )
+
+  const components = (Object.values(libraryStore.library.components) as ComponentModel[]).filter(
+    component => filteredBaseNames.has(getComponentBaseName(component)),
+  )
+
+  const componentGroups = pipe(
+    components,
+    groupBy(getComponentBaseName),
+    groups => Object.entries(groups),
+    map(([baseName, components]) => {
+      return {
+        baseName,
+        components: sortBy(components, component => -getComponentVersion(component)),
+      } satisfies ComponentGroup
+    }),
+  )
+
   return pipe(
-    libraryStore.library.filteredComponents as ComponentModel[],
-    groupBy(component => component.meta.category ?? "Uncategorized"),
+    componentGroups,
+    groupBy(group => group.components[0]?.meta.category ?? "Uncategorized"),
     groups => Object.entries(groups),
     sortBy(([category]) => (category === "Uncategorized" ? "z" : category)),
-    map(([category, components]) => {
+    map(([category, componentGroups]) => {
       return [
         category,
-        sortBy(components, component => component.meta.title ?? component.type),
+        sortBy(componentGroups, group => group.components[0]?.meta.title ?? group.baseName),
       ] as const
     }),
   )
+})
+
+const componentGroupCount = computed(() => {
+  return componentsByCategory.value.reduce((total, [, components]) => total + components.length, 0)
 })
 </script>
 
@@ -51,9 +96,9 @@ const componentsByCategory = computed(() => {
         <div class="text-uppercase text-disabled">{{ category }} ({{ components.length }})</div>
 
         <ComponentTemplate
-          v-for="component in components"
-          :key="component.type"
-          :component="component"
+          v-for="componentGroup in components"
+          :key="componentGroup.baseName"
+          :components="componentGroup.components"
         />
       </div>
 
@@ -66,10 +111,10 @@ const componentsByCategory = computed(() => {
     </div>
 
     <div
-      v-if="(libraryStore.library.filteredComponents.length ?? 0) > 0"
+      v-if="componentGroupCount > 0"
       class="mb-2 text-center text-uppercase text-disabled"
     >
-      Found {{ libraryStore.library.filteredComponents.length }} component(s)
+      Found {{ componentGroupCount }} component(s)
     </div>
   </div>
 </template>
