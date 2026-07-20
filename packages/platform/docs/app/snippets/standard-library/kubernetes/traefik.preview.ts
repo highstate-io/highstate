@@ -19,6 +19,15 @@ k8s.apps.traefik({
   args: {
     external: true,
     enableGatewayApi: true,
+    values: {
+      deployment: {
+        replicas: 1,
+        podAnnotations: {
+          "example.com/managed-by": "highstate",
+        },
+      },
+    },
+    patches: [{ op: "replace", path: "/deployment/replicas", value: 2 }],
   },
   inputs: {
     k8sCluster,
