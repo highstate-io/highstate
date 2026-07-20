@@ -20,19 +20,50 @@ import images from "../../assets/images.json"
 import { Command } from "./command"
 import { l3EndpointToL4, l3EndpointToString } from "./network/endpoints"
 
-export function createSshTerminal(connection: ssh.Connection): UnitTerminal {
-  const command = ["ssh", "-tt", "-o", "UserKnownHostsFile=/known_hosts"]
+function getSshHost(endpoint: network.L3Endpoint): string {
+  const host = l3EndpointToString(endpoint)
 
-  // TODO: select best endpoint based on the environment
+  return endpoint.type === "ipv6" ? `[${host}]` : host
+}
+
+export function createSshTerminal(connection: ssh.Connection): UnitTerminal {
   const endpoint = connection.endpoints[0]
 
-  command.push("-p", endpoint.port.toString())
+  const command = connection.proxy
+    ? ["ssh", "-F", "/ssh_config", "-tt", "highstate-target"]
+    : ["ssh", "-tt", "-o", "UserKnownHostsFile=/known_hosts"]
 
-  if (connection.keyPair) {
+  if (!connection.proxy) {
+    command.push("-p", endpoint.port.toString())
+  }
+
+  if (connection.keyPair && !connection.proxy) {
     command.push("-i", "/private_key")
   }
 
-  command.push(`${connection.user}@${l3EndpointToString(endpoint)}`)
+  if (!connection.proxy) {
+    command.push(`${connection.user}@${l3EndpointToString(endpoint)}`)
+  }
+
+  const sshConfig = text`
+    Host highstate-target
+      HostName ${l3EndpointToString(endpoint)}
+      Port ${endpoint.port}
+      User ${connection.user}
+      UserKnownHostsFile /known_hosts
+      HostKeyAlias highstate-target
+      ${connection.keyPair ? "IdentityFile /private_key" : ""}
+      ProxyJump highstate-proxy
+
+    Host highstate-proxy
+      HostName ${connection.proxy ? l3EndpointToString(connection.proxy.endpoint) : ""}
+      Port ${connection.proxy?.endpoint.port ?? 22}
+      User ${connection.proxy?.user ?? "root"}
+      StrictHostKeyChecking no
+      UserKnownHostsFile /dev/null
+      LogLevel ERROR
+      ${connection.keyPair ? "IdentityFile /private_key" : ""}
+  `
 
   if (connection.password) {
     command.unshift("sshpass", "-f", "/password")
@@ -71,9 +102,19 @@ export function createSshTerminal(connection: ssh.Connection): UnitTerminal {
 
         "/known_hosts": makeFile({
           name: "known_hosts",
-          content: `${l3EndpointToString(endpoint)} ${connection.hostKey}`,
+          content: connection.proxy
+            ? `highstate-target ${connection.hostKey}`
+            : `${getSshHost(endpoint)} ${connection.hostKey}`,
           mode: 0o644,
         }),
+
+        "/ssh_config": connection.proxy
+          ? makeFile({
+              name: "ssh_config",
+              content: sshConfig,
+              mode: 0o600,
+            })
+          : undefined,
       }),
     },
   }
@@ -183,6 +224,11 @@ export type ServerOptions = {
   sshKeyPair?: Input<ssh.KeyPair>
 
   /**
+   * The SSH proxy server to use for connecting to the server.
+   */
+  sshProxy?: Input<ssh.Proxy>
+
+  /**
    * Whether to wait for the server to respond to a ping command before returning.
    *
    * If true, the command will wait for a successful ping response before proceeding.
@@ -279,6 +325,7 @@ export async function createServerEntity(options: ServerOptions): Promise<common
     sshPassword,
     sshPrivateKey,
     sshKeyPair,
+    sshProxy,
     pingInterval,
     pingTimeout,
     waitForPing = !sshArgs.enabled,
@@ -286,6 +333,7 @@ export async function createServerEntity(options: ServerOptions): Promise<common
     sshCheckInterval,
     sshCheckTimeout,
   } = await toPromise(options)
+  const effectiveSshProxy = sshProxy ?? sshArgs.proxy
 
   if (endpoints.length === 0) {
     throw new Error("At least one L3 endpoint is required to create a server entity")
@@ -316,10 +364,43 @@ export async function createServerEntity(options: ServerOptions): Promise<common
   }
 
   const sshHost = sshArgs?.host ?? l3EndpointToString(endpoints[0])
+  const proxy = effectiveSshProxy
+
+  const checkHost = proxy
+    ? await makeEntityAsync({
+        entity: common.serverEntity,
+        identity: getCombinedIdentity(["ssh-proxy", proxy.endpoint, proxy.user]),
+        meta: {
+          title: `${proxy.user}@${l3EndpointToString(proxy.endpoint)}`,
+        },
+        value: {
+          hostname: l3EndpointToString(proxy.endpoint),
+          endpoints: [proxy.endpoint],
+          ssh: makeEntityOutput({
+            entity: ssh.connectionEntity,
+            identity: getCombinedIdentity(["ssh-proxy", proxy.endpoint, proxy.user]),
+            meta: {
+              title: `${proxy.user}@${l3EndpointToString(proxy.endpoint)}`,
+            },
+            value: {
+              endpoints: [proxy.endpoint],
+              user: proxy.user,
+              hostKey: "",
+              password: sshPassword ? makeSecret(sshPassword) : undefined,
+              keyPair: sshKeyPair
+                ? sshKeyPair
+                : sshPrivateKey
+                  ? sshPrivateKeyToKeyPair(sshPrivateKey)
+                  : undefined,
+            },
+          }),
+        },
+      })
+    : "local"
 
   if (waitForSsh) {
     await Command.waitFor(`${name}.ssh`, {
-      host: "local",
+      host: checkHost,
       create: `nc -zv ${sshHost} ${sshArgs.port}`,
       timeout: sshCheckTimeout ?? 300,
       interval: sshCheckInterval ?? 5,
@@ -334,6 +415,16 @@ export async function createServerEntity(options: ServerOptions): Promise<common
     password: sshPassword,
     privateKey: sshKeyPair ? output(sshKeyPair).privateKey.value : sshPrivateKey,
     dialErrorLimit: 3,
+    proxy: effectiveSshProxy
+      ? {
+          host: l3EndpointToString(effectiveSshProxy.endpoint),
+          port: effectiveSshProxy.endpoint.port,
+          user: effectiveSshProxy.user,
+          password: sshPassword,
+          privateKey: sshKeyPair ? output(sshKeyPair).privateKey.value : sshPrivateKey,
+          dialErrorLimit: 3,
+        }
+      : undefined,
   })
 
   const hostnameResult = new remote.Command(`${name}.hostname`, {
@@ -378,6 +469,7 @@ export async function createServerEntity(options: ServerOptions): Promise<common
           user,
           hostKey,
           password: sshPassword ? makeSecret(sshPassword) : undefined,
+          proxy: effectiveSshProxy,
           keyPair: sshKeyPair
             ? sshKeyPair
             : sshPrivateKey

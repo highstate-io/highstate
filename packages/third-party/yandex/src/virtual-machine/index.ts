@@ -70,10 +70,16 @@ const userData = interpolate`
       sudo: ALL=(ALL) NOPASSWD:ALL
 `.apply(trimIndentation)
 
-let publicAddress: VpcAddress | undefined
+let publicAddress: string | Output<string> | undefined
 
-if (args.network.assignPublicIp && args.network.reservePublicIp) {
-  publicAddress = new VpcAddress(
+if (inputs.publicAddress && !args.network.assignPublicIp) {
+  throw new Error('Cannot use "publicAddress" when "network.assignPublicIp" is false')
+}
+
+if (inputs.publicAddress) {
+  publicAddress = inputs.publicAddress.address
+} else if (args.network.assignPublicIp && args.network.reservePublicIp) {
+  const address = new VpcAddress(
     "address",
     {
       name: vmName,
@@ -85,6 +91,8 @@ if (args.network.assignPublicIp && args.network.reservePublicIp) {
     },
     { provider },
   )
+
+  publicAddress = address.externalIpv4Address.apply(a => a!.address)
 }
 
 // create the instance
@@ -116,9 +124,7 @@ const instance = new ComputeInstance(
       {
         subnetId: subnetId,
         nat: args.network.assignPublicIp,
-        natIpAddress: publicAddress
-          ? publicAddress.externalIpv4Address.apply(a => a!.address)
-          : undefined,
+        natIpAddress: publicAddress,
       },
     ],
 

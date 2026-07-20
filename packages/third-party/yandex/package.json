@@ -9,6 +9,7 @@
     "./connection": "./dist/connection/index.js",
     "./disk": "./dist/disk/index.js",
     "./existing-image": "./dist/existing-image/index.js",
+    "./public-address": "./dist/public-address/index.js",
     "./virtual-machine": "./dist/virtual-machine/index.js",
     "./instance-group": "./dist/instance-group/index.js"
   },

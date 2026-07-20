@@ -34,15 +34,27 @@ import { l3EndpointToString } from "./network/endpoints"
 export function getServerConnection(
   ssh: Input<ssh.Connection>,
 ): Output<types.input.remote.ConnectionArgs> {
-  return output(ssh).apply(ssh => ({
-    host: l3EndpointToString(ssh.endpoints[0]),
-    port: ssh.endpoints[0].port,
-    user: ssh.user,
-    password: ssh.password?.value,
-    privateKey: ssh.keyPair?.privateKey.value,
-    dialErrorLimit: 3,
-    hostKey: ssh.hostKey,
-  }))
+  return output(ssh).apply(ssh => {
+    return {
+      host: l3EndpointToString(ssh.endpoints[0]),
+      port: ssh.endpoints[0].port,
+      user: ssh.user,
+      password: ssh.password?.value,
+      privateKey: ssh.keyPair?.privateKey.value,
+      dialErrorLimit: 3,
+      hostKey: ssh.hostKey || undefined,
+      proxy: ssh.proxy
+        ? {
+            host: l3EndpointToString(ssh.proxy.endpoint),
+            port: ssh.proxy.endpoint.port,
+            user: ssh.proxy.user,
+            password: ssh.password?.value,
+            privateKey: ssh.keyPair?.privateKey.value,
+            dialErrorLimit: 3,
+          }
+        : undefined,
+    }
+  })
 }
 
 export type CommandHost = "local" | Input<common.Server>

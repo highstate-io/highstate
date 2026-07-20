@@ -8,6 +8,7 @@ import {
   z,
 } from "@highstate/contract"
 import { serverEntity, serverOutputs, vmSecrets, vmSshArgs } from "../common"
+import { l4EndpointEntity, portSchema } from "../network"
 import * as ssh from "../ssh"
 
 export const connectionEntity = defineEntity({
@@ -77,7 +78,7 @@ export const connection = defineUnit({
            * The default availability zone in ru-central1 to place resources in.
            */
           defaultZone: z
-            .enum(["ru-central1-a", "ru-central1-b", "ru-central1-d"])
+            .enum(["ru-central1-a", "ru-central1-b", "ru-central1-d", "ru-central1-e"])
             .default("ru-central1-d"),
         }),
         z.object({
@@ -219,6 +220,91 @@ export const disk = defineUnit({
   source: {
     package: "@highstate/yandex",
     path: "disk",
+  },
+})
+
+export const publicAddressEntity = defineEntity({
+  type: "yandex.public-address.v1",
+
+  schema: z.object({
+    /**
+     * The global ID of the public address.
+     */
+    id: z.string(),
+
+    /**
+     * The name of the public address.
+     */
+    name: z.string(),
+
+    /**
+     * The IPv4 address value.
+     */
+    address: z.string(),
+  }),
+
+  meta: {
+    title: "YC Public Address",
+    icon: "simple-icons:yandexcloud",
+    iconColor: "#0080ff",
+    secondaryIcon: "mdi:ip-network-outline",
+  },
+})
+
+/**
+ * The reserved public IPv4 address on Yandex Cloud.
+ */
+export const publicAddress = defineUnit({
+  type: "yandex.public-address.v1",
+
+  args: {
+    /**
+     * The name of the public address in the folder.
+     * If not specified, the name of the unit will be used.
+     */
+    addressName: z.string().optional(),
+
+    /**
+     * The ID of the cloud to create the public address in.
+     * If not specified, will use the cloud from the connection.
+     */
+    cloudId: z.string().optional(),
+
+    /**
+     * The ID of the folder to create the public address in.
+     * If not specified, will use the default folder from the connection.
+     */
+    folderId: z.string().optional(),
+
+    /**
+     * The availability zone to reserve the address in.
+     * If not specified, will use the default zone from the connection.
+     */
+    zone: z.string().optional(),
+  },
+
+  inputs: {
+    connection: connectionEntity,
+  },
+
+  outputs: {
+    /**
+     * The public address entity.
+     */
+    publicAddress: publicAddressEntity,
+  },
+
+  meta: {
+    title: "YC Public Address",
+    category: "Yandex Cloud",
+    icon: "simple-icons:yandexcloud",
+    iconColor: "#0080ff",
+    secondaryIcon: "mdi:ip-network-outline",
+  },
+
+  source: {
+    package: "@highstate/yandex",
+    path: "public-address",
   },
 })
 
@@ -378,6 +464,65 @@ const vmArgs = $args({
   preemptible: z.boolean().default(false),
 })
 
+const nlbArgs = z.object({
+  /**
+   * Whether to create a network load balancer for the instance group.
+   */
+  enabled: z.boolean().default(false),
+
+  /**
+   * The name of the network load balancer.
+   * If not specified, the instance group name will be used.
+   */
+  name: z.string().optional(),
+
+  /**
+   * The load-balanced ports to expose through the shared public address.
+   *
+   * Each listener must use `protocol:source=>target` format, for example `tcp:80=>8080`.
+   *
+   * If the source and target ports are the same, use `protocol:port` shorthand, for example `tcp:80`.
+   *
+   * When SSH is enabled, the `tcp:<ssh-port>` listener is included automatically.
+   */
+  listeners: z.string().array().default([]),
+
+  /**
+   * The health check protocol.
+   */
+  healthCheckProtocol: z.enum(["tcp", "http"]).default("tcp"),
+
+  /**
+   * The port to use for health checks.
+   */
+  healthCheckPort: portSchema.default(22),
+
+  /**
+   * The HTTP path to use for health checks.
+   */
+  healthCheckPath: z.string().default("/"),
+
+  /**
+   * The interval between health checks in seconds.
+   */
+  healthCheckInterval: z.number().int().min(1).max(60).default(2),
+
+  /**
+   * The timeout for health check responses in seconds.
+   */
+  healthCheckTimeout: z.number().int().min(1).max(60).default(1),
+
+  /**
+   * The number of successful checks required to mark a target healthy.
+   */
+  healthCheckHealthyThreshold: z.number().int().default(2),
+
+  /**
+   * The number of failed checks required to mark a target unhealthy.
+   */
+  healthCheckUnhealthyThreshold: z.number().int().default(2),
+})
+
 /**
  * The virtual machine on Yandex Cloud.
  */
@@ -413,6 +558,15 @@ export const virtualMachine = defineUnit({
   inputs: {
     connection: connectionEntity,
     image: imageEntity,
+
+    /**
+     * The reserved public address to attach to the virtual machine.
+     */
+    publicAddress: {
+      entity: publicAddressEntity,
+      required: false,
+    },
+
     ...ssh.inputs,
   },
 
@@ -462,6 +616,17 @@ export const instanceGroup = defineUnit({
      */
     size: z.number().default(1),
 
+    /**
+     * The zones to spread instances across.
+     * If not specified, will use the default zone from the connection.
+     */
+    zones: z.string().array().optional(),
+
+    /**
+     * The network load balancer configuration.
+     */
+    nlb: nlbArgs.prefault({}),
+
     ...vmArgs,
   },
 
@@ -472,6 +637,25 @@ export const instanceGroup = defineUnit({
   inputs: {
     connection: connectionEntity,
     image: imageEntity,
+
+    /**
+     * The public addresses to attach to instances.
+     * Addresses are sorted by name and assigned to instances in that order.
+     */
+    publicAddresses: {
+      entity: publicAddressEntity,
+      required: false,
+      multiple: true,
+    },
+
+    /**
+     * The reserved public address to use for the network load balancer.
+     */
+    nlbPublicAddress: {
+      entity: publicAddressEntity,
+      required: false,
+    },
+
     ...ssh.inputs,
   },
 
@@ -479,6 +663,12 @@ export const instanceGroup = defineUnit({
     servers: {
       entity: serverEntity,
       multiple: true,
+    },
+
+    nlbEndpoints: {
+      entity: l4EndpointEntity,
+      multiple: true,
+      required: false,
     },
   },
 
@@ -501,6 +691,9 @@ export type ConnectionInput = EntityInput<typeof connectionEntity>
 
 export type Disk = EntityValue<typeof diskEntity>
 export type DiskInput = EntityInput<typeof diskEntity>
+
+export type PublicAddress = EntityValue<typeof publicAddressEntity>
+export type PublicAddressInput = EntityInput<typeof publicAddressEntity>
 
 export type Image = EntityValue<typeof imageEntity>
 export type ImageInput = EntityInput<typeof imageEntity>

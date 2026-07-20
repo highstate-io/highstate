@@ -64,6 +64,18 @@ export const keyPairEntity = defineEntity({
   },
 })
 
+export const proxySchema = z.object({
+  /**
+   * The SSH endpoint of the proxy server.
+   */
+  endpoint: l4EndpointEntity.schema,
+
+  /**
+   * The SSH user to connect as on the proxy server.
+   */
+  user: z.string(),
+})
+
 /**
  * The schema for the SSH connection credentials.
  */
@@ -103,6 +115,13 @@ export const connectionEntity = defineEntity({
      * The password to use for authentication.
      */
     password: secretSchema(z.string()).optional(),
+
+    /**
+     * The proxy server to use for connecting to the target.
+     *
+     * Proxy server host keys are intentionally not verified.
+     */
+    proxy: proxySchema.optional(),
   }),
 
   meta: {
@@ -135,6 +154,13 @@ export const argsSchema = z.object({
    * The SSH user to connect as.
    */
   user: z.string().default("root"),
+
+  /**
+   * The proxy server to use for connecting to the target.
+   *
+   * Proxy server host keys are intentionally not verified.
+   */
+  proxy: proxySchema.optional(),
 })
 
 export const secrets = $secrets({
@@ -237,6 +263,7 @@ export const keyPair = defineUnit({
 })
 
 export type Args = z.infer<typeof argsSchema>
+export type Proxy = z.infer<typeof proxySchema>
 export type KeyType = z.infer<typeof keyTypeSchema>
 export type PublicKey = EntityValue<typeof publicKeyEntity>
 export type KeyPair = EntityValue<typeof keyPairEntity>

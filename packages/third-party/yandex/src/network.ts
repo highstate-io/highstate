@@ -32,7 +32,15 @@ export async function detectSubnetId(
     return subnetId
   }
 
-  const defaultSubnetName = await toPromise(interpolate`default-${connection.defaultZone}`)
+  return await detectDefaultSubnetId(connection.defaultZone, connection, provider)
+}
+
+export async function detectDefaultSubnetId(
+  zone: string,
+  connection: yandex.Connection,
+  provider: Provider,
+): Promise<string> {
+  const defaultSubnetName = await toPromise(interpolate`default-${zone}`)
   const subnet = await getVpcSubnet(
     {
       folderId: await toPromise(connection.defaultFolderId),
@@ -42,9 +50,7 @@ export async function detectSubnetId(
   )
 
   if (!subnet.id) {
-    throw new Error(
-      `Could not find default subnet '${defaultSubnetName}' in zone ${connection.defaultZone}`,
-    )
+    throw new Error(`Could not find default subnet '${defaultSubnetName}' in zone ${zone}`)
   }
 
   return subnet.id
