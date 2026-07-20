@@ -121,6 +121,14 @@ if (inputs.downstreamInterface) {
 }
 
 const interfaceName = identityName.substring(0, 15) // linux kernel limit
+const configPath = `/config/wg_confs/${interfaceName}.conf`
+const quickCommand = network?.backend === "amneziawg" ? "awg-quick" : "wg-quick"
+const startupScript = [
+  "set -e",
+  `${quickCommand} up "${configPath}"`,
+  `trap '${quickCommand} down "${configPath}"' INT TERM EXIT`,
+  "while true; do sleep 3600; done",
+].join("\n")
 
 const configSecret = Secret.create(appName, {
   namespace,
@@ -151,7 +159,8 @@ const workload = await toPromise(
 
     container: deepmerge(
       {
-        image: images.wireguard.image,
+        image: images.wgFeedDaemon.image,
+        command: ["sh", "-c", startupScript],
 
         environment: {
           PUID: "1000",
@@ -160,6 +169,9 @@ const workload = await toPromise(
         },
 
         securityContext: {
+          runAsUser: 0,
+          runAsGroup: 0,
+          runAsNonRoot: false,
           capabilities: {
             add: ["NET_ADMIN"],
           },

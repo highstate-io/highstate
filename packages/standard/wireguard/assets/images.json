@@ -7,6 +7,6 @@
   "wgFeedDaemon": {
     "name": "ghcr.io/exeteres/wg-feed/daemon",
     "tag": "latest",
-    "image": "ghcr.io/exeteres/wg-feed/daemon:latest@sha256:1042e18be28ab3b70c5d5154ea2bedfd89c2c61ecd2f896bc815a44384b249e0"
+    "image": "ghcr.io/exeteres/wg-feed/daemon:latest@sha256:aec2bb1936cd1d09239ec61a017edc5d0f20fb73022d400e7d6384d3d614ab66"
   }
 }

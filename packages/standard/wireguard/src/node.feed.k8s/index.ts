@@ -142,6 +142,7 @@ const workload = await toPromise(
             port: args.listenPort,
             targetPort: args.listenPort,
             protocol: "UDP",
+            nodePort: args.nodePort,
           },
         }
       : undefined,
