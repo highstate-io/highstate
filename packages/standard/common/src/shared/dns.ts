@@ -12,7 +12,7 @@ import {
   type ResourceOptions,
   type Unwrap,
 } from "@highstate/pulumi"
-import { flat } from "remeda"
+import { flat, uniqueBy } from "remeda"
 import { Command, type CommandHost } from "./command"
 import { ImplementationMediator } from "./impl-ref"
 import { type InputEndpoint, l3EndpointToString, parseEndpoint } from "./network/endpoints"
@@ -267,31 +267,45 @@ export class DnsRecordSet extends ComponentResource {
       return matchedProviders
     })
 
-    this.dnsRecords = normalizeInputsAndMap(args.value, args.values, value => {
-      return output({
-        name: args.name ?? name,
-        providers: matchedProviders,
-      }).apply(({ name, providers }) => {
-        return providers.flatMap(provider => {
-          const l3Endpoint = parseEndpoint(value)
+    const uniqueValues = output(
+      normalizeInputsAndMap(args.value, args.values, value => value),
+    ).apply(values => {
+      return uniqueBy(
+        values.map(value => parseEndpoint(value)),
+        endpoint => {
+          return `${args.type ?? getTypeByEndpoint(endpoint)}:${l3EndpointToString(endpoint)}`
+        },
+      )
+    })
 
-          return new DnsRecord(
-            `${name}.${getEntityId(provider)}.${l3EndpointToString(l3Endpoint)}`,
-            {
-              name,
-              provider,
-              value: l3Endpoint,
-              type: args.type ?? getTypeByEndpoint(l3Endpoint),
-              proxied: args.proxied,
-              ttl: args.ttl,
-              priority: args.priority,
-              waitAt: args.waitAt,
-            },
-            { parent: this },
+    this.dnsRecords = uniqueValues
+      .apply(values => {
+        return output({
+          name: args.name ?? name,
+          providers: matchedProviders,
+        }).apply(({ name, providers }) => {
+          return providers.flatMap(provider =>
+            values.map(
+              l3Endpoint =>
+                new DnsRecord(
+                  `${name}.${getEntityId(provider)}.${l3EndpointToString(l3Endpoint)}`,
+                  {
+                    name,
+                    provider,
+                    value: l3Endpoint,
+                    type: args.type ?? getTypeByEndpoint(l3Endpoint),
+                    proxied: args.proxied,
+                    ttl: args.ttl,
+                    priority: args.priority,
+                    waitAt: args.waitAt,
+                  },
+                  { parent: this },
+                ),
+            ),
           )
         })
       })
-    }).apply(flat)
+      .apply(flat)
 
     this.waitCommands = this.dnsRecords
       .apply(records => records.flatMap(record => record.waitCommands))

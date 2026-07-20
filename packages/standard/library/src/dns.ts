@@ -8,7 +8,7 @@ import {
 import { mapValues, pick } from "remeda"
 import { serverEntity } from "./common/server"
 import { implementationReferenceSchema } from "./impl-ref"
-import { l3EndpointEntity, l4EndpointEntity, networkArgs } from "./network"
+import { l3EndpointEntity, l4EndpointEntity, l7EndpointEntity, networkArgs } from "./network"
 
 export const providerEntity = defineEntity({
   type: "dns.provider.v1",
@@ -122,7 +122,7 @@ export const recordSet = defineUnit({
      * The L7 endpoints to use as values of the DNS records.
      */
     l7Endpoints: {
-      entity: l4EndpointEntity,
+      entity: l7EndpointEntity,
       required: false,
       multiple: true,
     },
@@ -152,7 +152,7 @@ export const recordSet = defineUnit({
      * The duplicates are removed and metadata is merged.
      */
     l7Endpoints: {
-      entity: l4EndpointEntity,
+      entity: l7EndpointEntity,
       multiple: true,
     },
   },
