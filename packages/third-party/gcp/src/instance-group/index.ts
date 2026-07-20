@@ -304,17 +304,21 @@ const serverBundles = await Promise.all(
     const firstInterface = instance.networkInterfaces[0]
     const accessConfig = firstInterface?.accessConfigs?.[0]
 
-    const address = args.network.assignPublicIp ? accessConfig?.natIp : firstInterface?.networkIp
-
-    if (!address) {
-      throw new Error(`No IP address assigned to instance "${instanceName}"`)
+    if (!firstInterface?.networkIp) {
+      throw new Error(`No private IP address assigned to instance "${instanceName}"`)
     }
 
-    const endpoint = parseEndpoint(address, 3)
+    if (args.network.assignPublicIp && !accessConfig?.natIp) {
+      throw new Error(`No public IP address assigned to instance "${instanceName}"`)
+    }
+
+    const endpoints = [accessConfig?.natIp, firstInterface.networkIp]
+      .filter(address => address !== undefined)
+      .map(address => parseEndpoint(address, 3))
 
     return await createServerBundle({
       name: instanceName,
-      endpoints: [endpoint],
+      endpoints,
       sshArgs: args.ssh,
       sshPassword: rootPassword,
       sshKeyPair,

@@ -148,30 +148,35 @@ const instance = new gcpProvider.compute.Instance(
   { provider },
 )
 
-const publicIp = await toPromise(
+const addresses = await toPromise(
   instance.networkInterfaces.apply(
     (interfaces: gcpProvider.types.output.compute.InstanceNetworkInterface[]) => {
       const firstInterface = interfaces[0]
       const accessConfig = firstInterface?.accessConfigs?.[0]
 
-      if (args.network.assignPublicIp) {
-        return accessConfig?.natIp
+      if (!firstInterface?.networkIp) {
+        throw new Error("No private IP address assigned to instance")
       }
 
-      return firstInterface?.networkIp
+      return {
+        privateIp: firstInterface.networkIp,
+        publicIp: args.network.assignPublicIp ? accessConfig?.natIp : undefined,
+      }
     },
   ),
 )
 
-if (!publicIp) {
-  throw new Error("No IP address assigned to instance")
+if (args.network.assignPublicIp && !addresses.publicIp) {
+  throw new Error("No public IP address assigned to instance")
 }
 
-const endpoint = parseEndpoint(publicIp, 3)
+const endpoints = [addresses.publicIp, addresses.privateIp]
+  .filter(address => address !== undefined)
+  .map(address => parseEndpoint(address, 3))
 
 const { server, terminal } = await createServerBundle({
   name: vmName,
-  endpoints: [endpoint],
+  endpoints,
   sshArgs: args.ssh,
   sshPassword: rootPassword,
   sshKeyPair,
@@ -182,7 +187,7 @@ export default outputs({
 
   $statusFields: {
     id: instance.id,
-    endpoints: [l3EndpointToString(endpoint)],
+    endpoints: endpoints.map(l3EndpointToString),
     hostname: server.hostname,
   },
 
