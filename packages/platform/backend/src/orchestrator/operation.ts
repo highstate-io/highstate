@@ -102,11 +102,16 @@ export class RuntimeOperation {
         return
       }
 
-      this.logger.error({ error }, "an error occurred while running the operation")
-      console.error(error)
+      const errors = this.getNonAbortErrors(error)
+      for (const cause of errors) {
+        this.logger.error({ error: cause }, "an error occurred while running the operation")
+        console.error(cause)
+      }
 
       await this.updateOperation({ status: "failed" })
-      await this.writeOperationLog(errorToString(error))
+      if (!(error instanceof AggregateError)) {
+        await this.writeOperationLog(errorToString(error))
+      }
     } finally {
       try {
         this.promiseTracker.track(this.flushGhostInstanceDeletions())
@@ -198,6 +203,18 @@ export class RuntimeOperation {
     this.promiseTracker.track(
       this.operationService.appendLog(this.project.id, this.operation.id, null, message),
     )
+  }
+
+  private getNonAbortErrors(error: unknown): unknown[] {
+    if (isAbortErrorLike(error)) {
+      return []
+    }
+
+    if (error instanceof AggregateError) {
+      return Array.from(error.errors).flatMap(cause => this.getNonAbortErrors(cause))
+    }
+
+    return [error]
   }
 
   private launchLockAcquisitionSequence(): void {
@@ -1104,6 +1121,13 @@ export class RuntimeOperation {
     update: TypedUnitStateUpdate<"error">,
     state: InstanceState,
   ): Promise<void> {
+    await this.operationService.appendLog(
+      this.project.id,
+      this.operation.id,
+      state.id,
+      update.message,
+    )
+
     await this.workset.updateState(update.unitId, {
       instanceState:
         this.operation.type === "preview"
@@ -1332,14 +1356,16 @@ export class RuntimeOperation {
             }),
           )
 
-          this.promiseTracker.track(
-            this.operationService.appendLog(
-              this.project.id,
-              this.operation.id,
-              state.id,
-              errorToString(error),
-            ),
-          )
+          if (!isAbortErrorLike(error)) {
+            this.promiseTracker.track(
+              this.operationService.appendLog(
+                this.project.id,
+                this.operation.id,
+                state.id,
+                errorToString(error),
+              ),
+            )
+          }
         }
 
         // rethrow the error
