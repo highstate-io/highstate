@@ -4,21 +4,21 @@ import { createK8sTerminal } from "@highstate/k8s"
 import { common, k3s, k8s } from "@highstate/library"
 import {
   forUnit,
-  type InputRecord,
   interpolate,
   makeEntityOutput,
   makeFileOutput,
-  output,
+  makeSecretOutput,
   secret,
   toPromise,
 } from "@highstate/pulumi"
 import { KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
-import { isIncludedIn, mergeDeep, uniqueBy } from "remeda"
+import { isIncludedIn, uniqueBy } from "remeda"
+import { createK3sNode, createK3sWorker } from "../shared"
 
 const { name, args, inputs, outputs } = forUnit(k3s.cluster)
 
-const { masters, workers } = await toPromise(inputs)
+const { masters, publicEndpoint: inputPublicEndpoint, workers } = await toPromise(inputs)
 
 const seed = masters[0]
 
@@ -27,10 +27,21 @@ const endpoints = uniqueBy(
   l3EndpointToString,
 )
 
+const masterBootstrapEndpoint = l3EndpointToL4(seed.endpoints[0], 6443)
 const apiEndpoints = uniqueBy(
-  masters.flatMap(server => server.endpoints.map(endpoint => l3EndpointToL4(endpoint, 6443))),
+  [
+    ...(inputPublicEndpoint ? [inputPublicEndpoint] : []),
+    ...masters.flatMap(server => server.endpoints.map(endpoint => l3EndpointToL4(endpoint, 6443))),
+  ],
   l4EndpointToString,
 )
+const publicEndpoint = apiEndpoints[0]
+
+if (!publicEndpoint) {
+  throw new Error(`Could not determine K3s public endpoint`)
+}
+
+const tlsSans = Array.from(new Set(apiEndpoints.map(l3EndpointToString)))
 
 const sharedConfig: Record<string, unknown> = {
   ...args.config,
@@ -39,7 +50,7 @@ const sharedConfig: Record<string, unknown> = {
 const serverConfig: Record<string, unknown> = {
   ...sharedConfig,
   ...args.serverConfig,
-  "tls-san": apiEndpoints.map(l3EndpointToString),
+  "tls-san": tlsSans,
   disable: args.disabledComponents.filter(isIncludedIn(k3s.packagedComponents)),
 }
 
@@ -58,7 +69,16 @@ if (args.cni === "none") {
   serverConfig["flannel-backend"] = "none"
 }
 
-const seedInstallCommand = createNode(seed, "server", { K3S_CLUSTER_INIT: "true" })
+const seedInstallCommand = createK3sNode({
+  server: seed,
+  type: "server",
+  env: { K3S_CLUSTER_INIT: "true" },
+  config: serverConfig,
+  registries: args.registries ?? {},
+  nodeConfig: args.nodeConfig,
+})
+let previousMasterReadyCommand = createServerReadyCommand(seed, seedInstallCommand)
+const masterReadyCommands = [previousMasterReadyCommand]
 
 const tokenCommand = Command.receiveTextFile(
   "token",
@@ -66,7 +86,7 @@ const tokenCommand = Command.receiveTextFile(
     host: seed,
     path: "/var/lib/rancher/k3s/server/node-token",
   },
-  { dependsOn: seedInstallCommand },
+  { dependsOn: previousMasterReadyCommand },
 )
 
 const agentTokenCommand = Command.receiveTextFile(
@@ -75,61 +95,63 @@ const agentTokenCommand = Command.receiveTextFile(
     host: seed,
     path: "/var/lib/rancher/k3s/server/agent-token",
   },
-  { dependsOn: seedInstallCommand },
+  { dependsOn: previousMasterReadyCommand },
 )
 
 for (const master of masters.slice(1)) {
-  createNode(master, "server", {
-    K3S_TOKEN: tokenCommand.stdout,
-    INSTALL_K3S_EXEC: `--node-ip=${l3EndpointToString(master.endpoints[0])}`,
-    K3S_URL: `https://${l4EndpointToString(apiEndpoints[0])}`,
+  const installCommand = createK3sNode({
+    server: master,
+    type: "server",
+    env: {
+      K3S_TOKEN: tokenCommand.stdout,
+      K3S_URL: `https://${l4EndpointToString(masterBootstrapEndpoint)}`,
+    },
+    config: serverConfig,
+    registries: args.registries ?? {},
+    nodeConfig: args.nodeConfig,
+    dependsOn: [previousMasterReadyCommand],
   })
+
+  previousMasterReadyCommand = createServerReadyCommand(master, installCommand)
+  masterReadyCommands.push(previousMasterReadyCommand)
 }
+
+const k3sCluster = makeEntityOutput({
+  entity: k3s.clusterEntity,
+  identity: name,
+  meta: {
+    title: name,
+  },
+  value: {
+    name,
+    bootstrapEndpoint: publicEndpoint,
+    agentToken: makeSecretOutput(agentTokenCommand.stdout),
+    agentConfig,
+    registries: args.registries ?? {},
+  },
+})
 
 for (const worker of workers) {
-  createNode(worker, "agent", {
-    K3S_TOKEN: agentTokenCommand.stdout,
-    INSTALL_K3S_EXEC: `--node-ip=${l3EndpointToString(worker.endpoints[0])}`,
-    K3S_URL: `https://${l4EndpointToString(apiEndpoints[0])}`,
+  createK3sWorker({
+    server: worker,
+    bootstrapEndpoint: publicEndpoint,
+    agentToken: agentTokenCommand.stdout,
+    agentConfig,
+    registries: args.registries ?? {},
+    nodeConfig: args.nodeConfig,
+    dependsOn: masterReadyCommands,
   })
 }
 
-function createNode(server: common.Server, type: "server" | "agent", env: InputRecord<string>) {
-  const baseConfig = type === "server" ? serverConfig : agentConfig
-  const nodeSpecificConfig = args.nodeConfig?.[server.hostname] ?? {}
-
-  const mergedConfig = mergeDeep(mergeDeep(baseConfig, nodeSpecificConfig), {
-    "node-ip": l3EndpointToString(server.endpoints[0]),
-  })
-
-  const configFileCommand = Command.createTextFile(`config-${server.hostname}`, {
-    host: server,
-    path: "/etc/rancher/k3s/config.yaml",
-    content: JSON.stringify(mergedConfig, null, 2),
-  })
-
-  const registryConfigFileCommand = Command.createTextFile(`registry-config-${server.hostname}`, {
-    host: server,
-    path: "/etc/rancher/k3s/registries.yaml",
-    content: JSON.stringify(args.registries ?? {}, null, 2),
-  })
-
-  const envString = output(env).apply(env => {
-    return Object.entries(env)
-      .map(([key, value]) => `${key}=${value}`)
-      .join(" ")
-  })
-
+function createServerReadyCommand(server: common.Server, installCommand: Command) {
   return new Command(
-    `install-${server.hostname}`,
+    `ready-${server.hostname}`,
     {
       host: server,
-      create: interpolate`curl -fL https://raw.githubusercontent.com/k3s-io/k3s/refs/heads/main/install.sh | ${envString} sh -s - ${type}`,
-      delete: "/usr/local/bin/k3s-uninstall.sh || true",
+      create: "while ! k3s kubectl get --raw=/readyz >/dev/null 2>&1; do sleep 5; done",
+      ignoreCommandChanges: false,
     },
-    {
-      dependsOn: [configFileCommand, registryConfigFileCommand],
-    },
+    { dependsOn: installCommand },
   )
 }
 
@@ -139,12 +161,12 @@ const kubeconfigResult = Command.receiveTextFile(
     host: seed,
     path: "/etc/rancher/k3s/k3s.yaml",
   },
-  { dependsOn: seedInstallCommand },
+  { dependsOn: masterReadyCommands },
 )
 
 const kubeconfig = await toPromise(
   kubeconfigResult.stdout.apply(kubeconfig =>
-    kubeconfig.replace("127.0.0.1:6443", l4EndpointToString(apiEndpoints[0])),
+    kubeconfig.replace("127.0.0.1:6443", l4EndpointToString(publicEndpoint)),
   ),
 )
 
@@ -201,6 +223,7 @@ const k8sCluster = makeEntityOutput({
 
 export default outputs({
   k8sCluster,
+  cluster: k3sCluster,
 
   $terminals: [createK8sTerminal(kubeconfig)],
 

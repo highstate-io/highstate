@@ -6,7 +6,8 @@
     "dist"
   ],
   "exports": {
-    "./cluster": "./dist/cluster/index.js"
+    "./cluster": "./dist/cluster/index.js",
+    "./worker-group": "./dist/worker-group/index.js"
   },
   "publishConfig": {
     "access": "public"
