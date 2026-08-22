@@ -515,6 +515,21 @@ export function defineEntity<
 
   finalSchema = z.intersection(finalSchema, strictIntersectionBase(entityWithMetaSchema))
 
+  const optionalMultipleInclusions = includeRefs.filter(
+    includeRef => includeRef.multiple && !includeRef.required,
+  )
+  if (optionalMultipleInclusions.length > 0) {
+    finalSchema = finalSchema.overwrite(value => {
+      const record = value as Record<string, unknown>
+
+      for (const inclusion of optionalMultipleInclusions) {
+        record[inclusion.field] ??= []
+      }
+
+      return value
+    })
+  }
+
   const directInclusions = () =>
     includeRefs.map(includeRef => ({
       type: includeRef.getEntity().type,

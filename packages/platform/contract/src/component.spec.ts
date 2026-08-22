@@ -191,6 +191,17 @@ describe("defineComponent", () => {
     ])
 
     expect(
+      server.schema.parse({
+        $meta: {
+          type: "common.server.v1",
+          identity: "server-1",
+        },
+        tag: "prod",
+        endpoint: "127.0.0.1",
+      }).resource,
+    ).toEqual([])
+
+    expect(
       server.schema.safeParse({
         $meta: {
           type: "common.server.v1",
