@@ -73,7 +73,7 @@
   },
   "scripts": {
     "build": "highstate build",
-    "test": "vitest run",
+    "test": "bun run --bun vitest --run",
     "update-charts": "../../../scripts/update-charts.sh ./assets/charts.json",
     "update-artifacts": "../../../scripts/update-artifacts.ts ./assets/artifacts.json",
     "update-images": "../../../scripts/update-images.sh ./assets/images.json",

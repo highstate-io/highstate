@@ -21,7 +21,7 @@
     "build": "highstate build",
     "build-image": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-dashboard --load",
     "push-image-debug": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-dashboard:debug --push",
-    "test": "vitest run",
+    "test": "bun run --bun vitest --run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings",
