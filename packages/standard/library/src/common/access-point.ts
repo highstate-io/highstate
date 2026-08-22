@@ -7,7 +7,7 @@ import {
 } from "@highstate/contract"
 import * as dns from "../dns"
 import { implementationReferenceSchema } from "../impl-ref"
-import { l3EndpointEntity } from "../network"
+import { l3EndpointContainer, l3EndpointEntity } from "../network"
 import { booleanPatchSchema } from "../utils"
 import { fileEntity } from "./files"
 
@@ -62,18 +62,13 @@ const gatewayPatchInputs = {
 export const gatewayEntity = defineEntity({
   type: "common.gateway.v1",
 
+  extends: { l3EndpointContainer },
+
   schema: z.object({
     /**
      * The reference to the implementation of the gateway.
      */
     implRef: implementationReferenceSchema,
-
-    /**
-     * The public L3 endpoints of the gateway.
-     *
-     * If not provided, should be automatically detected by the implementation.
-     */
-    endpoints: l3EndpointEntity.schema.array().default([]),
 
     /**
      * The default client certificate validation configuration for routes using this gateway.
@@ -114,6 +109,8 @@ export const tlsIssuerEntity = defineEntity({
 
 export const accessPointEntity = defineEntity({
   type: "common.access-point.v1",
+
+  extends: { l3EndpointContainer },
 
   includes: {
     /**

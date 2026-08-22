@@ -11,6 +11,7 @@ export default outputs({
       title: name,
     },
     value: {
+      endpoints: inputs.gateway.endpoints,
       gateway: inputs.gateway,
       tlsIssuers: inputs.tlsIssuers ?? [],
       dnsProviders: inputs.dnsProviders ?? [],

@@ -12,6 +12,7 @@ const patchedGateway = await patchGateway(gateway, args, inputs)
 export default outputs({
   accessPoint: {
     ...accessPoint,
+    endpoints: patchedGateway.endpoints,
     gateway: patchedGateway,
     tlsIssuers: inputs.tlsIssuers.length > 0 ? inputs.tlsIssuers : accessPoint.tlsIssuers,
     dnsProviders: inputs.dnsProviders.length > 0 ? inputs.dnsProviders : accessPoint.dnsProviders,
