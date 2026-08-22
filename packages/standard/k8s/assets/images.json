@@ -7,7 +7,12 @@
   "worker.k8s-monitor": {
     "name": "ghcr.io/highstate-io/highstate/worker.k8s-monitor",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:5acae35c3163a75b83ee574e7274eb7692dfd3c7f615deceede9b44bc1e475f9"
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:81f61c450baf9259f20ee2407f1eb64dfcc1318bcf156e3e227d73e0700a34ab"
+  },
+  "worker.k8s-dashboard": {
+    "name": "ghcr.io/highstate-io/highstate/worker.k8s-dashboard",
+    "tag": "latest",
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-dashboard:latest@sha256:2ce06c096b910e97f1d30d7d31803864b89ba0223951bf598d178bacc623675c"
   },
   "alpine": {
     "name": "alpine",

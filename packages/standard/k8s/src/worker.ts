@@ -31,3 +31,21 @@ export async function createMonitorWorker(
     } satisfies DeepInput<k8s.MonitorWorkerParams>,
   })
 }
+
+/**
+ * Creates a dashboard worker registration for a Kubernetes cluster.
+ *
+ * @param kubeconfig The kubeconfig content used to access the cluster.
+ */
+export function createK8sDashboardWorker(kubeconfig: Input<string>): Output<Unwrap<UnitWorker>> {
+  const image = images["worker.k8s-dashboard"].image
+  if (!image.includes("@sha256:")) {
+    throw new Error(`Kubernetes dashboard worker image must include a SHA256 digest`)
+  }
+
+  return output({
+    name: "dashboard",
+    image,
+    params: { kubeconfig },
+  })
+}

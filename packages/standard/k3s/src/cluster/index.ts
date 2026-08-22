@@ -1,6 +1,6 @@
 import { Command, l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { text } from "@highstate/contract"
-import { createK8sTerminal } from "@highstate/k8s"
+import { createK8sDashboardWorker, createK8sTerminal } from "@highstate/k8s"
 import { common, k3s, k8s } from "@highstate/library"
 import {
   forUnit,
@@ -226,6 +226,7 @@ export default outputs({
   cluster: k3sCluster,
 
   $terminals: [createK8sTerminal(kubeconfig)],
+  $workers: [createK8sDashboardWorker(kubeconfig)],
 
   $statusFields: {
     endpoints: endpoints.map(l3EndpointToString),

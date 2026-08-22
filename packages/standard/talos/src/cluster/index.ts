@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises"
 import { l3EndpointToL4, l3EndpointToString, l4EndpointToString } from "@highstate/common"
 import { text } from "@highstate/contract"
-import { RenderedChart } from "@highstate/k8s"
+import { createK8sDashboardWorker, RenderedChart } from "@highstate/k8s"
 import { common, k8s, talos } from "@highstate/library"
 import {
   all,
@@ -358,6 +358,8 @@ export default outputs({
       },
     },
   },
+
+  $workers: [createK8sDashboardWorker(kubeconfig)],
 
   $statusFields: {
     endpoints: endpoints.map(l3EndpointToString),

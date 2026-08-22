@@ -12,6 +12,7 @@ import { forUnit, makeEntityOutput, toPromise } from "@highstate/pulumi"
 import { AppsV1Api, KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
 import { createK8sTerminal, detectExternalIps } from "../../cluster"
+import { createK8sDashboardWorker } from "../../worker"
 
 const { name, args, inputs, secrets, outputs } = forUnit(k8s.existingCluster)
 
@@ -99,6 +100,7 @@ export default outputs({
   }),
 
   $terminals: [createK8sTerminal(kubeconfigContent)],
+  $workers: [createK8sDashboardWorker(kubeconfigContent)],
 
   $statusFields: {
     clusterId: kubeSystem.metadata.uid,
