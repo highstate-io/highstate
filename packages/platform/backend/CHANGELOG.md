@@ -1,3 +1,18 @@
+## 0.27.0 (2026-08-22)
+
+### 🚀 Features
+
+- scope passkeys to projects ([e96909e](https://github.com/highstate-io/highstate/commit/e96909e))
+- **@highstate/designer:** generate unlock passwords ([9b84d6e](https://github.com/highstate-io/highstate/commit/9b84d6e))
+
+### 🩹 Fixes
+
+- **@highstate/backend:** propagate state update failures ([f4ba290](https://github.com/highstate-io/highstate/commit/f4ba290))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.26.0 (2026-08-22)
 
 ### 🚀 Features

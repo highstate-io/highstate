@@ -1,3 +1,17 @@
+## 0.27.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/designer:** generate unlock passwords ([9b84d6e](https://github.com/highstate-io/highstate/commit/9b84d6e))
+
+### 🩹 Fixes
+
+- **@highstate/contract:** default optional multiple inclusions ([50e3094](https://github.com/highstate-io/highstate/commit/50e3094))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.26.0 (2026-08-22)
 
 ### 🚀 Features

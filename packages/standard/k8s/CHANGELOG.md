@@ -1,3 +1,14 @@
+## 0.26.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/designer:** generate unlock passwords ([9b84d6e](https://github.com/highstate-io/highstate/commit/9b84d6e))
+- **@highstate/k8s:** enable cluster dashboards ([21fce11](https://github.com/highstate-io/highstate/commit/21fce11))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.25.0 (2026-08-22)
 
 ### 🚀 Features
