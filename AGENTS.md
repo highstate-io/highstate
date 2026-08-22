@@ -16,7 +16,7 @@ Some simple rules to follow:
 Some additional notes:
 
 - Try to use LSP tools to check your code first. Using `bun run build` in most cases will not perform type checking. You can also use `bun run typecheck` where possible. In some cases, LSP tool may provide outdated diagnostics, so you can fall back to `bun run typecheck` if you suspect that.
-- Never call `bun run build` on Nuxt projects, it is very slow.
+- Never call `bun run build` on Nuxt projects unless the user explicitly asks you to, as it is very slow.
 - Generate documentation thumbnails only with `bun run update-thumbnails -- --filter ... --force` from the docs package.
 - Use `bun run test` in desired package to run tests, not LSP tools.
 
@@ -29,6 +29,7 @@ Commit requirements:
 - When used, scopes must be full package names, such as `@highstate/library`.
 - Scopes must be lowercase.
 - Commit messages must start with a lowercase letter and be in the imperative mood.
+- Prefer lowercase words in commit messages, including abbreviations and names that are conventionally acceptable in lowercase, such as `api`, `ci`, `dns`, `bun`, and `vitest`. Use uppercase letters only when required by the specific official name.
 - Commit messages must be a single sentence without an extra body.
 
 After you finish your task, verify that your code follow the guidelines
