@@ -19,6 +19,9 @@ Some additional notes:
 - Never call `bun run build` on Nuxt projects unless the user explicitly asks you to, as it is very slow.
 - Generate documentation thumbnails only with `bun run update-thumbnails -- --filter ... --force` from the docs package.
 - Use `bun run test` in desired package to run tests, not LSP tools.
+- Before reporting completion, rebuild all packages affected by your changes and report any build failures.
+  Determine the required packages from the changes and specify them explicitly in the build command; do not use
+  `nx affected`.
 
 Commit requirements:
 
