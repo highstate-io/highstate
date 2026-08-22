@@ -1,16 +1,15 @@
 # 1. at build stage, we just resolve all external dependencies and create up-to-date node_modules
-FROM node:24-alpine AS builder
+FROM oven/bun:1.3.11-alpine AS builder
 
 WORKDIR /app
 COPY . .
 COPY package.json ./
 COPY bun.lock ./
 
-RUN npm install -g bun@1.3.11
 RUN bun install --production --filter @highstate/k8s.monitor-worker
 
 # 2. at run stage, we copy only the node_modules and the built code for the app and local dependencies
-FROM node:24-alpine
+FROM oven/bun:1.3.11-alpine
 
 WORKDIR /app
 COPY --from=builder /app/node_modules /app/node_modules
@@ -35,4 +34,4 @@ COPY --from=builder /app/packages/standard/k8s.monitor-worker/dist /app/packages
 COPY --from=builder /app/packages/standard/k8s.monitor-worker/package.json /app/packages/standard/k8s.monitor-worker/package.json
 COPY --from=builder /app/packages/standard/k8s.monitor-worker/node_modules /app/packages/standard/k8s.monitor-worker/node_modules
 
-CMD ["node", "packages/standard/k8s.monitor-worker/dist/index.js"]
+CMD ["bun", "packages/standard/k8s.monitor-worker/dist/index.js"]
