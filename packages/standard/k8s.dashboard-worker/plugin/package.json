@@ -1,0 +1,12 @@
+{
+  "name": "@highstate/headlamp-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Adapts Headlamp for the Highstate Kubernetes dashboard.",
+  "scripts": {
+    "build": "headlamp-plugin build"
+  },
+  "devDependencies": {
+    "@kinvolk/headlamp-plugin": "0.13.1"
+  }
+}

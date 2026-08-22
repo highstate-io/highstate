@@ -1,0 +1,43 @@
+{
+  "name": "@highstate/k8s.dashboard-worker",
+  "private": true,
+  "version": "0.25.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "highstate": {
+    "type": "worker"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "nx": {
+    "tags": [
+      "stdlib"
+    ]
+  },
+  "scripts": {
+    "build": "highstate build",
+    "build-image": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-dashboard --load",
+    "push-image-debug": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-dashboard:debug --push",
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit --skipLibCheck",
+    "biome": "biome check --write --unsafe --error-on-warnings",
+    "biome:check": "biome check --error-on-warnings",
+    "push-image": "docker push ghcr.io/highstate-io/highstate/worker.k8s-dashboard"
+  },
+  "dependencies": {
+    "@highstate/contract": "workspace:*",
+    "@highstate/worker-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@highstate/cli": "workspace:*",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "bun-types": "^1.3.13"
+  },
+  "repository": {
+    "url": "https://github.com/highstate-io/highstate"
+  }
+}
