@@ -961,6 +961,7 @@ export class RuntimeOperation {
         handlerError = await this.handleUnitStateUpdate(update, state)
       } catch (error) {
         logger.error({ error }, "failed to handle unit state update")
+        handlerError = error instanceof Error ? error : new Error(String(error))
       }
 
       if (handlerError) {

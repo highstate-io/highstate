@@ -194,4 +194,97 @@ describe("Operation - Update Failure", () => {
       consoleError.mockRestore()
     },
   )
+
+  operationTest(
+    "does not run dependents when processing dependency completion fails",
+    async ({
+      project,
+      logger,
+      runnerBackend,
+      libraryBackend,
+      artifactService,
+      instanceLockService,
+      operationService,
+      secretService,
+      instanceStateService,
+      projectModelService,
+      unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
+      libraryService,
+      projectPortService,
+      createUnit,
+      createDeployedUnitState,
+      createOperation,
+      createContext,
+      setupPersistenceMocks,
+      setupImmediateLocking,
+      expect,
+    }) => {
+      const dependency = createUnit("dependency")
+      const dependent: InstanceModel = {
+        ...createUnit("dependent"),
+        inputs: {
+          dependency: [{ instanceId: dependency.id, output: "value" }],
+        },
+      }
+      const dependencyState = createDeployedUnitState(dependency)
+      const dependentState = createDeployedUnitState(dependent)
+
+      await createContext({
+        instances: [dependency, dependent],
+        states: [dependencyState, dependentState],
+      })
+      setupImmediateLocking()
+      setupPersistenceMocks({ instances: [dependency, dependent] })
+
+      unitOutputService.parseUnitOutputs.mockRejectedValue(
+        new Error("failed to process dependency outputs"),
+      )
+
+      const operation = createOperation({
+        type: "update",
+        requestedInstanceIds: [dependent.id],
+        phases: [
+          {
+            type: "update",
+            instances: [
+              { id: dependency.id, message: "dependency", parentId: undefined },
+              { id: dependent.id, message: "requested", parentId: undefined },
+            ],
+          },
+        ],
+      })
+
+      const runtimeOperation = new RuntimeOperation(
+        project,
+        operation,
+        runnerBackend,
+        libraryBackend,
+        artifactService,
+        instanceLockService,
+        operationService,
+        secretService,
+        instanceStateService,
+        projectModelService,
+        unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
+        logger,
+        libraryService,
+        projectPortService,
+      )
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      await runtimeOperation.operateSafe()
+
+      expect(runnerBackend.update).toHaveBeenCalledTimes(1)
+      expect(runnerBackend.update.mock.calls[0]?.[0].instanceName).toBe("dependency")
+      expect(consoleError.mock.calls[0]?.[0]).toMatchObject({
+        message: "failed to process dependency outputs",
+      })
+
+      consoleError.mockRestore()
+    },
+  )
 })
