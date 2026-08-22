@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { UnlockMethodType } from "@highstate/backend/shared"
+import { randomBytes } from "@noble/hashes/utils.js"
 import { PasswordField } from "#layers/core/app/features/shared"
+import { secureMask } from "micro-key-producer/password.js"
 import { zxcvbn } from "zxcvbn-typescript"
 
 interface PasswordStrengthResult {
@@ -51,6 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const valid = ref(false)
+const passwordVisible = ref(false)
 
 const form = reactive<UnlockMethodFormData>({
   type: props.initialType,
@@ -76,6 +79,14 @@ const confirmPasswordRules = [
   (v: string) => !!v || "Confirm password is required",
   (v: string) => v === form.password || "Passwords do not match",
 ]
+
+const generatePassword = () => {
+  const password = secureMask.apply(randomBytes(32)).password
+
+  form.password = password
+  form.confirmPassword = password
+  passwordVisible.value = true
+}
 
 const passwordStrength = computed<PasswordStrengthResult | null>(() => {
   if (!form.password) return null
@@ -137,6 +148,7 @@ const resetForm = () => {
   form.description = props.defaultDescription
   form.password = ""
   form.confirmPassword = ""
+  passwordVisible.value = false
 }
 
 // Watch for changes and emit updates
@@ -215,12 +227,23 @@ defineExpose({
     <template v-if="form.type === 'password'">
       <PasswordField
         v-model="form.password"
+        v-model:visible="passwordVisible"
         class="mb-4"
         label="Password"
         :rules="passwordRules"
         :hint="passwordHint"
         persistent-hint
       />
+
+      <VBtn
+        type="button"
+        class="mb-4"
+        variant="tonal"
+        prepend-icon="mdi-auto-fix"
+        @click="generatePassword"
+      >
+        Generate Secure Password
+      </VBtn>
 
       <PasswordField
         v-model="form.confirmPassword"
