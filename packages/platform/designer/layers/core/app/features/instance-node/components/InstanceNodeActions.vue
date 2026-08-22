@@ -25,6 +25,7 @@ const {
   loadingSecrets?: boolean
   loadingTerminal?: boolean
   loadingPage?: boolean
+  loadingPanel?: boolean
   ghost?: boolean
 }>()
 
@@ -69,6 +70,7 @@ const hasTerminal = computed(() => {
   return ids.length > 0
 })
 const hasPage = computed(() => state?.pageIds && state.pageIds.length > 0)
+const hasPanel = computed(() => state?.panelIds && state.panelIds.length > 0)
 
 const progressColor = computed(() => {
   if (state?.lastOperationState?.status === "pending") {
@@ -83,6 +85,7 @@ const emit = defineEmits<{
   "open:secrets": []
   "open:terminal": []
   "open:page": []
+  "open:panel": []
   "open:composite": []
   "operation:launch": [operation: "update"]
   "operation:cancel": []
@@ -186,6 +189,18 @@ defineSlots<{
       @click="emit('open:page')"
     >
       <VIcon>mdi-file-document</VIcon>
+    </VBtn>
+
+    <VBtn
+      v-if="!ghost && hasPanel"
+      size="small"
+      variant="tonal"
+      class="toolbar-button"
+      title="Open Panel"
+      :loading="loadingPanel"
+      @click="emit('open:panel')"
+    >
+      <VIcon>mdi-view-dashboard-outline</VIcon>
     </VBtn>
 
     <VBtn

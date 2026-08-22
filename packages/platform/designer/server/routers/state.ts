@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { publicProcedure, router } from "../trpc"
 import { instanceIdSchema } from "@highstate/contract"
+import { createPanelLaunchTicket } from "../utils/panel-session"
 
 export const stateRouter = router({
   getInstanceStates: publicProcedure
@@ -151,6 +152,90 @@ export const stateRouter = router({
         },
         {} as Record<string, any>,
       )
+    }),
+
+  getInstancePanels: publicProcedure
+    .input(
+      z.object({
+        projectId: z.cuid2(),
+        panelIds: z.array(z.cuid2()),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const panels = await Promise.all(
+        input.panelIds.map(panelId =>
+          ctx.settingsService.getPanelDetails(input.projectId, panelId),
+        ),
+      )
+
+      return panels.filter(panel => panel !== null)
+    }),
+
+  createPanelLaunch: publicProcedure
+    .input(
+      z.object({
+        projectId: z.cuid2(),
+        panelId: z.cuid2(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const database = await ctx.database.forProject(input.projectId)
+      const panel = await database.panel.findUnique({
+        where: { id: input.panelId },
+        select: { id: true, workerVersionId: true },
+      })
+      if (!panel) {
+        throw new Error(`Panel "${input.panelId}" not found`)
+      }
+      const endpoint = ctx.panelEndpointManager.getPanelEndpoint(
+        input.projectId,
+        panel.workerVersionId,
+        panel.id,
+      )
+      if (!endpoint) {
+        throw new Error(`Panel "${input.panelId}" is offline`)
+      }
+
+      const ticket = createPanelLaunchTicket(input.projectId, panel.id, endpoint.workerInstanceId)
+      const port = process.env.HIGHSTATE_DESIGNER_PORT ?? process.env.NITRO_PORT ?? "7283"
+
+      return {
+        url: `http://${panel.id}.panels.highstate.localhost:${port}/api/panels/launch?ticket=${ticket}`,
+      }
+    }),
+
+  watchPanelAvailability: publicProcedure
+    .input(
+      z.object({
+        projectId: z.cuid2(),
+        panelId: z.cuid2(),
+      }),
+    )
+    .subscription(async function* ({ input, ctx, signal }) {
+      const database = await ctx.database.forProject(input.projectId)
+      const panel = await database.panel.findUnique({
+        where: { id: input.panelId },
+        select: { workerVersionId: true },
+      })
+      if (!panel) {
+        throw new Error(`Panel "${input.panelId}" not found`)
+      }
+
+      const subscription = ctx.pubsubManager.subscribe(
+        ["panel-availability", input.projectId, input.panelId],
+        signal,
+      )
+      yield {
+        online: ctx.panelEndpointManager.isPanelAvailable(
+          input.projectId,
+          panel.workerVersionId,
+          input.panelId,
+        ),
+      }
+
+      for await (const event of await subscription) {
+        yield event
+      }
     }),
 
   getInstanceTriggers: publicProcedure

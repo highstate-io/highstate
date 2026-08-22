@@ -10,6 +10,8 @@ import { NodeContextMenu, ContextMenuItem } from "#layers/core/app/features/shar
 import InstanceOperationDialog from "./InstanceOperationDialog.vue"
 import ForgetInstanceStateDialog from "./ForgetInstanceStateDialog.vue"
 import TerminalListSubmenu from "./TerminalListSubmenu.vue"
+import PageListSubmenu from "./PageListSubmenu.vue"
+import PanelListSubmenu from "./PanelListSubmenu.vue"
 
 const {
   instance,
@@ -278,6 +280,18 @@ defineExpose({ showContextMenu })
       <VDivider />
 
       <TerminalListSubmenu :state-id="state.id" :terminal-ids="effectiveTerminalIds" />
+    </template>
+
+    <template v-if="state?.pageIds?.length">
+      <VDivider />
+
+      <PageListSubmenu :page-ids="state.pageIds" />
+    </template>
+
+    <template v-if="state?.panelIds?.length">
+      <VDivider />
+
+      <PanelListSubmenu :panel-ids="state.panelIds" />
     </template>
 
     <template v-if="hasDeployedInstances || ghost">

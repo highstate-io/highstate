@@ -9,6 +9,7 @@ import {
   ApiKeysTable,
   TerminalsTable,
   PagesTable,
+  PanelsTable,
   SecretsTable,
   WorkersTable,
   ArtifactsTable,
@@ -57,6 +58,7 @@ const detailItems = [
 const apiKeys = settingsStore.apiKeysForServiceAccount(params.serviceAccountId)
 const terminals = settingsStore.terminalsForServiceAccount(params.serviceAccountId)
 const pages = settingsStore.pagesForServiceAccount(params.serviceAccountId)
+const panels = settingsStore.panelsForServiceAccount(params.serviceAccountId)
 const secrets = settingsStore.secretsForServiceAccount(params.serviceAccountId)
 const workers = settingsStore.workersForServiceAccount(params.serviceAccountId)
 const artifacts = settingsStore.artifactsForServiceAccount(params.serviceAccountId)
@@ -64,6 +66,7 @@ const artifacts = settingsStore.artifactsForServiceAccount(params.serviceAccount
 void apiKeys.load()
 void terminals.load()
 void pages.load()
+void panels.load()
 void secrets.load()
 void workers.load()
 void artifacts.load()
@@ -145,6 +148,23 @@ void artifacts.load()
           :project-id="params.projectId"
           :data="pages.data.value"
           :loading="pages.isLoading.value"
+          hide-header
+        />
+      </RelatedDataPanel>
+
+      <RelatedDataPanel
+        title="Panels"
+        icon="mdi-view-dashboard-outline"
+        :count="panels.data.value.total"
+      >
+        <PanelsTable
+          v-model:search="panels.search.value"
+          v-model:sort-by="panels.sortBy.value"
+          v-model:page="panels.page.value"
+          v-model:items-per-page="panels.itemsPerPage.value"
+          :project-id="params.projectId"
+          :data="panels.data.value"
+          :loading="panels.isLoading.value"
           hide-header
         />
       </RelatedDataPanel>

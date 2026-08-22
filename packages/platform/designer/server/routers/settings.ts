@@ -6,6 +6,7 @@ import {
   collectionQuerySchema,
   entityQuerySchema,
   pageQuerySchema,
+  panelQuerySchema,
   secretQuerySchema,
   serviceAccountQuerySchema,
   terminalQuerySchema,
@@ -82,6 +83,17 @@ export const settingsRouter = router({
     )
     .query(async ({ input, ctx }) => {
       return await ctx.settingsService.queryPages(input.projectId, input.query)
+    }),
+
+  queryPanels: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        query: panelQuerySchema,
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.queryPanels(input.projectId, input.query)
     }),
 
   querySecrets: publicProcedure
@@ -363,6 +375,17 @@ export const settingsRouter = router({
     )
     .query(async ({ input, ctx }) => {
       return await ctx.settingsService.getTerminalDetails(input.projectId, input.terminalId)
+    }),
+
+  getPanelDetails: publicProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        panelId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.settingsService.getPanelDetails(input.projectId, input.panelId)
     }),
 
   getServiceAccountDetails: publicProcedure

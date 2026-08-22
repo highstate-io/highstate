@@ -7,9 +7,10 @@ export default defineNuxtPlugin(() => {
   const protocol = location.protocol === "https:" ? "wss" : "ws"
   const config = useRuntimeConfig()
 
-  const [endpoint] = location.host.split(":")
   const wsClient = createWSClient({
-    url: `${protocol}://${endpoint}:${config.public.eventsPort}`,
+    url: import.meta.dev
+      ? `${protocol}://${location.hostname}:${config.public.eventsPort}`
+      : `${protocol}://${location.host}/api/events`,
   })
 
   const client = createTRPCNuxtClient<AppRouter>({

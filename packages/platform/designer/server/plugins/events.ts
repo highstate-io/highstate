@@ -20,6 +20,7 @@ export default defineNitroPlugin(async nitro => {
 
   const server = Bun.serve({
     ...handler,
+    hostname: "127.0.0.1",
     port: config.public.eventsPort,
   })
 

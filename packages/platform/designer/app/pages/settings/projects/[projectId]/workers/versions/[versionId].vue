@@ -5,6 +5,8 @@ import {
   DetailInfoCard,
   TimeTableCell,
   IdTableCell,
+  PanelsTable,
+  RelatedDataPanel,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { StatusChip, workerVersionStatusMap, ApiKeyRefChip } from "#layers/core/app/features/shared"
@@ -50,6 +52,9 @@ const detailItems = [
   { key: "createdAt", label: "Created" },
   { key: "updatedAt", label: "Updated" },
 ]
+
+const panels = settingsStore.panelsForWorkerVersion(params.versionId)
+void panels.load()
 </script>
 
 <template>
@@ -114,5 +119,24 @@ const detailItems = [
         <TimeTableCell :value="version.updatedAt" />
       </template>
     </DetailInfoCard>
+
+    <VExpansionPanels :elevation="0">
+      <RelatedDataPanel
+        title="Panels"
+        icon="mdi-view-dashboard-outline"
+        :count="panels.data.value.total"
+      >
+        <PanelsTable
+          v-model:search="panels.search.value"
+          v-model:sort-by="panels.sortBy.value"
+          v-model:page="panels.page.value"
+          v-model:items-per-page="panels.itemsPerPage.value"
+          :project-id="params.projectId"
+          :data="panels.data.value"
+          :loading="panels.isLoading.value"
+          hide-header
+        />
+      </RelatedDataPanel>
+    </VExpansionPanels>
   </DetailPageLayout>
 </template>

@@ -25,7 +25,7 @@ const emit = defineEmits<{
       <Icon
         :icon="customIcon!"
         :color="color"
-        style="margin-right: 12px; width: 24px; height: 24px"
+        style="margin-right: -20px; width: 24px; height: 24px"
       />
     </template>
     <template v-else-if="icon" #prepend>

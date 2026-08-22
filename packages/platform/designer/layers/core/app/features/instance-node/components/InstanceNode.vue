@@ -57,6 +57,7 @@ const {
   loadingSecrets?: boolean
   loadingTerminal?: boolean
   loadingPage?: boolean
+  loadingPanel?: boolean
 
   initialSecrets?: Record<string, unknown>
   editable?: boolean
@@ -73,6 +74,7 @@ const emit = defineEmits<{
   "open:secrets": []
   "open:terminal": []
   "open:page": []
+  "open:panel": []
   "open:composite": []
   "operation:launch": [operation: "update"]
   "operation:cancel": []
@@ -271,6 +273,7 @@ const overlayIconSize = computed(() =>
       :loading-secrets="loadingSecrets"
       :loading-terminal="loadingTerminal"
       :loading-page="loadingPage"
+      :loading-panel="loadingPanel"
       :instance="instance"
       :component="component"
       :state="state"
@@ -285,6 +288,7 @@ const overlayIconSize = computed(() =>
       @open:secrets="state ? emit('open:secrets') : (editingSecrets = true)"
       @open:terminal="emit('open:terminal')"
       @open:page="emit('open:page')"
+      @open:panel="emit('open:panel')"
       @open:composite="emit('open:composite')"
       @operation:launch="emit('operation:launch', $event)"
       @operation:cancel="emit('operation:cancel')"

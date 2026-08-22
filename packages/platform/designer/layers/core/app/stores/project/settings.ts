@@ -86,6 +86,9 @@ export const useProjectSettingsStore = defineMultiStore({
       const pages = useSettingsQuery(query =>
         $client.settings.queryPages.query({ projectId, query }),
       )
+      const panels = useSettingsQuery(query =>
+        $client.settings.queryPanels.query({ projectId, query }),
+      )
       const secrets = useSettingsQuery(query =>
         $client.settings.querySecrets.query({ projectId, query }),
       )
@@ -116,6 +119,7 @@ export const useProjectSettingsStore = defineMultiStore({
 
         await Promise.allSettled([
           workers.load(),
+          panels.load(),
           ...versionQueries.map(query => query.load()),
         ])
       }
@@ -169,6 +173,10 @@ export const useProjectSettingsStore = defineMultiStore({
           projectId,
           terminalId,
         })
+      }
+
+      const getPanelDetails = async (panelId: string) => {
+        return await $client.settings.getPanelDetails.query({ projectId, panelId })
       }
 
       const getServiceAccountDetails = async (serviceAccountId: string) => {
@@ -337,6 +345,14 @@ export const useProjectSettingsStore = defineMultiStore({
           }),
         )
 
+      const panelsForServiceAccount = (serviceAccountId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryPanels.query({
+            projectId,
+            query: { ...query, serviceAccountId },
+          }),
+        )
+
       const pagesForServiceAccount = (serviceAccountId: string) =>
         useSettingsQuery(query =>
           $client.settings.queryPages.query({ projectId, query: { ...query, serviceAccountId } }),
@@ -354,7 +370,10 @@ export const useProjectSettingsStore = defineMultiStore({
 
       const artifactsForServiceAccount = (serviceAccountId: string) =>
         useSettingsQuery(query =>
-          $client.settings.queryArtifacts.query({ projectId, query: { ...query, serviceAccountId } }),
+          $client.settings.queryArtifacts.query({
+            projectId,
+            query: { ...query, serviceAccountId },
+          }),
         )
 
       const versionsForWorker = (workerId: string) => {
@@ -376,6 +395,19 @@ export const useProjectSettingsStore = defineMultiStore({
           $client.settings.queryTerminals.query({
             projectId,
             query: { ...query, stateId },
+          }),
+        )
+
+      const panelsForState = (stateId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryPanels.query({ projectId, query: { ...query, stateId } }),
+        )
+
+      const panelsForWorkerVersion = (workerVersionId: string) =>
+        useSettingsQuery(query =>
+          $client.settings.queryPanels.query({
+            projectId,
+            query: { ...query, workerVersionId },
           }),
         )
 
@@ -411,7 +443,10 @@ export const useProjectSettingsStore = defineMultiStore({
 
       const serviceAccountsForArtifact = (artifactId: string) =>
         useSettingsQuery(query =>
-          $client.settings.queryServiceAccounts.query({ projectId, query: { ...query, artifactId } }),
+          $client.settings.queryServiceAccounts.query({
+            projectId,
+            query: { ...query, artifactId },
+          }),
         )
 
       const terminalsForArtifact = (artifactId: string) =>
@@ -428,6 +463,7 @@ export const useProjectSettingsStore = defineMultiStore({
         operations,
         terminals,
         pages,
+        panels,
         secrets,
         triggers,
         artifacts,
@@ -439,6 +475,7 @@ export const useProjectSettingsStore = defineMultiStore({
         addUnlockMethod,
         removeUnlockMethod,
         getTerminalDetails,
+        getPanelDetails,
         getServiceAccountDetails,
         getApiKeyDetails,
         getWorkerDetails,
@@ -461,12 +498,15 @@ export const useProjectSettingsStore = defineMultiStore({
         sessionsForTerminal,
         apiKeysForServiceAccount,
         terminalsForServiceAccount,
+        panelsForServiceAccount,
         pagesForServiceAccount,
         secretsForServiceAccount,
         workersForServiceAccount,
         artifactsForServiceAccount,
         versionsForWorker,
         terminalsForState,
+        panelsForState,
+        panelsForWorkerVersion,
         secretsForState,
         pagesForState,
         triggersForState,

@@ -8,6 +8,7 @@ import {
   TerminalsTable,
   SecretsTable,
   PagesTable,
+  PanelsTable,
   TriggersTable,
   ArtifactsTable,
   EntitySnapshotsTable,
@@ -79,6 +80,7 @@ const entities = libraryStore.library.entities
 const terminals = settingsStore.terminalsForState(params.stateId)
 const secrets = settingsStore.secretsForState(params.stateId)
 const pages = settingsStore.pagesForState(params.stateId)
+const panels = settingsStore.panelsForState(params.stateId)
 const triggers = settingsStore.triggersForState(params.stateId)
 const artifacts = settingsStore.artifactsForState(params.stateId)
 
@@ -90,6 +92,7 @@ const entitySnapshots = lastOperationId
 void terminals.load()
 void secrets.load()
 void pages.load()
+void panels.load()
 void triggers.load()
 void artifacts.load()
 if (entitySnapshots) {
@@ -211,6 +214,23 @@ if (entitySnapshots) {
           :project-id="params.projectId"
           :data="pages.data.value"
           :loading="pages.isLoading.value"
+          hide-header
+        />
+      </RelatedDataPanel>
+
+      <RelatedDataPanel
+        title="Panels"
+        icon="mdi-view-dashboard-outline"
+        :count="panels.data.value.total"
+      >
+        <PanelsTable
+          v-model:search="panels.search.value"
+          v-model:sort-by="panels.sortBy.value"
+          v-model:page="panels.page.value"
+          v-model:items-per-page="panels.itemsPerPage.value"
+          :project-id="params.projectId"
+          :data="panels.data.value"
+          :loading="panels.isLoading.value"
           hide-header
         />
       </RelatedDataPanel>

@@ -74,12 +74,14 @@ export const useWorkspaceStore = defineStore("workspace", () => {
         const currentRoute = router.currentRoute.value
 
         if (currentRoute.name !== "home") {
-          // navigate to the route again to switch to the correct panel
-          await navigateTo("/dummy")
-
+          // Rerun panel middleware without adding a duplicate history entry.
           await navigateTo({
             name: currentRoute.name,
             params: currentRoute.params,
+            query: currentRoute.query,
+            hash: currentRoute.hash,
+            force: true,
+            replace: true,
           })
         }
       } catch (error) {
@@ -125,6 +127,20 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     })
   }
 
+  const openPanel = async (projectId: string, panelId: string) => {
+    await navigateTo({
+      name: "unit-panel",
+      params: { projectId, panelId },
+    })
+  }
+
+  const openPage = async (projectId: string, pageId: string) => {
+    await navigateTo({
+      name: "unit-page",
+      params: { projectId, pageId },
+    })
+  }
+
   const openWorkerVersionLogsPanel = async (projectId: string, workerVersionId: string) => {
     await navigateTo({
       name: "worker-version-logs",
@@ -155,6 +171,8 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     openTerminalPanel,
     closeTerminalPanel,
     openLogsPanel,
+    openPanel,
+    openPage,
     openDataSettingsPanel,
     openWorkerVersionLogsPanel,
 

@@ -336,6 +336,10 @@ export const useProjectStateStore = defineMultiStore({
         return await $client.state.getInstancePages.query({ projectId, pageIds })
       }
 
+      const getPanels = async (panelIds: string[]) => {
+        return await $client.state.getInstancePanels.query({ projectId, panelIds })
+      }
+
       const getInstanceSecrets = async (stateId: string): Promise<Record<string, unknown>> => {
         return await $client.state.getInstanceSecrets.query({
           projectId,
@@ -448,6 +452,7 @@ export const useProjectStateStore = defineMultiStore({
         getPage,
         getTerminalsState,
         getPages,
+        getPanels,
         onInstanceStateUpdated,
         isNodeDeletable,
 

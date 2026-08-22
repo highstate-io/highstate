@@ -17,3 +17,4 @@ export { default as ServiceAccountRefChip } from "./components/ServiceAccountRef
 export { default as ApiKeyRefChip } from "./components/ApiKeyRefChip.vue"
 export { default as InstanceRefChip } from "./components/InstanceRefChip.vue"
 export { default as OwnerRefChip } from "./components/OwnerRefChip.vue"
+export { default as WorkerVersionRefChip } from "./components/WorkerVersionRefChip.vue"

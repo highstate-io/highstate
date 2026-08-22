@@ -36,8 +36,7 @@ const isGhost = computed(() => instancesStore.isGhostInstance(instance.value.id)
 
 const loadingPage = ref(false)
 const pageVisible = ref(false)
-
-const pageMeta = ref<CommonObjectMeta | null>()
+const pageMeta = ref<CommonObjectMeta>()
 const pageContent = ref<PageBlock[]>([])
 
 const editingSecrets = ref(false)
@@ -62,8 +61,8 @@ const openPage = async () => {
       return
     }
 
-    pageContent.value = page.content
     pageMeta.value = page.meta
+    pageContent.value = page.content
     pageVisible.value = true
   } finally {
     loadingPage.value = false
@@ -71,6 +70,7 @@ const openPage = async () => {
 }
 
 const loadingTerminal = ref(false)
+const loadingPanel = ref(false)
 
 const terminalIds = computed(() => {
   const ownTerminalIds = state.value?.terminalIds ?? []
@@ -127,6 +127,21 @@ const openTerminal = async () => {
     await instancesStore.openTerminal(terminalIds.value[0])
   } finally {
     loadingTerminal.value = false
+  }
+}
+
+const openPanel = async () => {
+  loadingPanel.value = true
+
+  try {
+    const panelId = state.value?.panelIds?.[0]
+    if (!panelId) {
+      return
+    }
+
+    await workspaceStore.openPanel(projectStore.projectId, panelId)
+  } finally {
+    loadingPanel.value = false
   }
 }
 
@@ -224,6 +239,7 @@ watch(
     :instance-lock="instanceLock"
     :state="state"
     :terminal-ids="terminalIds"
+    :loading-panel="loadingPanel"
     :editable="data.editable && !isGhost"
     :ghost="isGhost"
     :stores="markRaw(stores)"
@@ -237,6 +253,7 @@ watch(
     "
     @open:secrets="openSecretsEditor"
     @open:terminal="openTerminal"
+    @open:panel="openPanel"
     @operation:launch="
       operation => operationsStore.launchQuickInstanceOperation(operation, data.instance)
     "
@@ -276,7 +293,6 @@ watch(
       v-model:visible="pageVisible"
       :meta="pageMeta"
       :content="pageContent"
-      @close="pageVisible = false"
     />
   </InstanceNode>
 </template>
