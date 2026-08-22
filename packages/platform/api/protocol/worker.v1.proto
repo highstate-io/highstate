@@ -7,6 +7,12 @@ import "google/protobuf/empty.proto";
 message ConnectRequest {
   // The ID of the worker version connecting to the service.
   string worker_version_id = 1;
+
+  // The ID of the concrete worker instance connecting to the service.
+  string worker_instance_id = 2;
+
+  // The host and port of the worker data endpoint reachable by the frontend gateway.
+  string data_endpoint = 3;
 }
 
 message UpdateWorkerVersionMetaRequest {

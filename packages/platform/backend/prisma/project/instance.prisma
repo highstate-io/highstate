@@ -155,6 +155,9 @@ model InstanceState {
     /// Custom statuses for this instance.
     customStatuses InstanceCustomStatus[]
 
+    /// Web panels associated with this instance.
+    panels Panel[]
+
     /// The lock that is currently held on this instance.
     lock InstanceLock?
 

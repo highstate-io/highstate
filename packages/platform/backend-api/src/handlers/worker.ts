@@ -14,62 +14,69 @@ const workerMetaUpdatePayloadSchema = z.union([
 export function createWorkerService(services: Services): WorkerServiceImplementation {
   return {
     async *connect(request, context) {
-      const [projectId] = await authenticate(services, context)
+      const [projectId, apiKey] = await authenticate(services, context)
 
       const workerVersionId = parseArgument(request, "workerVersionId", z.cuid2())
-
-      // set worker as running
-      services.workerManager.setWorkerRunning(projectId, workerVersionId)
-
-      // get existing registrations for this worker version
+      const workerInstanceId = parseArgument(request, "workerInstanceId", z.cuid2())
+      const dataEndpoint = parseArgument(request, "dataEndpoint", z.string().min(1))
       const database = await services.database.forProject(projectId)
-      const existingRegistrations = await database.workerUnitRegistration.findMany({
-        where: { workerVersionId },
-        select: { stateId: true, params: true },
+      const workerVersion = await database.workerVersion.findFirst({
+        where: { id: workerVersionId, apiKeyId: apiKey.id },
+        select: { id: true },
       })
-
-      // emit existing registrations
-      for (const registration of existingRegistrations) {
-        yield {
-          event: {
-            $case: "unitRegistration",
-            value: {
-              stateId: registration.stateId,
-              params: registration.params,
-            },
-          },
-        }
+      if (!workerVersion) {
+        throw new Error(`Worker version "${workerVersionId}" is not owned by the API key`)
       }
 
-      // subscribe to new registration events for this worker version
-      const registrationStream = await services.pubsubManager.subscribe([
-        "worker-unit-registration",
+      services.workerManager.assertWorkerInstance(projectId, workerVersionId, workerInstanceId)
+      services.panelEndpointManager.connect(
         projectId,
         workerVersionId,
-      ])
+        workerInstanceId,
+        dataEndpoint,
+      )
 
-      // emit new registration/deregistration events
-      for await (const event of registrationStream) {
-        if (event.type === "registered") {
+      try {
+        await services.workerManager.setWorkerRunning(projectId, workerVersionId, workerInstanceId)
+        const existingRegistrations = await database.workerUnitRegistration.findMany({
+          where: { workerVersionId },
+          select: { stateId: true, params: true },
+        })
+        for (const registration of existingRegistrations) {
           yield {
             event: {
               $case: "unitRegistration",
               value: {
-                instanceId: event.instanceId,
-                params: event.params,
-              },
-            },
-          }
-        } else if (event.type === "deregistered") {
-          yield {
-            event: {
-              $case: "unitDeregistration",
-              value: {
-                instanceId: event.instanceId,
+                stateId: registration.stateId,
+                params: registration.params,
               },
             },
           }
         }
+        const registrationStream = await services.pubsubManager.subscribe([
+          "worker-unit-registration",
+          projectId,
+          workerVersionId,
+        ])
+        for await (const event of registrationStream) {
+          if (event.type === "registered") {
+            yield {
+              event: {
+                $case: "unitRegistration",
+                value: { stateId: event.stateId, params: event.params },
+              },
+            }
+          } else if (event.type === "deregistered") {
+            yield {
+              event: {
+                $case: "unitDeregistration",
+                value: { stateId: event.stateId },
+              },
+            }
+          }
+        }
+      } finally {
+        services.panelEndpointManager.disconnect(workerInstanceId)
       }
     },
 

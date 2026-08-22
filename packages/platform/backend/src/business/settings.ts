@@ -9,6 +9,7 @@ import type {
   EntityWhereInput,
   OperationWhereInput,
   PageWhereInput,
+  PanelWhereInput,
   SecretWhereInput,
   ServiceAccountWhereInput,
   TerminalWhereInput,
@@ -17,6 +18,7 @@ import type {
   WorkerVersionWhereInput,
   WorkerWhereInput,
 } from "../database/_generated/project/models"
+import type { PanelEndpointManager } from "../panel"
 import type {
   ApiKeyOutput,
   ApiKeyQuery,
@@ -35,6 +37,8 @@ import type {
   PageDetailsOutput,
   PageOutput,
   PageQuery,
+  PanelOutput,
+  PanelQuery,
   SecretOutput,
   SecretQuery,
   ServiceAccountOutput,
@@ -65,6 +69,7 @@ import {
   operationOutputSchema,
   pageDetailsOutputSchema,
   pageOutputSchema,
+  panelOutputSchema,
   secretOutputSchema,
   serviceAccountOutputSchema,
   terminalDetailsOutputSchema,
@@ -84,7 +89,10 @@ import {
 } from "../shared"
 
 export class SettingsService {
-  constructor(private readonly database: DatabaseManager) {}
+  constructor(
+    private readonly database: DatabaseManager,
+    private readonly panelEndpointManager: PanelEndpointManager,
+  ) {}
 
   private buildEntityWhere(query: EntityQuery): EntityWhereInput {
     const where: EntityWhereInput = {}
@@ -987,6 +995,29 @@ export class SettingsService {
     }
   }
 
+  private buildPanelWhere(query: PanelQuery): PanelWhereInput {
+    const where: PanelWhereInput = {}
+
+    if (query.stateId) {
+      where.stateId = query.stateId
+    }
+    if (query.serviceAccountId) {
+      where.serviceAccountId = query.serviceAccountId
+    }
+    if (query.workerVersionId) {
+      where.workerVersionId = query.workerVersionId
+    }
+    if (query.search) {
+      where.OR = [
+        { id: { contains: query.search } },
+        { name: { contains: query.search } },
+        { meta: { path: "title", string_contains: query.search } },
+      ]
+    }
+
+    return where
+  }
+
   private buildSecretWhere(query: SecretQuery): SecretWhereInput {
     const where: SecretWhereInput = {}
 
@@ -1254,6 +1285,40 @@ export class SettingsService {
     return toTerminalDetailsOutput(terminal, terminal?.serviceAccount)
   }
 
+  async getPanelDetails(projectId: string, panelId: string): Promise<PanelOutput | null> {
+    const db = await this.database.forProject(projectId)
+    const panel = await db.panel.findUnique({
+      where: { id: panelId },
+      select: {
+        ...forSchema(
+          panelOutputSchema.omit({
+            serviceAccountMeta: true,
+            workerVersionMeta: true,
+            workerId: true,
+            online: true,
+          }),
+        ),
+        serviceAccount: { select: { meta: true } },
+        workerVersion: { select: { meta: true, workerId: true } },
+      },
+    })
+    if (!panel) {
+      return null
+    }
+
+    return panelOutputSchema.parse({
+      ...panel,
+      serviceAccountMeta: panel.serviceAccount.meta,
+      workerVersionMeta: panel.workerVersion.meta,
+      workerId: panel.workerVersion.workerId,
+      online: this.panelEndpointManager.isPanelAvailable(
+        projectId,
+        panel.workerVersionId,
+        panel.id,
+      ),
+    })
+  }
+
   async getServiceAccountDetails(
     projectId: string,
     serviceAccountId: string,
@@ -1499,6 +1564,51 @@ export class SettingsService {
     return { items: pageOutputItems, total }
   }
 
+  async queryPanels(
+    projectId: string,
+    query: PanelQuery,
+  ): Promise<CollectionQueryResult<PanelOutput>> {
+    const db = await this.database.forProject(projectId)
+    const whereClause = this.buildPanelWhere(query)
+    const [total, panels] = await Promise.all([
+      db.panel.count({ where: whereClause }),
+      db.panel.findMany({
+        where: whereClause,
+        orderBy: this.buildOrderBy(query, "createdAt"),
+        skip: query.skip,
+        take: query.count,
+        select: {
+          ...forSchema(
+            panelOutputSchema.omit({
+              serviceAccountMeta: true,
+              workerVersionMeta: true,
+              workerId: true,
+              online: true,
+            }),
+          ),
+          serviceAccount: { select: { meta: true } },
+          workerVersion: { select: { meta: true, workerId: true } },
+        },
+      }),
+    ])
+
+    const items = panels.map(panel =>
+      panelOutputSchema.parse({
+        ...panel,
+        serviceAccountMeta: panel.serviceAccount.meta,
+        workerVersionMeta: panel.workerVersion.meta,
+        workerId: panel.workerVersion.workerId,
+        online: this.panelEndpointManager.isPanelAvailable(
+          projectId,
+          panel.workerVersionId,
+          panel.id,
+        ),
+      }),
+    )
+
+    return { items, total }
+  }
+
   async querySecrets(
     projectId: string,
     query: SecretQuery,
@@ -1612,6 +1722,37 @@ export class SettingsService {
   ): Promise<CollectionQueryResult<WorkerVersionOutput>> {
     const db = await this.database.forProject(projectId)
     const whereClause = this.buildWorkerVersionWhere(workerId, query)
+    const select = {
+      ...forSchema(workerVersionOutputSchema.omit({ apiKeyMeta: true })),
+      apiKey: {
+        select: { meta: true },
+      },
+    } as const
+    const titleSort = query.sortBy?.[0]
+
+    if (titleSort?.key === "meta.title") {
+      const [total, versions] = await Promise.all([
+        db.workerVersion.count({ where: whereClause }),
+        db.workerVersion.findMany({
+          where: whereClause,
+          orderBy: { id: "asc" },
+          select,
+        }),
+      ])
+      const direction = titleSort.order === "asc" ? 1 : -1
+      const sortedItems = versions
+        .map(item => toWorkerVersionOutput(item, item.apiKey))
+        .sort((left, right) => {
+          const titleComparison = left.meta.title.localeCompare(right.meta.title)
+          return titleComparison === 0
+            ? left.id.localeCompare(right.id)
+            : titleComparison * direction
+        })
+      const skip = query.skip ?? 0
+      const items = sortedItems.slice(skip, skip + (query.count ?? 20))
+
+      return { items, total }
+    }
 
     const [total, items] = await Promise.all([
       db.workerVersion.count({ where: whereClause }),
@@ -1620,12 +1761,7 @@ export class SettingsService {
         orderBy: this.buildOrderBy(query, "createdAt"),
         skip: query.skip,
         take: query.count,
-        select: {
-          ...forSchema(workerVersionOutputSchema.omit({ apiKeyMeta: true })),
-          apiKey: {
-            select: { meta: true },
-          },
-        },
+        select,
       }),
     ])
 

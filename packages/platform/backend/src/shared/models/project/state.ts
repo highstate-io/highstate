@@ -58,6 +58,11 @@ export type InstanceState = DatabaseInstanceState & {
   pageIds?: string[]
 
   /**
+   * The IDs of the web panels attached to this unit instance.
+   */
+  panelIds?: string[]
+
+  /**
    * The IDs of the triggers produced by this unit instance.
    */
   triggerIds?: string[]
@@ -153,12 +158,12 @@ export function isTransientInstanceOperationStatus(status?: InstanceOperationSta
 export const workerUnitRegistrationEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("registered"),
-    instanceId: z.string(),
+    stateId: z.string(),
     params: z.record(z.string(), z.unknown()),
   }),
   z.object({
     type: z.literal("deregistered"),
-    instanceId: z.string(),
+    stateId: z.string(),
   }),
 ])
 

@@ -1,0 +1,39 @@
+/// A web panel served by a worker and attached to a unit instance.
+model Panel {
+    /// The stable CUIDv2 of the panel.
+    id String @id @default(cuid(2))
+
+    /// The ID of the instance state this panel belongs to.
+    stateId String
+
+    /// The ID of the service account which attached this panel.
+    serviceAccountId String
+
+    /// The ID of the worker version serving this panel.
+    workerVersionId String
+
+    /// The name of the panel unique within the instance and service account.
+    name String
+
+    /// The metadata of the panel managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The time when the panel was first attached to the instance.
+    createdAt DateTime @default(now())
+
+    /// The time when the panel was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The instance this panel belongs to.
+    state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The service account this panel belongs to.
+    serviceAccount ServiceAccount @relation(fields: [serviceAccountId], references: [id])
+
+    /// The worker version serving this panel.
+    workerVersion WorkerVersion @relation(fields: [workerVersionId], references: [id], onDelete: Cascade)
+
+    @@unique([stateId, serviceAccountId, name])
+}

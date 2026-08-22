@@ -1,6 +1,8 @@
+import type { PanelHttpRequestInterceptor } from "./panel"
 import { EventEmitter } from "node:events"
 import { createInterface } from "node:readline/promises"
 import { createAuthenticationMiddleware } from "@highstate/api"
+import { PanelServiceDefinition } from "@highstate/api/panel.v1"
 import { WorkerServiceDefinition } from "@highstate/api/worker.v1"
 import {
   type CommonObjectMeta,
@@ -16,6 +18,9 @@ import {
   createChannel,
   createClientFactory,
 } from "nice-grpc"
+import { PanelDataServer, PanelTargetRegistry } from "./panel"
+
+export * from "./panel"
 
 export type RegistrationHandler<TParamsSchema extends z.ZodType> = (
   instanceId: string,
@@ -23,6 +28,13 @@ export type RegistrationHandler<TParamsSchema extends z.ZodType> = (
 ) => Promise<void> | void
 
 export type DeregistrationHandler = (instanceId: string) => Promise<void> | void
+
+export type WorkerPanel = {
+  interceptHttpRequest?: PanelHttpRequestInterceptor
+  name: string
+  meta: CommonObjectMeta
+  target: string
+}
 
 export type WorkerOptions<TParamsSchema extends z.ZodType = z.ZodType> = {
   workerMeta: CommonObjectMeta
@@ -34,6 +46,8 @@ export class Worker<TParamsSchema extends z.ZodType> {
   private readonly eventEmitter = new EventEmitter()
   private readonly clientFactory: ClientFactory
   private readonly channel: Channel
+  private readonly panelTargets = new PanelTargetRegistry()
+  private readonly panelDataServer = new PanelDataServer(this.panelTargets)
 
   private constructor(
     private readonly options: WorkerOptions<TParamsSchema>,
@@ -78,9 +92,34 @@ export class Worker<TParamsSchema extends z.ZodType> {
     return this.clientFactory.create(definition, this.channel)
   }
 
+  /**
+   * Replaces all panels served by this worker for a unit instance.
+   *
+   * Calling this method with an empty array removes all panels owned by this worker from the unit.
+   *
+   * @param stateId The ID of the unit state.
+   * @param panels The complete set of panels currently served for the unit.
+   * @returns Stable panel IDs in the same order as the supplied panels.
+   */
+  async setUnitPanels(stateId: string, panels: WorkerPanel[]): Promise<string[]> {
+    const targets = this.panelTargets.prepare(panels)
+    await this.panelTargets.waitUntilReady(targets)
+
+    const panelClient = this.createClient(PanelServiceDefinition)
+    const response = await panelClient.setUnitPanels({
+      workerVersionId: this.runOptions.workerVersionId,
+      workerInstanceId: this.runOptions.workerInstanceId,
+      stateId,
+      panels: panels.map(({ name, meta }) => ({ name, meta })),
+    })
+
+    this.panelTargets.apply(stateId, targets)
+
+    return response.panelIds
+  }
+
   async start(): Promise<void> {
     const workerClient = this.createClient(WorkerServiceDefinition)
-
     await workerClient.updateWorkerVersionMeta({
       workerVersionId: this.runOptions.workerVersionId,
       meta: {
@@ -89,8 +128,12 @@ export class Worker<TParamsSchema extends z.ZodType> {
       },
     })
 
+    this.panelDataServer.start()
+
     for await (const { event } of workerClient.connect({
       workerVersionId: this.runOptions.workerVersionId,
+      workerInstanceId: this.runOptions.workerInstanceId,
+      dataEndpoint: this.runOptions.dataEndpoint,
     })) {
       switch (event?.$case) {
         case "unitRegistration": {

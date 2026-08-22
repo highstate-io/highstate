@@ -60,7 +60,13 @@ export class WorkerService {
     // query all registrations for the instance
     const existingRegistrations = await tx.workerUnitRegistration.findMany({
       where: { stateId },
-      select: { stateId: true, name: true, params: true, workerVersionId: true },
+      select: {
+        stateId: true,
+        name: true,
+        params: true,
+        workerVersionId: true,
+        workerVersion: { select: { workerId: true } },
+      },
     })
 
     // the set of names we want to keep
@@ -93,7 +99,7 @@ export class WorkerService {
 
         eventsToPublish.push({
           workerVersionId: workerVersionRecord.id,
-          event: { type: "registered", instanceId: stateId, params: worker.params },
+          event: { type: "registered", stateId, params: worker.params },
         })
 
         continue
@@ -114,15 +120,31 @@ export class WorkerService {
 
         // deregister from old worker version if it changed
         if (versionChanged) {
+          const remainingRegistrations = await tx.workerUnitRegistration.count({
+            where: { stateId, workerVersionId: existing.workerVersionId },
+          })
+          if (remainingRegistrations === 0) {
+            if (existing.workerVersion.workerId === workerVersionRecord.workerId) {
+              await tx.panel.updateMany({
+                where: { stateId, workerVersionId: existing.workerVersionId },
+                data: { workerVersionId: workerVersionRecord.id },
+              })
+            } else {
+              await tx.panel.deleteMany({
+                where: { stateId, workerVersionId: existing.workerVersionId },
+              })
+            }
+          }
+
           eventsToPublish.push({
             workerVersionId: existing.workerVersionId,
-            event: { type: "deregistered", instanceId: stateId },
+            event: { type: "deregistered", stateId },
           })
         }
 
         eventsToPublish.push({
           workerVersionId: workerVersionRecord.id,
-          event: { type: "registered", instanceId: stateId, params: worker.params },
+          event: { type: "registered", stateId, params: worker.params },
         })
       }
     }
@@ -134,9 +156,18 @@ export class WorkerService {
           where: { stateId_name: { stateId, name: registration.name } },
         })
 
+        const remainingRegistrations = await tx.workerUnitRegistration.count({
+          where: { stateId, workerVersionId: registration.workerVersionId },
+        })
+        if (remainingRegistrations === 0) {
+          await tx.panel.deleteMany({
+            where: { stateId, workerVersionId: registration.workerVersionId },
+          })
+        }
+
         eventsToPublish.push({
           workerVersionId: registration.workerVersionId,
-          event: { type: "deregistered", instanceId: stateId },
+          event: { type: "deregistered", stateId },
         })
       }
     }

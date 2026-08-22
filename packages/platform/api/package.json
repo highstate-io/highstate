@@ -19,6 +19,10 @@
       "types": "./src/_generated/worker.v1.ts",
       "default": "./dist/_generated/worker.v1.js"
     },
+    "./panel.v1": {
+      "types": "./src/_generated/panel.ts",
+      "default": "./dist/_generated/panel.js"
+    },
     "./secret.v1": {
       "types": "./src/_generated/secret.v1.ts",
       "default": "./dist/_generated/secret.v1.js"

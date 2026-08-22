@@ -57,7 +57,7 @@ export type GetProjectInstancesOptions = {
   includeParentInstanceId?: boolean
 
   /**
-   * Whether to include `terminalIds` and `pageIds` in the result.
+   * Whether to include terminal, page, and panel IDs in the result.
    *
    * By default, this is false.
    */
@@ -174,6 +174,7 @@ export function includeForInstanceState(
 
     terminals: options.includeExtra ? { select: { id: true } } : undefined,
     pages: options.includeExtra ? { select: { id: true } } : undefined,
+    panels: options.includeExtra ? { select: { id: true } } : undefined,
 
     customStatuses: options.loadCustomStatuses
       ? {
@@ -190,6 +191,7 @@ export function mapInstanceStateResult(
     operationStates?: InstanceOperationState[]
     terminals?: { id: string }[]
     pages?: { id: string }[]
+    panels?: { id: string }[]
     customStatuses: InstanceState["customStatuses"]
   },
 ): InstanceState {
@@ -200,6 +202,7 @@ export function mapInstanceStateResult(
       "operationStates",
       "terminals",
       "pages",
+      "panels",
       "customStatuses",
     ]),
 
@@ -209,6 +212,7 @@ export function mapInstanceStateResult(
     evaluationState: instance.evaluationState ?? undefined,
     terminalIds: instance.terminals ? instance.terminals.map(terminal => terminal.id) : undefined,
     pageIds: instance.pages ? instance.pages.map(page => page.id) : undefined,
+    panelIds: instance.panels ? instance.panels.map(panel => panel.id) : undefined,
     customStatuses: instance.customStatuses ?? undefined,
   }
 }
@@ -368,6 +372,7 @@ export class InstanceStateService {
           secretNames: deleteSecrets ? [] : undefined,
           terminalIds: clearTerminalData ? [] : undefined,
           pageIds: [],
+          panelIds: [],
           customStatuses: [],
           triggerIds: [],
           evaluationState: null,
@@ -466,6 +471,8 @@ export class InstanceStateService {
     await tx.instanceCustomStatus.deleteMany({
       where: { stateId: state.id },
     })
+
+    await tx.panel.deleteMany({ where: { stateId: state.id } })
 
     // delete other related resources
     await tx.page.deleteMany({ where: { stateId: state.id } })

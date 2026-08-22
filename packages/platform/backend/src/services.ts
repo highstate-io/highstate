@@ -12,6 +12,7 @@ import {
   LibraryService,
   ObjectRefIndexService,
   OperationService,
+  PanelService,
   ProjectModelService,
   ProjectPortService,
   ProjectService,
@@ -34,6 +35,7 @@ import {
 import { createLibraryBackend, type LibraryBackend } from "./library"
 import { createLockBackend, type LockBackend, LockManager } from "./lock"
 import { OperationManager } from "./orchestrator"
+import { PanelEndpointManager } from "./panel"
 import { createProjectModelBackends, type ProjectModelBackend } from "./project-model"
 import { createPubSubBackend, type PubSubBackend, PubSubManager } from "./pubsub"
 import { createRunnerBackend } from "./runner"
@@ -76,6 +78,7 @@ export type Services = {
   readonly workerManager: WorkerManager
 
   readonly artifactBackend: ArtifactBackend
+  readonly panelEndpointManager: PanelEndpointManager
 
   // business services
   readonly backendUnlockService: BackendUnlockService
@@ -84,6 +87,7 @@ export type Services = {
   readonly objectRefIndexService: ObjectRefIndexService
   readonly projectUnlockService: ProjectUnlockService
   readonly operationService: OperationService
+  readonly panelService: PanelService
   readonly instanceStateService: InstanceStateService
   readonly secretService: SecretService
   readonly apiKeyService: ApiKeyService
@@ -142,6 +146,7 @@ export async function createServices({
 
     artifactBackend,
     artifactService,
+    panelEndpointManager,
 
     // business services
     backendUnlockService,
@@ -150,6 +155,7 @@ export async function createServices({
     objectRefIndexService,
     projectUnlockService,
     operationService,
+    panelService,
     secretService,
     terminalSessionService: sessionService,
     instanceStateService,
@@ -268,6 +274,9 @@ export async function createServices({
     logger.child({ service: "OperationService" }),
   )
 
+  panelEndpointManager ??= new PanelEndpointManager(pubsubManager)
+  panelService ??= new PanelService(database, pubsubManager, panelEndpointManager)
+
   entitySnapshotService ??= new EntitySnapshotService(
     database,
     objectRefIndexService,
@@ -306,7 +315,7 @@ export async function createServices({
   )
 
   unitExtraService ??= new UnitExtraService(database)
-  settingsService ??= new SettingsService(database)
+  settingsService ??= new SettingsService(database, panelEndpointManager)
 
   instanceStateService ??= new InstanceStateService(
     database,
@@ -408,6 +417,7 @@ export async function createServices({
 
     artifactBackend,
     artifactService,
+    panelEndpointManager,
 
     // business services
     backendUnlockService,
@@ -416,6 +426,7 @@ export async function createServices({
     objectRefIndexService,
     projectUnlockService,
     operationService,
+    panelService,
     instanceStateService,
     secretService,
     terminalSessionService: sessionService,

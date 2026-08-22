@@ -327,6 +327,7 @@ export type InstanceStateWhereInput = {
   pages?: Prisma.PageListRelationFilter
   triggers?: Prisma.TriggerListRelationFilter
   customStatuses?: Prisma.InstanceCustomStatusListRelationFilter
+  panels?: Prisma.PanelListRelationFilter
   lock?: Prisma.XOR<Prisma.InstanceLockNullableScalarRelationFilter, Prisma.InstanceLockWhereInput> | null
   workerRegistrations?: Prisma.WorkerUnitRegistrationListRelationFilter
   artifacts?: Prisma.ArtifactListRelationFilter
@@ -362,6 +363,7 @@ export type InstanceStateOrderByWithRelationInput = {
   pages?: Prisma.PageOrderByRelationAggregateInput
   triggers?: Prisma.TriggerOrderByRelationAggregateInput
   customStatuses?: Prisma.InstanceCustomStatusOrderByRelationAggregateInput
+  panels?: Prisma.PanelOrderByRelationAggregateInput
   lock?: Prisma.InstanceLockOrderByWithRelationInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationOrderByRelationAggregateInput
   artifacts?: Prisma.ArtifactOrderByRelationAggregateInput
@@ -400,6 +402,7 @@ export type InstanceStateWhereUniqueInput = Prisma.AtLeast<{
   pages?: Prisma.PageListRelationFilter
   triggers?: Prisma.TriggerListRelationFilter
   customStatuses?: Prisma.InstanceCustomStatusListRelationFilter
+  panels?: Prisma.PanelListRelationFilter
   lock?: Prisma.XOR<Prisma.InstanceLockNullableScalarRelationFilter, Prisma.InstanceLockWhereInput> | null
   workerRegistrations?: Prisma.WorkerUnitRegistrationListRelationFilter
   artifacts?: Prisma.ArtifactListRelationFilter
@@ -482,6 +485,7 @@ export type InstanceStateCreateInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -516,6 +520,7 @@ export type InstanceStateUncheckedCreateInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -550,6 +555,7 @@ export type InstanceStateUpdateInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -584,6 +590,7 @@ export type InstanceStateUncheckedUpdateInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -973,6 +980,20 @@ export type InstanceStateUpdateOneWithoutPagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstanceStateUpdateToOneWithWhereWithoutPagesInput, Prisma.InstanceStateUpdateWithoutPagesInput>, Prisma.InstanceStateUncheckedUpdateWithoutPagesInput>
 }
 
+export type InstanceStateCreateNestedOneWithoutPanelsInput = {
+  create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutPanelsInput, Prisma.InstanceStateUncheckedCreateWithoutPanelsInput>
+  connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutPanelsInput
+  connect?: Prisma.InstanceStateWhereUniqueInput
+}
+
+export type InstanceStateUpdateOneRequiredWithoutPanelsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutPanelsInput, Prisma.InstanceStateUncheckedCreateWithoutPanelsInput>
+  connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutPanelsInput
+  upsert?: Prisma.InstanceStateUpsertWithoutPanelsInput
+  connect?: Prisma.InstanceStateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstanceStateUpdateToOneWithWhereWithoutPanelsInput, Prisma.InstanceStateUpdateWithoutPanelsInput>, Prisma.InstanceStateUncheckedUpdateWithoutPanelsInput>
+}
+
 export type InstanceStateCreateNestedOneWithoutSecretsInput = {
   create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutSecretsInput, Prisma.InstanceStateUncheckedCreateWithoutSecretsInput>
   connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutSecretsInput
@@ -1059,6 +1080,7 @@ export type InstanceStateCreateWithoutArtifactsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   operationLogs?: Prisma.OperationLogCreateNestedManyWithoutStateInput
@@ -1092,6 +1114,7 @@ export type InstanceStateUncheckedCreateWithoutArtifactsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   operationLogs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutStateInput
@@ -1168,6 +1191,7 @@ export type InstanceStateCreateWithoutCustomStatusesInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -1201,6 +1225,7 @@ export type InstanceStateUncheckedCreateWithoutCustomStatusesInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutStateInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -1250,6 +1275,7 @@ export type InstanceStateUpdateWithoutCustomStatusesInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -1283,6 +1309,7 @@ export type InstanceStateUncheckedUpdateWithoutCustomStatusesInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutStateNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -1317,6 +1344,7 @@ export type InstanceStateCreateWithoutEntitySnapshotsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -1350,6 +1378,7 @@ export type InstanceStateUncheckedCreateWithoutEntitySnapshotsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -1399,6 +1428,7 @@ export type InstanceStateUpdateWithoutEntitySnapshotsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -1432,6 +1462,7 @@ export type InstanceStateUncheckedUpdateWithoutEntitySnapshotsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -1464,6 +1495,7 @@ export type InstanceStateCreateWithoutEvaluationStateInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -1497,6 +1529,7 @@ export type InstanceStateUncheckedCreateWithoutEvaluationStateInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -1546,6 +1579,7 @@ export type InstanceStateUpdateWithoutEvaluationStateInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -1579,6 +1613,7 @@ export type InstanceStateUncheckedUpdateWithoutEvaluationStateInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -1612,6 +1647,7 @@ export type InstanceStateCreateWithoutChildrenInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -1645,6 +1681,7 @@ export type InstanceStateUncheckedCreateWithoutChildrenInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -1683,6 +1720,7 @@ export type InstanceStateCreateWithoutParentInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -1716,6 +1754,7 @@ export type InstanceStateUncheckedCreateWithoutParentInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -1769,6 +1808,7 @@ export type InstanceStateUpdateWithoutChildrenInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -1802,6 +1842,7 @@ export type InstanceStateUncheckedUpdateWithoutChildrenInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -1852,6 +1893,7 @@ export type InstanceStateCreateWithoutUserViewportsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -1885,6 +1927,7 @@ export type InstanceStateUncheckedCreateWithoutUserViewportsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -1934,6 +1977,7 @@ export type InstanceStateUpdateWithoutUserViewportsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -1967,6 +2011,7 @@ export type InstanceStateUncheckedUpdateWithoutUserViewportsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -2000,6 +2045,7 @@ export type InstanceStateCreateWithoutLockInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
   operationLogs?: Prisma.OperationLogCreateNestedManyWithoutStateInput
@@ -2033,6 +2079,7 @@ export type InstanceStateUncheckedCreateWithoutLockInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
   operationLogs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutStateInput
@@ -2082,6 +2129,7 @@ export type InstanceStateUpdateWithoutLockInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
   operationLogs?: Prisma.OperationLogUpdateManyWithoutStateNestedInput
@@ -2115,6 +2163,7 @@ export type InstanceStateUncheckedUpdateWithoutLockInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
   operationLogs?: Prisma.OperationLogUncheckedUpdateManyWithoutStateNestedInput
@@ -2147,6 +2196,7 @@ export type InstanceStateCreateWithoutOperationStatesInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -2180,6 +2230,7 @@ export type InstanceStateUncheckedCreateWithoutOperationStatesInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -2229,6 +2280,7 @@ export type InstanceStateUpdateWithoutOperationStatesInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -2262,6 +2314,7 @@ export type InstanceStateUncheckedUpdateWithoutOperationStatesInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -2296,6 +2349,7 @@ export type InstanceStateCreateWithoutOperationLogsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -2329,6 +2383,7 @@ export type InstanceStateUncheckedCreateWithoutOperationLogsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -2378,6 +2433,7 @@ export type InstanceStateUpdateWithoutOperationLogsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -2411,6 +2467,7 @@ export type InstanceStateUncheckedUpdateWithoutOperationLogsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -2443,6 +2500,7 @@ export type InstanceStateCreateWithoutPagesInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -2476,6 +2534,7 @@ export type InstanceStateUncheckedCreateWithoutPagesInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -2525,6 +2584,7 @@ export type InstanceStateUpdateWithoutPagesInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -2556,6 +2616,159 @@ export type InstanceStateUncheckedUpdateWithoutPagesInput = {
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutStateNestedInput
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutStateNestedInput
+  triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
+  lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
+  artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
+  operationLogs?: Prisma.OperationLogUncheckedUpdateManyWithoutStateNestedInput
+  userViewports?: Prisma.UserCompositeViewportUncheckedUpdateManyWithoutStateNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutStateNestedInput
+}
+
+export type InstanceStateCreateWithoutPanelsInput = {
+  id?: string
+  instanceId:PrismaJson.InstanceId
+  status: $Enums.InstanceStatus
+  source: $Enums.InstanceSource
+  kind:PrismaJson.InstanceKind
+  inputHashNonce?: number | null
+  selfHash?: number | null
+  inputHash?: number | null
+  outputHash?: number | null
+  dependencyOutputHash?: number | null
+  exportedArtifactIds?:PrismaJson.InstanceArtifactIds | Prisma.NullableJsonNullValueInput
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  resolvedInputs?:PrismaJson.InstanceResolvedInputs | Prisma.NullableJsonNullValueInput
+  currentResourceCount?: number | null
+  statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
+  hasResourceHooks?: boolean
+  parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
+  children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
+  operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
+  secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
+  terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
+  pages?: Prisma.PageCreateNestedManyWithoutStateInput
+  triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
+  customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
+  artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
+  operationLogs?: Prisma.OperationLogCreateNestedManyWithoutStateInput
+  userViewports?: Prisma.UserCompositeViewportCreateNestedManyWithoutStateInput
+  entitySnapshots?: Prisma.EntitySnapshotCreateNestedManyWithoutStateInput
+}
+
+export type InstanceStateUncheckedCreateWithoutPanelsInput = {
+  id?: string
+  instanceId:PrismaJson.InstanceId
+  status: $Enums.InstanceStatus
+  source: $Enums.InstanceSource
+  kind:PrismaJson.InstanceKind
+  parentId?: string | null
+  inputHashNonce?: number | null
+  selfHash?: number | null
+  inputHash?: number | null
+  outputHash?: number | null
+  dependencyOutputHash?: number | null
+  exportedArtifactIds?:PrismaJson.InstanceArtifactIds | Prisma.NullableJsonNullValueInput
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  resolvedInputs?:PrismaJson.InstanceResolvedInputs | Prisma.NullableJsonNullValueInput
+  currentResourceCount?: number | null
+  statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
+  hasResourceHooks?: boolean
+  children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
+  evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
+  operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
+  secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutStateInput
+  terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutStateInput
+  pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
+  triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
+  artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
+  operationLogs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutStateInput
+  userViewports?: Prisma.UserCompositeViewportUncheckedCreateNestedManyWithoutStateInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedCreateNestedManyWithoutStateInput
+}
+
+export type InstanceStateCreateOrConnectWithoutPanelsInput = {
+  where: Prisma.InstanceStateWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstanceStateCreateWithoutPanelsInput, Prisma.InstanceStateUncheckedCreateWithoutPanelsInput>
+}
+
+export type InstanceStateUpsertWithoutPanelsInput = {
+  update: Prisma.XOR<Prisma.InstanceStateUpdateWithoutPanelsInput, Prisma.InstanceStateUncheckedUpdateWithoutPanelsInput>
+  create: Prisma.XOR<Prisma.InstanceStateCreateWithoutPanelsInput, Prisma.InstanceStateUncheckedCreateWithoutPanelsInput>
+  where?: Prisma.InstanceStateWhereInput
+}
+
+export type InstanceStateUpdateToOneWithWhereWithoutPanelsInput = {
+  where?: Prisma.InstanceStateWhereInput
+  data: Prisma.XOR<Prisma.InstanceStateUpdateWithoutPanelsInput, Prisma.InstanceStateUncheckedUpdateWithoutPanelsInput>
+}
+
+export type InstanceStateUpdateWithoutPanelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instanceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceStatusFieldUpdateOperationsInput | $Enums.InstanceStatus
+  source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  exportedArtifactIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  model?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  resolvedInputs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
+  operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
+  secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
+  terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
+  pages?: Prisma.PageUpdateManyWithoutStateNestedInput
+  triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
+  artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
+  operationLogs?: Prisma.OperationLogUpdateManyWithoutStateNestedInput
+  userViewports?: Prisma.UserCompositeViewportUpdateManyWithoutStateNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUpdateManyWithoutStateNestedInput
+}
+
+export type InstanceStateUncheckedUpdateWithoutPanelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instanceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceStatusFieldUpdateOperationsInput | $Enums.InstanceStatus
+  source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  exportedArtifactIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  model?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  resolvedInputs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
+  evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
+  operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
+  secrets?: Prisma.SecretUncheckedUpdateManyWithoutStateNestedInput
+  terminals?: Prisma.TerminalUncheckedUpdateManyWithoutStateNestedInput
+  pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
@@ -2591,6 +2804,7 @@ export type InstanceStateCreateWithoutSecretsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -2624,6 +2838,7 @@ export type InstanceStateUncheckedCreateWithoutSecretsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -2673,6 +2888,7 @@ export type InstanceStateUpdateWithoutSecretsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -2706,6 +2922,7 @@ export type InstanceStateUncheckedUpdateWithoutSecretsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -2739,6 +2956,7 @@ export type InstanceStateCreateWithoutTerminalsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -2772,6 +2990,7 @@ export type InstanceStateUncheckedCreateWithoutTerminalsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -2821,6 +3040,7 @@ export type InstanceStateUpdateWithoutTerminalsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -2854,6 +3074,7 @@ export type InstanceStateUncheckedUpdateWithoutTerminalsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -2887,6 +3108,7 @@ export type InstanceStateCreateWithoutTriggersInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
@@ -2920,6 +3142,7 @@ export type InstanceStateUncheckedCreateWithoutTriggersInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutStateInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
@@ -2969,6 +3192,7 @@ export type InstanceStateUpdateWithoutTriggersInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -3002,6 +3226,7 @@ export type InstanceStateUncheckedUpdateWithoutTriggersInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutStateNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -3036,6 +3261,7 @@ export type InstanceStateCreateWithoutWorkerRegistrationsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
   operationLogs?: Prisma.OperationLogCreateNestedManyWithoutStateInput
@@ -3069,6 +3295,7 @@ export type InstanceStateUncheckedCreateWithoutWorkerRegistrationsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
   triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
   lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
   operationLogs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutStateInput
@@ -3118,6 +3345,7 @@ export type InstanceStateUpdateWithoutWorkerRegistrationsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
   operationLogs?: Prisma.OperationLogUpdateManyWithoutStateNestedInput
@@ -3151,6 +3379,7 @@ export type InstanceStateUncheckedUpdateWithoutWorkerRegistrationsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
   operationLogs?: Prisma.OperationLogUncheckedUpdateManyWithoutStateNestedInput
@@ -3184,6 +3413,7 @@ export type InstanceStateUpdateWithoutArtifactsInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   operationLogs?: Prisma.OperationLogUpdateManyWithoutStateNestedInput
@@ -3217,6 +3447,7 @@ export type InstanceStateUncheckedUpdateWithoutArtifactsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   operationLogs?: Prisma.OperationLogUncheckedUpdateManyWithoutStateNestedInput
@@ -3288,6 +3519,7 @@ export type InstanceStateUpdateWithoutParentInput = {
   pages?: Prisma.PageUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
@@ -3321,6 +3553,7 @@ export type InstanceStateUncheckedUpdateWithoutParentInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
   triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
   lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
   workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
@@ -3361,6 +3594,7 @@ export type InstanceStateCountOutputType = {
   pages: number
   triggers: number
   customStatuses: number
+  panels: number
   workerRegistrations: number
   artifacts: number
   operationLogs: number
@@ -3376,6 +3610,7 @@ export type InstanceStateCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   pages?: boolean | InstanceStateCountOutputTypeCountPagesArgs
   triggers?: boolean | InstanceStateCountOutputTypeCountTriggersArgs
   customStatuses?: boolean | InstanceStateCountOutputTypeCountCustomStatusesArgs
+  panels?: boolean | InstanceStateCountOutputTypeCountPanelsArgs
   workerRegistrations?: boolean | InstanceStateCountOutputTypeCountWorkerRegistrationsArgs
   artifacts?: boolean | InstanceStateCountOutputTypeCountArtifactsArgs
   operationLogs?: boolean | InstanceStateCountOutputTypeCountOperationLogsArgs
@@ -3445,6 +3680,13 @@ export type InstanceStateCountOutputTypeCountCustomStatusesArgs<ExtArgs extends 
 /**
  * InstanceStateCountOutputType without action
  */
+export type InstanceStateCountOutputTypeCountPanelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PanelWhereInput
+}
+
+/**
+ * InstanceStateCountOutputType without action
+ */
 export type InstanceStateCountOutputTypeCountWorkerRegistrationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.WorkerUnitRegistrationWhereInput
 }
@@ -3505,6 +3747,7 @@ export type InstanceStateSelect<ExtArgs extends runtime.Types.Extensions.Interna
   pages?: boolean | Prisma.InstanceState$pagesArgs<ExtArgs>
   triggers?: boolean | Prisma.InstanceState$triggersArgs<ExtArgs>
   customStatuses?: boolean | Prisma.InstanceState$customStatusesArgs<ExtArgs>
+  panels?: boolean | Prisma.InstanceState$panelsArgs<ExtArgs>
   lock?: boolean | Prisma.InstanceState$lockArgs<ExtArgs>
   workerRegistrations?: boolean | Prisma.InstanceState$workerRegistrationsArgs<ExtArgs>
   artifacts?: boolean | Prisma.InstanceState$artifactsArgs<ExtArgs>
@@ -3587,6 +3830,7 @@ export type InstanceStateInclude<ExtArgs extends runtime.Types.Extensions.Intern
   pages?: boolean | Prisma.InstanceState$pagesArgs<ExtArgs>
   triggers?: boolean | Prisma.InstanceState$triggersArgs<ExtArgs>
   customStatuses?: boolean | Prisma.InstanceState$customStatusesArgs<ExtArgs>
+  panels?: boolean | Prisma.InstanceState$panelsArgs<ExtArgs>
   lock?: boolean | Prisma.InstanceState$lockArgs<ExtArgs>
   workerRegistrations?: boolean | Prisma.InstanceState$workerRegistrationsArgs<ExtArgs>
   artifacts?: boolean | Prisma.InstanceState$artifactsArgs<ExtArgs>
@@ -3641,6 +3885,10 @@ export type $InstanceStatePayload<ExtArgs extends runtime.Types.Extensions.Inter
      * Custom statuses for this instance.
      */
     customStatuses: Prisma.$InstanceCustomStatusPayload<ExtArgs>[]
+    /**
+     * Web panels associated with this instance.
+     */
+    panels: Prisma.$PanelPayload<ExtArgs>[]
     /**
      * The lock that is currently held on this instance.
      */
@@ -4180,6 +4428,7 @@ export interface Prisma__InstanceStateClient<T, Null = never, ExtArgs extends ru
   pages<T extends Prisma.InstanceState$pagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$pagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   triggers<T extends Prisma.InstanceState$triggersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$triggersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TriggerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   customStatuses<T extends Prisma.InstanceState$customStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$customStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstanceCustomStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  panels<T extends Prisma.InstanceState$panelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$panelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PanelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   lock<T extends Prisma.InstanceState$lockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$lockArgs<ExtArgs>>): Prisma.Prisma__InstanceLockClient<runtime.Types.Result.GetResult<Prisma.$InstanceLockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   workerRegistrations<T extends Prisma.InstanceState$workerRegistrationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$workerRegistrationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkerUnitRegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   artifacts<T extends Prisma.InstanceState$artifactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$artifactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtifactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4829,6 +5078,30 @@ export type InstanceState$customStatusesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.InstanceCustomStatusScalarFieldEnum | Prisma.InstanceCustomStatusScalarFieldEnum[]
+}
+
+/**
+ * InstanceState.panels
+ */
+export type InstanceState$panelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Panel
+   */
+  select?: Prisma.PanelSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Panel
+   */
+  omit?: Prisma.PanelOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PanelInclude<ExtArgs> | null
+  where?: Prisma.PanelWhereInput
+  orderBy?: Prisma.PanelOrderByWithRelationInput | Prisma.PanelOrderByWithRelationInput[]
+  cursor?: Prisma.PanelWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PanelScalarFieldEnum | Prisma.PanelScalarFieldEnum[]
 }
 
 /**

@@ -29,6 +29,7 @@ export type {
   OperationStatus,
   OperationType,
   Page,
+  Panel,
   Secret,
   ServiceAccount,
   Terminal,

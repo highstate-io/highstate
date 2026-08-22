@@ -36,6 +36,7 @@ export const migrationPacks = {
       "20260123000000_add_instance_state_self_hash",
       "20260301210131_add_entity_tracking",
       "20260302212734_add_resource_hooks_flag",
+      "20260720230553_add_panels",
     ],
   },
 }

@@ -101,6 +101,15 @@ export class LocalLibraryBackend implements LibraryBackend {
       ignore: /\.git|node_modules|dist|\.highstate|\.nx/,
     })
 
+    this.watcher.on("error", error => {
+      if ("code" in error && error.code === "ENOENT") {
+        this.logger.debug({ error }, "library watcher target disappeared")
+        return
+      }
+
+      this.logger.error({ error }, "library watcher failed")
+    })
+
     this.watcher.on("all", (event: string, path: string) => {
       this.logger.debug({ event, path }, "library event")
 

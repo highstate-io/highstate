@@ -2,6 +2,7 @@ import type { WorkerRunOptions } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { WorkerBackend, WorkerRunOptions as WorkerRunBackendOptions } from "./abstractions"
 import { Readable } from "node:stream"
+import { getPort } from "get-port-please"
 import spawn from "nano-spawn"
 import { z } from "zod"
 
@@ -22,19 +23,31 @@ export class DockerWorkerBackend implements WorkerBackend {
   async run({
     projectId,
     workerVersionId,
+    workerInstanceId,
     image,
     apiKey,
     apiPath,
     stdout,
     signal,
   }: WorkerRunBackendOptions): Promise<void> {
-    const args = ["run", "-i", "-v", `${apiPath}:/var/run/highstate.sock`, image]
+    const dataPort = await getPort({ random: true })
+    const args = [
+      "run",
+      "-i",
+      "-v",
+      `${apiPath}:/var/run/highstate.sock`,
+      "-p",
+      `127.0.0.1:${dataPort}:7284`,
+      image,
+    ]
 
     const runOptions: WorkerRunOptions = {
       projectId,
       workerVersionId,
+      workerInstanceId,
       apiKey,
       apiUrl: "unix:///var/run/highstate.sock",
+      dataEndpoint: `127.0.0.1:${dataPort}`,
     }
 
     const initDataStream = Readable.from(`${JSON.stringify(runOptions)}\n`)

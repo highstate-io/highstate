@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2"
 import { generateIdentity, identityToRecipient } from "age-encryption"
 import { describe } from "vitest"
+import { PanelEndpointManager } from "../panel"
 import { test } from "../test-utils"
 import { SettingsService } from "./settings"
 
@@ -9,7 +10,7 @@ const settingsTest = test.extend<{
 }>({
   settingsService: [
     async ({ database }, use) => {
-      const settingsService = new SettingsService(database)
+      const settingsService = new SettingsService(database, new PanelEndpointManager())
 
       await use(settingsService)
     },
@@ -640,6 +641,120 @@ describe("SettingsService", () => {
     )
   })
 
+  describe("queryWorkerVersions", () => {
+    settingsTest(
+      "sorts and paginates worker versions by meta title",
+      async ({ settingsService, projectDatabase, project, expect }) => {
+        const worker = await projectDatabase.worker.create({
+          data: {
+            identity: `ghcr.io/highstate/${createId()}`,
+            serviceAccount: {
+              create: { meta: { title: "Worker service account" } },
+            },
+          },
+        })
+
+        for (const title of ["Zulu", "Alpha", "Bravo"]) {
+          await projectDatabase.workerVersion.create({
+            data: {
+              worker: { connect: worker },
+              digest: createId(),
+              meta: { title },
+              apiKey: {
+                create: {
+                  meta: { title: `${title} API key` },
+                  serviceAccountId: worker.serviceAccountId,
+                  token: createId(),
+                },
+              },
+            },
+          })
+        }
+
+        const ascending = await settingsService.queryWorkerVersions(project.id, worker.id, {
+          sortBy: [{ key: "meta.title", order: "asc" }],
+          skip: 1,
+          count: 1,
+        })
+        const descending = await settingsService.queryWorkerVersions(project.id, worker.id, {
+          sortBy: [{ key: "meta.title", order: "desc" }],
+        })
+
+        expect(ascending.total).toBe(3)
+        expect(ascending.items.map(item => item.meta.title)).toEqual(["Bravo"])
+        expect(descending.items.map(item => item.meta.title)).toEqual(["Zulu", "Bravo", "Alpha"])
+      },
+    )
+  })
+
+  describe("queryPanels", () => {
+    settingsTest(
+      "returns relation metadata and filters panels by each relation",
+      async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
+        const state = await createInstanceState(project.id)
+        const otherState = await createInstanceState(project.id)
+        const worker = await projectDatabase.worker.create({
+          data: {
+            identity: `ghcr.io/highstate/${createId()}`,
+            serviceAccount: {
+              create: { meta: { title: "Panel service account" } },
+            },
+          },
+        })
+        const workerVersion = await projectDatabase.workerVersion.create({
+          data: {
+            worker: { connect: worker },
+            digest: createId(),
+            meta: { title: "Panel worker version" },
+            apiKey: {
+              create: {
+                meta: { title: "Panel API key" },
+                serviceAccountId: worker.serviceAccountId,
+                token: createId(),
+              },
+            },
+          },
+        })
+        const panel = await projectDatabase.panel.create({
+          data: {
+            stateId: state.id,
+            serviceAccountId: worker.serviceAccountId,
+            workerVersionId: workerVersion.id,
+            name: "dashboard",
+            meta: { title: "Dashboard" },
+          },
+        })
+
+        const byState = await settingsService.queryPanels(project.id, { stateId: state.id })
+        const byOtherState = await settingsService.queryPanels(project.id, {
+          stateId: otherState.id,
+        })
+        const byServiceAccount = await settingsService.queryPanels(project.id, {
+          serviceAccountId: worker.serviceAccountId,
+        })
+        const byWorkerVersion = await settingsService.queryPanels(project.id, {
+          workerVersionId: workerVersion.id,
+        })
+
+        expect(byOtherState.total).toBe(0)
+        expect(byServiceAccount.total).toBe(1)
+        expect(byWorkerVersion.total).toBe(1)
+        expect(byState.items).toMatchObject([
+          {
+            id: panel.id,
+            stateId: state.id,
+            serviceAccountId: worker.serviceAccountId,
+            serviceAccountMeta: { title: "Panel service account" },
+            workerId: worker.id,
+            workerVersionId: workerVersion.id,
+            workerVersionMeta: { title: "Panel worker version" },
+            online: false,
+          },
+        ])
+      },
+    )
+  })
+
   describe("queryUnlockMethods", () => {
     settingsTest(
       "returns unlock methods and searches by type",
@@ -797,6 +912,7 @@ describe("SettingsService", () => {
       async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
         // clear secrets and instance state tables
         await projectDatabase.secret.deleteMany()
+        await projectDatabase.panel.deleteMany()
         await projectDatabase.entitySnapshotReference.deleteMany()
         await projectDatabase.entitySnapshot.deleteMany()
         await projectDatabase.instanceState.deleteMany()
@@ -847,6 +963,7 @@ describe("SettingsService", () => {
       async ({ settingsService, projectDatabase, project, createInstanceState, expect }) => {
         // clear triggers and instance state tables
         await projectDatabase.trigger.deleteMany()
+        await projectDatabase.panel.deleteMany()
         await projectDatabase.entitySnapshotReference.deleteMany()
         await projectDatabase.entitySnapshot.deleteMany()
         await projectDatabase.instanceState.deleteMany()

@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "highstate build",
+    "test": "vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
@@ -29,7 +30,8 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@highstate/cli": "workspace:*",
-    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "bun-types": "^1.3.13"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.6.0",

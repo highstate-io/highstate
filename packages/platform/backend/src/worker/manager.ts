@@ -1,10 +1,12 @@
 import type { Logger } from "pino"
 import type { ApiKeyService, ProjectUnlockService } from "../business"
-import type { DatabaseManager, Worker, WorkerVersion } from "../database"
+import type { DatabaseManager, Worker, WorkerVersion, WorkerVersionLog } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { WorkerVersionStatus } from "../shared"
 import type { WorkerBackend } from "./abstractions"
 import { PassThrough } from "node:stream"
+import { createId } from "@paralleldrive/cuid2"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client"
 import { z } from "zod"
 import { type AsyncBatcher, createAsyncBatcher } from "../shared"
 
@@ -19,6 +21,7 @@ type RunningWorkerInfo = {
   abortController: AbortController
   projectId: string
   workerVersion: WorkerVersion & { worker: Worker }
+  workerInstanceId: string
   startedAt: Date
   failedAttempts: number
   status: "starting" | "running"
@@ -86,6 +89,7 @@ export class WorkerManager {
   }
 
   private readonly runningWorkers = new Map<string, RunningWorkerInfo>()
+  private readonly startingWorkers = new Set<string>()
 
   private async publishWorkerVersionStatus(
     projectId: string,
@@ -102,6 +106,23 @@ export class WorkerManager {
     projectId: string,
     workerVersion: WorkerVersion & { worker: Worker },
     restart = false,
+  ): Promise<void> {
+    if (this.startingWorkers.has(workerVersion.id)) {
+      return
+    }
+
+    this.startingWorkers.add(workerVersion.id)
+    try {
+      await this.startWorkerVersionOnce(projectId, workerVersion, restart)
+    } finally {
+      this.startingWorkers.delete(workerVersion.id)
+    }
+  }
+
+  private async startWorkerVersionOnce(
+    projectId: string,
+    workerVersion: WorkerVersion & { worker: Worker },
+    restart: boolean,
   ): Promise<void> {
     const existingInfo = this.runningWorkers.get(workerVersion.id)
 
@@ -196,6 +217,7 @@ export class WorkerManager {
 
     // regenerate API token
     const apiKey = await this.apiKeyService.regenerateToken(projectId, workerVersion.apiKeyId)
+    const workerInstanceId = createId()
     const stdout = new PassThrough()
 
     await this.writeWorkerLog(
@@ -211,15 +233,12 @@ export class WorkerManager {
         this.logger.trace({ msg: "persisting worker log entries", count: entries.length })
 
         for (const entry of entries) {
-          const log = await database.workerVersionLog.create({
-            data: {
-              workerVersionId: workerVersion.id,
-              content: entry.content,
-              isSystem: entry.isSystem ?? false,
-            },
-          })
-
-          this.pubsubManager.publish(["worker-version-log", projectId, workerVersion.id], log)
+          await this.persistWorkerLog(
+            projectId,
+            workerVersion.id,
+            entry.content,
+            entry.isSystem ?? false,
+          )
         }
       },
     )
@@ -231,6 +250,7 @@ export class WorkerManager {
       abortController,
       projectId,
       workerVersion,
+      workerInstanceId,
       startedAt: new Date(),
       failedAttempts,
       status: "starting",
@@ -280,17 +300,27 @@ export class WorkerManager {
       .run({
         projectId,
         workerVersionId: workerVersion.id,
+        workerInstanceId,
         image: `${workerVersion.worker.identity}@sha256:${workerVersion.digest}`,
         apiPath: this.config.HIGHSTATE_WORKER_API_PATH,
         apiKey: apiKey.token,
         stdout,
         signal: abortController.signal,
       })
+      .catch(error => {
+        if (!abortController.signal.aborted) {
+          this.logger.error(
+            { error, projectId, workerVersionId: workerVersion.id },
+            `worker version "%s" exited with an error`,
+            workerVersion.id,
+          )
+        }
+      })
       // regardless the exit reason, we want to restart the worker if it has remaining attempts
       .finally(async () => {
-        const info = this.runningWorkers.get(workerVersion.id)
+        const currentInfo = this.runningWorkers.get(workerVersion.id)
 
-        if (info) {
+        if (currentInfo === info) {
           // flush any remaining line buffer
           if (info.lineBuffer?.trim()) {
             info.logBatcher.call({ content: info.lineBuffer, isSystem: false })
@@ -310,10 +340,31 @@ export class WorkerManager {
         }
 
         // attempt restart if not manually aborted
-        if (!info?.abortController.signal.aborted) {
-          void this.startWorkerVersion(projectId, workerVersion, true)
+        if (!info.abortController.signal.aborted) {
+          this.startWorkerVersionInBackground(projectId, workerVersion, true)
         }
       })
+      .catch(error => {
+        this.logger.error(
+          { error, projectId, workerVersionId: workerVersion.id },
+          `failed to handle worker version "%s" exit`,
+          workerVersion.id,
+        )
+      })
+  }
+
+  private startWorkerVersionInBackground(
+    projectId: string,
+    workerVersion: WorkerVersion & { worker: Worker },
+    restart = false,
+  ): void {
+    void this.startWorkerVersion(projectId, workerVersion, restart).catch(error => {
+      this.logger.error(
+        { error, projectId, workerVersionId: workerVersion.id },
+        `failed to start worker version "%s"`,
+        workerVersion.id,
+      )
+    })
   }
 
   private async writeWorkerLog(
@@ -321,29 +372,61 @@ export class WorkerManager {
     workerVersionId: string,
     message: string,
   ): Promise<void> {
-    const database = await this.database.forProject(projectId)
+    await this.persistWorkerLog(projectId, workerVersionId, message, true)
+  }
 
-    const log = await database.workerVersionLog.create({
-      data: {
-        workerVersionId,
-        content: message,
-        isSystem: true, // runtime logs are always system logs
-      },
-    })
+  private async persistWorkerLog(
+    projectId: string,
+    workerVersionId: string,
+    content: string,
+    isSystem: boolean,
+  ): Promise<void> {
+    const database = await this.database.forProject(projectId)
+    let log: WorkerVersionLog
+
+    try {
+      log = await database.workerVersionLog.create({
+        data: { workerVersionId, content, isSystem },
+      })
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError && error.code === "P2003") {
+        const workerVersion = await database.workerVersion.findUnique({
+          where: { id: workerVersionId },
+          select: { id: true },
+        })
+        if (!workerVersion) {
+          return
+        }
+      }
+
+      throw error
+    }
 
     this.pubsubManager.publish(["worker-version-log", projectId, workerVersionId], log)
   }
 
-  async setWorkerRunning(projectId: string, workerVersionId: string): Promise<void> {
+  /**
+   * Verifies that an instance is the process currently launched for a worker version.
+   *
+   * @param projectId The ID of the project owning the worker.
+   * @param workerVersionId The ID of the worker version.
+   * @param workerInstanceId The ID of the concrete worker instance.
+   */
+  assertWorkerInstance(projectId: string, workerVersionId: string, workerInstanceId: string): void {
     const info = this.runningWorkers.get(workerVersionId)
-    if (!info) {
-      this.logger.warn(
-        { projectId, workerVersionId },
-        `worker version "%s" not found in running workers`,
-        workerVersionId,
-      )
-      return
+    if (!info || info.projectId !== projectId || info.workerInstanceId !== workerInstanceId) {
+      throw new Error(`Worker instance "${workerInstanceId}" is not active for this worker version`)
     }
+  }
+
+  async setWorkerRunning(
+    projectId: string,
+    workerVersionId: string,
+    workerInstanceId: string,
+  ): Promise<void> {
+    this.assertWorkerInstance(projectId, workerVersionId, workerInstanceId)
+    const info = this.runningWorkers.get(workerVersionId)
+    if (!info) return
 
     await this.writeWorkerLog(
       projectId,
@@ -374,7 +457,11 @@ export class WorkerManager {
     )
   }
 
-  private async stopWorkerVersion(workerVersionId: string, reason = "manual stop"): Promise<void> {
+  private async stopWorkerVersion(
+    workerVersionId: string,
+    reason = "manual stop",
+    workerVersionExists = true,
+  ): Promise<void> {
     const info = this.runningWorkers.get(workerVersionId)
     if (!info) {
       this.logger.warn(
@@ -385,27 +472,31 @@ export class WorkerManager {
       return
     }
 
-    await this.writeWorkerLog(
-      info.projectId,
-      workerVersionId,
-      `stopping worker container: ${reason}`,
-    )
+    if (workerVersionExists) {
+      await this.writeWorkerLog(
+        info.projectId,
+        workerVersionId,
+        `stopping worker container: ${reason}`,
+      )
+    }
 
     info.abortController.abort()
-    void info.logBatcher.flush()
+    await info.logBatcher.flush()
     this.runningWorkers.delete(workerVersionId)
 
-    // update worker version status in database
-    const database = await this.database.forProject(info.projectId)
-    await database.workerVersion.update({
-      where: { id: workerVersionId },
-      data: {
-        status: "stopped",
-        runtimeId: this.runtimeId,
-      },
-    })
+    if (workerVersionExists) {
+      // update worker version status in database
+      const database = await this.database.forProject(info.projectId)
+      await database.workerVersion.update({
+        where: { id: workerVersionId },
+        data: {
+          status: "stopped",
+          runtimeId: this.runtimeId,
+        },
+      })
 
-    await this.publishWorkerVersionStatus(info.projectId, workerVersionId, "stopped")
+      await this.publishWorkerVersionStatus(info.projectId, workerVersionId, "stopped")
+    }
 
     this.logger.debug(
       { projectId: info.projectId, workerVersionId },
@@ -467,7 +558,7 @@ export class WorkerManager {
     }
 
     // reset failed attempts and start fresh
-    void this.startWorkerVersion(projectId, workerVersion, false)
+    this.startWorkerVersionInBackground(projectId, workerVersion)
   }
 
   async syncWorkers(projectId: string): Promise<void> {
@@ -489,14 +580,14 @@ export class WorkerManager {
       if (info.projectId !== projectId) continue
 
       if (!activeVersionIds.has(versionId)) {
-        await this.stopWorkerVersion(versionId, "worker version removed from database")
+        await this.stopWorkerVersion(versionId, "worker version removed from database", false)
       }
     }
 
     // start workers that aren't running
     for (const version of workerVersions) {
       if (!this.runningWorkers.has(version.id)) {
-        void this.startWorkerVersion(projectId, version)
+        this.startWorkerVersionInBackground(projectId, version)
       }
     }
 

@@ -20,9 +20,19 @@ export const workerRunOptionsSchema = z.object({
   workerVersionId: z.cuid2(),
 
   /**
+   * The ID of the concrete worker instance.
+   */
+  workerInstanceId: z.cuid2(),
+
+  /**
    * The URL of the backend API to connect to.
    */
   apiUrl: z.url(),
+
+  /**
+   * The host and port of the worker data endpoint reachable by the frontend gateway.
+   */
+  dataEndpoint: z.string().min(1),
 
   /**
    * The API key used to authenticate the worker with the backend.

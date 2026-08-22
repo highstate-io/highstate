@@ -163,6 +163,11 @@ export type OperationLog = Prisma.OperationLogModel
  */
 export type Page = Prisma.PageModel
 /**
+ * Model Panel
+ * A web panel served by a worker and attached to a unit instance.
+ */
+export type Panel = Prisma.PanelModel
+/**
  * Model Secret
  * The secret stores sensitive configuration values for instances, service accounts, and system components.
  * 

@@ -69,6 +69,7 @@ export const ModelName = {
   InstanceOperationState: 'InstanceOperationState',
   OperationLog: 'OperationLog',
   Page: 'Page',
+  Panel: 'Panel',
   Secret: 'Secret',
   ServiceAccount: 'ServiceAccount',
   Terminal: 'Terminal',
@@ -312,6 +313,20 @@ export const PageScalarFieldEnum = {
 } as const
 
 export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
+
+
+export const PanelScalarFieldEnum = {
+  id: 'id',
+  stateId: 'stateId',
+  serviceAccountId: 'serviceAccountId',
+  workerVersionId: 'workerVersionId',
+  name: 'name',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PanelScalarFieldEnum = (typeof PanelScalarFieldEnum)[keyof typeof PanelScalarFieldEnum]
 
 
 export const SecretScalarFieldEnum = {

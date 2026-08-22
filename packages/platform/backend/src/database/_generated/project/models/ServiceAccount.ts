@@ -183,6 +183,7 @@ export type ServiceAccountWhereInput = {
   terminals?: Prisma.TerminalListRelationFilter
   pages?: Prisma.PageListRelationFilter
   customStatuses?: Prisma.InstanceCustomStatusListRelationFilter
+  panels?: Prisma.PanelListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
 }
 
@@ -197,6 +198,7 @@ export type ServiceAccountOrderByWithRelationInput = {
   terminals?: Prisma.TerminalOrderByRelationAggregateInput
   pages?: Prisma.PageOrderByRelationAggregateInput
   customStatuses?: Prisma.InstanceCustomStatusOrderByRelationAggregateInput
+  panels?: Prisma.PanelOrderByRelationAggregateInput
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
 }
 
@@ -214,6 +216,7 @@ export type ServiceAccountWhereUniqueInput = Prisma.AtLeast<{
   terminals?: Prisma.TerminalListRelationFilter
   pages?: Prisma.PageListRelationFilter
   customStatuses?: Prisma.InstanceCustomStatusListRelationFilter
+  panels?: Prisma.PanelListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
 }, "id">
 
@@ -248,6 +251,7 @@ export type ServiceAccountCreateInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -262,6 +266,7 @@ export type ServiceAccountUncheckedCreateInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -276,6 +281,7 @@ export type ServiceAccountUpdateInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -290,6 +296,7 @@ export type ServiceAccountUncheckedUpdateInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -435,6 +442,20 @@ export type ServiceAccountUpdateOneWithoutPagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceAccountUpdateToOneWithWhereWithoutPagesInput, Prisma.ServiceAccountUpdateWithoutPagesInput>, Prisma.ServiceAccountUncheckedUpdateWithoutPagesInput>
 }
 
+export type ServiceAccountCreateNestedOneWithoutPanelsInput = {
+  create?: Prisma.XOR<Prisma.ServiceAccountCreateWithoutPanelsInput, Prisma.ServiceAccountUncheckedCreateWithoutPanelsInput>
+  connectOrCreate?: Prisma.ServiceAccountCreateOrConnectWithoutPanelsInput
+  connect?: Prisma.ServiceAccountWhereUniqueInput
+}
+
+export type ServiceAccountUpdateOneRequiredWithoutPanelsNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceAccountCreateWithoutPanelsInput, Prisma.ServiceAccountUncheckedCreateWithoutPanelsInput>
+  connectOrCreate?: Prisma.ServiceAccountCreateOrConnectWithoutPanelsInput
+  upsert?: Prisma.ServiceAccountUpsertWithoutPanelsInput
+  connect?: Prisma.ServiceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceAccountUpdateToOneWithWhereWithoutPanelsInput, Prisma.ServiceAccountUpdateWithoutPanelsInput>, Prisma.ServiceAccountUncheckedUpdateWithoutPanelsInput>
+}
+
 export type ServiceAccountCreateNestedOneWithoutSecretsInput = {
   create?: Prisma.XOR<Prisma.ServiceAccountCreateWithoutSecretsInput, Prisma.ServiceAccountUncheckedCreateWithoutSecretsInput>
   connectOrCreate?: Prisma.ServiceAccountCreateOrConnectWithoutSecretsInput
@@ -492,6 +513,7 @@ export type ServiceAccountCreateWithoutApiKeysInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutApiKeysInput = {
@@ -505,6 +527,7 @@ export type ServiceAccountUncheckedCreateWithoutApiKeysInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutApiKeysInput = {
@@ -534,6 +557,7 @@ export type ServiceAccountUpdateWithoutApiKeysInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutApiKeysInput = {
@@ -547,6 +571,7 @@ export type ServiceAccountUncheckedUpdateWithoutApiKeysInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutArtifactsInput = {
@@ -559,6 +584,7 @@ export type ServiceAccountCreateWithoutArtifactsInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -572,6 +598,7 @@ export type ServiceAccountUncheckedCreateWithoutArtifactsInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -616,6 +643,7 @@ export type ServiceAccountCreateWithoutCustomStatusesInput = {
   secrets?: Prisma.SecretCreateNestedManyWithoutServiceAccountInput
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -629,6 +657,7 @@ export type ServiceAccountUncheckedCreateWithoutCustomStatusesInput = {
   secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutServiceAccountInput
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -658,6 +687,7 @@ export type ServiceAccountUpdateWithoutCustomStatusesInput = {
   secrets?: Prisma.SecretUpdateManyWithoutServiceAccountNestedInput
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -671,6 +701,7 @@ export type ServiceAccountUncheckedUpdateWithoutCustomStatusesInput = {
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutServiceAccountNestedInput
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -684,6 +715,7 @@ export type ServiceAccountCreateWithoutPagesInput = {
   secrets?: Prisma.SecretCreateNestedManyWithoutServiceAccountInput
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -697,6 +729,7 @@ export type ServiceAccountUncheckedCreateWithoutPagesInput = {
   secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutServiceAccountInput
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -726,6 +759,7 @@ export type ServiceAccountUpdateWithoutPagesInput = {
   secrets?: Prisma.SecretUpdateManyWithoutServiceAccountNestedInput
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -738,6 +772,79 @@ export type ServiceAccountUncheckedUpdateWithoutPagesInput = {
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutServiceAccountsNestedInput
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutServiceAccountNestedInput
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+}
+
+export type ServiceAccountCreateWithoutPanelsInput = {
+  id?: string
+  meta:PrismaJson.ServiceAccountMeta
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
+  artifacts?: Prisma.ArtifactCreateNestedManyWithoutServiceAccountsInput
+  secrets?: Prisma.SecretCreateNestedManyWithoutServiceAccountInput
+  terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
+  pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
+  customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+}
+
+export type ServiceAccountUncheckedCreateWithoutPanelsInput = {
+  id?: string
+  meta:PrismaJson.ServiceAccountMeta
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
+  artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutServiceAccountsInput
+  secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutServiceAccountInput
+  terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
+  pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+}
+
+export type ServiceAccountCreateOrConnectWithoutPanelsInput = {
+  where: Prisma.ServiceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceAccountCreateWithoutPanelsInput, Prisma.ServiceAccountUncheckedCreateWithoutPanelsInput>
+}
+
+export type ServiceAccountUpsertWithoutPanelsInput = {
+  update: Prisma.XOR<Prisma.ServiceAccountUpdateWithoutPanelsInput, Prisma.ServiceAccountUncheckedUpdateWithoutPanelsInput>
+  create: Prisma.XOR<Prisma.ServiceAccountCreateWithoutPanelsInput, Prisma.ServiceAccountUncheckedCreateWithoutPanelsInput>
+  where?: Prisma.ServiceAccountWhereInput
+}
+
+export type ServiceAccountUpdateToOneWithWhereWithoutPanelsInput = {
+  where?: Prisma.ServiceAccountWhereInput
+  data: Prisma.XOR<Prisma.ServiceAccountUpdateWithoutPanelsInput, Prisma.ServiceAccountUncheckedUpdateWithoutPanelsInput>
+}
+
+export type ServiceAccountUpdateWithoutPanelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.ServiceAccountMeta
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
+  artifacts?: Prisma.ArtifactUpdateManyWithoutServiceAccountsNestedInput
+  secrets?: Prisma.SecretUpdateManyWithoutServiceAccountNestedInput
+  terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
+  pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+}
+
+export type ServiceAccountUncheckedUpdateWithoutPanelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.ServiceAccountMeta
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
+  artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutServiceAccountsNestedInput
+  secrets?: Prisma.SecretUncheckedUpdateManyWithoutServiceAccountNestedInput
+  terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
+  pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
@@ -752,6 +859,7 @@ export type ServiceAccountCreateWithoutSecretsInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -765,6 +873,7 @@ export type ServiceAccountUncheckedCreateWithoutSecretsInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -794,6 +903,7 @@ export type ServiceAccountUpdateWithoutSecretsInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -807,6 +917,7 @@ export type ServiceAccountUncheckedUpdateWithoutSecretsInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -820,6 +931,7 @@ export type ServiceAccountCreateWithoutTerminalsInput = {
   secrets?: Prisma.SecretCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -833,6 +945,7 @@ export type ServiceAccountUncheckedCreateWithoutTerminalsInput = {
   secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -862,6 +975,7 @@ export type ServiceAccountUpdateWithoutTerminalsInput = {
   secrets?: Prisma.SecretUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -875,6 +989,7 @@ export type ServiceAccountUncheckedUpdateWithoutTerminalsInput = {
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -888,6 +1003,7 @@ export type ServiceAccountCreateWithoutWorkersInput = {
   terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -901,6 +1017,7 @@ export type ServiceAccountUncheckedCreateWithoutWorkersInput = {
   terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
@@ -930,6 +1047,7 @@ export type ServiceAccountUpdateWithoutWorkersInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -943,6 +1061,7 @@ export type ServiceAccountUncheckedUpdateWithoutWorkersInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -956,6 +1075,7 @@ export type ServiceAccountUpdateWithoutArtifactsInput = {
   terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -969,6 +1089,7 @@ export type ServiceAccountUncheckedUpdateWithoutArtifactsInput = {
   terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
@@ -991,6 +1112,7 @@ export type ServiceAccountCountOutputType = {
   terminals: number
   pages: number
   customStatuses: number
+  panels: number
   apiKeys: number
 }
 
@@ -1001,6 +1123,7 @@ export type ServiceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   terminals?: boolean | ServiceAccountCountOutputTypeCountTerminalsArgs
   pages?: boolean | ServiceAccountCountOutputTypeCountPagesArgs
   customStatuses?: boolean | ServiceAccountCountOutputTypeCountCustomStatusesArgs
+  panels?: boolean | ServiceAccountCountOutputTypeCountPanelsArgs
   apiKeys?: boolean | ServiceAccountCountOutputTypeCountApiKeysArgs
 }
 
@@ -1059,6 +1182,13 @@ export type ServiceAccountCountOutputTypeCountCustomStatusesArgs<ExtArgs extends
 /**
  * ServiceAccountCountOutputType without action
  */
+export type ServiceAccountCountOutputTypeCountPanelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PanelWhereInput
+}
+
+/**
+ * ServiceAccountCountOutputType without action
+ */
 export type ServiceAccountCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ApiKeyWhereInput
 }
@@ -1075,6 +1205,7 @@ export type ServiceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   terminals?: boolean | Prisma.ServiceAccount$terminalsArgs<ExtArgs>
   pages?: boolean | Prisma.ServiceAccount$pagesArgs<ExtArgs>
   customStatuses?: boolean | Prisma.ServiceAccount$customStatusesArgs<ExtArgs>
+  panels?: boolean | Prisma.ServiceAccount$panelsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.ServiceAccount$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["serviceAccount"]>
@@ -1108,6 +1239,7 @@ export type ServiceAccountInclude<ExtArgs extends runtime.Types.Extensions.Inter
   terminals?: boolean | Prisma.ServiceAccount$terminalsArgs<ExtArgs>
   pages?: boolean | Prisma.ServiceAccount$pagesArgs<ExtArgs>
   customStatuses?: boolean | Prisma.ServiceAccount$customStatusesArgs<ExtArgs>
+  panels?: boolean | Prisma.ServiceAccount$panelsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.ServiceAccount$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1141,6 +1273,10 @@ export type $ServiceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * The instance custom statuses attached by this service account.
      */
     customStatuses: Prisma.$InstanceCustomStatusPayload<ExtArgs>[]
+    /**
+     * The web panels attached by this service account.
+     */
+    panels: Prisma.$PanelPayload<ExtArgs>[]
     /**
      * The API keys impersonating this service account.
      */
@@ -1565,6 +1701,7 @@ export interface Prisma__ServiceAccountClient<T, Null = never, ExtArgs extends r
   terminals<T extends Prisma.ServiceAccount$terminalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$terminalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TerminalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pages<T extends Prisma.ServiceAccount$pagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$pagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   customStatuses<T extends Prisma.ServiceAccount$customStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$customStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstanceCustomStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  panels<T extends Prisma.ServiceAccount$panelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$panelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PanelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   apiKeys<T extends Prisma.ServiceAccount$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2126,6 +2263,30 @@ export type ServiceAccount$customStatusesArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.InstanceCustomStatusScalarFieldEnum | Prisma.InstanceCustomStatusScalarFieldEnum[]
+}
+
+/**
+ * ServiceAccount.panels
+ */
+export type ServiceAccount$panelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Panel
+   */
+  select?: Prisma.PanelSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Panel
+   */
+  omit?: Prisma.PanelOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PanelInclude<ExtArgs> | null
+  where?: Prisma.PanelWhereInput
+  orderBy?: Prisma.PanelOrderByWithRelationInput | Prisma.PanelOrderByWithRelationInput[]
+  cursor?: Prisma.PanelWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PanelScalarFieldEnum | Prisma.PanelScalarFieldEnum[]
 }
 
 /**

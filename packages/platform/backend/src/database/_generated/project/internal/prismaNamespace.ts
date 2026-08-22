@@ -402,6 +402,7 @@ export const ModelName = {
   InstanceOperationState: 'InstanceOperationState',
   OperationLog: 'OperationLog',
   Page: 'Page',
+  Panel: 'Panel',
   Secret: 'Secret',
   ServiceAccount: 'ServiceAccount',
   Terminal: 'Terminal',
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
+    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1764,6 +1765,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Panel: {
+      payload: Prisma.$PanelPayload<ExtArgs>
+      fields: Prisma.PanelFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PanelFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PanelFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>
+        }
+        findFirst: {
+          args: Prisma.PanelFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PanelFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>
+        }
+        findMany: {
+          args: Prisma.PanelFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>[]
+        }
+        create: {
+          args: Prisma.PanelCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>
+        }
+        createMany: {
+          args: Prisma.PanelCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PanelCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>[]
+        }
+        delete: {
+          args: Prisma.PanelDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>
+        }
+        update: {
+          args: Prisma.PanelUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>
+        }
+        deleteMany: {
+          args: Prisma.PanelDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PanelUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PanelUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>[]
+        }
+        upsert: {
+          args: Prisma.PanelUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PanelPayload>
+        }
+        aggregate: {
+          args: Prisma.PanelAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePanel>
+        }
+        groupBy: {
+          args: Prisma.PanelGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PanelGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PanelCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PanelCountAggregateOutputType> | number
+        }
+      }
+    }
     Secret: {
       payload: Prisma.$SecretPayload<ExtArgs>
       fields: Prisma.SecretFieldRefs
@@ -2833,6 +2908,20 @@ export const PageScalarFieldEnum = {
 export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
 
 
+export const PanelScalarFieldEnum = {
+  id: 'id',
+  stateId: 'stateId',
+  serviceAccountId: 'serviceAccountId',
+  workerVersionId: 'workerVersionId',
+  name: 'name',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PanelScalarFieldEnum = (typeof PanelScalarFieldEnum)[keyof typeof PanelScalarFieldEnum]
+
+
 export const SecretScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
@@ -3251,6 +3340,7 @@ export type GlobalOmitConfig = {
   instanceOperationState?: Prisma.InstanceOperationStateOmit
   operationLog?: Prisma.OperationLogOmit
   page?: Prisma.PageOmit
+  panel?: Prisma.PanelOmit
   secret?: Prisma.SecretOmit
   serviceAccount?: Prisma.ServiceAccountOmit
   terminal?: Prisma.TerminalOmit

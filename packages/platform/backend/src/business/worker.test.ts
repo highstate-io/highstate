@@ -160,7 +160,6 @@ describe("updateUnitRegistrations", () => {
           workerVersionId: workerVersion.id,
         },
       })
-
       // act
       await projectDatabase.$transaction(async tx => {
         await workerService.updateUnitRegistrations(tx, project.id, instance.id, [unitWorker])
@@ -287,6 +286,15 @@ describe("updateUnitRegistrations", () => {
           workerVersionId: oldWorkerVersion.id,
         },
       })
+      const panel = await projectDatabase.panel.create({
+        data: {
+          stateId: instance.id,
+          serviceAccountId: worker.serviceAccountId,
+          workerVersionId: oldWorkerVersion.id,
+          name: "dashboard",
+          meta: { title: "Dashboard" },
+        },
+      })
 
       // act - update to use new worker version
       const newUnitWorker = createMockUnitWorker({
@@ -319,6 +327,9 @@ describe("updateUnitRegistrations", () => {
         where: { digest: newDigest, workerId: worker.id },
       })
       expect(newVersion).toBeDefined()
+      await expect(
+        projectDatabase.panel.findUnique({ where: { id: panel.id } }),
+      ).resolves.toMatchObject({ workerVersionId: newVersion?.id })
     },
   )
 
@@ -386,6 +397,60 @@ describe("updateUnitRegistrations", () => {
         },
       })
       expect(remainingVersions).toHaveLength(0)
+    },
+  )
+
+  workerTest(
+    "removes panels when the last matching registration is removed from a unit",
+    async ({
+      workerService,
+      project,
+      projectDatabase,
+      createInstanceState,
+      createWorker,
+      createWorkerVersion,
+      expect,
+    }) => {
+      const worker = await createWorker()
+      const version = await createWorkerVersion(worker)
+      const instance = await createInstanceState(project.id)
+      const otherInstance = await createInstanceState(project.id)
+      await projectDatabase.workerUnitRegistration.createMany({
+        data: [
+          {
+            stateId: instance.id,
+            name: "panels",
+            params: {},
+            workerVersionId: version.id,
+          },
+          {
+            stateId: otherInstance.id,
+            name: "panels",
+            params: {},
+            workerVersionId: version.id,
+          },
+        ],
+      })
+      const panel = await projectDatabase.panel.create({
+        data: {
+          stateId: instance.id,
+          serviceAccountId: worker.serviceAccountId,
+          workerVersionId: version.id,
+          name: "dashboard",
+          meta: { title: "Dashboard" },
+        },
+      })
+
+      await projectDatabase.$transaction(async tx => {
+        await workerService.updateUnitRegistrations(tx, project.id, instance.id, [])
+      })
+
+      await expect(
+        projectDatabase.panel.findUnique({ where: { id: panel.id } }),
+      ).resolves.toBeNull()
+      await expect(
+        projectDatabase.workerVersion.findUnique({ where: { id: version.id } }),
+      ).resolves.not.toBeNull()
     },
   )
 })

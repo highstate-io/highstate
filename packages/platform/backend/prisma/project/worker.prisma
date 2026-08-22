@@ -107,6 +107,9 @@ model WorkerVersion {
 
     /// The logs produced by this worker version.
     logs WorkerVersionLog[]
+
+    /// The web panels served by this worker version.
+    panels Panel[]
 }
 
 /// The worker unit registration tracks which unit instances require specific worker versions.

@@ -10,6 +10,11 @@ export type WorkerRunOptions = {
   workerVersionId: string
 
   /**
+   * The ID of the concrete worker instance.
+   */
+  workerInstanceId: string
+
+  /**
    * The image of the worker to run.
    */
   image: string

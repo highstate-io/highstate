@@ -232,6 +232,7 @@ export type WorkerVersionWhereInput = {
   apiKey?: Prisma.XOR<Prisma.ApiKeyScalarRelationFilter, Prisma.ApiKeyWhereInput>
   unitRegistrations?: Prisma.WorkerUnitRegistrationListRelationFilter
   logs?: Prisma.WorkerVersionLogListRelationFilter
+  panels?: Prisma.PanelListRelationFilter
 }
 
 export type WorkerVersionOrderByWithRelationInput = {
@@ -249,6 +250,7 @@ export type WorkerVersionOrderByWithRelationInput = {
   apiKey?: Prisma.ApiKeyOrderByWithRelationInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationOrderByRelationAggregateInput
   logs?: Prisma.WorkerVersionLogOrderByRelationAggregateInput
+  panels?: Prisma.PanelOrderByRelationAggregateInput
 }
 
 export type WorkerVersionWhereUniqueInput = Prisma.AtLeast<{
@@ -269,6 +271,7 @@ export type WorkerVersionWhereUniqueInput = Prisma.AtLeast<{
   apiKey?: Prisma.XOR<Prisma.ApiKeyScalarRelationFilter, Prisma.ApiKeyWhereInput>
   unitRegistrations?: Prisma.WorkerUnitRegistrationListRelationFilter
   logs?: Prisma.WorkerVersionLogListRelationFilter
+  panels?: Prisma.PanelListRelationFilter
 }, "id" | "digest" | "apiKeyId">
 
 export type WorkerVersionOrderByWithAggregationInput = {
@@ -316,6 +319,7 @@ export type WorkerVersionCreateInput = {
   apiKey: Prisma.ApiKeyCreateNestedOneWithoutWorkerInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutWorkerVersionInput
   logs?: Prisma.WorkerVersionLogCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionUncheckedCreateInput = {
@@ -331,6 +335,7 @@ export type WorkerVersionUncheckedCreateInput = {
   updatedAt?: Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutWorkerVersionInput
   logs?: Prisma.WorkerVersionLogUncheckedCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionUpdateInput = {
@@ -346,6 +351,7 @@ export type WorkerVersionUpdateInput = {
   apiKey?: Prisma.ApiKeyUpdateOneRequiredWithoutWorkerNestedInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutWorkerVersionNestedInput
   logs?: Prisma.WorkerVersionLogUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionUncheckedUpdateInput = {
@@ -361,6 +367,7 @@ export type WorkerVersionUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutWorkerVersionNestedInput
   logs?: Prisma.WorkerVersionLogUncheckedUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionCreateManyInput = {
@@ -403,6 +410,11 @@ export type WorkerVersionUncheckedUpdateManyInput = {
 export type WorkerVersionNullableScalarRelationFilter = {
   is?: Prisma.WorkerVersionWhereInput | null
   isNot?: Prisma.WorkerVersionWhereInput | null
+}
+
+export type WorkerVersionScalarRelationFilter = {
+  is?: Prisma.WorkerVersionWhereInput
+  isNot?: Prisma.WorkerVersionWhereInput
 }
 
 export type WorkerVersionListRelationFilter = {
@@ -452,11 +464,6 @@ export type WorkerVersionMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type WorkerVersionScalarRelationFilter = {
-  is?: Prisma.WorkerVersionWhereInput
-  isNot?: Prisma.WorkerVersionWhereInput
-}
-
 export type WorkerVersionCreateNestedOneWithoutApiKeyInput = {
   create?: Prisma.XOR<Prisma.WorkerVersionCreateWithoutApiKeyInput, Prisma.WorkerVersionUncheckedCreateWithoutApiKeyInput>
   connectOrCreate?: Prisma.WorkerVersionCreateOrConnectWithoutApiKeyInput
@@ -487,6 +494,20 @@ export type WorkerVersionUncheckedUpdateOneWithoutApiKeyNestedInput = {
   delete?: Prisma.WorkerVersionWhereInput | boolean
   connect?: Prisma.WorkerVersionWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkerVersionUpdateToOneWithWhereWithoutApiKeyInput, Prisma.WorkerVersionUpdateWithoutApiKeyInput>, Prisma.WorkerVersionUncheckedUpdateWithoutApiKeyInput>
+}
+
+export type WorkerVersionCreateNestedOneWithoutPanelsInput = {
+  create?: Prisma.XOR<Prisma.WorkerVersionCreateWithoutPanelsInput, Prisma.WorkerVersionUncheckedCreateWithoutPanelsInput>
+  connectOrCreate?: Prisma.WorkerVersionCreateOrConnectWithoutPanelsInput
+  connect?: Prisma.WorkerVersionWhereUniqueInput
+}
+
+export type WorkerVersionUpdateOneRequiredWithoutPanelsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkerVersionCreateWithoutPanelsInput, Prisma.WorkerVersionUncheckedCreateWithoutPanelsInput>
+  connectOrCreate?: Prisma.WorkerVersionCreateOrConnectWithoutPanelsInput
+  upsert?: Prisma.WorkerVersionUpsertWithoutPanelsInput
+  connect?: Prisma.WorkerVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkerVersionUpdateToOneWithWhereWithoutPanelsInput, Prisma.WorkerVersionUpdateWithoutPanelsInput>, Prisma.WorkerVersionUncheckedUpdateWithoutPanelsInput>
 }
 
 export type WorkerVersionCreateNestedManyWithoutWorkerInput = {
@@ -575,6 +596,7 @@ export type WorkerVersionCreateWithoutApiKeyInput = {
   worker: Prisma.WorkerCreateNestedOneWithoutVersionsInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutWorkerVersionInput
   logs?: Prisma.WorkerVersionLogCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionUncheckedCreateWithoutApiKeyInput = {
@@ -589,6 +611,7 @@ export type WorkerVersionUncheckedCreateWithoutApiKeyInput = {
   updatedAt?: Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutWorkerVersionInput
   logs?: Prisma.WorkerVersionLogUncheckedCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionCreateOrConnectWithoutApiKeyInput = {
@@ -619,6 +642,7 @@ export type WorkerVersionUpdateWithoutApiKeyInput = {
   worker?: Prisma.WorkerUpdateOneRequiredWithoutVersionsNestedInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutWorkerVersionNestedInput
   logs?: Prisma.WorkerVersionLogUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionUncheckedUpdateWithoutApiKeyInput = {
@@ -629,6 +653,83 @@ export type WorkerVersionUncheckedUpdateWithoutApiKeyInput = {
   runtimeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workerId?: Prisma.StringFieldUpdateOperationsInput | string
   digest?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutWorkerVersionNestedInput
+  logs?: Prisma.WorkerVersionLogUncheckedUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutWorkerVersionNestedInput
+}
+
+export type WorkerVersionCreateWithoutPanelsInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  status?: $Enums.WorkerVersionStatus
+  enabled?: boolean
+  runtimeId?: string | null
+  digest: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  worker: Prisma.WorkerCreateNestedOneWithoutVersionsInput
+  apiKey: Prisma.ApiKeyCreateNestedOneWithoutWorkerInput
+  unitRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutWorkerVersionInput
+  logs?: Prisma.WorkerVersionLogCreateNestedManyWithoutWorkerVersionInput
+}
+
+export type WorkerVersionUncheckedCreateWithoutPanelsInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  status?: $Enums.WorkerVersionStatus
+  enabled?: boolean
+  runtimeId?: string | null
+  workerId: string
+  digest: string
+  apiKeyId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutWorkerVersionInput
+  logs?: Prisma.WorkerVersionLogUncheckedCreateNestedManyWithoutWorkerVersionInput
+}
+
+export type WorkerVersionCreateOrConnectWithoutPanelsInput = {
+  where: Prisma.WorkerVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkerVersionCreateWithoutPanelsInput, Prisma.WorkerVersionUncheckedCreateWithoutPanelsInput>
+}
+
+export type WorkerVersionUpsertWithoutPanelsInput = {
+  update: Prisma.XOR<Prisma.WorkerVersionUpdateWithoutPanelsInput, Prisma.WorkerVersionUncheckedUpdateWithoutPanelsInput>
+  create: Prisma.XOR<Prisma.WorkerVersionCreateWithoutPanelsInput, Prisma.WorkerVersionUncheckedCreateWithoutPanelsInput>
+  where?: Prisma.WorkerVersionWhereInput
+}
+
+export type WorkerVersionUpdateToOneWithWhereWithoutPanelsInput = {
+  where?: Prisma.WorkerVersionWhereInput
+  data: Prisma.XOR<Prisma.WorkerVersionUpdateWithoutPanelsInput, Prisma.WorkerVersionUncheckedUpdateWithoutPanelsInput>
+}
+
+export type WorkerVersionUpdateWithoutPanelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  status?: Prisma.EnumWorkerVersionStatusFieldUpdateOperationsInput | $Enums.WorkerVersionStatus
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  runtimeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  digest?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  worker?: Prisma.WorkerUpdateOneRequiredWithoutVersionsNestedInput
+  apiKey?: Prisma.ApiKeyUpdateOneRequiredWithoutWorkerNestedInput
+  unitRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutWorkerVersionNestedInput
+  logs?: Prisma.WorkerVersionLogUpdateManyWithoutWorkerVersionNestedInput
+}
+
+export type WorkerVersionUncheckedUpdateWithoutPanelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  status?: Prisma.EnumWorkerVersionStatusFieldUpdateOperationsInput | $Enums.WorkerVersionStatus
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  runtimeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workerId?: Prisma.StringFieldUpdateOperationsInput | string
+  digest?: Prisma.StringFieldUpdateOperationsInput | string
+  apiKeyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutWorkerVersionNestedInput
@@ -647,6 +748,7 @@ export type WorkerVersionCreateWithoutWorkerInput = {
   apiKey: Prisma.ApiKeyCreateNestedOneWithoutWorkerInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutWorkerVersionInput
   logs?: Prisma.WorkerVersionLogCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionUncheckedCreateWithoutWorkerInput = {
@@ -661,6 +763,7 @@ export type WorkerVersionUncheckedCreateWithoutWorkerInput = {
   updatedAt?: Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutWorkerVersionInput
   logs?: Prisma.WorkerVersionLogUncheckedCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionCreateOrConnectWithoutWorkerInput = {
@@ -716,6 +819,7 @@ export type WorkerVersionCreateWithoutUnitRegistrationsInput = {
   worker: Prisma.WorkerCreateNestedOneWithoutVersionsInput
   apiKey: Prisma.ApiKeyCreateNestedOneWithoutWorkerInput
   logs?: Prisma.WorkerVersionLogCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionUncheckedCreateWithoutUnitRegistrationsInput = {
@@ -730,6 +834,7 @@ export type WorkerVersionUncheckedCreateWithoutUnitRegistrationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   logs?: Prisma.WorkerVersionLogUncheckedCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionCreateOrConnectWithoutUnitRegistrationsInput = {
@@ -760,6 +865,7 @@ export type WorkerVersionUpdateWithoutUnitRegistrationsInput = {
   worker?: Prisma.WorkerUpdateOneRequiredWithoutVersionsNestedInput
   apiKey?: Prisma.ApiKeyUpdateOneRequiredWithoutWorkerNestedInput
   logs?: Prisma.WorkerVersionLogUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionUncheckedUpdateWithoutUnitRegistrationsInput = {
@@ -774,6 +880,7 @@ export type WorkerVersionUncheckedUpdateWithoutUnitRegistrationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logs?: Prisma.WorkerVersionLogUncheckedUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionCreateWithoutLogsInput = {
@@ -788,6 +895,7 @@ export type WorkerVersionCreateWithoutLogsInput = {
   worker: Prisma.WorkerCreateNestedOneWithoutVersionsInput
   apiKey: Prisma.ApiKeyCreateNestedOneWithoutWorkerInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionUncheckedCreateWithoutLogsInput = {
@@ -802,6 +910,7 @@ export type WorkerVersionUncheckedCreateWithoutLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutWorkerVersionInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutWorkerVersionInput
 }
 
 export type WorkerVersionCreateOrConnectWithoutLogsInput = {
@@ -832,6 +941,7 @@ export type WorkerVersionUpdateWithoutLogsInput = {
   worker?: Prisma.WorkerUpdateOneRequiredWithoutVersionsNestedInput
   apiKey?: Prisma.ApiKeyUpdateOneRequiredWithoutWorkerNestedInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionUncheckedUpdateWithoutLogsInput = {
@@ -846,6 +956,7 @@ export type WorkerVersionUncheckedUpdateWithoutLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionCreateManyWorkerInput = {
@@ -872,6 +983,7 @@ export type WorkerVersionUpdateWithoutWorkerInput = {
   apiKey?: Prisma.ApiKeyUpdateOneRequiredWithoutWorkerNestedInput
   unitRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutWorkerVersionNestedInput
   logs?: Prisma.WorkerVersionLogUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionUncheckedUpdateWithoutWorkerInput = {
@@ -886,6 +998,7 @@ export type WorkerVersionUncheckedUpdateWithoutWorkerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   unitRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutWorkerVersionNestedInput
   logs?: Prisma.WorkerVersionLogUncheckedUpdateManyWithoutWorkerVersionNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutWorkerVersionNestedInput
 }
 
 export type WorkerVersionUncheckedUpdateManyWithoutWorkerInput = {
@@ -908,11 +1021,13 @@ export type WorkerVersionUncheckedUpdateManyWithoutWorkerInput = {
 export type WorkerVersionCountOutputType = {
   unitRegistrations: number
   logs: number
+  panels: number
 }
 
 export type WorkerVersionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   unitRegistrations?: boolean | WorkerVersionCountOutputTypeCountUnitRegistrationsArgs
   logs?: boolean | WorkerVersionCountOutputTypeCountLogsArgs
+  panels?: boolean | WorkerVersionCountOutputTypeCountPanelsArgs
 }
 
 /**
@@ -939,6 +1054,13 @@ export type WorkerVersionCountOutputTypeCountLogsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.WorkerVersionLogWhereInput
 }
 
+/**
+ * WorkerVersionCountOutputType without action
+ */
+export type WorkerVersionCountOutputTypeCountPanelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PanelWhereInput
+}
+
 
 export type WorkerVersionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -955,6 +1077,7 @@ export type WorkerVersionSelect<ExtArgs extends runtime.Types.Extensions.Interna
   apiKey?: boolean | Prisma.ApiKeyDefaultArgs<ExtArgs>
   unitRegistrations?: boolean | Prisma.WorkerVersion$unitRegistrationsArgs<ExtArgs>
   logs?: boolean | Prisma.WorkerVersion$logsArgs<ExtArgs>
+  panels?: boolean | Prisma.WorkerVersion$panelsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkerVersionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workerVersion"]>
 
@@ -1007,6 +1130,7 @@ export type WorkerVersionInclude<ExtArgs extends runtime.Types.Extensions.Intern
   apiKey?: boolean | Prisma.ApiKeyDefaultArgs<ExtArgs>
   unitRegistrations?: boolean | Prisma.WorkerVersion$unitRegistrationsArgs<ExtArgs>
   logs?: boolean | Prisma.WorkerVersion$logsArgs<ExtArgs>
+  panels?: boolean | Prisma.WorkerVersion$panelsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkerVersionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkerVersionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1037,6 +1161,10 @@ export type $WorkerVersionPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * The logs produced by this worker version.
      */
     logs: Prisma.$WorkerVersionLogPayload<ExtArgs>[]
+    /**
+     * The web panels served by this worker version.
+     */
+    panels: Prisma.$PanelPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -1480,6 +1608,7 @@ export interface Prisma__WorkerVersionClient<T, Null = never, ExtArgs extends ru
   apiKey<T extends Prisma.ApiKeyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApiKeyDefaultArgs<ExtArgs>>): Prisma.Prisma__ApiKeyClient<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   unitRegistrations<T extends Prisma.WorkerVersion$unitRegistrationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkerVersion$unitRegistrationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkerUnitRegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   logs<T extends Prisma.WorkerVersion$logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkerVersion$logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkerVersionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  panels<T extends Prisma.WorkerVersion$panelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkerVersion$panelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PanelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1958,6 +2087,30 @@ export type WorkerVersion$logsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.WorkerVersionLogScalarFieldEnum | Prisma.WorkerVersionLogScalarFieldEnum[]
+}
+
+/**
+ * WorkerVersion.panels
+ */
+export type WorkerVersion$panelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Panel
+   */
+  select?: Prisma.PanelSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Panel
+   */
+  omit?: Prisma.PanelOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PanelInclude<ExtArgs> | null
+  where?: Prisma.PanelWhereInput
+  orderBy?: Prisma.PanelOrderByWithRelationInput | Prisma.PanelOrderByWithRelationInput[]
+  cursor?: Prisma.PanelWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PanelScalarFieldEnum | Prisma.PanelScalarFieldEnum[]
 }
 
 /**
