@@ -145,7 +145,13 @@ const endpoints = buildEndpointsFromInstance(
   networkContext,
 )
 
-const sshArgs = args.network.assignPublicIp ? args.ssh : { ...(args.ssh ?? {}), enabled: false }
+const sshArgs =
+  args.network.assignPublicIp || inputs.sshProxyEndpoint
+    ? args.ssh
+    : { ...(args.ssh ?? {}), enabled: false }
+const sshProxy = inputs.sshProxyEndpoint
+  ? { endpoint: inputs.sshProxyEndpoint, user: "root" }
+  : undefined
 
 const { server, terminal } = await createServerBundle({
   name: vmName,
@@ -153,6 +159,7 @@ const { server, terminal } = await createServerBundle({
   sshArgs,
   sshPassword: rootPassword,
   sshKeyPair,
+  sshProxy,
 })
 
 export default outputs({

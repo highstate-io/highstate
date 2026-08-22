@@ -355,9 +355,14 @@ const nlbEndpoints = nlb
 const terminals: UnitTerminal[] = []
 const instances = await toPromise(instanceGroup.instances)
 const sshArgs =
-  args.network.assignPublicIp || args.nlb.enabled
+  args.network.assignPublicIp || args.nlb.enabled || inputs.sshProxyEndpoint
     ? args.ssh
     : { ...(args.ssh ?? {}), enabled: false }
+const sshProxy = inputs.sshProxyEndpoint
+  ? { endpoint: inputs.sshProxyEndpoint, user: "root" }
+  : args.nlb.enabled
+    ? nlbSshProxy
+    : undefined
 
 const servers = await toPromise(
   instances.map(async (instance, i) => {
@@ -373,7 +378,7 @@ const servers = await toPromise(
       sshArgs,
       sshPassword: rootPassword,
       sshKeyPair,
-      sshProxy: args.nlb.enabled ? nlbSshProxy : undefined,
+      sshProxy,
     })
 
     if (terminal) {

@@ -567,6 +567,14 @@ export const virtualMachine = defineUnit({
       required: false,
     },
 
+    /**
+     * The endpoint of the SSH jump host used to connect to the virtual machine.
+     */
+    sshProxyEndpoint: {
+      entity: l4EndpointEntity,
+      required: false,
+    },
+
     ...ssh.inputs,
   },
 
@@ -653,6 +661,14 @@ export const instanceGroup = defineUnit({
      */
     nlbPublicAddress: {
       entity: publicAddressEntity,
+      required: false,
+    },
+
+    /**
+     * The endpoint of the SSH jump host used to connect to the instances.
+     */
+    sshProxyEndpoint: {
+      entity: l4EndpointEntity,
       required: false,
     },
 
