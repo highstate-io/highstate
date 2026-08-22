@@ -9,12 +9,21 @@ export const unlockMethodMetaSchema = objectMetaSchema
   })
   .required({ title: true })
 
-export const unlockMethodInputSchema = z.object({
-  meta: unlockMethodMetaSchema,
-  type: unlockMethodType,
-  encryptedIdentity: z.string(),
-  recipient: z.string(),
-})
+export const unlockMethodInputSchema = z.discriminatedUnion("type", [
+  z.object({
+    meta: unlockMethodMetaSchema,
+    type: z.literal("password"),
+    encryptedIdentity: z.string(),
+    recipient: z.string(),
+  }),
+  z.object({
+    meta: unlockMethodMetaSchema,
+    type: z.literal("passkey"),
+    encryptedIdentity: z.string(),
+    passkeyIdentity: z.string(),
+    recipient: z.string(),
+  }),
+])
 
 export const unlockMethodOutputSchema = z.object({
   id: z.cuid2(),

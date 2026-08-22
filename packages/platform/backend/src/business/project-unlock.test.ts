@@ -5,9 +5,23 @@ import type { ObjectRefIndexService } from "./object-ref-index"
 import { armor, Encrypter, generateIdentity, identityToRecipient } from "age-encryption"
 import { pino } from "pino"
 import { describe, expect, test, vi } from "vitest"
+import { projectUnlockSuiteSchema } from "../shared"
 import { ProjectUnlockService } from "./project-unlock"
 
 describe("ProjectUnlockService", () => {
+  test("parses existing unlock suites without passkey references", () => {
+    const unlockSuite = projectUnlockSuiteSchema.parse({
+      encryptedIdentities: ["encrypted-identity"],
+      hasPasskey: true,
+    })
+
+    expect(unlockSuite).toEqual({
+      encryptedIdentities: ["encrypted-identity"],
+      hasPasskey: true,
+      passkeys: [],
+    })
+  })
+
   test("unlocks project when encrypted private key is missing", async () => {
     const decryptedIdentity = await generateIdentity()
     const recipient = await identityToRecipient(decryptedIdentity)

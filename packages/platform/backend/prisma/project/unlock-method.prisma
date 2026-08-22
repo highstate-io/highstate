@@ -35,6 +35,9 @@ model UnlockMethod {
     /// The AGE identity encrypted and armored also with AGE.
     encryptedIdentity String
 
+    /// The opaque identity of the passkey used to encrypt the AGE identity.
+    passkeyIdentity String?
+
     /// The AGE recipient for this unlock method.
     recipient String @unique
 

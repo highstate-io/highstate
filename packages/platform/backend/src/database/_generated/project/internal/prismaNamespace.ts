@@ -2999,6 +2999,7 @@ export const UnlockMethodScalarFieldEnum = {
   meta: 'meta',
   type: 'type',
   encryptedIdentity: 'encryptedIdentity',
+  passkeyIdentity: 'passkeyIdentity',
   recipient: 'recipient',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

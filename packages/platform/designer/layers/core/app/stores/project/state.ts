@@ -390,22 +390,25 @@ export const useProjectStateStore = defineMultiStore({
           return false
         }
 
-        let decryptedIdentity: string | null = null
         for (const encryptedIdentity of unlockState.value.unlockSuite.encryptedIdentities) {
+          let decryptedIdentity: string
           try {
             const decodedIdentity = armor.decode(encryptedIdentity)
             decryptedIdentity = await decrypter.decrypt(decodedIdentity, "text")
           } catch (error) {
             logger.debug({ error }, "failed to decrypt identity, trying next identity")
+            continue
           }
+
+          await unlockWithIdentity(decryptedIdentity)
+          return true
         }
 
-        if (!decryptedIdentity) {
-          return false
-        }
+        return false
+      }
 
+      const unlockWithIdentity = async (decryptedIdentity: string): Promise<void> => {
         await $client.state.unlockProject.mutate({ projectId, decryptedIdentity })
-        return true
       }
 
       const forgetInstanceStates = async (
@@ -459,6 +462,7 @@ export const useProjectStateStore = defineMultiStore({
         unlockState,
         isUnlockImpossible,
         unlock,
+        unlockWithIdentity,
 
         instanceLocks,
 

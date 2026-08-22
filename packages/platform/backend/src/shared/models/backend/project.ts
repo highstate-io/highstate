@@ -64,6 +64,23 @@ export const projectUnlockSuiteSchema = z.object({
    * Whether one of the identities is a passkey and user should be asked to use it.
    */
   hasPasskey: z.boolean(),
+
+  /**
+   * The passkey identities linked to their encrypted AGE identities.
+   *
+   * Existing unlock suites may not contain these references.
+   */
+  passkeys: z
+    .array(
+      z.object({
+        /** The AGE identity encrypted with the passkey. */
+        encryptedIdentity: z.string(),
+
+        /** The opaque identity of the passkey used to encrypt the AGE identity. */
+        passkeyIdentity: z.string(),
+      }),
+    )
+    .default([]),
 })
 
 export type ProjectUnlockSuite = z.infer<typeof projectUnlockSuiteSchema>

@@ -13,6 +13,7 @@ import {
   type ProjectUnlockState,
   type ProjectUnlockSuite,
   type UnlockMethodInput,
+  type UnlockMethodType,
 } from "../shared"
 
 type UnlockTask = {
@@ -113,10 +114,7 @@ export class ProjectUnlockService {
 
     await this.objectRefIndexService.track(projectId, [unlockMethod.id])
 
-    const unlockSuite: ProjectUnlockSuite = {
-      encryptedIdentities: [unlockMethodInput.encryptedIdentity],
-      hasPasskey: unlockMethodInput.type === "passkey",
-    }
+    const unlockSuite = ProjectUnlockService.createUnlockSuite([unlockMethodInput])
 
     return [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite]
   }
@@ -204,7 +202,7 @@ export class ProjectUnlockService {
   private async backfillProjectPrivateKey(projectId: string, privateKey: string): Promise<void> {
     const database = await this.database.forProject(projectId)
     const unlockMethods = await database.unlockMethod.findMany({
-      select: { type: true, recipient: true, encryptedIdentity: true },
+      select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
     })
 
     if (unlockMethods.length === 0) {
@@ -246,7 +244,7 @@ export class ProjectUnlockService {
     await database.$transaction(async tx => {
       // 1. fetch all unlock method recipients for the project
       const unlockMethods = await tx.unlockMethod.findMany({
-        select: { type: true, recipient: true, encryptedIdentity: true },
+        select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
       })
 
       const allUnlockMethods = [...unlockMethods, inputUnlockMethod]
@@ -302,7 +300,7 @@ export class ProjectUnlockService {
       // 1. fetch all unlock methods except the one to remove
       const unlockMethods = await tx.unlockMethod.findMany({
         where: { id: { not: unlockMethodId } },
-        select: { type: true, recipient: true, encryptedIdentity: true },
+        select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
       })
 
       if (unlockMethods.length === 0) {
@@ -415,11 +413,27 @@ export class ProjectUnlockService {
   }
 
   private static createUnlockSuite(
-    unlockMethods: { type: string; encryptedIdentity: string }[],
+    unlockMethods: {
+      type: UnlockMethodType
+      encryptedIdentity: string
+      passkeyIdentity?: string | null
+    }[],
   ): ProjectUnlockSuite {
     return {
       encryptedIdentities: unlockMethods.map(method => method.encryptedIdentity),
       hasPasskey: unlockMethods.some(method => method.type === "passkey"),
+      passkeys: unlockMethods.flatMap(method => {
+        if (method.type !== "passkey" || !method.passkeyIdentity) {
+          return []
+        }
+
+        return [
+          {
+            encryptedIdentity: method.encryptedIdentity,
+            passkeyIdentity: method.passkeyIdentity,
+          },
+        ]
+      }),
     }
   }
 }

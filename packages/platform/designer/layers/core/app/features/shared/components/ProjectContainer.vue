@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Decrypter, webauthn } from "age-encryption"
+import { armor, Decrypter, webauthn } from "age-encryption"
 import { PasswordField } from "#layers/core/app/features/shared"
 
 const { projectId } = defineProps<{
@@ -17,6 +17,13 @@ const stateStore = await useProjectStateStore.async(projectId)
 const workspaceStore = useWorkspaceStore()
 
 const passKeyInProgress = ref(false)
+const unlockSuite = computed(() => {
+  if (stateStore.unlockState?.type !== "locked") {
+    return undefined
+  }
+
+  return stateStore.unlockState.unlockSuite
+})
 
 const tryPassKeyUnlock = async () => {
   if (passKeyInProgress.value) {
@@ -25,11 +32,36 @@ const tryPassKeyUnlock = async () => {
 
   passKeyInProgress.value = true
 
-  const decrypter = new Decrypter()
-  decrypter.addIdentity(new webauthn.WebAuthnIdentity())
-
   try {
-    await stateStore.unlock(decrypter)
+    const passkeys = unlockSuite.value?.passkeys ?? []
+    for (const passkey of passkeys) {
+      const decrypter = new Decrypter()
+      decrypter.addIdentity(
+        new webauthn.WebAuthnIdentity({ identity: passkey.passkeyIdentity }),
+      )
+
+      let decryptedIdentity: string
+      try {
+        const encryptedIdentity = armor.decode(passkey.encryptedIdentity)
+        decryptedIdentity = await decrypter.decrypt(encryptedIdentity, "text")
+      } catch (err) {
+        globalLogger.debug({ error: err }, "failed to decrypt identity, trying next passkey")
+        continue
+      }
+
+      await stateStore.unlockWithIdentity(decryptedIdentity)
+      return
+    }
+
+    if (passkeys.length === 0 && unlockSuite.value?.hasPasskey) {
+      const decrypter = new Decrypter()
+      decrypter.addIdentity(new webauthn.WebAuthnIdentity())
+      if (await stateStore.unlock(decrypter)) {
+        return
+      }
+    }
+
+    error.value = "No passkey could unlock the project"
   } catch (err) {
     globalLogger.error({ error: err }, "failed to unlock project with passkey")
     error.value = "An error occurred while unlocking the project with passkey"
@@ -42,7 +74,7 @@ const unlockState = await until(() => stateStore.unlockState).not.toBeUndefined(
 
 if (
   unlockState.type === "locked" &&
-  unlockState.unlockSuite?.hasPasskey &&
+  unlockSuite.value?.hasPasskey &&
   workspaceStore.dockview?.activePanel?.params?.projectId === projectId
 ) {
   globalLogger.info(`attempting passkey unlock for project "%s"`, projectId)
@@ -54,7 +86,7 @@ onMounted(() => {
   if (
     passwordField.value &&
     unlockState.type === "locked" &&
-    !unlockState.unlockSuite?.hasPasskey
+    !unlockSuite.value?.hasPasskey
   ) {
     passwordField.value.textField?.focus()
   }
@@ -136,7 +168,7 @@ const rules = computed(() => [(v: string) => !!v || "Password is required"])
       <VCardActions>
         <VSpacer />
         <VBtn
-          v-if="unlockState.type === 'locked' && unlockState.unlockSuite?.hasPasskey"
+          v-if="unlockState.type === 'locked' && unlockSuite?.hasPasskey"
           color="secondary"
           :loading="passKeyInProgress"
           :disabled="passKeyInProgress"

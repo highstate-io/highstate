@@ -42,6 +42,7 @@ export type UnlockMethodMinAggregateOutputType = {
   id: string | null
   type: $Enums.UnlockMethodType | null
   encryptedIdentity: string | null
+  passkeyIdentity: string | null
   recipient: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -51,6 +52,7 @@ export type UnlockMethodMaxAggregateOutputType = {
   id: string | null
   type: $Enums.UnlockMethodType | null
   encryptedIdentity: string | null
+  passkeyIdentity: string | null
   recipient: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +63,7 @@ export type UnlockMethodCountAggregateOutputType = {
   meta: number
   type: number
   encryptedIdentity: number
+  passkeyIdentity: number
   recipient: number
   createdAt: number
   updatedAt: number
@@ -72,6 +75,7 @@ export type UnlockMethodMinAggregateInputType = {
   id?: true
   type?: true
   encryptedIdentity?: true
+  passkeyIdentity?: true
   recipient?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +85,7 @@ export type UnlockMethodMaxAggregateInputType = {
   id?: true
   type?: true
   encryptedIdentity?: true
+  passkeyIdentity?: true
   recipient?: true
   createdAt?: true
   updatedAt?: true
@@ -91,6 +96,7 @@ export type UnlockMethodCountAggregateInputType = {
   meta?: true
   type?: true
   encryptedIdentity?: true
+  passkeyIdentity?: true
   recipient?: true
   createdAt?: true
   updatedAt?: true
@@ -174,6 +180,7 @@ export type UnlockMethodGroupByOutputType = {
   meta:PrismaJson.UnlockMethodMeta
   type: $Enums.UnlockMethodType
   encryptedIdentity: string
+  passkeyIdentity: string | null
   recipient: string
   createdAt: Date
   updatedAt: Date
@@ -205,6 +212,7 @@ export type UnlockMethodWhereInput = {
   meta?: Prisma.JsonFilter<"UnlockMethod">
   type?: Prisma.EnumUnlockMethodTypeFilter<"UnlockMethod"> | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringFilter<"UnlockMethod"> | string
+  passkeyIdentity?: Prisma.StringNullableFilter<"UnlockMethod"> | string | null
   recipient?: Prisma.StringFilter<"UnlockMethod"> | string
   createdAt?: Prisma.DateTimeFilter<"UnlockMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UnlockMethod"> | Date | string
@@ -215,6 +223,7 @@ export type UnlockMethodOrderByWithRelationInput = {
   meta?: Prisma.SortOrder
   type?: Prisma.SortOrder
   encryptedIdentity?: Prisma.SortOrder
+  passkeyIdentity?: Prisma.SortOrderInput | Prisma.SortOrder
   recipient?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -229,6 +238,7 @@ export type UnlockMethodWhereUniqueInput = Prisma.AtLeast<{
   meta?: Prisma.JsonFilter<"UnlockMethod">
   type?: Prisma.EnumUnlockMethodTypeFilter<"UnlockMethod"> | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringFilter<"UnlockMethod"> | string
+  passkeyIdentity?: Prisma.StringNullableFilter<"UnlockMethod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"UnlockMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UnlockMethod"> | Date | string
 }, "id" | "recipient">
@@ -238,6 +248,7 @@ export type UnlockMethodOrderByWithAggregationInput = {
   meta?: Prisma.SortOrder
   type?: Prisma.SortOrder
   encryptedIdentity?: Prisma.SortOrder
+  passkeyIdentity?: Prisma.SortOrderInput | Prisma.SortOrder
   recipient?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -254,6 +265,7 @@ export type UnlockMethodScalarWhereWithAggregatesInput = {
   meta?: Prisma.JsonWithAggregatesFilter<"UnlockMethod">
   type?: Prisma.EnumUnlockMethodTypeWithAggregatesFilter<"UnlockMethod"> | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringWithAggregatesFilter<"UnlockMethod"> | string
+  passkeyIdentity?: Prisma.StringNullableWithAggregatesFilter<"UnlockMethod"> | string | null
   recipient?: Prisma.StringWithAggregatesFilter<"UnlockMethod"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UnlockMethod"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UnlockMethod"> | Date | string
@@ -264,6 +276,7 @@ export type UnlockMethodCreateInput = {
   meta:PrismaJson.UnlockMethodMeta
   type: $Enums.UnlockMethodType
   encryptedIdentity: string
+  passkeyIdentity?: string | null
   recipient: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -274,6 +287,7 @@ export type UnlockMethodUncheckedCreateInput = {
   meta:PrismaJson.UnlockMethodMeta
   type: $Enums.UnlockMethodType
   encryptedIdentity: string
+  passkeyIdentity?: string | null
   recipient: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -284,6 +298,7 @@ export type UnlockMethodUpdateInput = {
   meta?:PrismaJson.UnlockMethodMeta
   type?: Prisma.EnumUnlockMethodTypeFieldUpdateOperationsInput | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringFieldUpdateOperationsInput | string
+  passkeyIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipient?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -294,6 +309,7 @@ export type UnlockMethodUncheckedUpdateInput = {
   meta?:PrismaJson.UnlockMethodMeta
   type?: Prisma.EnumUnlockMethodTypeFieldUpdateOperationsInput | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringFieldUpdateOperationsInput | string
+  passkeyIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipient?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -304,6 +320,7 @@ export type UnlockMethodCreateManyInput = {
   meta:PrismaJson.UnlockMethodMeta
   type: $Enums.UnlockMethodType
   encryptedIdentity: string
+  passkeyIdentity?: string | null
   recipient: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -314,6 +331,7 @@ export type UnlockMethodUpdateManyMutationInput = {
   meta?:PrismaJson.UnlockMethodMeta
   type?: Prisma.EnumUnlockMethodTypeFieldUpdateOperationsInput | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringFieldUpdateOperationsInput | string
+  passkeyIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipient?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -324,6 +342,7 @@ export type UnlockMethodUncheckedUpdateManyInput = {
   meta?:PrismaJson.UnlockMethodMeta
   type?: Prisma.EnumUnlockMethodTypeFieldUpdateOperationsInput | $Enums.UnlockMethodType
   encryptedIdentity?: Prisma.StringFieldUpdateOperationsInput | string
+  passkeyIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipient?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -334,6 +353,7 @@ export type UnlockMethodCountOrderByAggregateInput = {
   meta?: Prisma.SortOrder
   type?: Prisma.SortOrder
   encryptedIdentity?: Prisma.SortOrder
+  passkeyIdentity?: Prisma.SortOrder
   recipient?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -343,6 +363,7 @@ export type UnlockMethodMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   encryptedIdentity?: Prisma.SortOrder
+  passkeyIdentity?: Prisma.SortOrder
   recipient?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -352,6 +373,7 @@ export type UnlockMethodMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   encryptedIdentity?: Prisma.SortOrder
+  passkeyIdentity?: Prisma.SortOrder
   recipient?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -368,6 +390,7 @@ export type UnlockMethodSelect<ExtArgs extends runtime.Types.Extensions.Internal
   meta?: boolean
   type?: boolean
   encryptedIdentity?: boolean
+  passkeyIdentity?: boolean
   recipient?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -378,6 +401,7 @@ export type UnlockMethodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   meta?: boolean
   type?: boolean
   encryptedIdentity?: boolean
+  passkeyIdentity?: boolean
   recipient?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -388,6 +412,7 @@ export type UnlockMethodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   meta?: boolean
   type?: boolean
   encryptedIdentity?: boolean
+  passkeyIdentity?: boolean
   recipient?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -398,12 +423,13 @@ export type UnlockMethodSelectScalar = {
   meta?: boolean
   type?: boolean
   encryptedIdentity?: boolean
+  passkeyIdentity?: boolean
   recipient?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UnlockMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "type" | "encryptedIdentity" | "recipient" | "createdAt" | "updatedAt", ExtArgs["result"]["unlockMethod"]>
+export type UnlockMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "type" | "encryptedIdentity" | "passkeyIdentity" | "recipient" | "createdAt" | "updatedAt", ExtArgs["result"]["unlockMethod"]>
 
 export type $UnlockMethodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UnlockMethod"
@@ -427,6 +453,10 @@ export type $UnlockMethodPayload<ExtArgs extends runtime.Types.Extensions.Intern
      * The AGE identity encrypted and armored also with AGE.
      */
     encryptedIdentity: string
+    /**
+     * The opaque identity of the passkey used to encrypt the AGE identity.
+     */
+    passkeyIdentity: string | null
     /**
      * The AGE recipient for this unlock method.
      */
@@ -866,6 +896,7 @@ export interface UnlockMethodFieldRefs {
   readonly meta: Prisma.FieldRef<"UnlockMethod", 'Json'>
   readonly type: Prisma.FieldRef<"UnlockMethod", 'UnlockMethodType'>
   readonly encryptedIdentity: Prisma.FieldRef<"UnlockMethod", 'String'>
+  readonly passkeyIdentity: Prisma.FieldRef<"UnlockMethod", 'String'>
   readonly recipient: Prisma.FieldRef<"UnlockMethod", 'String'>
   readonly createdAt: Prisma.FieldRef<"UnlockMethod", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"UnlockMethod", 'DateTime'>

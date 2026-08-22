@@ -37,6 +37,7 @@ export const migrationPacks = {
       "20260301210131_add_entity_tracking",
       "20260302212734_add_resource_hooks_flag",
       "20260720230553_add_panels",
+      "20260822154433_add_passkey_identity",
     ],
   },
 }

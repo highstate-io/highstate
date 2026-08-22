@@ -5,11 +5,7 @@ import type {
 } from "@highstate/backend/shared"
 import { armor, Encrypter, generateIdentity, identityToRecipient, webauthn } from "age-encryption"
 
-async function createUnlockMethod(
-  type: UnlockMethodType,
-  meta: UnlockMethodMeta,
-  encrypter: Encrypter,
-): Promise<UnlockMethodInput> {
+async function createUnlockMethod(meta: UnlockMethodMeta, encrypter: Encrypter) {
   const identity = await generateIdentity()
 
   const encryptedIdentity = await encrypter.encrypt(identity)
@@ -19,31 +15,39 @@ async function createUnlockMethod(
 
   return {
     meta,
-    type,
     encryptedIdentity: armoredIdentity,
     recipient,
   }
 }
 
-export function createPasswordUnlockMethod(
+export async function createPasswordUnlockMethod(
   password: string,
   meta: UnlockMethodMeta,
 ): Promise<UnlockMethodInput> {
   const encrypter = new Encrypter()
   encrypter.setPassphrase(password)
+  const unlockMethod = await createUnlockMethod(meta, encrypter)
 
-  return createUnlockMethod("password", meta, encrypter)
+  return { type: "password", ...unlockMethod }
 }
 
-export function createPasskeyUnlockMethod(meta: UnlockMethodMeta): Promise<UnlockMethodInput> {
+export async function createPasskeyUnlockMethod(
+  meta: UnlockMethodMeta,
+): Promise<UnlockMethodInput> {
   if (!meta.title) {
     throw new Error("Display name is required for passkey unlock method")
   }
 
+  const identity = await webauthn.createCredential({ keyName: meta.title })
   const encrypter = new Encrypter()
-  encrypter.addRecipient(new webauthn.WebAuthnRecipient())
+  encrypter.addRecipient(new webauthn.WebAuthnRecipient({ identity }))
+  const unlockMethod = await createUnlockMethod(meta, encrypter)
 
-  return createUnlockMethod("passkey", meta, encrypter)
+  return {
+    type: "passkey",
+    ...unlockMethod,
+    passkeyIdentity: identity,
+  }
 }
 
 export type UnlockMethodFormData = {

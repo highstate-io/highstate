@@ -781,6 +781,7 @@ describe("SettingsService", () => {
             type: "passkey",
             meta: { title: "Passkey Method" },
             encryptedIdentity: "encrypted-key",
+            passkeyIdentity: "passkey-identity",
             recipient: await identityToRecipient(await generateIdentity()),
             createdAt: new Date("2023-01-02"),
             updatedAt: new Date("2023-01-02"),
