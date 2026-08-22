@@ -1,0 +1,14 @@
+## 0.25.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/k8s.dashboard-worker:** add Headlamp dashboard image ([a68f4f2](https://github.com/highstate-io/highstate/commit/a68f4f2))
+
+### 🩹 Fixes
+
+- declare root zod test dependency ([784a695](https://github.com/highstate-io/highstate/commit/784a695))
+- run Vitest with Bun ([61f61f5](https://github.com/highstate-io/highstate/commit/61f61f5))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres

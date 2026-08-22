@@ -1,3 +1,27 @@
+## 0.25.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/k8s.dashboard-worker:** add Headlamp dashboard image ([a68f4f2](https://github.com/highstate-io/highstate/commit/a68f4f2))
+- **@highstate/k8s:** standardize workload customization ([70c091c](https://github.com/highstate-io/highstate/commit/70c091c))
+- **@highstate/k8s:** update Gateway API and add TLS routes ([e79a218](https://github.com/highstate-io/highstate/commit/e79a218))
+- **@highstate/common:** parse transport endpoint schemes ([ae8b912](https://github.com/highstate-io/highstate/commit/ae8b912))
+- **@highstate/common:** add managed script and systemd units ([6c1e4c4](https://github.com/highstate-io/highstate/commit/6c1e4c4))
+- **@highstate/yandex:** add reserved addresses and load balancing ([72a11d3](https://github.com/highstate-io/highstate/commit/72a11d3))
+- **@highstate/k3s:** support external worker groups ([6e26c5c](https://github.com/highstate-io/highstate/commit/6e26c5c))
+- **@highstate/wireguard:** import existing interface configurations ([f4714fe](https://github.com/highstate-io/highstate/commit/f4714fe))
+- **@highstate/rustfs:** add object storage components ([c55f058](https://github.com/highstate-io/highstate/commit/c55f058))
+- **@highstate/netaminity:** add tunnel management components ([252a3a1](https://github.com/highstate-io/highstate/commit/252a3a1))
+
+### 🩹 Fixes
+
+- declare root zod test dependency ([784a695](https://github.com/highstate-io/highstate/commit/784a695))
+- **@highstate/common:** deduplicate DNS record values ([f915bba](https://github.com/highstate-io/highstate/commit/f915bba))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.24.1 (2026-07-15)
 
 This was a version bump only for @highstate/library to align it with other projects, there were no code changes.

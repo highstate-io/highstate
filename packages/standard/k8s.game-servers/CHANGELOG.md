@@ -1,3 +1,17 @@
+## 0.25.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/k8s.dashboard-worker:** add Headlamp dashboard image ([a68f4f2](https://github.com/highstate-io/highstate/commit/a68f4f2))
+
+### 🩹 Fixes
+
+- declare root zod test dependency ([784a695](https://github.com/highstate-io/highstate/commit/784a695))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.24.1 (2026-07-15)
 
 This was a version bump only for @highstate/k8s.game-servers to align it with other projects, there were no code changes.

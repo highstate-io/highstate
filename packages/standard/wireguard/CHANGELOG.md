@@ -1,3 +1,19 @@
+## 0.25.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/k8s.dashboard-worker:** add Headlamp dashboard image ([a68f4f2](https://github.com/highstate-io/highstate/commit/a68f4f2))
+- **@highstate/wireguard:** improve Kubernetes node exposure ([c5c90e1](https://github.com/highstate-io/highstate/commit/c5c90e1))
+- **@highstate/wireguard:** import existing interface configurations ([f4714fe](https://github.com/highstate-io/highstate/commit/f4714fe))
+
+### 🩹 Fixes
+
+- declare root zod test dependency ([784a695](https://github.com/highstate-io/highstate/commit/784a695))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.24.1 (2026-07-15)
 
 This was a version bump only for @highstate/wireguard to align it with other projects, there were no code changes.

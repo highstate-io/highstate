@@ -1,3 +1,19 @@
+## 0.26.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/designer:** add panel gateway and navigation ([6dfbdbe](https://github.com/highstate-io/highstate/commit/6dfbdbe))
+- **@highstate/k8s.dashboard-worker:** add Headlamp dashboard image ([a68f4f2](https://github.com/highstate-io/highstate/commit/a68f4f2))
+
+### 🩹 Fixes
+
+- declare root zod test dependency ([784a695](https://github.com/highstate-io/highstate/commit/784a695))
+- **@highstate/cli:** normalize non-error build rejections ([f9050db](https://github.com/highstate-io/highstate/commit/f9050db))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.25.0 (2026-07-15)
 
 ### 🚀 Features

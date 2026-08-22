@@ -1,3 +1,19 @@
+## 0.26.0 (2026-08-22)
+
+### 🚀 Features
+
+- **@highstate/k8s.dashboard-worker:** add Headlamp dashboard image ([a68f4f2](https://github.com/highstate-io/highstate/commit/a68f4f2))
+- add worker-hosted panels ([5d83fe2](https://github.com/highstate-io/highstate/commit/5d83fe2))
+
+### 🩹 Fixes
+
+- declare root zod test dependency ([784a695](https://github.com/highstate-io/highstate/commit/784a695))
+- **@highstate/backend:** report unit operation failures once ([8acedb3](https://github.com/highstate-io/highstate/commit/8acedb3))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.25.0 (2026-07-15)
 
 This was a version bump only for @highstate/backend to align it with other projects, there were no code changes.
