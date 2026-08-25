@@ -21,7 +21,7 @@ const { headers, data, loading, hideHeader, hideSearch, height } = defineProps<{
 
 const search = defineModel<string>("search")
 const sortBy = defineModel<CollectionQuery["sortBy"]>("sortBy")
-const page = defineModel<number>("page")
+const page = defineModel<number>("page", { default: 1 })
 const itemsPerPage = defineModel<number>("itemsPerPage")
 
 interface DataTableItemProps {

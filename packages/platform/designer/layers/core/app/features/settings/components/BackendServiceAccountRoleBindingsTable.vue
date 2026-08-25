@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { BackendRoleBindingOutput, BackendRoleOutput } from "@highstate/backend/shared"
+import type {
+  BackendRoleOutput,
+  ServiceAccountBackendRoleBindingOutput,
+} from "@highstate/backend/shared"
 import TimeTableCell from "./TimeTableCell.vue"
 
 const { serviceAccountId, readonly } = defineProps<{
@@ -9,7 +12,7 @@ const { serviceAccountId, readonly } = defineProps<{
 const count = defineModel<number>("count", { default: 0 })
 const { $client } = useNuxtApp()
 
-const bindings = ref<BackendRoleBindingOutput[]>([])
+const bindings = ref<ServiceAccountBackendRoleBindingOutput[]>([])
 const roles = ref<BackendRoleOutput[]>([])
 const selectedRoleId = ref<string | null>(null)
 const loading = ref(false)
