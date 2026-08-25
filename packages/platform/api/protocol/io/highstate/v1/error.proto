@@ -1,0 +1,22 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/rpc/error_details.proto";
+
+// ErrorDetails references the standard structured details returned by the Highstate API.
+message ErrorDetails {
+  // Invalid request fields, when present.
+  google.rpc.BadRequest bad_request = 1;
+
+  // Stable machine-readable information about the error, when present.
+  google.rpc.ErrorInfo error_info = 2;
+
+  // Preconditions that prevented the request, when present.
+  google.rpc.PreconditionFailure precondition_failure = 3;
+
+  // The concrete delay after which the request may be retried, when present.
+  google.rpc.RetryInfo retry_info = 4;
+
+  // The request identifier, when one was assigned, when present.
+  google.rpc.RequestInfo request_info = 5;
+}

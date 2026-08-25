@@ -79,9 +79,9 @@ graph LR
 - `@highstate/backend`: Orchestrator service that persists projects, schedules operations, and exposes domain logic for other platform components.
 - `@highstate/designer`: Nuxt application providing the visual canvas; it talks to `@highstate/backend` directly and mounts backend API endpoints alongside its tRPC routes.
 - `@highstate/cli`: Command-line entry point that drives workspace lifecycle tasks using backend services and shared contracts.
-- `@highstate/api`: Protobuf schemas and generated gRPC clients for worker and backend communication surfaces.
-- `@highstate/backend-api`: gRPC façade built on the backend service, consumed by workers and tooling for remote execution.
-- `@highstate/worker-sdk`: gRPC SDK for background workers generated from the API contracts.
+- `@highstate/api`: Protobuf schemas and generated ConnectRPC service descriptors for worker and backend communication surfaces.
+- `@highstate/backend-api`: ConnectRPC facade built on the backend service, consumed by workers and tooling for remote execution.
+- `@highstate/worker-sdk`: ConnectRPC SDK for background workers generated from the API contracts.
 - `@highstate/docs`: Nuxt Content documentation site with Docker image build and publish targets.
 
 ### Standard Library
@@ -215,10 +215,10 @@ The following packages use it:
 
 The generation in these packages should be triggered by `bun run generate-sdks` command.
 
-#### 3. gRPC clients and servers
+#### 3. ConnectRPC clients and servers
 
-The `@highstate/api` package contains Protobuf definitions for gRPC services and messages.
-It generates TypeScript clients and server stubs using `ts-proto` plugin.
+The `@highstate/api` package contains Protobuf definitions for ConnectRPC services and messages.
+It generates TypeScript messages and service descriptors using Buf and Protobuf-ES.
 
 The generation in this package should be triggered by `bun run generate-sdk` command.
 

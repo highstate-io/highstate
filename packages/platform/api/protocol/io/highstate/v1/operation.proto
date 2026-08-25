@@ -1,0 +1,340 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "io/highstate/v1/common.proto";
+
+// Operation contains the canonical state of one project operation.
+message Operation {
+  // The stable operation ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The operation display metadata.
+  OperationMeta meta = 2;
+
+  // The requested operation type.
+  OperationType type = 3 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The current operation status.
+  OperationStatus status = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The effective operation options.
+  OperationOptions options = 5 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The instance IDs explicitly requested by the caller.
+  repeated string requested_instance_ids = 6 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The execution phases after planning has completed.
+  repeated OperationPhase phases = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the operation started.
+  google.protobuf.Timestamp started_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the operation was last updated.
+  google.protobuf.Timestamp updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the operation finished, when it has reached a final state.
+  optional google.protobuf.Timestamp finished_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// OperationMeta contains user-provided display metadata for an operation.
+message OperationMeta {
+  // The operation title.
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The optional operation description.
+  optional string description = 2;
+}
+
+// OperationOptions configures dependency traversal, execution, and cleanup behavior.
+message OperationOptions {
+  // Whether to update every dependency regardless of its current state.
+  //
+  // This bypasses hash-based change detection and traverses the complete dependency graph from
+  // requested instances, including dependencies that are current, outdated, failed, or undeployed.
+  // Combining this with force_update_children updates the complete dependency and composite-child tree.
+  bool force_update_dependencies = 1;
+
+  // Whether to omit dependencies that are only changed while retaining failed or undeployed prerequisites.
+  //
+  // This supports targeted updates without skipping prerequisites that are missing or broken.
+  // This option is mutually exclusive with force_update_dependencies and ignore_dependencies.
+  bool ignore_changed_dependencies = 2;
+
+  // Whether to disable dependency traversal and operate only on explicitly requested instances.
+  //
+  // This also omits failed and undeployed prerequisites, so the caller must explicitly request every
+  // prerequisite needed for a safe operation.
+  // This option is mutually exclusive with force_update_dependencies and ignore_changed_dependencies.
+  bool ignore_dependencies = 3;
+
+  // Whether to update every child of affected composite instances regardless of its current state.
+  //
+  // Child expansion runs after dependency traversal and parent inclusion.
+  // This overrides selective child inclusion and allow_partial_composite_instance_update.
+  bool force_update_children = 4;
+
+  // Whether an update operation runs only its ghost-cleanup destroy phase and skips its update phase.
+  //
+  // This option applies only to update operations and is mutually exclusive with first_destroy_ghosts
+  // and ignore_ghosts.
+  bool only_destroy_ghosts = 5;
+
+  // Whether an update operation runs its ghost-cleanup destroy phase before its update phase.
+  //
+  // Both phases remain present; only their order changes.
+  // This option is mutually exclusive with only_destroy_ghosts and ignore_ghosts.
+  bool first_destroy_ghosts = 6;
+
+  // Whether an update operation omits its ghost-cleanup destroy phase.
+  //
+  // The update phase is unaffected.
+  // This option is mutually exclusive with only_destroy_ghosts and first_destroy_ghosts.
+  bool ignore_ghosts = 7;
+
+  // Whether destroy operations include instances that depend on the requested instances.
+  //
+  // This traverses the dependency graph in reverse to prevent dependents from being left without their
+  // prerequisites and combines with invoke_destroy_triggers for cascaded trigger execution.
+  bool destroy_dependent_instances = 8;
+
+  // Whether instance destroy triggers run instead of direct deletion during destroy phases.
+  //
+  // This controls how selected instances are destroyed but does not change which instances are selected.
+  bool invoke_destroy_triggers = 9;
+
+  // Whether to delete Pulumi resources that remain in state but are no longer reachable from the program.
+  //
+  // This performs per-instance resource cleanup without changing operation instance selection.
+  bool delete_unreachable_resources = 10;
+
+  // Whether to delete instance state even when resource destruction fails.
+  //
+  // This emergency fallback can leave unmanaged infrastructure and should be used cautiously.
+  bool force_delete_state = 11;
+
+  // Whether updates of substantive composites may include only necessary children instead of every
+  // outdated child.
+  //
+  // force_update_children overrides this option and always includes every child.
+  bool allow_partial_composite_instance_update = 12;
+
+  // Whether cascade destruction may include only directly dependent composite children instead of every
+  // child of an affected composite.
+  //
+  // Explicit destruction of a composite still includes all of its children.
+  bool allow_partial_composite_instance_destruction = 13;
+
+  // Whether to refresh provider state for every selected instance during the operation.
+  //
+  // This does not change instance selection and can be combined with any operation type.
+  bool refresh = 14;
+
+  // Whether to enable Pulumi engine and provider debug logging.
+  //
+  // Debug output may contain credentials or other sensitive values and should be enabled only for
+  // controlled troubleshooting.
+  bool debug = 15;
+}
+
+// OperationPhase describes one ordered execution phase.
+message OperationPhase {
+  // The action performed by the phase.
+  OperationPhaseType type = 1;
+
+  // The instances processed by the phase.
+  repeated OperationPhaseInstance instances = 2;
+}
+
+// OperationPhaseInstance describes why an instance appears in a phase.
+message OperationPhaseInstance {
+  // The instance ID.
+  string id = 1;
+
+  // The parent instance ID, when available.
+  optional string parent_id = 2;
+
+  // The human-readable planning explanation.
+  string message = 3;
+}
+
+// OperationLog is one ordered operation log entry.
+message OperationLog {
+  // The ULID log ID, which also determines chronological ordering.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The operation ID.
+  string operation_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The producing instance state ID, when the log is instance-specific.
+  optional string state_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the entry was produced by Highstate rather than unit output.
+  bool is_system = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The log content.
+  string content = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PlanOperationRequest requests an operation execution plan without launching it.
+message PlanOperationRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation type.
+  OperationType type = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The explicitly requested instance IDs.
+  repeated string instance_ids = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation options.
+  OperationOptions options = 4;
+}
+
+// PlanOperationResponse returns the planned execution phases.
+message PlanOperationResponse {
+  // The ordered execution phases.
+  repeated OperationPhase phases = 1;
+}
+
+// LaunchOperationRequest launches an operation, optionally using a previously reviewed plan.
+message LaunchOperationRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation type.
+  OperationType type = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The explicitly requested instance IDs.
+  repeated string instance_ids = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation options.
+  OperationOptions options = 4;
+
+  // The operation display metadata.
+  OperationMeta meta = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // A caller-supplied plan to execute instead of replanning.
+  repeated OperationPhase plan = 6;
+}
+
+// LaunchOperationResponse returns the canonical launched operation.
+message LaunchOperationResponse {
+  // The canonical launched operation.
+  Operation operation = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetOperationRequest requests one operation.
+message GetOperationRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation ID.
+  string operation_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetOperationResponse returns one canonical operation.
+message GetOperationResponse {
+  // The canonical operation.
+  Operation operation = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListOperationsRequest requests one page of operations ordered by start time and ID descending.
+message ListOperationsRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The requested page size; zero uses the service default.
+  int32 page_size = 2;
+
+  // The opaque continuation token from a previous response.
+  string page_token = 3;
+}
+
+// ListOperationsResponse returns one page of canonical operations.
+message ListOperationsResponse {
+  // The canonical operations.
+  repeated Operation operations = 1;
+
+  // The opaque token for the next page, or empty when traversal is complete.
+  string next_page_token = 2;
+}
+
+// ListOperationLogsRequest requests one page of logs for an operation.
+message ListOperationLogsRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation ID.
+  string operation_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The optional instance state ID filter.
+  optional string state_id = 3;
+
+  // The requested page size; zero uses the service default.
+  int32 page_size = 4;
+
+  // The opaque continuation token from a previous response.
+  string page_token = 5;
+}
+
+// ListOperationLogsResponse returns one page of operation logs.
+message ListOperationLogsResponse {
+  // The ordered log entries.
+  repeated OperationLog logs = 1;
+
+  // The opaque token for the next page, or empty when traversal is complete.
+  string next_page_token = 2;
+}
+
+// CancelOperationRequest requests cancellation of an operation.
+message CancelOperationRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation ID.
+  string operation_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CancelOperationResponse reports that cancellation was requested.
+message CancelOperationResponse {}
+
+// CancelInstanceOperationRequest requests cancellation of one instance within an operation.
+message CancelInstanceOperationRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation ID.
+  string operation_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The instance ID.
+  string instance_id = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CancelInstanceOperationResponse reports that instance cancellation was requested.
+message CancelInstanceOperationResponse {}
+
+// OperationService plans, launches, observes, and cancels project operations.
+service OperationService {
+  // Plans an operation without launching it.
+  rpc PlanOperation(PlanOperationRequest) returns (PlanOperationResponse);
+
+  // Launches an operation and returns its canonical state.
+  rpc LaunchOperation(LaunchOperationRequest) returns (LaunchOperationResponse);
+
+  // Gets one operation.
+  rpc GetOperation(GetOperationRequest) returns (GetOperationResponse);
+
+  // Lists operations with cursor pagination.
+  rpc ListOperations(ListOperationsRequest) returns (ListOperationsResponse);
+
+  // Lists operation logs with cursor pagination.
+  rpc ListOperationLogs(ListOperationLogsRequest) returns (ListOperationLogsResponse);
+
+  // Requests cancellation of an operation.
+  rpc CancelOperation(CancelOperationRequest) returns (CancelOperationResponse);
+
+  // Requests cancellation of one instance within an operation.
+  rpc CancelInstanceOperation(CancelInstanceOperationRequest) returns (CancelInstanceOperationResponse);
+}

@@ -1,0 +1,261 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+import "io/highstate/v1/common.proto";
+
+// Library contains the stable catalog exposed by the selected project library.
+message Library {
+  // The components keyed by versioned component type.
+  map<string, Component> components = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The entities keyed by versioned entity type.
+  map<string, Entity> entities = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Component describes one component definition while preserving component-owned schemas as dynamic data.
+message Component {
+  // The versioned component type.
+  string type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The component execution kind.
+  ComponentKind kind = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The argument definitions keyed by argument name.
+  map<string, ComponentArgument> arguments = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The input definitions keyed by input name.
+  map<string, ComponentPort> inputs = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The output definitions keyed by output name.
+  map<string, ComponentPort> outputs = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The component display metadata.
+  ComponentMeta meta = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The CRC32 of the component definition.
+  uint32 definition_hash = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ComponentSummary contains fields needed to browse a component catalog.
+message ComponentSummary {
+  // The versioned component type.
+  string type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The component execution kind.
+  ComponentKind kind = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The component display metadata.
+  ComponentMeta meta = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ComponentArgument describes a component-owned argument schema.
+message ComponentArgument {
+  // The runtime-defined JSON Schema for the argument value.
+  google.protobuf.Struct schema = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether callers must provide the argument.
+  bool required = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The argument display metadata.
+  ComponentArgumentMeta meta = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ComponentArgumentMeta contains display metadata for a component argument.
+message ComponentArgumentMeta {
+  // The human-readable argument title.
+  string title = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional title used outside the component context.
+  optional string global_title = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional argument description.
+  optional string description = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color.
+  optional string color = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional Iconify icon identifier.
+  optional string icon = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color of the icon.
+  optional string icon_color = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ComponentPort describes one typed component input or output.
+message ComponentPort {
+  // The versioned entity type accepted or produced by the port.
+  string entity_type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The input whose type is forwarded by this output, when applicable.
+  optional string from_input = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether a value is required.
+  bool required = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the port accepts or produces multiple values.
+  bool multiple = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The port display metadata.
+  ComponentPortMeta meta = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ComponentPortMeta contains display metadata for a component input or output.
+message ComponentPortMeta {
+  // The human-readable port title.
+  string title = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional port description.
+  optional string description = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ComponentMeta contains display and creation metadata for a component.
+message ComponentMeta {
+  // The human-readable component title.
+  string title = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional component description.
+  optional string description = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color.
+  optional string color = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional primary Iconify icon identifier.
+  optional string icon = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color of the primary icon.
+  optional string icon_color = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional secondary Iconify icon identifier.
+  optional string secondary_icon = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color of the secondary icon.
+  optional string secondary_icon_color = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional catalog category.
+  optional string category = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The default prefix used when creating instance names.
+  string default_name_prefix = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Entity describes one entity definition while preserving its value schema as dynamic data.
+message Entity {
+  // The versioned entity type.
+  string type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // All directly and indirectly extended entity types.
+  repeated string extensions = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The directly extended entity types.
+  repeated string direct_extensions = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // All direct and inherited inclusions.
+  repeated EntityInclusion inclusions = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The directly declared inclusions.
+  repeated EntityInclusion direct_inclusions = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The runtime-defined JSON Schema for entity values.
+  google.protobuf.Struct schema = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The entity display metadata.
+  EntityMeta meta = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The CRC32 of the entity definition.
+  uint32 definition_hash = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// EntityMeta contains display metadata for an entity definition.
+message EntityMeta {
+  // The human-readable entity title.
+  string title = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional entity description.
+  optional string description = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color.
+  optional string color = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional Iconify icon identifier.
+  optional string icon = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optional display color of the icon.
+  optional string icon_color = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// EntityInclusion describes an entity value embedded within another entity.
+message EntityInclusion {
+  // The versioned included entity type.
+  string type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the included value is required.
+  bool required = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the field contains multiple included values.
+  bool multiple = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The field containing the included value.
+  string field = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GetLibraryRequest requests the selected project's library catalog.
+message GetLibraryRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetLibraryResponse returns the canonical library catalog.
+message GetLibraryResponse {
+  // The canonical library.
+  Library library = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListComponentsRequest requests one page of component summaries ordered by type.
+message ListComponentsRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The requested page size; zero uses the service default.
+  int32 page_size = 2;
+
+  // The opaque continuation token from a previous response.
+  string page_token = 3;
+}
+
+// ListComponentsResponse returns one page of component summaries.
+message ListComponentsResponse {
+  // The component summaries.
+  repeated ComponentSummary components = 1;
+
+  // The opaque token for the next page, or empty when traversal is complete.
+  string next_page_token = 2;
+}
+
+// GetComponentRequest requests one component by versioned type.
+message GetComponentRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The versioned component type.
+  string type = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetComponentResponse returns one canonical component.
+message GetComponentResponse {
+  // The canonical component.
+  Component component = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// LibraryService exposes project component and entity catalogs.
+service LibraryService {
+  // Gets the complete library catalog.
+  rpc GetLibrary(GetLibraryRequest) returns (GetLibraryResponse);
+
+  // Lists component summaries with cursor pagination.
+  rpc ListComponents(ListComponentsRequest) returns (ListComponentsResponse);
+
+  // Gets one component by versioned type.
+  rpc GetComponent(GetComponentRequest) returns (GetComponentResponse);
+}

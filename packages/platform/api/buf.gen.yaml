@@ -1,0 +1,7 @@
+version: v2
+clean: true
+plugins:
+  - local: protoc-gen-es
+    out: src/_generated
+    opt:
+      - target=ts

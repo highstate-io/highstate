@@ -1,0 +1,266 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "io/highstate/v1/common.proto";
+import "io/highstate/v1/project_model.proto";
+
+// InstanceCustomStatusMeta contains display metadata for an instance custom status.
+message InstanceCustomStatusMeta {
+  // The human-readable status title.
+  string title = 1;
+
+  // The optional status description.
+  optional string description = 2;
+
+  // The optional Iconify icon identifier.
+  optional string icon = 3;
+
+  // The optional display color of the icon.
+  optional string icon_color = 4;
+}
+
+// InstanceState describes persisted runtime state for one project instance.
+message InstanceState {
+  // The stable state ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The current instance ID.
+  string instance_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The deployment state of the instance.
+  InstanceStatus status = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How the instance entered the project.
+  InstanceSource source = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The execution kind of the instance.
+  ComponentKind kind = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The parent instance ID, populated only when requested and available.
+  optional string parent_instance_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The latest composite evaluation state, populated only when requested and available.
+  optional EvaluationState evaluation_state = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The latest operation state, populated only when requested and available.
+  optional InstanceOperationState last_operation_state = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The terminal IDs, populated only when extra projections are requested.
+  repeated string terminal_ids = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The page IDs, populated only when extra projections are requested.
+  repeated string page_ids = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The panel IDs, populated only when extra projections are requested.
+  repeated string panel_ids = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The names of secrets owned by the instance.
+  repeated string secret_names = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The custom statuses, populated only when requested.
+  repeated InstanceCustomStatus custom_statuses = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The count of currently managed resources, when known.
+  optional int32 current_resource_count = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether destroy requires running resource hooks.
+  bool has_resource_hooks = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Runtime-defined status fields produced by the latest operation.
+  optional google.protobuf.Value status_fields = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The model snapshot captured at the latest non-preview operation start.
+  optional Instance model = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resolved inputs captured at the latest non-preview operation start.
+  map<string, InstanceReferenceList> resolved_inputs = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// EvaluationState describes the latest composite evaluation result.
+message EvaluationState {
+  // The evaluation lifecycle state.
+  EvaluationStatus status = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A human-readable evaluation result or error description.
+  optional string message = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The model produced by evaluation, when evaluation succeeded.
+  optional Instance model = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when evaluation last finished.
+  google.protobuf.Timestamp evaluated_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// InstanceOperationState describes operation progress for one instance.
+message InstanceOperationState {
+  // The operation ID.
+  string operation_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The instance state ID.
+  string state_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The operation status for this instance.
+  InstanceOperationStatus status = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The current managed resource count, when known.
+  optional int32 current_resource_count = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The expected managed resource count, when known.
+  optional int32 total_resource_count = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The model snapshot captured at operation start.
+  Instance model = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resolved inputs captured at operation start.
+  map<string, InstanceReferenceList> resolved_inputs = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when work on this instance started.
+  optional google.protobuf.Timestamp started_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when work on this instance finished.
+  optional google.protobuf.Timestamp finished_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// InstanceCustomStatus describes a worker-owned status attached to an instance.
+message InstanceCustomStatus {
+  // The status name, unique within the instance and owning service account.
+  string name = 1;
+
+  // The status display metadata.
+  InstanceCustomStatusMeta meta = 2;
+
+  // The machine-readable status value.
+  string value = 3;
+
+  // The optional human-readable status message.
+  optional string message = 4;
+
+  // The display priority from 0 through 100, where lower values appear first.
+  optional int32 order = 5;
+
+  // The owning service account ID, populated only in canonical output.
+  optional string service_account_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the status was first attached, populated only in canonical output.
+  optional google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the status was last updated, populated only in canonical output.
+  optional google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListInstanceStatesRequest configures instance-state projections.
+message ListInstanceStatesRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether evaluation state is populated.
+  bool include_evaluation_state = 2;
+
+  // Whether the latest operation state is populated.
+  bool include_last_operation_state = 3;
+
+  // Whether the parent instance ID is populated.
+  bool include_parent_instance_id = 4;
+
+  // Whether terminal, page, and panel IDs are populated.
+  bool include_extra = 5;
+
+  // Whether custom statuses are populated.
+  bool include_custom_statuses = 6;
+
+  // The requested page size; zero uses the service default.
+  int32 page_size = 7;
+
+  // The opaque continuation token from a previous response.
+  string page_token = 8;
+}
+
+// ListInstanceStatesResponse returns instance states matching the requested projections.
+message ListInstanceStatesResponse {
+  // The instance states.
+  repeated InstanceState states = 1;
+
+  // The opaque token for the next page, or empty when traversal is complete.
+  string next_page_token = 2;
+}
+
+// GetInstanceStateRequest requests one instance state and optional projections.
+message GetInstanceStateRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The stable state ID.
+  string state_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether evaluation state is populated.
+  bool include_evaluation_state = 3;
+
+  // Whether the latest operation state is populated.
+  bool include_last_operation_state = 4;
+
+  // Whether the parent instance ID is populated.
+  bool include_parent_instance_id = 5;
+
+  // Whether terminal, page, and panel IDs are populated.
+  bool include_extra = 6;
+
+  // Whether custom statuses are populated.
+  bool include_custom_statuses = 7;
+}
+
+// GetInstanceStateResponse returns one canonical instance state.
+message GetInstanceStateResponse {
+  // The canonical instance state.
+  InstanceState state = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateCustomStatusRequest creates or replaces one worker-owned custom status.
+message UpdateCustomStatusRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The stable state ID.
+  string state_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The custom status value.
+  InstanceCustomStatus status = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateCustomStatusResponse returns the canonical custom status.
+message UpdateCustomStatusResponse {
+  // The canonical custom status.
+  InstanceCustomStatus status = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RemoveCustomStatusRequest removes one status owned by the authenticated service account.
+message RemoveCustomStatusRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The stable state ID.
+  string state_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The status name.
+  string status_name = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RemoveCustomStatusResponse reports successful removal.
+message RemoveCustomStatusResponse {}
+
+// InstanceStateService provides runtime instance state for the selected project.
+service InstanceStateService {
+  // Lists instance states with requested projections.
+  rpc ListInstanceStates(ListInstanceStatesRequest) returns (ListInstanceStatesResponse);
+
+  // Gets one instance state with requested projections.
+  rpc GetInstanceState(GetInstanceStateRequest) returns (GetInstanceStateResponse);
+
+  // Creates or replaces a custom status owned by the authenticated service account.
+  rpc UpdateCustomStatus(UpdateCustomStatusRequest) returns (UpdateCustomStatusResponse);
+
+  // Removes a custom status owned by the authenticated service account.
+  rpc RemoveCustomStatus(RemoveCustomStatusRequest) returns (RemoveCustomStatusResponse);
+}

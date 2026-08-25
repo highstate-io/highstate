@@ -11,21 +11,13 @@
       "types": "./src/index.ts",
       "default": "./dist/index.js"
     },
-    "./instance.v1": {
-      "types": "./src/_generated/instance.v1.ts",
-      "default": "./dist/_generated/instance.v1.js"
+    "./v1": {
+      "types": "./src/api/v1.ts",
+      "default": "./dist/api/v1.js"
     },
     "./worker.v1": {
-      "types": "./src/_generated/worker.v1.ts",
-      "default": "./dist/_generated/worker.v1.js"
-    },
-    "./panel.v1": {
-      "types": "./src/_generated/panel.ts",
-      "default": "./dist/_generated/panel.js"
-    },
-    "./secret.v1": {
-      "types": "./src/_generated/secret.v1.ts",
-      "default": "./dist/_generated/secret.v1.js"
+      "types": "./src/api/worker.v1.ts",
+      "default": "./dist/api/worker.v1.js"
     }
   },
   "publishConfig": {
@@ -38,22 +30,25 @@
   },
   "scripts": {
     "build": "highstate build",
-    "generate-sdk": "./scripts/generate-sdk.sh",
+    "generate-sdk": "buf lint && buf generate --include-imports",
+    "proto:check": "buf format --diff --exit-code && buf lint",
+    "test": "vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
-    "ts-proto": "^2.7.5"
+    "@bufbuild/buf": "catalog:",
+    "@bufbuild/protoc-gen-es": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^2.6.0",
-    "long": "^5.3.2",
-    "nice-grpc-common": "^2.0.2",
-    "protobufjs": "^7.5.3"
+    "@bufbuild/protobuf": "catalog:",
+    "@connectrpc/connect": "catalog:",
+    "@connectrpc/connect-node": "catalog:"
   },
   "repository": {
     "url": "https://github.com/highstate-io/highstate"

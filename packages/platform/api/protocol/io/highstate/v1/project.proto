@@ -1,0 +1,101 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// ProjectMeta contains display metadata for a project.
+message ProjectMeta {
+  // The human-readable project title.
+  string title = 1;
+
+  // The optional project description.
+  optional string description = 2;
+
+  // The optional Iconify icon identifier.
+  optional string icon = 3;
+
+  // The optional display color of the icon.
+  optional string icon_color = 4;
+}
+
+// Project describes the project selected by the authenticated request.
+message Project {
+  // The stable project ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The project name.
+  string name = 2;
+
+  // The project display metadata.
+  ProjectMeta meta = 3;
+
+  // The ID of the project space containing the project.
+  string space_id = 4 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The ID of the project model storage.
+  string model_storage_id = 5 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The ID of the project library.
+  string library_id = 6 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The ID of the Pulumi backend.
+  string pulumi_backend_id = 7 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The time when the project was created.
+  google.protobuf.Timestamp created_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the project was last updated.
+  google.protobuf.Timestamp updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GetProjectRequest requests one project.
+message GetProjectRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetProjectResponse returns the canonical project and whether it is locked.
+message GetProjectResponse {
+  // The canonical project.
+  Project project = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether the project is currently locked.
+  bool is_locked = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListProjectsRequest requests a page of projects visible to the authenticated backend API key.
+message ListProjectsRequest {
+  // The maximum number of projects to return.
+  optional int32 page_size = 1;
+
+  // The opaque continuation token returned by a previous request.
+  optional string page_token = 2;
+}
+
+// ProjectEntry contains one project and its current lock state.
+message ProjectEntry {
+  // The canonical project.
+  Project project = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether the project is currently locked.
+  bool is_locked = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListProjectsResponse returns a page of projects.
+message ListProjectsResponse {
+  // The projects in this page.
+  repeated ProjectEntry projects = 1;
+
+  // The opaque continuation token for the next page.
+  optional string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ProjectService provides access to projects.
+service ProjectService {
+  // Gets one project and whether it is currently locked.
+  rpc GetProject(GetProjectRequest) returns (GetProjectResponse);
+
+  // Lists projects visible to the authenticated backend API key.
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+}

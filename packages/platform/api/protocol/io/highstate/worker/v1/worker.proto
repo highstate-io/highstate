@@ -1,0 +1,110 @@
+syntax = "proto3";
+package io.highstate.worker.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+
+// ConnectRequest authenticates one concrete worker instance and opens its registration stream.
+message ConnectRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The worker version ID owned by the authenticated API key.
+  string worker_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The concrete worker instance ID for this connection.
+  string worker_instance_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The host and port of the worker data endpoint reachable by the frontend gateway.
+  string data_endpoint = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WorkerVersionMeta contains reviewed display metadata for a worker version.
+message WorkerVersionMeta {
+  // The human-readable worker version title.
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The optional worker version description.
+  optional string description = 2;
+
+  // The optional Iconify icon identifier.
+  optional string icon = 3;
+
+  // The optional display color of the icon.
+  optional string icon_color = 4;
+}
+
+// WorkerServiceAccountMeta contains reviewed display metadata for the worker service account.
+message WorkerServiceAccountMeta {
+  // The human-readable service account title.
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The optional service account description.
+  optional string description = 2;
+
+  // The optional service account avatar URL.
+  optional string avatar_url = 3;
+
+  // The optional Iconify icon identifier.
+  optional string icon = 4;
+
+  // The optional display color of the icon.
+  optional string icon_color = 5;
+}
+
+// UpdateWorkerVersionMetaRequest updates worker and optional service-account display metadata.
+message UpdateWorkerVersionMetaRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The worker version ID owned by the authenticated API key.
+  string worker_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The replacement worker version metadata.
+  WorkerVersionMeta worker_meta = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Replacement service-account metadata, when the worker updates its shared identity.
+  optional WorkerServiceAccountMeta service_account_meta = 4;
+}
+
+// UpdateWorkerVersionMetaResponse reports successful metadata replacement.
+message UpdateWorkerVersionMetaResponse {}
+
+// UnitRegistration registers one unit state with worker-owned runtime parameters.
+message UnitRegistration {
+  // The unit state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The parameters whose schema is defined by the worker.
+  google.protobuf.Struct params = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UnitDeregistration removes one unit state registration.
+message UnitDeregistration {
+  // The unit state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ConnectResponse carries one registration lifecycle event.
+message ConnectResponse {
+  // The registration event.
+  oneof event {
+    // A registration created before or during this connection.
+    UnitRegistration unit_registration = 1;
+
+    // A registration removed during this connection.
+    UnitDeregistration unit_deregistration = 2;
+  }
+}
+
+// WorkerService connects authenticated worker instances to their unit registrations.
+service WorkerService {
+  // Opens a worker connection and streams the current registrations followed by live changes.
+  //
+  // The API key must own the worker version. A new connection replaces the active endpoint for
+  // the same concrete worker instance. The endpoint is removed when the stream disconnects.
+  rpc Connect(ConnectRequest) returns (stream ConnectResponse);
+
+  // Replaces reviewed metadata for an owned worker version and optionally its shared service account.
+  rpc UpdateWorkerVersionMeta(UpdateWorkerVersionMetaRequest) returns (UpdateWorkerVersionMetaResponse);
+}
