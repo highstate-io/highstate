@@ -1,3 +1,19 @@
+## 0.28.0 (2026-08-25)
+
+### 🚀 Features
+
+- **@highstate/designer:** add authorization settings ([349c85a](https://github.com/highstate-io/highstate/commit/349c85a))
+- **@highstate/mcp:** add infrastructure management server ([3258363](https://github.com/highstate-io/highstate/commit/3258363))
+- **@highstate/api:** migrate protocol definitions to connectrpc ([840a697](https://github.com/highstate-io/highstate/commit/840a697))
+
+### 🩹 Fixes
+
+- **@highstate/designer:** correct authorization settings types ([30c21b0](https://github.com/highstate-io/highstate/commit/30c21b0))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.27.0 (2026-08-22)
 
 ### 🚀 Features
