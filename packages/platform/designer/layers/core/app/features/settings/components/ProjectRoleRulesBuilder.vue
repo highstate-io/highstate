@@ -6,6 +6,7 @@ import type {
   ProjectRoleRules,
 } from "@highstate/backend/shared"
 import { projectPermissionGroups } from "@highstate/backend/shared"
+import { instanceIdSchema } from "@highstate/contract"
 import type { RoleRuleBuilderGroup, RoleRuleBuilderRule } from "../business/role-rules-builder"
 import RoleRulesBuilder from "./RoleRulesBuilder.vue"
 
@@ -156,7 +157,7 @@ function createRestriction(
     case "instances":
       return {
         type: "instances",
-        instanceIds: restriction.ids,
+        instanceIds: restriction.ids.map(id => instanceIdSchema.parse(id)),
         recursive: restriction.recursive ?? false,
       }
     case "owners":
