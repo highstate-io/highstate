@@ -73,16 +73,14 @@ type ExtraOutputs<TArgName extends string = string> = {
     | Input<DeepInput<UnitWorker | undefined>[]>
 }
 
-type OutputMapToDeepInputMap<
-  T extends Record<string, unknown>,
-  TArgName extends string,
-> = IsEmptyObject<T> extends true
-  ? ExtraOutputs
-  : {
-      [K in keyof T as undefined extends T[K] ? never : K]: DeepInput<T[K]>
-    } & {
-      [K in keyof T as undefined extends T[K] ? K : never]?: DeepInput<T[K]>
-    } & ExtraOutputs<TArgName>
+type OutputMapToDeepInputMap<T extends Record<string, unknown>, TArgName extends string> =
+  IsEmptyObject<T> extends true
+    ? ExtraOutputs
+    : {
+        [K in keyof T as undefined extends T[K] ? never : K]: DeepInput<T[K]>
+      } & {
+        [K in keyof T as undefined extends T[K] ? K : never]?: DeepInput<T[K]>
+      } & ExtraOutputs<TArgName>
 
 interface UnitContext<
   TArgs extends Record<string, unknown>,

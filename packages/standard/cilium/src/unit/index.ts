@@ -22,12 +22,16 @@ const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
 
   const coreApi = kubeConfig.makeApiClient(CoreV1Api)
   const allPods = await coreApi.listPodForAllNamespaces()
+  const pods = allPods.items.filter(
+    (pod): pod is typeof pod & { metadata: { name: string; namespace: string } } =>
+      Boolean(pod.metadata?.name && pod.metadata.namespace),
+  )
 
   await Promise.all(
-    allPods.items.map(pod =>
+    pods.map(pod =>
       coreApi.deleteNamespacedPod({
-        name: pod.metadata?.name!,
-        namespace: pod.metadata?.namespace!,
+        name: pod.metadata.name,
+        namespace: pod.metadata.namespace,
       }),
     ),
   )
