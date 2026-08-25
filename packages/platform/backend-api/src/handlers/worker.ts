@@ -1,31 +1,27 @@
-import type { WorkerServiceImplementation } from "@highstate/api/worker.v1"
+import type { ServiceImpl } from "@connectrpc/connect"
 import type { Services } from "@highstate/backend"
+import { create } from "@bufbuild/protobuf"
+import { ConnectResponseSchema, type WorkerService } from "@highstate/api/worker.v1"
+import { WorkerOwnershipError } from "@highstate/backend/shared"
 import { commonObjectMetaSchema, serviceAccountMetaSchema, z } from "@highstate/contract"
-import { authenticate, parseArgument } from "../shared"
+import { authenticateProject, parseArgument, toJsonObject } from "../shared"
 
-const workerMetaUpdatePayloadSchema = z.union([
-  commonObjectMetaSchema,
-  z.object({
-    workerMeta: commonObjectMetaSchema,
-    serviceAccountMeta: serviceAccountMetaSchema,
-  }),
-])
-
-export function createWorkerService(services: Services): WorkerServiceImplementation {
+export function createWorkerService(services: Services): ServiceImpl<typeof WorkerService> {
   return {
     async *connect(request, context) {
-      const [projectId, apiKey] = await authenticate(services, context)
+      const requestContext = await authenticateProject(services, request, context)
+      const { projectId } = requestContext
 
       const workerVersionId = parseArgument(request, "workerVersionId", z.cuid2())
       const workerInstanceId = parseArgument(request, "workerInstanceId", z.cuid2())
       const dataEndpoint = parseArgument(request, "dataEndpoint", z.string().min(1))
       const database = await services.database.forProject(projectId)
       const workerVersion = await database.workerVersion.findFirst({
-        where: { id: workerVersionId, apiKeyId: apiKey.id },
+        where: { id: workerVersionId, apiKeyId: requestContext.subject.apiKeyId },
         select: { id: true },
       })
       if (!workerVersion) {
-        throw new Error(`Worker version "${workerVersionId}" is not owned by the API key`)
+        throw new WorkerOwnershipError(projectId, workerVersionId)
       }
 
       services.workerManager.assertWorkerInstance(projectId, workerVersionId, workerInstanceId)
@@ -43,15 +39,15 @@ export function createWorkerService(services: Services): WorkerServiceImplementa
           select: { stateId: true, params: true },
         })
         for (const registration of existingRegistrations) {
-          yield {
+          yield create(ConnectResponseSchema, {
             event: {
-              $case: "unitRegistration",
+              case: "unitRegistration",
               value: {
                 stateId: registration.stateId,
-                params: registration.params,
+                params: toJsonObject(registration.params),
               },
             },
-          }
+          })
         }
         const registrationStream = await services.pubsubManager.subscribe([
           "worker-unit-registration",
@@ -60,19 +56,19 @@ export function createWorkerService(services: Services): WorkerServiceImplementa
         ])
         for await (const event of registrationStream) {
           if (event.type === "registered") {
-            yield {
+            yield create(ConnectResponseSchema, {
               event: {
-                $case: "unitRegistration",
-                value: { stateId: event.stateId, params: event.params },
+                case: "unitRegistration",
+                value: { stateId: event.stateId, params: toJsonObject(event.params) },
               },
-            }
+            })
           } else if (event.type === "deregistered") {
-            yield {
+            yield create(ConnectResponseSchema, {
               event: {
-                $case: "unitDeregistration",
+                case: "unitDeregistration",
                 value: { stateId: event.stateId },
               },
-            }
+            })
           }
         }
       } finally {
@@ -81,17 +77,18 @@ export function createWorkerService(services: Services): WorkerServiceImplementa
     },
 
     async updateWorkerVersionMeta(request, context) {
-      const [projectId] = await authenticate(services, context)
+      const requestContext = await authenticateProject(services, request, context)
 
       const workerVersionId = parseArgument(request, "workerVersionId", z.string())
-      const payload = parseArgument(request, "meta", workerMetaUpdatePayloadSchema)
-
-      const workerMeta = "workerMeta" in payload ? payload.workerMeta : payload
-      const serviceAccountMeta =
-        "serviceAccountMeta" in payload ? payload.serviceAccountMeta : undefined
+      const workerMeta = parseArgument(request, "workerMeta", commonObjectMetaSchema)
+      const serviceAccountMeta = parseArgument(
+        request,
+        "serviceAccountMeta",
+        serviceAccountMetaSchema.optional(),
+      )
 
       await services.workerService.updateWorkerVersionMeta(
-        projectId,
+        requestContext,
         workerVersionId,
         workerMeta,
         serviceAccountMeta,

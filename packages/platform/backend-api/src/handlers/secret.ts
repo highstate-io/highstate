@@ -1,11 +1,12 @@
-import type { SecretServiceImplementation } from "@highstate/api/secret.v1"
+import type { ServiceImpl } from "@connectrpc/connect"
+import type { SecretService } from "@highstate/api/v1"
 import type { Services } from "@highstate/backend"
-import { authenticate } from "../shared"
+import { authenticateProject } from "../shared"
 
-export function createSecretService(services: Services): SecretServiceImplementation {
+export function createSecretService(services: Services): ServiceImpl<typeof SecretService> {
   return {
-    async getSecretContent(_request, context) {
-      const [_projectId] = await authenticate(services, context)
+    async getSecretContent(request, context) {
+      await authenticateProject(services, request, context)
 
       // TODO: validate secret access
 

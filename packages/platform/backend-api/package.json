@@ -23,6 +23,7 @@
   },
   "scripts": {
     "build": "highstate build",
+    "test": "vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
@@ -40,19 +41,20 @@
     }
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^2.6.1",
+    "@bufbuild/protobuf": "catalog:",
+    "@connectrpc/connect": "catalog:",
+    "@connectrpc/connect-node": "catalog:",
     "@highstate/api": "workspace:*",
     "@highstate/backend": "workspace:*",
     "@highstate/cli": "workspace:*",
     "@highstate/contract": "workspace:*",
     "abort-controller-x": "^0.4.3",
-    "nice-grpc": "^2.1.12",
-    "nice-grpc-common": "^2.0.2",
     "zod": "^4.0.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
-    "@typescript/native-preview": "^7.0.0-dev.20250920.1"
+    "@biomejs/biome": "2.5.0",
+    "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+    "vitest": "^3.2.4"
   },
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
