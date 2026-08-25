@@ -6,7 +6,7 @@ import { checkPort, getPort } from "get-port-please"
 import { resolve as importMetaResolve } from "import-meta-resolve"
 import { addDevDependency } from "nypm"
 import { readPackageJSON, resolvePackageJSON } from "pkg-types"
-import { getBackendServices, logger } from "../shared"
+import { getBackendServices, logger, readCurrentPackageVersion } from "../shared"
 
 let shuttingDown = false
 
@@ -62,16 +62,13 @@ export class DesignerCommand extends Command {
 
     const eventsPort = await getPort({ random: true, host })
 
-    const designerPackageJsonPath = importMetaResolve(
-      "@highstate/designer/package.json",
-      packageJsonUrl,
-    )
-    const designerPackageJson = await readPackageJSON(designerPackageJsonPath)
+    const designerServerPath = importMetaResolve("@highstate/designer/server", packageJsonUrl)
+    const designerVersion = await readCurrentPackageVersion(designerServerPath)
 
     process.env.NITRO_PORT = port.toString()
     process.env.NITRO_HOST = host
     process.env.NITRO_BUN_IDLE_TIMEOUT ??= "255"
-    process.env.NUXT_PUBLIC_VERSION = designerPackageJson.version
+    process.env.NUXT_PUBLIC_VERSION = designerVersion
     process.env.NUXT_PUBLIC_EVENTS_PORT = eventsPort.toString()
 
     try {
@@ -87,8 +84,7 @@ export class DesignerCommand extends Command {
           }
         }
 
-        const serverPath = importMetaResolve("@highstate/designer/server", packageJsonUrl)
-        void import(serverPath).catch(reject)
+        void import(designerServerPath).catch(reject)
       })
     } finally {
       console.log = oldConsoleLog

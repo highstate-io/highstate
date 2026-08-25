@@ -13,13 +13,14 @@ import {
   PackageUpdateReferencesCommand,
   UpdateCommand,
 } from "./commands"
+import { readCurrentPackageVersion } from "./shared"
 
-// const { version } = await import("@highstate/cli/package.json")
+const version = await readCurrentPackageVersion(import.meta.url)
 
 const cli = new Cli({
   binaryName: "highstate",
   binaryLabel: "Highstate",
-  // binaryVersion: version,
+  binaryVersion: version,
 })
 
 cli.register(BuildCommand)

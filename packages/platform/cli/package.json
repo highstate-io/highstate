@@ -9,6 +9,10 @@
     "src"
   ],
   "exports": {
+    "./shared": {
+      "types": "./src/shared/index.ts",
+      "default": "./dist/shared/index.js"
+    },
     "./commands": {
       "types": "./src/commands/index.ts",
       "default": "./dist/commands/index.js"
@@ -69,7 +73,7 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@types/semver": "^7.7.1",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "esbuild": "^0.25.11",
