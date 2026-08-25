@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "highstate build",
-    "test": "vitest run",
+    "test": "bun run --bun vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
     "biome:check": "biome check --error-on-warnings"
