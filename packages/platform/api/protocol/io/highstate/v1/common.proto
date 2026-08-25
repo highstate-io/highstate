@@ -1,0 +1,217 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/protobuf/struct.proto";
+
+// Position identifies a point on the Designer canvas.
+message Position {
+  // The horizontal coordinate.
+  double x = 1;
+
+  // The vertical coordinate.
+  double y = 2;
+}
+
+// InstanceReference identifies one output of an instance used as an input elsewhere.
+message InstanceReference {
+  // The referenced instance ID.
+  string instance_id = 1;
+
+  // The referenced output name.
+  string output = 2;
+
+  // The optional path selected within the output.
+  optional string path = 3;
+}
+
+// HubReference identifies a hub used to inject inputs.
+message HubReference {
+  // The referenced hub ID.
+  string hub_id = 1;
+}
+
+// InstanceReferenceList wraps references used as a value in named input and output maps.
+message InstanceReferenceList {
+  // The references in their declared order.
+  repeated InstanceReference values = 1;
+}
+
+// ComponentArgumentMapEntry represents one named, runtime-defined component argument.
+message ComponentArgumentMapEntry {
+  // The argument name.
+  string key = 1;
+
+  // The argument value whose schema is owned by the component.
+  google.protobuf.Value value = 2;
+}
+
+// ComponentKind identifies the execution behavior of a component or instance.
+enum ComponentKind {
+  // The component kind was not specified or is not recognized.
+  COMPONENT_KIND_UNSPECIFIED = 0;
+
+  // The component evaluates to infrastructure resources.
+  COMPONENT_KIND_UNIT = 1;
+
+  // The component evaluates to child instances.
+  COMPONENT_KIND_COMPOSITE = 2;
+}
+
+// InstanceSource identifies how an instance entered the project.
+enum InstanceSource {
+  // The instance source was not specified or is not recognized.
+  INSTANCE_SOURCE_UNSPECIFIED = 0;
+
+  // The instance is declared by the project model.
+  INSTANCE_SOURCE_RESIDENT = 1;
+
+  // The instance was produced by composite evaluation.
+  INSTANCE_SOURCE_VIRTUAL = 2;
+}
+
+// InstanceStatus identifies the deployment state of an instance.
+enum InstanceStatus {
+  // The instance status was not specified or is not recognized.
+  INSTANCE_STATUS_UNSPECIFIED = 0;
+
+  // The instance has no deployed resources.
+  INSTANCE_STATUS_UNDEPLOYED = 1;
+
+  // Deployment was attempted but has not completed successfully.
+  INSTANCE_STATUS_ATTEMPTED = 2;
+
+  // The initial deployment completed successfully.
+  INSTANCE_STATUS_DEPLOYED = 3;
+
+  // The initial deployment failed.
+  INSTANCE_STATUS_FAILED = 4;
+}
+
+// EvaluationStatus identifies the state of composite evaluation.
+enum EvaluationStatus {
+  // The evaluation status was not specified or is not recognized.
+  EVALUATION_STATUS_UNSPECIFIED = 0;
+
+  // Evaluation is currently running.
+  EVALUATION_STATUS_EVALUATING = 1;
+
+  // Evaluation completed successfully.
+  EVALUATION_STATUS_EVALUATED = 2;
+
+  // Evaluation failed.
+  EVALUATION_STATUS_ERROR = 3;
+}
+
+// OperationType identifies the action performed by an operation.
+enum OperationType {
+  // The operation type was not specified or is not recognized.
+  OPERATION_TYPE_UNSPECIFIED = 0;
+
+  // The operation applies desired changes.
+  OPERATION_TYPE_UPDATE = 1;
+
+  // The operation previews desired changes.
+  OPERATION_TYPE_PREVIEW = 2;
+
+  // The operation destroys managed resources.
+  OPERATION_TYPE_DESTROY = 3;
+
+  // The operation destroys and recreates selected instances.
+  OPERATION_TYPE_RECREATE = 4;
+
+  // The operation refreshes state from providers.
+  OPERATION_TYPE_REFRESH = 5;
+}
+
+// OperationStatus identifies the lifecycle state of an operation.
+enum OperationStatus {
+  // The operation status was not specified or is not recognized.
+  OPERATION_STATUS_UNSPECIFIED = 0;
+
+  // The operation is waiting to start.
+  OPERATION_STATUS_PENDING = 1;
+
+  // The operation is running.
+  OPERATION_STATUS_RUNNING = 2;
+
+  // The operation is processing a failure.
+  OPERATION_STATUS_FAILING = 3;
+
+  // Cancellation has been requested.
+  OPERATION_STATUS_CANCELLING = 4;
+
+  // The operation completed successfully.
+  OPERATION_STATUS_COMPLETED = 5;
+
+  // The operation failed.
+  OPERATION_STATUS_FAILED = 6;
+
+  // The operation was cancelled.
+  OPERATION_STATUS_CANCELLED = 7;
+}
+
+// OperationPhaseType identifies the action performed by one execution phase.
+enum OperationPhaseType {
+  // The phase type was not specified or is not recognized.
+  OPERATION_PHASE_TYPE_UNSPECIFIED = 0;
+
+  // The phase destroys resources.
+  OPERATION_PHASE_TYPE_DESTROY = 1;
+
+  // The phase previews changes.
+  OPERATION_PHASE_TYPE_PREVIEW = 2;
+
+  // The phase applies changes.
+  OPERATION_PHASE_TYPE_UPDATE = 3;
+
+  // The phase refreshes state.
+  OPERATION_PHASE_TYPE_REFRESH = 4;
+}
+
+// InstanceOperationStatus identifies operation progress for one instance.
+enum InstanceOperationStatus {
+  // The instance operation status was not specified or is not recognized.
+  INSTANCE_OPERATION_STATUS_UNSPECIFIED = 0;
+
+  // The instance is being updated.
+  INSTANCE_OPERATION_STATUS_UPDATING = 1;
+
+  // The instance is processing triggers.
+  INSTANCE_OPERATION_STATUS_PROCESSING_TRIGGERS = 2;
+
+  // The instance is being previewed.
+  INSTANCE_OPERATION_STATUS_PREVIEWING = 3;
+
+  // The instance is being destroyed.
+  INSTANCE_OPERATION_STATUS_DESTROYING = 4;
+
+  // The instance is being refreshed.
+  INSTANCE_OPERATION_STATUS_REFRESHING = 5;
+
+  // Work on the instance is pending.
+  INSTANCE_OPERATION_STATUS_PENDING = 6;
+
+  // Cancellation of the instance work is pending.
+  INSTANCE_OPERATION_STATUS_CANCELLING = 7;
+
+  // The instance was updated.
+  INSTANCE_OPERATION_STATUS_UPDATED = 8;
+
+  // The instance was previewed.
+  INSTANCE_OPERATION_STATUS_PREVIEWED = 9;
+
+  // Work on the instance was skipped.
+  INSTANCE_OPERATION_STATUS_SKIPPED = 10;
+
+  // The instance was destroyed.
+  INSTANCE_OPERATION_STATUS_DESTROYED = 11;
+
+  // The instance was refreshed.
+  INSTANCE_OPERATION_STATUS_REFRESHED = 12;
+
+  // Work on the instance was cancelled.
+  INSTANCE_OPERATION_STATUS_CANCELLED = 13;
+
+  // Work on the instance failed.
+  INSTANCE_OPERATION_STATUS_FAILED = 14;
+}

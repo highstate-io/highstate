@@ -1,0 +1,77 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// PanelMeta contains display metadata for a panel.
+message PanelMeta {
+  // The human-readable panel title.
+  string title = 1;
+
+  // The optional panel description.
+  optional string description = 2;
+
+  // The optional Iconify icon identifier.
+  optional string icon = 3;
+
+  // The optional display color of the icon.
+  optional string icon_color = 4;
+}
+
+// Panel describes a web panel served by a worker for one unit instance.
+message Panel {
+  // The stable panel ID, populated only in canonical output.
+  optional string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The panel name, unique within the instance and owning service account.
+  string name = 2;
+
+  // The panel display metadata.
+  PanelMeta meta = 3;
+
+  // The instance state ID, populated only in canonical output.
+  optional string state_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The owning service account ID, populated only in canonical output.
+  optional string service_account_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The serving worker version ID, populated only in canonical output.
+  optional string worker_version_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the panel was first attached, populated only in canonical output.
+  optional google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the panel was last updated, populated only in canonical output.
+  optional google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SetUnitPanelsRequest replaces all panels served by one worker instance for one unit.
+message SetUnitPanelsRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the worker version serving the panels.
+  string worker_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the connected worker instance serving the panels.
+  string worker_instance_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the unit state to which the panels are attached.
+  string state_id = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The complete replacement set, owned by the authenticated worker service account.
+  repeated Panel panels = 5;
+}
+
+// SetUnitPanelsResponse returns stable panel IDs in request order.
+message SetUnitPanelsResponse {
+  // The stable panel IDs in the same order as request panels.
+  repeated string panel_ids = 1;
+}
+
+// PanelService manages worker-owned web panels.
+service PanelService {
+  // Replaces all panels served by one connected worker instance for one unit.
+  rpc SetUnitPanels(SetUnitPanelsRequest) returns (SetUnitPanelsResponse);
+}

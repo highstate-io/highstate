@@ -1,0 +1,213 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "io/highstate/v1/common.proto";
+
+// ProjectModel contains the instances and hubs that define a project.
+message ProjectModel {
+  // The project instances, including requested virtual and ghost projections.
+  repeated Instance instances = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The input hubs declared by the project.
+  repeated Hub hubs = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Instance describes one resident or evaluated project instance.
+message Instance {
+  // The instance ID in the format "{component_type}:{name}".
+  string id = 1 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The execution kind of the instance.
+  ComponentKind kind = 2 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The versioned component type.
+  string type = 3 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The instance name, unique within instances of the same type.
+  string name = 4;
+
+  // The component-owned argument values.
+  repeated ComponentArgumentMapEntry arguments = 5;
+
+  // The direct input references keyed by component input name.
+  map<string, InstanceReferenceList> inputs = 6;
+
+  // The hub references keyed by component input name.
+  map<string, HubReferenceList> hub_inputs = 7;
+
+  // The hubs injected into all compatible inputs.
+  repeated HubReference injection_inputs = 8;
+
+  // The instance position on the Designer canvas.
+  optional Position position = 9;
+
+  // The resolved unit inputs, populated for evaluated composite children.
+  map<string, InstanceReferenceList> resolved_inputs = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The parent instance ID, populated for evaluated composite children.
+  optional string parent_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The direct outputs, populated for evaluated composite instances.
+  map<string, InstanceReferenceList> outputs = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resolved unit outputs, populated for evaluated composite instances.
+  map<string, InstanceReferenceList> resolved_outputs = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// HubReferenceList wraps hub references used as values in named hub-input maps.
+message HubReferenceList {
+  // The hub references in their declared order.
+  repeated HubReference values = 1;
+}
+
+// Hub groups references that can be injected into compatible instance inputs.
+message Hub {
+  // The stable hub ID.
+  string id = 1 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The hub position on the Designer canvas.
+  optional Position position = 2;
+
+  // The instance outputs provided by the hub.
+  repeated InstanceReference inputs = 3;
+
+  // Other hubs injected into this hub.
+  repeated HubReference injection_inputs = 4;
+}
+
+// GetProjectModelRequest configures projections returned with the project model.
+message GetProjectModelRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether evaluated virtual instances are included.
+  bool include_virtual_instances = 2;
+
+  // Whether removed instances with retained state are included.
+  bool include_ghost_instances = 3;
+}
+
+// GetProjectModelResponse returns the canonical project model.
+message GetProjectModelResponse {
+  // The canonical project model.
+  ProjectModel model = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateNodesRequest creates resident instances and hubs atomically.
+message CreateNodesRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The instances to create.
+  repeated Instance instances = 2;
+
+  // The hubs to create.
+  repeated Hub hubs = 3;
+}
+
+// CreateNodesResponse reports successful node creation.
+message CreateNodesResponse {}
+
+// UpdateInstanceRequest replaces selected mutable fields of an instance.
+message UpdateInstanceRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The instance containing replacement values.
+  Instance instance = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The non-empty mask selecting mutable fields to replace.
+  google.protobuf.FieldMask update_mask = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateInstanceResponse returns the canonical updated instance.
+message UpdateInstanceResponse {
+  // The canonical updated instance.
+  Instance instance = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RenameInstanceRequest renames an instance while preserving command semantics for reference updates.
+message RenameInstanceRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the instance to rename.
+  string instance_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The new instance name.
+  string new_name = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RenameInstanceResponse returns the canonical renamed instance.
+message RenameInstanceResponse {
+  // The canonical renamed instance.
+  Instance instance = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteInstanceRequest deletes one resident instance.
+message DeleteInstanceRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the instance to delete.
+  string instance_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteInstanceResponse reports successful deletion.
+message DeleteInstanceResponse {}
+
+// UpdateHubRequest replaces selected mutable fields of a hub.
+message UpdateHubRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The hub containing replacement values.
+  Hub hub = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The non-empty mask selecting mutable fields to replace.
+  google.protobuf.FieldMask update_mask = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateHubResponse returns the canonical updated hub.
+message UpdateHubResponse {
+  // The canonical updated hub.
+  Hub hub = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteHubRequest deletes one hub.
+message DeleteHubRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The ID of the hub to delete.
+  string hub_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteHubResponse reports successful deletion.
+message DeleteHubResponse {}
+
+// ProjectModelService manages project models.
+service ProjectModelService {
+  // Gets the project model and requested projections.
+  rpc GetProjectModel(GetProjectModelRequest) returns (GetProjectModelResponse);
+
+  // Creates resident instances and hubs atomically.
+  rpc CreateNodes(CreateNodesRequest) returns (CreateNodesResponse);
+
+  // Replaces selected mutable fields of an instance.
+  rpc UpdateInstance(UpdateInstanceRequest) returns (UpdateInstanceResponse);
+
+  // Renames an instance and updates its references.
+  rpc RenameInstance(RenameInstanceRequest) returns (RenameInstanceResponse);
+
+  // Deletes one resident instance.
+  rpc DeleteInstance(DeleteInstanceRequest) returns (DeleteInstanceResponse);
+
+  // Replaces selected mutable fields of a hub.
+  rpc UpdateHub(UpdateHubRequest) returns (UpdateHubResponse);
+
+  // Deletes one hub.
+  rpc DeleteHub(DeleteHubRequest) returns (DeleteHubResponse);
+}
