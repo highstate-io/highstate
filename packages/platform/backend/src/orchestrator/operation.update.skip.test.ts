@@ -38,7 +38,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       const expected = await context.getUpToDateInputHashOutput(unit)
       state.selfHash = expected.selfHash
       state.dependencyOutputHash = expected.dependencyOutputHash
-      instanceStateService.getInstanceStates.mockResolvedValue([state])
+      instanceStateService.getInstanceStatesCore.mockResolvedValue([state])
 
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [unit] })
@@ -150,7 +150,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       const expected = await context.getUpToDateInputHashOutput(unit)
       state.selfHash = expected.selfHash
       state.dependencyOutputHash = expected.dependencyOutputHash
-      instanceStateService.getInstanceStates.mockResolvedValue([
+      instanceStateService.getInstanceStatesCore.mockResolvedValue([
         oldParentState,
         newParentState,
         state,
@@ -246,7 +246,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       const expected = await context.getUpToDateInputHashOutput(unit)
       state.selfHash = expected.selfHash
       state.dependencyOutputHash = expected.dependencyOutputHash
-      instanceStateService.getInstanceStates.mockResolvedValue([state])
+      instanceStateService.getInstanceStatesCore.mockResolvedValue([state])
 
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [unit] })

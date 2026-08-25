@@ -8,11 +8,20 @@ import type {
 import type { Logger } from "pino"
 import type { ArtifactService } from "../artifact"
 import type { SecretService, UnitExtraService, WorkerService } from "../business"
+import type { ProjectRequestContext } from "../common"
 import type { PubSubManager } from "../pubsub"
 import type { RunnerBackend } from "../runner"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { type InstanceId, parseInstanceId } from "@highstate/contract"
 import { isNonNullish, omit } from "remeda"
+import { z } from "zod"
+import {
+  buildProjectAuthorizationWhere,
+  encodePageToken,
+  requireProjectPermission,
+  resolvePageRequest,
+  toPageResult,
+} from "../common"
 import {
   type DatabaseManager,
   DbNull,
@@ -29,6 +38,8 @@ import {
   type InstanceOperationState,
   type InstanceState,
   InstanceStateNotFoundError,
+  type PageRequest,
+  type PageResult,
   ProjectNotFoundError,
   projectOutputSchema,
   waitAll,
@@ -237,6 +248,14 @@ export class InstanceStateService {
    * @param options Options to customize the retrieval of instances.
    */
   async getInstanceStates(
+    context: ProjectRequestContext,
+    options: GetProjectInstancesOptions = {},
+    page: PageRequest = {},
+  ): Promise<PageResult<InstanceState>> {
+    return await this.getInstanceStatesPageCore(context.projectId, options, page, context)
+  }
+
+  async getInstanceStatesCore(
     projectId: string,
     options: GetProjectInstancesOptions = {},
   ): Promise<InstanceState[]> {
@@ -249,6 +268,71 @@ export class InstanceStateService {
 
     // aggregate the results from the database
     return queryResult.map(mapInstanceStateResult)
+  }
+
+  async getInstanceStatesPageCore(
+    projectId: string,
+    options: GetProjectInstancesOptions = {},
+    page: PageRequest = {},
+    context?: ProjectRequestContext,
+  ): Promise<PageResult<InstanceState>> {
+    const database = await this.database.forProject(projectId)
+    const collection = "instance-states"
+    const query = { projectId, ...options }
+    const { pageSize, cursor } = resolvePageRequest(
+      collection,
+      page,
+      query,
+      z.object({ instanceId: z.string().min(1), id: z.string().min(1) }),
+    )
+    const authorization = context
+      ? await buildProjectAuthorizationWhere({
+          database: this.database,
+          context,
+          permission: "instance-state.list",
+          target: { instances: scope => ({ id: { in: [...scope.stateIds] } }) },
+        })
+      : {}
+
+    const continuation = cursor
+      ? {
+          OR: [
+            { instanceId: { gt: cursor.instanceId } },
+            { instanceId: cursor.instanceId, id: { gt: cursor.id } },
+          ],
+        }
+      : {}
+    const rows = await database.instanceState.findMany({
+      where: { AND: [authorization, continuation] },
+      orderBy: [{ instanceId: "asc" }, { id: "asc" }],
+      take: pageSize + 1,
+      include: includeForInstanceState(options),
+    })
+    const states = rows.map(mapInstanceStateResult)
+
+    return toPageResult(states, pageSize, state =>
+      encodePageToken(collection, query, { instanceId: state.instanceId, id: state.id }),
+    )
+  }
+
+  async getInstanceStateOrThrow(
+    context: ProjectRequestContext,
+    stateId: string,
+    options: GetProjectInstancesOptions = {},
+  ): Promise<InstanceState> {
+    const database = await this.database.forProject(context.projectId)
+    const row = await database.instanceState.findUnique({
+      where: { id: stateId },
+      include: includeForInstanceState(options),
+    })
+
+    if (!row) {
+      throw new InstanceStateNotFoundError(context.projectId, stateId)
+    }
+
+    requireProjectPermission(context, "instance-state.get", { instanceId: row.instanceId })
+
+    return mapInstanceStateResult(row)
   }
 
   /**
@@ -274,7 +358,7 @@ export class InstanceStateService {
     instanceId: InstanceId,
     { deleteSecrets = false, clearTerminalData = false }: ForgetInstanceStateOptions = {},
   ): Promise<void> {
-    await this.forgetInstanceStates(projectId, [instanceId], {
+    await this.forgetInstanceStatesCore(projectId, [instanceId], {
       deleteSecrets,
       clearTerminalData,
     })
@@ -291,6 +375,21 @@ export class InstanceStateService {
    * @param options Configuration options for terminal and secret handling.
    */
   async forgetInstanceStates(
+    context: ProjectRequestContext,
+    instanceIds: InstanceId[],
+    { deleteSecrets = false, clearTerminalData = false }: ForgetInstanceStateOptions = {},
+  ): Promise<void> {
+    for (const instanceId of instanceIds) {
+      requireProjectPermission(context, "instance-state.delete", { instanceId })
+    }
+
+    await this.forgetInstanceStatesCore(context.projectId, instanceIds, {
+      deleteSecrets,
+      clearTerminalData,
+    })
+  }
+
+  async forgetInstanceStatesCore(
     projectId: string,
     instanceIds: InstanceId[],
     { deleteSecrets = false, clearTerminalData = false }: ForgetInstanceStateOptions = {},
@@ -546,18 +645,31 @@ export class InstanceStateService {
   /**
    * Replaces or adds a custom status for an instance in a project.
    *
-   * @param projectId The ID of the project containing the instance.
-   * @param serviceAccoundtId The ID of the service account owning the instance.
+   * @param context The project request context.
    * @param stateId The ID of the instance state to update.
+   * @param serviceAccountId The ID of the service account owning the instance.
    * @param status The custom status to replace or add.
    */
   async updateCustomStatus(
-    projectId: string,
+    context: ProjectRequestContext,
     stateId: string,
     serviceAccountId: string,
     status: InstanceCustomStatusInput,
   ): Promise<void> {
-    const database = await this.database.forProject(projectId)
+    const database = await this.database.forProject(context.projectId)
+    const target = await database.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!target) {
+      throw new InstanceStateNotFoundError(context.projectId, stateId)
+    }
+
+    requireProjectPermission(context, "instance-status.update", {
+      instanceId: target.instanceId,
+      ownerServiceAccountId: serviceAccountId,
+    })
 
     const customStatuses = await database.$transaction(async tx => {
       await tx.instanceCustomStatus.upsert({
@@ -591,7 +703,7 @@ export class InstanceStateService {
       })
     })
 
-    void this.pubsubManager.publish(["instance-state", projectId], {
+    void this.pubsubManager.publish(["instance-state", context.projectId], {
       type: "patched",
       stateId,
       patch: { customStatuses },
@@ -601,18 +713,31 @@ export class InstanceStateService {
   /**
    * Removes a custom status from an instance in a project.
    *
-   * @param projectId The ID of the project containing the instance.
+   * @param context The project request context.
    * @param stateId The ID of the instance state to update.
    * @param serviceAccountId The ID of the service account owning the instance.
    * @param statusName The name of the custom status to remove.
    */
   async removeCustomStatus(
-    projectId: string,
+    context: ProjectRequestContext,
     stateId: string,
     serviceAccountId: string,
     statusName: string,
   ): Promise<void> {
-    const database = await this.database.forProject(projectId)
+    const database = await this.database.forProject(context.projectId)
+    const target = await database.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!target) {
+      throw new InstanceStateNotFoundError(context.projectId, stateId)
+    }
+
+    requireProjectPermission(context, "instance-status.update", {
+      instanceId: target.instanceId,
+      ownerServiceAccountId: serviceAccountId,
+    })
 
     const customStatuses = await database.$transaction(async tx => {
       await tx.instanceCustomStatus.deleteMany({
@@ -629,7 +754,7 @@ export class InstanceStateService {
       })
     })
 
-    void this.pubsubManager.publish(["instance-state", projectId], {
+    void this.pubsubManager.publish(["instance-state", context.projectId], {
       type: "patched",
       stateId,
       patch: { customStatuses },

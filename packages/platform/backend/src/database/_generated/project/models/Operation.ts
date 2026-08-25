@@ -441,10 +441,6 @@ export type EnumOperationStatusFieldUpdateOperationsInput = {
   set?: $Enums.OperationStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type OperationCreateNestedOneWithoutOperationStatesInput = {
   create?: Prisma.XOR<Prisma.OperationCreateWithoutOperationStatesInput, Prisma.OperationUncheckedCreateWithoutOperationStatesInput>
   connectOrCreate?: Prisma.OperationCreateOrConnectWithoutOperationStatesInput

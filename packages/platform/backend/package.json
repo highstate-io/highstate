@@ -35,6 +35,10 @@
     "test": "bun run --bun vitest --run",
     "generate:project": "prisma generate --schema prisma/project",
     "generate:backend": "prisma generate --schema prisma/backend/postgresql && prisma generate --schema prisma/backend/sqlite",
+    "migration:create:project": "DATABASE_URL=file:/tmp/highstate-project-migrations.db prisma migrate dev --config prisma/project/prisma.config.ts --create-only",
+    "migration:reset:project": "DATABASE_URL=file:/tmp/highstate-project-migrations.db prisma migrate reset --config prisma/project/prisma.config.ts --force",
+    "migration:create:backend": "DATABASE_URL=file:/tmp/highstate-backend-migrations.db prisma migrate dev --config prisma/backend/sqlite/prisma.config.ts --create-only",
+    "migration:reset:backend": "DATABASE_URL=file:/tmp/highstate-backend-migrations.db prisma migrate reset --config prisma/backend/sqlite/prisma.config.ts --force",
     "migrate": "prisma migrate deploy --config dist/database/local/prisma.config.js"
   },
   "dependencies": {
@@ -79,7 +83,7 @@
     "zod": "^4.0.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "classic-level": "^3.0.0",
     "pino-pretty": "^13.0.0",

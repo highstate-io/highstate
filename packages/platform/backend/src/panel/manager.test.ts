@@ -84,14 +84,16 @@ describe("PanelEndpointManager", () => {
     })
   })
 
-  test.each(["http://worker:7284", "worker", "worker:7284/path", "worker:7284?query=1"])(
-    "rejects invalid data endpoint %s",
-    endpoint => {
-      const manager = new PanelEndpointManager()
+  test.each([
+    "http://worker:7284",
+    "worker",
+    "worker:7284/path",
+    "worker:7284?query=1",
+  ])("rejects invalid data endpoint %s", endpoint => {
+    const manager = new PanelEndpointManager()
 
-      expect(() => manager.connect("project", "worker", "instance", endpoint)).toThrow(
-        "Worker data endpoint",
-      )
-    },
-  )
+    expect(() => manager.connect("project", "worker", "instance", endpoint)).toThrow(
+      "Worker data endpoint",
+    )
+  })
 })

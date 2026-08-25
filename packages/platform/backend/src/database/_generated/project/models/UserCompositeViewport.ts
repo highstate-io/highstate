@@ -164,6 +164,7 @@ export type UserCompositeViewportWhereInput = {
   userId?: Prisma.StringFilter<"UserCompositeViewport"> | string
   stateId?: Prisma.StringFilter<"UserCompositeViewport"> | string
   viewport?: Prisma.JsonFilter<"UserCompositeViewport">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   state?: Prisma.XOR<Prisma.InstanceStateScalarRelationFilter, Prisma.InstanceStateWhereInput>
 }
 
@@ -171,6 +172,7 @@ export type UserCompositeViewportOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
   viewport?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
   state?: Prisma.InstanceStateOrderByWithRelationInput
 }
 
@@ -182,6 +184,7 @@ export type UserCompositeViewportWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"UserCompositeViewport"> | string
   stateId?: Prisma.StringFilter<"UserCompositeViewport"> | string
   viewport?: Prisma.JsonFilter<"UserCompositeViewport">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   state?: Prisma.XOR<Prisma.InstanceStateScalarRelationFilter, Prisma.InstanceStateWhereInput>
 }, "userId_stateId">
 
@@ -204,8 +207,8 @@ export type UserCompositeViewportScalarWhereWithAggregatesInput = {
 }
 
 export type UserCompositeViewportCreateInput = {
-  userId: string
   viewport:(unknown)
+  user: Prisma.UserCreateNestedOneWithoutCompositeViewportsInput
   state: Prisma.InstanceStateCreateNestedOneWithoutUserViewportsInput
 }
 
@@ -216,8 +219,8 @@ export type UserCompositeViewportUncheckedCreateInput = {
 }
 
 export type UserCompositeViewportUpdateInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   viewport?:(unknown)
+  user?: Prisma.UserUpdateOneRequiredWithoutCompositeViewportsNestedInput
   state?: Prisma.InstanceStateUpdateOneRequiredWithoutUserViewportsNestedInput
 }
 
@@ -234,7 +237,6 @@ export type UserCompositeViewportCreateManyInput = {
 }
 
 export type UserCompositeViewportUpdateManyMutationInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   viewport?:(unknown)
 }
 
@@ -317,9 +319,51 @@ export type UserCompositeViewportUncheckedUpdateManyWithoutStateNestedInput = {
   deleteMany?: Prisma.UserCompositeViewportScalarWhereInput | Prisma.UserCompositeViewportScalarWhereInput[]
 }
 
+export type UserCompositeViewportCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserCompositeViewportCreateWithoutUserInput, Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput> | Prisma.UserCompositeViewportCreateWithoutUserInput[] | Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput | Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.UserCompositeViewportCreateManyUserInputEnvelope
+  connect?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+}
+
+export type UserCompositeViewportUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserCompositeViewportCreateWithoutUserInput, Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput> | Prisma.UserCompositeViewportCreateWithoutUserInput[] | Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput | Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.UserCompositeViewportCreateManyUserInputEnvelope
+  connect?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+}
+
+export type UserCompositeViewportUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCompositeViewportCreateWithoutUserInput, Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput> | Prisma.UserCompositeViewportCreateWithoutUserInput[] | Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput | Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserCompositeViewportUpsertWithWhereUniqueWithoutUserInput | Prisma.UserCompositeViewportUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserCompositeViewportCreateManyUserInputEnvelope
+  set?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  disconnect?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  delete?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  connect?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  update?: Prisma.UserCompositeViewportUpdateWithWhereUniqueWithoutUserInput | Prisma.UserCompositeViewportUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserCompositeViewportUpdateManyWithWhereWithoutUserInput | Prisma.UserCompositeViewportUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserCompositeViewportScalarWhereInput | Prisma.UserCompositeViewportScalarWhereInput[]
+}
+
+export type UserCompositeViewportUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCompositeViewportCreateWithoutUserInput, Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput> | Prisma.UserCompositeViewportCreateWithoutUserInput[] | Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput | Prisma.UserCompositeViewportCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserCompositeViewportUpsertWithWhereUniqueWithoutUserInput | Prisma.UserCompositeViewportUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserCompositeViewportCreateManyUserInputEnvelope
+  set?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  disconnect?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  delete?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  connect?: Prisma.UserCompositeViewportWhereUniqueInput | Prisma.UserCompositeViewportWhereUniqueInput[]
+  update?: Prisma.UserCompositeViewportUpdateWithWhereUniqueWithoutUserInput | Prisma.UserCompositeViewportUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserCompositeViewportUpdateManyWithWhereWithoutUserInput | Prisma.UserCompositeViewportUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserCompositeViewportScalarWhereInput | Prisma.UserCompositeViewportScalarWhereInput[]
+}
+
 export type UserCompositeViewportCreateWithoutStateInput = {
-  userId: string
   viewport:(unknown)
+  user: Prisma.UserCreateNestedOneWithoutCompositeViewportsInput
 }
 
 export type UserCompositeViewportUncheckedCreateWithoutStateInput = {
@@ -361,14 +405,49 @@ export type UserCompositeViewportScalarWhereInput = {
   viewport?: Prisma.JsonFilter<"UserCompositeViewport">
 }
 
+export type UserCompositeViewportCreateWithoutUserInput = {
+  viewport:(unknown)
+  state: Prisma.InstanceStateCreateNestedOneWithoutUserViewportsInput
+}
+
+export type UserCompositeViewportUncheckedCreateWithoutUserInput = {
+  stateId: string
+  viewport:(unknown)
+}
+
+export type UserCompositeViewportCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserCompositeViewportWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCompositeViewportCreateWithoutUserInput, Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput>
+}
+
+export type UserCompositeViewportCreateManyUserInputEnvelope = {
+  data: Prisma.UserCompositeViewportCreateManyUserInput | Prisma.UserCompositeViewportCreateManyUserInput[]
+}
+
+export type UserCompositeViewportUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserCompositeViewportWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserCompositeViewportUpdateWithoutUserInput, Prisma.UserCompositeViewportUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserCompositeViewportCreateWithoutUserInput, Prisma.UserCompositeViewportUncheckedCreateWithoutUserInput>
+}
+
+export type UserCompositeViewportUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserCompositeViewportWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserCompositeViewportUpdateWithoutUserInput, Prisma.UserCompositeViewportUncheckedUpdateWithoutUserInput>
+}
+
+export type UserCompositeViewportUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.UserCompositeViewportScalarWhereInput
+  data: Prisma.XOR<Prisma.UserCompositeViewportUpdateManyMutationInput, Prisma.UserCompositeViewportUncheckedUpdateManyWithoutUserInput>
+}
+
 export type UserCompositeViewportCreateManyStateInput = {
   userId: string
   viewport:(unknown)
 }
 
 export type UserCompositeViewportUpdateWithoutStateInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   viewport?:(unknown)
+  user?: Prisma.UserUpdateOneRequiredWithoutCompositeViewportsNestedInput
 }
 
 export type UserCompositeViewportUncheckedUpdateWithoutStateInput = {
@@ -381,12 +460,33 @@ export type UserCompositeViewportUncheckedUpdateManyWithoutStateInput = {
   viewport?:(unknown)
 }
 
+export type UserCompositeViewportCreateManyUserInput = {
+  stateId: string
+  viewport:(unknown)
+}
+
+export type UserCompositeViewportUpdateWithoutUserInput = {
+  viewport?:(unknown)
+  state?: Prisma.InstanceStateUpdateOneRequiredWithoutUserViewportsNestedInput
+}
+
+export type UserCompositeViewportUncheckedUpdateWithoutUserInput = {
+  stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewport?:(unknown)
+}
+
+export type UserCompositeViewportUncheckedUpdateManyWithoutUserInput = {
+  stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewport?:(unknown)
+}
+
 
 
 export type UserCompositeViewportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   stateId?: boolean
   viewport?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userCompositeViewport"]>
 
@@ -394,6 +494,7 @@ export type UserCompositeViewportSelectCreateManyAndReturn<ExtArgs extends runti
   userId?: boolean
   stateId?: boolean
   viewport?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userCompositeViewport"]>
 
@@ -401,6 +502,7 @@ export type UserCompositeViewportSelectUpdateManyAndReturn<ExtArgs extends runti
   userId?: boolean
   stateId?: boolean
   viewport?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userCompositeViewport"]>
 
@@ -412,12 +514,15 @@ export type UserCompositeViewportSelectScalar = {
 
 export type UserCompositeViewportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"userId" | "stateId" | "viewport", ExtArgs["result"]["userCompositeViewport"]>
 export type UserCompositeViewportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
 }
 export type UserCompositeViewportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
 }
 export type UserCompositeViewportIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
 }
 
@@ -425,13 +530,17 @@ export type $UserCompositeViewportPayload<ExtArgs extends runtime.Types.Extensio
   name: "UserCompositeViewport"
   objects: {
     /**
+     * The user to which this viewport belongs.
+     */
+    user: Prisma.$UserPayload<ExtArgs>
+    /**
      * The instance state to which this viewport belongs.
      */
     state: Prisma.$InstanceStatePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
-     * The opaque ID of the user to which this viewport belongs.
+     * The ID of the user to which this viewport belongs.
      */
     userId: string
     /**
@@ -838,6 +947,7 @@ readonly fields: UserCompositeViewportFieldRefs;
  */
 export interface Prisma__UserCompositeViewportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   state<T extends Prisma.InstanceStateDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceStateDefaultArgs<ExtArgs>>): Prisma.Prisma__InstanceStateClient<runtime.Types.Result.GetResult<Prisma.$InstanceStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.

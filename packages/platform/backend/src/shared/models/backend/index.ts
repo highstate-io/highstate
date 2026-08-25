@@ -1,5 +1,7 @@
+export * from "./authorization"
 export * from "./library"
 export * from "./project"
 export * from "./pulumi"
+export * from "./role"
 export * from "./unlock-method"
 export * from "./well-known"

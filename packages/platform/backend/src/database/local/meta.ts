@@ -5,6 +5,7 @@ import { z } from "zod"
 const databaseMetaFileSchema = z.object({
   version: z.number(),
   masterKey: z.string().optional(),
+  privateKey: z.string().optional(),
 })
 
 export type DatabaseMetaFile = z.infer<typeof databaseMetaFileSchema>

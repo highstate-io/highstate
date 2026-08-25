@@ -156,11 +156,13 @@ export type UserProjectViewportWhereInput = {
   NOT?: Prisma.UserProjectViewportWhereInput | Prisma.UserProjectViewportWhereInput[]
   userId?: Prisma.StringFilter<"UserProjectViewport"> | string
   viewport?: Prisma.JsonFilter<"UserProjectViewport">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type UserProjectViewportOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   viewport?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type UserProjectViewportWhereUniqueInput = Prisma.AtLeast<{
@@ -169,6 +171,7 @@ export type UserProjectViewportWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserProjectViewportWhereInput[]
   NOT?: Prisma.UserProjectViewportWhereInput | Prisma.UserProjectViewportWhereInput[]
   viewport?: Prisma.JsonFilter<"UserProjectViewport">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "userId">
 
 export type UserProjectViewportOrderByWithAggregationInput = {
@@ -188,8 +191,8 @@ export type UserProjectViewportScalarWhereWithAggregatesInput = {
 }
 
 export type UserProjectViewportCreateInput = {
-  userId: string
   viewport:(unknown)
+  user: Prisma.UserCreateNestedOneWithoutProjectViewportInput
 }
 
 export type UserProjectViewportUncheckedCreateInput = {
@@ -198,8 +201,8 @@ export type UserProjectViewportUncheckedCreateInput = {
 }
 
 export type UserProjectViewportUpdateInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   viewport?:(unknown)
+  user?: Prisma.UserUpdateOneRequiredWithoutProjectViewportNestedInput
 }
 
 export type UserProjectViewportUncheckedUpdateInput = {
@@ -213,7 +216,6 @@ export type UserProjectViewportCreateManyInput = {
 }
 
 export type UserProjectViewportUpdateManyMutationInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   viewport?:(unknown)
 }
 
@@ -235,21 +237,93 @@ export type UserProjectViewportMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
 }
 
+export type UserProjectViewportNullableScalarRelationFilter = {
+  is?: Prisma.UserProjectViewportWhereInput | null
+  isNot?: Prisma.UserProjectViewportWhereInput | null
+}
+
+export type UserProjectViewportCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserProjectViewportCreateWithoutUserInput, Prisma.UserProjectViewportUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserProjectViewportCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserProjectViewportWhereUniqueInput
+}
+
+export type UserProjectViewportUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserProjectViewportCreateWithoutUserInput, Prisma.UserProjectViewportUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserProjectViewportCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserProjectViewportWhereUniqueInput
+}
+
+export type UserProjectViewportUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProjectViewportCreateWithoutUserInput, Prisma.UserProjectViewportUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserProjectViewportCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserProjectViewportUpsertWithoutUserInput
+  disconnect?: Prisma.UserProjectViewportWhereInput | boolean
+  delete?: Prisma.UserProjectViewportWhereInput | boolean
+  connect?: Prisma.UserProjectViewportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProjectViewportUpdateToOneWithWhereWithoutUserInput, Prisma.UserProjectViewportUpdateWithoutUserInput>, Prisma.UserProjectViewportUncheckedUpdateWithoutUserInput>
+}
+
+export type UserProjectViewportUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProjectViewportCreateWithoutUserInput, Prisma.UserProjectViewportUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserProjectViewportCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserProjectViewportUpsertWithoutUserInput
+  disconnect?: Prisma.UserProjectViewportWhereInput | boolean
+  delete?: Prisma.UserProjectViewportWhereInput | boolean
+  connect?: Prisma.UserProjectViewportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProjectViewportUpdateToOneWithWhereWithoutUserInput, Prisma.UserProjectViewportUpdateWithoutUserInput>, Prisma.UserProjectViewportUncheckedUpdateWithoutUserInput>
+}
+
+export type UserProjectViewportCreateWithoutUserInput = {
+  viewport:(unknown)
+}
+
+export type UserProjectViewportUncheckedCreateWithoutUserInput = {
+  viewport:(unknown)
+}
+
+export type UserProjectViewportCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserProjectViewportWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProjectViewportCreateWithoutUserInput, Prisma.UserProjectViewportUncheckedCreateWithoutUserInput>
+}
+
+export type UserProjectViewportUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.UserProjectViewportUpdateWithoutUserInput, Prisma.UserProjectViewportUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserProjectViewportCreateWithoutUserInput, Prisma.UserProjectViewportUncheckedCreateWithoutUserInput>
+  where?: Prisma.UserProjectViewportWhereInput
+}
+
+export type UserProjectViewportUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.UserProjectViewportWhereInput
+  data: Prisma.XOR<Prisma.UserProjectViewportUpdateWithoutUserInput, Prisma.UserProjectViewportUncheckedUpdateWithoutUserInput>
+}
+
+export type UserProjectViewportUpdateWithoutUserInput = {
+  viewport?:(unknown)
+}
+
+export type UserProjectViewportUncheckedUpdateWithoutUserInput = {
+  viewport?:(unknown)
+}
+
 
 
 export type UserProjectViewportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   viewport?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProjectViewport"]>
 
 export type UserProjectViewportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   viewport?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProjectViewport"]>
 
 export type UserProjectViewportSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   viewport?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProjectViewport"]>
 
 export type UserProjectViewportSelectScalar = {
@@ -258,13 +332,27 @@ export type UserProjectViewportSelectScalar = {
 }
 
 export type UserProjectViewportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"userId" | "viewport", ExtArgs["result"]["userProjectViewport"]>
+export type UserProjectViewportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type UserProjectViewportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type UserProjectViewportIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $UserProjectViewportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserProjectViewport"
-  objects: {}
+  objects: {
+    /**
+     * The user to which this viewport belongs.
+     */
+    user: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
-     * The opaque ID of the user to which this viewport belongs.
+     * The ID of the user to which this viewport belongs.
      */
     userId: string
     /**
@@ -667,6 +755,7 @@ readonly fields: UserProjectViewportFieldRefs;
  */
 export interface Prisma__UserProjectViewportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -715,6 +804,10 @@ export type UserProjectViewportFindUniqueArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
+  /**
    * Filter, which UserProjectViewport to fetch.
    */
   where: Prisma.UserProjectViewportWhereUniqueInput
@@ -733,6 +826,10 @@ export type UserProjectViewportFindUniqueOrThrowArgs<ExtArgs extends runtime.Typ
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
+  /**
    * Filter, which UserProjectViewport to fetch.
    */
   where: Prisma.UserProjectViewportWhereUniqueInput
@@ -750,6 +847,10 @@ export type UserProjectViewportFindFirstArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the UserProjectViewport
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
   /**
    * Filter, which UserProjectViewport to fetch.
    */
@@ -799,6 +900,10 @@ export type UserProjectViewportFindFirstOrThrowArgs<ExtArgs extends runtime.Type
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
+  /**
    * Filter, which UserProjectViewport to fetch.
    */
   where?: Prisma.UserProjectViewportWhereInput
@@ -847,6 +952,10 @@ export type UserProjectViewportFindManyArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
+  /**
    * Filter, which UserProjectViewports to fetch.
    */
   where?: Prisma.UserProjectViewportWhereInput
@@ -890,6 +999,10 @@ export type UserProjectViewportCreateArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
+  /**
    * The data needed to create a UserProjectViewport.
    */
   data: Prisma.XOR<Prisma.UserProjectViewportCreateInput, Prisma.UserProjectViewportUncheckedCreateInput>
@@ -921,6 +1034,10 @@ export type UserProjectViewportCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many UserProjectViewports.
    */
   data: Prisma.UserProjectViewportCreateManyInput | Prisma.UserProjectViewportCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -935,6 +1052,10 @@ export type UserProjectViewportUpdateArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the UserProjectViewport
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
   /**
    * The data needed to update a UserProjectViewport.
    */
@@ -987,6 +1108,10 @@ export type UserProjectViewportUpdateManyAndReturnArgs<ExtArgs extends runtime.T
    * Limit how many UserProjectViewports to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1001,6 +1126,10 @@ export type UserProjectViewportUpsertArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the UserProjectViewport
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
   /**
    * The filter to search for the UserProjectViewport to update in case it exists.
    */
@@ -1027,6 +1156,10 @@ export type UserProjectViewportDeleteArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the UserProjectViewport
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
   /**
    * Filter which UserProjectViewport to delete.
    */
@@ -1059,4 +1192,8 @@ export type UserProjectViewportDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the UserProjectViewport
    */
   omit?: Prisma.UserProjectViewportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserProjectViewportInclude<ExtArgs> | null
 }

@@ -1,14 +1,31 @@
 import type { InstanceId } from "@highstate/contract"
 import type { Logger } from "pino"
-import type { DatabaseManager, Operation, OperationStatus, OperationUpdateInput } from "../database"
+import type { ProjectRequestContext } from "../common"
+import type {
+  DatabaseManager,
+  Operation,
+  OperationStatus,
+  OperationUpdateInput,
+  OperationWhereInput,
+} from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { ulid } from "ulid"
+import { z } from "zod"
+import {
+  buildProjectAuthorizationWhere,
+  encodePageToken,
+  requireProjectPermission,
+  resolvePageRequest,
+  toPageResult,
+} from "../common"
 import {
   type OperationMeta,
   OperationNotFoundError,
   type OperationOptions,
   type OperationType,
+  type PageRequest,
+  type PageResult,
 } from "../shared"
 
 export class OperationService {
@@ -95,30 +112,91 @@ export class OperationService {
    * @param operationId The operation ID.
    * @returns The operation or undefined if not found.
    */
-  async getOperation(projectId: string, operationId: string): Promise<Operation | undefined> {
-    const database = await this.database.forProject(projectId)
+  async getOperation(
+    context: ProjectRequestContext,
+    operationId: string,
+  ): Promise<Operation | undefined> {
+    const database = await this.database.forProject(context.projectId)
 
     const operation = await database.operation.findUnique({
       where: { id: operationId },
     })
 
-    return operation ?? undefined
+    if (!operation) {
+      return undefined
+    }
+
+    requireProjectPermission(context, "operation.get", { resourceId: operation.id })
+
+    return operation
+  }
+
+  async getOperationOrThrow(
+    context: ProjectRequestContext,
+    operationId: string,
+  ): Promise<Operation> {
+    const operation = await this.getOperation(context, operationId)
+    if (!operation) {
+      throw new OperationNotFoundError(context.projectId, operationId)
+    }
+
+    return operation
   }
 
   /**
    * Gets all operations for a project.
    *
    * @param projectId The project ID.
-   * @param limit Optional limit on number of operations to return.
-   * @returns Array of operations.
+   * @param page The requested cursor page.
+   * @returns One page of operations.
    */
-  async getOperations(projectId: string, limit?: number): Promise<Operation[]> {
-    const database = await this.database.forProject(projectId)
+  async getOperations(
+    context: ProjectRequestContext,
+    page: PageRequest = {},
+  ): Promise<PageResult<Operation>> {
+    const database = await this.database.forProject(context.projectId)
 
-    return await database.operation.findMany({
-      orderBy: { startedAt: "desc" },
-      take: limit,
+    const collection = "operations"
+    const query = { projectId: context.projectId }
+    const { pageSize, cursor } = resolvePageRequest(
+      collection,
+      page,
+      query,
+      z.object({ startedAt: z.iso.datetime(), id: z.string().min(1) }),
+    )
+
+    const authorization = await buildProjectAuthorizationWhere<OperationWhereInput>({
+      database: this.database,
+      context,
+      permission: "operation.list",
+      target: {
+        resources: ids => ({ id: { in: [...ids] } }),
+        instances: scope => ({
+          operationStates: { some: { stateId: { in: [...scope.stateIds] } } },
+        }),
+      },
     })
+
+    const continuation = cursor
+      ? {
+          OR: [
+            { startedAt: { lt: new Date(cursor.startedAt) } },
+            { startedAt: new Date(cursor.startedAt), id: { lt: cursor.id } },
+          ],
+        }
+      : {}
+    const operations = await database.operation.findMany({
+      where: { AND: [authorization, continuation] },
+      orderBy: [{ startedAt: "desc" }, { id: "desc" }],
+      take: pageSize + 1,
+    })
+
+    return toPageResult(operations, pageSize, operation =>
+      encodePageToken(collection, query, {
+        startedAt: operation.startedAt.toISOString(),
+        id: operation.id,
+      }),
+    )
   }
 
   /**
@@ -172,26 +250,42 @@ export class OperationService {
    * @returns Array of log entries.
    */
   async getOperationLogs(
-    projectId: string,
+    context: ProjectRequestContext,
     operationId: string,
     stateId?: string,
-  ): Promise<Array<{ id: string; stateId: string | null; content: string }>> {
-    const database = await this.database.forProject(projectId)
+    page: PageRequest = {},
+  ): Promise<
+    PageResult<{ id: string; stateId: string | null; isSystem: boolean; content: string }>
+  > {
+    requireProjectPermission(context, "operation.logs.get", { resourceId: operationId })
 
+    const database = await this.database.forProject(context.projectId)
+
+    const collection = "operation-logs"
+    const query = { projectId: context.projectId, operationId, stateId }
+    const { pageSize, cursor } = resolvePageRequest(
+      collection,
+      page,
+      query,
+      z.object({ id: z.string().min(1) }),
+    )
     const logs = await database.operationLog.findMany({
       where: {
         operationId,
         ...(stateId ? { stateId } : {}),
+        ...(cursor ? { id: { gt: cursor.id } } : {}),
       },
       orderBy: { id: "asc" },
+      take: pageSize + 1,
       select: {
         id: true,
         stateId: true,
+        isSystem: true,
         content: true,
       },
     })
 
-    return logs
+    return toPageResult(logs, pageSize, log => encodePageToken(collection, query, { id: log.id }))
   }
 
   /**

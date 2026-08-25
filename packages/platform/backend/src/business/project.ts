@@ -1,5 +1,6 @@
 import type { InputJsonValue } from "@prisma/client/runtime/client"
 import type { Logger } from "pino"
+import type { BackendRequestContext, ProjectRequestContext } from "../common"
 import type { PubSubManager } from "../pubsub"
 import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
@@ -16,8 +17,23 @@ import {
   parseInstanceId,
 } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
-import { createProjectLogger } from "../common"
-import { type DatabaseManager, type Project, projectDatabaseVersion } from "../database"
+import { z } from "zod"
+import {
+  buildBackendAuthorizationWhere,
+  createProjectLogger,
+  encodePageToken,
+  requireBackendPermission,
+  requireProjectPermission,
+  resolvePageRequest,
+  toPageResult,
+} from "../common"
+import {
+  type DatabaseManager,
+  ensureAdminProjectBindingCreated,
+  type Project,
+  type ProjectWhereInput,
+  projectDatabaseVersion,
+} from "../database"
 import {
   applyInstancePatch,
   type ProjectEvaluationSubsystem,
@@ -28,6 +44,8 @@ import {
 import {
   type FullProjectModel,
   forSchema,
+  type PageRequest,
+  type PageResult,
   type ProjectInput,
   type ProjectModelStorageSpec,
   ProjectNotFoundError,
@@ -36,6 +54,7 @@ import {
   type UnlockMethodInput,
 } from "../shared"
 import { includeForInstanceState, mapInstanceStateResult } from "./instance-state"
+import { resolveBackendProjectPermissionTarget } from "./project-authorization"
 
 export class ProjectService {
   constructor(
@@ -53,10 +72,43 @@ export class ProjectService {
   /**
    * Returns all projects in the system.
    */
-  async getProjects(): Promise<ProjectOutput[]> {
-    return await this.database.backend.project.findMany({
+  async getProjects(
+    context: BackendRequestContext,
+    page: PageRequest = {},
+  ): Promise<PageResult<ProjectOutput>> {
+    const collection = "projects"
+    const query = {}
+    const { pageSize, cursor } = resolvePageRequest(
+      collection,
+      page,
+      query,
+      z.object({ name: z.string(), id: z.string().min(1) }),
+    )
+    const authorization = await buildBackendAuthorizationWhere<ProjectWhereInput>({
+      database: this.database,
+      context,
+      permission: "project.list",
+      target: {
+        projects: ids => ({ id: { in: [...ids] } }),
+        projectsInSpaces: ids => ({ spaceId: { in: [...ids] } }),
+      },
+    })
+
+    const continuation = cursor
+      ? {
+          OR: [{ name: { gt: cursor.name } }, { name: cursor.name, id: { gt: cursor.id } }],
+        }
+      : {}
+    const projects = await this.database.backend.project.findMany({
+      where: { AND: [authorization, continuation] },
+      orderBy: [{ name: "asc" }, { id: "asc" }],
+      take: pageSize + 1,
       select: forSchema(projectOutputSchema),
     })
+
+    return toPageResult(projects, pageSize, project =>
+      encodePageToken(collection, query, { name: project.name, id: project.id }),
+    )
   }
 
   /**
@@ -68,9 +120,12 @@ export class ProjectService {
    * @param unlockMethodInput The unlock method to use for the new project.
    */
   async createProject(
+    context: BackendRequestContext,
     projectInput: ProjectInput,
     unlockMethodInput: UnlockMethodInput,
   ): Promise<Project> {
+    requireBackendPermission(context, "project.create")
+
     // start by generating a random ID
     const projectId = createId()
     const logger = createProjectLogger(this.logger, projectId)
@@ -101,6 +156,9 @@ export class ProjectService {
       },
     })
 
+    const projectDatabase = await this.database.forProject(projectId)
+    await ensureAdminProjectBindingCreated(this.database.backend, projectDatabase, projectId)
+
     logger.info("project successfully created")
 
     return project
@@ -113,7 +171,18 @@ export class ProjectService {
    *
    * @param projectId The ID of the project to get.
    */
-  async getProjectOrThrow(projectId: string): Promise<ProjectOutput> {
+  async getProjectOrThrow(
+    context: BackendRequestContext,
+    projectId: string,
+  ): Promise<ProjectOutput> {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+
+    requireBackendPermission(context, "project.get", target)
+
+    return await this.getProjectOrThrowCore(projectId)
+  }
+
+  async getProjectOrThrowCore(projectId: string): Promise<ProjectOutput> {
     const project = await this.database.backend.project.findUnique({
       where: { id: projectId },
       select: forSchema(projectOutputSchema),
@@ -132,8 +201,10 @@ export class ProjectService {
    * @param projectId The ID of the project to get the model for.
    * @param signal Optional abort signal for cancellation.
    */
-  async getProjectModel(projectId: string): Promise<FullProjectModel> {
-    const [projectModel] = await this.projectModelService.getProjectModel(projectId, {
+  async getProjectModel(context: ProjectRequestContext): Promise<FullProjectModel> {
+    requireProjectPermission(context, "instance-model.get")
+
+    const [projectModel] = await this.projectModelService.getProjectModelCore(context.projectId, {
       includeVirtualInstances: true,
       includeGhostInstances: true,
     })
@@ -149,17 +220,19 @@ export class ProjectService {
    * @param newName The new name for the instance.
    */
   async renameInstance(
-    projectId: string,
+    context: ProjectRequestContext,
     instanceId: InstanceId,
     newName: string,
   ): Promise<InstanceModel> {
+    requireProjectPermission(context, "instance-model.update", { instanceId })
+
     try {
       // rename the instance in the model
-      const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+      const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
       const instance = await backend.renameInstance(project, spec, instanceId, newName)
 
       // rename in the database state
-      const database = await this.database.forProject(projectId)
+      const database = await this.database.forProject(context.projectId)
 
       await database.$transaction(async tx => {
         const state = await tx.instanceState.findUnique({
@@ -237,16 +310,19 @@ export class ProjectService {
         }
       })
 
-      await this.pubsubManager.publish(["project-model", projectId], {
+      await this.pubsubManager.publish(["project-model", context.projectId], {
         updatedInstances: [instance],
         deletedInstanceIds: [instanceId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(projectId)
+      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
 
       return instance
     } catch (error) {
-      this.logger.error({ error, projectId, instanceId, newName }, "failed to rename instance")
+      this.logger.error(
+        { error, projectId: context.projectId, instanceId, newName },
+        "failed to rename instance",
+      )
       throw error
     }
   }
@@ -259,27 +335,29 @@ export class ProjectService {
    * @param patch The patch to apply to the instance.
    */
   async updateInstance(
-    projectId: string,
+    context: ProjectRequestContext,
     instanceId: InstanceId,
     patch: InstanceModelPatch,
   ): Promise<InstanceModel> {
+    requireProjectPermission(context, "instance-model.update", { instanceId })
+
     try {
-      const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+      const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
       try {
         const instance = await backend.updateInstance(project, spec, instanceId, patch)
-        const library = await this.libraryService.getLibraryModel(projectId)
+        const library = await this.libraryService.getLibraryModelCore(context.projectId)
         const component = library.components[instance.type]
 
-        await this.pubsubManager.publish(["project-model", projectId], {
+        await this.pubsubManager.publish(["project-model", context.projectId], {
           updatedInstances: [instance],
         })
 
         if (component && !isUnitModel(component) && patch.args) {
           // evaluate the project if arguments changed for composite instancer
-          void this.projectEvaluationSubsystem.evaluateProject(projectId)
+          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
         } else if (patch.hubInputs || patch.injectionInputs || patch.inputs) {
           // TODO: only evaluate if inputs changed for composite instances
-          void this.projectEvaluationSubsystem.evaluateProject(projectId)
+          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
         }
 
         return instance
@@ -288,9 +366,9 @@ export class ProjectService {
           error instanceof ProjectModelError && error.cause instanceof Error ? error.cause : error
 
         if (cause instanceof ProjectModelInstanceNotFoundError) {
-          const instance = await this.updateGhostInstanceModel(projectId, instanceId, patch)
+          const instance = await this.updateGhostInstanceModel(context.projectId, instanceId, patch)
 
-          await this.pubsubManager.publish(["project-model", projectId], {
+          await this.pubsubManager.publish(["project-model", context.projectId], {
             updatedGhostInstances: [instance],
           })
 
@@ -300,7 +378,10 @@ export class ProjectService {
         throw error
       }
     } catch (error) {
-      this.logger.error({ error, projectId, instanceId }, "failed to update instance")
+      this.logger.error(
+        { error, projectId: context.projectId, instanceId },
+        "failed to update instance",
+      )
       throw error
     }
   }
@@ -311,18 +392,23 @@ export class ProjectService {
    * @param projectId The ID of the project containing the instance.
    * @param instanceId The ID of the instance to delete.
    */
-  async deleteInstance(projectId: string, instanceId: InstanceId): Promise<void> {
+  async deleteInstance(context: ProjectRequestContext, instanceId: InstanceId): Promise<void> {
+    requireProjectPermission(context, "instance-model.update", { instanceId })
+
     try {
-      const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+      const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
       await backend.deleteInstance(project, spec, instanceId)
 
-      await this.pubsubManager.publish(["project-model", projectId], {
+      await this.pubsubManager.publish(["project-model", context.projectId], {
         deletedInstanceIds: [instanceId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(projectId)
+      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
     } catch (error) {
-      this.logger.error({ error, projectId, instanceId }, "failed to delete instance")
+      this.logger.error(
+        { error, projectId: context.projectId, instanceId },
+        "failed to delete instance",
+      )
       throw error
     }
   }
@@ -364,22 +450,28 @@ export class ProjectService {
    * @param hubId The ID of the hub to update.
    * @param patch The patch to apply to the hub.
    */
-  async updateHub(projectId: string, hubId: string, patch: HubModelPatch): Promise<HubModel> {
+  async updateHub(
+    context: ProjectRequestContext,
+    hubId: string,
+    patch: HubModelPatch,
+  ): Promise<HubModel> {
+    requireProjectPermission(context, "instance-model.update")
+
     try {
-      const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+      const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
       const hub = await backend.updateHub(project, spec, hubId, patch)
 
-      await this.pubsubManager.publish(["project-model", projectId], {
+      await this.pubsubManager.publish(["project-model", context.projectId], {
         updatedHubs: [hub],
       })
 
       if (patch.inputs || patch.injectionInputs) {
-        void this.projectEvaluationSubsystem.evaluateProject(projectId)
+        void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
       }
 
       return hub
     } catch (error) {
-      this.logger.error({ error, projectId, hubId }, "failed to update hub")
+      this.logger.error({ error, projectId: context.projectId, hubId }, "failed to update hub")
       throw error
     }
   }
@@ -390,18 +482,20 @@ export class ProjectService {
    * @param projectId The ID of the project containing the hub.
    * @param hubId The ID of the hub to delete.
    */
-  async deleteHub(projectId: string, hubId: string): Promise<void> {
+  async deleteHub(context: ProjectRequestContext, hubId: string): Promise<void> {
+    requireProjectPermission(context, "instance-model.update")
+
     try {
-      const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+      const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
       await backend.deleteHub(project, spec, hubId)
 
-      await this.pubsubManager.publish(["project-model", projectId], {
+      await this.pubsubManager.publish(["project-model", context.projectId], {
         deletedHubIds: [hubId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(projectId)
+      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
     } catch (error) {
-      this.logger.error({ error, projectId, hubId }, "failed to delete hub")
+      this.logger.error({ error, projectId: context.projectId, hubId }, "failed to delete hub")
       throw error
     }
   }
@@ -414,15 +508,17 @@ export class ProjectService {
    * @param hubs The hubs to create.
    */
   async createNodes(
-    projectId: string,
+    context: ProjectRequestContext,
     instances: InstanceModel[],
     hubs: HubModel[],
   ): Promise<void> {
+    requireProjectPermission(context, "instance-model.update")
+
     try {
-      const database = await this.database.forProject(projectId)
+      const database = await this.database.forProject(context.projectId)
 
       const states = await database.$transaction(async tx => {
-        const { project, backend, spec } = await this.getProjectWithBackend(projectId)
+        const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
         await backend.createNodes(project, spec, instances, hubs)
 
         // ensure instance states exist for created instances
@@ -457,24 +553,32 @@ export class ProjectService {
 
       if (states.length > 0) {
         await this.objectRefIndexService.track(
-          projectId,
+          context.projectId,
           states.map(state => state.id),
         )
       }
 
-      void this.pubsubManager.publish(["project-model", projectId], {
+      void this.pubsubManager.publish(["project-model", context.projectId], {
         updatedHubs: hubs,
         updatedInstances: instances,
       })
 
       for (const state of states) {
-        void this.pubsubManager.publish(["instance-state", projectId], { type: "updated", state })
+        void this.pubsubManager.publish(["instance-state", context.projectId], {
+          type: "updated",
+          state,
+        })
       }
 
-      void this.projectEvaluationSubsystem.evaluateProject(projectId)
+      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
     } catch (error) {
       this.logger.error(
-        { error, projectId, instanceCount: instances.length, hubCount: hubs.length },
+        {
+          error,
+          projectId: context.projectId,
+          instanceCount: instances.length,
+          hubCount: hubs.length,
+        },
         "failed to create many nodes",
       )
       throw error

@@ -418,14 +418,14 @@ export class OperationContext {
     logger: Logger,
   ): Promise<OperationContext> {
     const [{ instances, virtualInstances, hubs, ghostInstances }, project] =
-      await projectModelService.getProjectModel(projectId, {
+      await projectModelService.getProjectModelCore(projectId, {
         includeVirtualInstances: true,
         includeGhostInstances: true,
       })
 
     const [library, states] = await Promise.all([
-      librarySource.getLibraryModel(projectId),
-      instanceStateService.getInstanceStates(projectId, {
+      librarySource.getLibraryModelCore(projectId),
+      instanceStateService.getInstanceStatesCore(projectId, {
         includeEvaluationState: true,
         includeParentInstanceId: true,
       }),

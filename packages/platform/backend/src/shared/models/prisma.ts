@@ -14,6 +14,9 @@ declare global {
 
     type PulumiBackendSpec = shared.PulumiBackendSpec
     type ProjectModelStorageSpec = shared.ProjectModelStorageSpec
+    type BackendRoleRules = shared.BackendRoleRules
+    type UserGroupMeta = shared.UserGroupMeta
+    type UserMeta = shared.UserMeta
   }
 
   // Project
@@ -38,8 +41,8 @@ declare global {
     type WorkerUnitRegistrationParams = Record<string, unknown>
 
     type ServiceAccountMeta = contract.ServiceAccountMeta
-
     type ApiKeyMeta = shared.ApiKeyMeta
+    type ProjectRoleRules = shared.ProjectRoleRules
     type InstanceArtifactIds = Record<string, string[]>
   }
 }

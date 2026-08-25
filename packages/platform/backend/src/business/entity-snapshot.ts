@@ -1,9 +1,11 @@
 import type { Logger } from "pino"
+import type { ProjectRequestContext } from "../common"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import type { UnitEntitySnapshotPayload } from "./unit-output"
 import { createHash } from "node:crypto"
 import { createId } from "@paralleldrive/cuid2"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client"
+import { requireProjectPermission } from "../common"
 import { type DatabaseManager, DbNull, type ProjectTransaction } from "../database"
 import { type LibraryModel, stableJsonStringify } from "../shared"
 
@@ -396,12 +398,22 @@ export class EntitySnapshotService {
    * @returns A list of snapshots associated with the output.
    */
   async listReferencedEntitySnapshotsForOutput(
-    projectId: string,
+    context: ProjectRequestContext,
     stateId: string,
     output: string,
     library?: LibraryModel,
   ): Promise<OutputReferencedEntitySnapshot[]> {
-    const projectDatabase = await this.database.forProject(projectId)
+    const projectDatabase = await this.database.forProject(context.projectId)
+    const state = await projectDatabase.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!state) {
+      return []
+    }
+
+    requireProjectPermission(context, "entity-snapshot.get", { instanceId: state.instanceId })
 
     const operationId = await this.findLatestOperationIdForOutput(projectDatabase, stateId, output)
 
@@ -486,11 +498,11 @@ export class EntitySnapshotService {
    * @returns The reconstructed snapshot content.
    */
   async reconstructSnapshotContent(
-    projectId: string,
+    context: ProjectRequestContext,
     snapshotId: string,
     library: LibraryModel,
   ): Promise<unknown | null> {
-    const projectDatabase = await this.database.forProject(projectId)
+    const projectDatabase = await this.database.forProject(context.projectId)
 
     const snapshot = await projectDatabase.entitySnapshot.findUnique({
       where: { id: snapshotId },
@@ -504,6 +516,8 @@ export class EntitySnapshotService {
     if (!snapshot) {
       return null
     }
+
+    requireProjectPermission(context, "entity-snapshot.get", { resourceId: snapshot.id })
 
     const snapshotsInOperationRaw = await projectDatabase.entitySnapshot.findMany({
       where: { stateId: snapshot.stateId, operationId: snapshot.operationId },
@@ -844,12 +858,15 @@ export class EntitySnapshotService {
     if (typeof record.title === "string" && record.title.length > 0) {
       normalized.title = record.title
     }
+
     if (typeof record.description === "string" && record.description.length > 0) {
       normalized.description = record.description
     }
+
     if (typeof record.icon === "string" && record.icon.length > 0) {
       normalized.icon = record.icon
     }
+
     if (typeof record.iconColor === "string" && record.iconColor.length > 0) {
       normalized.iconColor = record.iconColor
     }

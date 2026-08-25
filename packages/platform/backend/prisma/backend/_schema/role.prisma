@@ -1,0 +1,82 @@
+/// A backend role groups permissions over backend resources, project spaces, and projects.
+model BackendRole {
+  /// The CUIDv2 of the backend role.
+  id String @id @default(cuid(2))
+
+  /// The metadata of the backend role managed by the backend.
+  ///
+  /// [CommonObjectMeta]
+  meta Json
+
+  /// The stable name of a backend-managed role.
+  ///
+  /// Custom roles do not have a system name.
+  systemName String? @unique
+
+  /// The additive authorization rules granted by this role.
+  ///
+  /// [BackendRoleRules]
+  rules Json
+
+  /// The time when the backend role was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the backend role was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The bindings granting this role to backend service accounts.
+  serviceAccountBindings ServiceAccountBackendRoleBinding[]
+
+  /// The bindings granting this role to users.
+  userBindings UserBackendRoleBinding[]
+
+  /// The bindings granting this role to groups.
+  groupBindings UserGroupBackendRoleBinding[]
+}
+
+/// A user role binding grants a backend role to a user.
+model UserBackendRoleBinding {
+  roleId String
+  userId String
+  createdAt DateTime @default(now())
+
+  role BackendRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, userId])
+  @@index([userId])
+}
+
+/// A user group role binding grants a backend role to a group.
+model UserGroupBackendRoleBinding {
+  roleId String
+  groupId String
+  createdAt DateTime @default(now())
+
+  role BackendRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  group UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, groupId])
+  @@index([groupId])
+}
+
+/// A backend role binding grants a backend role to a backend service account.
+model ServiceAccountBackendRoleBinding {
+  /// The ID of the granted backend role.
+  roleId String
+
+  /// The ID of the backend service account receiving the role.
+  serviceAccountId String
+
+  /// The time when the backend role binding was created.
+  createdAt DateTime @default(now())
+
+  /// The granted backend role.
+  role BackendRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  /// The backend service account receiving the role.
+  serviceAccount BackendServiceAccount @relation(fields: [serviceAccountId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, serviceAccountId])
+  @@index([serviceAccountId])
+}

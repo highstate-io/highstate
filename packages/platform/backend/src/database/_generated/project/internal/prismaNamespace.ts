@@ -403,6 +403,10 @@ export const ModelName = {
   OperationLog: 'OperationLog',
   Page: 'Page',
   Panel: 'Panel',
+  Role: 'Role',
+  UserRoleBinding: 'UserRoleBinding',
+  UserGroupRoleBinding: 'UserGroupRoleBinding',
+  ServiceAccountRoleBinding: 'ServiceAccountRoleBinding',
   Secret: 'Secret',
   ServiceAccount: 'ServiceAccount',
   Terminal: 'Terminal',
@@ -410,6 +414,8 @@ export const ModelName = {
   TerminalSessionLog: 'TerminalSessionLog',
   Trigger: 'Trigger',
   UnlockMethod: 'UnlockMethod',
+  User: 'User',
+  UserGroup: 'UserGroup',
   Worker: 'Worker',
   WorkerVersion: 'WorkerVersion',
   WorkerUnitRegistration: 'WorkerUnitRegistration',
@@ -429,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
+    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "role" | "userRoleBinding" | "userGroupRoleBinding" | "serviceAccountRoleBinding" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "user" | "userGroup" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1839,6 +1845,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Role: {
+      payload: Prisma.$RolePayload<ExtArgs>
+      fields: Prisma.RoleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RoleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RoleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>
+        }
+        findFirst: {
+          args: Prisma.RoleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RoleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>
+        }
+        findMany: {
+          args: Prisma.RoleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>[]
+        }
+        create: {
+          args: Prisma.RoleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>
+        }
+        createMany: {
+          args: Prisma.RoleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RoleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>[]
+        }
+        delete: {
+          args: Prisma.RoleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>
+        }
+        update: {
+          args: Prisma.RoleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>
+        }
+        deleteMany: {
+          args: Prisma.RoleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RoleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RoleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>[]
+        }
+        upsert: {
+          args: Prisma.RoleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RolePayload>
+        }
+        aggregate: {
+          args: Prisma.RoleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRole>
+        }
+        groupBy: {
+          args: Prisma.RoleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RoleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RoleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RoleCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserRoleBinding: {
+      payload: Prisma.$UserRoleBindingPayload<ExtArgs>
+      fields: Prisma.UserRoleBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserRoleBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserRoleBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.UserRoleBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserRoleBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>
+        }
+        findMany: {
+          args: Prisma.UserRoleBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>[]
+        }
+        create: {
+          args: Prisma.UserRoleBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>
+        }
+        createMany: {
+          args: Prisma.UserRoleBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserRoleBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.UserRoleBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>
+        }
+        update: {
+          args: Prisma.UserRoleBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserRoleBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserRoleBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserRoleBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserRoleBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserRoleBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.UserRoleBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserRoleBinding>
+        }
+        groupBy: {
+          args: Prisma.UserRoleBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserRoleBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserRoleBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserRoleBindingCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserGroupRoleBinding: {
+      payload: Prisma.$UserGroupRoleBindingPayload<ExtArgs>
+      fields: Prisma.UserGroupRoleBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserGroupRoleBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserGroupRoleBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.UserGroupRoleBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserGroupRoleBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>
+        }
+        findMany: {
+          args: Prisma.UserGroupRoleBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>[]
+        }
+        create: {
+          args: Prisma.UserGroupRoleBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>
+        }
+        createMany: {
+          args: Prisma.UserGroupRoleBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserGroupRoleBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.UserGroupRoleBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>
+        }
+        update: {
+          args: Prisma.UserGroupRoleBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserGroupRoleBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserGroupRoleBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserGroupRoleBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserGroupRoleBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupRoleBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.UserGroupRoleBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserGroupRoleBinding>
+        }
+        groupBy: {
+          args: Prisma.UserGroupRoleBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupRoleBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserGroupRoleBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupRoleBindingCountAggregateOutputType> | number
+        }
+      }
+    }
+    ServiceAccountRoleBinding: {
+      payload: Prisma.$ServiceAccountRoleBindingPayload<ExtArgs>
+      fields: Prisma.ServiceAccountRoleBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceAccountRoleBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceAccountRoleBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceAccountRoleBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceAccountRoleBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceAccountRoleBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceAccountRoleBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceAccountRoleBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceAccountRoleBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceAccountRoleBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>
+        }
+        update: {
+          args: Prisma.ServiceAccountRoleBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceAccountRoleBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceAccountRoleBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceAccountRoleBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceAccountRoleBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountRoleBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceAccountRoleBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceAccountRoleBinding>
+        }
+        groupBy: {
+          args: Prisma.ServiceAccountRoleBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceAccountRoleBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceAccountRoleBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceAccountRoleBindingCountAggregateOutputType> | number
+        }
+      }
+    }
     Secret: {
       payload: Prisma.$SecretPayload<ExtArgs>
       fields: Prisma.SecretFieldRefs
@@ -2357,6 +2659,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    User: {
+      payload: Prisma.$UserPayload<ExtArgs>
+      fields: Prisma.UserFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        findFirst: {
+          args: Prisma.UserFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        findMany: {
+          args: Prisma.UserFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        create: {
+          args: Prisma.UserCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        createMany: {
+          args: Prisma.UserCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        delete: {
+          args: Prisma.UserDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        update: {
+          args: Prisma.UserUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        aggregate: {
+          args: Prisma.UserAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUser>
+        }
+        groupBy: {
+          args: Prisma.UserGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserGroup: {
+      payload: Prisma.$UserGroupPayload<ExtArgs>
+      fields: Prisma.UserGroupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserGroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserGroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        findFirst: {
+          args: Prisma.UserGroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserGroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        findMany: {
+          args: Prisma.UserGroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>[]
+        }
+        create: {
+          args: Prisma.UserGroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        createMany: {
+          args: Prisma.UserGroupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserGroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>[]
+        }
+        delete: {
+          args: Prisma.UserGroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        update: {
+          args: Prisma.UserGroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserGroupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserGroupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserGroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserGroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        aggregate: {
+          args: Prisma.UserGroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserGroup>
+        }
+        groupBy: {
+          args: Prisma.UserGroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserGroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupCountAggregateOutputType> | number
+        }
+      }
+    }
     Worker: {
       payload: Prisma.$WorkerPayload<ExtArgs>
       fields: Prisma.WorkerFieldRefs
@@ -2693,7 +3143,10 @@ export const ApiKeyScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
   serviceAccountId: 'serviceAccountId',
-  token: 'token',
+  tokenHash: 'tokenHash',
+  restrictionRules: 'restrictionRules',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2922,6 +3375,45 @@ export const PanelScalarFieldEnum = {
 export type PanelScalarFieldEnum = (typeof PanelScalarFieldEnum)[keyof typeof PanelScalarFieldEnum]
 
 
+export const RoleScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  systemName: 'systemName',
+  rules: 'rules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const UserRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserRoleBindingScalarFieldEnum = (typeof UserRoleBindingScalarFieldEnum)[keyof typeof UserRoleBindingScalarFieldEnum]
+
+
+export const UserGroupRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  groupId: 'groupId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserGroupRoleBindingScalarFieldEnum = (typeof UserGroupRoleBindingScalarFieldEnum)[keyof typeof UserGroupRoleBindingScalarFieldEnum]
+
+
+export const ServiceAccountRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  serviceAccountId: 'serviceAccountId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceAccountRoleBindingScalarFieldEnum = (typeof ServiceAccountRoleBindingScalarFieldEnum)[keyof typeof ServiceAccountRoleBindingScalarFieldEnum]
+
+
 export const SecretScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
@@ -2940,6 +3432,7 @@ export type SecretScalarFieldEnum = (typeof SecretScalarFieldEnum)[keyof typeof 
 export const ServiceAccountScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
+  systemName: 'systemName',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3006,6 +3499,27 @@ export const UnlockMethodScalarFieldEnum = {
 } as const
 
 export type UnlockMethodScalarFieldEnum = (typeof UnlockMethodScalarFieldEnum)[keyof typeof UnlockMethodScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserGroupScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserGroupScalarFieldEnum = (typeof UserGroupScalarFieldEnum)[keyof typeof UserGroupScalarFieldEnum]
 
 
 export const WorkerScalarFieldEnum = {
@@ -3216,6 +3730,13 @@ export type EnumUnlockMethodTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'UserType'
+ */
+export type EnumUserTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserType'>
+    
+
+
+/**
  * Reference to a field of type 'WorkerVersionStatus'
  */
 export type EnumWorkerVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkerVersionStatus'>
@@ -3342,6 +3863,10 @@ export type GlobalOmitConfig = {
   operationLog?: Prisma.OperationLogOmit
   page?: Prisma.PageOmit
   panel?: Prisma.PanelOmit
+  role?: Prisma.RoleOmit
+  userRoleBinding?: Prisma.UserRoleBindingOmit
+  userGroupRoleBinding?: Prisma.UserGroupRoleBindingOmit
+  serviceAccountRoleBinding?: Prisma.ServiceAccountRoleBindingOmit
   secret?: Prisma.SecretOmit
   serviceAccount?: Prisma.ServiceAccountOmit
   terminal?: Prisma.TerminalOmit
@@ -3349,6 +3874,8 @@ export type GlobalOmitConfig = {
   terminalSessionLog?: Prisma.TerminalSessionLogOmit
   trigger?: Prisma.TriggerOmit
   unlockMethod?: Prisma.UnlockMethodOmit
+  user?: Prisma.UserOmit
+  userGroup?: Prisma.UserGroupOmit
   worker?: Prisma.WorkerOmit
   workerVersion?: Prisma.WorkerVersionOmit
   workerUnitRegistration?: Prisma.WorkerUnitRegistrationOmit

@@ -1,15 +1,18 @@
 model UserProjectViewport {
-    /// The opaque ID of the user to which this viewport belongs.
+    /// The ID of the user to which this viewport belongs.
     userId String @id
 
     /// The viewport of the user project managed by the frontend.
     ///
     /// ![unknown]
     viewport Json
+
+    /// The user to which this viewport belongs.
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserCompositeViewport {
-    /// The opaque ID of the user to which this viewport belongs.
+    /// The ID of the user to which this viewport belongs.
     userId String
 
     /// The ID of the state of the composite instance to which this viewport belongs.
@@ -19,6 +22,9 @@ model UserCompositeViewport {
     ///
     /// ![unknown]
     viewport Json
+
+    /// The user to which this viewport belongs.
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     /// The instance state to which this viewport belongs.
     state InstanceState @relation(fields: [stateId], references: [id])

@@ -26,7 +26,6 @@ test("stops a deleted worker without persisting logs or restarting it", async ({
     data: {
       meta: { title: "Test Worker API Key" },
       serviceAccountId: worker.serviceAccountId,
-      token: randomBytes(32).toString("hex"),
     },
   })
   const workerVersion = await projectDatabase.workerVersion.create({
@@ -51,7 +50,7 @@ test("stops a deleted worker without persisting logs or restarting it", async ({
     workerBackend,
     vi.mockObject({ registerUnlockTask: vi.fn() } as unknown as ProjectUnlockService),
     vi.mockObject({
-      regenerateToken: vi.fn().mockResolvedValue(apiKey),
+      regenerateToken: vi.fn().mockResolvedValue({ apiKey, token: "worker-api-key" }),
     } as unknown as ApiKeyService),
     database,
     vi.mockObject({ publish: vi.fn() } as unknown as PubSubManager),
@@ -91,7 +90,6 @@ test("contains an aborted worker rejection during restart", async ({
     data: {
       meta: { title: "Test Worker API Key" },
       serviceAccountId: worker.serviceAccountId,
-      token: randomBytes(32).toString("hex"),
     },
   })
   const workerVersion = await projectDatabase.workerVersion.create({
@@ -122,7 +120,7 @@ test("contains an aborted worker rejection during restart", async ({
     workerBackend,
     vi.mockObject({ registerUnlockTask: vi.fn() } as unknown as ProjectUnlockService),
     vi.mockObject({
-      regenerateToken: vi.fn().mockResolvedValue(apiKey),
+      regenerateToken: vi.fn().mockResolvedValue({ apiKey, token: "worker-api-key" }),
     } as unknown as ApiKeyService),
     database,
     vi.mockObject({ publish: vi.fn() } as unknown as PubSubManager),

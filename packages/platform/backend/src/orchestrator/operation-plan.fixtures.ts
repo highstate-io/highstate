@@ -58,7 +58,7 @@ export const operationPlanTest = test.extend<{
 
   libraryService: async ({}, use) => {
     const mock = vi.mocked({
-      getLibraryModel: vi.fn(),
+      getLibraryModelCore: vi.fn(),
       getResolvedUnitSources: vi.fn(),
     } as unknown as LibraryService)
 
@@ -67,7 +67,7 @@ export const operationPlanTest = test.extend<{
 
   instanceStateService: async ({}, use) => {
     const mock = vi.mocked({
-      getInstanceStates: vi.fn(),
+      getInstanceStatesCore: vi.fn(),
       updateOperationState: vi.fn(),
       updateOperationProgress: vi.fn(),
       forgetInstanceState: vi.fn(),
@@ -78,7 +78,7 @@ export const operationPlanTest = test.extend<{
 
   projectModelService: async ({}, use) => {
     const mock = vi.mocked({
-      getProjectModel: vi.fn(),
+      getProjectModelCore: vi.fn(),
     } as unknown as ProjectModelService)
 
     await use(mock)
@@ -181,7 +181,7 @@ export const operationPlanTest = test.extend<{
       const library = createMockLibrary()
 
       // setup mocks
-      projectModelService.getProjectModel.mockResolvedValue([
+      projectModelService.getProjectModelCore.mockResolvedValue([
         {
           instances,
           virtualInstances: [],
@@ -205,9 +205,9 @@ export const operationPlanTest = test.extend<{
         },
       ]
 
-      libraryService.getLibraryModel.mockResolvedValue(library)
+      libraryService.getLibraryModelCore.mockResolvedValue(library)
       libraryService.getResolvedUnitSources.mockResolvedValue(unitSources)
-      instanceStateService.getInstanceStates.mockResolvedValue(states)
+      instanceStateService.getInstanceStatesCore.mockResolvedValue(states)
 
       // create context
       return await OperationContext.load(

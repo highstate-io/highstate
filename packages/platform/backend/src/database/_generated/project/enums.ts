@@ -104,6 +104,14 @@ export const UnlockMethodType = {
 export type UnlockMethodType = (typeof UnlockMethodType)[keyof typeof UnlockMethodType]
 
 
+export const UserType = {
+  local: 'local',
+  oidc: 'oidc'
+} as const
+
+export type UserType = (typeof UserType)[keyof typeof UserType]
+
+
 export const WorkerVersionStatus = {
   unknown: 'unknown',
   starting: 'starting',

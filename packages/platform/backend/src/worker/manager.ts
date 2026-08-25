@@ -216,7 +216,7 @@ export class WorkerManager {
     }
 
     // regenerate API token
-    const apiKey = await this.apiKeyService.regenerateToken(projectId, workerVersion.apiKeyId)
+    const { token } = await this.apiKeyService.regenerateToken(projectId, workerVersion.apiKeyId)
     const workerInstanceId = createId()
     const stdout = new PassThrough()
 
@@ -303,7 +303,7 @@ export class WorkerManager {
         workerInstanceId,
         image: `${workerVersion.worker.identity}@sha256:${workerVersion.digest}`,
         apiPath: this.config.HIGHSTATE_WORKER_API_PATH,
-        apiKey: apiKey.token,
+        apiKey: token,
         stdout,
         signal: abortController.signal,
       })

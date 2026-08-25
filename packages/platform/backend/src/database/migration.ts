@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { resolve as importMetaResolve } from "import-meta-resolve"
-import { BackendError } from "../shared"
+import { DatabaseVersionUnsupportedError } from "../shared"
 
 export type MigrationClient = {
   $transaction<T>(callback: (tx: unknown) => Promise<T>): Promise<T>
@@ -25,6 +25,7 @@ export const migrationPacks = {
       "20250928124105_initial_migration",
       "20260222113554_add_object_tracking",
       "20260503160615_add_entity_sharing_system",
+      "20260823193137_add_authorization",
     ],
   },
   project: {
@@ -38,6 +39,7 @@ export const migrationPacks = {
       "20260302212734_add_resource_hooks_flag",
       "20260720230553_add_panels",
       "20260822154433_add_passkey_identity",
+      "20260823193150_add_authorization",
     ],
   },
 }
@@ -62,9 +64,7 @@ export async function migrateDatabase(
   logger.debug(`migrations dir: "%s"`, migrationsDir)
 
   if (currentVersion > targetVersion) {
-    throw new BackendError(
-      `The version of the ${type} database (${currentVersion}) is newer than expected (${targetVersion}). Do you need to upgrade Highstate?`,
-    )
+    throw new DatabaseVersionUnsupportedError(type, currentVersion, targetVersion)
   }
 
   for (let version = currentVersion; version < migrationNames.length; version++) {

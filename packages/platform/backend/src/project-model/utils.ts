@@ -184,8 +184,15 @@ export function applyInstancePatch(instance: InstanceModel, patch: InstanceModel
     instance.args = patch.args
   }
 
-  if (patch.position) {
-    instance.position = patch.position
+  if (patch.position !== undefined) {
+    if (patch.position) {
+      instance.position = {
+        x: patch.position.x ?? instance.position?.x ?? 0,
+        y: patch.position.y ?? instance.position?.y ?? 0,
+      }
+    } else {
+      delete instance.position
+    }
   }
 
   if (patch.inputs) {
@@ -220,8 +227,15 @@ export function applyInstancePatch(instance: InstanceModel, patch: InstanceModel
  * @param patch The patch to apply.
  */
 export function applyHubPatch(hub: HubModel, patch: HubModelPatch): void {
-  if (patch.position) {
-    hub.position = patch.position
+  if (patch.position !== undefined) {
+    if (patch.position) {
+      hub.position = {
+        x: patch.position.x ?? hub.position?.x ?? 0,
+        y: patch.position.y ?? hub.position?.y ?? 0,
+      }
+    } else {
+      delete hub.position
+    }
   }
 
   if (patch.inputs) {

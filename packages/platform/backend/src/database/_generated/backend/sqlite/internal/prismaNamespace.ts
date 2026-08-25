@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  BackendApiKey: 'BackendApiKey',
   ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
@@ -392,7 +393,15 @@ export const ModelName = {
   ProjectSpace: 'ProjectSpace',
   ProjectModelStorage: 'ProjectModelStorage',
   PulumiBackend: 'PulumiBackend',
-  BackendUnlockMethod: 'BackendUnlockMethod'
+  BackendRole: 'BackendRole',
+  UserBackendRoleBinding: 'UserBackendRoleBinding',
+  UserGroupBackendRoleBinding: 'UserGroupBackendRoleBinding',
+  ServiceAccountBackendRoleBinding: 'ServiceAccountBackendRoleBinding',
+  BackendServiceAccount: 'BackendServiceAccount',
+  BackendServiceAccountProjectBinding: 'BackendServiceAccountProjectBinding',
+  BackendUnlockMethod: 'BackendUnlockMethod',
+  User: 'User',
+  UserGroup: 'UserGroup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -408,10 +417,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "projectImportPort" | "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendUnlockMethod"
+    modelProps: "backendApiKey" | "projectImportPort" | "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendRole" | "userBackendRoleBinding" | "userGroupBackendRoleBinding" | "serviceAccountBackendRoleBinding" | "backendServiceAccount" | "backendServiceAccountProjectBinding" | "backendUnlockMethod" | "user" | "userGroup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    BackendApiKey: {
+      payload: Prisma.$BackendApiKeyPayload<ExtArgs>
+      fields: Prisma.BackendApiKeyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BackendApiKeyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BackendApiKeyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>
+        }
+        findFirst: {
+          args: Prisma.BackendApiKeyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BackendApiKeyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>
+        }
+        findMany: {
+          args: Prisma.BackendApiKeyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>[]
+        }
+        create: {
+          args: Prisma.BackendApiKeyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>
+        }
+        createMany: {
+          args: Prisma.BackendApiKeyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BackendApiKeyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>[]
+        }
+        delete: {
+          args: Prisma.BackendApiKeyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>
+        }
+        update: {
+          args: Prisma.BackendApiKeyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>
+        }
+        deleteMany: {
+          args: Prisma.BackendApiKeyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BackendApiKeyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BackendApiKeyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>[]
+        }
+        upsert: {
+          args: Prisma.BackendApiKeyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendApiKeyPayload>
+        }
+        aggregate: {
+          args: Prisma.BackendApiKeyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBackendApiKey>
+        }
+        groupBy: {
+          args: Prisma.BackendApiKeyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendApiKeyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BackendApiKeyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendApiKeyCountAggregateOutputType> | number
+        }
+      }
+    }
     ProjectImportPort: {
       payload: Prisma.$ProjectImportPortPayload<ExtArgs>
       fields: Prisma.ProjectImportPortFieldRefs
@@ -1004,6 +1087,450 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BackendRole: {
+      payload: Prisma.$BackendRolePayload<ExtArgs>
+      fields: Prisma.BackendRoleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BackendRoleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BackendRoleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>
+        }
+        findFirst: {
+          args: Prisma.BackendRoleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BackendRoleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>
+        }
+        findMany: {
+          args: Prisma.BackendRoleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>[]
+        }
+        create: {
+          args: Prisma.BackendRoleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>
+        }
+        createMany: {
+          args: Prisma.BackendRoleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BackendRoleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>[]
+        }
+        delete: {
+          args: Prisma.BackendRoleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>
+        }
+        update: {
+          args: Prisma.BackendRoleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>
+        }
+        deleteMany: {
+          args: Prisma.BackendRoleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BackendRoleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BackendRoleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>[]
+        }
+        upsert: {
+          args: Prisma.BackendRoleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendRolePayload>
+        }
+        aggregate: {
+          args: Prisma.BackendRoleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBackendRole>
+        }
+        groupBy: {
+          args: Prisma.BackendRoleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendRoleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BackendRoleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendRoleCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserBackendRoleBinding: {
+      payload: Prisma.$UserBackendRoleBindingPayload<ExtArgs>
+      fields: Prisma.UserBackendRoleBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserBackendRoleBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserBackendRoleBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.UserBackendRoleBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserBackendRoleBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>
+        }
+        findMany: {
+          args: Prisma.UserBackendRoleBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>[]
+        }
+        create: {
+          args: Prisma.UserBackendRoleBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>
+        }
+        createMany: {
+          args: Prisma.UserBackendRoleBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserBackendRoleBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.UserBackendRoleBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>
+        }
+        update: {
+          args: Prisma.UserBackendRoleBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserBackendRoleBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserBackendRoleBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserBackendRoleBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserBackendRoleBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserBackendRoleBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.UserBackendRoleBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserBackendRoleBinding>
+        }
+        groupBy: {
+          args: Prisma.UserBackendRoleBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserBackendRoleBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserBackendRoleBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserBackendRoleBindingCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserGroupBackendRoleBinding: {
+      payload: Prisma.$UserGroupBackendRoleBindingPayload<ExtArgs>
+      fields: Prisma.UserGroupBackendRoleBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserGroupBackendRoleBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserGroupBackendRoleBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.UserGroupBackendRoleBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserGroupBackendRoleBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>
+        }
+        findMany: {
+          args: Prisma.UserGroupBackendRoleBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>[]
+        }
+        create: {
+          args: Prisma.UserGroupBackendRoleBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>
+        }
+        createMany: {
+          args: Prisma.UserGroupBackendRoleBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserGroupBackendRoleBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.UserGroupBackendRoleBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>
+        }
+        update: {
+          args: Prisma.UserGroupBackendRoleBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserGroupBackendRoleBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserGroupBackendRoleBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserGroupBackendRoleBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserGroupBackendRoleBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupBackendRoleBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.UserGroupBackendRoleBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserGroupBackendRoleBinding>
+        }
+        groupBy: {
+          args: Prisma.UserGroupBackendRoleBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupBackendRoleBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserGroupBackendRoleBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupBackendRoleBindingCountAggregateOutputType> | number
+        }
+      }
+    }
+    ServiceAccountBackendRoleBinding: {
+      payload: Prisma.$ServiceAccountBackendRoleBindingPayload<ExtArgs>
+      fields: Prisma.ServiceAccountBackendRoleBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceAccountBackendRoleBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceAccountBackendRoleBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceAccountBackendRoleBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceAccountBackendRoleBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceAccountBackendRoleBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceAccountBackendRoleBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceAccountBackendRoleBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceAccountBackendRoleBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceAccountBackendRoleBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>
+        }
+        update: {
+          args: Prisma.ServiceAccountBackendRoleBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceAccountBackendRoleBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceAccountBackendRoleBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceAccountBackendRoleBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceAccountBackendRoleBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAccountBackendRoleBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceAccountBackendRoleBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceAccountBackendRoleBinding>
+        }
+        groupBy: {
+          args: Prisma.ServiceAccountBackendRoleBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceAccountBackendRoleBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceAccountBackendRoleBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceAccountBackendRoleBindingCountAggregateOutputType> | number
+        }
+      }
+    }
+    BackendServiceAccount: {
+      payload: Prisma.$BackendServiceAccountPayload<ExtArgs>
+      fields: Prisma.BackendServiceAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BackendServiceAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BackendServiceAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.BackendServiceAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BackendServiceAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>
+        }
+        findMany: {
+          args: Prisma.BackendServiceAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>[]
+        }
+        create: {
+          args: Prisma.BackendServiceAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>
+        }
+        createMany: {
+          args: Prisma.BackendServiceAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BackendServiceAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.BackendServiceAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>
+        }
+        update: {
+          args: Prisma.BackendServiceAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.BackendServiceAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BackendServiceAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BackendServiceAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.BackendServiceAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.BackendServiceAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBackendServiceAccount>
+        }
+        groupBy: {
+          args: Prisma.BackendServiceAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendServiceAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BackendServiceAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendServiceAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    BackendServiceAccountProjectBinding: {
+      payload: Prisma.$BackendServiceAccountProjectBindingPayload<ExtArgs>
+      fields: Prisma.BackendServiceAccountProjectBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BackendServiceAccountProjectBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BackendServiceAccountProjectBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.BackendServiceAccountProjectBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BackendServiceAccountProjectBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>
+        }
+        findMany: {
+          args: Prisma.BackendServiceAccountProjectBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>[]
+        }
+        create: {
+          args: Prisma.BackendServiceAccountProjectBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>
+        }
+        createMany: {
+          args: Prisma.BackendServiceAccountProjectBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BackendServiceAccountProjectBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.BackendServiceAccountProjectBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>
+        }
+        update: {
+          args: Prisma.BackendServiceAccountProjectBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.BackendServiceAccountProjectBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BackendServiceAccountProjectBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BackendServiceAccountProjectBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.BackendServiceAccountProjectBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BackendServiceAccountProjectBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.BackendServiceAccountProjectBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBackendServiceAccountProjectBinding>
+        }
+        groupBy: {
+          args: Prisma.BackendServiceAccountProjectBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendServiceAccountProjectBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BackendServiceAccountProjectBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BackendServiceAccountProjectBindingCountAggregateOutputType> | number
+        }
+      }
+    }
     BackendUnlockMethod: {
       payload: Prisma.$BackendUnlockMethodPayload<ExtArgs>
       fields: Prisma.BackendUnlockMethodFieldRefs
@@ -1078,6 +1605,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    User: {
+      payload: Prisma.$UserPayload<ExtArgs>
+      fields: Prisma.UserFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        findFirst: {
+          args: Prisma.UserFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        findMany: {
+          args: Prisma.UserFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        create: {
+          args: Prisma.UserCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        createMany: {
+          args: Prisma.UserCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        delete: {
+          args: Prisma.UserDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        update: {
+          args: Prisma.UserUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        aggregate: {
+          args: Prisma.UserAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUser>
+        }
+        groupBy: {
+          args: Prisma.UserGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserGroup: {
+      payload: Prisma.$UserGroupPayload<ExtArgs>
+      fields: Prisma.UserGroupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserGroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserGroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        findFirst: {
+          args: Prisma.UserGroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserGroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        findMany: {
+          args: Prisma.UserGroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>[]
+        }
+        create: {
+          args: Prisma.UserGroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        createMany: {
+          args: Prisma.UserGroupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserGroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>[]
+        }
+        delete: {
+          args: Prisma.UserGroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        update: {
+          args: Prisma.UserGroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserGroupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserGroupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserGroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserGroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserGroupPayload>
+        }
+        aggregate: {
+          args: Prisma.UserGroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserGroup>
+        }
+        groupBy: {
+          args: Prisma.UserGroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserGroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1112,6 +1787,21 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const BackendApiKeyScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  serviceAccountId: 'serviceAccountId',
+  tokenHash: 'tokenHash',
+  restrictionRules: 'restrictionRules',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackendApiKeyScalarFieldEnum = (typeof BackendApiKeyScalarFieldEnum)[keyof typeof BackendApiKeyScalarFieldEnum]
 
 
 export const ProjectImportPortScalarFieldEnum = {
@@ -1198,6 +1888,66 @@ export const PulumiBackendScalarFieldEnum = {
 export type PulumiBackendScalarFieldEnum = (typeof PulumiBackendScalarFieldEnum)[keyof typeof PulumiBackendScalarFieldEnum]
 
 
+export const BackendRoleScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  systemName: 'systemName',
+  rules: 'rules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackendRoleScalarFieldEnum = (typeof BackendRoleScalarFieldEnum)[keyof typeof BackendRoleScalarFieldEnum]
+
+
+export const UserBackendRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserBackendRoleBindingScalarFieldEnum = (typeof UserBackendRoleBindingScalarFieldEnum)[keyof typeof UserBackendRoleBindingScalarFieldEnum]
+
+
+export const UserGroupBackendRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  groupId: 'groupId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserGroupBackendRoleBindingScalarFieldEnum = (typeof UserGroupBackendRoleBindingScalarFieldEnum)[keyof typeof UserGroupBackendRoleBindingScalarFieldEnum]
+
+
+export const ServiceAccountBackendRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  serviceAccountId: 'serviceAccountId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceAccountBackendRoleBindingScalarFieldEnum = (typeof ServiceAccountBackendRoleBindingScalarFieldEnum)[keyof typeof ServiceAccountBackendRoleBindingScalarFieldEnum]
+
+
+export const BackendServiceAccountScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  systemName: 'systemName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackendServiceAccountScalarFieldEnum = (typeof BackendServiceAccountScalarFieldEnum)[keyof typeof BackendServiceAccountScalarFieldEnum]
+
+
+export const BackendServiceAccountProjectBindingScalarFieldEnum = {
+  backendServiceAccountId: 'backendServiceAccountId',
+  projectId: 'projectId',
+  projectServiceAccountId: 'projectServiceAccountId',
+  createdAt: 'createdAt'
+} as const
+
+export type BackendServiceAccountProjectBindingScalarFieldEnum = (typeof BackendServiceAccountProjectBindingScalarFieldEnum)[keyof typeof BackendServiceAccountProjectBindingScalarFieldEnum]
+
+
 export const BackendUnlockMethodScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
@@ -1207,6 +1957,27 @@ export const BackendUnlockMethodScalarFieldEnum = {
 } as const
 
 export type BackendUnlockMethodScalarFieldEnum = (typeof BackendUnlockMethodScalarFieldEnum)[keyof typeof BackendUnlockMethodScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserGroupScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserGroupScalarFieldEnum = (typeof UserGroupScalarFieldEnum)[keyof typeof UserGroupScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1277,6 +2048,13 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'DateTime'
+ */
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1284,9 +2062,9 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'UserType'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+export type EnumUserTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserType'>
     
 
 
@@ -1391,6 +2169,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  backendApiKey?: Prisma.BackendApiKeyOmit
   projectImportPort?: Prisma.ProjectImportPortOmit
   userWorkspaceLayout?: Prisma.UserWorkspaceLayoutOmit
   library?: Prisma.LibraryOmit
@@ -1399,7 +2178,15 @@ export type GlobalOmitConfig = {
   projectSpace?: Prisma.ProjectSpaceOmit
   projectModelStorage?: Prisma.ProjectModelStorageOmit
   pulumiBackend?: Prisma.PulumiBackendOmit
+  backendRole?: Prisma.BackendRoleOmit
+  userBackendRoleBinding?: Prisma.UserBackendRoleBindingOmit
+  userGroupBackendRoleBinding?: Prisma.UserGroupBackendRoleBindingOmit
+  serviceAccountBackendRoleBinding?: Prisma.ServiceAccountBackendRoleBindingOmit
+  backendServiceAccount?: Prisma.BackendServiceAccountOmit
+  backendServiceAccountProjectBinding?: Prisma.BackendServiceAccountProjectBindingOmit
   backendUnlockMethod?: Prisma.BackendUnlockMethodOmit
+  user?: Prisma.UserOmit
+  userGroup?: Prisma.UserGroupOmit
 }
 
 /* Types for Logging */

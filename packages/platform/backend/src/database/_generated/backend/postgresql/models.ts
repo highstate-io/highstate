@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/BackendApiKey.ts'
 export type * from './models/ProjectImportPort.ts'
 export type * from './models/UserWorkspaceLayout.ts'
 export type * from './models/Library.ts'
@@ -16,5 +17,13 @@ export type * from './models/Project.ts'
 export type * from './models/ProjectSpace.ts'
 export type * from './models/ProjectModelStorage.ts'
 export type * from './models/PulumiBackend.ts'
+export type * from './models/BackendRole.ts'
+export type * from './models/UserBackendRoleBinding.ts'
+export type * from './models/UserGroupBackendRoleBinding.ts'
+export type * from './models/ServiceAccountBackendRoleBinding.ts'
+export type * from './models/BackendServiceAccount.ts'
+export type * from './models/BackendServiceAccountProjectBinding.ts'
 export type * from './models/BackendUnlockMethod.ts'
+export type * from './models/User.ts'
+export type * from './models/UserGroup.ts'
 export type * from './commonInputTypes.ts'

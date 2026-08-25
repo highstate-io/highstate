@@ -824,7 +824,7 @@ function findGhostCleanup(
         let parentId = child.parentId
         while (parentId) {
           const parent = context.tryGetInstance(parentId)
-          if (!parent || parent.kind !== "composite") {
+          if (parent?.kind !== "composite") {
             break
           }
 

@@ -64,6 +64,9 @@ model Project {
     /// The import ports in this project where this project is the source.
     exportPorts ProjectImportPort[] @relation("ProjectImportSource")
 
+    /// The backend service account bindings targeting this project.
+    backendServiceAccountBindings BackendServiceAccountProjectBinding[]
+
     @@unique([spaceId, name])
 }
 

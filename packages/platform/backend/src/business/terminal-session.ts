@@ -1,4 +1,6 @@
+import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager, TerminalSessionLog } from "../database"
+import { requireProjectPermission } from "../common"
 import {
   type TerminalSessionOutput,
   toTerminalSessionOutput,
@@ -18,10 +20,20 @@ export class TerminalSessionService {
    * @returns Array of terminal session outputs with metadata
    */
   async getInstanceTerminalSessions(
-    projectId: string,
+    context: ProjectRequestContext,
     stateId: string,
   ): Promise<TerminalSessionOutput[]> {
-    const database = await this.database.forProject(projectId)
+    const database = await this.database.forProject(context.projectId)
+    const state = await database.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!state) {
+      return []
+    }
+
+    requireProjectPermission(context, "terminal.get", { instanceId: state.instanceId })
 
     const sessions = await database.terminalSession.findMany({
       include: {
@@ -40,7 +52,7 @@ export class TerminalSessionService {
 
     return sessions.map(session => ({
       ...session,
-      projectId,
+      projectId: context.projectId,
       meta: session.terminal.meta,
     }))
   }
@@ -53,10 +65,10 @@ export class TerminalSessionService {
    * @returns Terminal session output with metadata or null if not found
    */
   async getTerminalSession(
-    projectId: string,
+    context: ProjectRequestContext,
     sessionId: string,
   ): Promise<TerminalSessionOutput | null> {
-    const database = await this.database.forProject(projectId)
+    const database = await this.database.forProject(context.projectId)
 
     const session = await database.terminalSession.findUnique({
       where: { id: sessionId },
@@ -69,6 +81,11 @@ export class TerminalSessionService {
       return null
     }
 
+    requireProjectPermission(context, "terminal.get", {
+      resourceId: session.terminal.id,
+      ownerServiceAccountId: session.terminal.serviceAccountId ?? undefined,
+    })
+
     return toTerminalSessionOutput(session.terminal, session)
   }
 
@@ -79,8 +96,25 @@ export class TerminalSessionService {
    * @param sessionId The session ID to get history for
    * @returns Array of session logs ordered by creation time
    */
-  async getSessionHistory(projectId: string, sessionId: string): Promise<TerminalSessionLog[]> {
-    const database = await this.database.forProject(projectId)
+  async getSessionHistory(
+    context: ProjectRequestContext,
+    sessionId: string,
+  ): Promise<TerminalSessionLog[]> {
+    const database = await this.database.forProject(context.projectId)
+
+    const session = await database.terminalSession.findUnique({
+      where: { id: sessionId },
+      select: { terminal: { select: { id: true, serviceAccountId: true } } },
+    })
+
+    if (!session) {
+      return []
+    }
+
+    requireProjectPermission(context, "terminal.get", {
+      resourceId: session.terminal.id,
+      ownerServiceAccountId: session.terminal.serviceAccountId ?? undefined,
+    })
 
     return await database.terminalSessionLog.findMany({
       where: { sessionId },

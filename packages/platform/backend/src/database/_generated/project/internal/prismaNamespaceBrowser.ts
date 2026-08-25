@@ -70,6 +70,10 @@ export const ModelName = {
   OperationLog: 'OperationLog',
   Page: 'Page',
   Panel: 'Panel',
+  Role: 'Role',
+  UserRoleBinding: 'UserRoleBinding',
+  UserGroupRoleBinding: 'UserGroupRoleBinding',
+  ServiceAccountRoleBinding: 'ServiceAccountRoleBinding',
   Secret: 'Secret',
   ServiceAccount: 'ServiceAccount',
   Terminal: 'Terminal',
@@ -77,6 +81,8 @@ export const ModelName = {
   TerminalSessionLog: 'TerminalSessionLog',
   Trigger: 'Trigger',
   UnlockMethod: 'UnlockMethod',
+  User: 'User',
+  UserGroup: 'UserGroup',
   Worker: 'Worker',
   WorkerVersion: 'WorkerVersion',
   WorkerUnitRegistration: 'WorkerUnitRegistration',
@@ -100,7 +106,10 @@ export const ApiKeyScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
   serviceAccountId: 'serviceAccountId',
-  token: 'token',
+  tokenHash: 'tokenHash',
+  restrictionRules: 'restrictionRules',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -329,6 +338,45 @@ export const PanelScalarFieldEnum = {
 export type PanelScalarFieldEnum = (typeof PanelScalarFieldEnum)[keyof typeof PanelScalarFieldEnum]
 
 
+export const RoleScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  systemName: 'systemName',
+  rules: 'rules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const UserRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserRoleBindingScalarFieldEnum = (typeof UserRoleBindingScalarFieldEnum)[keyof typeof UserRoleBindingScalarFieldEnum]
+
+
+export const UserGroupRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  groupId: 'groupId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserGroupRoleBindingScalarFieldEnum = (typeof UserGroupRoleBindingScalarFieldEnum)[keyof typeof UserGroupRoleBindingScalarFieldEnum]
+
+
+export const ServiceAccountRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  serviceAccountId: 'serviceAccountId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceAccountRoleBindingScalarFieldEnum = (typeof ServiceAccountRoleBindingScalarFieldEnum)[keyof typeof ServiceAccountRoleBindingScalarFieldEnum]
+
+
 export const SecretScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
@@ -347,6 +395,7 @@ export type SecretScalarFieldEnum = (typeof SecretScalarFieldEnum)[keyof typeof 
 export const ServiceAccountScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
+  systemName: 'systemName',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -413,6 +462,27 @@ export const UnlockMethodScalarFieldEnum = {
 } as const
 
 export type UnlockMethodScalarFieldEnum = (typeof UnlockMethodScalarFieldEnum)[keyof typeof UnlockMethodScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserGroupScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserGroupScalarFieldEnum = (typeof UserGroupScalarFieldEnum)[keyof typeof UserGroupScalarFieldEnum]
 
 
 export const WorkerScalarFieldEnum = {

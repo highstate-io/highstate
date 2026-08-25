@@ -288,6 +288,7 @@ export type ProjectWhereInput = {
   pulumiBackend?: Prisma.XOR<Prisma.PulumiBackendScalarRelationFilter, Prisma.PulumiBackendWhereInput>
   importPorts?: Prisma.ProjectImportPortListRelationFilter
   exportPorts?: Prisma.ProjectImportPortListRelationFilter
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -311,6 +312,7 @@ export type ProjectOrderByWithRelationInput = {
   pulumiBackend?: Prisma.PulumiBackendOrderByWithRelationInput
   importPorts?: Prisma.ProjectImportPortOrderByRelationAggregateInput
   exportPorts?: Prisma.ProjectImportPortOrderByRelationAggregateInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -338,6 +340,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   pulumiBackend?: Prisma.XOR<Prisma.PulumiBackendScalarRelationFilter, Prisma.PulumiBackendWhereInput>
   importPorts?: Prisma.ProjectImportPortListRelationFilter
   exportPorts?: Prisma.ProjectImportPortListRelationFilter
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingListRelationFilter
 }, "id" | "spaceId_name">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -399,6 +402,7 @@ export type ProjectCreateInput = {
   pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -418,6 +422,7 @@ export type ProjectUncheckedCreateInput = {
   updatedAt?: Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -437,6 +442,7 @@ export type ProjectUpdateInput = {
   pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -456,6 +462,7 @@ export type ProjectUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -662,10 +669,6 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type ProjectCreateNestedManyWithoutSpaceInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutSpaceInput, Prisma.ProjectUncheckedCreateWithoutSpaceInput> | Prisma.ProjectCreateWithoutSpaceInput[] | Prisma.ProjectUncheckedCreateWithoutSpaceInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSpaceInput | Prisma.ProjectCreateOrConnectWithoutSpaceInput[]
@@ -792,6 +795,20 @@ export type ProjectUncheckedUpdateManyWithoutPulumiBackendNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
+export type ProjectCreateNestedOneWithoutBackendServiceAccountBindingsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBackendServiceAccountBindingsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutBackendServiceAccountBindingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBackendServiceAccountBindingsInput
+  upsert?: Prisma.ProjectUpsertWithoutBackendServiceAccountBindingsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUpdateWithoutBackendServiceAccountBindingsInput>, Prisma.ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput>
+}
+
 export type ProjectCreateWithoutImportPortsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
@@ -808,6 +825,7 @@ export type ProjectCreateWithoutImportPortsInput = {
   library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
   pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutImportPortsInput = {
@@ -826,6 +844,7 @@ export type ProjectUncheckedCreateWithoutImportPortsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutImportPortsInput = {
@@ -849,6 +868,7 @@ export type ProjectCreateWithoutExportPortsInput = {
   library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
   pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutExportPortsInput = {
@@ -867,6 +887,7 @@ export type ProjectUncheckedCreateWithoutExportPortsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutExportPortsInput = {
@@ -901,6 +922,7 @@ export type ProjectUpdateWithoutImportPortsInput = {
   library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
   pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutImportPortsInput = {
@@ -919,6 +941,7 @@ export type ProjectUncheckedUpdateWithoutImportPortsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUpsertWithoutExportPortsInput = {
@@ -948,6 +971,7 @@ export type ProjectUpdateWithoutExportPortsInput = {
   library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
   pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutExportPortsInput = {
@@ -966,6 +990,7 @@ export type ProjectUncheckedUpdateWithoutExportPortsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutLibraryInput = {
@@ -984,6 +1009,7 @@ export type ProjectCreateWithoutLibraryInput = {
   pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutLibraryInput = {
@@ -1002,6 +1028,7 @@ export type ProjectUncheckedCreateWithoutLibraryInput = {
   updatedAt?: Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutLibraryInput = {
@@ -1066,6 +1093,7 @@ export type ProjectCreateWithoutSpaceInput = {
   pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutSpaceInput = {
@@ -1084,6 +1112,7 @@ export type ProjectUncheckedCreateWithoutSpaceInput = {
   updatedAt?: Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutSpaceInput = {
@@ -1128,6 +1157,7 @@ export type ProjectCreateWithoutModelStorageInput = {
   pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutModelStorageInput = {
@@ -1146,6 +1176,7 @@ export type ProjectUncheckedCreateWithoutModelStorageInput = {
   updatedAt?: Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutModelStorageInput = {
@@ -1190,6 +1221,7 @@ export type ProjectCreateWithoutPulumiBackendInput = {
   library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutPulumiBackendInput = {
@@ -1208,6 +1240,7 @@ export type ProjectUncheckedCreateWithoutPulumiBackendInput = {
   updatedAt?: Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutPulumiBackendInput = {
@@ -1234,6 +1267,98 @@ export type ProjectUpdateWithWhereUniqueWithoutPulumiBackendInput = {
 export type ProjectUpdateManyWithWhereWithoutPulumiBackendInput = {
   where: Prisma.ProjectScalarWhereInput
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutPulumiBackendInput>
+}
+
+export type ProjectCreateWithoutBackendServiceAccountBindingsInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
+  modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
+  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
+  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
+  exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  spaceId: string
+  modelStorageId: string
+  libraryId: string
+  pulumiBackendId: string
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutBackendServiceAccountBindingsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput>
+}
+
+export type ProjectUpsertWithoutBackendServiceAccountBindingsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutBackendServiceAccountBindingsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutBackendServiceAccountBindingsInput, Prisma.ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput>
+}
+
+export type ProjectUpdateWithoutBackendServiceAccountBindingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
+  modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
+  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
+  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
 }
 
 export type ProjectCreateManyLibraryInput = {
@@ -1268,6 +1393,7 @@ export type ProjectUpdateWithoutLibraryInput = {
   pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutLibraryInput = {
@@ -1286,6 +1412,7 @@ export type ProjectUncheckedUpdateWithoutLibraryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutLibraryInput = {
@@ -1336,6 +1463,7 @@ export type ProjectUpdateWithoutSpaceInput = {
   pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutSpaceInput = {
@@ -1354,6 +1482,7 @@ export type ProjectUncheckedUpdateWithoutSpaceInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutSpaceInput = {
@@ -1404,6 +1533,7 @@ export type ProjectUpdateWithoutModelStorageInput = {
   pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutModelStorageInput = {
@@ -1422,6 +1552,7 @@ export type ProjectUncheckedUpdateWithoutModelStorageInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutModelStorageInput = {
@@ -1472,6 +1603,7 @@ export type ProjectUpdateWithoutPulumiBackendInput = {
   library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutPulumiBackendInput = {
@@ -1490,6 +1622,7 @@ export type ProjectUncheckedUpdateWithoutPulumiBackendInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutPulumiBackendInput = {
@@ -1516,11 +1649,13 @@ export type ProjectUncheckedUpdateManyWithoutPulumiBackendInput = {
 export type ProjectCountOutputType = {
   importPorts: number
   exportPorts: number
+  backendServiceAccountBindings: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importPorts?: boolean | ProjectCountOutputTypeCountImportPortsArgs
   exportPorts?: boolean | ProjectCountOutputTypeCountExportPortsArgs
+  backendServiceAccountBindings?: boolean | ProjectCountOutputTypeCountBackendServiceAccountBindingsArgs
 }
 
 /**
@@ -1547,6 +1682,13 @@ export type ProjectCountOutputTypeCountExportPortsArgs<ExtArgs extends runtime.T
   where?: Prisma.ProjectImportPortWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountBackendServiceAccountBindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BackendServiceAccountProjectBindingWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1569,6 +1711,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
   importPorts?: boolean | Prisma.Project$importPortsArgs<ExtArgs>
   exportPorts?: boolean | Prisma.Project$exportPortsArgs<ExtArgs>
+  backendServiceAccountBindings?: boolean | Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -1639,6 +1782,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
   importPorts?: boolean | Prisma.Project$importPortsArgs<ExtArgs>
   exportPorts?: boolean | Prisma.Project$exportPortsArgs<ExtArgs>
+  backendServiceAccountBindings?: boolean | Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1681,6 +1825,10 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      * The import ports in this project where this project is the source.
      */
     exportPorts: Prisma.$ProjectImportPortPayload<ExtArgs>[]
+    /**
+     * The backend service account bindings targeting this project.
+     */
+    backendServiceAccountBindings: Prisma.$BackendServiceAccountProjectBindingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -2144,6 +2292,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   pulumiBackend<T extends Prisma.PulumiBackendDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PulumiBackendDefaultArgs<ExtArgs>>): Prisma.Prisma__PulumiBackendClient<runtime.Types.Result.GetResult<Prisma.$PulumiBackendPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   importPorts<T extends Prisma.Project$importPortsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$importPortsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectImportPortPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   exportPorts<T extends Prisma.Project$exportPortsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$exportPortsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectImportPortPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  backendServiceAccountBindings<T extends Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BackendServiceAccountProjectBindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2628,6 +2777,30 @@ export type Project$exportPortsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ProjectImportPortScalarFieldEnum | Prisma.ProjectImportPortScalarFieldEnum[]
+}
+
+/**
+ * Project.backendServiceAccountBindings
+ */
+export type Project$backendServiceAccountBindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BackendServiceAccountProjectBinding
+   */
+  select?: Prisma.BackendServiceAccountProjectBindingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BackendServiceAccountProjectBinding
+   */
+  omit?: Prisma.BackendServiceAccountProjectBindingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BackendServiceAccountProjectBindingInclude<ExtArgs> | null
+  where?: Prisma.BackendServiceAccountProjectBindingWhereInput
+  orderBy?: Prisma.BackendServiceAccountProjectBindingOrderByWithRelationInput | Prisma.BackendServiceAccountProjectBindingOrderByWithRelationInput[]
+  cursor?: Prisma.BackendServiceAccountProjectBindingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BackendServiceAccountProjectBindingScalarFieldEnum | Prisma.BackendServiceAccountProjectBindingScalarFieldEnum[]
 }
 
 /**

@@ -1,4 +1,5 @@
 import type { Logger } from "pino"
+import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
 import type { LibraryBackend, ResolvedUnitSource } from "../library"
 import type { ProjectUnlockBackend } from "../unlock"
@@ -9,7 +10,19 @@ import {
   objectEntity,
 } from "@highstate/contract"
 import { armor, Decrypter } from "age-encryption"
-import { type LibraryModel, SYSTEM_EXPORT_COMPONENT_TYPE } from "../shared"
+import { z } from "zod"
+import {
+  encodePageToken,
+  requireProjectPermission,
+  resolvePageRequest,
+  toPageResult,
+} from "../common"
+import {
+  type LibraryModel,
+  type PageRequest,
+  type PageResult,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
+} from "../shared"
 import { projectImportPortDataSchema } from "../shared/models/import"
 
 type ProjectRow = {
@@ -39,6 +52,15 @@ export class LibraryService {
    * - `system.import.${sourceStateId}.v1` for rows present in `ProjectImportPort`.
    */
   async getVirtualComponents(
+    context: ProjectRequestContext,
+    signal?: AbortSignal,
+  ): Promise<Record<string, ComponentModel>> {
+    requireProjectPermission(context, "instance-model.get")
+
+    return await this.getVirtualComponentsCore(context.projectId, signal)
+  }
+
+  async getVirtualComponentsCore(
     projectId: string,
     signal?: AbortSignal,
   ): Promise<Record<string, ComponentModel>> {
@@ -76,7 +98,16 @@ export class LibraryService {
    *
    * It avoids copying full global model maps by using proxies for component and entity access.
    */
-  async getLibraryModel(projectId: string, signal?: AbortSignal): Promise<LibraryModel> {
+  async getLibraryModel(
+    context: ProjectRequestContext,
+    signal?: AbortSignal,
+  ): Promise<LibraryModel> {
+    requireProjectPermission(context, "instance-model.get")
+
+    return await this.getLibraryModelCore(context.projectId, signal)
+  }
+
+  async getLibraryModelCore(projectId: string, signal?: AbortSignal): Promise<LibraryModel> {
     const [project, baseLibrary, virtualComponents] = await Promise.all([
       this.database.backend.project.findUnique({
         where: { id: projectId },
@@ -91,7 +122,7 @@ export class LibraryService {
 
           return await this.libraryBackend.loadLibrary(value.libraryId, signal)
         }),
-      this.getVirtualComponents(projectId, signal),
+      this.getVirtualComponentsCore(projectId, signal),
     ])
     const virtualEntities = this.getVirtualEntities()
 
@@ -173,6 +204,32 @@ export class LibraryService {
       components: proxiedComponents,
       entities: proxiedEntities,
     }
+  }
+
+  async getComponents(
+    context: ProjectRequestContext,
+    page: PageRequest = {},
+    signal?: AbortSignal,
+  ): Promise<PageResult<ComponentModel>> {
+    requireProjectPermission(context, "instance-model.get")
+
+    const library = await this.getLibraryModelCore(context.projectId, signal)
+    const collection = "components"
+    const query = { projectId: context.projectId }
+    const { pageSize, cursor } = resolvePageRequest(
+      collection,
+      page,
+      query,
+      z.object({ type: z.string().min(1) }),
+    )
+    const components = Object.values(library.components)
+      .filter(component => !cursor || component.type > cursor.type)
+      .sort((left, right) => left.type.localeCompare(right.type))
+      .slice(0, pageSize + 1)
+
+    return toPageResult(components, pageSize, component =>
+      encodePageToken(collection, query, { type: component.type }),
+    )
   }
 
   private getVirtualEntities(): Record<string, EntityModel> {

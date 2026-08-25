@@ -3,8 +3,9 @@ import type { BackendDatabaseBackend } from "../abstractions"
 import type { BackendDatabase } from "../prisma"
 import { randomBytes } from "node:crypto"
 import { hostname } from "node:os"
+import { cuidv2d } from "@highstate/contract"
 import { PrismaLibSql } from "@prisma/adapter-libsql"
-import { armor, Decrypter, Encrypter, identityToRecipient } from "age-encryption"
+import { armor, Decrypter, Encrypter, generateIdentity, identityToRecipient } from "age-encryption"
 import { z } from "zod"
 import { codebaseConfig, getCodebaseHighstatePath } from "../../common"
 import { PrismaClient } from "../_generated/backend/sqlite/client"
@@ -16,6 +17,8 @@ import {
   getOrCreateBackendIdentity,
 } from "./keyring"
 import { type DatabaseMetaFile, readMetaFile, writeMetaFile } from "./meta"
+
+const backendIdNamespace = "36d23d1d-b1ca-47d9-a5a3-664bb7aa250d"
 
 export const localBackendDatabaseConfig = z.object({
   ...codebaseConfig.shape,
@@ -30,6 +33,8 @@ export const localBackendDatabaseConfig = z.object({
 class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   constructor(
     readonly database: BackendDatabase,
+    readonly backendId: string,
+    readonly privateKey: string,
     private readonly databasePath: string,
     private readonly config: BackendIdentityConfig,
     private readonly logger: Logger,
@@ -37,20 +42,16 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
   ) {}
 
   /**
-   * Rewrites the encrypted master key to match the provided recipients.
+   * Rewrites the encrypted backend secrets to match the provided recipients.
    *
-   * @param recipients AGE recipients that should retain access to the backend master key.
+   * @param recipients AGE recipients that should retain access to the backend secrets.
    */
-  async reencryptMasterKey(recipients: string[]): Promise<void> {
-    if (!this.isEncryptionEnabled) {
-      return
-    }
-
+  async reencryptSecrets(recipients: string[]): Promise<void> {
     const meta = await readMetaFile(this.databasePath)
-    if (!meta?.masterKey) {
+    if (!meta?.privateKey) {
       this.logger.warn(
-        { databasePath: this.databasePath },
-        "backend meta file does not contain a master key; skipping re-encryption",
+        `backend meta file "%s/backend.meta.yaml" does not contain a private key; skipping re-encryption`,
+        this.databasePath,
       )
       return
     }
@@ -59,41 +60,78 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
     const decrypter = new Decrypter()
     decrypter.addIdentity(identity)
 
-    const plaintextMasterKey = await decrypter.decrypt(armor.decode(meta.masterKey), "text")
-
-    const encrypter = new Encrypter()
     const allowedRecipients = new Set<string>(recipients)
     allowedRecipients.add(await identityToRecipient(identity))
-
-    for (const recipient of allowedRecipients) {
-      encrypter.addRecipient(recipient)
-    }
-
-    const encrypted = await encrypter.encrypt(plaintextMasterKey)
+    const plaintextPrivateKey = await decrypter.decrypt(armor.decode(meta.privateKey), "text")
+    const privateKey = await encryptSecret(plaintextPrivateKey, allowedRecipients)
+    const masterKey = meta.masterKey
+      ? await encryptSecret(
+          await decrypter.decrypt(armor.decode(meta.masterKey), "text"),
+          allowedRecipients,
+        )
+      : undefined
 
     await writeMetaFile(this.databasePath, {
       ...meta,
-      masterKey: armor.encode(encrypted),
+      masterKey,
+      privateKey,
     })
   }
 }
 
-async function createMasterKey(config: BackendIdentityConfig, logger: Logger) {
-  const identity = await getOrCreateBackendIdentity(config, logger)
-
+async function createMasterKey(identity: string) {
   const masterKey = randomBytes(32).toString("hex")
-  const encrypter = new Encrypter()
-
   const recipient = await identityToRecipient(identity)
-  encrypter.addRecipient(recipient)
-
-  const encryptedMasterKey = await encrypter.encrypt(masterKey)
-  const armoredMasterKey = armor.encode(encryptedMasterKey)
+  const armoredMasterKey = await encryptSecret(masterKey, [recipient])
 
   return { armoredMasterKey, masterKey, recipient }
 }
 
+async function encryptSecret(secret: string, recipients: Iterable<string>): Promise<string> {
+  const encrypter = new Encrypter()
+
+  for (const recipient of recipients) {
+    encrypter.addRecipient(recipient)
+  }
+
+  return armor.encode(await encrypter.encrypt(secret))
+}
+
+export async function createBackendPrivateKey(identity: string): Promise<{
+  backendId: string
+  encryptedPrivateKey: string
+  privateKey: string
+}> {
+  const privateKey = await generateIdentity()
+  const recipient = (await identityToRecipient(privateKey)).trim()
+  const encryptionRecipient = await identityToRecipient(identity)
+
+  return {
+    backendId: cuidv2d(backendIdNamespace, recipient),
+    encryptedPrivateKey: await encryptSecret(privateKey, [encryptionRecipient]),
+    privateKey,
+  }
+}
+
+export async function readBackendPrivateKey(
+  encryptedPrivateKey: string,
+  identity: string,
+): Promise<{ backendId: string; privateKey: string }> {
+  const decrypter = new Decrypter()
+  decrypter.addIdentity(identity)
+
+  const privateKey = await decrypter.decrypt(armor.decode(encryptedPrivateKey), "text")
+  const recipient = (await identityToRecipient(privateKey)).trim()
+
+  return {
+    backendId: cuidv2d(backendIdNamespace, recipient),
+    privateKey,
+  }
+}
+
 type DatabaseInitializationResult = {
+  backendId: string
+  privateKey: string
   masterKey?: string
   metaFile: DatabaseMetaFile
   created: boolean
@@ -107,18 +145,23 @@ async function ensureDatabaseInitialized(
   logger: Logger,
 ): Promise<DatabaseInitializationResult> {
   const meta = await readMetaFile(databasePath)
+  const identity = await getOrCreateBackendIdentity(config, logger)
 
   if (!meta) {
     logger.info("creating new database")
 
-    const masterKey = encryptionEnabled ? await createMasterKey(config, logger) : undefined
+    const masterKey = encryptionEnabled ? await createMasterKey(identity) : undefined
+    const privateKey = await createBackendPrivateKey(identity)
 
     const metaFile: DatabaseMetaFile = {
       version: 0,
       masterKey: masterKey?.armoredMasterKey,
+      privateKey: privateKey.encryptedPrivateKey,
     }
 
     return {
+      backendId: privateKey.backendId,
+      privateKey: privateKey.privateKey,
       masterKey: masterKey?.masterKey,
       metaFile,
       created: true,
@@ -126,31 +169,45 @@ async function ensureDatabaseInitialized(
     }
   }
 
+  let privateKey: { backendId: string; privateKey: string }
+  let metaFile = meta
+
+  if (meta.privateKey) {
+    privateKey = await readBackendPrivateKey(meta.privateKey, identity)
+  } else {
+    const createdPrivateKey = await createBackendPrivateKey(identity)
+    privateKey = createdPrivateKey
+    metaFile = { ...meta, privateKey: createdPrivateKey.encryptedPrivateKey }
+    await writeMetaFile(databasePath, metaFile)
+  }
+
   if (!encryptionEnabled) {
     return {
+      backendId: privateKey.backendId,
+      privateKey: privateKey.privateKey,
       masterKey: undefined,
-      metaFile: meta,
+      metaFile,
       created: false,
     }
   }
 
-  if (!meta.masterKey) {
+  if (!metaFile.masterKey) {
     throw new Error(
       `Database meta file at "${databasePath}/backend.meta.yaml" does not contain a master key.`,
     )
   }
 
-  const identity = await getOrCreateBackendIdentity(config, logger)
-
   const decrypter = new Decrypter()
   decrypter.addIdentity(identity)
 
-  const encryptedMasterKey = armor.decode(meta.masterKey)
+  const encryptedMasterKey = armor.decode(metaFile.masterKey)
   const masterKey = await decrypter.decrypt(encryptedMasterKey, "text")
 
   return {
+    backendId: privateKey.backendId,
+    privateKey: privateKey.privateKey,
     masterKey,
-    metaFile: meta,
+    metaFile,
     created: false,
   }
 }
@@ -173,12 +230,15 @@ export async function createLocalBackendDatabaseBackend(
   let databasePath = config.HIGHSTATE_BACKEND_DATABASE_LOCAL_PATH
   databasePath ??= await getCodebaseHighstatePath(config, logger)
 
-  const { masterKey, metaFile, created, initialRecipient } = await ensureDatabaseInitialized(
-    databasePath,
-    config.HIGHSTATE_ENCRYPTION_ENABLED,
-    config,
-    logger,
-  )
+  const { backendId, privateKey, masterKey, metaFile, created, initialRecipient } =
+    await ensureDatabaseInitialized(
+      databasePath,
+      config.HIGHSTATE_ENCRYPTION_ENABLED,
+      config,
+      logger,
+    )
+
+  logger.info(`backend id: %s`, backendId)
 
   const databaseUrl = `file:${databasePath}/backend.db`
 
@@ -209,6 +269,8 @@ export async function createLocalBackendDatabaseBackend(
 
   return new LocalBackendDatabaseBackend(
     database,
+    backendId,
+    privateKey,
     databasePath,
     config,
     backendLogger,
@@ -258,7 +320,8 @@ async function ensureInitialUnlockMethod(
   })
 
   logger.info(
-    { title: meta.title, recipient: initialRecipient },
-    "registered initial backend unlock method",
+    `registered initial backend unlock method "%s" with recipient "%s"`,
+    meta.title,
+    initialRecipient,
   )
 }

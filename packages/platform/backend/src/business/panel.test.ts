@@ -3,8 +3,8 @@ import type { PanelEndpointManager } from "../panel"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, vi } from "vitest"
 import { MemoryPubSubBackend, PubSubManager } from "../pubsub"
-import { AccessError } from "../shared"
-import { test } from "../test-utils"
+import { WorkerOwnershipError, WorkerRegistrationNotFoundError } from "../shared"
+import { adminProjectContext, test } from "../test-utils"
 import { PanelService } from "./panel"
 
 const panelTest = test.extend<{
@@ -58,7 +58,6 @@ const panelTest = test.extend<{
             create: {
               meta: { title: "Test panel worker API key" },
               serviceAccountId: worker.serviceAccountId,
-              token: createId(),
             },
           },
         },
@@ -84,6 +83,11 @@ describe("setUnitPanels", () => {
       const state = await createInstanceState(project.id)
       const worker = await createWorker()
       const workerVersion = await createWorkerVersion(worker)
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId: worker.serviceAccountId,
+        workerId: worker.id,
+      })
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -94,7 +98,7 @@ describe("setUnitPanels", () => {
       })
 
       const firstIds = await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         workerVersion.apiKeyId,
         workerVersion.id,
@@ -105,7 +109,7 @@ describe("setUnitPanels", () => {
         createId(),
       )
       const secondIds = await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         workerVersion.apiKeyId,
         workerVersion.id,
@@ -141,17 +145,22 @@ describe("setUnitPanels", () => {
       const state = await createInstanceState(project.id)
       const worker = await createWorker()
       const workerVersion = await createWorkerVersion(worker)
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId: worker.serviceAccountId,
+        workerId: worker.id,
+      })
 
       await expect(
         panelService.setUnitPanels(
-          project.id,
+          context,
           state.id,
           workerVersion.apiKeyId,
           workerVersion.id,
           [{ name: "dashboard", meta: { title: "Dashboard" } }],
           createId(),
         ),
-      ).rejects.toBeInstanceOf(AccessError)
+      ).rejects.toBeInstanceOf(WorkerRegistrationNotFoundError)
     },
   )
 
@@ -171,6 +180,11 @@ describe("setUnitPanels", () => {
       const workerVersion = await createWorkerVersion(worker)
       const otherWorker = await createWorker()
       const otherWorkerVersion = await createWorkerVersion(otherWorker)
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId: worker.serviceAccountId,
+        workerId: worker.id,
+      })
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -182,14 +196,14 @@ describe("setUnitPanels", () => {
 
       await expect(
         panelService.setUnitPanels(
-          project.id,
+          context,
           state.id,
           otherWorkerVersion.apiKeyId,
           workerVersion.id,
           [{ name: "dashboard", meta: { title: "Dashboard" } }],
           createId(),
         ),
-      ).rejects.toBeInstanceOf(AccessError)
+      ).rejects.toBeInstanceOf(WorkerOwnershipError)
     },
   )
 
@@ -207,6 +221,11 @@ describe("setUnitPanels", () => {
       const state = await createInstanceState(project.id)
       const worker = await createWorker()
       const workerVersion = await createWorkerVersion(worker)
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId: worker.serviceAccountId,
+        workerId: worker.id,
+      })
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -216,7 +235,7 @@ describe("setUnitPanels", () => {
         },
       })
       await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         workerVersion.apiKeyId,
         workerVersion.id,
@@ -228,7 +247,7 @@ describe("setUnitPanels", () => {
       })
 
       await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         workerVersion.apiKeyId,
         workerVersion.id,
@@ -257,6 +276,11 @@ describe("setUnitPanels", () => {
       const worker = await createWorker()
       const oldVersion = await createWorkerVersion(worker)
       const newVersion = await createWorkerVersion(worker)
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId: worker.serviceAccountId,
+        workerId: worker.id,
+      })
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -266,7 +290,7 @@ describe("setUnitPanels", () => {
         },
       })
       const [panelId] = await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         oldVersion.apiKeyId,
         oldVersion.id,
@@ -279,7 +303,7 @@ describe("setUnitPanels", () => {
       })
 
       const newPanelIds = await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         newVersion.apiKeyId,
         newVersion.id,
@@ -287,7 +311,7 @@ describe("setUnitPanels", () => {
         createId(),
       )
       await panelService.setUnitPanels(
-        project.id,
+        context,
         state.id,
         oldVersion.apiKeyId,
         oldVersion.id,

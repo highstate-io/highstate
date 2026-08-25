@@ -18,6 +18,11 @@ export { Prisma }
 export * as $Enums from './enums.ts'
 export * from './enums.ts';
 /**
+ * Model BackendApiKey
+ * A backend API key authenticates a backend service account.
+ */
+export type BackendApiKey = Prisma.BackendApiKeyModel
+/**
  * Model ProjectImportPort
  * 
  */
@@ -59,7 +64,47 @@ export type ProjectModelStorage = Prisma.ProjectModelStorageModel
  */
 export type PulumiBackend = Prisma.PulumiBackendModel
 /**
+ * Model BackendRole
+ * A backend role groups permissions over backend resources, project spaces, and projects.
+ */
+export type BackendRole = Prisma.BackendRoleModel
+/**
+ * Model UserBackendRoleBinding
+ * A user role binding grants a backend role to a user.
+ */
+export type UserBackendRoleBinding = Prisma.UserBackendRoleBindingModel
+/**
+ * Model UserGroupBackendRoleBinding
+ * A user group role binding grants a backend role to a group.
+ */
+export type UserGroupBackendRoleBinding = Prisma.UserGroupBackendRoleBindingModel
+/**
+ * Model ServiceAccountBackendRoleBinding
+ * A backend role binding grants a backend role to a backend service account.
+ */
+export type ServiceAccountBackendRoleBinding = Prisma.ServiceAccountBackendRoleBindingModel
+/**
+ * Model BackendServiceAccount
+ * A backend service account represents a non-human identity in the backend authorization realm.
+ */
+export type BackendServiceAccount = Prisma.BackendServiceAccountModel
+/**
+ * Model BackendServiceAccountProjectBinding
+ * A binding allowing a backend service account to assume a portable project service account.
+ */
+export type BackendServiceAccountProjectBinding = Prisma.BackendServiceAccountProjectBindingModel
+/**
  * Model BackendUnlockMethod
  * Unlock methods describe trusted identities that can decrypt the backend master key.
  */
 export type BackendUnlockMethod = Prisma.BackendUnlockMethodModel
+/**
+ * Model User
+ * A user represents a globally identified human actor.
+ */
+export type User = Prisma.UserModel
+/**
+ * Model UserGroup
+ * An OIDC user group with a globally deterministic identity.
+ */
+export type UserGroup = Prisma.UserGroupModel
