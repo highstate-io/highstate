@@ -30,6 +30,8 @@
     "push-image": "docker push ghcr.io/highstate-io/highstate/worker.k8s-monitor"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "catalog:",
+    "@connectrpc/connect": "catalog:",
     "@highstate/api": "workspace:*",
     "@highstate/contract": "workspace:*",
     "@highstate/library": "workspace:*",
@@ -39,7 +41,7 @@
     "remeda": "^2.26.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@highstate/cli": "workspace:*",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1",
     "lerna": "^8.2.3"

@@ -1,9 +1,11 @@
+import type { DescService } from "@bufbuild/protobuf"
 import type { PanelHttpRequestInterceptor } from "./panel"
 import { EventEmitter } from "node:events"
 import { createInterface } from "node:readline/promises"
-import { createAuthenticationMiddleware } from "@highstate/api"
-import { PanelServiceDefinition } from "@highstate/api/panel.v1"
-import { WorkerServiceDefinition } from "@highstate/api/worker.v1"
+import { type Client, createClient, type Transport } from "@connectrpc/connect"
+import { createApiTransport, createAuthenticationInterceptor } from "@highstate/api"
+import { PanelService } from "@highstate/api/v1"
+import { WorkerService } from "@highstate/api/worker.v1"
 import {
   type CommonObjectMeta,
   type ServiceAccountMeta,
@@ -11,13 +13,6 @@ import {
   workerRunOptionsSchema,
   type z,
 } from "@highstate/contract"
-import {
-  type Channel,
-  type ClientFactory,
-  type CompatServiceDefinition,
-  createChannel,
-  createClientFactory,
-} from "nice-grpc"
 import { PanelDataServer, PanelTargetRegistry } from "./panel"
 
 export * from "./panel"
@@ -44,8 +39,7 @@ export type WorkerOptions<TParamsSchema extends z.ZodType = z.ZodType> = {
 
 export class Worker<TParamsSchema extends z.ZodType> {
   private readonly eventEmitter = new EventEmitter()
-  private readonly clientFactory: ClientFactory
-  private readonly channel: Channel
+  private readonly transport: Transport
   private readonly panelTargets = new PanelTargetRegistry()
   private readonly panelDataServer = new PanelDataServer(this.panelTargets)
 
@@ -53,10 +47,8 @@ export class Worker<TParamsSchema extends z.ZodType> {
     private readonly options: WorkerOptions<TParamsSchema>,
     private readonly runOptions: WorkerRunOptions,
   ) {
-    const authMiddleware = createAuthenticationMiddleware(runOptions.apiKey, runOptions.projectId)
-
-    this.clientFactory = createClientFactory().use(authMiddleware)
-    this.channel = createChannel(runOptions.apiUrl)
+    const authenticationInterceptor = createAuthenticationInterceptor(runOptions.apiKey)
+    this.transport = createApiTransport(runOptions.apiUrl, [authenticationInterceptor])
   }
 
   onUnitRegistration(handler: RegistrationHandler<TParamsSchema>) {
@@ -88,8 +80,14 @@ export class Worker<TParamsSchema extends z.ZodType> {
     this.eventEmitter.on("unitDeregistration", (instanceId: string) => void handle(instanceId))
   }
 
-  createClient<TService extends CompatServiceDefinition>(definition: TService) {
-    return this.clientFactory.create(definition, this.channel)
+  /**
+   * Creates a typed client for a service exposed by the worker API.
+   *
+   * @param service The worker API service descriptor.
+   * @returns A typed client for the requested service.
+   */
+  createClient<TService extends DescService>(service: TService): Client<TService> {
+    return createClient(service, this.transport)
   }
 
   /**
@@ -105,8 +103,9 @@ export class Worker<TParamsSchema extends z.ZodType> {
     const targets = this.panelTargets.prepare(panels)
     await this.panelTargets.waitUntilReady(targets)
 
-    const panelClient = this.createClient(PanelServiceDefinition)
+    const panelClient = this.createClient(PanelService)
     const response = await panelClient.setUnitPanels({
+      projectId: this.runOptions.projectId,
       workerVersionId: this.runOptions.workerVersionId,
       workerInstanceId: this.runOptions.workerInstanceId,
       stateId,
@@ -119,29 +118,25 @@ export class Worker<TParamsSchema extends z.ZodType> {
   }
 
   async start(): Promise<void> {
-    const workerClient = this.createClient(WorkerServiceDefinition)
+    const workerClient = this.createClient(WorkerService)
     await workerClient.updateWorkerVersionMeta({
+      projectId: this.runOptions.projectId,
       workerVersionId: this.runOptions.workerVersionId,
-      meta: {
-        workerMeta: this.options.workerMeta,
-        serviceAccountMeta: this.options.serviceAccountMeta,
-      },
+      workerMeta: this.options.workerMeta,
+      serviceAccountMeta: this.options.serviceAccountMeta,
     })
 
     this.panelDataServer.start()
 
     for await (const { event } of workerClient.connect({
+      projectId: this.runOptions.projectId,
       workerVersionId: this.runOptions.workerVersionId,
       workerInstanceId: this.runOptions.workerInstanceId,
       dataEndpoint: this.runOptions.dataEndpoint,
     })) {
-      switch (event?.$case) {
+      switch (event.case) {
         case "unitRegistration": {
-          this.eventEmitter.emit(
-            "unitRegistration",
-            event.value.stateId,
-            event.value.params as TParamsSchema,
-          )
+          this.eventEmitter.emit("unitRegistration", event.value.stateId, event.value.params)
           break
         }
         case "unitDeregistration": {
@@ -155,8 +150,8 @@ export class Worker<TParamsSchema extends z.ZodType> {
   /**
    * Creates a new worker and connects it to the Highstate platform.
    *
-   * @param metadata The metadata of the worker version to update.
-   * @param paramsSchema The Zod schema of the parameters accepted by the worker on each unit registration.
+   * @param options The worker configuration and parameter schema.
+   * @returns The connected worker instance.
    */
   static async create<TParamsSchema extends z.ZodType>(
     options: WorkerOptions<TParamsSchema>,

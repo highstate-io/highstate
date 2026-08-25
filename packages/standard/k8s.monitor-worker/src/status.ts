@@ -1,4 +1,5 @@
-import type { InstanceServiceClient } from "@highstate/api/instance.v1"
+import type { Client } from "@connectrpc/connect"
+import type { InstanceStateService } from "@highstate/api/v1"
 import type { k8s } from "@highstate/library"
 import type {
   KubernetesObject,
@@ -62,7 +63,7 @@ export class StatusTracker {
 
   constructor(
     private readonly stateId: string,
-    private readonly instanceService: InstanceServiceClient,
+    private readonly instanceService: Client<typeof InstanceStateService>,
     public resources: k8s.NamespacedResource[],
   ) {}
 

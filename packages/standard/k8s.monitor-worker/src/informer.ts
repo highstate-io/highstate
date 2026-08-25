@@ -1,4 +1,5 @@
-import type { InstanceServiceClient } from "@highstate/api/instance.v1"
+import type { Client } from "@connectrpc/connect"
+import type { InstanceStateService } from "@highstate/api/v1"
 import type { k8s } from "@highstate/library"
 import {
   AppsV1Api,
@@ -215,7 +216,7 @@ function createResourceInformer(
 
 export async function updateInstanceInformers(
   stateId: string,
-  instanceService: InstanceServiceClient,
+  instanceService: Client<typeof InstanceStateService>,
   kc: KubeConfig,
   resources: k8s.NamespacedResource[],
 ): Promise<void> {
