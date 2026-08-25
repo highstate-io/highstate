@@ -295,7 +295,7 @@ export const instanceModelPatchSchema = z.object({
    *
    * Only for designer-first instances.
    */
-  position: positionSchema.optional(),
+  position: positionSchema.partial().nullable().optional(),
 })
 
 export const instanceModelSchema = z.object({
@@ -326,6 +326,8 @@ export const instanceModelSchema = z.object({
   name: genericNameSchema,
 
   ...instanceModelPatchSchema.shape,
+
+  position: positionSchema.optional(),
 
   /**
    * The id of the top level parent instance.
@@ -362,7 +364,7 @@ export const hubModelPatchSchema = z.object({
   /**
    * The position of the hub on the canvas.
    */
-  position: positionSchema.optional(),
+  position: positionSchema.partial().nullable().optional(),
 
   /**
    * The inputs of the hub.
@@ -385,6 +387,8 @@ export const hubModelSchema = z.object({
   id: z.cuid2(),
 
   ...hubModelPatchSchema.shape,
+
+  position: positionSchema.optional(),
 })
 
 export type InstanceModelPatch = z.infer<typeof instanceModelPatchSchema>
