@@ -1,4 +1,4 @@
-import { InstanceServiceDefinition } from "@highstate/api/instance.v1"
+import { InstanceStateService } from "@highstate/api/v1"
 import { k8s } from "@highstate/library"
 import { Worker } from "@highstate/worker-sdk"
 import { KubeConfig } from "@kubernetes/client-node"
@@ -18,7 +18,7 @@ const worker = await Worker.create({
   paramsSchema: k8s.monitorWorkerParamsSchema,
 })
 
-const instanceService = worker.createClient(InstanceServiceDefinition)
+const instanceService = worker.createClient(InstanceStateService)
 
 worker.onUnitRegistration(async (instanceId, params) => {
   const kc = new KubeConfig()
