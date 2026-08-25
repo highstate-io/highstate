@@ -1,0 +1,50 @@
+enum UserType {
+  local
+  oidc
+}
+
+/// A user represents a globally identified human actor.
+model User {
+  /// The deterministic CUIDv2d of the user identity.
+  id String @id
+
+  /// The authentication source of the user.
+  type UserType
+
+  /// The latest known display metadata of the user.
+  ///
+  /// [UserMeta]
+  meta Json
+
+  /// The time when the user was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the user was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The role bindings granting permissions to this user.
+  roleBindings UserBackendRoleBinding[]
+
+  /// The workspace layout belonging to this user.
+  workspaceLayout UserWorkspaceLayout?
+}
+
+/// An OIDC user group with a globally deterministic identity.
+model UserGroup {
+  /// The deterministic CUIDv2d of the group identity.
+  id String @id
+
+  /// The latest known display metadata of the group.
+  ///
+  /// [UserGroupMeta]
+  meta Json
+
+  /// The time when the group was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the group was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The role bindings granting permissions to this group.
+  roleBindings UserGroupBackendRoleBinding[]
+}

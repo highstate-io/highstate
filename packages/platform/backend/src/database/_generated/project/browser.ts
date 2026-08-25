@@ -23,7 +23,7 @@ export * from './enums.ts';
  * 
  * Each API key impersonates a service account, inheriting its permissions and access scope.
  * Keys are automatically created for worker versions and can be manually created for
- * external integrations. The token is a 32-byte random hex string that can be regenerated.
+ * external integrations. Tokens contain a CUIDv2 secret that can be regenerated.
  */
 export type ApiKey = Prisma.ApiKeyModel
 /**
@@ -146,6 +146,26 @@ export type Page = Prisma.PageModel
  */
 export type Panel = Prisma.PanelModel
 /**
+ * Model Role
+ * A role groups project permissions that can be granted to users, groups, and service accounts.
+ */
+export type Role = Prisma.RoleModel
+/**
+ * Model UserRoleBinding
+ * A user role binding grants a project role to a user.
+ */
+export type UserRoleBinding = Prisma.UserRoleBindingModel
+/**
+ * Model UserGroupRoleBinding
+ * A user group role binding grants a project role to a backend-managed user group.
+ */
+export type UserGroupRoleBinding = Prisma.UserGroupRoleBindingModel
+/**
+ * Model ServiceAccountRoleBinding
+ * A service account role binding grants a project role to a service account.
+ */
+export type ServiceAccountRoleBinding = Prisma.ServiceAccountRoleBindingModel
+/**
  * Model Secret
  * The secret stores sensitive configuration values for instances, service accounts, and system components.
  * 
@@ -224,6 +244,21 @@ export type Trigger = Prisma.TriggerModel
  * corresponding to that identity.
  */
 export type UnlockMethod = Prisma.UnlockMethodModel
+/**
+ * Model User
+ * A user records a globally identified human actor known to the project.
+ * 
+ * A user is created when a role is bound to them or when they interact with the project
+ * and produce an audit log entry.
+ */
+export type User = Prisma.UserModel
+/**
+ * Model UserGroup
+ * A user group records a globally identified OIDC group known to the project.
+ * 
+ * A user group is created only when a project role is bound to it.
+ */
+export type UserGroup = Prisma.UserGroupModel
 /**
  * Model Worker
  * The worker represents a containerized application that extends unit capabilities beyond Pulumi execution.

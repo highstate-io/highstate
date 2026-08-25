@@ -4,7 +4,7 @@ import type { OperationOptions } from "../shared"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, type MockedObject, vi } from "vitest"
-import { test } from "../test-utils"
+import { adminProjectContext, test } from "../test-utils"
 import { OperationService } from "./operation"
 
 const operationTest = test.extend<{
@@ -41,6 +41,10 @@ const operationTest = test.extend<{
     await use(service)
   },
 })
+
+function createOperationContext(projectId: string) {
+  return adminProjectContext(projectId)
+}
 
 describe("createOperation", () => {
   operationTest(
@@ -167,7 +171,10 @@ describe("getOperation", () => {
       })
 
       // act
-      const result = await operationService.getOperation(project.id, operation.id)
+      const result = await operationService.getOperation(
+        createOperationContext(project.id),
+        operation.id,
+      )
 
       // assert
       expect(result).toBeDefined()
@@ -183,7 +190,10 @@ describe("getOperation", () => {
       const nonExistentId = "nonexistent"
 
       // act
-      const result = await operationService.getOperation(project.id, nonExistentId)
+      const result = await operationService.getOperation(
+        createOperationContext(project.id),
+        nonExistentId,
+      )
 
       // assert
       expect(result).toBeUndefined()
@@ -222,17 +232,17 @@ describe("getOperations", () => {
       })
 
       // act
-      const operations = await operationService.getOperations(project.id)
+      const operations = await operationService.getOperations(createOperationContext(project.id))
 
       // assert
-      expect(operations).toHaveLength(2)
-      expect(operations[0].id).toBe(operation2.id) // newer operation first
-      expect(operations[1].id).toBe(operation1.id)
+      expect(operations.items).toHaveLength(2)
+      expect(operations.items[0]!.id).toBe(operation2.id) // newer operation first
+      expect(operations.items[1]!.id).toBe(operation1.id)
     },
   )
 
   operationTest(
-    "respects limit parameter",
+    "continues with an opaque page token",
     async ({ operationService, projectDatabase, project, expect }) => {
       // clean up any existing operations first
       await projectDatabase.operation.deleteMany({})
@@ -260,10 +270,20 @@ describe("getOperations", () => {
       })
 
       // act
-      const operations = await operationService.getOperations(project.id, 1)
+      const firstPage = await operationService.getOperations(createOperationContext(project.id), {
+        pageSize: 1,
+      })
+      const secondPage = await operationService.getOperations(createOperationContext(project.id), {
+        pageSize: 1,
+        pageToken: firstPage.nextPageToken,
+      })
 
       // assert
-      expect(operations).toHaveLength(1)
+      expect(firstPage.items).toHaveLength(1)
+      expect(firstPage.nextPageToken).toBeDefined()
+      expect(secondPage.items).toHaveLength(1)
+      expect(secondPage.items[0]!.id).not.toBe(firstPage.items[0]!.id)
+      expect(secondPage.nextPageToken).toBeUndefined()
     },
   )
 
@@ -274,10 +294,10 @@ describe("getOperations", () => {
       await projectDatabase.operation.deleteMany({})
 
       // act
-      const operations = await operationService.getOperations(project.id)
+      const operations = await operationService.getOperations(createOperationContext(project.id))
 
       // assert
-      expect(operations).toEqual([])
+      expect(operations).toEqual({ items: [], nextPageToken: undefined })
     },
   )
 })
@@ -317,11 +337,14 @@ describe("getOperationLogs", () => {
       })
 
       // act
-      const logs = await operationService.getOperationLogs(project.id, operation.id)
+      const logs = await operationService.getOperationLogs(
+        createOperationContext(project.id),
+        operation.id,
+      )
 
       // assert
-      expect(logs).toHaveLength(2)
-      expect(logs.map(l => l.content)).toEqual(["Log 1", "Log 2"])
+      expect(logs.items).toHaveLength(2)
+      expect(logs.items.map(log => log.content)).toEqual(["Log 1", "Log 2"])
     },
   )
 
@@ -361,15 +384,15 @@ describe("getOperationLogs", () => {
 
       // act
       const logs = await operationService.getOperationLogs(
-        project.id,
+        createOperationContext(project.id),
         operation.id,
         targetInstance.id,
       )
 
       // assert
-      expect(logs).toHaveLength(1)
-      expect(logs[0].content).toBe("Target log")
-      expect(logs[0].stateId).toBe(targetInstance.id)
+      expect(logs.items).toHaveLength(1)
+      expect(logs.items[0]!.content).toBe("Target log")
+      expect(logs.items[0]!.stateId).toBe(targetInstance.id)
     },
   )
 
@@ -389,10 +412,13 @@ describe("getOperationLogs", () => {
       })
 
       // act
-      const logs = await operationService.getOperationLogs(project.id, operation.id)
+      const logs = await operationService.getOperationLogs(
+        createOperationContext(project.id),
+        operation.id,
+      )
 
       // assert
-      expect(logs).toEqual([])
+      expect(logs).toEqual({ items: [], nextPageToken: undefined })
     },
   )
 })

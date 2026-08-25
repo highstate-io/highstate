@@ -1,9 +1,36 @@
 import type {
+  BackendRoleCreateInput,
+  BackendServiceAccountCreateInput,
   LibraryCreateInput,
   ProjectModelStorageCreateInput,
   ProjectSpaceCreateInput,
   PulumiBackendCreateInput,
-} from "../../../database/_generated/backend/postgresql/models"
+} from "../../../database"
+import { backendPermissionGroups } from "./role"
+
+export const adminBackendRole = {
+  systemName: "admin",
+  meta: {
+    title: "Admin",
+    description: "Grants unrestricted access to every backend permission.",
+  },
+  rules: [
+    {
+      permissions: backendPermissionGroups.flatMap(group =>
+        group.permissions.map(permission => permission.name),
+      ),
+    },
+  ],
+} satisfies BackendRoleCreateInput
+
+export const adminBackendServiceAccount = {
+  systemName: "admin",
+  meta: {
+    title: "Admin",
+    description: "System-managed backend administrator identity.",
+    icon: "mdi:shield-crown-outline",
+  },
+} satisfies BackendServiceAccountCreateInput
 
 export const globalProjectSpace = {
   id: "q8xbilhwpsn65zjlv5kz44qh",

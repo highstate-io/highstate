@@ -9,6 +9,8 @@ import { generateIdentity, identityToRecipient } from "age-encryption"
 import { createProjectLogger } from "../common"
 import {
   type DatabaseManager,
+  ensureAdminProjectBindingCreated,
+  ensureProjectWellKnownEntitiesCreated,
   ensureWellKnownEntitiesCreated,
   migrateDatabase,
   migrationPacks,
@@ -70,6 +72,16 @@ export class TestDatabaseManager implements DatabaseManager {
     })
 
     await migrateDatabase(client, migrationPacks.project, 0, () => Promise.resolve(), logger)
+    await ensureProjectWellKnownEntitiesCreated(client)
+
+    const project = await this.backend.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    })
+
+    if (project) {
+      await ensureAdminProjectBindingCreated(this.backend, client, projectId)
+    }
 
     return client
   }

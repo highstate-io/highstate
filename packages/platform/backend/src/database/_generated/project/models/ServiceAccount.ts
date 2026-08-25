@@ -33,12 +33,14 @@ export type AggregateServiceAccount = {
 
 export type ServiceAccountMinAggregateOutputType = {
   id: string | null
+  systemName: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ServiceAccountMaxAggregateOutputType = {
   id: string | null
+  systemName: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +48,7 @@ export type ServiceAccountMaxAggregateOutputType = {
 export type ServiceAccountCountAggregateOutputType = {
   id: number
   meta: number
+  systemName: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -54,12 +57,14 @@ export type ServiceAccountCountAggregateOutputType = {
 
 export type ServiceAccountMinAggregateInputType = {
   id?: true
+  systemName?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ServiceAccountMaxAggregateInputType = {
   id?: true
+  systemName?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +72,7 @@ export type ServiceAccountMaxAggregateInputType = {
 export type ServiceAccountCountAggregateInputType = {
   id?: true
   meta?: true
+  systemName?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -147,6 +153,7 @@ export type ServiceAccountGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type ServiceAccountGroupByOutputType = {
   id: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName: string | null
   createdAt: Date
   updatedAt: Date
   _count: ServiceAccountCountAggregateOutputType | null
@@ -175,6 +182,7 @@ export type ServiceAccountWhereInput = {
   NOT?: Prisma.ServiceAccountWhereInput | Prisma.ServiceAccountWhereInput[]
   id?: Prisma.StringFilter<"ServiceAccount"> | string
   meta?: Prisma.JsonFilter<"ServiceAccount">
+  systemName?: Prisma.StringNullableFilter<"ServiceAccount"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ServiceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ServiceAccount"> | Date | string
   workers?: Prisma.WorkerListRelationFilter
@@ -185,11 +193,13 @@ export type ServiceAccountWhereInput = {
   customStatuses?: Prisma.InstanceCustomStatusListRelationFilter
   panels?: Prisma.PanelListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
+  roleBindings?: Prisma.ServiceAccountRoleBindingListRelationFilter
 }
 
 export type ServiceAccountOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
+  systemName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   workers?: Prisma.WorkerOrderByRelationAggregateInput
@@ -200,10 +210,12 @@ export type ServiceAccountOrderByWithRelationInput = {
   customStatuses?: Prisma.InstanceCustomStatusOrderByRelationAggregateInput
   panels?: Prisma.PanelOrderByRelationAggregateInput
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingOrderByRelationAggregateInput
 }
 
 export type ServiceAccountWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  systemName?: string
   AND?: Prisma.ServiceAccountWhereInput | Prisma.ServiceAccountWhereInput[]
   OR?: Prisma.ServiceAccountWhereInput[]
   NOT?: Prisma.ServiceAccountWhereInput | Prisma.ServiceAccountWhereInput[]
@@ -218,11 +230,13 @@ export type ServiceAccountWhereUniqueInput = Prisma.AtLeast<{
   customStatuses?: Prisma.InstanceCustomStatusListRelationFilter
   panels?: Prisma.PanelListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
-}, "id">
+  roleBindings?: Prisma.ServiceAccountRoleBindingListRelationFilter
+}, "id" | "systemName">
 
 export type ServiceAccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
+  systemName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ServiceAccountCountOrderByAggregateInput
@@ -236,6 +250,7 @@ export type ServiceAccountScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ServiceAccountScalarWhereWithAggregatesInput | Prisma.ServiceAccountScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ServiceAccount"> | string
   meta?: Prisma.JsonWithAggregatesFilter<"ServiceAccount">
+  systemName?: Prisma.StringNullableWithAggregatesFilter<"ServiceAccount"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ServiceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ServiceAccount"> | Date | string
 }
@@ -243,6 +258,7 @@ export type ServiceAccountScalarWhereWithAggregatesInput = {
 export type ServiceAccountCreateInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -253,11 +269,13 @@ export type ServiceAccountCreateInput = {
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -268,11 +286,13 @@ export type ServiceAccountUncheckedCreateInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -283,11 +303,13 @@ export type ServiceAccountUpdateInput = {
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -298,11 +320,13 @@ export type ServiceAccountUncheckedUpdateInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateManyInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -310,6 +334,7 @@ export type ServiceAccountCreateManyInput = {
 export type ServiceAccountUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +342,7 @@ export type ServiceAccountUpdateManyMutationInput = {
 export type ServiceAccountUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -344,18 +370,21 @@ export type ServiceAccountNullableScalarRelationFilter = {
 export type ServiceAccountCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
+  systemName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ServiceAccountMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  systemName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ServiceAccountMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  systemName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -456,6 +485,20 @@ export type ServiceAccountUpdateOneRequiredWithoutPanelsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceAccountUpdateToOneWithWhereWithoutPanelsInput, Prisma.ServiceAccountUpdateWithoutPanelsInput>, Prisma.ServiceAccountUncheckedUpdateWithoutPanelsInput>
 }
 
+export type ServiceAccountCreateNestedOneWithoutRoleBindingsInput = {
+  create?: Prisma.XOR<Prisma.ServiceAccountCreateWithoutRoleBindingsInput, Prisma.ServiceAccountUncheckedCreateWithoutRoleBindingsInput>
+  connectOrCreate?: Prisma.ServiceAccountCreateOrConnectWithoutRoleBindingsInput
+  connect?: Prisma.ServiceAccountWhereUniqueInput
+}
+
+export type ServiceAccountUpdateOneRequiredWithoutRoleBindingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceAccountCreateWithoutRoleBindingsInput, Prisma.ServiceAccountUncheckedCreateWithoutRoleBindingsInput>
+  connectOrCreate?: Prisma.ServiceAccountCreateOrConnectWithoutRoleBindingsInput
+  upsert?: Prisma.ServiceAccountUpsertWithoutRoleBindingsInput
+  connect?: Prisma.ServiceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceAccountUpdateToOneWithWhereWithoutRoleBindingsInput, Prisma.ServiceAccountUpdateWithoutRoleBindingsInput>, Prisma.ServiceAccountUncheckedUpdateWithoutRoleBindingsInput>
+}
+
 export type ServiceAccountCreateNestedOneWithoutSecretsInput = {
   create?: Prisma.XOR<Prisma.ServiceAccountCreateWithoutSecretsInput, Prisma.ServiceAccountUncheckedCreateWithoutSecretsInput>
   connectOrCreate?: Prisma.ServiceAccountCreateOrConnectWithoutSecretsInput
@@ -505,6 +548,7 @@ export type ServiceAccountUpdateOneRequiredWithoutWorkersNestedInput = {
 export type ServiceAccountCreateWithoutApiKeysInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -514,11 +558,13 @@ export type ServiceAccountCreateWithoutApiKeysInput = {
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutApiKeysInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -528,6 +574,7 @@ export type ServiceAccountUncheckedCreateWithoutApiKeysInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutApiKeysInput = {
@@ -549,6 +596,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutApiKeysInput = {
 export type ServiceAccountUpdateWithoutApiKeysInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -558,11 +606,13 @@ export type ServiceAccountUpdateWithoutApiKeysInput = {
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutApiKeysInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -572,11 +622,13 @@ export type ServiceAccountUncheckedUpdateWithoutApiKeysInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutArtifactsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -586,11 +638,13 @@ export type ServiceAccountCreateWithoutArtifactsInput = {
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutArtifactsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -600,6 +654,7 @@ export type ServiceAccountUncheckedCreateWithoutArtifactsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutArtifactsInput = {
@@ -629,6 +684,7 @@ export type ServiceAccountScalarWhereInput = {
   NOT?: Prisma.ServiceAccountScalarWhereInput | Prisma.ServiceAccountScalarWhereInput[]
   id?: Prisma.StringFilter<"ServiceAccount"> | string
   meta?: Prisma.JsonFilter<"ServiceAccount">
+  systemName?: Prisma.StringNullableFilter<"ServiceAccount"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ServiceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ServiceAccount"> | Date | string
 }
@@ -636,6 +692,7 @@ export type ServiceAccountScalarWhereInput = {
 export type ServiceAccountCreateWithoutCustomStatusesInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -645,11 +702,13 @@ export type ServiceAccountCreateWithoutCustomStatusesInput = {
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutCustomStatusesInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -659,6 +718,7 @@ export type ServiceAccountUncheckedCreateWithoutCustomStatusesInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutCustomStatusesInput = {
@@ -680,6 +740,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutCustomStatusesInput = {
 export type ServiceAccountUpdateWithoutCustomStatusesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -689,11 +750,13 @@ export type ServiceAccountUpdateWithoutCustomStatusesInput = {
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutCustomStatusesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -703,11 +766,13 @@ export type ServiceAccountUncheckedUpdateWithoutCustomStatusesInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutPagesInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -717,11 +782,13 @@ export type ServiceAccountCreateWithoutPagesInput = {
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutPagesInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -731,6 +798,7 @@ export type ServiceAccountUncheckedCreateWithoutPagesInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutPagesInput = {
@@ -752,6 +820,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutPagesInput = {
 export type ServiceAccountUpdateWithoutPagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -761,11 +830,13 @@ export type ServiceAccountUpdateWithoutPagesInput = {
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutPagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -775,11 +846,13 @@ export type ServiceAccountUncheckedUpdateWithoutPagesInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutPanelsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -789,11 +862,13 @@ export type ServiceAccountCreateWithoutPanelsInput = {
   pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutPanelsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -803,6 +878,7 @@ export type ServiceAccountUncheckedCreateWithoutPanelsInput = {
   pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutPanelsInput = {
@@ -824,6 +900,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutPanelsInput = {
 export type ServiceAccountUpdateWithoutPanelsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -833,11 +910,13 @@ export type ServiceAccountUpdateWithoutPanelsInput = {
   pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutPanelsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -847,11 +926,93 @@ export type ServiceAccountUncheckedUpdateWithoutPanelsInput = {
   pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
+}
+
+export type ServiceAccountCreateWithoutRoleBindingsInput = {
+  id?: string
+  meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
+  artifacts?: Prisma.ArtifactCreateNestedManyWithoutServiceAccountsInput
+  secrets?: Prisma.SecretCreateNestedManyWithoutServiceAccountInput
+  terminals?: Prisma.TerminalCreateNestedManyWithoutServiceAccountInput
+  pages?: Prisma.PageCreateNestedManyWithoutServiceAccountInput
+  customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+}
+
+export type ServiceAccountUncheckedCreateWithoutRoleBindingsInput = {
+  id?: string
+  meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
+  artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutServiceAccountsInput
+  secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutServiceAccountInput
+  terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutServiceAccountInput
+  pages?: Prisma.PageUncheckedCreateNestedManyWithoutServiceAccountInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+}
+
+export type ServiceAccountCreateOrConnectWithoutRoleBindingsInput = {
+  where: Prisma.ServiceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceAccountCreateWithoutRoleBindingsInput, Prisma.ServiceAccountUncheckedCreateWithoutRoleBindingsInput>
+}
+
+export type ServiceAccountUpsertWithoutRoleBindingsInput = {
+  update: Prisma.XOR<Prisma.ServiceAccountUpdateWithoutRoleBindingsInput, Prisma.ServiceAccountUncheckedUpdateWithoutRoleBindingsInput>
+  create: Prisma.XOR<Prisma.ServiceAccountCreateWithoutRoleBindingsInput, Prisma.ServiceAccountUncheckedCreateWithoutRoleBindingsInput>
+  where?: Prisma.ServiceAccountWhereInput
+}
+
+export type ServiceAccountUpdateToOneWithWhereWithoutRoleBindingsInput = {
+  where?: Prisma.ServiceAccountWhereInput
+  data: Prisma.XOR<Prisma.ServiceAccountUpdateWithoutRoleBindingsInput, Prisma.ServiceAccountUncheckedUpdateWithoutRoleBindingsInput>
+}
+
+export type ServiceAccountUpdateWithoutRoleBindingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
+  artifacts?: Prisma.ArtifactUpdateManyWithoutServiceAccountsNestedInput
+  secrets?: Prisma.SecretUpdateManyWithoutServiceAccountNestedInput
+  terminals?: Prisma.TerminalUpdateManyWithoutServiceAccountNestedInput
+  pages?: Prisma.PageUpdateManyWithoutServiceAccountNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+}
+
+export type ServiceAccountUncheckedUpdateWithoutRoleBindingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
+  artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutServiceAccountsNestedInput
+  secrets?: Prisma.SecretUncheckedUpdateManyWithoutServiceAccountNestedInput
+  terminals?: Prisma.TerminalUncheckedUpdateManyWithoutServiceAccountNestedInput
+  pages?: Prisma.PageUncheckedUpdateManyWithoutServiceAccountNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutSecretsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -861,11 +1022,13 @@ export type ServiceAccountCreateWithoutSecretsInput = {
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutSecretsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -875,6 +1038,7 @@ export type ServiceAccountUncheckedCreateWithoutSecretsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutSecretsInput = {
@@ -896,6 +1060,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutSecretsInput = {
 export type ServiceAccountUpdateWithoutSecretsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -905,11 +1070,13 @@ export type ServiceAccountUpdateWithoutSecretsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutSecretsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -919,11 +1086,13 @@ export type ServiceAccountUncheckedUpdateWithoutSecretsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutTerminalsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerCreateNestedManyWithoutServiceAccountInput
@@ -933,11 +1102,13 @@ export type ServiceAccountCreateWithoutTerminalsInput = {
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutTerminalsInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutServiceAccountInput
@@ -947,6 +1118,7 @@ export type ServiceAccountUncheckedCreateWithoutTerminalsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutTerminalsInput = {
@@ -968,6 +1140,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutTerminalsInput = {
 export type ServiceAccountUpdateWithoutTerminalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -977,11 +1150,13 @@ export type ServiceAccountUpdateWithoutTerminalsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutTerminalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -991,11 +1166,13 @@ export type ServiceAccountUncheckedUpdateWithoutTerminalsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountCreateWithoutWorkersInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   artifacts?: Prisma.ArtifactCreateNestedManyWithoutServiceAccountsInput
@@ -1005,11 +1182,13 @@ export type ServiceAccountCreateWithoutWorkersInput = {
   customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountUncheckedCreateWithoutWorkersInput = {
   id?: string
   meta:PrismaJson.ServiceAccountMeta
+  systemName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutServiceAccountsInput
@@ -1019,6 +1198,7 @@ export type ServiceAccountUncheckedCreateWithoutWorkersInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutServiceAccountInput
   panels?: Prisma.PanelUncheckedCreateNestedManyWithoutServiceAccountInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutServiceAccountInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedCreateNestedManyWithoutServiceAccountInput
 }
 
 export type ServiceAccountCreateOrConnectWithoutWorkersInput = {
@@ -1040,6 +1220,7 @@ export type ServiceAccountUpdateToOneWithWhereWithoutWorkersInput = {
 export type ServiceAccountUpdateWithoutWorkersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artifacts?: Prisma.ArtifactUpdateManyWithoutServiceAccountsNestedInput
@@ -1049,11 +1230,13 @@ export type ServiceAccountUpdateWithoutWorkersInput = {
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutWorkersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutServiceAccountsNestedInput
@@ -1063,11 +1246,13 @@ export type ServiceAccountUncheckedUpdateWithoutWorkersInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUpdateWithoutArtifactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUpdateManyWithoutServiceAccountNestedInput
@@ -1077,11 +1262,13 @@ export type ServiceAccountUpdateWithoutArtifactsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateWithoutArtifactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutServiceAccountNestedInput
@@ -1091,11 +1278,13 @@ export type ServiceAccountUncheckedUpdateWithoutArtifactsInput = {
   customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutServiceAccountNestedInput
   panels?: Prisma.PanelUncheckedUpdateManyWithoutServiceAccountNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutServiceAccountNestedInput
+  roleBindings?: Prisma.ServiceAccountRoleBindingUncheckedUpdateManyWithoutServiceAccountNestedInput
 }
 
 export type ServiceAccountUncheckedUpdateManyWithoutArtifactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ServiceAccountMeta
+  systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1114,6 +1303,7 @@ export type ServiceAccountCountOutputType = {
   customStatuses: number
   panels: number
   apiKeys: number
+  roleBindings: number
 }
 
 export type ServiceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1125,6 +1315,7 @@ export type ServiceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   customStatuses?: boolean | ServiceAccountCountOutputTypeCountCustomStatusesArgs
   panels?: boolean | ServiceAccountCountOutputTypeCountPanelsArgs
   apiKeys?: boolean | ServiceAccountCountOutputTypeCountApiKeysArgs
+  roleBindings?: boolean | ServiceAccountCountOutputTypeCountRoleBindingsArgs
 }
 
 /**
@@ -1193,10 +1384,18 @@ export type ServiceAccountCountOutputTypeCountApiKeysArgs<ExtArgs extends runtim
   where?: Prisma.ApiKeyWhereInput
 }
 
+/**
+ * ServiceAccountCountOutputType without action
+ */
+export type ServiceAccountCountOutputTypeCountRoleBindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServiceAccountRoleBindingWhereInput
+}
+
 
 export type ServiceAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   meta?: boolean
+  systemName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workers?: boolean | Prisma.ServiceAccount$workersArgs<ExtArgs>
@@ -1207,12 +1406,14 @@ export type ServiceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   customStatuses?: boolean | Prisma.ServiceAccount$customStatusesArgs<ExtArgs>
   panels?: boolean | Prisma.ServiceAccount$panelsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.ServiceAccount$apiKeysArgs<ExtArgs>
+  roleBindings?: boolean | Prisma.ServiceAccount$roleBindingsArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["serviceAccount"]>
 
 export type ServiceAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   meta?: boolean
+  systemName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["serviceAccount"]>
@@ -1220,6 +1421,7 @@ export type ServiceAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Type
 export type ServiceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   meta?: boolean
+  systemName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["serviceAccount"]>
@@ -1227,11 +1429,12 @@ export type ServiceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type ServiceAccountSelectScalar = {
   id?: boolean
   meta?: boolean
+  systemName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ServiceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "createdAt" | "updatedAt", ExtArgs["result"]["serviceAccount"]>
+export type ServiceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "systemName" | "createdAt" | "updatedAt", ExtArgs["result"]["serviceAccount"]>
 export type ServiceAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workers?: boolean | Prisma.ServiceAccount$workersArgs<ExtArgs>
   artifacts?: boolean | Prisma.ServiceAccount$artifactsArgs<ExtArgs>
@@ -1241,6 +1444,7 @@ export type ServiceAccountInclude<ExtArgs extends runtime.Types.Extensions.Inter
   customStatuses?: boolean | Prisma.ServiceAccount$customStatusesArgs<ExtArgs>
   panels?: boolean | Prisma.ServiceAccount$panelsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.ServiceAccount$apiKeysArgs<ExtArgs>
+  roleBindings?: boolean | Prisma.ServiceAccount$roleBindingsArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ServiceAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1281,6 +1485,10 @@ export type $ServiceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * The API keys impersonating this service account.
      */
     apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
+    /**
+     * The role bindings granting permissions to this service account.
+     */
+    roleBindings: Prisma.$ServiceAccountRoleBindingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -1293,6 +1501,12 @@ export type $ServiceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * [ServiceAccountMeta]
      */
     meta:PrismaJson.ServiceAccountMeta
+    /**
+     * The stable name of a backend-managed service account.
+     * 
+     * Custom service accounts do not have a system name.
+     */
+    systemName: string | null
     /**
      * The time when the service account was created.
      */
@@ -1703,6 +1917,7 @@ export interface Prisma__ServiceAccountClient<T, Null = never, ExtArgs extends r
   customStatuses<T extends Prisma.ServiceAccount$customStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$customStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstanceCustomStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   panels<T extends Prisma.ServiceAccount$panelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$panelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PanelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   apiKeys<T extends Prisma.ServiceAccount$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  roleBindings<T extends Prisma.ServiceAccount$roleBindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceAccount$roleBindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceAccountRoleBindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1734,6 +1949,7 @@ export interface Prisma__ServiceAccountClient<T, Null = never, ExtArgs extends r
 export interface ServiceAccountFieldRefs {
   readonly id: Prisma.FieldRef<"ServiceAccount", 'String'>
   readonly meta: Prisma.FieldRef<"ServiceAccount", 'Json'>
+  readonly systemName: Prisma.FieldRef<"ServiceAccount", 'String'>
   readonly createdAt: Prisma.FieldRef<"ServiceAccount", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ServiceAccount", 'DateTime'>
 }
@@ -2311,6 +2527,30 @@ export type ServiceAccount$apiKeysArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
+}
+
+/**
+ * ServiceAccount.roleBindings
+ */
+export type ServiceAccount$roleBindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ServiceAccountRoleBinding
+   */
+  select?: Prisma.ServiceAccountRoleBindingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ServiceAccountRoleBinding
+   */
+  omit?: Prisma.ServiceAccountRoleBindingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceAccountRoleBindingInclude<ExtArgs> | null
+  where?: Prisma.ServiceAccountRoleBindingWhereInput
+  orderBy?: Prisma.ServiceAccountRoleBindingOrderByWithRelationInput | Prisma.ServiceAccountRoleBindingOrderByWithRelationInput[]
+  cursor?: Prisma.ServiceAccountRoleBindingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ServiceAccountRoleBindingScalarFieldEnum | Prisma.ServiceAccountRoleBindingScalarFieldEnum[]
 }
 
 /**

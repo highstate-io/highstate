@@ -1,10 +1,12 @@
 import type { Logger } from "pino"
+import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager, ProjectTransaction } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import { randomBytes } from "node:crypto"
 import { type CommonObjectMeta, isUnitModel, parseInstanceId } from "@highstate/contract"
+import { requireProjectPermission } from "../common"
 import {
   InstanceStateNotFoundError,
   InvalidInstanceKindError,
@@ -55,7 +57,7 @@ export class SecretService {
       return { secretNames: [], secretIds: [] }
     }
 
-    const library = await this.libraryService.getLibraryModel(projectId)
+    const library = await this.libraryService.getLibraryModelCore(projectId)
 
     const [componentType] = parseInstanceId(state.instanceId)
     const component = library.components[componentType]
@@ -122,6 +124,26 @@ export class SecretService {
    * @param secretValues The secrets to create or update. Existing secrets not in this update are preserved.
    */
   async updateInstanceSecrets(
+    context: ProjectRequestContext,
+    stateId: string,
+    secretValues: Record<string, unknown>,
+  ): Promise<void> {
+    const database = await this.database.forProject(context.projectId)
+    const state = await database.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!state) {
+      throw new InstanceStateNotFoundError(context.projectId, stateId)
+    }
+
+    requireProjectPermission(context, "secret.update", { instanceId: state.instanceId })
+
+    await this.updateInstanceSecretsCoreWorkflow(context.projectId, stateId, secretValues)
+  }
+
+  async updateInstanceSecretsCoreWorkflow(
     projectId: string,
     stateId: string,
     secretValues: Record<string, unknown>,
@@ -176,6 +198,25 @@ export class SecretService {
    * @returns A record of secret key-value pairs.
    */
   async getInstanceSecretValues(
+    context: ProjectRequestContext,
+    stateId: string,
+  ): Promise<Record<string, unknown>> {
+    const database = await this.database.forProject(context.projectId)
+    const state = await database.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!state) {
+      throw new InstanceStateNotFoundError(context.projectId, stateId)
+    }
+
+    requireProjectPermission(context, "secret.value.get", { instanceId: state.instanceId })
+
+    return await this.getInstanceSecretValuesCore(context.projectId, stateId)
+  }
+
+  async getInstanceSecretValuesCore(
     projectId: string,
     stateId: string,
   ): Promise<Record<string, unknown>> {

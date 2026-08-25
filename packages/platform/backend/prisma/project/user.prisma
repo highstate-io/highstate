@@ -1,0 +1,62 @@
+enum UserType {
+  local
+  oidc
+}
+
+/// A user records a globally identified human actor known to the project.
+///
+/// A user is created when a role is bound to them or when they interact with the project
+/// and produce an audit log entry.
+model User {
+  /// The deterministic global CUIDv2d of the user identity.
+  id String @id
+
+  /// The authentication source of the user.
+  type UserType
+
+  /// The latest known display metadata of the user.
+  ///
+  /// This metadata is not used to establish the user's identity.
+  ///
+  /// [UserMeta]
+  meta Json
+
+  /// The time when the project user was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the project user was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The role bindings granting permissions to this user.
+  roleBindings UserRoleBinding[]
+
+  /// The project viewport belonging to this user.
+  projectViewport UserProjectViewport?
+
+  /// The composite instance viewports belonging to this user.
+  compositeViewports UserCompositeViewport[]
+}
+
+/// A user group records a globally identified OIDC group known to the project.
+///
+/// A user group is created only when a project role is bound to it.
+model UserGroup {
+  /// The deterministic global CUIDv2d of the group identity.
+  id String @id
+
+  /// The latest known display metadata of the group.
+  ///
+  /// This metadata is not used to establish the group's identity.
+  ///
+  /// [UserGroupMeta]
+  meta Json
+
+  /// The time when the project user group was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the project user group was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The role bindings granting permissions to this group.
+  roleBindings UserGroupRoleBinding[]
+}

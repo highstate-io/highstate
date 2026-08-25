@@ -156,11 +156,13 @@ export type UserWorkspaceLayoutWhereInput = {
   NOT?: Prisma.UserWorkspaceLayoutWhereInput | Prisma.UserWorkspaceLayoutWhereInput[]
   userId?: Prisma.StringFilter<"UserWorkspaceLayout"> | string
   layout?: Prisma.JsonFilter<"UserWorkspaceLayout">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type UserWorkspaceLayoutOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   layout?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type UserWorkspaceLayoutWhereUniqueInput = Prisma.AtLeast<{
@@ -169,6 +171,7 @@ export type UserWorkspaceLayoutWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWorkspaceLayoutWhereInput[]
   NOT?: Prisma.UserWorkspaceLayoutWhereInput | Prisma.UserWorkspaceLayoutWhereInput[]
   layout?: Prisma.JsonFilter<"UserWorkspaceLayout">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "userId">
 
 export type UserWorkspaceLayoutOrderByWithAggregationInput = {
@@ -188,8 +191,8 @@ export type UserWorkspaceLayoutScalarWhereWithAggregatesInput = {
 }
 
 export type UserWorkspaceLayoutCreateInput = {
-  userId: string
   layout:(unknown)
+  user: Prisma.UserCreateNestedOneWithoutWorkspaceLayoutInput
 }
 
 export type UserWorkspaceLayoutUncheckedCreateInput = {
@@ -198,8 +201,8 @@ export type UserWorkspaceLayoutUncheckedCreateInput = {
 }
 
 export type UserWorkspaceLayoutUpdateInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   layout?:(unknown)
+  user?: Prisma.UserUpdateOneRequiredWithoutWorkspaceLayoutNestedInput
 }
 
 export type UserWorkspaceLayoutUncheckedUpdateInput = {
@@ -213,7 +216,6 @@ export type UserWorkspaceLayoutCreateManyInput = {
 }
 
 export type UserWorkspaceLayoutUpdateManyMutationInput = {
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   layout?:(unknown)
 }
 
@@ -235,21 +237,93 @@ export type UserWorkspaceLayoutMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
 }
 
+export type UserWorkspaceLayoutNullableScalarRelationFilter = {
+  is?: Prisma.UserWorkspaceLayoutWhereInput | null
+  isNot?: Prisma.UserWorkspaceLayoutWhereInput | null
+}
+
+export type UserWorkspaceLayoutCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserWorkspaceLayoutCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserWorkspaceLayoutWhereUniqueInput
+}
+
+export type UserWorkspaceLayoutUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserWorkspaceLayoutCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserWorkspaceLayoutWhereUniqueInput
+}
+
+export type UserWorkspaceLayoutUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserWorkspaceLayoutCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserWorkspaceLayoutUpsertWithoutUserInput
+  disconnect?: Prisma.UserWorkspaceLayoutWhereInput | boolean
+  delete?: Prisma.UserWorkspaceLayoutWhereInput | boolean
+  connect?: Prisma.UserWorkspaceLayoutWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserWorkspaceLayoutUpdateToOneWithWhereWithoutUserInput, Prisma.UserWorkspaceLayoutUpdateWithoutUserInput>, Prisma.UserWorkspaceLayoutUncheckedUpdateWithoutUserInput>
+}
+
+export type UserWorkspaceLayoutUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserWorkspaceLayoutCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserWorkspaceLayoutUpsertWithoutUserInput
+  disconnect?: Prisma.UserWorkspaceLayoutWhereInput | boolean
+  delete?: Prisma.UserWorkspaceLayoutWhereInput | boolean
+  connect?: Prisma.UserWorkspaceLayoutWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserWorkspaceLayoutUpdateToOneWithWhereWithoutUserInput, Prisma.UserWorkspaceLayoutUpdateWithoutUserInput>, Prisma.UserWorkspaceLayoutUncheckedUpdateWithoutUserInput>
+}
+
+export type UserWorkspaceLayoutCreateWithoutUserInput = {
+  layout:(unknown)
+}
+
+export type UserWorkspaceLayoutUncheckedCreateWithoutUserInput = {
+  layout:(unknown)
+}
+
+export type UserWorkspaceLayoutCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserWorkspaceLayoutWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedCreateWithoutUserInput>
+}
+
+export type UserWorkspaceLayoutUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.UserWorkspaceLayoutUpdateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedCreateWithoutUserInput>
+  where?: Prisma.UserWorkspaceLayoutWhereInput
+}
+
+export type UserWorkspaceLayoutUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.UserWorkspaceLayoutWhereInput
+  data: Prisma.XOR<Prisma.UserWorkspaceLayoutUpdateWithoutUserInput, Prisma.UserWorkspaceLayoutUncheckedUpdateWithoutUserInput>
+}
+
+export type UserWorkspaceLayoutUpdateWithoutUserInput = {
+  layout?:(unknown)
+}
+
+export type UserWorkspaceLayoutUncheckedUpdateWithoutUserInput = {
+  layout?:(unknown)
+}
+
 
 
 export type UserWorkspaceLayoutSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   layout?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userWorkspaceLayout"]>
 
 export type UserWorkspaceLayoutSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   layout?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userWorkspaceLayout"]>
 
 export type UserWorkspaceLayoutSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   userId?: boolean
   layout?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userWorkspaceLayout"]>
 
 export type UserWorkspaceLayoutSelectScalar = {
@@ -258,13 +332,27 @@ export type UserWorkspaceLayoutSelectScalar = {
 }
 
 export type UserWorkspaceLayoutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"userId" | "layout", ExtArgs["result"]["userWorkspaceLayout"]>
+export type UserWorkspaceLayoutInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type UserWorkspaceLayoutIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type UserWorkspaceLayoutIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $UserWorkspaceLayoutPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserWorkspaceLayout"
-  objects: {}
+  objects: {
+    /**
+     * The user to which this layout belongs.
+     */
+    user: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
-     * The opaque ID of the user to which this layout belongs.
+     * The ID of the user to which this layout belongs.
      */
     userId: string
     /**
@@ -667,6 +755,7 @@ readonly fields: UserWorkspaceLayoutFieldRefs;
  */
 export interface Prisma__UserWorkspaceLayoutClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -715,6 +804,10 @@ export type UserWorkspaceLayoutFindUniqueArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
+  /**
    * Filter, which UserWorkspaceLayout to fetch.
    */
   where: Prisma.UserWorkspaceLayoutWhereUniqueInput
@@ -733,6 +826,10 @@ export type UserWorkspaceLayoutFindUniqueOrThrowArgs<ExtArgs extends runtime.Typ
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
+  /**
    * Filter, which UserWorkspaceLayout to fetch.
    */
   where: Prisma.UserWorkspaceLayoutWhereUniqueInput
@@ -750,6 +847,10 @@ export type UserWorkspaceLayoutFindFirstArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the UserWorkspaceLayout
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
   /**
    * Filter, which UserWorkspaceLayout to fetch.
    */
@@ -799,6 +900,10 @@ export type UserWorkspaceLayoutFindFirstOrThrowArgs<ExtArgs extends runtime.Type
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
+  /**
    * Filter, which UserWorkspaceLayout to fetch.
    */
   where?: Prisma.UserWorkspaceLayoutWhereInput
@@ -847,6 +952,10 @@ export type UserWorkspaceLayoutFindManyArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
+  /**
    * Filter, which UserWorkspaceLayouts to fetch.
    */
   where?: Prisma.UserWorkspaceLayoutWhereInput
@@ -890,6 +999,10 @@ export type UserWorkspaceLayoutCreateArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
+  /**
    * The data needed to create a UserWorkspaceLayout.
    */
   data: Prisma.XOR<Prisma.UserWorkspaceLayoutCreateInput, Prisma.UserWorkspaceLayoutUncheckedCreateInput>
@@ -923,6 +1036,10 @@ export type UserWorkspaceLayoutCreateManyAndReturnArgs<ExtArgs extends runtime.T
    */
   data: Prisma.UserWorkspaceLayoutCreateManyInput | Prisma.UserWorkspaceLayoutCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -937,6 +1054,10 @@ export type UserWorkspaceLayoutUpdateArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the UserWorkspaceLayout
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
   /**
    * The data needed to update a UserWorkspaceLayout.
    */
@@ -989,6 +1110,10 @@ export type UserWorkspaceLayoutUpdateManyAndReturnArgs<ExtArgs extends runtime.T
    * Limit how many UserWorkspaceLayouts to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1003,6 +1128,10 @@ export type UserWorkspaceLayoutUpsertArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the UserWorkspaceLayout
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
   /**
    * The filter to search for the UserWorkspaceLayout to update in case it exists.
    */
@@ -1029,6 +1158,10 @@ export type UserWorkspaceLayoutDeleteArgs<ExtArgs extends runtime.Types.Extensio
    * Omit specific fields from the UserWorkspaceLayout
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
   /**
    * Filter which UserWorkspaceLayout to delete.
    */
@@ -1061,4 +1194,8 @@ export type UserWorkspaceLayoutDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the UserWorkspaceLayout
    */
   omit?: Prisma.UserWorkspaceLayoutOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserWorkspaceLayoutInclude<ExtArgs> | null
 }

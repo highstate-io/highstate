@@ -6,12 +6,30 @@ export type BackendTransaction = Omit<BackendDatabase, runtime.ITXClientDenyList
 export type ProjectTransaction = Omit<ProjectDatabase, runtime.ITXClientDenyList>
 
 export type {
+  BackendApiKey,
   BackendUnlockMethod,
   Library,
   Project,
   ProjectSpace,
   PulumiBackend,
 } from "./_generated/backend/postgresql/client"
+export type {
+  BackendApiKeyCreateInput,
+  BackendApiKeyWhereInput,
+  BackendRoleCreateInput,
+  BackendRoleWhereInput,
+  BackendServiceAccountCreateInput,
+  BackendServiceAccountWhereInput,
+  LibraryCreateInput,
+  LibraryWhereInput,
+  ProjectModelStorageCreateInput,
+  ProjectModelStorageWhereInput,
+  ProjectSpaceCreateInput,
+  ProjectSpaceWhereInput,
+  ProjectWhereInput,
+  PulumiBackendCreateInput,
+  PulumiBackendWhereInput,
+} from "./_generated/backend/postgresql/models"
 export type {
   ApiKey,
   Artifact,
@@ -44,6 +62,13 @@ export type {
   WorkerVersionLog,
 } from "./_generated/project/client"
 export type {
+  ApiKeyWhereInput,
+  ArtifactWhereInput,
+  EntityOrderByWithRelationInput,
+  EntitySnapshotReferenceOrderByWithRelationInput,
+  EntitySnapshotReferenceWhereInput,
+  EntitySnapshotWhereInput,
+  EntityWhereInput,
   InstanceEvaluationStateUncheckedCreateInput,
   InstanceEvaluationStateUpdateInput,
   InstanceOperationStateCreateInput,
@@ -51,8 +76,20 @@ export type {
   InstanceOperationStateUpdateInput,
   InstanceStateInclude,
   InstanceStateUpdateInput,
+  InstanceStateWhereInput,
   OperationUpdateInput,
+  OperationWhereInput,
+  PageWhereInput,
+  PanelWhereInput,
+  RoleCreateInput,
+  SecretWhereInput,
+  ServiceAccountCreateInput,
+  ServiceAccountWhereInput,
+  TerminalWhereInput,
+  TriggerWhereInput,
+  UnlockMethodWhereInput,
+  WorkerVersionWhereInput,
+  WorkerWhereInput,
 } from "./_generated/project/models"
 export { DbNull } from "./_generated/project/internal/prismaNamespace"
-
 export { BackendDatabase, ProjectDatabase }

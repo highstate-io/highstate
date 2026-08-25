@@ -11,7 +11,7 @@ import { parseInstanceId } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, type MockedObject, vi } from "vitest"
 import { InstanceLockedError, InstanceStateNotFoundError } from "../shared"
-import { test } from "../test-utils"
+import { adminProjectContext, test } from "../test-utils"
 import { InstanceStateService } from "./instance-state"
 
 const instanceStateTest = test.extend<{
@@ -131,7 +131,7 @@ describe("getInstanceStates", () => {
       const instanceState2 = await createInstanceState(project.id)
 
       // act
-      const instanceStates = await instanceStateService.getInstanceStates(project.id)
+      const instanceStates = await instanceStateService.getInstanceStatesCore(project.id)
 
       // assert
       expect(instanceStates).toHaveLength(2)
@@ -163,7 +163,7 @@ describe("getInstanceStates", () => {
       })
 
       // act
-      const instanceStates = await instanceStateService.getInstanceStates(project.id, {
+      const instanceStates = await instanceStateService.getInstanceStatesCore(project.id, {
         includeEvaluationState: true,
       })
 
@@ -659,6 +659,10 @@ describe("replaceCustomStatus", () => {
       // arrange
       const instanceState = await createInstanceState(project.id)
       const serviceAccountId = createId()
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId,
+      })
 
       // create service account first
       await projectDatabase.serviceAccount.create({
@@ -680,7 +684,7 @@ describe("replaceCustomStatus", () => {
 
       // act
       await instanceStateService.updateCustomStatus(
-        project.id,
+        context,
         instanceState.id,
         serviceAccountId,
         status,
@@ -718,6 +722,10 @@ describe("removeCustomStatus", () => {
           meta: { title: "Test Service Account" },
         },
       })
+      const context = adminProjectContext(project.id, {
+        type: "service-account",
+        serviceAccountId: serviceAccount.id,
+      })
 
       await projectDatabase.instanceCustomStatus.create({
         data: {
@@ -732,7 +740,7 @@ describe("removeCustomStatus", () => {
 
       // act
       await instanceStateService.removeCustomStatus(
-        project.id,
+        context,
         instanceState.id,
         serviceAccount.id,
         "health",

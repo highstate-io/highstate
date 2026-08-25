@@ -327,10 +327,6 @@ export type ProjectImportPortOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
 export type ProjectImportPortCreateNestedManyWithoutProjectInput = {
   create?: Prisma.XOR<Prisma.ProjectImportPortCreateWithoutProjectInput, Prisma.ProjectImportPortUncheckedCreateWithoutProjectInput> | Prisma.ProjectImportPortCreateWithoutProjectInput[] | Prisma.ProjectImportPortUncheckedCreateWithoutProjectInput[]
   connectOrCreate?: Prisma.ProjectImportPortCreateOrConnectWithoutProjectInput | Prisma.ProjectImportPortCreateOrConnectWithoutProjectInput[]

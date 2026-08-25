@@ -94,7 +94,7 @@ const secretTest = test.extend<{
     }
 
     const libraryService = vi.mocked({
-      getLibraryModel: vi.fn().mockResolvedValue(library),
+      getLibraryModelCore: vi.fn().mockResolvedValue(library),
       getResolvedUnitSources: vi.fn(),
     } as unknown as LibraryService)
 
@@ -138,7 +138,7 @@ describe("updateInstanceSecrets", () => {
       }
 
       // act
-      await secretService.updateInstanceSecrets(project.id, instance.id, changedSecrets)
+      await secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, changedSecrets)
 
       // assert
       const secrets = await projectDatabase.secret.findMany({
@@ -188,7 +188,7 @@ describe("updateInstanceSecrets", () => {
       }
 
       // act
-      await secretService.updateInstanceSecrets(project.id, instance.id, changedSecrets)
+      await secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, changedSecrets)
 
       // assert
       const secrets = await projectDatabase.secret.findMany({
@@ -231,7 +231,7 @@ describe("updateInstanceSecrets", () => {
       })
 
       // act
-      await secretService.updateInstanceSecrets(project.id, instance.id, {})
+      await secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, {})
 
       // assert
       const secrets = await projectDatabase.secret.findMany({
@@ -248,9 +248,9 @@ describe("updateInstanceSecrets", () => {
       const instance = await createInstanceState(project.id, SYSTEM_EXPORT_COMPONENT_TYPE, "unit")
 
       // act & assert
-      await expect(secretService.updateInstanceSecrets(project.id, instance.id, {})).resolves.toBe(
-        undefined,
-      )
+      await expect(
+        secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, {}),
+      ).resolves.toBe(undefined)
 
       const secrets = await projectDatabase.secret.findMany({ where: { stateId: instance.id } })
       expect(secrets).toHaveLength(0)
@@ -289,7 +289,7 @@ describe("updateInstanceSecrets", () => {
       }
 
       // act
-      await secretService.updateInstanceSecrets(project.id, instance.id, changedSecrets)
+      await secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, changedSecrets)
 
       // assert
       const secrets = await projectDatabase.secret.findMany({
@@ -325,9 +325,9 @@ describe("updateInstanceSecrets", () => {
     const stateId = "server.v1:nonexistent"
 
     // act & assert
-    await expect(secretService.updateInstanceSecrets(project.id, stateId, {})).rejects.toThrow(
-      InstanceStateNotFoundError,
-    )
+    await expect(
+      secretService.updateInstanceSecretsCoreWorkflow(project.id, stateId, {}),
+    ).rejects.toThrow(InstanceStateNotFoundError)
   })
 
   secretTest(
@@ -338,7 +338,7 @@ describe("updateInstanceSecrets", () => {
 
       // act & assert
       await expect(
-        secretService.updateInstanceSecrets(project.id, instance.id, {}),
+        secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, {}),
       ).rejects.toThrow(InvalidInstanceKindError)
     },
   )
@@ -354,7 +354,7 @@ describe("updateInstanceSecrets", () => {
       }
 
       // act
-      await secretService.updateInstanceSecrets(project.id, instance.id, changedSecrets)
+      await secretService.updateInstanceSecretsCoreWorkflow(project.id, instance.id, changedSecrets)
 
       // assert
       const secrets = await projectDatabase.secret.findMany({
@@ -403,7 +403,7 @@ describe("getInstanceSecretValues", () => {
       })
 
       // act
-      const values = await secretService.getInstanceSecretValues(project.id, instance.id)
+      const values = await secretService.getInstanceSecretValuesCore(project.id, instance.id)
 
       // assert
       expect(values).toEqual({
@@ -420,7 +420,7 @@ describe("getInstanceSecretValues", () => {
       const instance = await createInstanceState(project.id)
 
       // act
-      const values = await secretService.getInstanceSecretValues(project.id, instance.id)
+      const values = await secretService.getInstanceSecretValuesCore(project.id, instance.id)
 
       // assert
       expect(values).toEqual({})
@@ -453,7 +453,7 @@ describe("getInstanceSecretValues", () => {
       })
 
       // act
-      const values = await secretService.getInstanceSecretValues(project.id, instance.id)
+      const values = await secretService.getInstanceSecretValuesCore(project.id, instance.id)
 
       // assert
       expect(values).toEqual({
@@ -467,7 +467,7 @@ describe("getInstanceSecretValues", () => {
     const stateId = "server.v1:nonexistent"
 
     // act & assert
-    await expect(secretService.getInstanceSecretValues(project.id, stateId)).rejects.toThrow(
+    await expect(secretService.getInstanceSecretValuesCore(project.id, stateId)).rejects.toThrow(
       InstanceStateNotFoundError,
     )
   })
@@ -479,9 +479,9 @@ describe("getInstanceSecretValues", () => {
       const instance = await createInstanceState(project.id, "component.v1", "composite")
 
       // act & assert
-      await expect(secretService.getInstanceSecretValues(project.id, instance.id)).rejects.toThrow(
-        InvalidInstanceKindError,
-      )
+      await expect(
+        secretService.getInstanceSecretValuesCore(project.id, instance.id),
+      ).rejects.toThrow(InvalidInstanceKindError)
     },
   )
 })

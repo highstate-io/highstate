@@ -90,7 +90,7 @@ export class InstanceLockService {
       await action?.(tx, availableStateIds)
 
       this.logger.debug(
-        { projectId, lockedCount: availableStateIds.length, token },
+        { projectId, lockedCount: availableStateIds.length },
         "locked %s instances",
         availableStateIds.length,
       )
@@ -162,7 +162,7 @@ export class InstanceLockService {
       const missingLocks = stateIds.filter(id => !lockedStateIds.includes(id))
 
       if (missingLocks.length > 0) {
-        throw new InstanceLockLostError(projectId, missingLocks, token)
+        throw new InstanceLockLostError(projectId, missingLocks)
       }
 
       // execute the optional unlock action if provided
@@ -179,11 +179,7 @@ export class InstanceLockService {
       })
 
       if (count > 0) {
-        this.logger.debug(
-          { projectId, unlockedCount: count, token },
-          "unlocked %s instances",
-          count,
-        )
+        this.logger.debug({ projectId, unlockedCount: count }, "unlocked %s instances", count)
 
         // publish unlock event
         await this.pubsubManager.publish(["instance-lock", projectId], {

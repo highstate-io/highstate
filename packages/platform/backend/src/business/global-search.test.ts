@@ -75,7 +75,7 @@ describe("searchByText", () => {
       })
 
       // act
-      const result = await globalSearchService.searchByText("deploy")
+      const result = await globalSearchService.searchByTextCore("deploy")
 
       // assert
       expect(result.projects).toHaveLength(1)
@@ -108,7 +108,7 @@ describe("searchByText", () => {
       })
 
       // act
-      const result = await globalSearchService.searchByText("my-instance")
+      const result = await globalSearchService.searchByTextCore("my-instance")
 
       // assert
       expect(result.projects).toHaveLength(1)
@@ -129,7 +129,7 @@ describe("searchByText", () => {
       projectUnlockBackend.checkProjectUnlocked.mockResolvedValue(true)
 
       // act
-      const result = await globalSearchService.searchByText("   ")
+      const result = await globalSearchService.searchByTextCore("   ")
 
       // assert
       expect(result.projects).toEqual([])
@@ -142,7 +142,7 @@ describe("searchByIds", () => {
     "returns empty result for empty ids",
     async ({ globalSearchService, expect }) => {
       // act
-      const result = await globalSearchService.searchByIds([])
+      const result = await globalSearchService.searchByIdsCore([])
 
       // assert
       expect(result).toEqual([])
@@ -164,7 +164,7 @@ describe("searchByIds", () => {
       })
 
       // act
-      const result = await globalSearchService.searchByIds([objectId])
+      const result = await globalSearchService.searchByIdsCore([objectId])
 
       // assert
       expect(result).toHaveLength(1)
@@ -210,7 +210,7 @@ describe("searchByIds", () => {
       })
 
       // act
-      const result = await globalSearchService.searchByIds([objectId])
+      const result = await globalSearchService.searchByIdsCore([objectId])
 
       // assert
       expect(result).toHaveLength(1)
@@ -251,7 +251,7 @@ describe("searchByIds", () => {
       })
 
       // act
-      const result = await globalSearchService.searchByIds([objectId])
+      const result = await globalSearchService.searchByIdsCore([objectId])
 
       // assert
       expect(result).toHaveLength(1)
@@ -317,7 +317,7 @@ describe("searchByIds", () => {
       )
 
       // act
-      const result = await service.searchByIds([objectId])
+      const result = await service.searchByIdsCore([objectId])
 
       // assert
       expect(result).toHaveLength(1)

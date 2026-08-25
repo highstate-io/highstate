@@ -1,4 +1,5 @@
 import type { Logger } from "pino"
+import type { BackendRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { ProjectUnlockBackend } from "../unlock"
@@ -6,7 +7,7 @@ import type { ObjectRefIndexService } from "./object-ref-index"
 import { randomBytes } from "node:crypto"
 import { armor, Decrypter, Encrypter, generateIdentity, identityToRecipient } from "age-encryption"
 import { z } from "zod"
-import { createProjectLogger } from "../common"
+import { createProjectLogger, requireBackendPermission } from "../common"
 import {
   CannotDeleteLastUnlockMethodError,
   ProjectNotFoundError,
@@ -15,6 +16,7 @@ import {
   type UnlockMethodInput,
   type UnlockMethodType,
 } from "../shared"
+import { resolveBackendProjectPermissionTarget } from "./project-authorization"
 
 type UnlockTask = {
   name: string
@@ -42,14 +44,36 @@ export class ProjectUnlockService {
   private readonly unlockTasks: UnlockTask[] = []
 
   /**
+   * Checks whether a project is currently unlocked.
+   *
+   * @param projectId The ID of the project to check.
+   * @returns Whether the project is unlocked.
+   */
+  async checkProjectUnlocked(projectId: string): Promise<boolean> {
+    return await this.projectUnlockBackend.checkProjectUnlocked(projectId)
+  }
+
+  /**
    * Gets the current unlock state of the project.
    * If the project is unlocked, it returns an object with type "unlocked".
    * If the project is locked, it returns an object with type "locked" and the unlock suite.
    *
+   * @param context The backend request context.
    * @param projectId The ID of the project to get the unlock state for.
    * @returns The unlock state of the project.
    */
-  async getProjectUnlockState(projectId: string): Promise<ProjectUnlockState> {
+  async getProjectUnlockState(
+    context: BackendRequestContext,
+    projectId: string,
+  ): Promise<ProjectUnlockState> {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+
+    requireBackendPermission(context, "project.get", target)
+
+    return await this.getProjectUnlockStateCore(projectId)
+  }
+
+  async getProjectUnlockStateCore(projectId: string): Promise<ProjectUnlockState> {
     const isUnlocked = await this.projectUnlockBackend.checkProjectUnlocked(projectId)
     if (isUnlocked) {
       return { type: "unlocked" }
@@ -122,10 +146,19 @@ export class ProjectUnlockService {
   /**
    * Unlocks the project state using the provided identity.
    *
+   * @param context The backend request context.
    * @param projectId The ID of the project to unlock.
    * @param decryptedIdentity The decrypted identity to use for unlocking the project. Should be provided by the frontend.
    */
-  async unlockProject(projectId: string, decryptedIdentity: string): Promise<void> {
+  async unlockProject(
+    context: BackendRequestContext,
+    projectId: string,
+    decryptedIdentity: string,
+  ): Promise<void> {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+
+    requireBackendPermission(context, "project.unlock", target)
+
     if (await this.projectUnlockBackend.checkProjectUnlocked(projectId)) {
       this.logger.warn(
         { projectId },
@@ -148,7 +181,9 @@ export class ProjectUnlockService {
     if (!this.config.HIGHSTATE_ENCRYPTION_ENABLED) {
       // no cryptography, just unlock with an empty master key
       await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0), "")
-      await this.pubsubManager.publish(["project-unlock-state", projectId], { type: "unlocked" })
+      await this.pubsubManager.publish(["project-unlock-state", projectId], {
+        type: "unlocked",
+      })
       await this.runUnlockTasks(projectId)
       return
     }
@@ -183,7 +218,9 @@ export class ProjectUnlockService {
 
     // unlock the project in the backend
     await this.projectUnlockBackend.unlockProject(projectId, Buffer.from(masterKey), privateKey)
-    await this.pubsubManager.publish(["project-unlock-state", projectId], { type: "unlocked" })
+    await this.pubsubManager.publish(["project-unlock-state", projectId], {
+      type: "unlocked",
+    })
 
     // run unlock tasks
     await this.runUnlockTasks(projectId)

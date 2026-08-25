@@ -20,7 +20,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
  * 
  * Each API key impersonates a service account, inheriting its permissions and access scope.
  * Keys are automatically created for worker versions and can be manually created for
- * external integrations. The token is a 32-byte random hex string that can be regenerated.
+ * external integrations. Tokens contain a CUIDv2 secret that can be regenerated.
  */
 export type ApiKeyModel = runtime.Types.Result.DefaultSelection<Prisma.$ApiKeyPayload>
 
@@ -33,7 +33,9 @@ export type AggregateApiKey = {
 export type ApiKeyMinAggregateOutputType = {
   id: string | null
   serviceAccountId: string | null
-  token: string | null
+  tokenHash: string | null
+  expiresAt: Date | null
+  lastUsedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -41,7 +43,9 @@ export type ApiKeyMinAggregateOutputType = {
 export type ApiKeyMaxAggregateOutputType = {
   id: string | null
   serviceAccountId: string | null
-  token: string | null
+  tokenHash: string | null
+  expiresAt: Date | null
+  lastUsedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,7 +54,10 @@ export type ApiKeyCountAggregateOutputType = {
   id: number
   meta: number
   serviceAccountId: number
-  token: number
+  tokenHash: number
+  restrictionRules: number
+  expiresAt: number
+  lastUsedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -60,7 +67,9 @@ export type ApiKeyCountAggregateOutputType = {
 export type ApiKeyMinAggregateInputType = {
   id?: true
   serviceAccountId?: true
-  token?: true
+  tokenHash?: true
+  expiresAt?: true
+  lastUsedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -68,7 +77,9 @@ export type ApiKeyMinAggregateInputType = {
 export type ApiKeyMaxAggregateInputType = {
   id?: true
   serviceAccountId?: true
-  token?: true
+  tokenHash?: true
+  expiresAt?: true
+  lastUsedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,7 +88,10 @@ export type ApiKeyCountAggregateInputType = {
   id?: true
   meta?: true
   serviceAccountId?: true
-  token?: true
+  tokenHash?: true
+  restrictionRules?: true
+  expiresAt?: true
+  lastUsedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -159,7 +173,10 @@ export type ApiKeyGroupByOutputType = {
   id: string
   meta:PrismaJson.ApiKeyMeta
   serviceAccountId: string
-  token: string
+  tokenHash: string
+  restrictionRules:PrismaJson.ProjectRoleRules
+  expiresAt: Date | null
+  lastUsedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: ApiKeyCountAggregateOutputType | null
@@ -189,7 +206,10 @@ export type ApiKeyWhereInput = {
   id?: Prisma.StringFilter<"ApiKey"> | string
   meta?: Prisma.JsonFilter<"ApiKey">
   serviceAccountId?: Prisma.StringFilter<"ApiKey"> | string
-  token?: Prisma.StringFilter<"ApiKey"> | string
+  tokenHash?: Prisma.StringFilter<"ApiKey"> | string
+  restrictionRules?: Prisma.JsonFilter<"ApiKey">
+  expiresAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
+  lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
   worker?: Prisma.XOR<Prisma.WorkerVersionNullableScalarRelationFilter, Prisma.WorkerVersionWhereInput> | null
@@ -200,7 +220,10 @@ export type ApiKeyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
   serviceAccountId?: Prisma.SortOrder
-  token?: Prisma.SortOrder
+  tokenHash?: Prisma.SortOrder
+  restrictionRules?: Prisma.SortOrder
+  expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   worker?: Prisma.WorkerVersionOrderByWithRelationInput
@@ -209,23 +232,29 @@ export type ApiKeyOrderByWithRelationInput = {
 
 export type ApiKeyWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  token?: string
   AND?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   OR?: Prisma.ApiKeyWhereInput[]
   NOT?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   meta?: Prisma.JsonFilter<"ApiKey">
   serviceAccountId?: Prisma.StringFilter<"ApiKey"> | string
+  tokenHash?: Prisma.StringFilter<"ApiKey"> | string
+  restrictionRules?: Prisma.JsonFilter<"ApiKey">
+  expiresAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
+  lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
   worker?: Prisma.XOR<Prisma.WorkerVersionNullableScalarRelationFilter, Prisma.WorkerVersionWhereInput> | null
   serviceAccount?: Prisma.XOR<Prisma.ServiceAccountScalarRelationFilter, Prisma.ServiceAccountWhereInput>
-}, "id" | "token">
+}, "id">
 
 export type ApiKeyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
   serviceAccountId?: Prisma.SortOrder
-  token?: Prisma.SortOrder
+  tokenHash?: Prisma.SortOrder
+  restrictionRules?: Prisma.SortOrder
+  expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApiKeyCountOrderByAggregateInput
@@ -240,7 +269,10 @@ export type ApiKeyScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   meta?: Prisma.JsonWithAggregatesFilter<"ApiKey">
   serviceAccountId?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
-  token?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
+  tokenHash?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
+  restrictionRules?: Prisma.JsonWithAggregatesFilter<"ApiKey">
+  expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ApiKey"> | Date | string | null
+  lastUsedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ApiKey"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
 }
@@ -248,7 +280,10 @@ export type ApiKeyScalarWhereWithAggregatesInput = {
 export type ApiKeyCreateInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   worker?: Prisma.WorkerVersionCreateNestedOneWithoutApiKeyInput
@@ -259,7 +294,10 @@ export type ApiKeyUncheckedCreateInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
   serviceAccountId: string
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   worker?: Prisma.WorkerVersionUncheckedCreateNestedOneWithoutApiKeyInput
@@ -268,7 +306,10 @@ export type ApiKeyUncheckedCreateInput = {
 export type ApiKeyUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   worker?: Prisma.WorkerVersionUpdateOneWithoutApiKeyNestedInput
@@ -279,7 +320,10 @@ export type ApiKeyUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
   serviceAccountId?: Prisma.StringFieldUpdateOperationsInput | string
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   worker?: Prisma.WorkerVersionUncheckedUpdateOneWithoutApiKeyNestedInput
@@ -289,7 +333,10 @@ export type ApiKeyCreateManyInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
   serviceAccountId: string
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -297,7 +344,10 @@ export type ApiKeyCreateManyInput = {
 export type ApiKeyUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -306,7 +356,10 @@ export type ApiKeyUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
   serviceAccountId?: Prisma.StringFieldUpdateOperationsInput | string
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -315,7 +368,10 @@ export type ApiKeyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   meta?: Prisma.SortOrder
   serviceAccountId?: Prisma.SortOrder
-  token?: Prisma.SortOrder
+  tokenHash?: Prisma.SortOrder
+  restrictionRules?: Prisma.SortOrder
+  expiresAt?: Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -323,7 +379,9 @@ export type ApiKeyCountOrderByAggregateInput = {
 export type ApiKeyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   serviceAccountId?: Prisma.SortOrder
-  token?: Prisma.SortOrder
+  tokenHash?: Prisma.SortOrder
+  expiresAt?: Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -331,7 +389,9 @@ export type ApiKeyMaxOrderByAggregateInput = {
 export type ApiKeyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   serviceAccountId?: Prisma.SortOrder
-  token?: Prisma.SortOrder
+  tokenHash?: Prisma.SortOrder
+  expiresAt?: Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -353,6 +413,10 @@ export type ApiKeyScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -418,7 +482,10 @@ export type ApiKeyUpdateOneRequiredWithoutWorkerNestedInput = {
 export type ApiKeyCreateWithoutServiceAccountInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   worker?: Prisma.WorkerVersionCreateNestedOneWithoutApiKeyInput
@@ -427,7 +494,10 @@ export type ApiKeyCreateWithoutServiceAccountInput = {
 export type ApiKeyUncheckedCreateWithoutServiceAccountInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   worker?: Prisma.WorkerVersionUncheckedCreateNestedOneWithoutApiKeyInput
@@ -465,7 +535,10 @@ export type ApiKeyScalarWhereInput = {
   id?: Prisma.StringFilter<"ApiKey"> | string
   meta?: Prisma.JsonFilter<"ApiKey">
   serviceAccountId?: Prisma.StringFilter<"ApiKey"> | string
-  token?: Prisma.StringFilter<"ApiKey"> | string
+  tokenHash?: Prisma.StringFilter<"ApiKey"> | string
+  restrictionRules?: Prisma.JsonFilter<"ApiKey">
+  expiresAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
+  lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiKey"> | Date | string
 }
@@ -473,7 +546,10 @@ export type ApiKeyScalarWhereInput = {
 export type ApiKeyCreateWithoutWorkerInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   serviceAccount: Prisma.ServiceAccountCreateNestedOneWithoutApiKeysInput
@@ -483,7 +559,10 @@ export type ApiKeyUncheckedCreateWithoutWorkerInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
   serviceAccountId: string
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -507,7 +586,10 @@ export type ApiKeyUpdateToOneWithWhereWithoutWorkerInput = {
 export type ApiKeyUpdateWithoutWorkerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceAccount?: Prisma.ServiceAccountUpdateOneRequiredWithoutApiKeysNestedInput
@@ -517,7 +599,10 @@ export type ApiKeyUncheckedUpdateWithoutWorkerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
   serviceAccountId?: Prisma.StringFieldUpdateOperationsInput | string
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -525,7 +610,10 @@ export type ApiKeyUncheckedUpdateWithoutWorkerInput = {
 export type ApiKeyCreateManyServiceAccountInput = {
   id?: string
   meta:PrismaJson.ApiKeyMeta
-  token: string
+  tokenHash?: string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Date | string | null
+  lastUsedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -533,7 +621,10 @@ export type ApiKeyCreateManyServiceAccountInput = {
 export type ApiKeyUpdateWithoutServiceAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   worker?: Prisma.WorkerVersionUpdateOneWithoutApiKeyNestedInput
@@ -542,7 +633,10 @@ export type ApiKeyUpdateWithoutServiceAccountInput = {
 export type ApiKeyUncheckedUpdateWithoutServiceAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   worker?: Prisma.WorkerVersionUncheckedUpdateOneWithoutApiKeyNestedInput
@@ -551,7 +645,10 @@ export type ApiKeyUncheckedUpdateWithoutServiceAccountInput = {
 export type ApiKeyUncheckedUpdateManyWithoutServiceAccountInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.ApiKeyMeta
-  token?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  restrictionRules?:PrismaJson.ProjectRoleRules
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -562,7 +659,10 @@ export type ApiKeySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   meta?: boolean
   serviceAccountId?: boolean
-  token?: boolean
+  tokenHash?: boolean
+  restrictionRules?: boolean
+  expiresAt?: boolean
+  lastUsedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   worker?: boolean | Prisma.ApiKey$workerArgs<ExtArgs>
@@ -573,7 +673,10 @@ export type ApiKeySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   meta?: boolean
   serviceAccountId?: boolean
-  token?: boolean
+  tokenHash?: boolean
+  restrictionRules?: boolean
+  expiresAt?: boolean
+  lastUsedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   serviceAccount?: boolean | Prisma.ServiceAccountDefaultArgs<ExtArgs>
@@ -583,7 +686,10 @@ export type ApiKeySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   meta?: boolean
   serviceAccountId?: boolean
-  token?: boolean
+  tokenHash?: boolean
+  restrictionRules?: boolean
+  expiresAt?: boolean
+  lastUsedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   serviceAccount?: boolean | Prisma.ServiceAccountDefaultArgs<ExtArgs>
@@ -593,12 +699,15 @@ export type ApiKeySelectScalar = {
   id?: boolean
   meta?: boolean
   serviceAccountId?: boolean
-  token?: boolean
+  tokenHash?: boolean
+  restrictionRules?: boolean
+  expiresAt?: boolean
+  lastUsedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApiKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "serviceAccountId" | "token" | "createdAt" | "updatedAt", ExtArgs["result"]["apiKey"]>
+export type ApiKeyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "serviceAccountId" | "tokenHash" | "restrictionRules" | "expiresAt" | "lastUsedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["apiKey"]>
 export type ApiKeyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   worker?: boolean | Prisma.ApiKey$workerArgs<ExtArgs>
   serviceAccount?: boolean | Prisma.ServiceAccountDefaultArgs<ExtArgs>
@@ -638,11 +747,26 @@ export type $ApiKeyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
      */
     serviceAccountId: string
     /**
-     * The API token for authentication.
-     * 
-     * Should be treated as a secret and only shown once at creation/regeneration.
+     * The SHA-256 hash of the API token used for authentication.
      */
-    token: string
+    tokenHash: string
+    /**
+     * The authorization rules restricting this API key.
+     * 
+     * These rules can only reduce permissions granted to the service account.
+     * An empty array means that the API key has no additional restrictions.
+     * 
+     * [ProjectRoleRules]
+     */
+    restrictionRules:PrismaJson.ProjectRoleRules
+    /**
+     * The time after which this API key cannot be used.
+     */
+    expiresAt: Date | null
+    /**
+     * The time when this API key was last used.
+     */
+    lastUsedAt: Date | null
     /**
      * The time when the API key was created.
      */
@@ -1079,7 +1203,10 @@ export interface ApiKeyFieldRefs {
   readonly id: Prisma.FieldRef<"ApiKey", 'String'>
   readonly meta: Prisma.FieldRef<"ApiKey", 'Json'>
   readonly serviceAccountId: Prisma.FieldRef<"ApiKey", 'String'>
-  readonly token: Prisma.FieldRef<"ApiKey", 'String'>
+  readonly tokenHash: Prisma.FieldRef<"ApiKey", 'String'>
+  readonly restrictionRules: Prisma.FieldRef<"ApiKey", 'Json'>
+  readonly expiresAt: Prisma.FieldRef<"ApiKey", 'DateTime'>
+  readonly lastUsedAt: Prisma.FieldRef<"ApiKey", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"ApiKey", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ApiKey", 'DateTime'>
 }

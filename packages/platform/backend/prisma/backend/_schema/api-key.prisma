@@ -1,0 +1,41 @@
+/// A backend API key authenticates a backend service account.
+model BackendApiKey {
+  /// The CUIDv2 of the backend API key.
+  id String @id @default(cuid(2))
+
+  /// The metadata of the backend API key managed by the backend.
+  ///
+  /// [CommonObjectMeta]
+  meta Json
+
+  /// The ID of the backend service account impersonated by this API key.
+  serviceAccountId String
+
+  /// The SHA-256 hash of the API token used for authentication.
+  tokenHash String @default("")
+
+  /// The authorization rules restricting this API key.
+  ///
+  /// These rules can only reduce permissions granted to the backend service account.
+  /// An empty array means that the API key has no additional restrictions.
+  ///
+  /// [BackendRoleRules]
+  restrictionRules Json @default("[]")
+
+  /// The time after which this API key cannot be used.
+  expiresAt DateTime?
+
+  /// The time when this API key was last used.
+  lastUsedAt DateTime?
+
+  /// The time when the backend API key was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the backend API key was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The backend service account impersonated by this API key.
+  serviceAccount BackendServiceAccount @relation(fields: [serviceAccountId], references: [id], onDelete: Cascade)
+
+  @@index([serviceAccountId])
+}

@@ -4,7 +4,12 @@ import { type Logger, pino } from "pino"
 import { type ArtifactBackend, ArtifactService, createArtifactBackend } from "./artifact"
 import {
   ApiKeyService,
+  ArtifactSettingsService,
+  BackendApiKeySettingsService,
+  BackendRoleSettingsService,
+  BackendServiceAccountSettingsService,
   BackendUnlockService,
+  EntitySettingsService,
   EntitySnapshotService,
   GlobalSearchService,
   InstanceLockService,
@@ -12,17 +17,27 @@ import {
   LibraryService,
   ObjectRefIndexService,
   OperationService,
+  OperationSettingsService,
+  PageSettingsService,
   PanelService,
+  PanelSettingsService,
+  ProjectApiKeySettingsService,
   ProjectModelService,
   ProjectPortService,
+  ProjectRoleSettingsService,
   ProjectService,
+  ProjectServiceAccountSettingsService,
   ProjectUnlockService,
   SecretService,
-  SettingsService,
+  SecretSettingsService,
   TerminalSessionService,
+  TerminalSettingsService,
+  TriggerSettingsService,
   UnitExtraService,
   UnitOutputService,
+  UnlockMethodSettingsService,
   WorkerService,
+  WorkerSettingsService,
 } from "./business"
 import { ProjectEvaluationSubsystem } from "./business/evaluation"
 import { type Config, loadConfig } from "./config"
@@ -44,6 +59,16 @@ import { MemoryProjectUnlockBackend, type ProjectUnlockBackend } from "./unlock"
 import { createWorkerBackend, type WorkerBackend, WorkerManager } from "./worker"
 
 export type Services = {
+  /**
+   * The stable ID derived from the backend federation key.
+   */
+  readonly backendId: string
+
+  /**
+   * The AGE identity used for backend federation cryptography.
+   */
+  readonly privateKey: string
+
   /**
    * The runtime ID of this backend.
    *
@@ -82,6 +107,12 @@ export type Services = {
 
   // business services
   readonly backendUnlockService: BackendUnlockService
+  readonly backendApiKeySettingsService: BackendApiKeySettingsService
+  readonly backendRoleSettingsService: BackendRoleSettingsService
+  readonly backendServiceAccountSettingsService: BackendServiceAccountSettingsService
+  readonly projectApiKeySettingsService: ProjectApiKeySettingsService
+  readonly projectRoleSettingsService: ProjectRoleSettingsService
+  readonly projectServiceAccountSettingsService: ProjectServiceAccountSettingsService
   readonly globalSearchService: GlobalSearchService
   readonly instanceLockService: InstanceLockService
   readonly objectRefIndexService: ObjectRefIndexService
@@ -97,7 +128,16 @@ export type Services = {
   readonly libraryService: LibraryService
   readonly projectPortService: ProjectPortService
   readonly artifactService: ArtifactService
-  readonly settingsService: SettingsService
+  readonly operationSettingsService: OperationSettingsService
+  readonly terminalSettingsService: TerminalSettingsService
+  readonly pageSettingsService: PageSettingsService
+  readonly panelSettingsService: PanelSettingsService
+  readonly secretSettingsService: SecretSettingsService
+  readonly triggerSettingsService: TriggerSettingsService
+  readonly artifactSettingsService: ArtifactSettingsService
+  readonly workerSettingsService: WorkerSettingsService
+  readonly entitySettingsService: EntitySettingsService
+  readonly unlockMethodSettingsService: UnlockMethodSettingsService
   readonly unitExtraService: UnitExtraService
   readonly entitySnapshotService: EntitySnapshotService
   readonly unitOutputService: UnitOutputService
@@ -118,6 +158,8 @@ export interface CreateServicesOptions {
 export async function createServices({
   config,
   services: {
+    backendId,
+    privateKey,
     runtimeId,
     logger,
 
@@ -150,6 +192,12 @@ export async function createServices({
 
     // business services
     backendUnlockService,
+    backendApiKeySettingsService,
+    backendRoleSettingsService,
+    backendServiceAccountSettingsService,
+    projectApiKeySettingsService,
+    projectRoleSettingsService,
+    projectServiceAccountSettingsService,
     globalSearchService,
     instanceLockService,
     objectRefIndexService,
@@ -165,7 +213,16 @@ export async function createServices({
     projectModelService,
     libraryService,
     projectPortService,
-    settingsService,
+    operationSettingsService,
+    terminalSettingsService,
+    pageSettingsService,
+    panelSettingsService,
+    secretSettingsService,
+    triggerSettingsService,
+    artifactSettingsService,
+    workerSettingsService,
+    entitySettingsService,
+    unlockMethodSettingsService,
     unitExtraService,
     entitySnapshotService,
     unitOutputService,
@@ -179,6 +236,8 @@ export async function createServices({
   projectUnlockBackend ??= new MemoryProjectUnlockBackend()
 
   const backendDatabaseBackend = await createBackendDatabaseBackend(config, logger)
+  backendId ??= backendDatabaseBackend.backendId
+  privateKey ??= backendDatabaseBackend.privateKey
   const projectDatabaseBackend = await createProjectDatabaseBackend(config, logger)
 
   database ??= new DatabaseManagerImpl(
@@ -208,6 +267,27 @@ export async function createServices({
   backendUnlockService ??= new BackendUnlockService(
     database,
     logger.child({ service: "BackendUnlockService" }),
+  )
+  backendRoleSettingsService ??= new BackendRoleSettingsService(database)
+  backendServiceAccountSettingsService ??= new BackendServiceAccountSettingsService(
+    database,
+    projectUnlockBackend,
+    backendRoleSettingsService,
+  )
+  backendApiKeySettingsService ??= new BackendApiKeySettingsService(
+    database,
+    backendRoleSettingsService,
+    backendServiceAccountSettingsService,
+  )
+  projectRoleSettingsService ??= new ProjectRoleSettingsService(database)
+  projectServiceAccountSettingsService ??= new ProjectServiceAccountSettingsService(
+    database,
+    projectRoleSettingsService,
+  )
+  projectApiKeySettingsService ??= new ProjectApiKeySettingsService(
+    database,
+    projectRoleSettingsService,
+    projectServiceAccountSettingsService,
   )
 
   globalSearchService ??= new GlobalSearchService(
@@ -315,7 +395,16 @@ export async function createServices({
   )
 
   unitExtraService ??= new UnitExtraService(database)
-  settingsService ??= new SettingsService(database, panelEndpointManager)
+  operationSettingsService ??= new OperationSettingsService(database)
+  terminalSettingsService ??= new TerminalSettingsService(database)
+  pageSettingsService ??= new PageSettingsService(database)
+  panelSettingsService ??= new PanelSettingsService(database, panelEndpointManager)
+  secretSettingsService ??= new SecretSettingsService(database)
+  triggerSettingsService ??= new TriggerSettingsService(database)
+  artifactSettingsService ??= new ArtifactSettingsService(database)
+  workerSettingsService ??= new WorkerSettingsService(database)
+  entitySettingsService ??= new EntitySettingsService(database)
+  unlockMethodSettingsService ??= new UnlockMethodSettingsService(database, projectUnlockService)
 
   instanceStateService ??= new InstanceStateService(
     database,
@@ -388,6 +477,8 @@ export async function createServices({
   logger.info("services created")
 
   return {
+    backendId,
+    privateKey,
     runtimeId,
     logger,
 
@@ -421,6 +512,12 @@ export async function createServices({
 
     // business services
     backendUnlockService,
+    backendApiKeySettingsService,
+    backendRoleSettingsService,
+    backendServiceAccountSettingsService,
+    projectApiKeySettingsService,
+    projectRoleSettingsService,
+    projectServiceAccountSettingsService,
     globalSearchService,
     instanceLockService,
     objectRefIndexService,
@@ -436,7 +533,16 @@ export async function createServices({
     projectModelService,
     libraryService,
     projectPortService,
-    settingsService,
+    operationSettingsService,
+    terminalSettingsService,
+    pageSettingsService,
+    panelSettingsService,
+    secretSettingsService,
+    triggerSettingsService,
+    artifactSettingsService,
+    workerSettingsService,
+    entitySettingsService,
+    unlockMethodSettingsService,
     unitExtraService,
     entitySnapshotService,
     unitOutputService,

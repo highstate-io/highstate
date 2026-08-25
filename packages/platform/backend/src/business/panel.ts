@@ -1,8 +1,15 @@
+import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
 import type { PanelEndpointManager } from "../panel"
 import type { PubSubManager } from "../pubsub"
 import type { PanelInput } from "../shared"
-import { AccessError } from "../shared"
+import { requireProjectPermission } from "../common"
+import {
+  DuplicatePanelNameError,
+  InstanceStateNotFoundError,
+  WorkerOwnershipError,
+  WorkerRegistrationNotFoundError,
+} from "../shared"
 
 export class PanelService {
   constructor(
@@ -17,7 +24,7 @@ export class PanelService {
    * The API key must belong to the worker version and that version must have an active
    * registration for the instance.
    *
-   * @param projectId The ID of the project.
+   * @param context The project request context.
    * @param stateId The ID of the instance state.
    * @param apiKeyId The ID of the API key used by the worker version.
    * @param workerVersionId The ID of the worker version serving the panels.
@@ -26,19 +33,41 @@ export class PanelService {
    * @returns The stable IDs of the reconciled panels.
    */
   async setUnitPanels(
-    projectId: string,
+    context: ProjectRequestContext,
     stateId: string,
     apiKeyId: string,
     workerVersionId: string,
     panels: PanelInput[],
     workerInstanceId: string,
   ): Promise<string[]> {
-    this.panelEndpointManager.assertInstance(projectId, workerVersionId, workerInstanceId)
+    this.panelEndpointManager.assertInstance(context.projectId, workerVersionId, workerInstanceId)
 
-    const database = await this.database.forProject(projectId)
+    const database = await this.database.forProject(context.projectId)
+    const target = await database.instanceState.findUnique({
+      where: { id: stateId },
+      select: { instanceId: true },
+    })
+
+    if (!target) {
+      throw new InstanceStateNotFoundError(context.projectId, stateId)
+    }
+
+    requireProjectPermission(context, "panel.update", {
+      instanceId: target.instanceId,
+      workerId: context.subject.type === "service-account" ? context.subject.workerId : undefined,
+      ownerServiceAccountId:
+        context.subject.type === "service-account" ? context.subject.serviceAccountId : undefined,
+    })
+
     const names = panels.map(panel => panel.name)
-    if (new Set(names).size !== names.length) {
-      throw new AccessError(`Panel names must be unique within an instance registration.`)
+    const duplicateIndex = names.findIndex((name, index) => names.indexOf(name) !== index)
+    if (duplicateIndex !== -1) {
+      throw new DuplicatePanelNameError(
+        context.projectId,
+        stateId,
+        names[duplicateIndex]!,
+        duplicateIndex,
+      )
     }
 
     const panelIds = await database.$transaction(async tx => {
@@ -48,18 +77,18 @@ export class PanelService {
           worker: { select: { serviceAccountId: true } },
         },
       })
+
       if (!workerVersion) {
-        throw new AccessError(`Worker version "${workerVersionId}" is not owned by the API key.`)
+        throw new WorkerOwnershipError(context.projectId, workerVersionId)
       }
 
       const registration = await tx.workerUnitRegistration.findFirst({
         where: { stateId, workerVersionId },
         select: { stateId: true },
       })
+
       if (panels.length > 0 && !registration) {
-        throw new AccessError(
-          `Worker version "${workerVersionId}" is not registered for state "${stateId}".`,
-        )
+        throw new WorkerRegistrationNotFoundError(context.projectId, stateId, workerVersionId)
       }
 
       const serviceAccountId = workerVersion.worker.serviceAccountId
@@ -107,13 +136,13 @@ export class PanelService {
       select: { id: true },
       orderBy: { createdAt: "asc" },
     })
-    void this.pubsubManager.publish(["instance-state", projectId], {
+    void this.pubsubManager.publish(["instance-state", context.projectId], {
       type: "patched",
       stateId,
       patch: { panelIds: statePanels.map(panel => panel.id) },
     })
     this.panelEndpointManager.setPanels(
-      projectId,
+      context.projectId,
       workerVersionId,
       workerInstanceId,
       stateId,

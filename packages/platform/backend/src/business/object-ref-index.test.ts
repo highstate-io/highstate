@@ -86,7 +86,6 @@ describe(ObjectRefIndexService.name, () => {
       data: {
         meta: { title: "key" },
         serviceAccountId: serviceAccount.id,
-        token: createId(),
       },
       select: { id: true },
     })

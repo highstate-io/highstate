@@ -72,7 +72,6 @@ const workerTest = test.extend<{
                 title: "Test Worker API Key",
               },
               serviceAccountId: worker.serviceAccountId,
-              token: createId(),
             },
           },
           ...overrides,

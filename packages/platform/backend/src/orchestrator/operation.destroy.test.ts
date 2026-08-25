@@ -129,7 +129,7 @@ describe("Operation - Destroy", () => {
 
       const library = createMockLibrary()
 
-      libraryService.getLibraryModel.mockResolvedValue(library)
+      libraryService.getLibraryModelCore.mockResolvedValue(library)
       libraryService.getResolvedUnitSources.mockResolvedValue([
         {
           unitType: "component.v1",
@@ -145,7 +145,7 @@ describe("Operation - Destroy", () => {
         },
       ])
 
-      projectModelService.getProjectModel.mockResolvedValue([
+      projectModelService.getProjectModelCore.mockResolvedValue([
         {
           instances: [],
           virtualInstances: [],
@@ -155,7 +155,7 @@ describe("Operation - Destroy", () => {
         project,
       ])
 
-      instanceStateService.getInstanceStates.mockResolvedValue([dependencyState, ghostState])
+      instanceStateService.getInstanceStatesCore.mockResolvedValue([dependencyState, ghostState])
 
       await setupPersistenceMocks({ instances: [ghost, dependency] })
       setupImmediateLocking()

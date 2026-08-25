@@ -1,11 +1,13 @@
 import type { InstanceInput, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
+import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
 import type { ProjectModelBackend } from "../project-model"
 import type { InstanceStateService } from "./instance-state"
 import type { LibraryService } from "./library"
 import type { ProjectUnlockService } from "./project-unlock"
 import { isNonNullish } from "remeda"
+import { requireProjectPermission } from "../common"
 import {
   type FullProjectModel,
   forSchema,
@@ -63,6 +65,18 @@ export class ProjectModelService {
    * @param options Options to control the model retrieval.
    */
   async getProjectModel(
+    context: ProjectRequestContext,
+    { includeVirtualInstances = false, includeGhostInstances = false }: GetProjectModelOptions = {},
+  ): Promise<[projectModel: FullProjectModel, project: ProjectOutput]> {
+    requireProjectPermission(context, "instance-model.get")
+
+    return await this.getProjectModelCore(context.projectId, {
+      includeVirtualInstances,
+      includeGhostInstances,
+    })
+  }
+
+  async getProjectModelCore(
     projectId: string,
     { includeVirtualInstances = false, includeGhostInstances = false }: GetProjectModelOptions = {},
   ): Promise<[projectModel: FullProjectModel, project: ProjectOutput]> {
@@ -70,7 +84,7 @@ export class ProjectModelService {
 
     const [{ instances, hubs }, library] = await Promise.all([
       backend.getProjectModel(project, spec),
-      this.libraryService.getLibraryModel(projectId),
+      this.libraryService.getLibraryModelCore(projectId),
     ])
 
     const filteredInstances = this.filterInstancesWithKnownComponents(
@@ -105,11 +119,11 @@ export class ProjectModelService {
    */
   async resolveProject(projectId: string) {
     const [[{ instances, hubs }, project], states] = await Promise.all([
-      this.getProjectModel(projectId),
-      this.instanceStateService.getInstanceStates(projectId, { includeEvaluationState: true }),
+      this.getProjectModelCore(projectId),
+      this.instanceStateService.getInstanceStatesCore(projectId, { includeEvaluationState: true }),
     ])
 
-    const library = await this.libraryService.getLibraryModel(projectId)
+    const library = await this.libraryService.getLibraryModelCore(projectId)
 
     const stateMap = new Map(states.map(state => [state.id, state]))
 
@@ -284,7 +298,7 @@ export class ProjectModelService {
     const database = await this.database.forProject(projectId)
 
     await database.$transaction(async tx => {
-      const [{ instances }] = await this.getProjectModel(projectId)
+      const [{ instances }] = await this.getProjectModelCore(projectId)
 
       const existingStates = await tx.instanceState.findMany({ select: { instanceId: true } })
       const existingStateIds = new Set(existingStates.map(state => state.instanceId))
@@ -312,7 +326,7 @@ export class ProjectModelService {
 
     const [{ instances, hubs }, library] = await Promise.all([
       backend.getProjectModel(project, spec),
-      this.libraryService.getLibraryModel(projectId),
+      this.libraryService.getLibraryModelCore(projectId),
     ])
 
     const instanceById = new Map(instances.map(instance => [instance.id, instance]))

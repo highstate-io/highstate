@@ -2,7 +2,7 @@
 ///
 /// Each API key impersonates a service account, inheriting its permissions and access scope.
 /// Keys are automatically created for worker versions and can be manually created for
-/// external integrations. The token is a 32-byte random hex string that can be regenerated.
+/// external integrations. Tokens contain a CUIDv2 secret that can be regenerated.
 model ApiKey {
     /// The CUIDv2 of the API key.
     id String @id @default(cuid(2))
@@ -15,10 +15,22 @@ model ApiKey {
     /// The ID of the service account impersonated by this API key.
     serviceAccountId String
 
-    /// The API token for authentication.
+    /// The SHA-256 hash of the API token used for authentication.
+    tokenHash String @default("")
+
+    /// The authorization rules restricting this API key.
     ///
-    /// Should be treated as a secret and only shown once at creation/regeneration.
-    token String @unique
+    /// These rules can only reduce permissions granted to the service account.
+    /// An empty array means that the API key has no additional restrictions.
+    ///
+    /// [ProjectRoleRules]
+    restrictionRules Json @default("[]")
+
+    /// The time after which this API key cannot be used.
+    expiresAt DateTime?
+
+    /// The time when this API key was last used.
+    lastUsedAt DateTime?
 
     /// The time when the API key was created.
     createdAt DateTime @default(now())

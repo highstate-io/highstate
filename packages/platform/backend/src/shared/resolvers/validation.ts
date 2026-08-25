@@ -110,7 +110,7 @@ export class ValidationResolver extends GraphResolver<ValidationNode, Validation
         continue
       }
 
-      if (!resolvedInputs[name] || !resolvedInputs[name].length) {
+      if (!resolvedInputs[name]?.length) {
         validationErrors.push(
           `Missing required input ` +
             `"${styles.blueBright.open}${name}${styles.reset.close}" ` +

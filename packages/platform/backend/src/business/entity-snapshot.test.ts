@@ -3,7 +3,7 @@ import type { ObjectRefIndexService } from "./object-ref-index"
 import { getEntityId } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, vi } from "vitest"
-import { test } from "../test-utils"
+import { adminProjectContext, test } from "../test-utils"
 import { EntitySnapshotService } from "./entity-snapshot"
 
 const entitySnapshotTest = test.extend<{
@@ -21,6 +21,10 @@ const entitySnapshotTest = test.extend<{
     await use(service)
   },
 })
+
+function createEntitySnapshotContext(projectId: string) {
+  return adminProjectContext(projectId)
+}
 
 async function createOperation(projectDatabase: ProjectDatabase): Promise<{
   id: string
@@ -305,7 +309,7 @@ describe("listReferencedEntitySnapshotsForOutput", () => {
       })
 
       const snapshots = await entitySnapshotService.listReferencedEntitySnapshotsForOutput(
-        project.id,
+        createEntitySnapshotContext(project.id),
         state.id,
         "value",
       )
@@ -354,7 +358,7 @@ describe("listReferencedEntitySnapshotsForOutput", () => {
       })
 
       const snapshots = await entitySnapshotService.listReferencedEntitySnapshotsForOutput(
-        project.id,
+        createEntitySnapshotContext(project.id),
         state.id,
         "value",
       )
@@ -440,7 +444,7 @@ describe("listReferencedEntitySnapshotsForOutput", () => {
       }
 
       const snapshots = await entitySnapshotService.listReferencedEntitySnapshotsForOutput(
-        project.id,
+        createEntitySnapshotContext(project.id),
         state.id,
         "out",
         library as never,

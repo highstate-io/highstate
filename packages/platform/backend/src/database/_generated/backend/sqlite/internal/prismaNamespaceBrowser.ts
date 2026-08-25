@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  BackendApiKey: 'BackendApiKey',
   ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
@@ -59,7 +60,15 @@ export const ModelName = {
   ProjectSpace: 'ProjectSpace',
   ProjectModelStorage: 'ProjectModelStorage',
   PulumiBackend: 'PulumiBackend',
-  BackendUnlockMethod: 'BackendUnlockMethod'
+  BackendRole: 'BackendRole',
+  UserBackendRoleBinding: 'UserBackendRoleBinding',
+  UserGroupBackendRoleBinding: 'UserGroupBackendRoleBinding',
+  ServiceAccountBackendRoleBinding: 'ServiceAccountBackendRoleBinding',
+  BackendServiceAccount: 'BackendServiceAccount',
+  BackendServiceAccountProjectBinding: 'BackendServiceAccountProjectBinding',
+  BackendUnlockMethod: 'BackendUnlockMethod',
+  User: 'User',
+  UserGroup: 'UserGroup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -73,6 +82,21 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const BackendApiKeyScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  serviceAccountId: 'serviceAccountId',
+  tokenHash: 'tokenHash',
+  restrictionRules: 'restrictionRules',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackendApiKeyScalarFieldEnum = (typeof BackendApiKeyScalarFieldEnum)[keyof typeof BackendApiKeyScalarFieldEnum]
 
 
 export const ProjectImportPortScalarFieldEnum = {
@@ -159,6 +183,66 @@ export const PulumiBackendScalarFieldEnum = {
 export type PulumiBackendScalarFieldEnum = (typeof PulumiBackendScalarFieldEnum)[keyof typeof PulumiBackendScalarFieldEnum]
 
 
+export const BackendRoleScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  systemName: 'systemName',
+  rules: 'rules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackendRoleScalarFieldEnum = (typeof BackendRoleScalarFieldEnum)[keyof typeof BackendRoleScalarFieldEnum]
+
+
+export const UserBackendRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserBackendRoleBindingScalarFieldEnum = (typeof UserBackendRoleBindingScalarFieldEnum)[keyof typeof UserBackendRoleBindingScalarFieldEnum]
+
+
+export const UserGroupBackendRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  groupId: 'groupId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserGroupBackendRoleBindingScalarFieldEnum = (typeof UserGroupBackendRoleBindingScalarFieldEnum)[keyof typeof UserGroupBackendRoleBindingScalarFieldEnum]
+
+
+export const ServiceAccountBackendRoleBindingScalarFieldEnum = {
+  roleId: 'roleId',
+  serviceAccountId: 'serviceAccountId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceAccountBackendRoleBindingScalarFieldEnum = (typeof ServiceAccountBackendRoleBindingScalarFieldEnum)[keyof typeof ServiceAccountBackendRoleBindingScalarFieldEnum]
+
+
+export const BackendServiceAccountScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  systemName: 'systemName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BackendServiceAccountScalarFieldEnum = (typeof BackendServiceAccountScalarFieldEnum)[keyof typeof BackendServiceAccountScalarFieldEnum]
+
+
+export const BackendServiceAccountProjectBindingScalarFieldEnum = {
+  backendServiceAccountId: 'backendServiceAccountId',
+  projectId: 'projectId',
+  projectServiceAccountId: 'projectServiceAccountId',
+  createdAt: 'createdAt'
+} as const
+
+export type BackendServiceAccountProjectBindingScalarFieldEnum = (typeof BackendServiceAccountProjectBindingScalarFieldEnum)[keyof typeof BackendServiceAccountProjectBindingScalarFieldEnum]
+
+
 export const BackendUnlockMethodScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
@@ -168,6 +252,27 @@ export const BackendUnlockMethodScalarFieldEnum = {
 } as const
 
 export type BackendUnlockMethodScalarFieldEnum = (typeof BackendUnlockMethodScalarFieldEnum)[keyof typeof BackendUnlockMethodScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserGroupScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserGroupScalarFieldEnum = (typeof UserGroupScalarFieldEnum)[keyof typeof UserGroupScalarFieldEnum]
 
 
 export const SortOrder = {

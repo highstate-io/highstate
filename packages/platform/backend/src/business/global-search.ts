@@ -1,8 +1,10 @@
 import type { Logger } from "pino"
+import type { BackendRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
 import type { ProjectDatabase } from "../database/prisma"
 import type { ProjectUnlockBackend } from "../unlock"
 import { type CommonObjectMeta, commonObjectMetaSchema } from "@highstate/contract"
+import { requireBackendPermission } from "../common"
 
 export type GlobalSearchObjectKind =
   | "apiKey"
@@ -723,7 +725,13 @@ export class GlobalSearchService {
    *
    * @param ids The list of object IDs to search for.
    */
-  async searchByIds(ids: string[]): Promise<GlobalSearchResult[]> {
+  async searchByIds(context: BackendRequestContext, ids: string[]): Promise<GlobalSearchResult[]> {
+    requireBackendPermission(context, "backend.search")
+
+    return await this.searchByIdsCore(ids)
+  }
+
+  async searchByIdsCore(ids: string[]): Promise<GlobalSearchResult[]> {
     const uniqueIds = Array.from(new Set(ids.map(id => id.trim()).filter(Boolean)))
 
     if (uniqueIds.length === 0) {
@@ -807,7 +815,16 @@ export class GlobalSearchService {
    *
    * @param text The text query to search for.
    */
-  async searchByText(text: string): Promise<GlobalSearchTextResult> {
+  async searchByText(
+    context: BackendRequestContext,
+    text: string,
+  ): Promise<GlobalSearchTextResult> {
+    requireBackendPermission(context, "backend.search")
+
+    return await this.searchByTextCore(text)
+  }
+
+  async searchByTextCore(text: string): Promise<GlobalSearchTextResult> {
     const normalizedText = normalizeSearchText(text)
 
     if (normalizedText.length === 0) {

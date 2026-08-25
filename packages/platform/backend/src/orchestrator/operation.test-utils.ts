@@ -328,7 +328,7 @@ export const operationTest = test.extend<{
 
   secretService: async ({}, use) => {
     const secretService = vi.mockObject({
-      getInstanceSecretValues: vi.fn().mockResolvedValue({}),
+      getInstanceSecretValuesCore: vi.fn().mockResolvedValue({}),
     } as unknown as SecretService)
 
     await use(secretService)
@@ -336,7 +336,7 @@ export const operationTest = test.extend<{
 
   instanceStateService: async ({}, use) => {
     const instanceStateService = vi.mockObject({
-      getInstanceStates: vi.fn(),
+      getInstanceStatesCore: vi.fn(),
       createOperationStates: vi.fn(),
       updateOperationState: vi.fn(),
       updateOperationProgress: vi.fn(),
@@ -348,7 +348,7 @@ export const operationTest = test.extend<{
 
   projectModelService: async ({}, use) => {
     const projectModelService = vi.mockObject({
-      getProjectModel: vi.fn(),
+      getProjectModelCore: vi.fn(),
     } as unknown as ProjectModelService)
 
     await use(projectModelService)
@@ -356,7 +356,7 @@ export const operationTest = test.extend<{
 
   libraryService: async ({}, use) => {
     const libraryService = vi.mockObject({
-      getLibraryModel: vi.fn(),
+      getLibraryModelCore: vi.fn(),
       getResolvedUnitSources: vi.fn(),
     } as unknown as LibraryService)
 
@@ -613,10 +613,10 @@ export const operationTest = test.extend<{
         },
       ]
 
-      libraryService.getLibraryModel.mockResolvedValue(library)
+      libraryService.getLibraryModelCore.mockResolvedValue(library)
       libraryService.getResolvedUnitSources.mockResolvedValue(unitSources)
 
-      projectModelService.getProjectModel.mockResolvedValue([
+      projectModelService.getProjectModelCore.mockResolvedValue([
         {
           instances: input.instances,
           virtualInstances: [],
@@ -626,7 +626,7 @@ export const operationTest = test.extend<{
         project,
       ])
 
-      instanceStateService.getInstanceStates.mockResolvedValue(input.states)
+      instanceStateService.getInstanceStatesCore.mockResolvedValue(input.states)
 
       return await OperationContext.load(
         project.id,

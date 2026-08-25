@@ -92,7 +92,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       fallbackType,
       getInstanceContext: instanceId => {
         const output = this.outputs.get(`instance:${instanceId}`)
-        if (!output || output.kind !== "instance") {
+        if (output?.kind !== "instance") {
           return undefined
         }
 

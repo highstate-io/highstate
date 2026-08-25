@@ -32,40 +32,30 @@ export const collectionQuerySchema = z.object({
   sortBy: z.array(sortBySchema).optional(),
 
   /**
-   * The number of items to skip.
+   * The requested page size.
    *
-   * Defaults to 0 if not specified.
+   * Zero or omission uses the default of 20 and values above 100 are capped.
    */
-  skip: z.number().int().nonnegative().default(0).optional(),
+  pageSize: z.number().int().nonnegative().default(0).optional(),
 
   /**
-   * The count of documents to return.
-   *
-   * Defaults to 20 if not specified.
-   * Maximum value is 100.
+   * The opaque continuation token from a previous page.
    */
-  count: z.number().int().positive().max(100).default(20).optional(),
+  pageToken: z.string().optional(),
 })
 
 export type CollectionQuery = z.infer<typeof collectionQuerySchema>
 
+export type CollectionQueryResult<T> = {
+  items: T[]
+  nextPageToken?: string
+}
+
 export function collectionQueryResult<TSchema extends z.ZodType>(schema: TSchema) {
   return z.object({
     items: z.array(schema),
-    total: z.number().int().nonnegative(),
+    nextPageToken: z.string().optional(),
   })
-}
-
-export type CollectionQueryResult<T> = {
-  /**
-   * The list of objects matching the query and restricted by pagination.
-   */
-  items: T[]
-
-  /**
-   * The total number of documents matching the query.
-   */
-  total: number
 }
 
 /**

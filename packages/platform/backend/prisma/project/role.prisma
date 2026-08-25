@@ -1,0 +1,98 @@
+/// A role groups project permissions that can be granted to users, groups, and service accounts.
+model Role {
+  /// The CUIDv2 of the role.
+  id String @id @default(cuid(2))
+
+  /// The metadata of the role managed by the backend.
+  ///
+  /// [CommonObjectMeta]
+  meta Json
+
+  /// The stable name of a backend-managed role.
+  ///
+  /// Custom roles do not have a system name.
+  systemName String? @unique
+
+  /// The additive authorization rules granted by this role.
+  ///
+  /// [ProjectRoleRules]
+  rules Json
+
+  /// The time when the role was created.
+  createdAt DateTime @default(now())
+
+  /// The time when the role was last updated.
+  updatedAt DateTime @updatedAt
+
+  /// The bindings granting this role to users.
+  userBindings UserRoleBinding[]
+
+  /// The bindings granting this role to groups.
+  groupBindings UserGroupRoleBinding[]
+
+  /// The bindings granting this role to service accounts.
+  serviceAccountBindings ServiceAccountRoleBinding[]
+}
+
+/// A user role binding grants a project role to a user.
+model UserRoleBinding {
+  /// The ID of the granted role.
+  roleId String
+
+  /// The ID of the user receiving the role.
+  userId String
+
+  /// The time when the user role binding was created.
+  createdAt DateTime @default(now())
+
+  /// The granted role.
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  /// The user receiving the role.
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, userId])
+  @@index([userId])
+}
+
+/// A user group role binding grants a project role to a backend-managed user group.
+model UserGroupRoleBinding {
+  /// The ID of the granted role.
+  roleId String
+
+  /// The ID of the user group receiving the role.
+  groupId String
+
+  /// The time when the user group role binding was created.
+  createdAt DateTime @default(now())
+
+  /// The granted role.
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  /// The user group receiving the role.
+  group UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, groupId])
+  @@index([groupId])
+}
+
+/// A service account role binding grants a project role to a service account.
+model ServiceAccountRoleBinding {
+  /// The ID of the granted role.
+  roleId String
+
+  /// The ID of the service account receiving the role.
+  serviceAccountId String
+
+  /// The time when the service account role binding was created.
+  createdAt DateTime @default(now())
+
+  /// The granted role.
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  /// The service account receiving the role.
+  serviceAccount ServiceAccount @relation(fields: [serviceAccountId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, serviceAccountId])
+  @@index([serviceAccountId])
+}

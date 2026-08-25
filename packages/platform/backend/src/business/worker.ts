@@ -1,5 +1,6 @@
 import type { CommonObjectMeta, ServiceAccountMeta, UnitWorker } from "@highstate/contract"
 import type { Logger } from "pino"
+import type { ProjectRequestContext } from "../common"
 import type {
   DatabaseManager,
   ProjectTransaction,
@@ -9,9 +10,8 @@ import type {
 } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { WorkerManager } from "../worker"
-import { randomBytes } from "node:crypto"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client"
-import { createProjectLogger } from "../common"
+import { createProjectLogger, requireProjectPermission } from "../common"
 import {
   type ApiKeyMeta,
   extractDigestFromImage,
@@ -123,6 +123,7 @@ export class WorkerService {
           const remainingRegistrations = await tx.workerUnitRegistration.count({
             where: { stateId, workerVersionId: existing.workerVersionId },
           })
+
           if (remainingRegistrations === 0) {
             if (existing.workerVersion.workerId === workerVersionRecord.workerId) {
               await tx.panel.updateMany({
@@ -159,6 +160,7 @@ export class WorkerService {
         const remainingRegistrations = await tx.workerUnitRegistration.count({
           where: { stateId, workerVersionId: registration.workerVersionId },
         })
+
         if (remainingRegistrations === 0) {
           await tx.panel.deleteMany({
             where: { stateId, workerVersionId: registration.workerVersionId },
@@ -234,7 +236,6 @@ export class WorkerService {
           description: `Automatically created for worker "${worker.identity}" with digest "${digest}".`,
         },
         serviceAccountId: worker.serviceAccountId,
-        token: randomBytes(32).toString("hex"),
       },
     })
 
@@ -304,18 +305,33 @@ export class WorkerService {
   /**
    * Updates the metadata for a worker version.
    *
-   * @param projectId The ID of the project.
+   * @param context The project request context.
    * @param workerVersionId The ID of the worker version to update.
    * @param meta The new metadata to set.
    */
   async updateWorkerVersionMeta(
-    projectId: string,
+    context: ProjectRequestContext,
     workerVersionId: string,
     meta: CommonObjectMeta,
     serviceAccountMeta?: ServiceAccountMeta,
   ): Promise<void> {
-    const database = await this.database.forProject(projectId)
-    const logger = createProjectLogger(this.logger, projectId)
+    const database = await this.database.forProject(context.projectId)
+    const target = await database.workerVersion.findUnique({
+      where: { id: workerVersionId },
+      select: { workerId: true, worker: { select: { serviceAccountId: true } } },
+    })
+
+    if (!target) {
+      throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
+    }
+
+    requireProjectPermission(context, "worker.manage", {
+      resourceId: target.workerId,
+      ownerServiceAccountId: target.worker.serviceAccountId,
+      workerId: target.workerId,
+    })
+
+    const logger = createProjectLogger(this.logger, context.projectId)
 
     try {
       const workerVersion = await database.workerVersion.update({
@@ -346,7 +362,7 @@ export class WorkerService {
       }
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
-        throw new WorkerVersionNotFoundError(projectId, workerVersionId)
+        throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
       }
 
       throw error
@@ -358,14 +374,28 @@ export class WorkerService {
   /**
    * Gets logs for a worker version.
    *
-   * @param projectId The ID of the project.
+   * @param context The project request context.
    * @param workerVersionId The ID of the worker version to get logs for.
    */
   async getWorkerVersionLogs(
-    projectId: string,
+    context: ProjectRequestContext,
     workerVersionId: string,
   ): Promise<WorkerVersionLog[]> {
-    const database = await this.database.forProject(projectId)
+    const database = await this.database.forProject(context.projectId)
+    const version = await database.workerVersion.findUnique({
+      where: { id: workerVersionId },
+      select: { workerId: true, worker: { select: { serviceAccountId: true } } },
+    })
+
+    if (!version) {
+      throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
+    }
+
+    requireProjectPermission(context, "worker-version.get", {
+      resourceId: workerVersionId,
+      ownerServiceAccountId: version.worker.serviceAccountId,
+      workerId: version.workerId,
+    })
 
     return await database.workerVersionLog.findMany({
       where: {

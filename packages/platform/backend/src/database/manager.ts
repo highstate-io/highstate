@@ -7,6 +7,10 @@ import z from "zod"
 import { createProjectLogger } from "../common"
 import { ProjectLockedError, ProjectNotFoundError } from "../shared"
 import { migrateDatabase, migrationPacks } from "./migration"
+import {
+  ensureAdminProjectBindingCreated,
+  ensureProjectWellKnownEntitiesCreated,
+} from "./well-known"
 
 export const databaseManagerConfig = z.object({
   HIGHSTATE_ENCRYPTION_ENABLED: z.stringbool().default(true),
@@ -24,9 +28,9 @@ export interface DatabaseManager {
   readonly isEncryptionEnabled: boolean
 
   /**
-   * Re-encrypts the backend master key so it can be decrypted by the provided recipients.
+   * Re-encrypts the backend secrets so they can be decrypted by the provided recipients.
    *
-   * @param recipients AGE recipients that must be able to decrypt the backend master key.
+   * @param recipients AGE recipients that must be able to decrypt the backend secrets.
    */
   updateBackendUnlockRecipients(recipients: string[]): Promise<void>
 
@@ -92,16 +96,12 @@ export class DatabaseManagerImpl implements DatabaseManager {
   }
 
   /**
-   * Delegates backend master-key rotation to the active backend database backend.
+   * Delegates backend secret rotation to the active backend database backend.
    *
-   * @param recipients AGE recipients that must retain access to the backend master key.
+   * @param recipients AGE recipients that must retain access to the backend secrets.
    */
   async updateBackendUnlockRecipients(recipients: string[]): Promise<void> {
-    if (!this.backendBackend.isEncryptionEnabled) {
-      return
-    }
-
-    await this.backendBackend.reencryptMasterKey(recipients)
+    await this.backendBackend.reencryptSecrets(recipients)
   }
 
   async getProjectMasterKey(projectId: string): Promise<Buffer | undefined> {
@@ -138,6 +138,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
       () => Promise.resolve(), // project will be created later
       logger,
     )
+    await ensureProjectWellKnownEntitiesCreated(database)
 
     this.projectDatabases.set(projectId, database)
 
@@ -182,6 +183,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
         },
         logger,
       )
+      await ensureProjectWellKnownEntitiesCreated(database)
 
       return database
     })
@@ -192,9 +194,12 @@ export class DatabaseManagerImpl implements DatabaseManager {
         projectId,
         hexMasterKey,
       )
+      await ensureProjectWellKnownEntitiesCreated(_database)
 
       database = _database
     }
+
+    await ensureAdminProjectBindingCreated(this.backend, database, projectId)
 
     this.projectDatabases.set(projectId, database)
 

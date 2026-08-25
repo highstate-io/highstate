@@ -65,6 +65,7 @@ export class PanelEndpointManager {
     if (activeInstanceId && activeInstanceId !== workerInstanceId) {
       throw new Error(`Worker version "${workerVersionId}" already has an active instance`)
     }
+
     if (this.instances.has(workerInstanceId)) {
       throw new Error(`Worker instance "${workerInstanceId}" is already connected`)
     }
@@ -151,6 +152,7 @@ export class PanelEndpointManager {
         workerInstanceId,
         workerVersionId,
       })
+
       if (!previousPanelIds.has(panel.id)) {
         this.publishAvailability(projectId, panel.id, true)
       }
@@ -217,6 +219,7 @@ function parseAuthority(value: string): string {
   if (endpoint.username || endpoint.password || endpoint.pathname !== "/" || endpoint.search) {
     throw new Error(`Worker data endpoint must contain only a host and port`)
   }
+
   if (!endpoint.hostname || !endpoint.port) {
     throw new Error(`Worker data endpoint must include a host and port`)
   }

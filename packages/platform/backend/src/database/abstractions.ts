@@ -5,6 +5,16 @@ import type { BackendDatabase, ProjectDatabase } from "./prisma"
  */
 export interface BackendDatabaseBackend {
   /**
+   * The stable ID derived from the backend federation key.
+   */
+  readonly backendId: string
+
+  /**
+   * The AGE identity used for backend federation cryptography.
+   */
+  readonly privateKey: string
+
+  /**
    * The database client for the backend database.
    */
   readonly database: BackendDatabase
@@ -15,11 +25,11 @@ export interface BackendDatabaseBackend {
   readonly isEncryptionEnabled: boolean
 
   /**
-   * Re-encrypts the backend master key for the supplied recipients.
+   * Re-encrypts the backend secrets for the supplied recipients.
    *
-   * @param recipients AGE recipients that must be able to decrypt the backend master key.
+   * @param recipients AGE recipients that must be able to decrypt the backend secrets.
    */
-  reencryptMasterKey(recipients: string[]): Promise<void>
+  reencryptSecrets(recipients: string[]): Promise<void>
 }
 
 export interface ProjectDatabaseBackend {

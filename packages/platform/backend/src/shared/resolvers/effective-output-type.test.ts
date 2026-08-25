@@ -382,51 +382,48 @@ describe("resolveEffectiveOutputType", () => {
     expect(resolved).toBe("example.base.v1")
   })
 
-  test.concurrent(
-    "uses direct inclusion when no path is provided and fallback matches inclusion type",
-    () => {
-      const entities = {
-        "example.identity.v1": createEntity("example.identity.v1", [
-          {
-            type: "example.peer.v1",
-            field: "peer",
-            required: true,
-            multiple: false,
-          },
-        ]),
-        "example.peer.v1": createEntity("example.peer.v1"),
-      }
-
-      const identity = createInstance({
-        id: "example.identity.v1:identity-1",
-        type: "example.identity.v1",
-      })
-
-      const component = createComponent({
-        type: "example.identity.v1",
-        outputs: {
-          identity: createInputSpec("example.identity.v1"),
+  test.concurrent("uses direct inclusion when no path is provided and fallback matches inclusion type", () => {
+    const entities = {
+      "example.identity.v1": createEntity("example.identity.v1", [
+        {
+          type: "example.peer.v1",
+          field: "peer",
+          required: true,
+          multiple: false,
         },
-      })
+      ]),
+      "example.peer.v1": createEntity("example.peer.v1"),
+    }
 
-      const resolved = resolveEffectiveOutputType({
-        input: {
-          instanceId: identity.id,
-          output: "identity",
+    const identity = createInstance({
+      id: "example.identity.v1:identity-1",
+      type: "example.identity.v1",
+    })
+
+    const component = createComponent({
+      type: "example.identity.v1",
+      outputs: {
+        identity: createInputSpec("example.identity.v1"),
+      },
+    })
+
+    const resolved = resolveEffectiveOutputType({
+      input: {
+        instanceId: identity.id,
+        output: "identity",
+      },
+      fallbackType: "example.peer.v1",
+      getInstanceContext: createResolver({
+        [identity.id]: {
+          instance: identity,
+          component,
+          entities,
         },
-        fallbackType: "example.peer.v1",
-        getInstanceContext: createResolver({
-          [identity.id]: {
-            instance: identity,
-            component,
-            entities,
-          },
-        }),
-      })
+      }),
+    })
 
-      expect(resolved).toBe("example.peer.v1")
-    },
-  )
+    expect(resolved).toBe("example.peer.v1")
+  })
 
   test.concurrent("handles forwarding cycles without recursion errors", () => {
     const entities = {

@@ -558,7 +558,10 @@ export class RuntimeOperation {
 
       signal.throwIfAborted()
 
-      const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
+      const secrets = await this.secretService.getInstanceSecretValuesCore(
+        this.project.id,
+        state.id,
+      )
       signal.throwIfAborted()
 
       const config = this.prepareUnitConfig(instance, state.id, secrets)
@@ -718,7 +721,10 @@ export class RuntimeOperation {
 
       signal.throwIfAborted()
 
-      const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
+      const secrets = await this.secretService.getInstanceSecretValuesCore(
+        this.project.id,
+        state.id,
+      )
 
       signal.throwIfAborted()
 
@@ -811,7 +817,7 @@ export class RuntimeOperation {
 
     logger.info("updating unit to process before-destroy triggers...")
 
-    const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
+    const secrets = await this.secretService.getInstanceSecretValuesCore(this.project.id, state.id)
 
     await this.runnerBackend.update({
       projectId: this.project.id,
@@ -875,7 +881,10 @@ export class RuntimeOperation {
       })
 
       const [type, name] = parseInstanceId(instance.id)
-      const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
+      const secrets = await this.secretService.getInstanceSecretValuesCore(
+        this.project.id,
+        state.id,
+      )
 
       await this.runnerBackend.destroy({
         projectId: this.project.id,
@@ -914,7 +923,10 @@ export class RuntimeOperation {
       logger.info("refreshing unit...")
 
       const [type, name] = parseInstanceId(instance.id)
-      const secrets = await this.secretService.getInstanceSecretValues(this.project.id, state.id)
+      const secrets = await this.secretService.getInstanceSecretValuesCore(
+        this.project.id,
+        state.id,
+      )
 
       await this.runnerBackend.refresh({
         projectId: this.project.id,

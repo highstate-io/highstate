@@ -6,6 +6,7 @@ import { armor, Encrypter, generateIdentity, identityToRecipient } from "age-enc
 import { pino } from "pino"
 import { describe, expect, test, vi } from "vitest"
 import { projectUnlockSuiteSchema } from "../shared"
+import { adminBackendContext } from "../test-utils"
 import { ProjectUnlockService } from "./project-unlock"
 
 describe("ProjectUnlockService", () => {
@@ -53,10 +54,14 @@ describe("ProjectUnlockService", () => {
       backend: {
         project: {
           findUnique: vi.fn().mockResolvedValue({
+            spaceId: "space-1",
             encryptedMasterKey,
             encryptedPrivateKey: null,
           }),
           update: updateProject,
+        },
+        projectSpace: {
+          findMany: vi.fn().mockResolvedValue([{ id: "space-1", parentId: null }]),
         },
       },
     } as unknown as DatabaseManager
@@ -86,7 +91,7 @@ describe("ProjectUnlockService", () => {
       pino({ level: "silent" }),
     )
 
-    await service.unlockProject("project-1", decryptedIdentity)
+    await service.unlockProject(adminBackendContext(), "project-1", decryptedIdentity)
 
     expect(projectUnlockBackend.unlockProject).toHaveBeenCalledTimes(2)
 
