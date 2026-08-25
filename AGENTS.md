@@ -23,6 +23,18 @@ Some additional notes:
   Determine the required packages from the changes and specify them explicitly in the build command; do not use
   `nx affected`.
 
+Database migration requirements:
+
+- Always create migrations through the scripts in `packages/platform/backend`. Generated SQL may be edited afterward
+  when required; never create migration directories manually.
+- Project: run `bun run migration:reset:project`, then
+  `bun run migration:create:project -- --name <migration-name>`.
+- Backend SQLite: run `bun run migration:reset:backend`, then
+  `bun run migration:create:backend -- --name <migration-name>`.
+- Review generated SQL and register the migration in the corresponding `migrationPacks` entry in
+  `packages/platform/backend/src/database/migration.ts`.
+- Do not create PostgreSQL migrations until a PostgreSQL migration pack is implemented.
+
 Commit requirements:
 
 - Scope commits by functionality and preferably by package when applicable.
