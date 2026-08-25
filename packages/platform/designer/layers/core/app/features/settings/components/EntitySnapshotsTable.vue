@@ -92,9 +92,7 @@ const headers = [
 
         <div class="d-flex flex-column">
           <div class="text-body-2 font-weight-medium">{{ getEntityTitle(item) }}</div>
-          <div class="text-caption text-medium-emphasis">
-            {{ getEntitySubtitle(item) }}
-          </div>
+          <div class="text-caption text-medium-emphasis">{{ getEntitySubtitle(item) }}</div>
         </div>
       </div>
     </template>

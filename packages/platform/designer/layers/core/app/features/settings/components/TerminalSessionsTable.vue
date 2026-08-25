@@ -79,9 +79,7 @@ const formatDuration = (startedAt: string | Date, finishedAt: string | Date | nu
 
     <!-- Duration Column -->
     <template #item.duration="{ item }">
-      <div class="text-body-2">
-        {{ formatDuration(item.startedAt, item.finishedAt) }}
-      </div>
+      <div class="text-body-2">{{ formatDuration(item.startedAt, item.finishedAt) }}</div>
     </template>
 
     <!-- Actions Column -->

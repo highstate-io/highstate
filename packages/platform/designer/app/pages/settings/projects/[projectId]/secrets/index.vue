@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SettingsListPage, SecretsTable } from "#layers/core/app/features/settings"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectSecretSettingsStore()
 const { projectStore } = useProjectStores()
 
 if (projectStore.initializing) {
@@ -12,7 +12,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-void settingsStore.secrets.load()
+void settingsStore.items.load()
 
 definePageMeta({
   name: "settings.secrets",
@@ -33,13 +33,13 @@ definePageMeta({
   >
     <template #default="{ height }">
       <SecretsTable
-        v-model:search="settingsStore.secrets.search"
-        v-model:sort-by="settingsStore.secrets.sortBy"
-        v-model:page="settingsStore.secrets.page"
-        v-model:items-per-page="settingsStore.secrets.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.secrets.data"
-        :loading="settingsStore.secrets.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SettingsListPage, ArtifactsTable } from "#layers/core/app/features/settings"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectArtifactSettingsStore()
 const { projectStore } = useProjectStores()
 
 if (projectStore.initializing) {
@@ -12,7 +12,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-settingsStore.artifacts.load()
+settingsStore.items.load()
 
 definePageMeta({
   name: "settings.artifacts",
@@ -33,13 +33,13 @@ definePageMeta({
   >
     <template #default="{ height }">
       <ArtifactsTable
-        v-model:search="settingsStore.artifacts.search"
-        v-model:sort-by="settingsStore.artifacts.sortBy"
-        v-model:page="settingsStore.artifacts.page"
-        v-model:items-per-page="settingsStore.artifacts.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.artifacts.data"
-        :loading="settingsStore.artifacts.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

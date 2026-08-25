@@ -15,9 +15,7 @@ defineExpose({ textField })
     :type="visible ? 'text' : 'password'"
   >
     <template #append-inner>
-      <VIcon @click="visible = !visible">
-        {{ visible ? "mdi-eye-off" : "mdi-eye" }}
-      </VIcon>
+      <VIcon @click="visible = !visible">{{ visible ? "mdi-eye-off" : "mdi-eye" }}</VIcon>
     </template>
   </VTextField>
 </template>

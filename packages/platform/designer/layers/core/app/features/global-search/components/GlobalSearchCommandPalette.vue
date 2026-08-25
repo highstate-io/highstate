@@ -180,9 +180,7 @@ useEventListener(window, "keydown", event => {
                 <template v-if="item.type === 'hit'">
                   {{ item.hit.meta.title ?? item.hit.id }}
                 </template>
-                <template v-else>
-                  {{ item.id }}
-                </template>
+                <template v-else>{{ item.id }}</template>
               </VListItemTitle>
 
               <VListItemSubtitle class="text-caption">

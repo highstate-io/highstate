@@ -11,8 +11,9 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { ServiceAccountRefChip } from "#layers/core/app/features/shared"
 
-const { settingsStore } = useProjectStores()
 const { projectStore } = useProjectStores()
+const settingsStore = useProjectWorkerSettingsStore()
+const { $client } = useNuxtApp()
 
 const { params } = defineProps<{
   params: {
@@ -33,7 +34,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const worker = await settingsStore.getWorkerDetails(params.workerId)
+const worker = await settingsStore.get(params.workerId)
 
 if (!worker) {
   throw createError({
@@ -50,7 +51,7 @@ const detailItems = [
 ]
 
 // Load related data
-const versions = settingsStore.versionsForWorker(params.workerId)
+const versions = settingsStore.versions(params.workerId)
 
 void versions.load()
 
@@ -66,7 +67,10 @@ const viewVersionLogs = (versionId: string) => {
 }
 
 const restartVersion = async (versionId: string) => {
-  await settingsStore.restartWorkerVersion(versionId)
+  await $client.worker.restartVersion.mutate({
+    projectId: params.projectId,
+    workerVersionId: versionId,
+  })
 }
 </script>
 

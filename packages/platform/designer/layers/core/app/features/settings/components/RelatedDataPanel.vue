@@ -12,9 +12,7 @@ const { title, icon, count } = defineProps<{
       <div class="d-flex align-center">
         <VIcon class="mr-2">{{ icon }}</VIcon>
         {{ title }}
-        <VChip size="small" class="ml-2" variant="outlined">
-          {{ count }}
-        </VChip>
+        <VChip size="small" class="ml-2" variant="outlined">{{ count }}</VChip>
       </div>
     </template>
 

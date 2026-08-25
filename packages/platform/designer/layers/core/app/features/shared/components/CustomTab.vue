@@ -22,9 +22,7 @@ defineProps<{
     />
     <VIcon v-else-if="params.params.icon" class="mr-2">{{ params.params.icon }}</VIcon>
 
-    <div class="dv-default-tab-content">
-      {{ params.params.title }}
-    </div>
+    <div class="dv-default-tab-content">{{ params.params.title }}</div>
 
     <div v-if="params.params.closable" class="dv-default-tab-action" @click="params.api.close()">
       <svg

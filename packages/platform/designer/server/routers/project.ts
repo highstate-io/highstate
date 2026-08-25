@@ -1,11 +1,11 @@
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
 import {
   instanceModelPatchSchema,
   hubModelSchema,
   hubModelPatchSchema,
   instanceIdSchema,
-instanceModelSchema,
+  instanceModelSchema,
 } from "@highstate/contract"
 import {
   projectInputSchema,
@@ -14,11 +14,18 @@ import {
 } from "@highstate/backend/shared"
 
 export const projectRouter = router({
-  getProjects: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.projectService.getProjects()
-  }),
+  getProjects: backendProcedure
+    .input(
+      z.object({
+        pageSize: z.number().int().nonnegative().optional(),
+        pageToken: z.string().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.projectService.getProjects(ctx.requestContext, input)
+    }),
 
-  createProject: publicProcedure
+  createProject: backendProcedure
     .input(
       z.object({
         projectInput: projectInputSchema,
@@ -26,7 +33,11 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return await ctx.projectService.createProject(input.projectInput, input.unlockMethodInput)
+      return await ctx.projectService.createProject(
+        ctx.requestContext,
+        input.projectInput,
+        input.unlockMethodInput,
+      )
     }),
 
   watchProjectNodes: publicProcedure
@@ -39,27 +50,27 @@ export const projectRouter = router({
       return ctx.pubsubManager.subscribe(["project-model", input.projectId], signal)
     }),
 
-  getProject: publicProcedure
+  getProject: backendProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.projectService.getProjectOrThrow(input.projectId)
+      return await ctx.projectService.getProjectOrThrow(ctx.requestContext, input.projectId)
     }),
 
-  getProjectModel: publicProcedure
+  getProjectModel: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.projectService.getProjectModel(input.projectId)
+      return await ctx.projectService.getProjectModel(ctx.requestContext)
     }),
 
-  createManyNodes: publicProcedure
+  createManyNodes: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -69,10 +80,10 @@ export const projectRouter = router({
     )
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.projectService.createNodes(input.projectId, input.instances, input.hubs)
+      await ctx.projectService.createNodes(ctx.requestContext, input.instances, input.hubs)
     }),
 
-  updateInstance: publicProcedure
+  updateInstance: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -82,10 +93,14 @@ export const projectRouter = router({
     )
     .output(instanceModelSchema)
     .mutation(async ({ input, ctx }) => {
-      return await ctx.projectService.updateInstance(input.projectId, input.instanceId, input.patch)
+      return await ctx.projectService.updateInstance(
+        ctx.requestContext,
+        input.instanceId,
+        input.patch,
+      )
     }),
 
-  renameInstance: publicProcedure
+  renameInstance: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -96,13 +111,13 @@ export const projectRouter = router({
     .output(instanceModelSchema)
     .mutation(async ({ input, ctx }) => {
       return await ctx.projectService.renameInstance(
-        input.projectId,
+        ctx.requestContext,
         input.instanceId,
         input.newName,
       )
     }),
 
-  deleteInstance: publicProcedure
+  deleteInstance: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -111,10 +126,10 @@ export const projectRouter = router({
     )
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.projectService.deleteInstance(input.projectId, input.instanceId)
+      await ctx.projectService.deleteInstance(ctx.requestContext, input.instanceId)
     }),
 
-  updateHub: publicProcedure
+  updateHub: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -124,10 +139,10 @@ export const projectRouter = router({
     )
     .output(hubModelSchema)
     .mutation(async ({ input, ctx }) => {
-      return await ctx.projectService.updateHub(input.projectId, input.hubId, input.patch)
+      return await ctx.projectService.updateHub(ctx.requestContext, input.hubId, input.patch)
     }),
 
-  deleteHub: publicProcedure
+  deleteHub: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -136,6 +151,6 @@ export const projectRouter = router({
     )
     .output(z.void())
     .mutation(async ({ input, ctx }) => {
-      await ctx.projectService.deleteHub(input.projectId, input.hubId)
+      await ctx.projectService.deleteHub(ctx.requestContext, input.hubId)
     }),
 })

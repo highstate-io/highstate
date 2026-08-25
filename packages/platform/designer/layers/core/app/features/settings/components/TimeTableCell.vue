@@ -8,11 +8,7 @@ const { value } = defineProps<{
 
 <template>
   <div>
-    <div class="text-body-2">
-      {{ formatDate(value) }}
-    </div>
-    <div class="text-caption text-medium-emphasis">
-      {{ getRelativeTime(value) }}
-    </div>
+    <div class="text-body-2">{{ formatDate(value) }}</div>
+    <div class="text-caption text-medium-emphasis">{{ getRelativeTime(value) }}</div>
   </div>
 </template>

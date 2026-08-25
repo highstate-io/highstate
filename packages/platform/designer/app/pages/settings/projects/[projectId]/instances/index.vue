@@ -123,9 +123,9 @@ const handleItemClick = (item: TreeNode) => {
           <div class="d-flex align-center">
             <VIcon class="mr-2">mdi-format-list-bulleted</VIcon>
             <span class="text-subtitle-1 font-weight-medium">
-              {{ instancesStore.instances.size }} instance{{
-                instancesStore.instances.size === 1 ? "" : "s"
-              }}
+              {{ instancesStore.instances.size }}
+              instance
+              {{ instancesStore.instances.size === 1 ? "" : "s" }}
             </span>
           </div>
 

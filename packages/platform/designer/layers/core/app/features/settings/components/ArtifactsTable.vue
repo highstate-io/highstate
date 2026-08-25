@@ -53,9 +53,7 @@ const headers = [
     </template>
 
     <!-- Size Column -->
-    <template #item.size="{ item }">
-      {{ bytesToHumanReadable(item.size) }}
-    </template>
+    <template #item.size="{ item }">{{ bytesToHumanReadable(item.size) }}</template>
 
     <!-- Actions Column -->
     <template #item.actions="{ item }">

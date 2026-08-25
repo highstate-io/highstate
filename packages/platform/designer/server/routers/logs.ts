@@ -1,20 +1,23 @@
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { projectProcedure, publicProcedure, router } from "../trpc"
 
 export const logsRouter = router({
-  getInstanceLogs: publicProcedure
+  getInstanceLogs: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
         operationId: z.cuid2(),
         stateId: z.cuid2(),
+        pageSize: z.number().int().nonnegative().optional(),
+        pageToken: z.string().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
       return await ctx.operationService.getOperationLogs(
-        input.projectId,
+        ctx.requestContext,
         input.operationId,
         input.stateId,
+        input,
       )
     }),
 
@@ -32,7 +35,7 @@ export const logsRouter = router({
       )
     }),
 
-  getWorkerVersionLogs: publicProcedure
+  getWorkerVersionLogs: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -40,7 +43,7 @@ export const logsRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.workerService.getWorkerVersionLogs(input.projectId, input.workerVersionId)
+      return await ctx.workerService.getWorkerVersionLogs(ctx.requestContext, input.workerVersionId)
     }),
 
   watchWorkerVersionLogs: publicProcedure

@@ -38,7 +38,8 @@ const autoUpdate = async () => {
           class="d-flex text-disabled text-subtitle-1"
           style="line-height: 1"
         >
-          {{ operationsStore.instancesToAutoUpdate.length }} component(s)
+          {{ operationsStore.instancesToAutoUpdate.length }}
+          component(s)
         </div>
         <div v-else class="d-flex text-disabled text-subtitle-1" style="line-height: 1">
           nothing to update

@@ -6,7 +6,11 @@ import {
   baseHeaders,
 } from "#layers/core/app/features/settings"
 import { OwnerRefChip } from "#layers/core/app/features/shared"
-import type { CollectionQuery, CollectionQueryResult, WorkerOutput } from "@highstate/backend/shared"
+import type {
+  CollectionQuery,
+  CollectionQueryResult,
+  WorkerOutput,
+} from "@highstate/backend/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

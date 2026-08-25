@@ -230,7 +230,7 @@ watch(
                     <component :is="Component" :params="currentRoute.params" />
                   </ProjectTabWrapper>
                 </Suspense>
-                <component :is="Component" v-else />
+                <component :is="Component" v-else :params="currentRoute.params" />
               </template>
             </RouterView>
           </VCardText>

@@ -1,22 +1,28 @@
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
 import { instanceIdSchema } from "@highstate/contract"
 import { createPanelLaunchTicket } from "../utils/panel-session"
 
 export const stateRouter = router({
-  getInstanceStates: publicProcedure
+  getInstanceStates: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
+        pageSize: z.number().int().nonnegative().optional(),
+        pageToken: z.string().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.instanceStateService.getInstanceStates(input.projectId, {
-        includeEvaluationState: true,
-        includeExtra: true,
-        includeLastOperationState: true,
-        loadCustomStatuses: true,
-      })
+      return await ctx.instanceStateService.getInstanceStates(
+        ctx.requestContext,
+        {
+          includeEvaluationState: true,
+          includeExtra: true,
+          includeLastOperationState: true,
+          loadCustomStatuses: true,
+        },
+        input,
+      )
     }),
 
   watchInstanceStates: publicProcedure
@@ -29,7 +35,7 @@ export const stateRouter = router({
       return await ctx.pubsubManager.subscribe(["instance-state", input.projectId], signal)
     }),
 
-  forgetInstanceStates: publicProcedure
+  forgetInstanceStates: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -39,13 +45,13 @@ export const stateRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await ctx.instanceStateService.forgetInstanceStates(input.projectId, input.instanceIds, {
+      await ctx.instanceStateService.forgetInstanceStates(ctx.requestContext, input.instanceIds, {
         deleteSecrets: input.deleteSecrets,
         clearTerminalData: input.clearTerminalData,
       })
     }),
 
-  getOutputReferencedEntities: publicProcedure
+  getOutputReferencedEntities: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -54,11 +60,11 @@ export const stateRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const project = await ctx.projectService.getProjectOrThrow(input.projectId)
+      const project = await ctx.projectService.getProjectOrThrowCore(input.projectId)
       const library = await ctx.libraryBackend.loadLibrary(project.libraryId)
 
       return await ctx.entitySnapshotService.listReferencedEntitySnapshotsForOutput(
-        input.projectId,
+        ctx.requestContext,
         input.stateId,
         input.output,
         library,
@@ -87,7 +93,7 @@ export const stateRouter = router({
       return ctx.pubsubManager.subscribe(["instance-lock", input.projectId], signal)
     }),
 
-  getInstanceSecrets: publicProcedure
+  getInstanceSecrets: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -95,10 +101,10 @@ export const stateRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.secretService.getInstanceSecretValues(input.projectId, input.stateId)
+      return await ctx.secretService.getInstanceSecretValues(ctx.requestContext, input.stateId)
     }),
 
-  updateInstanceSecrets: publicProcedure
+  updateInstanceSecrets: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -108,7 +114,7 @@ export const stateRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       await ctx.secretService.updateInstanceSecrets(
-        input.projectId,
+        ctx.requestContext,
         input.stateId,
         input.secretValues,
       )
@@ -154,7 +160,7 @@ export const stateRouter = router({
       )
     }),
 
-  getInstancePanels: publicProcedure
+  getInstancePanels: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -163,9 +169,7 @@ export const stateRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const panels = await Promise.all(
-        input.panelIds.map(panelId =>
-          ctx.settingsService.getPanelDetails(input.projectId, panelId),
-        ),
+        input.panelIds.map(panelId => ctx.panelSettingsService.get(ctx.requestContext, panelId)),
       )
 
       return panels.filter(panel => panel !== null)
@@ -261,7 +265,7 @@ export const stateRouter = router({
       )
     }),
 
-  unlockProject: publicProcedure
+  unlockProject: backendProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -269,10 +273,14 @@ export const stateRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await ctx.projectUnlockService.unlockProject(input.projectId, input.decryptedIdentity)
+      await ctx.projectUnlockService.unlockProject(
+        ctx.requestContext,
+        input.projectId,
+        input.decryptedIdentity,
+      )
     }),
 
-  watchUnlockState: publicProcedure
+  watchUnlockState: backendProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -285,7 +293,10 @@ export const stateRouter = router({
       )
 
       // always emit the current lock state when subscribing to allow reconnecting clients to get the current state
-      yield await ctx.projectUnlockService.getProjectUnlockState(input.projectId)
+      yield await ctx.projectUnlockService.getProjectUnlockState(
+        ctx.requestContext,
+        input.projectId,
+      )
 
       for await (const isUnlocked of await subscription) {
         yield isUnlocked

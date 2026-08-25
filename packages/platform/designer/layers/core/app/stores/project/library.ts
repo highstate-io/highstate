@@ -83,7 +83,11 @@ export const useProjectLibraryStore = defineMultiStore({
       }
 
       watch(
-        () => projectsStore.projects.map(project => project.id).sort().join("|"),
+        () =>
+          projectsStore.projects
+            .map(project => project.id)
+            .sort()
+            .join("|"),
         () => {
           if (!initialized.value || loading.value) {
             return

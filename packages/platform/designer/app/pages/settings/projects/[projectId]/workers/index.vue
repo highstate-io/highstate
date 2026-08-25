@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import {
-  SettingsListPage,
-  WorkersTable,
-} from "#layers/core/app/features/settings"
+import { SettingsListPage, WorkersTable } from "#layers/core/app/features/settings"
 
-const { settingsStore, projectStore } = useProjectStores()
+const { projectStore } = useProjectStores()
+const settingsStore = useProjectWorkerSettingsStore()
 
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
@@ -14,7 +12,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-void settingsStore.workers.load()
+void settingsStore.items.load()
 
 definePageMeta({
   name: "settings.workers",
@@ -35,13 +33,13 @@ definePageMeta({
   >
     <template #default="{ height }">
       <WorkersTable
-        v-model:search="settingsStore.workers.search"
-        v-model:sort-by="settingsStore.workers.sortBy"
-        v-model:page="settingsStore.workers.page"
-        v-model:items-per-page="settingsStore.workers.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.workers.data"
-        :loading="settingsStore.workers.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

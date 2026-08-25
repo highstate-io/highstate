@@ -29,7 +29,7 @@ const toggleSecretVisibility = async () => {
   try {
     isLoading.value = true
 
-    secretValue.value = await $client.settings.getSecretValue.query({
+    secretValue.value = await $client.secretSettings.getValue.query({
       projectId: props.projectId,
       secretId: props.secretId,
     })
@@ -89,7 +89,11 @@ const formatSecretValue = () => {
  * check if secret value is a complex object that should show a dialog
  */
 const isComplexValue = computed(() => {
-  return secretValue.value !== undefined && secretValue.value !== null && typeof secretValue.value !== "string"
+  return (
+    secretValue.value !== undefined &&
+    secretValue.value !== null &&
+    typeof secretValue.value !== "string"
+  )
 })
 
 /**

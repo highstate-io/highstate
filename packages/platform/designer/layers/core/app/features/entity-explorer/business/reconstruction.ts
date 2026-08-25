@@ -91,9 +91,7 @@ const getEntityHeader = (node: EntityNode): string => {
   const meta = node.$meta
   const title = typeof meta.title === "string" && meta.title.length > 0 ? meta.title : meta.type
   const entityId =
-    typeof meta.entityId === "string" && meta.entityId.length > 0
-      ? meta.entityId
-      : "unknown"
+    typeof meta.entityId === "string" && meta.entityId.length > 0 ? meta.entityId : "unknown"
 
   return `${title} [${entityId}]`
 }
@@ -300,10 +298,7 @@ const formatEntityInto = (options: {
       options.lines.push(`${spaces(bodyIndent + 2)}# secret`)
 
       options.lines.push(
-        ...indentYaml(
-          stringify({ value: (value as { value: unknown }).value }),
-          bodyIndent + 2,
-        ),
+        ...indentYaml(stringify({ value: (value as { value: unknown }).value }), bodyIndent + 2),
       )
 
       const secretRegionEnd = options.lines.length

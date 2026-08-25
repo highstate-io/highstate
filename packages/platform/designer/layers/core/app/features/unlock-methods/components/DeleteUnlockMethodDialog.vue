@@ -35,8 +35,7 @@ const handleCancel = () => {
       <VCardText>
         <p class="mb-3">
           Are you sure you want to delete the unlock method
-          <strong>"{{ unlockMethod.meta.title }}"</strong>
-          ?
+          <strong>"{{ unlockMethod.meta.title }}"</strong>?
         </p>
 
         <VAlert type="warning" density="compact">

@@ -122,7 +122,8 @@ function createInstanceStateTab(state: InstanceState, expectedInputHash?: number
       name: "instance-state",
       status: "exported",
       title: "State",
-      message: "All entities from this instance are exported and can be imported in other projects.",
+      message:
+        "All entities from this instance are exported and can be imported in other projects.",
       icon: "export",
       color: "success",
       order: 5,

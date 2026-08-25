@@ -1,17 +1,18 @@
 <script setup lang="ts" generic="T extends GenericEntity">
 import { Icon } from "@iconify/vue"
 import type {
-  CollectionQueryResult,
   CollectionQuery,
+  CollectionQueryResult,
   GenericEntity,
 } from "@highstate/backend/shared"
+import type { ObservedCollectionQueryResult } from "../../../utils/collection-query"
 import type { TableHeader } from "../business/useSettingsTable"
 import IdTableCell from "./IdTableCell.vue"
 import TimeTableCell from "./TimeTableCell.vue"
 
 const { headers, data, loading, hideHeader, hideSearch, height } = defineProps<{
   headers: TableHeader[]
-  data: CollectionQueryResult<T>
+  data: CollectionQueryResult<T> & Partial<ObservedCollectionQueryResult<T>>
   loading?: boolean
   hideHeader?: boolean
   hideSearch?: boolean
@@ -29,19 +30,24 @@ interface DataTableItemProps {
   [key: string]: unknown
 }
 
-const slots = defineSlots<{
-  [K in `item.${string}`]: (props: DataTableItemProps) => VNode
-}>()
+const slots =
+  defineSlots<{
+    [K in `item.${string}`]: (props: DataTableItemProps) => VNode
+  }>()
 </script>
 
 <template>
   <div class="settings-table-container">
+    <VAlert v-if="data.error" type="error" density="compact" class="mb-4">{{ data.error }}</VAlert>
+
     <!-- Search and Summary -->
     <div v-if="!hideHeader" class="table-header">
       <div class="d-flex align-center">
         <VIcon class="mr-2">mdi-format-list-bulleted</VIcon>
         <span class="text-subtitle-1 font-weight-medium">
-          {{ data.total }} item{{ data.total === 1 ? "" : "s" }}
+          {{ data.total ?? data.items.length }}
+          {{ data.hasMore ? "+" : "" }}
+          item{{ (data.total ?? data.items.length) === 1 ? "" : "s" }}
         </span>
       </div>
 
@@ -62,15 +68,15 @@ const slots = defineSlots<{
       <VDataTableServer
         :headers="headers"
         :items="data.items"
-        :items-length="data.total"
+        :items-length="data.items.length"
         :loading="loading"
-        v-model:page="page"
         v-model:items-per-page="itemsPerPage"
         v-model:sort-by="sortBy"
         item-value="id"
         class="data-table"
         fixed-header
         :height="height"
+        hide-default-footer
       >
         <!-- Name & Description Column -->
         <template #item.meta.title="{ item }">
@@ -94,9 +100,7 @@ const slots = defineSlots<{
               class="mr-4"
             />
             <div class="d-flex flex-column">
-              <div class="text-body-1 font-weight-medium">
-                {{ item.meta.title || "Unnamed" }}
-              </div>
+              <div class="text-body-1 font-weight-medium">{{ item.meta.title || "Unnamed" }}</div>
               <div v-if="item.meta.description" class="text-caption text-medium-emphasis">
                 {{ item.meta.description.split("\n")[0] }}
               </div>
@@ -126,6 +130,35 @@ const slots = defineSlots<{
           </div>
         </template>
       </VDataTableServer>
+
+      <div class="table-footer">
+        <VSelect
+          v-model="itemsPerPage"
+          :items="[10, 20, 50, 100]"
+          label="Items per page"
+          density="compact"
+          variant="outlined"
+          hide-details
+          class="items-per-page"
+        />
+        <span class="text-body-2 text-medium-emphasis">Page {{ page }}</span>
+        <VBtn
+          icon="mdi-chevron-left"
+          variant="text"
+          size="small"
+          aria-label="Previous page"
+          :disabled="page <= 1 || loading"
+          @click="page = Math.max(1, (page ?? 1) - 1)"
+        />
+        <VBtn
+          icon="mdi-chevron-right"
+          variant="text"
+          size="small"
+          aria-label="Next page"
+          :disabled="loading || !data.hasNextPage"
+          @click="page = (page ?? 1) + 1"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -150,5 +183,17 @@ const slots = defineSlots<{
 .table-wrapper {
   flex: 1;
   min-width: 0;
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.items-per-page {
+  max-width: 160px;
 }
 </style>

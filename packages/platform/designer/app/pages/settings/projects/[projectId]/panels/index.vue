@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { PanelsTable, SettingsListPage } from "#layers/core/app/features/settings"
 
-const { settingsStore, projectStore } = useProjectStores()
+const { projectStore } = useProjectStores()
+const settingsStore = useProjectPanelSettingsStore()
 
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
@@ -21,7 +22,7 @@ definePageMeta({
   },
 })
 
-void settingsStore.panels.load()
+void settingsStore.items.load()
 </script>
 
 <template>
@@ -32,13 +33,13 @@ void settingsStore.panels.load()
   >
     <template #default="{ height }">
       <PanelsTable
-        v-model:search="settingsStore.panels.search"
-        v-model:sort-by="settingsStore.panels.sortBy"
-        v-model:page="settingsStore.panels.page"
-        v-model:items-per-page="settingsStore.panels.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.panels.data"
-        :loading="settingsStore.panels.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

@@ -6,6 +6,8 @@
     "dev": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
     "build": "nuxt build",
     "typecheck": "nuxt typecheck",
+    "biome": "biome check --write --unsafe --error-on-warnings app layers server nuxt.config.ts --files-ignore-unknown=true",
+    "biome:check": "biome check --error-on-warnings app layers server nuxt.config.ts --files-ignore-unknown=true",
     "build-libavoid": "bash ./scripts/build-libavoid.sh"
   },
   "files": [
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@codemirror/lang-yaml": "^6.1.2",
+    "@biomejs/biome": "2.5.0",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@dagrejs/dagre": "^1.1.4",
     "@guolao/vue-monaco-editor": "^1.5.5",
@@ -95,6 +98,7 @@
     "@highstate/backend": "workspace:*",
     "@highstate/backend-api": "workspace:*",
     "@highstate/contract": "workspace:*",
+    "@highstate/mcp": "workspace:*",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/internals": "^6.14.0",
     "@vue/shared": "^3.5.33",

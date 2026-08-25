@@ -62,9 +62,7 @@ const renderQrContent = (content: string, language?: string) => {
         </v-avatar>
 
         <div class="ms-3 d-flex flex-column">
-          <div class="text-body-1 font-weight-medium text-truncate">
-            {{ block.file.meta.name }}
-          </div>
+          <div class="text-body-1 font-weight-medium text-truncate">{{ block.file.meta.name }}</div>
           <div v-if="block.file.meta.size !== undefined" class="text-caption text-secondary">
             {{ bytesToHumanReadable(block.file.meta.size) }}
           </div>

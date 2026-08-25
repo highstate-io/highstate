@@ -31,9 +31,7 @@ const slots = defineSlots<{
         <h1 class="text-h4 font-weight-bold">{{ title }}</h1>
         <StatusChip v-if="status && statusMap" :status="status" :status-map="statusMap" />
       </div>
-      <p v-if="description" class="text-body-1 text-medium-emphasis mb-0">
-        {{ description }}
-      </p>
+      <p v-if="description" class="text-body-1 text-medium-emphasis mb-0">{{ description }}</p>
     </div>
 
     <!-- Action buttons slot -->

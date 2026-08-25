@@ -140,10 +140,7 @@ export const useProjectOperationsStore = defineMultiStore({
         })
       }
 
-      const launchQuickInstanceOperation = async (
-        type: OperationType,
-        instance: InstanceModel,
-      ) => {
+      const launchQuickInstanceOperation = async (type: OperationType, instance: InstanceModel) => {
         return await launchInstanceOperation(type, instance, {
           ignoreChangedDependencies: true,
         })

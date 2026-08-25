@@ -8,7 +8,7 @@ const emit = defineEmits<{
   created: []
 }>()
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectUnlockMethodSettingsStore()
 
 const valid = ref(false)
 const loading = ref(false)
@@ -38,7 +38,7 @@ const handleCreate = async () => {
   try {
     const unlockMethod = await createUnlockMethodFromForm(formData.value)
 
-    await settingsStore.addUnlockMethod(unlockMethod)
+    await settingsStore.create(unlockMethod)
 
     visible.value = false
     unlockMethodForm.value?.resetForm()
@@ -71,9 +71,7 @@ watch(visible, newVisible => {
           @update:form="formData = $event"
         />
 
-        <VAlert v-if="error" type="error" density="compact" class="mb-4">
-          {{ error }}
-        </VAlert>
+        <VAlert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</VAlert>
       </VCardText>
 
       <VCardActions>

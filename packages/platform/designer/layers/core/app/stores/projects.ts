@@ -1,13 +1,19 @@
-import type { UnlockMethodInput } from "@highstate/backend/shared"
+import type { ProjectOutput, UnlockMethodInput } from "@highstate/backend/shared"
 import type { CommonObjectMeta } from "@highstate/contract"
 
 export const useProjectsStore = defineStore("projects", () => {
   const { $client } = useNuxtApp()
-  const { execute: refreshProjects, data: projectsData } = $client.project.getProjects.useQuery()
-  const projects = refDefault(
-    computed(() => projectsData.value),
-    [],
-  )
+  const projects = ref<ProjectOutput[]>([])
+
+  async function loadProjects(): Promise<ProjectOutput[]> {
+    return await loadAllCollectionItems(query => $client.project.getProjects.query(query))
+  }
+
+  async function refreshProjects(): Promise<void> {
+    projects.value = await loadProjects()
+  }
+
+  void refreshProjects()
 
   const loadingCreateProject = ref<boolean>(false)
 

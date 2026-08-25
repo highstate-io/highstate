@@ -8,11 +8,9 @@ export default createTRPCNuxtHandler({
   createContext: async () => {
     const services = await getSharedServices()
 
-    return {
-      ...services,
-    }
+    return { ...services }
   },
-  onError: error => {
+  onError: ({ error }) => {
     console.error("Server Error", error)
   },
 })

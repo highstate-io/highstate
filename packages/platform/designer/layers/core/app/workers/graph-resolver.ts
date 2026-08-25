@@ -125,10 +125,12 @@ const scheduleFlush = (port: MessagePort, resolverId: string, state: GraphResolv
     flushOutputs(port, resolverId, state)
 
     if (state.pendingDependentSets.size > 0) {
-      const items = Array.from(state.pendingDependentSets.entries()).map(([nodeId, dependents]) => ({
-        nodeId,
-        dependents,
-      }))
+      const items = Array.from(state.pendingDependentSets.entries()).map(
+        ([nodeId, dependents]) => ({
+          nodeId,
+          dependents,
+        }),
+      )
 
       postMessage(port, {
         type: "dependent-set-batch",

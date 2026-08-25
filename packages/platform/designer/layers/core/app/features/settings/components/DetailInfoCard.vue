@@ -9,9 +9,10 @@ const { title, items } = defineProps<{
   items: DetailInfoItem[]
 }>()
 
-const slots = defineSlots<{
-  [K in `item.${string}`]: () => VNode
-}>()
+const slots =
+  defineSlots<{
+    [K in `item.${string}`]: () => VNode
+  }>()
 </script>
 
 <template>

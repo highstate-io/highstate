@@ -16,7 +16,9 @@ export function getFileUrl(file: File, projectId: string): string {
 
   // if content is binary, it's already base64 encoded
   if (file.content.isBinary) {
-    const value = isSecret<string>(file.content.value) ? file.content.value.value : file.content.value
+    const value = isSecret<string>(file.content.value)
+      ? file.content.value.value
+      : file.content.value
     return `data:${mimeType};base64,${value}`
   }
 

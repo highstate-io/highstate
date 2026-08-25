@@ -205,7 +205,9 @@ export const useProjectStateStore = defineMultiStore({
         onDeactivated(stopWatchingInstanceStates)
 
         const [loadedStates, loadedLocks] = await Promise.all([
-          $client.state.getInstanceStates.query({ projectId }),
+          loadAllCollectionItems(query =>
+            $client.state.getInstanceStates.query({ projectId, ...query }),
+          ),
           $client.state.getInstanceLocks.query({ projectId }),
         ])
 

@@ -12,7 +12,8 @@ import SettingsPageHeader from "#layers/core/app/features/settings/components/Se
 import { OwnerRefChip } from "#layers/core/app/features/shared"
 import { PageContent } from "#layers/core/app/features/page-dialog"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectPageSettingsStore()
+const artifactStore = useProjectArtifactSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -34,7 +35,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const page = await settingsStore.getPageDetails(params.pageId)
+const page = await settingsStore.get(params.pageId)
 
 if (!page) {
   throw createError({
@@ -44,7 +45,7 @@ if (!page) {
 }
 
 // load related data
-const artifacts = settingsStore.artifactsForPage(params.pageId)
+const artifacts = artifactStore.forPage(params.pageId)
 await artifacts.load()
 
 const detailItems = [

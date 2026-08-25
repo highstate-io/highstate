@@ -1,15 +1,15 @@
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { projectProcedure, publicProcedure, router } from "../trpc"
 
 export const libraryRouter = router({
   get: publicProcedure.input(z.object({ libraryId: z.string() })).query(async ({ ctx, input }) => {
     return await ctx.libraryBackend.loadLibrary(input.libraryId)
   }),
 
-  getProjectVirtualComponents: publicProcedure
+  getProjectVirtualComponents: projectProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input, signal }) => {
-      return await ctx.libraryService.getVirtualComponents(input.projectId, signal)
+      return await ctx.libraryService.getVirtualComponents(ctx.requestContext, signal)
     }),
 
   watch: publicProcedure.input(z.object({ libraryId: z.string() })).subscription(async function* ({

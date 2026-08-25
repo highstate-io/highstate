@@ -16,8 +16,15 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { PreviewCanvas } from "#layers/core/app/features/canvas"
 
-const { settingsStore, instancesStore, stateStore, libraryStore } = useProjectStores()
+const { instancesStore, stateStore, libraryStore } = useProjectStores()
 const { projectStore } = useProjectStores()
+const artifactStore = useProjectArtifactSettingsStore()
+const entityStore = useProjectEntitySettingsStore()
+const pageStore = useProjectPageSettingsStore()
+const panelStore = useProjectPanelSettingsStore()
+const secretStore = useProjectSecretSettingsStore()
+const terminalStore = useProjectTerminalSettingsStore()
+const triggerStore = useProjectTriggerSettingsStore()
 
 const { params } = defineProps<{
   params: {
@@ -77,16 +84,16 @@ const components = libraryStore.library.components
 const entities = libraryStore.library.entities
 
 // load related data
-const terminals = settingsStore.terminalsForState(params.stateId)
-const secrets = settingsStore.secretsForState(params.stateId)
-const pages = settingsStore.pagesForState(params.stateId)
-const panels = settingsStore.panelsForState(params.stateId)
-const triggers = settingsStore.triggersForState(params.stateId)
-const artifacts = settingsStore.artifactsForState(params.stateId)
+const terminals = terminalStore.forState(params.stateId)
+const secrets = secretStore.forState(params.stateId)
+const pages = pageStore.forState(params.stateId)
+const panels = panelStore.forState(params.stateId)
+const triggers = triggerStore.forState(params.stateId)
+const artifacts = artifactStore.forState(params.stateId)
 
 const lastOperationId = stateStore.instanceStates.get(instanceId)?.lastOperationState?.operationId
 const entitySnapshots = lastOperationId
-  ? settingsStore.entitySnapshotsForInstanceOperation(params.stateId, lastOperationId)
+  ? entityStore.snapshotsForInstanceOperation(params.stateId, lastOperationId)
   : null
 
 void terminals.load()

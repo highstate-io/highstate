@@ -89,7 +89,7 @@ const componentGroupCount = computed(() => {
 
     <div class="d-flex flex-column align-center gr-4 component-list-container">
       <div
-        v-for="[category, components] in componentsByCategory"
+        v-for="[ category, components ] in componentsByCategory"
         :key="category"
         class="d-flex flex-column gr-4"
       >
@@ -110,10 +110,7 @@ const componentGroupCount = computed(() => {
       </div>
     </div>
 
-    <div
-      v-if="componentGroupCount > 0"
-      class="mb-2 text-center text-uppercase text-disabled"
-    >
+    <div v-if="componentGroupCount > 0" class="mb-2 text-center text-uppercase text-disabled">
       Found {{ componentGroupCount }} component(s)
     </div>
   </div>

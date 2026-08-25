@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SettingsListPage, TerminalsTable } from "#layers/core/app/features/settings"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectTerminalSettingsStore()
 const { projectStore } = useProjectStores()
 
 if (projectStore.initializing) {
@@ -22,7 +22,7 @@ definePageMeta({
   },
 })
 
-void settingsStore.terminals.load()
+void settingsStore.items.load()
 </script>
 
 <template>
@@ -33,13 +33,13 @@ void settingsStore.terminals.load()
   >
     <template #default="{ height }">
       <TerminalsTable
-        v-model:search="settingsStore.terminals.search"
-        v-model:sort-by="settingsStore.terminals.sortBy"
-        v-model:page="settingsStore.terminals.page"
-        v-model:items-per-page="settingsStore.terminals.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.terminals.data"
-        :loading="settingsStore.terminals.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

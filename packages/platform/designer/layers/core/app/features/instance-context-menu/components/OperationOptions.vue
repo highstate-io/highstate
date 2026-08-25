@@ -71,9 +71,7 @@ const updateOption = (key: keyof OperationOptions, value: boolean | null) => {
         hide-details
       />
 
-      <div class="text-caption">
-        {{ config.description }}
-      </div>
+      <div class="text-caption">{{ config.description }}</div>
     </template>
   </div>
 </template>
