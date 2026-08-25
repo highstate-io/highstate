@@ -1,2 +1,0 @@
-# only use prettier for vue files since biome does not support it yet
-!*.vue

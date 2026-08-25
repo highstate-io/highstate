@@ -28,6 +28,13 @@ Prefer explicit domain types over utility-composed type expressions for declarat
 - Prefer explicit imports (for example `TracerProvider`) or a named exported local alias from the source module.
 - Do not add pass-through aliases that only rename an existing type (for example `type LocalPrisma = PrismaClient`). Use the original type directly.
 
+## Import Rules
+
+- Import from package and directory index barrels instead of implementation modules or generated files.
+- Add missing public exports to the relevant barrel rather than bypassing it at call sites.
+- Backend database types must be re-exported from the PostgreSQL generated client, never from SQLite.
+- Do not create multiple import blocks for the same module path; merge their imported names.
+
 **GOOD:**
 
 ```typescript
@@ -166,6 +173,9 @@ async function updateUsage(projectId: string, usage: ArtifactUsage): Promise<voi
 - Split the description to multiple paragraphs if needed.
 - Params must be documented with `@param` tags without "-" and shoult also be complete sentences.
 - Private methods typically do not need JSDoc unless they implement complex logic.
+- Isolate params from description with a blank line.
+- Never use single-line JSDoc comments for public methods.
+- gRPC API handlers and service implementations must never contain JSDoc comments.
 
 **GOOD:**
 
@@ -202,6 +212,11 @@ async updateUnitRegistrations(
 async updateUnitRegistrations(projectId: string, instanceId: string): Promise<Record<string, string>> {
   // implementation
 }
+
+/** Single-line JSDoc is not allowed for public methods */
+async updateUnitRegistrations(projectId: string, instanceId: string): Promise<Record<string, string>> {
+  // implementation
+}
 ```
 
 ## Type Safety and Generics
@@ -230,7 +245,7 @@ function getOrCreate(cache: any, key: string, factory: Function): any {
 ## Method Chaining and Fluent APIs
 
 Format fluent chains for clarity and force splits with `//` when needed.
-Biome (and Prettier) will try to keep lines under 100 characters,
+Biome will try to keep lines under 100 characters,
 but it is not consistent enough for our liking.
 When a line exceeds 100 characters, break after each call in the chain.
 
@@ -388,6 +403,17 @@ for (const instanceId of this.operation.requestedInstanceIds) {
 
 - Group related operations and add breathing room between distinct blocks.
 - Leave blank lines after guard clauses, between loops, and around multiline calls.
+- Keep a single variable assignment immediately followed by one `if` block together, even when that condition contains multiple checks. This exception is about one guard block, not about the number of checks inside its condition:
+
+  ```typescript
+  const state = this.stateMap.get(instanceKey)
+  if (!state) {
+    return
+  }
+  ```
+
+  If the assignment is multiline, keep the assignment and guard isolated with a blank line. Add blank lines between consecutive guard blocks or between a guard and another distinct block.
+
 - Do not clump statements together or over-space compact structures.
 
 **GOOD:**

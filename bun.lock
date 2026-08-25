@@ -14,11 +14,12 @@
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
         "vitest": "^3.2.4",
+        "zod": "^4.3.6",
       },
     },
     "packages/platform/api": {
       "name": "@highstate/api",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@bufbuild/protobuf": "^2.6.0",
         "long": "^5.3.2",
@@ -34,7 +35,7 @@
     },
     "packages/platform/backend": {
       "name": "@highstate/backend",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@aws-crypto/crc32": "^5.2.0",
         "@highstate/contract": "workspace:*",
@@ -90,7 +91,7 @@
     },
     "packages/platform/backend-api": {
       "name": "@highstate/backend-api",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@bufbuild/protobuf": "^2.6.1",
         "@highstate/api": "workspace:*",
@@ -105,6 +106,7 @@
       "devDependencies": {
         "@biomejs/biome": "2.2.0",
         "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+        "vitest": "^3.2.4",
       },
       "peerDependencies": {
         "@pulumi/pulumi": "3.232.0",
@@ -117,7 +119,7 @@
     },
     "packages/platform/cli": {
       "name": "@highstate/cli",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "bin": {
         "highstate": "./dist/main.js",
       },
@@ -159,7 +161,7 @@
     },
     "packages/platform/contract": {
       "name": "@highstate/contract",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@noble/hashes": "^2.0.0",
         "@paralleldrive/cuid2": "^2.2.2",
@@ -177,7 +179,7 @@
     },
     "packages/platform/create-highstate": {
       "name": "create-highstate",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "bin": {
         "create-highstate": "./dist/main.js",
       },
@@ -192,11 +194,12 @@
     },
     "packages/platform/designer": {
       "name": "@highstate/designer",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@highstate/backend": "workspace:*",
         "@highstate/backend-api": "workspace:*",
         "@highstate/contract": "workspace:*",
+        "@highstate/mcp": "workspace:*",
         "@paralleldrive/cuid2": "^2.2.2",
         "@prisma/internals": "^6.14.0",
         "@vue/shared": "^3.5.33",
@@ -316,9 +319,31 @@
         "yaml": "^2.8.3",
       },
     },
+    "packages/platform/mcp": {
+      "name": "@highstate/mcp",
+      "version": "0.26.0",
+      "bin": {
+        "highstate-mcp": "./dist/standalone.js",
+      },
+      "dependencies": {
+        "@highstate/api": "workspace:*",
+        "@bufbuild/protobuf": "^2.14.0",
+        "@connectrpc/connect": "^2.1.2",
+        "@modelcontextprotocol/sdk": "^1.29.0",
+        "yaml": "^2.8.2",
+        "zod": "^4.3.6",
+      },
+      "devDependencies": {
+        "@biomejs/biome": "2.2.0",
+        "@highstate/cli": "workspace:*",
+        "@typescript/native-preview": "^7.0.0-dev.20250920.1",
+        "bun-types": "^1.3.13",
+        "vitest": "^3.2.4",
+      },
+    },
     "packages/platform/pulumi": {
       "name": "@highstate/pulumi",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "@pulumi/pulumi": "3.232.0",
@@ -344,7 +369,7 @@
     },
     "packages/platform/worker-sdk": {
       "name": "@highstate/worker-sdk",
-      "version": "0.25.0",
+      "version": "0.26.0",
       "dependencies": {
         "@bufbuild/protobuf": "^2.6.0",
         "@highstate/api": "workspace:*",
@@ -363,7 +388,7 @@
     },
     "packages/standard/cilium": {
       "name": "@highstate/cilium",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cilium-crds": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -406,7 +431,7 @@
     },
     "packages/standard/common": {
       "name": "@highstate/common",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "@highstate/library": "workspace:*",
@@ -436,7 +461,7 @@
     },
     "packages/standard/distributions": {
       "name": "@highstate/distributions",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -453,7 +478,7 @@
     },
     "packages/standard/envoy": {
       "name": "@highstate/envoy",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -489,7 +514,7 @@
     },
     "packages/standard/etcd": {
       "name": "@highstate/etcd",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -590,7 +615,7 @@
     },
     "packages/standard/git": {
       "name": "@highstate/git",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -609,7 +634,7 @@
     },
     "packages/standard/influxdb3": {
       "name": "@highstate/influxdb3",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -625,7 +650,7 @@
     },
     "packages/standard/k3s": {
       "name": "@highstate/k3s",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -646,7 +671,7 @@
     },
     "packages/standard/k8s": {
       "name": "@highstate/k8s",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -678,7 +703,7 @@
     },
     "packages/standard/k8s.apps": {
       "name": "@highstate/k8s.apps",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -719,7 +744,7 @@
     },
     "packages/standard/k8s.game-servers": {
       "name": "@highstate/k8s.game-servers",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -740,7 +765,7 @@
     },
     "packages/standard/k8s.monitor-worker": {
       "name": "@highstate/k8s.monitor-worker",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/api": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -759,7 +784,7 @@
     },
     "packages/standard/k8s.obfuscators": {
       "name": "@highstate/k8s.obfuscators",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -813,7 +838,7 @@
     },
     "packages/standard/library": {
       "name": "@highstate/library",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "remeda": "^2.21.0",
@@ -827,7 +852,7 @@
     },
     "packages/standard/minio": {
       "name": "@highstate/minio",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@aws-sdk/client-s3": "^3.985.0",
         "@highstate/common": "workspace:*",
@@ -845,7 +870,7 @@
     },
     "packages/standard/mongodb": {
       "name": "@highstate/mongodb",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -872,7 +897,7 @@
     },
     "packages/standard/mysql": {
       "name": "@highstate/mysql",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -899,7 +924,7 @@
     },
     "packages/standard/netaminity": {
       "name": "@highstate/netaminity",
-      "version": "0.24.0",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -917,7 +942,7 @@
     },
     "packages/standard/nixos": {
       "name": "@highstate/nixos",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -936,7 +961,7 @@
     },
     "packages/standard/postgresql": {
       "name": "@highstate/postgresql",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -953,7 +978,7 @@
     },
     "packages/standard/proxmox": {
       "name": "@highstate/proxmox",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -980,7 +1005,7 @@
     },
     "packages/standard/redis": {
       "name": "@highstate/redis",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/library": "workspace:*",
@@ -995,7 +1020,7 @@
     },
     "packages/standard/restic": {
       "name": "@highstate/restic",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1014,7 +1039,7 @@
     },
     "packages/standard/rustfs": {
       "name": "@highstate/rustfs",
-      "version": "0.24.0",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1031,7 +1056,7 @@
     },
     "packages/standard/sops": {
       "name": "@highstate/sops",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1048,7 +1073,7 @@
     },
     "packages/standard/talos": {
       "name": "@highstate/talos",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cilium": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -1071,7 +1096,7 @@
     },
     "packages/standard/vault": {
       "name": "@highstate/vault",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1088,7 +1113,7 @@
     },
     "packages/standard/wireguard": {
       "name": "@highstate/wireguard",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1116,7 +1141,7 @@
     },
     "packages/third-party/cloudflare": {
       "name": "@highstate/cloudflare",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -1139,7 +1164,7 @@
     },
     "packages/third-party/gcp": {
       "name": "@highstate/gcp",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1156,7 +1181,7 @@
     },
     "packages/third-party/mullvad": {
       "name": "@highstate/mullvad",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/k8s": "workspace:*",
@@ -1176,7 +1201,7 @@
     },
     "packages/third-party/timeweb": {
       "name": "@highstate/timeweb",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/k8s": "workspace:*",
@@ -1204,7 +1229,7 @@
     },
     "packages/third-party/yandex": {
       "name": "@highstate/yandex",
-      "version": "0.24.1",
+      "version": "0.25.0",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1569,7 +1594,9 @@
 
     "@braintree/sanitize-url": ["@braintree/sanitize-url@7.1.2", "", {}, "sha512-jigsZK+sMF/cuiB7sERuo9V7N9jx+dhmHHnQyDSVdpZwVutaBu7WvNYqMDLSgFgfB30n452TP3vjDAvFC973mA=="],
 
-    "@bufbuild/protobuf": ["@bufbuild/protobuf@2.12.0", "", {}, "sha512-B/XlCaFIP8LOwzo+bz5uFzATYokcwCKQcghqnlfwSmM5eX/qTkvDBnDPs+gXtX/RyjxJ4DRikECcPJbyALA8FA=="],
+    "@bufbuild/protobuf": ["@bufbuild/protobuf@2.14.0", "", {}, "sha512-C3UGsiCwSprE2NKIIFA3hCDlpXTMCAXRZuEVp88L1GY36Y41+rYL5fryE+nOFhp4p4JPQvdV8PQ4DWgHgeTE+w=="],
+
+    "@connectrpc/connect": ["@connectrpc/connect@2.1.2", "", { "peerDependencies": { "@bufbuild/protobuf": "^2.7.0" } }, "sha512-MXkBijtcX09R10Eb6sFeIetc6w6746eio6xtfuyVOH7oQAacT1X0GzMIQFux6Qy8cq3W/T5qX5Bei8YbFtmRGA=="],
 
     "@capsizecss/unpack": ["@capsizecss/unpack@4.0.0", "", { "dependencies": { "fontkitten": "^1.0.0" } }, "sha512-VERIM64vtTP1C4mxQ5thVT9fK0apjPFobqybMtA1UdUujWka24ERHbRHFGmpbbhp73MhV+KSsHQH9C6uOTdEQA=="],
 
@@ -1790,6 +1817,8 @@
     "@highstate/k8s.obfuscators": ["@highstate/k8s.obfuscators@workspace:packages/standard/k8s.obfuscators"],
 
     "@highstate/library": ["@highstate/library@workspace:packages/standard/library"],
+
+    "@highstate/mcp": ["@highstate/mcp@workspace:packages/platform/mcp"],
 
     "@highstate/minio": ["@highstate/minio@workspace:packages/standard/minio"],
 
@@ -3335,7 +3364,7 @@
 
     "abort-controller-x": ["abort-controller-x@0.4.3", "", {}, "sha512-VtUwTNU8fpMwvWGn4xE93ywbogTYsuT+AUxAXOeelbXuQVIwNmC5YLeho9sH4vZ4ITW8414TTAOG1nW6uIVHCA=="],
 
-    "abstract-level": ["abstract-level@2.0.2", "", { "dependencies": { "buffer": "^6.0.3", "is-buffer": "^2.0.5", "level-supports": "^6.0.0", "level-transcoder": "^1.0.1", "maybe-combine-errors": "^1.0.0", "module-error": "^1.0.1" } }, "sha512-pPJixmXk/kTKLB2sSue7o4Uj6TlLD2XfaP2gWZomHVCC6cuUGX/VslQqKG1yZHfXwBb/3lS6oSTMPGzh1P1iig=="],
+    "abstract-level": ["abstract-level@3.1.1", "", { "dependencies": { "buffer": "^6.0.3", "is-buffer": "^2.0.5", "level-supports": "^6.2.0", "level-transcoder": "^1.0.1", "maybe-combine-errors": "^1.0.0", "module-error": "^1.0.1" } }, "sha512-CW2gKbJFTuX1feMvOrvsVMmijAOgI9kg2Ie9Dq3gOcMt/dVVoVmqNlLcEUCT13NxHFMEajcUcVBIplbyDroDiw=="],
 
     "accepts": ["accepts@2.0.0", "", { "dependencies": { "mime-types": "^3.0.0", "negotiator": "^1.0.0" } }, "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng=="],
 
@@ -3583,7 +3612,7 @@
 
     "cjs-module-lexer": ["cjs-module-lexer@1.4.3", "", {}, "sha512-9z8TZaGM1pfswYeXrUpzPrkx8UnWYdhJclsiYMm6x/w5+nN+8Tf/LnAgfLGQCm59qAOxU8WwHEq2vNwF6i4j+Q=="],
 
-    "classic-level": ["classic-level@2.0.0", "", { "dependencies": { "abstract-level": "^2.0.0", "module-error": "^1.0.1", "napi-macros": "^2.2.2", "node-gyp-build": "^4.3.0" } }, "sha512-ftiMvKgCQK+OppXcvMieDoYlYLYWhScK6yZRFBrrlHQRbm4k6Gr+yDgu/wt3V0k1/jtNbuiXAsRmuAFcD0Tx5Q=="],
+    "classic-level": ["classic-level@3.0.0", "", { "dependencies": { "abstract-level": "^3.1.0", "module-error": "^1.0.1", "napi-macros": "^2.2.2", "node-gyp-build": "^4.3.0" } }, "sha512-yGy8j8LjPbN0Bh3+ygmyYvrmskVita92pD/zCoalfcC9XxZj6iDtZTAnz+ot7GG8p9KLTG+MZ84tSA4AhkgVZQ=="],
 
     "clean-git-ref": ["clean-git-ref@2.0.1", "", {}, "sha512-bLSptAy2P0s6hU4PzuIMKmMJJSE6gLXGH1cntDu7bWJUksvuM+7ReOK61mozULErYvP6a15rnYl0zFDef+pyPw=="],
 
@@ -6249,6 +6278,8 @@
 
     "@eslint/eslintrc/strip-json-comments": ["strip-json-comments@3.1.1", "", {}, "sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig=="],
 
+    "@highstate/backend/classic-level": ["classic-level@2.0.0", "", { "dependencies": { "abstract-level": "^2.0.0", "module-error": "^1.0.1", "napi-macros": "^2.2.2", "node-gyp-build": "^4.3.0" } }, "sha512-ftiMvKgCQK+OppXcvMieDoYlYLYWhScK6yZRFBrrlHQRbm4k6Gr+yDgu/wt3V0k1/jtNbuiXAsRmuAFcD0Tx5Q=="],
+
     "@highstate/cert-manager/@types/node": ["@types/node@18.19.130", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg=="],
 
     "@highstate/cert-manager/glob": ["glob@10.5.0", "", { "dependencies": { "foreground-child": "^3.1.0", "jackspeak": "^3.1.2", "minimatch": "^9.0.4", "minipass": "^7.1.2", "package-json-from-dist": "^1.0.0", "path-scurry": "^1.11.1" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg=="],
@@ -6280,8 +6311,6 @@
     "@highstate/envoy-gateway-crds/glob": ["glob@12.0.0", "", { "dependencies": { "foreground-child": "^3.3.1", "jackspeak": "^4.1.1", "minimatch": "^10.1.1", "minipass": "^7.1.2", "package-json-from-dist": "^1.0.0", "path-scurry": "^2.0.0" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-5Qcll1z7IKgHr5g485ePDdHcNQY0k2dtv/bjYy0iuyGxQw2qSOiiXUXJ+AYQpg3HNoUMHqAruX478Jeev7UULw=="],
 
     "@highstate/etcd-sdk/@types/node": ["@types/node@18.19.130", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg=="],
-
-    "@highstate/example/classic-level": ["classic-level@3.0.0", "", { "dependencies": { "abstract-level": "^3.1.0", "module-error": "^1.0.1", "napi-macros": "^2.2.2", "node-gyp-build": "^4.3.0" } }, "sha512-yGy8j8LjPbN0Bh3+ygmyYvrmskVita92pD/zCoalfcC9XxZj6iDtZTAnz+ot7GG8p9KLTG+MZ84tSA4AhkgVZQ=="],
 
     "@highstate/gateway-api/@types/node": ["@types/node@18.19.130", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg=="],
 
@@ -7543,6 +7572,8 @@
 
     "@eslint/eslintrc/minimatch/brace-expansion": ["brace-expansion@1.1.14", "", { "dependencies": { "balanced-match": "^1.0.0", "concat-map": "0.0.1" } }, "sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g=="],
 
+    "@highstate/backend/classic-level/abstract-level": ["abstract-level@2.0.2", "", { "dependencies": { "buffer": "^6.0.3", "is-buffer": "^2.0.5", "level-supports": "^6.0.0", "level-transcoder": "^1.0.1", "maybe-combine-errors": "^1.0.0", "module-error": "^1.0.1" } }, "sha512-pPJixmXk/kTKLB2sSue7o4Uj6TlLD2XfaP2gWZomHVCC6cuUGX/VslQqKG1yZHfXwBb/3lS6oSTMPGzh1P1iig=="],
+
     "@highstate/cert-manager/@types/node/undici-types": ["undici-types@5.26.5", "", {}, "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="],
 
     "@highstate/cert-manager/glob/jackspeak": ["jackspeak@3.4.3", "", { "dependencies": { "@isaacs/cliui": "^8.0.2" }, "optionalDependencies": { "@pkgjs/parseargs": "^0.11.0" } }, "sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw=="],
@@ -7602,8 +7633,6 @@
     "@highstate/envoy-gateway-crds/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
     "@highstate/etcd-sdk/@types/node/undici-types": ["undici-types@5.26.5", "", {}, "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="],
-
-    "@highstate/example/classic-level/abstract-level": ["abstract-level@3.1.1", "", { "dependencies": { "buffer": "^6.0.3", "is-buffer": "^2.0.5", "level-supports": "^6.2.0", "level-transcoder": "^1.0.1", "maybe-combine-errors": "^1.0.0", "module-error": "^1.0.1" } }, "sha512-CW2gKbJFTuX1feMvOrvsVMmijAOgI9kg2Ie9Dq3gOcMt/dVVoVmqNlLcEUCT13NxHFMEajcUcVBIplbyDroDiw=="],
 
     "@highstate/gateway-api/@types/node/undici-types": ["undici-types@5.26.5", "", {}, "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="],
 
@@ -9205,6 +9234,8 @@
 
     "@eslint/eslintrc/minimatch/brace-expansion/balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
+    "@highstate/backend/classic-level/abstract-level/buffer": ["buffer@6.0.3", "", { "dependencies": { "base64-js": "^1.3.1", "ieee754": "^1.2.1" } }, "sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA=="],
+
     "@highstate/cert-manager/glob/jackspeak/@isaacs/cliui": ["@isaacs/cliui@8.0.2", "", { "dependencies": { "string-width": "^5.1.2", "string-width-cjs": "npm:string-width@^4.2.0", "strip-ansi": "^7.0.1", "strip-ansi-cjs": "npm:strip-ansi@^6.0.1", "wrap-ansi": "^8.1.0", "wrap-ansi-cjs": "npm:wrap-ansi@^7.0.0" } }, "sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA=="],
 
     "@highstate/cert-manager/glob/minimatch/brace-expansion": ["brace-expansion@2.1.0", "", { "dependencies": { "balanced-match": "^1.0.0" } }, "sha512-TN1kCZAgdgweJhWWpgKYrQaMNHcDULHkWwQIspdtjV4Y5aurRdZpjAqn6yX3FPqTA9ngHCc4hJxMAMgGfve85w=="],
@@ -9374,8 +9405,6 @@
     "@highstate/docs/nuxt/vue-router/local-pkg": ["local-pkg@1.1.2", "", { "dependencies": { "mlly": "^1.7.4", "pkg-types": "^2.3.0", "quansync": "^0.2.11" } }, "sha512-arhlxbFRmoQHl33a0Zkle/YWlmNwoyt6QNZEIJcqNbdrsix5Lvc4HyyI3EnwxTYlZYc32EbYrQ8SzEZ7dqgg9A=="],
 
     "@highstate/docs/nuxt/vue-router/unplugin-utils": ["unplugin-utils@0.3.1", "", { "dependencies": { "pathe": "^2.0.3", "picomatch": "^4.0.3" } }, "sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog=="],
-
-    "@highstate/example/classic-level/abstract-level/buffer": ["buffer@6.0.3", "", { "dependencies": { "base64-js": "^1.3.1", "ieee754": "^1.2.1" } }, "sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA=="],
 
     "@highstate/gateway-api/glob/jackspeak/@isaacs/cliui": ["@isaacs/cliui@8.0.2", "", { "dependencies": { "string-width": "^5.1.2", "string-width-cjs": "npm:string-width@^4.2.0", "strip-ansi": "^7.0.1", "strip-ansi-cjs": "npm:strip-ansi@^6.0.1", "wrap-ansi": "^8.1.0", "wrap-ansi-cjs": "npm:wrap-ansi@^7.0.0" } }, "sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA=="],
 

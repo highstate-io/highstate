@@ -9,6 +9,14 @@
     "packages/standard/*/generated/*",
     "packages/third-party/*/generated/*"
   ],
+  "catalog": {
+    "@bufbuild/buf": "^1.57.0",
+    "@bufbuild/protobuf": "^2.14.0",
+    "@bufbuild/protoc-gen-es": "^2.14.0",
+    "@connectrpc/connect": "^2.1.2",
+    "@connectrpc/connect-node": "^2.1.2",
+    "vitest": "^3.2.4"
+  },
   "packageManager": "bun@1.3.11",
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
@@ -21,7 +29,7 @@
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@highstate/cli": "workspace:*",
     "@nx/node": "21.6.4",
     "@types/node": "^24",
@@ -29,7 +37,7 @@
     "nx": "^22.7.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4",
+    "vitest": "catalog:",
     "zod": "^4.3.6"
   }
 }

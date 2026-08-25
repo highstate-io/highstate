@@ -25,7 +25,9 @@
       "packages/**/src/**",
       "packages/**/assets/**/*.json",
       "packages/platform/designer/**/*.ts",
+      "packages/**/*.vue",
       "!packages/**/src/**/_generated/**",
+      "!packages/platform/designer/layers/core/app/workers/libavoid/**",
       "!**/*.mdc",
       "!packages/platform/cli/assets/template/**"
     ]
@@ -60,6 +62,7 @@
     }
   },
   "html": {
+    "experimentalFullSupportEnabled": true,
     "formatter": {
       "selfCloseVoidElements": "always"
     }
