@@ -10,7 +10,7 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { OwnerRefChip } from "#layers/core/app/features/shared"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectSecretSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -32,7 +32,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const secret = await settingsStore.getSecretDetails(params.secretId)
+const secret = await settingsStore.get(params.secretId)
 
 if (!secret) {
   throw createError({

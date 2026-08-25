@@ -260,9 +260,7 @@ defineExpose({
       >
         <div class="ml-2">
           <strong>{{ passwordStrength.score < 20 ? "Very Weak" : "Weak" }} Password:</strong>
-          <div v-if="passwordStrength.warning" class="mt-1">
-            {{ passwordStrength.warning }}
-          </div>
+          <div v-if="passwordStrength.warning" class="mt-1">{{ passwordStrength.warning }}</div>
           <div v-else>
             This password may be vulnerable to offline attacks. Consider using a stronger password.
           </div>

@@ -1,10 +1,7 @@
 import { registerHighstateAction } from "#layers/core/app/utils/monaco"
 
 type NavigationRouter = {
-  push: (location: {
-    name: string
-    params: Record<string, string>
-  }) => unknown
+  push: (location: { name: string; params: Record<string, string> }) => unknown
 }
 
 let registered = false

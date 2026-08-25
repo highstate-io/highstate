@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import type {
-  CollectionQuery,
-  CollectionQueryResult,
-  PanelOutput,
-} from "@highstate/backend/shared"
+import type { CollectionQuery, CollectionQueryResult, PanelOutput } from "@highstate/backend/shared"
 import {
   SettingsDataTable,
   ShowDetailsAction,

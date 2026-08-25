@@ -77,7 +77,8 @@ onUnmounted(() => {
         <VCardText>
           <VCardTitle class="text-center text-uppercase text-bold">Highstate Designer</VCardTitle>
           <VCardSubtitle class="text-center">
-            v{{ config.public.version }} • Все зонды удалены
+            v{{ config.public.version }}
+            • Все зонды удалены
           </VCardSubtitle>
 
           <VDivider class="mt-4" />

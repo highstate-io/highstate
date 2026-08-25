@@ -6,8 +6,8 @@ import {
   DeleteUnlockMethodDialog,
 } from "#layers/core/app/features/unlock-methods"
 
-const { settingsStore } = useProjectStores()
 const { projectStore } = useProjectStores()
+const settingsStore = useProjectUnlockMethodSettingsStore()
 
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
@@ -17,7 +17,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-void settingsStore.unlockMethods.load()
+void settingsStore.items.load()
 
 definePageMeta({
   name: "settings.unlock-methods",
@@ -43,7 +43,7 @@ const handleConfirmDelete = async (unlockMethod: UnlockMethodOutput) => {
   deleteLoading.value = true
 
   try {
-    await settingsStore.removeUnlockMethod(unlockMethod.id)
+    await settingsStore.delete(unlockMethod.id)
     showDeleteDialog.value = false
     unlockMethodToDelete.value = null
   } catch (error) {
@@ -68,13 +68,13 @@ const handleConfirmDelete = async (unlockMethod: UnlockMethodOutput) => {
 
     <template #default="{ height }">
       <UnlockMethodsTable
-        v-model:search="settingsStore.unlockMethods.search"
-        v-model:sort-by="settingsStore.unlockMethods.sortBy"
-        v-model:page="settingsStore.unlockMethods.page"
-        v-model:items-per-page="settingsStore.unlockMethods.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.unlockMethods.data"
-        :loading="settingsStore.unlockMethods.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
         @delete="handleDeleteUnlockMethod"
       />

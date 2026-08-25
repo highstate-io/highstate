@@ -74,10 +74,7 @@ export function onHighstateActionInvoked(listener: (action: HighstateAction) => 
   }
 }
 
-export function registerHighstateAction(
-  kind: string,
-  handler: (payload: unknown) => void,
-): void {
+export function registerHighstateAction(kind: string, handler: (payload: unknown) => void): void {
   highstateActions.set(kind, handler)
 }
 
@@ -150,5 +147,14 @@ export function updateComponentSchema(
     schema,
   })
 
+  monacoYaml.update({ schemas: Array.from(schemas.values()) })
+}
+
+export function updateYamlSchema(
+  path: string,
+  uri: string,
+  schema: z.core.JSONSchema.BaseSchema,
+): void {
+  schemas.set(path, { fileMatch: [path], uri, schema })
   monacoYaml.update({ schemas: Array.from(schemas.values()) })
 }

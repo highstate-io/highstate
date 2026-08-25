@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { SettingsListPage, EntitiesTable } from "#layers/core/app/features/settings"
 
-const { settingsStore, projectStore } = useProjectStores()
+const { projectStore } = useProjectStores()
+const settingsStore = useProjectEntitySettingsStore()
 
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
@@ -11,7 +12,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-void settingsStore.entities.load()
+void settingsStore.items.load()
 
 definePageMeta({
   name: "settings.entities",
@@ -32,13 +33,13 @@ definePageMeta({
   >
     <template #default="{ height }">
       <EntitiesTable
-        v-model:search="settingsStore.entities.search"
-        v-model:sort-by="settingsStore.entities.sortBy"
-        v-model:page="settingsStore.entities.page"
-        v-model:items-per-page="settingsStore.entities.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.entities.data"
-        :loading="settingsStore.entities.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

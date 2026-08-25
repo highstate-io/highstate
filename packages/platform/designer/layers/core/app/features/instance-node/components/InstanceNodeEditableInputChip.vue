@@ -134,9 +134,7 @@ const saveRename = async () => {
     />
   </VChip>
 
-  <div v-if="editing && renameError" class="rename-error">
-    {{ renameError }}
-  </div>
+  <div v-if="editing && renameError" class="rename-error">{{ renameError }}</div>
 </template>
 
 <style scoped>

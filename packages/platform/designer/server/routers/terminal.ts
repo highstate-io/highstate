@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { projectProcedure, publicProcedure, router } from "../trpc"
 
 export const terminalRouter = router({
   getOrCreateTerminalSession: publicProcedure
@@ -35,7 +35,7 @@ export const terminalRouter = router({
       })
     }),
 
-  getTerminalSession: publicProcedure
+  getTerminalSession: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -43,10 +43,13 @@ export const terminalRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.terminalSessionService.getTerminalSession(input.projectId, input.sessionId)
+      return await ctx.terminalSessionService.getTerminalSession(
+        ctx.requestContext,
+        input.sessionId,
+      )
     }),
 
-  getInstanceTerminalSessions: publicProcedure
+  getInstanceTerminalSessions: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -55,7 +58,7 @@ export const terminalRouter = router({
     )
     .query(async ({ input, ctx }) => {
       return await ctx.terminalSessionService.getInstanceTerminalSessions(
-        input.projectId,
+        ctx.requestContext,
         input.stateId,
       )
     }),
@@ -71,7 +74,7 @@ export const terminalRouter = router({
       return ctx.terminalManager.watchSession(input.projectId, input.sessionId, signal)
     }),
 
-  getSessionHistory: publicProcedure
+  getSessionHistory: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -79,6 +82,6 @@ export const terminalRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.terminalSessionService.getSessionHistory(input.projectId, input.sessionId)
+      return await ctx.terminalSessionService.getSessionHistory(ctx.requestContext, input.sessionId)
     }),
 })

@@ -229,9 +229,7 @@ const selectedTabColor = computed(() => {
       >
         <div class="pa-3 text-center" :style="{ maxWidth: '720px' }">
           <div class="text-medium-emphasis">Failed to load referenced entities</div>
-          <VAlert type="error" density="compact" class="mt-2">
-            {{ loadError }}
-          </VAlert>
+          <VAlert type="error" density="compact" class="mt-2">{{ loadError }}</VAlert>
         </div>
       </div>
 

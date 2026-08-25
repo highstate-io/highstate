@@ -13,7 +13,10 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { bytesToHumanReadable } from "@highstate/contract"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectArtifactSettingsStore()
+const pageStore = useProjectPageSettingsStore()
+const serviceAccountStore = useProjectServiceAccountSettingsStore()
+const terminalStore = useProjectTerminalSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -35,7 +38,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const artifact = await settingsStore.getArtifactDetails(params.artifactId)
+const artifact = await settingsStore.get(params.artifactId)
 
 if (!artifact) {
   throw createError({
@@ -45,9 +48,9 @@ if (!artifact) {
 }
 
 // Load related data
-const serviceAccounts = settingsStore.serviceAccountsForArtifact(params.artifactId)
-const terminals = settingsStore.terminalsForArtifact(params.artifactId)
-const pages = settingsStore.pagesForArtifact(params.artifactId)
+const serviceAccounts = serviceAccountStore.forArtifact(params.artifactId)
+const terminals = terminalStore.forArtifact(params.artifactId)
+const pages = pageStore.forArtifact(params.artifactId)
 
 void serviceAccounts.load()
 void terminals.load()

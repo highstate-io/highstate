@@ -121,7 +121,9 @@ watchEffect(() => {
   }
 
   opened.value = Array.from(
-    new Set(options.filter(option => option.assignable).flatMap(option => getAncestorIds(option.path))),
+    new Set(
+      options.filter(option => option.assignable).flatMap(option => getAncestorIds(option.path)),
+    ),
   )
 })
 </script>
@@ -190,11 +192,12 @@ watchEffect(() => {
               @click.stop="item.assignable && emit('select', item.path)"
             >
               <div class="text-body-2">
-                {{ item.label }}{{ item.multiple ? "[]" : "" }}
+                {{ item.label }}
+                {{ item.multiple ? "[]" : "" }}
               </div>
               <div class="text-caption text-medium-emphasis">
                 {{ item.type }}
-                <template v-if="!item.assignable"> · not assignable</template>
+                <template v-if="!item.assignable">· not assignable</template>
               </div>
             </div>
           </template>

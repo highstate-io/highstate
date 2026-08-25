@@ -1,18 +1,18 @@
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { backendProcedure, router } from "../trpc"
 
 export const searchRouter = router({
-  searchByIds: publicProcedure
+  searchByIds: backendProcedure
     .input(
       z.object({
         ids: z.array(z.string()).min(1).max(50),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.globalSearchService.searchByIds(input.ids)
+      return await ctx.globalSearchService.searchByIds(ctx.requestContext, input.ids)
     }),
 
-  searchByText: publicProcedure
+  searchByText: backendProcedure
     .input(
       z.object({
         text: z.string(),
@@ -31,32 +31,35 @@ export const searchRouter = router({
           return { text: input.text, projects: [] }
         }
 
-        return await ctx.globalSearchService.searchByText(firstToken)
+        return await ctx.globalSearchService.searchByText(ctx.requestContext, firstToken)
       }
 
       const limitedTokens = tokens.slice(0, 5)
       const results = await Promise.all(
         limitedTokens.map(async token => {
-          return await ctx.globalSearchService.searchByText(token)
+          return await ctx.globalSearchService.searchByText(ctx.requestContext, token)
         }),
       )
 
       const projectIds = results
         .map(r => new Set(r.projects.map(p => p.projectId)))
-        .reduce((acc, set) => {
-          if (!acc) {
-            return set
-          }
-
-          const intersection = new Set<string>()
-          for (const projectId of acc) {
-            if (set.has(projectId)) {
-              intersection.add(projectId)
+        .reduce(
+          (acc, set) => {
+            if (!acc) {
+              return set
             }
-          }
 
-          return intersection
-        }, null as Set<string> | null)
+            const intersection = new Set<string>()
+            for (const projectId of acc) {
+              if (set.has(projectId)) {
+                intersection.add(projectId)
+              }
+            }
+
+            return intersection
+          },
+          null as Set<string> | null,
+        )
 
       if (!projectIds || projectIds.size === 0) {
         return { text: input.text, projects: [] }
@@ -90,9 +93,7 @@ export const searchRouter = router({
             hits: commonHits,
           }
         })
-        .filter(
-          (project) =>project !== null
-        )
+        .filter(project => project !== null)
 
       return {
         text: input.text,

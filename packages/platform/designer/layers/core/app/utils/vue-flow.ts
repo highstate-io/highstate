@@ -176,7 +176,8 @@ export const validateConnection = (
           : undefined
 
       const connectionCount =
-        (instance.inputs?.[outputName]?.length ?? 0) + (instance.hubInputs?.[outputName]?.length ?? 0)
+        (instance.inputs?.[outputName]?.length ?? 0) +
+        (instance.hubInputs?.[outputName]?.length ?? 0)
 
       inputs[outputName] = {
         type: inferredType ?? fallbackInputType ?? "any.v1",

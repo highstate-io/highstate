@@ -12,9 +12,10 @@ export default defineNitroPlugin(async nitro => {
     createContext: async () => {
       const services = await getSharedServices()
 
-      return {
-        ...services,
-      }
+      return { ...services }
+    },
+    onError: ({ error }: { error: unknown }) => {
+      logger.error({ error }, "trpc event request failed")
     },
   })
 

@@ -9,7 +9,7 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { StatusChip, unlockMethodTypeMap } from "#layers/core/app/features/shared"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectUnlockMethodSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -31,7 +31,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const unlockMethod = await settingsStore.getUnlockMethodDetails(params.unlockMethodId)
+const unlockMethod = await settingsStore.get(params.unlockMethodId)
 
 if (!unlockMethod) {
   throw createError({

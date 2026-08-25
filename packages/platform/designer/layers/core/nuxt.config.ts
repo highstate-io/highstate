@@ -1,5 +1,4 @@
 import { resolve } from "node:path"
-import { version } from "../../package.json"
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -84,7 +83,7 @@ export default defineNuxtConfig({
     },
 
     optimizeDeps: {
-      include: ["@dagrejs/dagre", "monaco-yaml/yaml.worker.js"]
+      include: ["@dagrejs/dagre", "monaco-yaml/yaml.worker.js"],
     },
 
     build: {
@@ -116,7 +115,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      version,
+      version: process.env.NUXT_PUBLIC_VERSION ?? "development",
       eventsPort: 3002,
     },
   },

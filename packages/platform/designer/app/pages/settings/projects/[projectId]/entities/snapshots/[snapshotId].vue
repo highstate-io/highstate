@@ -15,8 +15,9 @@ import SettingsPageHeader from "#layers/core/app/features/settings/components/Se
 import { EntityRefChip, InstanceRefChip } from "#layers/core/app/features/shared"
 import EntityExplorerCodeEditor from "#layers/core/app/features/entity-explorer/components/EntityExplorerCodeEditor.vue"
 
-const { settingsStore, libraryStore } = useProjectStores()
+const { libraryStore } = useProjectStores()
 const { projectStore } = useProjectStores()
+const settingsStore = useProjectEntitySettingsStore()
 
 const { params } = defineProps<{
   params: {
@@ -43,19 +44,18 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const snapshotDetails =
-  shallowRef<Awaited<ReturnType<typeof settingsStore.getEntitySnapshotDetails>>>()
+const snapshotDetails = shallowRef<Awaited<ReturnType<typeof settingsStore.getSnapshot>>>()
 
-const otherSnapshots = shallowRef(settingsStore.snapshotsForEntity("", activeSnapshotId.value))
+const otherSnapshots = shallowRef(settingsStore.snapshots("", activeSnapshotId.value))
 const outgoingReferences = shallowRef(
-  settingsStore.outgoingReferencesForEntitySnapshot(activeSnapshotId.value),
+  settingsStore.snapshotOutgoingReferences(activeSnapshotId.value),
 )
 const incomingReferences = shallowRef(
-  settingsStore.incomingReferencesForEntitySnapshot(activeSnapshotId.value),
+  settingsStore.snapshotIncomingReferences(activeSnapshotId.value),
 )
 
 const loadSnapshotState = async (snapshotId: string) => {
-  const details = await settingsStore.getEntitySnapshotDetails(snapshotId)
+  const details = await settingsStore.getSnapshot(snapshotId)
   if (!details) {
     showError(
       createError({
@@ -68,9 +68,9 @@ const loadSnapshotState = async (snapshotId: string) => {
 
   snapshotDetails.value = details
 
-  otherSnapshots.value = settingsStore.snapshotsForEntity(details.entity.id, snapshotId)
-  outgoingReferences.value = settingsStore.outgoingReferencesForEntitySnapshot(snapshotId)
-  incomingReferences.value = settingsStore.incomingReferencesForEntitySnapshot(snapshotId)
+  otherSnapshots.value = settingsStore.snapshots(details.entity.id, snapshotId)
+  outgoingReferences.value = settingsStore.snapshotOutgoingReferences(snapshotId)
+  incomingReferences.value = settingsStore.snapshotIncomingReferences(snapshotId)
 
   await otherSnapshots.value.load()
   void outgoingReferences.value.load()

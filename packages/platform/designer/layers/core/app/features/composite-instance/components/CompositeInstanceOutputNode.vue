@@ -18,7 +18,12 @@ const state = computed(() => stateStore.getInstanceState(instance.id))
 </script>
 
 <template>
-  <ComponentCard v-if="component" :component="component" subtitle="Outputs" style="overflow: visible">
+  <ComponentCard
+    v-if="component"
+    :component="component"
+    subtitle="Outputs"
+    style="overflow: visible"
+  >
     <InstanceNodeIO
       :instance="instance"
       :component="component"

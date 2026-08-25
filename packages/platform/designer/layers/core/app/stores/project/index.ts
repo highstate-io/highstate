@@ -4,15 +4,28 @@ import { useProjectOperationsStore } from "./operations"
 import { useProjectStateStore } from "./state"
 import { useProjectInfoStore } from "./info"
 import { useProjectLibraryStore } from "./library"
-import { useProjectSettingsStore } from "./settings"
 import { useProjectValidationStore } from "./validation"
+import {
+  useProjectApiKeySettingsStore,
+  useProjectArtifactSettingsStore,
+  useProjectEntitySettingsStore,
+  useProjectOperationSettingsStore,
+  useProjectPageSettingsStore,
+  useProjectPanelSettingsStore,
+  useProjectRoleSettingsStore,
+  useProjectSecretSettingsStore,
+  useProjectServiceAccountSettingsStore,
+  useProjectTerminalSettingsStore,
+  useProjectTriggerSettingsStore,
+  useProjectUnlockMethodSettingsStore,
+  useProjectWorkerSettingsStore,
+} from "../settings/project"
 
 export function useProjectStores() {
   return {
     infoStore: useProjectInfoStore(),
     libraryStore: useProjectLibraryStore(),
     instancesStore: useProjectInstancesStore(),
-    settingsStore: useProjectSettingsStore(),
     stateStore: useProjectStateStore(),
     validationStore: useProjectValidationStore(),
     operationsStore: useProjectOperationsStore(),
@@ -34,7 +47,6 @@ export function useExplicitProjectStores(projectId: string) {
     infoStore: useProjectInfoStore(projectId),
     libraryStore: useProjectLibraryStore(projectId),
     instancesStore: useProjectInstancesStore(projectId),
-    settingsStore: useProjectSettingsStore(projectId),
     stateStore: useProjectStateStore(projectId),
     validationStore: useProjectValidationStore(projectId),
     operationsStore: useProjectOperationsStore(projectId),
@@ -43,11 +55,24 @@ export function useExplicitProjectStores(projectId: string) {
 }
 
 export function ensureProjectStoresCreated(projectId: string) {
+  useProjectApiKeySettingsStore.ensureCreated(projectId)
+  useProjectArtifactSettingsStore.ensureCreated(projectId)
+  useProjectEntitySettingsStore.ensureCreated(projectId)
+  useProjectOperationSettingsStore.ensureCreated(projectId)
+  useProjectPageSettingsStore.ensureCreated(projectId)
+  useProjectPanelSettingsStore.ensureCreated(projectId)
+  useProjectRoleSettingsStore.ensureCreated(projectId)
+  useProjectSecretSettingsStore.ensureCreated(projectId)
+  useProjectServiceAccountSettingsStore.ensureCreated(projectId)
+  useProjectTerminalSettingsStore.ensureCreated(projectId)
+  useProjectTriggerSettingsStore.ensureCreated(projectId)
+  useProjectUnlockMethodSettingsStore.ensureCreated(projectId)
+  useProjectWorkerSettingsStore.ensureCreated(projectId)
+
   return {
     infoStore: useProjectInfoStore.ensureCreated(projectId),
     libraryStore: useProjectLibraryStore.ensureCreated(projectId),
     instancesStore: useProjectInstancesStore.ensureCreated(projectId),
-    settingsStore: useProjectSettingsStore.ensureCreated(projectId),
     stateStore: useProjectStateStore.ensureCreated(projectId),
     validationStore: useProjectValidationStore.ensureCreated(projectId),
     operationsStore: useProjectOperationsStore.ensureCreated(projectId),

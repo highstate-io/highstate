@@ -22,12 +22,8 @@ defineProps<{
       </VChip>
     </template>
 
-    <div v-if="instanceLock.meta.title" class="text-h6">
-      {{ instanceLock.meta.title }}
-    </div>
+    <div v-if="instanceLock.meta.title" class="text-h6">{{ instanceLock.meta.title }}</div>
 
-    <div v-if="instanceLock.meta.description">
-      {{ instanceLock.meta.description }}
-    </div>
+    <div v-if="instanceLock.meta.description">{{ instanceLock.meta.description }}</div>
   </VTooltip>
 </template>

@@ -21,7 +21,7 @@ export function createReadOnlyEditorOptions(): ReadOnlyEditorOptions {
   }
 }
 
-const YAML_FOLD_KIND =  monaco.languages.FoldingRangeKind.Comment
+const YAML_FOLD_KIND = monaco.languages.FoldingRangeKind.Comment
 
 export function updateEntitySnapshotFoldingRegions(
   snapshotId: string,

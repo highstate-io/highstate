@@ -11,7 +11,8 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { StatusChip, workerVersionStatusMap, ApiKeyRefChip } from "#layers/core/app/features/shared"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectWorkerSettingsStore()
+const panelStore = useProjectPanelSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -34,7 +35,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const version = await settingsStore.getWorkerVersionDetails(params.versionId)
+const version = await settingsStore.getVersion(params.versionId)
 
 if (!version) {
   throw createError({
@@ -53,7 +54,7 @@ const detailItems = [
   { key: "updatedAt", label: "Updated" },
 ]
 
-const panels = settingsStore.panelsForWorkerVersion(params.versionId)
+const panels = panelStore.forWorkerVersion(params.versionId)
 void panels.load()
 </script>
 

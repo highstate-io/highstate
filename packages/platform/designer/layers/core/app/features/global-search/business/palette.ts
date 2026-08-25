@@ -106,13 +106,12 @@ export function toGroupsFromTextResult(
 ): GlobalSearchPaletteGroup[] {
   const mapped = result.projects
     .map((project: GlobalSearchTextProjectResult) => {
-      const items: GlobalSearchPaletteItem[] = project.hits
-        .map(hit => ({
-          type: "hit",
-          projectId: project.projectId,
-          unlockState: "unlocked",
-          hit,
-        }))
+      const items: GlobalSearchPaletteItem[] = project.hits.map(hit => ({
+        type: "hit",
+        projectId: project.projectId,
+        unlockState: "unlocked",
+        hit,
+      }))
 
       if (items.length === 0) {
         return null

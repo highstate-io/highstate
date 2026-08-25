@@ -9,7 +9,7 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { StatusChip, operationStatusMap } from "#layers/core/app/features/shared"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectOperationSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -31,7 +31,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const operation = await settingsStore.getOperationDetails(params.operationId)
+const operation = await settingsStore.get(params.operationId)
 
 if (!operation) {
   throw createError({

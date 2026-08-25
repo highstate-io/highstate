@@ -151,15 +151,16 @@ describe("rewritePanelLocation", () => {
 describe("successful response frame policy", () => {
   const requestUrl = new URL("http://panel.panels.highstate.localhost:7283/")
 
-  test.each([undefined, "default-src 'self'", "default-src 'self'; frame-ancestors 'none'"])(
-    "always installs the exact Designer frame ancestor",
-    policy => {
-      const sanitized = policy
-        ? sanitizePanelResponseHeader({ name: "Content-Security-Policy", value: policy })?.value
-        : undefined
-      const finalPolicy = getPanelFrameContentSecurityPolicy(sanitized, requestUrl)
-      expect(finalPolicy).toContain("frame-ancestors http://highstate.localhost:7283")
-      expect(finalPolicy).not.toContain("frame-ancestors 'none'")
-    },
-  )
+  test.each([
+    undefined,
+    "default-src 'self'",
+    "default-src 'self'; frame-ancestors 'none'",
+  ])("always installs the exact Designer frame ancestor", policy => {
+    const sanitized = policy
+      ? sanitizePanelResponseHeader({ name: "Content-Security-Policy", value: policy })?.value
+      : undefined
+    const finalPolicy = getPanelFrameContentSecurityPolicy(sanitized, requestUrl)
+    expect(finalPolicy).toContain("frame-ancestors http://highstate.localhost:7283")
+    expect(finalPolicy).not.toContain("frame-ancestors 'none'")
+  })
 })

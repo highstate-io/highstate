@@ -12,7 +12,8 @@ import {
   WorkerVersionRefChip,
 } from "#layers/core/app/features/shared"
 
-const { settingsStore, projectStore } = useProjectStores()
+const { projectStore } = useProjectStores()
+const settingsStore = useProjectPanelSettingsStore()
 const workspaceStore = useWorkspaceStore()
 const { params } = defineProps<{
   params: { projectId: string; panelId: string }
@@ -28,7 +29,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const panel = await settingsStore.getPanelDetails(params.panelId)
+const panel = await settingsStore.get(params.panelId)
 if (!panel) {
   throw createError({ statusCode: 404, statusMessage: "Panel not found" })
 }
@@ -66,7 +67,9 @@ const detailItems = [
     </SettingsPageHeader>
 
     <DetailInfoCard title="Panel Details" :items="detailItems">
-      <template #item.panelId><IdTableCell :value="panel.id" /></template>
+      <template #item.panelId>
+        <IdTableCell :value="panel.id" />
+      </template>
       <template #item.name>{{ panel.name }}</template>
       <template #item.status>
         <VChip
@@ -78,7 +81,9 @@ const detailItems = [
           {{ panel.online ? "Online" : "Offline" }}
         </VChip>
       </template>
-      <template #item.instance><InstanceRefChip :item="{ stateId: panel.stateId }" /></template>
+      <template #item.instance>
+        <InstanceRefChip :item="{ stateId: panel.stateId }" />
+      </template>
       <template #item.serviceAccount>
         <ServiceAccountRefChip
           :item="{
@@ -87,9 +92,15 @@ const detailItems = [
           }"
         />
       </template>
-      <template #item.workerVersion><WorkerVersionRefChip :item="panel" /></template>
-      <template #item.createdAt><TimeTableCell :value="panel.createdAt" /></template>
-      <template #item.updatedAt><TimeTableCell :value="panel.updatedAt" /></template>
+      <template #item.workerVersion>
+        <WorkerVersionRefChip :item="panel" />
+      </template>
+      <template #item.createdAt>
+        <TimeTableCell :value="panel.createdAt" />
+      </template>
+      <template #item.updatedAt>
+        <TimeTableCell :value="panel.updatedAt" />
+      </template>
     </DetailInfoCard>
   </DetailPageLayout>
 </template>

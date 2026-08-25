@@ -43,11 +43,14 @@ onUnmounted(unsubscribe)
 const onLoad = async (loadedTerminal: Terminal) => {
   terminal = loadedTerminal
 
-  const logs = await $client.logs.getInstanceLogs.query({
-    projectId: projectStore.projectId,
-    stateId,
-    operationId,
-  })
+  const logs = await loadAllCollectionItems(query =>
+    $client.logs.getInstanceLogs.query({
+      projectId: projectStore.projectId,
+      stateId,
+      operationId,
+      ...query,
+    }),
+  )
 
   for (const log of logs) {
     writeLogEntry(log.content)

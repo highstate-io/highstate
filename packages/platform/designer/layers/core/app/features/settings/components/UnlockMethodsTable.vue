@@ -5,7 +5,11 @@ import {
   baseHeaders,
 } from "#layers/core/app/features/settings"
 import { StatusChip, unlockMethodTypeMap } from "#layers/core/app/features/shared"
-import type { CollectionQuery, CollectionQueryResult, UnlockMethodOutput } from "@highstate/backend/shared"
+import type {
+  CollectionQuery,
+  CollectionQueryResult,
+  UnlockMethodOutput,
+} from "@highstate/backend/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

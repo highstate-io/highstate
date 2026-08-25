@@ -13,7 +13,8 @@ import {
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { OwnerRefChip, terminalStatusMap } from "#layers/core/app/features/shared"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectTerminalSettingsStore()
+const artifactStore = useProjectArtifactSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -37,7 +38,7 @@ if (projectStore.initializing) {
 }
 
 // load terminal details
-const terminal = await settingsStore.getTerminalDetails(params.terminalId)
+const terminal = await settingsStore.get(params.terminalId)
 
 if (!terminal) {
   throw createError({
@@ -47,8 +48,8 @@ if (!terminal) {
 }
 
 // load terminal sessions data
-const terminalSessions = settingsStore.sessionsForTerminal(params.terminalId)
-const artifacts = settingsStore.artifactsForTerminal(params.terminalId)
+const terminalSessions = settingsStore.sessions(params.terminalId)
+const artifacts = artifactStore.forTerminal(params.terminalId)
 await terminalSessions.load()
 await artifacts.load()
 

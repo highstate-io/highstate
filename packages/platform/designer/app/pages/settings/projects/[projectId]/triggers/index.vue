@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SettingsListPage, TriggersTable } from "#layers/core/app/features/settings"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectTriggerSettingsStore()
 const { projectStore } = useProjectStores()
 
 if (projectStore.initializing) {
@@ -12,7 +12,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-settingsStore.triggers.reset()
+settingsStore.items.reset()
 
 definePageMeta({
   name: "settings.triggers",
@@ -33,13 +33,13 @@ definePageMeta({
   >
     <template #default="{ height }">
       <TriggersTable
-        v-model:search="settingsStore.triggers.search"
-        v-model:sort-by="settingsStore.triggers.sortBy"
-        v-model:page="settingsStore.triggers.page"
-        v-model:items-per-page="settingsStore.triggers.itemsPerPage"
+        v-model:search="settingsStore.items.search"
+        v-model:sort-by="settingsStore.items.sortBy"
+        v-model:page="settingsStore.items.page"
+        v-model:items-per-page="settingsStore.items.itemsPerPage"
         :project-id="projectStore.projectId"
-        :data="settingsStore.triggers.data"
-        :loading="settingsStore.triggers.isLoading"
+        :data="settingsStore.items.data"
+        :loading="settingsStore.items.isLoading"
         :height="height"
       />
     </template>

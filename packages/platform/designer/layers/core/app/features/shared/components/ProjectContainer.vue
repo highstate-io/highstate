@@ -36,9 +36,7 @@ const tryPassKeyUnlock = async () => {
     const passkeys = unlockSuite.value?.passkeys ?? []
     for (const passkey of passkeys) {
       const decrypter = new Decrypter()
-      decrypter.addIdentity(
-        new webauthn.WebAuthnIdentity({ identity: passkey.passkeyIdentity }),
-      )
+      decrypter.addIdentity(new webauthn.WebAuthnIdentity({ identity: passkey.passkeyIdentity }))
 
       let decryptedIdentity: string
       try {
@@ -83,11 +81,7 @@ if (
 }
 
 onMounted(() => {
-  if (
-    passwordField.value &&
-    unlockState.type === "locked" &&
-    !unlockSuite.value?.hasPasskey
-  ) {
+  if (passwordField.value && unlockState.type === "locked" && !unlockSuite.value?.hasPasskey) {
     passwordField.value.textField?.focus()
   }
 })

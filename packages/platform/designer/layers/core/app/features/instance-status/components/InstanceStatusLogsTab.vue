@@ -48,11 +48,14 @@ if (isTransientInstanceOperationStatus(operationState.status)) {
 const onLoad = async (loadedTerminal: Terminal) => {
   terminal = loadedTerminal
 
-  const logs = await $client.logs.getInstanceLogs.query({
-    projectId: projectStore.projectId,
-    stateId: operationState.stateId,
-    operationId: operationState.operationId,
-  })
+  const logs = await loadAllCollectionItems(query =>
+    $client.logs.getInstanceLogs.query({
+      projectId: projectStore.projectId,
+      stateId: operationState.stateId,
+      operationId: operationState.operationId,
+      ...query,
+    }),
+  )
 
   for (const log of logs) {
     writeLogEntry(log.content)

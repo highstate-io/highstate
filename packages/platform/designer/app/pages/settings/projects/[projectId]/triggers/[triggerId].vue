@@ -8,7 +8,7 @@ import {
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectTriggerSettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -30,7 +30,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const trigger = await settingsStore.getTriggerDetails(params.triggerId)
+const trigger = await settingsStore.get(params.triggerId)
 
 if (!trigger) {
   throw createError({

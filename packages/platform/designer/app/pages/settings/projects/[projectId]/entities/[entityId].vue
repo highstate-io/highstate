@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { navigateTo, until, useProjectStores } from "#imports"
 
-const { settingsStore } = useProjectStores()
+const settingsStore = useProjectEntitySettingsStore()
 const { projectStore } = useProjectStores()
 
 const { params } = defineProps<{
@@ -23,7 +23,7 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 
-const entity = await settingsStore.getEntityDetails(params.entityId)
+const entity = await settingsStore.get(params.entityId)
 
 if (!entity) {
   throw createError({
