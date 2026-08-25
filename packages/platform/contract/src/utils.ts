@@ -1,29 +1,28 @@
 import type { z } from "zod"
 import { isNonNullish, pickBy } from "remeda"
 
-type PickUndefinedKeys<T extends Record<string, unknown>> = T extends Record<string, never>
-  ? never
-  : Exclude<
-      {
-        [K in keyof T]: undefined extends T[K] ? K : never
-      }[keyof T],
-      undefined
-    >
+type PickUndefinedKeys<T extends Record<string, unknown>> =
+  T extends Record<string, never>
+    ? never
+    : Exclude<
+        {
+          [K in keyof T]: undefined extends T[K] ? K : never
+        }[keyof T],
+        undefined
+      >
 
-type AllOptionalKeys<T extends Record<string, unknown>> = T extends Record<string, never>
-  ? never
-  : Exclude<
-      {
-        [K in keyof T]: undefined extends T[K] ? K : never
-      }[keyof T],
-      undefined
-    >
+type AllOptionalKeys<T extends Record<string, unknown>> =
+  T extends Record<string, never>
+    ? never
+    : Exclude<
+        {
+          [K in keyof T]: undefined extends T[K] ? K : never
+        }[keyof T],
+        undefined
+      >
 
-type HasRequired<T extends Record<string, unknown>> = T extends Record<string, never>
-  ? false
-  : [keyof T] extends [AllOptionalKeys<T>]
-    ? false
-    : true
+type HasRequired<T extends Record<string, unknown>> =
+  T extends Record<string, never> ? false : [keyof T] extends [AllOptionalKeys<T>] ? false : true
 
 type PickRecordsWithAnyRequired<T extends Record<string, Record<string, unknown>>> =
   T extends Record<string, never>

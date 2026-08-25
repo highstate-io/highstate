@@ -194,13 +194,14 @@ export type ComponentInputOptionsToSpec<T extends ComponentInputOptions> = T ext
 export type ComponentOutputOptionsToSpec<
   TOutput extends ComponentOutputOptions<TInputs>,
   TInputs extends Record<string, ComponentInputOptions>,
-> = TOutput extends FromInputComponentOutputOptions<infer TInputName>
-  ? TInputName extends keyof TInputs
-    ? ComponentInputOptionsToSpec<TInputs[TInputName]>
-    : never
-  : TOutput extends ComponentInputOptions
-    ? ComponentInputOptionsToSpec<TOutput>
-    : never
+> =
+  TOutput extends FromInputComponentOutputOptions<infer TInputName>
+    ? TInputName extends keyof TInputs
+      ? ComponentInputOptionsToSpec<TInputs[TInputName]>
+      : never
+    : TOutput extends ComponentInputOptions
+      ? ComponentInputOptionsToSpec<TOutput>
+      : never
 
 export type ComponentInputOptionsMapToSpecMap<T extends Record<string, ComponentInputOptions>> =
   T extends Record<string, never>
@@ -221,9 +222,10 @@ type ComponentOutputMapToCreateOutputValue<
 type ComponentOutputMapToReturnType<
   TOutputs extends Record<string, ComponentOutputOptions<TInputs>>,
   TInputs extends Record<string, ComponentInputOptions>,
-> = TOutputs extends Record<string, never> // biome-ignore lint/suspicious/noConfusingVoidType: this is return type
-  ? void
-  : Partial<ComponentOutputMapToCreateOutputValue<TOutputs, TInputs>>
+> =
+  TOutputs extends Record<string, never> // biome-ignore lint/suspicious/noConfusingVoidType: this is return type
+    ? void
+    : Partial<ComponentOutputMapToCreateOutputValue<TOutputs, TInputs>>
 
 export type ComponentParams<
   TArgs extends Record<string, ComponentArgumentOptions>,
@@ -397,13 +399,14 @@ export type InputSpecMapToInputRefMap<TInputs extends Record<string, ComponentIn
 export type OutputRefMap<
   TInputs extends Record<string, ComponentInputSpec>,
   TKind extends ComponentKind = "composite",
-> = TInputs extends Record<string, [string, never, never]>
-  ? Record<string, never>
-  : {
-      [K in keyof TInputs]: TKind extends "unit"
-        ? InputSpecToUnitOutputRef<TInputs[K]>
-        : InputSpecToCompositeOutputRef<TInputs[K]>
-    }
+> =
+  TInputs extends Record<string, [string, never, never]>
+    ? Record<string, never>
+    : {
+        [K in keyof TInputs]: TKind extends "unit"
+          ? InputSpecToUnitOutputRef<TInputs[K]>
+          : InputSpecToCompositeOutputRef<TInputs[K]>
+      }
 
 type StaticOutputRefByKind<
   TOutputSpec extends ComponentInputSpec,
@@ -426,9 +429,10 @@ type ResolveOutputRefForCall<
   TCallInputs extends Record<string, unknown>,
   TFallbackSpec extends ComponentInputSpec,
   TKind extends ComponentKind,
-> = TOutputOption extends FromInputComponentOutputOptions<infer TInputName>
-  ? ResolveForwardedOutputRef<TInputName, TCallInputs, TFallbackSpec, TKind>
-  : StaticOutputRefByKind<TFallbackSpec, TKind>
+> =
+  TOutputOption extends FromInputComponentOutputOptions<infer TInputName>
+    ? ResolveForwardedOutputRef<TInputName, TCallInputs, TFallbackSpec, TKind>
+    : StaticOutputRefByKind<TFallbackSpec, TKind>
 
 type ResolveOutputRefMapForCall<
   TOutputSpecs extends Record<string, ComponentInputSpec>,
@@ -449,11 +453,12 @@ type IncludesAllExpectedTypes<
   TExpected extends Record<string, unknown>,
 > = Exclude<keyof TExpected, keyof TProvided> extends never ? true : false
 
-type ExtractProvidedInputTypes<TValue> = TValue extends RuntimeInput<infer TTypes, any>
-  ? TTypes
-  : TValue extends Array<infer TItem>
-    ? ExtractProvidedInputTypes<TItem>
-    : never
+type ExtractProvidedInputTypes<TValue> =
+  TValue extends RuntimeInput<infer TTypes, any>
+    ? TTypes
+    : TValue extends Array<infer TItem>
+      ? ExtractProvidedInputTypes<TItem>
+      : never
 
 type ValidateProvidedInputValue<TValue, TExpectedSpec extends ComponentInputSpec> = [
   ExtractProvidedInputTypes<TValue>,

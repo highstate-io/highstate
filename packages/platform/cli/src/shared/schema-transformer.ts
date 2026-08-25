@@ -316,7 +316,7 @@ function findFirstReturnArgument(node: ObjectProperty): Node | null {
   }
 
   const body = node.value.body
-  if (!body || body.type !== "BlockStatement") {
+  if (body?.type !== "BlockStatement") {
     return null
   }
 
@@ -423,7 +423,7 @@ function getHelperFunctionForProperty(
   }
 
   const objectExpression = parentStack[parentStack.length - 2]
-  if (!objectExpression || objectExpression.type !== "ObjectExpression") {
+  if (objectExpression?.type !== "ObjectExpression") {
     return null
   }
 
@@ -536,7 +536,7 @@ function isZodObjectCall(memberExpression: Node): boolean {
 }
 
 function startsWithZodCall(callExpression: CallExpression): boolean {
-  if (!callExpression || callExpression.type !== "CallExpression") {
+  if (callExpression?.type !== "CallExpression") {
     return false
   }
 

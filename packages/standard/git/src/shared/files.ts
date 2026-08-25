@@ -386,7 +386,6 @@ export class MaterializedRepository implements AsyncDisposable {
    * @param repository The repository entity to materialize
    * @returns A new MaterializedRepository instance
    */
-  // biome-ignore lint/suspicious/useAdjacentOverloadSignatures: class intentionally provides both instance and static open APIs
   static async open(
     repository: common.Folder,
     parent?: MaterializedRepository | MaterializedFolder,

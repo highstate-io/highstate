@@ -477,7 +477,6 @@ export class MaterializedFile extends LifetimeScopeContainer {
    * @param parent Optional parent folder for nested materialization.
    * @param instance Optional instance name when materializing without parent.
    */
-  // biome-ignore lint/suspicious/useAdjacentOverloadSignatures: class intentionally provides both instance and static open APIs
   static async open(
     file: common.File,
     parent?: MaterializedFolder,
@@ -879,7 +878,6 @@ export class MaterializedFolder extends LifetimeScopeContainer {
    * @param parent Optional parent folder for nested materialization.
    * @param instance Optional instance name when materializing without parent.
    */
-  // biome-ignore lint/suspicious/useAdjacentOverloadSignatures: class intentionally provides both instance and static open APIs
   static async open(
     folder: common.Folder,
     parent?: MaterializedFolder,

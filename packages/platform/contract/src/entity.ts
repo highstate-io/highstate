@@ -177,23 +177,25 @@ type IsIncludeRequired<TIncludeRef> = TIncludeRef extends { required?: infer R }
     : true
   : true
 
-type IsOptionalOutputInclude<TIncludeRef> = IsIncludeMultiple<TIncludeRef> extends true
-  ? false
-  : IsIncludeRequired<TIncludeRef> extends false
-    ? true
-    : false
+type IsOptionalOutputInclude<TIncludeRef> =
+  IsIncludeMultiple<TIncludeRef> extends true
+    ? false
+    : IsIncludeRequired<TIncludeRef> extends false
+      ? true
+      : false
 
-type IsOptionalInputInclude<TIncludeRef> = IsIncludeRequired<TIncludeRef> extends false
-  ? true
-  : false
+type IsOptionalInputInclude<TIncludeRef> =
+  IsIncludeRequired<TIncludeRef> extends false ? true : false
 
-type IncludeOutputValue<TIncludeRef> = IsIncludeMultiple<TIncludeRef> extends true
-  ? EntityValue<ResolveIncludeEntity<TIncludeRef>>[]
-  : EntityValue<ResolveIncludeEntity<TIncludeRef>>
+type IncludeOutputValue<TIncludeRef> =
+  IsIncludeMultiple<TIncludeRef> extends true
+    ? EntityValue<ResolveIncludeEntity<TIncludeRef>>[]
+    : EntityValue<ResolveIncludeEntity<TIncludeRef>>
 
-type IncludeInputValue<TIncludeRef> = IsIncludeMultiple<TIncludeRef> extends true
-  ? EntityValueInput<ResolveIncludeEntity<TIncludeRef>>[]
-  : EntityValueInput<ResolveIncludeEntity<TIncludeRef>>
+type IncludeInputValue<TIncludeRef> =
+  IsIncludeMultiple<TIncludeRef> extends true
+    ? EntityValueInput<ResolveIncludeEntity<TIncludeRef>>[]
+    : EntityValueInput<ResolveIncludeEntity<TIncludeRef>>
 
 type InclusionValueShape<TIncludes extends Record<string, EntityIncludeRef>> =
   TIncludes extends Record<string, never>
@@ -330,58 +332,58 @@ type InclusionShape<TImplements extends Record<string, EntityIncludeRef>> = {
         : never
 }
 
-type AddSchemaExtensions<
-  TSchema extends z.ZodTypeAny,
-  TExtends extends Record<string, Entity>,
-> = TExtends extends Record<string, never>
-  ? TSchema
-  : IsEmptyObject<TExtends> extends true
+type AddSchemaExtensions<TSchema extends z.ZodTypeAny, TExtends extends Record<string, Entity>> =
+  TExtends extends Record<string, never>
     ? TSchema
-    : {
-        [K in keyof TExtends]: AddSchemaExtensions<
-          z.ZodIntersection<TSchema, TExtends[K]["schema"]>,
-          Omit<TExtends, K>
-        >
-      }[keyof TExtends]
+    : IsEmptyObject<TExtends> extends true
+      ? TSchema
+      : {
+          [K in keyof TExtends]: AddSchemaExtensions<
+            z.ZodIntersection<TSchema, TExtends[K]["schema"]>,
+            Omit<TExtends, K>
+          >
+        }[keyof TExtends]
 
 type AddTypeExtensions<
   TImplementedTypes extends EntityTypes,
   TExtends extends Record<string, Entity>,
-> = TExtends extends Record<string, never>
-  ? TImplementedTypes
-  : IsEmptyObject<TExtends> extends true
+> =
+  TExtends extends Record<string, never>
     ? TImplementedTypes
-    : {
-        [K in keyof TExtends]: AddTypeExtensions<
-          TImplementedTypes & TExtends[K][typeof implementedTypes],
-          Omit<TExtends, K>
-        >
-      }[keyof TExtends]
+    : IsEmptyObject<TExtends> extends true
+      ? TImplementedTypes
+      : {
+          [K in keyof TExtends]: AddTypeExtensions<
+            TImplementedTypes & TExtends[K][typeof implementedTypes],
+            Omit<TExtends, K>
+          >
+        }[keyof TExtends]
 
 type AddIncludeExtensions<
   TIncludes extends Record<string, EntityIncludeRef>,
   TExtends extends Record<string, Entity>,
-> = TExtends extends Record<string, never>
-  ? TIncludes
-  : IsEmptyObject<TExtends> extends true
+> =
+  TExtends extends Record<string, never>
     ? TIncludes
-    : {
-        [K in keyof TExtends]: AddIncludeExtensions<
-          TIncludes & ExtractEntityIncludes<TExtends[K][typeof entityIncludes]>,
-          Omit<TExtends, K>
-        >
-      }[keyof TExtends]
+    : IsEmptyObject<TExtends> extends true
+      ? TIncludes
+      : {
+          [K in keyof TExtends]: AddIncludeExtensions<
+            TIncludes & ExtractEntityIncludes<TExtends[K][typeof entityIncludes]>,
+            Omit<TExtends, K>
+          >
+        }[keyof TExtends]
 
-type ExtractEntityIncludes<T> = T extends Record<string, EntityIncludeRef>
-  ? T
-  : Record<string, never>
+type ExtractEntityIncludes<T> =
+  T extends Record<string, EntityIncludeRef> ? T : Record<string, never>
 
 type AddSchemaInclusions<
   TSchema extends z.ZodTypeAny,
   TImplements extends Record<string, EntityIncludeRef>,
-> = TImplements extends Record<string, never>
-  ? TSchema
-  : z.ZodIntersection<TSchema, z.ZodObject<InclusionShape<TImplements>>>
+> =
+  TImplements extends Record<string, never>
+    ? TSchema
+    : z.ZodIntersection<TSchema, z.ZodObject<InclusionShape<TImplements>>>
 
 /**
  * The common ancestor of all entities. Any entity can be assigned to this entity.

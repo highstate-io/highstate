@@ -86,19 +86,20 @@ export type RequiredMultipleInput<TInput extends RuntimeInput = RuntimeInput> = 
 export type RequiredMultipleInputs<TInput extends RuntimeInput = RuntimeInput> =
   RequiredMultipleInput<TInput>
 
-export type EntityInput<TEntity extends Entity> = TEntity extends Entity<
-  VersionedName,
-  infer TImplementedTypes,
-  z.ZodTypeAny,
-  unknown,
-  unknown,
-  infer TIncludes
->
-  ? RuntimeInput<TImplementedTypes, undefined> &
-      (TIncludes extends Record<string, EntityIncludeRef>
-        ? EntityInputIncludes<TIncludes>
-        : Record<never, never>)
-  : never
+export type EntityInput<TEntity extends Entity> =
+  TEntity extends Entity<
+    VersionedName,
+    infer TImplementedTypes,
+    z.ZodTypeAny,
+    unknown,
+    unknown,
+    infer TIncludes
+  >
+    ? RuntimeInput<TImplementedTypes, undefined> &
+        (TIncludes extends Record<string, EntityIncludeRef>
+          ? EntityInputIncludes<TIncludes>
+          : Record<never, never>)
+    : never
 
 export type RequiredEntityInput<TEntity extends Entity> = RequiredInput<EntityInput<TEntity>>
 
@@ -126,34 +127,32 @@ type IncludeRequired<TIncludeRef> = TIncludeRef extends { required?: infer R }
     : true
   : true
 
-type IncludeRefValue<
-  TIncludeRef,
-  TDepth extends readonly unknown[],
-> = ResolveIncludeEntity<TIncludeRef> extends infer TEntity
-  ? TEntity extends Entity
-    ? IncludeMultiple<TIncludeRef> extends true
-      ? MultipleInput<
-          EntityInputWithDepth<TEntity, TDepth>,
-          TDepth extends readonly []
-            ? Record<never, never>
-            : TEntity extends Entity<
-                  VersionedName,
-                  EntityTypes,
-                  z.ZodTypeAny,
-                  unknown,
-                  unknown,
-                  infer TIncludes
-                >
-              ? TIncludes extends Record<string, EntityIncludeRef>
-                ? LiftMultipleSelectorFields<EntityInputIncludes<TIncludes, DecDepth<TDepth>>>
+type IncludeRefValue<TIncludeRef, TDepth extends readonly unknown[]> =
+  ResolveIncludeEntity<TIncludeRef> extends infer TEntity
+    ? TEntity extends Entity
+      ? IncludeMultiple<TIncludeRef> extends true
+        ? MultipleInput<
+            EntityInputWithDepth<TEntity, TDepth>,
+            TDepth extends readonly []
+              ? Record<never, never>
+              : TEntity extends Entity<
+                    VersionedName,
+                    EntityTypes,
+                    z.ZodTypeAny,
+                    unknown,
+                    unknown,
+                    infer TIncludes
+                  >
+                ? TIncludes extends Record<string, EntityIncludeRef>
+                  ? LiftMultipleSelectorFields<EntityInputIncludes<TIncludes, DecDepth<TDepth>>>
+                  : Record<never, never>
                 : Record<never, never>
-              : Record<never, never>
-        >
-      : IncludeRequired<TIncludeRef> extends false
-        ? OptionalEntityInput<TEntity, TDepth>
-        : EntityInputWithDepth<TEntity, TDepth>
+          >
+        : IncludeRequired<TIncludeRef> extends false
+          ? OptionalEntityInput<TEntity, TDepth>
+          : EntityInputWithDepth<TEntity, TDepth>
+      : never
     : never
-  : never
 
 type OptionalEntityInput<TEntity extends Entity, TDepth extends readonly unknown[]> =
   | ({ provided: true } & EntityInputWithDepth<TEntity, TDepth>)
@@ -185,11 +184,12 @@ type RuntimeInputSelectorFields<TInput extends RuntimeInput> = {
     : K]: LiftMultipleSelectorValue<TInput[K]>
 }
 
-type LiftMultipleSelectorValue<T> = T extends MultipleInput<infer TItem, infer TSelectors>
-  ? MultipleInput<TItem, LiftMultipleSelectorFields<TSelectors>>
-  : T extends RuntimeInput
-    ? MultipleInput<T, RuntimeInputSelectorFields<T>>
-    : T
+type LiftMultipleSelectorValue<T> =
+  T extends MultipleInput<infer TItem, infer TSelectors>
+    ? MultipleInput<TItem, LiftMultipleSelectorFields<TSelectors>>
+    : T extends RuntimeInput
+      ? MultipleInput<T, RuntimeInputSelectorFields<T>>
+      : T
 
 type LiftMultipleSelectorFields<TSelectors extends Record<string, unknown>> = {
   [K in keyof TSelectors]: LiftMultipleSelectorValue<TSelectors[K]>
@@ -201,43 +201,41 @@ type OptionalizedInputFields<TInput extends RuntimeInput> = {
     : K]: OptionalizeInputValue<TInput[K]>
 }
 
-type EntityInputWithDepth<
-  TEntity extends Entity,
-  TDepth extends readonly unknown[],
-> = TEntity extends Entity<
-  VersionedName,
-  infer TImplementedTypes,
-  z.ZodTypeAny,
-  unknown,
-  unknown,
-  infer TIncludes
->
-  ? RuntimeInput<TImplementedTypes, undefined> &
-      (TDepth extends readonly []
-        ? Record<never, never>
-        : TIncludes extends Record<string, EntityIncludeRef>
-          ? EntityInputIncludes<TIncludes, DecDepth<TDepth>>
-          : Record<never, never>)
-  : never
+type EntityInputWithDepth<TEntity extends Entity, TDepth extends readonly unknown[]> =
+  TEntity extends Entity<
+    VersionedName,
+    infer TImplementedTypes,
+    z.ZodTypeAny,
+    unknown,
+    unknown,
+    infer TIncludes
+  >
+    ? RuntimeInput<TImplementedTypes, undefined> &
+        (TDepth extends readonly []
+          ? Record<never, never>
+          : TIncludes extends Record<string, EntityIncludeRef>
+            ? EntityInputIncludes<TIncludes, DecDepth<TDepth>>
+            : Record<never, never>)
+    : never
 
 type EntityInputIncludes<
   TIncludes extends Record<string, EntityIncludeRef>,
   TDepth extends readonly unknown[] = EntityInputDepth,
-> = TIncludes extends Record<string, never>
-  ? Record<never, never>
-  : string extends keyof TIncludes
+> =
+  TIncludes extends Record<string, never>
     ? Record<never, never>
-    : {
-        [K in keyof TIncludes]: IncludeRefValue<TIncludes[K], TDepth>
-      }
+    : string extends keyof TIncludes
+      ? Record<never, never>
+      : {
+          [K in keyof TIncludes]: IncludeRefValue<TIncludes[K], TDepth>
+        }
 
 export type InstanceInputGroup<TTypes extends EntityTypes = EntityTypes> = MultipleInput<
   RuntimeInput<TTypes>
 >
 
-type SelectInputResult<TInput extends RuntimeInput> = TInput extends RequiredInput<infer TRuntime>
-  ? TRuntime
-  : TInput
+type SelectInputResult<TInput extends RuntimeInput> =
+  TInput extends RequiredInput<infer TRuntime> ? TRuntime : TInput
 
 export const positionSchema = z.object({
   x: z.number(),
@@ -443,7 +441,7 @@ export function selectInput<TInput extends RuntimeInput>(
       (input.instanceId === name || parseInstanceId(input.instanceId)[1] === name),
   )
 
-  if (!input || !input.provided) {
+  if (!input?.provided) {
     const fallbackBoundary =
       groupBoundary ??
       inputs.find(input => Boolean(input[boundaryInput]))?.[boundaryInput] ??
