@@ -158,7 +158,7 @@
     "zod": "^4.0.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@highstate/cli": "workspace:*",
     "@types/tar": "^6.1.13",
     "@types/unzipper": "^0.10.11",

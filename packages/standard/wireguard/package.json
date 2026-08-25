@@ -54,7 +54,7 @@
     "@pulumi/pulumi": "3.232.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.0",
     "@highstate/cli": "workspace:*",
     "@types/zip-stream": "^7.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20250920.1"
