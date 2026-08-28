@@ -1,5 +1,6 @@
 import type { Secret } from "../secret"
 import {
+  type GatewayHttpPathMatch,
   gatewayClientAuthMediator,
   gatewayRouteMediator,
   type NormalizedGatewayClientAuthArgs,
@@ -68,7 +69,7 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
 
 type GatewayRouteRuleSpec = {
   type: "http" | "tcp" | "tls" | "udp"
-  paths: string[]
+  paths: GatewayHttpPathMatch[]
   backends: {
     endpoints: network.L4Endpoint[]
     weight?: number
@@ -179,7 +180,7 @@ async function createHttpGatewayRoute({
       )
 
       return {
-        matches: ruleSpec.paths,
+        matches: ruleSpec.paths.map(path => (typeof path === "string" ? path : { path })),
         backends: backendRefs,
       }
     }),
