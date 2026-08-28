@@ -1,7 +1,15 @@
 import { adminBackendServiceAccount } from "../shared/models/backend/well-known"
-import { adminProjectServiceAccount } from "../shared/models/project/well-known"
+import { adminProjectServiceAccount, workerProjectRole } from "../shared/models/project/well-known"
 import { test } from "../test-utils"
 import { ensureAdminProjectBindingCreated } from "./well-known"
+
+test("maintains the worker project role", async ({ projectDatabase, expect }) => {
+  await expect(
+    projectDatabase.role.findUnique({
+      where: { systemName: workerProjectRole.systemName },
+    }),
+  ).resolves.toMatchObject(workerProjectRole)
+})
 
 test("maintains the Admin service account project binding", async ({
   database,
