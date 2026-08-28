@@ -769,6 +769,11 @@ export const nodeK8s = defineUnit({
     external: z.boolean().default(false),
 
     /**
+     * The NodePort to assign when the node is exposed.
+     */
+    nodePort: z.number().int().min(30000).max(32767).optional(),
+
+    /**
      * The policy to use for exposing the WireGuard node.
      *
      * - `always` - The node will be exposed and the service will be created.
@@ -778,6 +783,11 @@ export const nodeK8s = defineUnit({
      * * By default, the `when-has-endpoint` policy is used.
      */
     exposePolicy: nodeExposePolicySchema.default("when-has-endpoint"),
+
+    /**
+     * Whether to include a listen port in the generated WireGuard configuration.
+     */
+    listen: z.boolean().default(true),
 
     /**
      * The extra specification of the container which runs the WireGuard node.
