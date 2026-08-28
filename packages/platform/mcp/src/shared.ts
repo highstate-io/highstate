@@ -29,6 +29,7 @@ import { z } from "zod"
 
 export const operationTypeSchema = z.enum(["update", "preview", "destroy", "recreate", "refresh"])
 export const projectIdSchema = z.string().min(1).describe("Project ID")
+export const hubIdSchema = z.cuid2().describe("Hub ID")
 
 const jsonValueSchema = z.json()
 
@@ -39,7 +40,7 @@ const instanceReferenceSchema = z.object({
 })
 
 const hubReferenceSchema = z.object({
-  hubId: z.string().min(1).describe("Referenced hub ID"),
+  hubId: hubIdSchema.describe("Referenced hub ID"),
 })
 
 const positionSchema = z.object({
@@ -83,7 +84,7 @@ export const instanceInputSchema = z
 
 export const hubInputSchema = z
   .object({
-    id: z.string().min(1).describe("Hub ID"),
+    id: hubIdSchema,
     inputs: z
       .array(instanceReferenceSchema)
       .optional()
@@ -230,6 +231,10 @@ export function mergePosition(
     x: position.x ?? currentPosition?.x ?? 0,
     y: position.y ?? currentPosition?.y ?? 0,
   }
+}
+
+export function toInstanceUpdateMaskPaths(patch: z.infer<typeof instancePatchSchema>): string[] {
+  return Object.keys(patch).map(path => (path === "args" ? "arguments" : path))
 }
 
 export function toOperationOptionsMessage(

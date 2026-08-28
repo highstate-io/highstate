@@ -7,6 +7,7 @@ import {
   projectIdSchema,
   type ToolServer,
   toInstanceMessage,
+  toInstanceUpdateMaskPaths,
 } from "../shared"
 
 export function defineUpdateInstanceTool(server: ToolServer): void {
@@ -51,7 +52,7 @@ export function defineUpdateInstanceTool(server: ToolServer): void {
           ...patch,
           position: mergePosition(patch.position, currentPosition),
         }),
-        updateMask: { paths: Object.keys(patch) },
+        updateMask: { paths: toInstanceUpdateMaskPaths(patch) },
       })
 
       return messageToolResult(UpdateInstanceResponseSchema, response)
