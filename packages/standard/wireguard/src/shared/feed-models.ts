@@ -56,6 +56,7 @@ export type WgFeedTunnel = {
   enabled?: boolean
   forced?: boolean
   exclusive?: boolean
+  warning_message?: string
   wg_quick_config: string
 } & Record<string, unknown>
 

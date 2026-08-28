@@ -6,6 +6,10 @@
     "dist"
   ],
   "exports": {
+    ".": {
+      "types": "./src/shared/index.ts",
+      "default": "./dist/shared/index.js"
+    },
     "./network": "./dist/network/index.js",
     "./identity": "./dist/identity/index.js",
     "./config": "./dist/config/index.js",
@@ -29,6 +33,7 @@
   },
   "scripts": {
     "build": "highstate build",
+    "test": "bun run --bun vitest run",
     "update-artifacts": "../../../scripts/update-artifacts.ts ./assets/artifacts.json",
     "update-images": "../../../scripts/update-images.sh ./assets/images.json",
     "typecheck": "tsgo --noEmit --skipLibCheck",
