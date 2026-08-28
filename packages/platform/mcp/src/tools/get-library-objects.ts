@@ -9,7 +9,6 @@ type ComponentJson = {
 }
 
 type EntityJson = {
-  schema?: JsonValue
   [key: string]: JsonValue | undefined
 }
 
@@ -18,7 +17,7 @@ export function defineGetLibraryObjectsTool(server: ToolServer): void {
     "get_library_objects",
     {
       description:
-        "Get component and entity definitions selected from the library overview, excluding large argument and value schemas. Use get_library_object_schemas only for the specific objects whose schemas are needed.",
+        "Get component and entity definitions selected from the library overview, excluding component argument schemas. Use get_library_object_schemas only for components whose argument schemas are needed.",
       inputSchema: {
         project_id: projectIdSchema,
         component_types: z.array(z.string().min(1)).default([]),
@@ -56,12 +55,12 @@ export function defineGetLibraryObjectsTool(server: ToolServer): void {
           }),
         entities: Object.values(response.library?.entities ?? {})
           .filter(entity => entityTypes.has(entity.type))
-          .map(entity => {
-            const { schema: _schema, ...entityWithoutSchema } = toJson(EntitySchema, entity, {
-              useProtoFieldName: true,
-            }) as EntityJson
-            return entityWithoutSchema
-          }),
+          .map(
+            entity =>
+              toJson(EntitySchema, entity, {
+                useProtoFieldName: true,
+              }) as EntityJson,
+          ),
       })
     },
   )

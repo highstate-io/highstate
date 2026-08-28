@@ -16,6 +16,9 @@ message ProjectModel {
 
 // Instance describes one resident or evaluated project instance.
 message Instance {
+  reserved 10;
+  reserved "resolved_inputs";
+
   // The instance ID in the format "{component_type}:{name}".
   string id = 1 [(google.api.field_behavior) = IMMUTABLE];
 
@@ -42,9 +45,6 @@ message Instance {
 
   // The instance position on the Designer canvas.
   optional Position position = 9;
-
-  // The resolved unit inputs, populated for evaluated composite children.
-  map<string, InstanceReferenceList> resolved_inputs = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The parent instance ID, populated for evaluated composite children.
   optional string parent_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
