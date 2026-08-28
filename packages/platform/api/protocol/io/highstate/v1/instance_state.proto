@@ -24,6 +24,9 @@ message InstanceCustomStatusMeta {
 
 // InstanceState describes persisted runtime state for one project instance.
 message InstanceState {
+  reserved 18;
+  reserved "resolved_inputs";
+
   // The stable state ID.
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -74,9 +77,6 @@ message InstanceState {
 
   // The model snapshot captured at the latest non-preview operation start.
   optional Instance model = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The resolved inputs captured at the latest non-preview operation start.
-  map<string, InstanceReferenceList> resolved_inputs = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EvaluationState describes the latest composite evaluation result.
@@ -96,6 +96,9 @@ message EvaluationState {
 
 // InstanceOperationState describes operation progress for one instance.
 message InstanceOperationState {
+  reserved 7;
+  reserved "resolved_inputs";
+
   // The operation ID.
   string operation_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -113,9 +116,6 @@ message InstanceOperationState {
 
   // The model snapshot captured at operation start.
   Instance model = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The resolved inputs captured at operation start.
-  map<string, InstanceReferenceList> resolved_inputs = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The time when work on this instance started.
   optional google.protobuf.Timestamp started_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];

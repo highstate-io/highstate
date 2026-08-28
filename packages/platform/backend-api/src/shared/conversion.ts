@@ -113,7 +113,6 @@ export function toInstance(instance: InstanceModel): Instance {
     ),
     injectionInputs: (instance.injectionInputs ?? []).map(value => ({ hubId: value.hubId })),
     position: instance.position ?? undefined,
-    resolvedInputs: toInstanceReferenceMap(instance.resolvedInputs),
     parentId: instance.parentId,
     outputs: toInstanceReferenceMap(instance.outputs),
     resolvedOutputs: toInstanceReferenceMap(instance.resolvedOutputs),
@@ -234,9 +233,6 @@ export function toHubPatch(hub: Hub, paths: readonly string[]): HubModelPatch {
 
 export function toInstanceState(state: BackendInstanceState): InstanceState {
   const model = state.model ? instanceModelSchema.parse(state.model) : undefined
-  const resolvedInputs = state.resolvedInputs
-    ? fromUnknownInstanceReferenceMap(state.resolvedInputs)
-    : undefined
 
   return create(InstanceStateSchema, {
     id: state.id,
@@ -263,9 +259,6 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
           currentResourceCount: state.lastOperationState.currentResourceCount ?? undefined,
           totalResourceCount: state.lastOperationState.totalResourceCount ?? undefined,
           model: toInstance(instanceModelSchema.parse(state.lastOperationState.model)),
-          resolvedInputs: toInstanceReferenceMap(
-            fromUnknownInstanceReferenceMap(state.lastOperationState.resolvedInputs),
-          ),
           startedAt: toNullableTimestamp(state.lastOperationState.startedAt),
           finishedAt: toNullableTimestamp(state.lastOperationState.finishedAt),
         }
@@ -281,7 +274,6 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
       ? fromJson(ValueSchema, jsonValueSchema.parse(state.statusFields))
       : undefined,
     model: model ? toInstance(model) : undefined,
-    resolvedInputs: toInstanceReferenceMap(resolvedInputs),
   })
 }
 
@@ -378,28 +370,34 @@ export function toLibrary(library: {
 }
 
 export function toComponent(component: ComponentModel): Component {
-  return create(ComponentSchema, {
-    type: component.type,
-    kind: toComponentKind(component.kind),
-    arguments: Object.fromEntries(
-      Object.entries(component.args).map(([name, argument]) => [
-        name,
-        {
-          schema: jsonObjectSchema.parse(argument.schema),
-          required: argument.required,
-          meta: argument.meta,
-        },
-      ]),
-    ),
-    inputs: Object.fromEntries(
-      Object.entries(component.inputs).map(([name, port]) => [name, toComponentPort(port)]),
-    ),
-    outputs: Object.fromEntries(
-      Object.entries(component.outputs).map(([name, port]) => [name, toComponentPort(port)]),
-    ),
-    meta: component.meta,
-    definitionHash: component.definitionHash,
-  })
+  try {
+    return create(ComponentSchema, {
+      type: component.type,
+      kind: toComponentKind(component.kind),
+      arguments: Object.fromEntries(
+        Object.entries(component.args).map(([name, argument]) => [
+          name,
+          {
+            schema: jsonObjectSchema.parse(argument.schema),
+            required: argument.required,
+            meta: argument.meta,
+          },
+        ]),
+      ),
+      inputs: Object.fromEntries(
+        Object.entries(component.inputs).map(([name, port]) => [name, toComponentPort(port)]),
+      ),
+      outputs: Object.fromEntries(
+        Object.entries(component.outputs).map(([name, port]) => [name, toComponentPort(port)]),
+      ),
+      meta: component.meta,
+      definitionHash: component.definitionHash,
+    })
+  } catch (error) {
+    throw new Error(`Failed to convert component "${component.type}" to an API message`, {
+      cause: error,
+    })
+  }
 }
 
 export function toEntity(entity: EntityModel): Entity {
@@ -409,7 +407,6 @@ export function toEntity(entity: EntityModel): Entity {
     directExtensions: entity.directExtensions ?? [],
     inclusions: entity.inclusions ?? [],
     directInclusions: entity.directInclusions ?? [],
-    schema: jsonObjectSchema.parse(entity.schema),
     meta: entity.meta,
     definitionHash: entity.definitionHash,
   })
@@ -454,10 +451,6 @@ function fromInstanceReferenceMap(
   return Object.fromEntries(
     Object.entries(values).map(([key, list]) => [key, list.values.map(fromInstanceReference)]),
   )
-}
-
-function fromUnknownInstanceReferenceMap(value: unknown): NonNullable<InstanceModel["inputs"]> {
-  return instanceModelSchema.shape.inputs.unwrap().parse(value)
 }
 
 function fromInstanceReference(value: Instance["inputs"][string]["values"][number]) {
