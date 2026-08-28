@@ -7,7 +7,13 @@ import {
   InstanceStateSchema,
 } from "@highstate/api/v1"
 import { z } from "zod"
-import { getInstanceStates, projectIdSchema, type ToolServer, toolResult } from "../shared"
+import {
+  getInstanceStates,
+  hubIdSchema,
+  projectIdSchema,
+  type ToolServer,
+  toolResult,
+} from "../shared"
 
 type InstanceItem = {
   model: JsonValue
@@ -24,7 +30,7 @@ export function defineGetProjectModelObjectsTool(server: ToolServer): void {
       inputSchema: {
         project_id: projectIdSchema,
         instance_ids: z.array(z.string().min(1)).default([]),
-        hub_ids: z.array(z.string().min(1)).default([]),
+        hub_ids: z.array(hubIdSchema).default([]),
         recursive: z.boolean().default(false),
       },
       annotations: {
