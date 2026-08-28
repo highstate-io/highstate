@@ -1,4 +1,5 @@
 import type { DatabaseManager } from "../database"
+import type { PubSubManager } from "../pubsub"
 import type { LibraryModel, ResolvedInstanceInput } from "../shared"
 import type { ProjectUnlockBackend } from "../unlock"
 import type { CapturedEntitySnapshotValue, OutputExportedSnapshotGraph } from "./entity-snapshot"
@@ -78,6 +79,7 @@ type NormalizeImportEntityGraphResult = {
 export class ProjectPortService {
   constructor(
     private readonly database: DatabaseManager,
+    private readonly pubsubManager: PubSubManager,
     private readonly encryptionEnabled = true,
     private readonly projectUnlockBackend?: ProjectUnlockBackend,
   ) {}
@@ -250,6 +252,15 @@ export class ProjectPortService {
    */
   async syncExportPort(options: SyncExportPortOptions): Promise<void> {
     const payload = projectImportPortDataSchema.parse(options.payload)
+    const existingRows = await this.database.backend.projectImportPort.findMany({
+      where: {
+        sourceProjectId: options.projectId,
+        sourceStateId: options.sourceStateId,
+      },
+      select: {
+        projectId: true,
+      },
+    })
 
     const targetNames = Array.from(
       new Set(
@@ -267,6 +278,8 @@ export class ProjectPortService {
           sourceStateId: options.sourceStateId,
         },
       })
+
+      await this.publishVirtualComponentUpdates(existingRows.map(row => row.projectId))
       return
     }
 
@@ -322,6 +335,11 @@ export class ProjectPortService {
         },
       })
     })
+
+    await this.publishVirtualComponentUpdates([
+      ...existingRows.map(row => row.projectId),
+      ...selectedTargetIds,
+    ])
   }
 
   /**
@@ -331,12 +349,34 @@ export class ProjectPortService {
    * @param sourceStateId The source export-port state ID.
    */
   async clearExportPort(projectId: string, sourceStateId: string): Promise<void> {
+    const existingRows = await this.database.backend.projectImportPort.findMany({
+      where: {
+        sourceProjectId: projectId,
+        sourceStateId,
+      },
+      select: {
+        projectId: true,
+      },
+    })
+
     await this.database.backend.projectImportPort.deleteMany({
       where: {
         sourceProjectId: projectId,
         sourceStateId,
       },
     })
+
+    await this.publishVirtualComponentUpdates(existingRows.map(row => row.projectId))
+  }
+
+  private async publishVirtualComponentUpdates(projectIds: string[]): Promise<void> {
+    await Promise.all(
+      Array.from(new Set(projectIds)).map(async projectId => {
+        await this.pubsubManager.publish(["project-model", projectId], {
+          virtualComponentsUpdated: true,
+        })
+      }),
+    )
   }
 
   /**

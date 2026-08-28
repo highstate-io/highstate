@@ -2,6 +2,7 @@ import type { InstanceId, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
@@ -31,6 +32,7 @@ export class ProjectEvaluationSubsystem {
   constructor(
     private readonly database: DatabaseManager,
     private readonly libraryBackend: LibraryBackend,
+    private readonly libraryService: LibraryService,
     private readonly projectModelService: ProjectModelService,
     private readonly pubsubManager: PubSubManager,
     private readonly projectUnlockService: ProjectUnlockService,
@@ -88,8 +90,10 @@ export class ProjectEvaluationSubsystem {
       .map(instance => instance.id)
 
     try {
+      const virtualComponents = await this.libraryService.getVirtualComponentsCore(project.id)
       const result = await this.libraryBackend.evaluateCompositeInstances(
         project.libraryId,
+        virtualComponents,
         instances,
         resolvedInputs,
       )

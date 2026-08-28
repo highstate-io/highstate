@@ -10,7 +10,7 @@ import { readFile } from "node:fs/promises"
 import { dirname, isAbsolute, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { Worker } from "node:worker_threads"
-import { type InstanceModel, isUnitModel } from "@highstate/contract"
+import { type ComponentModel, type InstanceModel, isUnitModel } from "@highstate/contract"
 import { decode } from "@msgpack/msgpack"
 import { BetterLock } from "better-lock"
 import { glob } from "glob"
@@ -201,6 +201,7 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   async evaluateCompositeInstances(
     _libraryId: string,
+    virtualComponents: Record<string, ComponentModel>,
     allInstances: InstanceModel[],
     resolvedInputs: Record<string, Record<string, ResolvedInstanceInput[]>>,
   ): Promise<ProjectEvaluationResult> {
@@ -212,6 +213,7 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     const worker = this.createLibraryWorker({
       libraryModulePaths: packagePaths,
+      virtualComponents,
       allInstances,
       resolvedInputs,
     })

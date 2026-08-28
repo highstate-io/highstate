@@ -126,6 +126,7 @@ export const useProjectLibraryStore = defineMultiStore({
         initialized: readonly(initialized),
         loading: readonly(loading),
         initialize,
+        refreshVirtualComponents,
       }
     })
   },

@@ -22,6 +22,8 @@ export const projectModelInstanceSchema = instanceModelSchema.pick({
 export type ProjectModelInstance = z.infer<typeof projectModelInstanceSchema>
 
 export const projectModelEventSchema = z.object({
+  virtualComponentsUpdated: z.boolean().optional(),
+
   updatedInstances: instanceModelSchema.array().optional(),
   updatedHubs: hubModelSchema.array().optional(),
   updatedVirtualInstances: instanceModelSchema.array().optional(),
