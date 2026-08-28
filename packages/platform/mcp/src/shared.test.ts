@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { mergePosition, timestampFromUlid } from "./shared"
+import { hubIdSchema, mergePosition, timestampFromUlid, toInstanceUpdateMaskPaths } from "./shared"
+
+describe("hubIdSchema", () => {
+  it("matches the backend API hub ID constraint", () => {
+    expect(hubIdSchema.safeParse("q8xbilhwpsn65zjlv5kz44qh").success).toBe(true)
+    expect(hubIdSchema.safeParse("smoke-hub").success).toBe(false)
+  })
+})
 
 describe("mergePosition", () => {
   it("preserves the omitted coordinate from the current position", () => {
@@ -10,6 +17,20 @@ describe("mergePosition", () => {
   it("preserves explicit position clears", () => {
     expect(mergePosition(null, { x: 4, y: 8 })).toBeNull()
     expect(mergePosition(undefined, { x: 4, y: 8 })).toBeUndefined()
+  })
+})
+
+describe("toInstanceUpdateMaskPaths", () => {
+  it("maps tool argument fields to protobuf field-mask paths", () => {
+    expect(
+      toInstanceUpdateMaskPaths({
+        args: {},
+        inputs: {},
+        hub_inputs: {},
+        injection_inputs: [],
+        position: null,
+      }),
+    ).toEqual(["arguments", "inputs", "hub_inputs", "injection_inputs", "position"])
   })
 })
 

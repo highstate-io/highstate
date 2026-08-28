@@ -1,6 +1,6 @@
 import { UpdateHubResponseSchema } from "@highstate/api/v1"
-import { z } from "zod"
 import {
+  hubIdSchema,
   hubPatchSchema,
   mergePosition,
   messageToolResult,
@@ -17,7 +17,7 @@ export function defineUpdateHubTool(server: ToolServer): void {
         "Patch a resident hub's inputs, injected inputs, or canvas position. Inspect it with get_project_model_objects first.",
       inputSchema: {
         project_id: projectIdSchema,
-        hub_id: z.string().min(1),
+        hub_id: hubIdSchema,
         patch: hubPatchSchema,
       },
       annotations: {
