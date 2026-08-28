@@ -140,6 +140,7 @@ const configSecret = Secret.create(appName, {
           identity,
           peers,
           listenPort: containerPort,
+          listen: args.listen,
           preUp,
           postUp,
           preDown,
@@ -197,6 +198,7 @@ const workload = await toPromise(
             port: identity.peer.listenPort ?? 51820,
             targetPort: containerPort,
             protocol: "UDP",
+            nodePort: args.nodePort,
           },
         }
       : undefined,
