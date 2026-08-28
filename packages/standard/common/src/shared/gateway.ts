@@ -90,16 +90,23 @@ export type GatewayRuleArgs = {
   backends?: Input<GatewayBackendArgs[]>
 }
 
+export type GatewayHttpPathMatch =
+  | string
+  | {
+      type: "Exact" | "PathPrefix" | "RegularExpression"
+      value: string
+    }
+
 export type GatewayHttpRuleArgs = GatewayRuleArgs & {
   /**
    * The path to match for the rule.
    */
-  path?: Input<string>
+  path?: Input<GatewayHttpPathMatch>
 
   /**
    * The paths to match for the rule.
    */
-  paths?: Input<string[]>
+  paths?: Input<GatewayHttpPathMatch[]>
 }
 
 export type GatewayRouteArgs = {
@@ -154,14 +161,14 @@ export type GatewayRouteArgs = {
        *
        * Its shortcut for `rules.default.paths`.
        */
-      path?: Input<string>
+      path?: Input<GatewayHttpPathMatch>
 
       /**
        * The paths to match for the `default` rule of the listener.
        *
        * Its shortcut for `rules.default.paths`.
        */
-      paths?: Input<string[]>
+      paths?: Input<GatewayHttpPathMatch[]>
 
       /**
        * The rules to apply for the listener.
@@ -191,7 +198,7 @@ type NormalizedGatewayBackend = {
 
 type NormalizedGatewayRuleArgs = {
   type: "http" | "tcp" | "tls" | "udp"
-  paths: string[]
+  paths: GatewayHttpPathMatch[]
   backends: NormalizedGatewayBackend[]
 }
 
