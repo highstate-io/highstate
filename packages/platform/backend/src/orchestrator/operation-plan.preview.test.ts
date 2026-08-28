@@ -52,7 +52,7 @@ describe("OperationPlan - Preview Operations", () => {
           operation.options,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        "[Error: Preview operations can only target a single instance]",
+        "[InvalidOperationPlanError: Preview operations can only target a single instance]",
       )
     },
   )
@@ -73,7 +73,7 @@ describe("OperationPlan - Preview Operations", () => {
           operation.options,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        '[Error: Preview is not supported for composite instance "composite.v1:Group"]',
+        '[InvalidOperationPlanError: Preview is not supported for composite instance "composite.v1:Group"]',
       )
     },
   )

@@ -52,4 +52,29 @@ describe("formatClientError", () => {
     expect(result).toContain("message: Request failed")
     expect(result).toContain("message: Socket closed")
   })
+
+  it("includes operation planning error messages", () => {
+    const error = new ConnectError(
+      "Operation options are invalid: ghost options are supported only for updates",
+      Code.InvalidArgument,
+      undefined,
+      [
+        {
+          desc: ErrorInfoSchema,
+          value: create(ErrorInfoSchema, {
+            reason: "OPERATION_PLAN_INVALID",
+            domain: "highstate.io",
+          }),
+        },
+      ],
+    )
+
+    const result = formatClientError(error, "PlanOperation", "http://localhost/PlanOperation")
+
+    expect(result).toContain("code: invalid_argument")
+    expect(result).toContain(
+      'message: "Operation options are invalid: ghost options are supported only for updates"',
+    )
+    expect(result).toContain("reason: OPERATION_PLAN_INVALID")
+  })
 })

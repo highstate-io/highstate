@@ -3,6 +3,7 @@ import { BadRequestSchema, ErrorInfoSchema } from "@highstate/api/v1"
 import {
   BackendError,
   BackendErrorCategory,
+  InvalidOperationPlanError,
   InvalidPageSizeError,
   PermissionDeniedError,
 } from "@highstate/backend/shared"
@@ -33,6 +34,28 @@ describe("createErrorHandlingInterceptor", () => {
       )
       expect(logger.error).not.toHaveBeenCalled()
     }
+  })
+
+  it("exposes operation planning validation errors", async () => {
+    const logger = { error: vi.fn() }
+    const interceptor = createErrorHandlingInterceptor({ logger } as never)
+    const handler = interceptor(async () => {
+      throw new InvalidOperationPlanError(
+        "Operation options are invalid: ghost options are supported only for updates",
+      )
+    })
+
+    const result = (await handler({
+      method: { name: "PlanOperation" },
+      header: new Headers(),
+    } as never).catch(error => error as ConnectError)) as ConnectError
+
+    expect(result.code).toBe(Code.InvalidArgument)
+    expect(result.rawMessage).toBe(
+      "Operation options are invalid: ghost options are supported only for updates",
+    )
+    expect(result.findDetails(ErrorInfoSchema)[0]?.reason).toBe("OPERATION_PLAN_INVALID")
+    expect(logger.error).not.toHaveBeenCalled()
   })
 
   it("sanitizes and logs unexpected errors once", async () => {

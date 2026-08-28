@@ -220,6 +220,15 @@ export class OperationNotFoundError extends BackendError {
   }
 }
 
+export class InvalidOperationPlanError extends BackendError {
+  constructor(message: string) {
+    super(message, {
+      reason: "OPERATION_PLAN_INVALID",
+      category: BackendErrorCategory.InvalidArgument,
+    })
+  }
+}
+
 export class InstanceLockLostError extends BackendError {
   readonly instanceIds: readonly string[]
 
