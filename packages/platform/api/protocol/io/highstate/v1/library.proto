@@ -140,7 +140,7 @@ message ComponentMeta {
   string default_name_prefix = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// Entity describes one entity definition while preserving its value schema as dynamic data.
+// Entity describes one entity definition.
 message Entity {
   // The versioned entity type.
   string type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -157,8 +157,7 @@ message Entity {
   // The directly declared inclusions.
   repeated EntityInclusion direct_inclusions = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The runtime-defined JSON Schema for entity values.
-  google.protobuf.Struct schema = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  reserved 6;
 
   // The entity display metadata.
   EntityMeta meta = 7 [(google.api.field_behavior) = OUTPUT_ONLY];

@@ -41,7 +41,7 @@ export function createHighstateMcpServer(
     },
     {
       instructions:
-        "Inspect the project, project model, and library overviews before requesting relevant objects or editing the model. Library object schemas are large: avoid retrieving schemas for objects that are not needed. Request only the specific component or entity schemas required for the current task with get_library_object_schemas. Plan infrastructure operations before launching them. Treat destroy, recreate, deletion, and debug operations as potentially destructive.",
+        "Inspect the project, project model, and library overviews before requesting relevant objects or editing the model. Component argument schemas are large: request only the specific component schemas required for the current task with get_library_object_schemas. Plan infrastructure operations before launching them. Treat destroy, recreate, deletion, and debug operations as potentially destructive.",
     },
   )
   const server: ToolServer = {
