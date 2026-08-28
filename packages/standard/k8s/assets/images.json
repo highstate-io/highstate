@@ -7,12 +7,12 @@
   "worker.k8s-monitor": {
     "name": "ghcr.io/highstate-io/highstate/worker.k8s-monitor",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:81f61c450baf9259f20ee2407f1eb64dfcc1318bcf156e3e227d73e0700a34ab"
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-monitor:latest@sha256:de565d76bfa9b2c4985975e863b6b6120f8270d414e39ea611b0d20ddcaba486"
   },
   "worker.k8s-dashboard": {
     "name": "ghcr.io/highstate-io/highstate/worker.k8s-dashboard",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/highstate/worker.k8s-dashboard:latest@sha256:2ce06c096b910e97f1d30d7d31803864b89ba0223951bf598d178bacc623675c"
+    "image": "ghcr.io/highstate-io/highstate/worker.k8s-dashboard:latest@sha256:0fedd248c17f71f419e56fd89b71d6993d187a73e006bd4b0f6456bdd48dbbcd"
   },
   "alpine": {
     "name": "alpine",
