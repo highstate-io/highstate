@@ -8,15 +8,22 @@ import { backupEnvironment } from "./scripts"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.etcd)
 
+if (args.replicas > 1 && inputs.resticRepo) {
+  throw new Error("Restic backups are not supported for multi-replica etcd clusters")
+}
+
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
 
 const backupKey = getSecret("backupKey", generateKey)
 
-const dataVolumeClaim = PersistentVolumeClaim.create(
-  `${args.appName}-data`,
-  { namespace },
-  { deletedWith: namespace },
-)
+const dataVolumeClaim =
+  args.replicas === 1
+    ? PersistentVolumeClaim.create(
+        `${args.appName}-data`,
+        { namespace },
+        { deletedWith: namespace },
+      )
+    : undefined
 
 const serviceEndpoint = createBootstrapServiceEndpoint(namespace, args.appName, 2379)
 
@@ -40,17 +47,17 @@ const backupJobPair = inputs.resticRepo
         },
 
         restoreContainer: {
-          volume: dataVolumeClaim,
+          volume: dataVolumeClaim!,
 
           volumeMount: {
-            volume: dataVolumeClaim,
+            volume: dataVolumeClaim!,
             mountPath: "/data",
           },
         },
 
         allowedEndpoints: [serviceEndpoint],
       },
-      { dependsOn: dataVolumeClaim, deletedWith: namespace },
+      { dependsOn: dataVolumeClaim!, deletedWith: namespace },
     )
   : undefined
 
@@ -68,10 +75,10 @@ const chart = new Chart(
       fullnameOverride: args.appName,
       nameOverride: args.appName,
 
-      replicaCount: 1,
+      replicaCount: args.replicas,
 
       persistence: {
-        existingClaim: dataVolumeClaim.metadata.name,
+        existingClaim: dataVolumeClaim?.metadata.name ?? "",
       },
 
       networkPolicy: {
