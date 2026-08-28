@@ -1,4 +1,4 @@
-import { defineUnit } from "@highstate/contract"
+import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
 import { connectionEntity } from "../../databases/etcd"
 import {
@@ -19,6 +19,16 @@ export const etcd = defineUnit({
   args: {
     ...appName("etcd"),
     ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
+
+    /**
+     * The odd number of etcd members to deploy.
+     */
+    replicas: z
+      .number()
+      .int()
+      .positive()
+      .refine(replicas => replicas % 2 === 1, "etcd replicas must be odd")
+      .default(1),
   },
 
   secrets: {
