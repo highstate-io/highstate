@@ -516,11 +516,10 @@ export class ProjectService {
 
     try {
       const database = await this.database.forProject(context.projectId)
+      const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
+      await backend.createNodes(project, spec, instances, hubs)
 
       const states = await database.$transaction(async tx => {
-        const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
-        await backend.createNodes(project, spec, instances, hubs)
-
         // ensure instance states exist for created instances
         return await Promise.all(
           instances.map(async instance => {
