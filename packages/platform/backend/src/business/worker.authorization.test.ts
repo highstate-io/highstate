@@ -89,6 +89,17 @@ describe("WorkerService authorization", () => {
           { title: "Updated" },
         ),
       ).resolves.toBeUndefined()
+      await expect(
+        service.updateWorkerVersionMeta(
+          createProjectRequestContext(
+            project.id,
+            grantProjectPermission("worker.manage", [{ type: "self" }]),
+            { type: "service-account", serviceAccountId: worker.serviceAccountId },
+          ),
+          version.id,
+          { title: "Updated by worker" },
+        ),
+      ).resolves.toBeUndefined()
     },
   )
 
