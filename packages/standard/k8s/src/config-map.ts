@@ -203,6 +203,8 @@ class CreatedConfigMap extends ConfigMap {
         {
           metadata: mapMetadata(args, name),
           data: args.data,
+          binaryData: args.binaryData,
+          immutable: args.immutable,
         },
         {
           ...opts,
@@ -232,6 +234,8 @@ class ConfigMapPatch extends ConfigMap {
         {
           metadata: mapMetadata(args, name),
           data: args.data,
+          binaryData: args.binaryData,
+          immutable: args.immutable,
         },
         {
           ...opts,
