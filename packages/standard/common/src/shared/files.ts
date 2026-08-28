@@ -641,9 +641,7 @@ export class MaterializedFolder extends LifetimeScopeContainer {
         await mkdir(this.path, { recursive: true, mode: this.entity.meta.mode })
 
         for (const file of this.entity.files) {
-          // @ts-expect-error bypass constructor visibility
-          const materializedFile = new MaterializedFile(file, undefined, this)
-          await materializedFile.open()
+          await MaterializedFile.open(file, this)
         }
 
         for (const subfolder of this.entity.folders) {
