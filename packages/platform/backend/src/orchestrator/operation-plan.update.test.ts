@@ -477,7 +477,7 @@ describe("OperationPlan - Update Operations", () => {
           operation.options,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        "[Error: Operation options are invalid: forceUpdateDependencies and ignoreChangedDependencies cannot both be enabled.]",
+        "[InvalidOperationPlanError: Operation options are invalid: forceUpdateDependencies and ignoreChangedDependencies cannot both be enabled.]",
       )
     },
   )
@@ -504,7 +504,7 @@ describe("OperationPlan - Update Operations", () => {
           operation.options,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        "[Error: Operation options are invalid: forceUpdateDependencies and ignoreDependencies cannot both be enabled.]",
+        "[InvalidOperationPlanError: Operation options are invalid: forceUpdateDependencies and ignoreDependencies cannot both be enabled.]",
       )
     },
   )
@@ -531,7 +531,7 @@ describe("OperationPlan - Update Operations", () => {
           operation.options,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        "[Error: Operation options are invalid: ignoreChangedDependencies and ignoreDependencies cannot both be enabled.]",
+        "[InvalidOperationPlanError: Operation options are invalid: ignoreChangedDependencies and ignoreDependencies cannot both be enabled.]",
       )
     },
   )

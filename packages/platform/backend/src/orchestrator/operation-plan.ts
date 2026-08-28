@@ -7,7 +7,7 @@ import type {
   OperationType,
 } from "../shared"
 import type { OperationContext } from "./operation-context"
-import { isVirtualGhostInstance } from "../shared"
+import { InvalidOperationPlanError, isVirtualGhostInstance } from "../shared"
 
 type CompositeType = "unknown" | "compositional" | "substantive"
 type InclusionReason =
@@ -42,45 +42,47 @@ export function createOperationPlan(
   ].filter(Boolean).length
 
   if (enabledGhostStrategies > 1) {
-    throw new Error(
+    throw new InvalidOperationPlanError(
       "Operation options are invalid: only one of onlyDestroyGhosts, firstDestroyGhosts, ignoreGhosts can be enabled.",
     )
   }
 
   if (type !== "update" && enabledGhostStrategies > 0) {
-    throw new Error(
+    throw new InvalidOperationPlanError(
       "Operation options are invalid: onlyDestroyGhosts, firstDestroyGhosts and ignoreGhosts are supported only for update operations.",
     )
   }
 
   if (options.forceUpdateDependencies && options.ignoreChangedDependencies) {
-    throw new Error(
+    throw new InvalidOperationPlanError(
       "Operation options are invalid: forceUpdateDependencies and ignoreChangedDependencies cannot both be enabled.",
     )
   }
 
   if (options.forceUpdateDependencies && options.ignoreDependencies) {
-    throw new Error(
+    throw new InvalidOperationPlanError(
       "Operation options are invalid: forceUpdateDependencies and ignoreDependencies cannot both be enabled.",
     )
   }
 
   if (options.ignoreChangedDependencies && options.ignoreDependencies) {
-    throw new Error(
+    throw new InvalidOperationPlanError(
       "Operation options are invalid: ignoreChangedDependencies and ignoreDependencies cannot both be enabled.",
     )
   }
 
   if (type === "preview") {
     if (requestedInstanceIds.length !== 1) {
-      throw new Error("Preview operations can only target a single instance")
+      throw new InvalidOperationPlanError("Preview operations can only target a single instance")
     }
 
     const instanceId = requestedInstanceIds[0] as InstanceId
     const instance = context.getInstance(instanceId)
 
     if (instance.kind !== "unit") {
-      throw new Error(`Preview is not supported for composite instance "${instanceId}"`)
+      throw new InvalidOperationPlanError(
+        `Preview is not supported for composite instance "${instanceId}"`,
+      )
     }
 
     return [
