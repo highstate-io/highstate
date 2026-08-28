@@ -3,6 +3,7 @@ import type { ResolvedInstanceInput } from "../../shared"
 import type { ProjectEvaluationResult } from "../abstractions"
 import {
   type Component,
+  type ComponentModel,
   getRuntimeInstances,
   type InstanceId,
   type InstanceModel,
@@ -22,6 +23,7 @@ function toCloneSafeInstanceModel(instance: InstanceModel): InstanceModel {
 export function evaluateProject(
   logger: Logger,
   components: Readonly<Record<string, Component>>,
+  virtualComponents: Readonly<Record<string, ComponentModel>>,
   allInstances: InstanceModel[],
   resolvedInputs: Record<string, Record<string, ResolvedInstanceInput[]>>,
 ): ProjectEvaluationResult {
@@ -166,6 +168,17 @@ export function evaluateProject(
 
     const component = components[instance.type]
     if (!component) {
+      const virtualComponent = virtualComponents[instance.type]
+      if (virtualComponent?.kind === "unit") {
+        return Object.fromEntries(
+          Object.entries(virtualComponent.outputs).map(([outputName, output]) => {
+            const reference = { instanceId: instance.id, output: outputName }
+
+            return [outputName, output.multiple ? [reference] : reference]
+          }),
+        )
+      }
+
       throw new Error(`Component not found: ${instance.type}, required by instance: ${instance.id}`)
     }
 

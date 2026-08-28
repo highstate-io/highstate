@@ -1,9 +1,10 @@
+import type { PubSubManager } from "../pubsub"
 import { crc32 } from "node:zlib"
 import { defineEntity, defineUnit, getEntityId, type InstanceModel, z } from "@highstate/contract"
 import { sha256 } from "@noble/hashes/sha2"
 import { generateIdentity, identityToRecipient } from "age-encryption"
 import { Buffer } from "buffer-polyfill"
-import { describe, expect } from "vitest"
+import { describe, expect, type MockedObject, vi } from "vitest"
 import {
   type LibraryModel,
   type ResolvedInstanceInput,
@@ -14,9 +15,18 @@ import { ProjectPortService } from "./project-port"
 
 const projectPortTest = test.extend<{
   projectPortService: ProjectPortService
+  pubsubManager: MockedObject<PubSubManager>
 }>({
-  projectPortService: async ({ database }, use) => {
-    const service = new ProjectPortService(database)
+  pubsubManager: async ({}, use) => {
+    await use(
+      vi.mockObject({
+        publish: vi.fn(),
+      } as unknown as PubSubManager),
+    )
+  },
+
+  projectPortService: async ({ database, pubsubManager }, use) => {
+    const service = new ProjectPortService(database, pubsubManager)
 
     await use(service)
   },
@@ -283,7 +293,7 @@ describe("ProjectPortService", () => {
 
   projectPortTest(
     "syncs export ports to selected targets and removes stale rows",
-    async ({ projectPortService, createProject, database }) => {
+    async ({ projectPortService, pubsubManager, createProject, database }) => {
       const source = await createProject("source")
       const targetA = await createProject("target-a")
       const targetB = await createProject("target-b")
@@ -324,10 +334,18 @@ describe("ProjectPortService", () => {
       )
       expect(rowsAfterInitialSync.every(row => row.contentHash.length === 64)).toBe(true)
       expect(rowsAfterInitialSync.every(row => row.encryptedContent.length > 0)).toBe(true)
+      expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetA.id], {
+        virtualComponentsUpdated: true,
+      })
+      expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetB.id], {
+        virtualComponentsUpdated: true,
+      })
 
       const previousHashForB = rowsAfterInitialSync.find(
         row => row.projectId === targetB.id,
       )?.contentHash
+
+      pubsubManager.publish.mockClear()
 
       await projectPortService.syncExportPort({
         projectId: source.id,
@@ -346,6 +364,14 @@ describe("ProjectPortService", () => {
       expect(rowsAfterResync).toHaveLength(1)
       expect(rowsAfterResync[0]?.projectId).toBe(targetB.id)
       expect(rowsAfterResync[0]?.contentHash).not.toBe(previousHashForB)
+      expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetA.id], {
+        virtualComponentsUpdated: true,
+      })
+      expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetB.id], {
+        virtualComponentsUpdated: true,
+      })
+
+      pubsubManager.publish.mockClear()
 
       await projectPortService.syncExportPort({
         projectId: source.id,
@@ -362,12 +388,16 @@ describe("ProjectPortService", () => {
       })
 
       expect(rowsAfterEmptyTargets).toHaveLength(0)
+      expect(pubsubManager.publish).toHaveBeenCalledOnce()
+      expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetB.id], {
+        virtualComponentsUpdated: true,
+      })
     },
   )
 
   projectPortTest(
     "clears rows for a concrete source state",
-    async ({ projectPortService, createProject, database }) => {
+    async ({ projectPortService, pubsubManager, createProject, database }) => {
       const source = await createProject("source-clear")
       const target = await createProject("target-clear")
       const recipient = await identityToRecipient(await generateIdentity())
@@ -391,6 +421,7 @@ describe("ProjectPortService", () => {
         payload: makePayload("clear-2"),
       })
 
+      pubsubManager.publish.mockClear()
       await projectPortService.clearExportPort(source.id, "state-clear-1")
 
       const remaining = await database.backend.projectImportPort.findMany({
@@ -401,6 +432,10 @@ describe("ProjectPortService", () => {
 
       expect(remaining).toHaveLength(1)
       expect(remaining[0]?.sourceStateId).toBe("state-clear-2")
+      expect(pubsubManager.publish).toHaveBeenCalledOnce()
+      expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", target.id], {
+        virtualComponentsUpdated: true,
+      })
     },
   )
 
@@ -453,8 +488,8 @@ describe("ProjectPortService", () => {
 
   projectPortTest(
     "stores plain import content when encryption is disabled",
-    async ({ createProject, database }) => {
-      const projectPortService = new ProjectPortService(database, false)
+    async ({ createProject, database, pubsubManager }) => {
+      const projectPortService = new ProjectPortService(database, pubsubManager, false)
 
       const source = await createProject("source-plain")
       const target = await createProject("target-plain")
@@ -490,8 +525,8 @@ describe("ProjectPortService", () => {
 
   projectPortTest(
     "reads import payload and builds captured values for imported entities",
-    async ({ createProject, database }) => {
-      const projectPortService = new ProjectPortService(database, false)
+    async ({ createProject, database, pubsubManager }) => {
+      const projectPortService = new ProjectPortService(database, pubsubManager, false)
 
       const source = await createProject("source-import")
       const target = await createProject("target-import")

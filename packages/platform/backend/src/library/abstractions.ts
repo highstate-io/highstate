@@ -1,4 +1,4 @@
-import type { InstanceId, InstanceModel } from "@highstate/contract"
+import type { ComponentModel, InstanceId, InstanceModel } from "@highstate/contract"
 import type { LibraryModel, LibraryUpdate, ResolvedInstanceInput } from "../shared"
 
 export type ResolvedUnitSource = {
@@ -66,11 +66,13 @@ export interface LibraryBackend {
    * Evaluates the composite instances of the project and returns evaluated virtual instances.
    *
    * @param libraryId The library ID to use for evaluation.
+   * @param virtualComponents The project-specific virtual components to use for evaluation.
    * @param allInstances The all instances of the project.
    * @param resolvedInputs The resolved inputs of the instances.
    */
   evaluateCompositeInstances(
     libraryId: string | undefined,
+    virtualComponents: Record<string, ComponentModel>,
     allInstances: InstanceModel[],
     resolvedInputs: Record<string, Record<string, ResolvedInstanceInput[]>>,
   ): Promise<ProjectEvaluationResult>

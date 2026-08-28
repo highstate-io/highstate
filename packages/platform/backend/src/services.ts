@@ -430,6 +430,7 @@ export async function createServices({
   projectEvaluationSubsystem ??= new ProjectEvaluationSubsystem(
     database,
     libraryBackend,
+    libraryService,
     projectModelService,
     pubsubManager,
     projectUnlockService,
@@ -451,6 +452,7 @@ export async function createServices({
 
   projectPortService ??= new ProjectPortService(
     database,
+    pubsubManager,
     config.HIGHSTATE_ENCRYPTION_ENABLED,
     projectUnlockBackend,
   )
