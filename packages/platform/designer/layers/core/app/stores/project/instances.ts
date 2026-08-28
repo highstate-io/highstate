@@ -533,7 +533,15 @@ export const useProjectInstancesStore = defineMultiStore({
             { projectId },
             {
               async onData(event) {
+                if (event.virtualComponentsUpdated) {
+                  await libraryStore.refreshVirtualComponents()
+                  refreshAllResolverNodes()
+                }
+
                 const promotedVirtualInstanceIds = new Set<string>()
+                const demotedVirtualInstanceIds = new Set(
+                  event.updatedGhostInstances?.map(instance => instance.id),
+                )
 
                 for (const virtualInstance of event.updatedVirtualInstances ?? []) {
                   promotedVirtualInstanceIds.add(virtualInstance.id)
@@ -554,6 +562,10 @@ export const useProjectInstancesStore = defineMultiStore({
 
                 for (const virtualInstanceId of event.deletedVirtualInstanceIds ?? []) {
                   virtualInstanceIds.delete(virtualInstanceId)
+
+                  if (demotedVirtualInstanceIds.has(virtualInstanceId)) {
+                    continue
+                  }
 
                   if (residentInstanceIds.has(virtualInstanceId)) {
                     continue
