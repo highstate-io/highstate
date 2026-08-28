@@ -11,7 +11,13 @@ const logger = pino({ name: "library-worker" })
 
 try {
   const library = await loadComponents(logger, data.libraryModulePaths)
-  const result = evaluateProject(logger, library, data.allInstances, data.resolvedInputs)
+  const result = evaluateProject(
+    logger,
+    library,
+    data.virtualComponents,
+    data.allInstances,
+    data.resolvedInputs,
+  )
 
   parentPort?.postMessage(result)
 } catch (error) {

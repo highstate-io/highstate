@@ -1,6 +1,7 @@
 import type { LibraryBackend, ProjectEvaluationResult } from "../library"
 import type { PubSubManager } from "../pubsub"
 import type { LibraryModel, ProjectModel } from "../shared"
+import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
@@ -58,6 +59,7 @@ type ProjectModelEventPayload = {
 describe("ProjectEvaluationSubsystem", () => {
   const evaluationTest = test.extend<{
     libraryBackend: MockedObject<LibraryBackend>
+    libraryService: MockedObject<LibraryService>
     projectModelService: MockedObject<ProjectModelService>
     projectUnlockService: MockedObject<ProjectUnlockService>
     pubsubManager: MockedObject<PubSubManager>
@@ -76,6 +78,14 @@ describe("ProjectEvaluationSubsystem", () => {
       backend.getResolvedUnitSources.mockResolvedValue([])
 
       await use(backend)
+    },
+
+    libraryService: async ({}, use) => {
+      const service = vi.mockObject({
+        getVirtualComponentsCore: vi.fn().mockResolvedValue({}),
+      } as unknown as LibraryService)
+
+      await use(service)
     },
 
     projectModelService: async ({}, use) => {
@@ -129,6 +139,7 @@ describe("ProjectEvaluationSubsystem", () => {
       {
         database,
         libraryBackend,
+        libraryService,
         projectModelService,
         pubsubManager,
         projectUnlockService,
@@ -139,6 +150,7 @@ describe("ProjectEvaluationSubsystem", () => {
       const subsystem = new ProjectEvaluationSubsystem(
         database,
         libraryBackend,
+        libraryService,
         projectModelService,
         pubsubManager,
         projectUnlockService,
@@ -159,6 +171,38 @@ describe("ProjectEvaluationSubsystem", () => {
       | ProjectModelEventPayload
       | undefined
   }
+
+  evaluationTest(
+    "passes project virtual components to library evaluation",
+    async ({ subsystem, project, projectModelService, libraryBackend, libraryService, expect }) => {
+      const virtualComponents = {
+        "system.import.state-1.v1": libraryModel.components["component.v1"]!,
+      }
+
+      projectModelService.resolveProject.mockResolvedValue({
+        project,
+        library: clone(libraryModel),
+        instances: [],
+        stateMap: new Map(),
+        resolvedInputs: {},
+      })
+      libraryService.getVirtualComponentsCore.mockResolvedValue(virtualComponents)
+      libraryBackend.evaluateCompositeInstances.mockResolvedValue({
+        success: true,
+        virtualInstances: [],
+        topLevelErrors: {},
+      })
+
+      await subsystem.evaluateProject(project.id)
+
+      expect(libraryBackend.evaluateCompositeInstances).toHaveBeenCalledWith(
+        project.libraryId,
+        virtualComponents,
+        [],
+        {},
+      )
+    },
+  )
 
   evaluationTest(
     "does not promote existing virtual instances to ghosts when evaluation fails",

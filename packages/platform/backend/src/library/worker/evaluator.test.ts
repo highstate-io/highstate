@@ -123,6 +123,7 @@ describe("evaluateProject", () => {
         "consumer.v1": consumer,
         "child.v1": childUnit,
       } as unknown as Readonly<Record<string, Component>>,
+      {},
       allInstances,
       resolvedInputs,
     )
@@ -157,6 +158,7 @@ describe("evaluateProject", () => {
       {
         "missing-consumer.v1": consumer,
       } as unknown as Readonly<Record<string, Component>>,
+      {},
       [consumerInstance],
       {
         [consumerInstance.id]: {
@@ -211,6 +213,7 @@ describe("evaluateProject", () => {
         "right-producer.v1": rightProducer,
         "conflict-child.v1": childUnit,
       } as unknown as Readonly<Record<string, Component>>,
+      {},
       [
         createCompositeInstance("left-producer.v1", "left"),
         createCompositeInstance("right-producer.v1", "right"),
@@ -261,6 +264,7 @@ describe("evaluateProject", () => {
         "virtual-child.v1": childUnit,
         "top-level-unit.v1": topLevelUnit,
       } as unknown as Readonly<Record<string, Component>>,
+      {},
       [producerInstance, topLevelUnitInstance],
       {},
     )
@@ -316,6 +320,7 @@ describe("evaluateProject", () => {
         "dependency-source.v1": sourceUnit,
         "dependency-consumer.v1": consumer,
       } as unknown as Readonly<Record<string, Component>>,
+      {},
       [sourceInstance, consumerInstance],
       {
         [consumerInstance.id]: {
@@ -325,6 +330,49 @@ describe("evaluateProject", () => {
                 instanceId: sourceInstance.id,
                 output: "out",
               },
+              type: entity.model.type,
+            },
+          ],
+        },
+      },
+    )
+
+    expect(result.success).toBe(true)
+    if (!result.success) {
+      return
+    }
+
+    expect(result.topLevelErrors[consumerInstance.id]).toBeUndefined()
+  })
+
+  test("resolves dependency outputs from generated virtual units", () => {
+    const entity = defineEntity({
+      type: "virtual-dependency.entity.v1",
+      schema: z.object({ value: z.string() }),
+    })
+    const importUnit = defineUnit({
+      type: "system.import.state-1.v1",
+      outputs: { out: entity },
+      source: { package: "@test/unit", path: "import" },
+    })
+    const consumer = defineComponent({
+      type: "virtual-dependency-consumer.v1",
+      inputs: { dep: entity },
+      create: () => {},
+    })
+    const importInstance = createUnitInstance(importUnit.type, "port")
+    const consumerInstance = createCompositeInstance(consumer.type, "consumer")
+
+    const result = evaluateProject(
+      pino({ level: "silent" }),
+      { [consumer.type]: consumer } as unknown as Readonly<Record<string, Component>>,
+      { [importUnit.type]: importUnit.model },
+      [importInstance, consumerInstance],
+      {
+        [consumerInstance.id]: {
+          dep: [
+            {
+              input: { instanceId: importInstance.id, output: "out" },
               type: entity.model.type,
             },
           ],
