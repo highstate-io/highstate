@@ -1,5 +1,6 @@
-import { defineUnit } from "@highstate/contract"
+import { defineUnit, z } from "@highstate/contract"
 import { pick } from "remeda"
+import { folderEntity } from "../../common"
 import { l4EndpointEntity } from "../../network"
 import { appName, sharedArgs, sharedInputs, source } from "./shared"
 
@@ -11,11 +12,28 @@ export const wgFeedServer = defineUnit({
 
   args: {
     ...appName("wg-feed-server"),
-    ...pick(sharedArgs, ["fqdn"]),
+    ...pick(sharedArgs, ["fqdn", "replicas", "scheduling"]),
+
+    /**
+     * The regular expression matching paths served by the WG feed server.
+     *
+     * Must be provided together with `fallbackSite`.
+     */
+    pathPattern: z.string().optional(),
   },
 
   inputs: {
     ...pick(sharedInputs, ["k8sCluster", "accessPoint", "etcd"]),
+
+    /**
+     * The static site served for paths that do not match `pathPattern`.
+     *
+     * Must be provided together with `pathPattern`.
+     */
+    fallbackSite: {
+      entity: folderEntity,
+      required: false,
+    },
   },
 
   outputs: {
