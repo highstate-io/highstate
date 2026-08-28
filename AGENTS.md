@@ -16,7 +16,6 @@ Some simple rules to follow:
 Some additional notes:
 
 - Try to use LSP tools to check your code first. Using `bun run build` in most cases will not perform type checking. You can also use `bun run typecheck` where possible. In some cases, LSP tool may provide outdated diagnostics, so you can fall back to `bun run typecheck` if you suspect that.
-- Never call `bun run build` on Nuxt projects unless the user explicitly asks you to, as it is very slow.
 - Generate documentation thumbnails only with `bun run update-thumbnails -- --filter ... --force` from the docs package.
 - Use `bun run test` in desired package to run tests, not LSP tools.
 - Before reporting completion, rebuild all packages affected by your changes and report any build failures.
