@@ -16,6 +16,23 @@ export const adminProjectRole = {
   ],
 } satisfies RoleCreateInput
 
+export const workerProjectRole = {
+  systemName: "worker",
+  meta: {
+    title: "Worker",
+    description: "Grants worker service accounts access to manage their runtime resources.",
+  },
+  rules: [
+    {
+      permissions: ["worker.manage", "panel.update"],
+      restrictions: [{ type: "self" }],
+    },
+    {
+      permissions: ["instance-state.get", "instance-status.update"],
+    },
+  ],
+} satisfies RoleCreateInput
+
 export const adminProjectServiceAccount = {
   systemName: "admin",
   meta: {

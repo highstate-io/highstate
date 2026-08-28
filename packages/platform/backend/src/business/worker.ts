@@ -17,6 +17,7 @@ import {
   extractDigestFromImage,
   getWorkerIdentity,
   type WorkerUnitRegistrationEvent,
+  workerProjectRole,
 } from "../shared"
 import { WorkerVersionNotFoundError } from "../shared/models/errors"
 
@@ -223,6 +224,21 @@ export class WorkerService {
     worker: Worker,
     digest: string,
   ): Promise<WorkerVersion> {
+    const role = await tx.role.findUniqueOrThrow({
+      where: { systemName: workerProjectRole.systemName },
+      select: { id: true },
+    })
+    await tx.serviceAccountRoleBinding.upsert({
+      where: {
+        roleId_serviceAccountId: {
+          roleId: role.id,
+          serviceAccountId: worker.serviceAccountId,
+        },
+      },
+      create: { roleId: role.id, serviceAccountId: worker.serviceAccountId },
+      update: {},
+    })
+
     const existing = await tx.workerVersion.findUnique({ where: { digest } })
     if (existing) {
       return existing

@@ -5,7 +5,7 @@ import type { WorkerManager } from "../worker"
 import { randomBytes } from "node:crypto"
 import { createId } from "@paralleldrive/cuid2"
 import { describe, vi } from "vitest"
-import { extractDigestFromImage } from "../shared"
+import { extractDigestFromImage, workerProjectRole } from "../shared"
 import { test } from "../test-utils"
 import { WorkerService } from "./worker"
 
@@ -125,6 +125,24 @@ describe("updateUnitRegistrations", () => {
       expect(registrations[0].params).toEqual(unitWorker.params)
       expect(registrations[0].workerVersionId).toBeDefined()
       expect(registrations[0].stateId).toBe(instance.id)
+
+      const worker = await projectDatabase.workerVersion.findUniqueOrThrow({
+        where: { id: registrations[0].workerVersionId },
+        select: {
+          worker: {
+            select: {
+              serviceAccount: {
+                select: {
+                  roleBindings: { select: { role: { select: { systemName: true } } } },
+                },
+              },
+            },
+          },
+        },
+      })
+      expect(worker.worker.serviceAccount.roleBindings).toContainEqual({
+        role: { systemName: workerProjectRole.systemName },
+      })
     },
   )
 
@@ -141,11 +159,14 @@ describe("updateUnitRegistrations", () => {
       expect,
     }) => {
       // arrange
-      const unitWorker = createMockUnitWorker({ params: { key: "newValue" } })
       const instance = await createInstanceState(project.id)
 
       // create initial worker and version
       const worker = await createWorker()
+      const unitWorker = createMockUnitWorker({
+        image: `${worker.identity}@sha256:${randomBytes(32).toString("hex")}`,
+        params: { key: "newValue" },
+      })
       const workerVersion = await createWorkerVersion(worker, {
         digest: extractDigestFromImage(unitWorker.image),
       })
@@ -172,6 +193,14 @@ describe("updateUnitRegistrations", () => {
       expect(updatedRegistration).toBeDefined()
       expect(updatedRegistration?.params).toEqual(unitWorker.params)
       expect(updatedRegistration?.workerVersionId).toBe(workerVersion.id)
+
+      const binding = await projectDatabase.serviceAccountRoleBinding.findFirst({
+        where: {
+          serviceAccountId: worker.serviceAccountId,
+          role: { systemName: workerProjectRole.systemName },
+        },
+      })
+      expect(binding).not.toBeNull()
     },
   )
 

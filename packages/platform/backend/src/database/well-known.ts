@@ -8,7 +8,11 @@ import {
   globalProjectSpace,
   hostPulumiBackend,
 } from "../shared/models/backend/well-known"
-import { adminProjectRole, adminProjectServiceAccount } from "../shared/models/project/well-known"
+import {
+  adminProjectRole,
+  adminProjectServiceAccount,
+  workerProjectRole,
+} from "../shared/models/project/well-known"
 
 export async function ensureWellKnownEntitiesCreated(database: BackendDatabase): Promise<void> {
   const [, , , , , adminRole, adminServiceAccount] = await database.$transaction([
@@ -77,6 +81,11 @@ export async function ensureProjectWellKnownEntitiesCreated(
       where: { systemName: adminProjectServiceAccount.systemName },
       create: adminProjectServiceAccount,
       update: adminProjectServiceAccount,
+    }),
+    database.role.upsert({
+      where: { systemName: workerProjectRole.systemName },
+      create: workerProjectRole,
+      update: workerProjectRole,
     }),
   ])
 
