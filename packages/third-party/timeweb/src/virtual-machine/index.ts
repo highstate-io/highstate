@@ -15,14 +15,15 @@ const { name, args, secrets, getSecret, inputs, outputs } = forUnit(timeweb.virt
 const provider = await createProvider(inputs.connection)
 
 const vmName = args.vmName ?? name
-const sshPrivateKey = getSecret("sshPrivateKey", generateSshPrivateKey)
-const keyPair = sshPrivateKey.apply(sshPrivateKeyToKeyPair)
+const sshKeyPair =
+  inputs.sshKeyPair ??
+  getSecret("sshPrivateKey", generateSshPrivateKey).apply(sshPrivateKeyToKeyPair)
 
 const sshKey = new SshKey(
   "ssh-key",
   {
     name: vmName,
-    body: keyPair.publicKey,
+    body: sshKeyPair.publicKey,
   },
   { provider },
 )
@@ -37,7 +38,7 @@ const floatingIp = new FloatingIp(
   { provider },
 )
 
-new TimewebServer(
+const virtualMachine = new TimewebServer(
   "virtual-machine",
   {
     name: vmName,
@@ -52,6 +53,8 @@ new TimewebServer(
   { provider },
 )
 
+await toPromise(virtualMachine.status)
+
 const serverIp = await toPromise(floatingIp.ip)
 const endpoint = parseEndpoint(serverIp)
 
@@ -59,7 +62,7 @@ const { server, terminal } = await createServerBundle({
   name: vmName,
   endpoints: [endpoint],
   sshArgs: args.ssh,
-  sshPrivateKey,
+  sshKeyPair,
   sshPassword: secrets.rootPassword,
 })
 
