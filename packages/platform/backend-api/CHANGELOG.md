@@ -1,3 +1,13 @@
+## 0.29.0 (2026-08-29)
+
+### 🩹 Fixes
+
+- expose operation planning validation errors ([8d7eb0c](https://github.com/highstate-io/highstate/commit/8d7eb0c))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.28.0 (2026-08-25)
 
 ### 🚀 Features

@@ -1,3 +1,14 @@
+## 0.27.0 (2026-08-29)
+
+### 🚀 Features
+
+- **@highstate/wireguard:** configure node ports and listeners ([1d5c940](https://github.com/highstate-io/highstate/commit/1d5c940))
+- **@highstate/wireguard:** expose feed document utilities ([2656e25](https://github.com/highstate-io/highstate/commit/2656e25))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.26.1 (2026-08-25)
 
 ### 🚀 Features

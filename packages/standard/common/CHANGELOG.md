@@ -1,3 +1,17 @@
+## 0.27.0 (2026-08-29)
+
+### 🚀 Features
+
+- support typed gateway path matches ([0628121](https://github.com/highstate-io/highstate/commit/0628121))
+
+### 🩹 Fixes
+
+- **@highstate/common:** materialize embedded folder files ([c13cdc1](https://github.com/highstate-io/highstate/commit/c13cdc1))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.26.1 (2026-08-25)
 
 ### 🚀 Features

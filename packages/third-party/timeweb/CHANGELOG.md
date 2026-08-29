@@ -1,3 +1,13 @@
+## 0.27.0 (2026-08-29)
+
+### 🩹 Fixes
+
+- **@highstate/timeweb:** honor ssh keys and await provisioning ([12da72a](https://github.com/highstate-io/highstate/commit/12da72a))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.26.1 (2026-08-25)
 
 ### 🚀 Features

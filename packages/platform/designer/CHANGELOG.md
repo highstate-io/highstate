@@ -1,3 +1,14 @@
+## 0.29.0 (2026-08-29)
+
+### 🩹 Fixes
+
+- **@highstate/designer:** preserve demoted ghost instances ([cfa3f4e](https://github.com/highstate-io/highstate/commit/cfa3f4e))
+- refresh imported virtual components ([4c95f0d](https://github.com/highstate-io/highstate/commit/4c95f0d))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.28.0 (2026-08-25)
 
 ### 🚀 Features

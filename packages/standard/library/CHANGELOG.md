@@ -1,3 +1,15 @@
+## 0.27.0 (2026-08-29)
+
+### 🚀 Features
+
+- **@highstate/wireguard:** configure node ports and listeners ([1d5c940](https://github.com/highstate-io/highstate/commit/1d5c940))
+- **@highstate/k8s.apps:** add wg feed fallback sites ([c7e275e](https://github.com/highstate-io/highstate/commit/c7e275e))
+- **@highstate/k8s.apps:** support replicated etcd clusters ([9ce5be0](https://github.com/highstate-io/highstate/commit/9ce5be0))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.26.1 (2026-08-25)
 
 ### 🚀 Features

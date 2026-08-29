@@ -1,3 +1,14 @@
+## 0.29.0 (2026-08-29)
+
+### 🩹 Fixes
+
+- **@highstate/mcp:** align model update validation ([d1ec75a](https://github.com/highstate-io/highstate/commit/d1ec75a))
+- expose operation planning validation errors ([8d7eb0c](https://github.com/highstate-io/highstate/commit/8d7eb0c))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.28.0 (2026-08-25)
 
 ### 🚀 Features

@@ -1,3 +1,20 @@
+## 0.29.0 (2026-08-29)
+
+### 🚀 Features
+
+- **@highstate/backend:** grant workers runtime permissions ([2ddd8e7](https://github.com/highstate-io/highstate/commit/2ddd8e7))
+
+### 🩹 Fixes
+
+- **@highstate/backend:** stabilize lock retry test ([28c424b](https://github.com/highstate-io/highstate/commit/28c424b))
+- refresh imported virtual components ([4c95f0d](https://github.com/highstate-io/highstate/commit/4c95f0d))
+- **@highstate/backend:** create project nodes outside transactions ([92d09a3](https://github.com/highstate-io/highstate/commit/92d09a3))
+- expose operation planning validation errors ([8d7eb0c](https://github.com/highstate-io/highstate/commit/8d7eb0c))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.28.0 (2026-08-25)
 
 ### 🚀 Features
