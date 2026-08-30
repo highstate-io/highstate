@@ -1,37 +1,6 @@
-# 1. at build stage, we just resolve all external dependencies and create up-to-date node_modules
-FROM oven/bun:1.3.11-alpine AS builder
+FROM oven/bun:1.3.13-alpine
 
 WORKDIR /app
-COPY . .
-COPY package.json ./
-COPY bun.lock ./
+COPY dist ./
 
-RUN bun install --production --filter @highstate/k8s.monitor-worker
-
-# 2. at run stage, we copy only the node_modules and the built code for the app and local dependencies
-FROM oven/bun:1.3.11-alpine
-
-WORKDIR /app
-COPY --from=builder /app/node_modules /app/node_modules
-
-COPY --from=builder /app/packages/platform/contract/dist /app/packages/platform/contract/dist
-COPY --from=builder /app/packages/platform/contract/package.json /app/packages/platform/contract/package.json
-COPY --from=builder /app/packages/platform/contract/node_modules /app/packages/platform/contract/node_modules
-
-COPY --from=builder /app/packages/standard/library/dist /app/packages/standard/library/dist
-COPY --from=builder /app/packages/standard/library/package.json /app/packages/standard/library/package.json
-COPY --from=builder /app/packages/standard/library/node_modules /app/packages/standard/library/node_modules
-
-COPY --from=builder /app/packages/platform/worker-sdk/dist /app/packages/platform/worker-sdk/dist
-COPY --from=builder /app/packages/platform/worker-sdk/package.json /app/packages/platform/worker-sdk
-COPY --from=builder /app/packages/platform/worker-sdk/node_modules /app/packages/platform/worker-sdk/node_modules
-
-COPY --from=builder /app/packages/platform/api/dist /app/packages/platform/api/dist
-COPY --from=builder /app/packages/platform/api/package.json /app/packages/platform/api/package.json
-COPY --from=builder /app/packages/platform/api/node_modules /app/packages/platform/api/node_modules
-
-COPY --from=builder /app/packages/standard/k8s.monitor-worker/dist /app/packages/standard/k8s.monitor-worker/dist
-COPY --from=builder /app/packages/standard/k8s.monitor-worker/package.json /app/packages/standard/k8s.monitor-worker/package.json
-COPY --from=builder /app/packages/standard/k8s.monitor-worker/node_modules /app/packages/standard/k8s.monitor-worker/node_modules
-
-CMD ["bun", "packages/standard/k8s.monitor-worker/dist/index.js"]
+CMD ["bun", "index.js"]

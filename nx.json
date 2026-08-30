@@ -31,16 +31,6 @@
       "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/coverage"]
     },
-    "build-image": {
-      "cache": false,
-      "dependsOn": ["build"],
-      "outputs": []
-    },
-    "push-image": {
-      "cache": false,
-      "dependsOn": ["build-image"],
-      "outputs": []
-    },
     "biome": {
       "cache": true,
       "outputs": []
