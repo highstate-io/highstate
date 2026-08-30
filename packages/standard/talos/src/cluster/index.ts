@@ -17,6 +17,7 @@ import { KubeConfig } from "@kubernetes/client-node"
 import { core, Provider } from "@pulumi/kubernetes"
 import { cluster, machine } from "@pulumiverse/talos"
 import { uniqueBy } from "remeda"
+import images from "../../assets/images.json"
 
 const {
   name,
@@ -327,7 +328,7 @@ export default outputs({
       },
 
       spec: {
-        image: "ghcr.io/highstate-io/highstate/terminal.talosctl",
+        image: images["terminal-talosctl"].image,
         command: ["bash", "/welcome.sh"],
 
         files: {

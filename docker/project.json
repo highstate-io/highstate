@@ -21,6 +21,15 @@
     "build-images": {
       "executor": "nx:run-commands",
       "cache": false,
+      "dependsOn": ["prepare-images"],
+      "options": {
+        "command": "docker buildx bake --file docker/docker-bake.hcl images --load",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "prepare-images": {
+      "executor": "nx:run-commands",
+      "cache": true,
       "dependsOn": [
         {
           "projects": [
@@ -35,26 +44,14 @@
         }
       ],
       "options": {
-        "command": "docker buildx bake --file docker/docker-bake.hcl images --load",
+        "command": "true",
         "cwd": "{workspaceRoot}"
       }
     },
     "publish-images": {
       "executor": "nx:run-commands",
       "cache": false,
-      "dependsOn": [
-        {
-          "projects": [
-            "@highstate/k8s.monitor-worker",
-            "@highstate/k8s.dashboard-worker"
-          ],
-          "target": "build"
-        },
-        {
-          "projects": ["@highstate/k8s.dashboard-worker"],
-          "target": "build-plugin"
-        }
-      ],
+      "dependsOn": ["prepare-images"],
       "options": {
         "command": "docker buildx bake --file docker/docker-bake.hcl images --push",
         "cwd": "{workspaceRoot}"

@@ -25,6 +25,7 @@
     "ci:prepare": "scripts/bootstrap-cli.sh && bun install",
     "ci:release": "nx run-many -t test,build,biome:check,publish-images,typecheck",
     "ci:verify": "nx affected --base=origin/main -t test,biome:check,typecheck,check,links",
+    "test:scripts": "bun run --bun vitest run scripts",
     "dev:build": "nx run-many -t build --exclude @highstate/designer --exclude @highstate/docs",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
@@ -35,6 +36,7 @@
     "@types/node": "^24",
     "bun-types": "^1.3.13",
     "nx": "^22.7.5",
+    "pkg-pr-new": "^0.0.88",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "catalog:",

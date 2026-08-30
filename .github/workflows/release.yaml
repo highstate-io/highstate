@@ -6,6 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/highstate-io
 
 jobs:
   release:
@@ -47,8 +48,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          install: true
 
       - name: Configure git
         run: |
@@ -60,9 +59,11 @@ jobs:
 
       - name: Configure image build
         run: |
-          echo "TAGS=latest,${GITHUB_SHA::7}" >> "$GITHUB_ENV"
-          echo "PLATFORMS=linux/amd64,linux/arm64" >> "$GITHUB_ENV"
-          echo "CACHE_REPOSITORY=ghcr.io/highstate-io/highstate/build-cache" >> "$GITHUB_ENV"
+          {
+            echo "TAGS=latest,${GITHUB_SHA::7}"
+            echo "PLATFORMS=linux/amd64,linux/arm64"
+            echo "CACHE_REPOSITORY=ghcr.io/highstate-io/dev/build-cache"
+          } >> "$GITHUB_ENV"
 
       - name: Run release tasks
         env:
@@ -72,6 +73,31 @@ jobs:
           bun run ci:prepare
           bun run ci:release
           bunx nx-cloud stop-all-agents
+
+      - name: Synchronize production image references
+        id: images
+        run: |
+          docker buildx bake --file docker/docker-bake.hcl images --print > trusted-bake.json
+          bun scripts/sync-repository-images.ts \
+            --prefix "$IMAGE_PREFIX" \
+            --tag latest \
+            --bake trusted-bake.json \
+            --output image-metadata.json
+
+      - name: Commit image references
+        id: image-commit
+        run: |
+          if git diff --quiet -- 'packages/**/assets/images.json'; then exit 0; fi
+          git add -- 'packages/**/assets/images.json'
+          git commit -m 'chore: update release image hashes [skip ci]'
+          git push origin HEAD:main
+
+      - name: Rebuild packages affected by image references
+        if: steps.image-commit.outcome == 'success'
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+            bun nx affected --base="$GITHUB_SHA" --head=HEAD -t build
+          fi
 
       - name: Publish packages
         run: bun nx release -y || echo "Failed to publish packages, but continuing to deploy docs"

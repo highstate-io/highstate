@@ -1,0 +1,254 @@
+name: PR Preview
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_PREFIX: ghcr.io/highstate-io/dev
+  IMAGE_TAG: pr-${{ github.event.pull_request.number }}
+
+jobs:
+  build-images:
+    name: Build preview images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: true
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.13
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Prepare
+        run: |
+          bun install --frozen-lockfile
+          bun run ci:prepare
+
+      - name: Build OCI archives
+        env:
+          TAGS: ${{ env.IMAGE_TAG }}
+          PLATFORMS: linux/amd64,linux/arm64
+        run: |
+          bun nx run docker-images:prepare-images
+          mkdir -p preview-images
+          docker buildx bake --file docker/docker-bake.hcl images --print > preview-bake.json
+          mapfile -t targets < <(jq -r '.group.images.targets[]' preview-bake.json)
+          outputs=()
+          for target in "${targets[@]}"; do
+            outputs+=(--set "$target.output=type=oci,dest=preview-images/$target.tar")
+          done
+          docker buildx bake --file docker/docker-bake.hcl images "${outputs[@]}"
+
+      - name: Upload images
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-images
+          path: preview-images/*.tar
+          retention-days: 1
+
+  publish-images:
+    name: Publish preview images
+    needs: build-images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    outputs:
+      sha: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout trusted tools
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+
+      - name: Download images
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-images
+          path: images
+
+      - name: Install publication tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.13
+
+      - name: Publish trusted bake images
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAGS: ${{ env.IMAGE_TAG }}
+        run: |
+          skopeo login ghcr.io --username 'github-actions[bot]' --password-stdin <<< "$GHCR_TOKEN"
+          docker buildx bake --file trusted/docker/docker-bake.hcl images --print > trusted-bake.json
+          mapfile -t targets < <(jq -r '.group.images.targets[]' trusted-bake.json)
+          for target in "${targets[@]}"; do
+            test -f "images/$target.tar"
+            reference=$(jq -r --arg target "$target" '.target[$target].tags[0]' trusted-bake.json)
+            if [[ "$reference" != "$IMAGE_PREFIX/"*":$IMAGE_TAG" ]]; then
+              echo "Untrusted bake image reference: $reference" >&2
+              exit 1
+            fi
+            skopeo copy --all "oci-archive:images/$target.tar" "docker://$reference"
+          done
+
+      - name: Record published image digests
+        run: |
+          bun trusted/scripts/sync-repository-images.ts \
+            --root trusted \
+            --prefix "$IMAGE_PREFIX" \
+            --tag "$IMAGE_TAG" \
+            --bake trusted-bake.json \
+            --output published-images.json
+
+      - name: Upload published image metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-images
+          path: published-images.json
+          retention-days: 1
+
+  publish-packages:
+    name: Publish preview packages
+    needs: publish-images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ needs.publish-images.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: true
+
+      - name: Fetch base branch
+        run: git fetch 'https://github.com/${{ github.repository }}.git' '${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}'
+
+      - name: Checkout trusted package selector
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted-checkout
+          persist-credentials: false
+
+      - name: Isolate trusted package selector
+        run: |
+          mv trusted-checkout /tmp/highstate-trusted
+          git status --porcelain
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.13
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Prepare
+        run: |
+          bun install --frozen-lockfile
+          bun run ci:prepare
+
+      - name: Download published image metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: published-images
+          path: metadata
+
+      - name: Synchronize image references
+        run: |
+          bun /tmp/highstate-trusted/scripts/apply-repository-images.ts \
+            --root . \
+            --metadata metadata/published-images.json
+
+      - name: Select and build affected packages
+        id: packages
+        run: |
+          paths=$(bun /tmp/highstate-trusted/scripts/affected-package-paths.ts --root . --trusted-root /tmp/highstate-trusted --base origin/main --output affected-packages.json)
+          echo "paths=$paths" >> "$GITHUB_OUTPUT"
+          if [ -n "$paths" ]; then bun nx run-many -t build --projects="$(jq -r 'map(.name) | join(",")' affected-packages.json)"; fi
+
+      - name: Publish packages
+        if: steps.packages.outputs.paths != ''
+        run: bun run pkg-pr-new publish --previewVersion --comment=off --packageManager=bun --no-template --no-compact --json=package-metadata.json ${{ steps.packages.outputs.paths }}
+
+      - name: Write empty package metadata
+        if: steps.packages.outputs.paths == ''
+        run: printf '{"packages":[],"templates":[]}' > package-metadata.json
+
+      - name: Upload preview metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-metadata
+          path: package-metadata.json
+          retention-days: 1
+
+  comment:
+    name: Update preview comment
+    needs: [publish-images, publish-packages]
+    if: always() && needs.publish-packages.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout trusted metadata
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+
+      - name: Download metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-metadata
+          path: metadata
+
+      - name: Download image metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: published-images
+          path: metadata
+
+      - name: Update comment
+        uses: actions/github-script@v7
+        env:
+          SOURCE_SHA: ${{ needs.publish-images.outputs.sha }}
+        with:
+          script: await require('./trusted/.github/scripts/update-pr-preview-comment.cjs')({ github, context })
