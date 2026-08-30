@@ -12,33 +12,51 @@ jobs:
         with:
           submodules: true
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@2126ae7fc54c9df00dd18f7f18754393182c73cd # v31.9.1
-
-      - name: Configure devenv cache
-        uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          name: devenv
+          bun-version: 1.3.13
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Fetch all tags
         run: git fetch --unshallow --tags
 
-      - name: Install devenv
-        run: nix profile add nixpkgs#devenv
-
-      - name: Build CI environment
-        run: devenv shell --profile ci -- true
-
       - name: Install dependencies
-        shell: devenv shell --profile ci bash -- -e {0}
         run: bun install --frozen-lockfile
 
+      - name: Install affected verification tools
+        run: |
+          affected_projects="$(bun nx show projects --affected --base=origin/main --with-target=check --json | jq -r '.[]')"
+          tools_dir="$RUNNER_TEMP/verification-tools"
+          mkdir -p "$tools_dir"
+
+          if grep -qxE '@highstate/docs|dev-docs|orca-vm' <<< "$affected_projects"; then
+            curl -fsSL https://github.com/rvben/rumdl/releases/download/v0.1.86/rumdl-v0.1.86-x86_64-unknown-linux-gnu.tar.gz \
+              | tar -xz -C "$tools_dir"
+            curl -fsSL https://github.com/errata-ai/vale/releases/download/v3.14.1/vale_3.14.1_Linux_64-bit.tar.gz \
+              | tar -xz -C "$tools_dir" vale
+          fi
+
+          if grep -qx 'dev-docs' <<< "$affected_projects"; then
+            curl -fsSL https://github.com/lycheeverse/lychee/releases/download/lychee-v0.23.0/lychee-x86_64-unknown-linux-gnu.tar.gz \
+              | tar -xz -C "$tools_dir" lychee
+          fi
+
+          if grep -qx 'orca-vm' <<< "$affected_projects"; then
+            curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.gz \
+              | tar -xz -C "$tools_dir" --strip-components=1 shellcheck-v0.11.0/shellcheck
+          fi
+
+          echo "$tools_dir" >> "$GITHUB_PATH"
+
       - name: Prepare
-        shell: devenv shell --profile ci bash -- -e {0}
         run: bun run ci:prepare
 
       - name: Verify
-        shell: devenv shell --profile ci bash -- -e {0}
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: bun run ci:verify
