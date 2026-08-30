@@ -56,11 +56,12 @@ export class BuildCommand extends Command {
     const packageJson = await readPackageJSON()
 
     const highstateConfig = highstateConfigSchema.parse(packageJson.highstate ?? {})
+    const isWorker = highstateConfig.type === "worker"
     if (highstateConfig.type === "library") {
       this.library = true
     }
 
-    if (highstateConfig.type === "worker") {
+    if (isWorker) {
       this.noSourceHash = true
     }
 
@@ -98,9 +99,9 @@ export class BuildCommand extends Command {
       root: "./src",
       format: "esm",
       target: "bun",
-      external: ["@pulumi/pulumi"],
-      packages: "external",
-      splitting: true,
+      external: isWorker ? [] : ["@pulumi/pulumi"],
+      packages: isWorker ? "bundle" : "external",
+      splitting: !isWorker,
       plugins: bunPlugins,
     })
 
