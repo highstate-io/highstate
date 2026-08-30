@@ -20,7 +20,9 @@ validation, and safeguards.
 A `provisioned-root` provider returns schema version 2 and prepares the primary checkout at the returned project
 root.
 Shared workspace setup checks out the exact commit supplied by Orca, initializes recursive submodules, and
-verifies the shared toolchain before handoff.
+verifies the shared toolchain.
+It then installs locked dependencies, runs the repository preparation script, and builds every Nx project before
+handoff.
 
 Lifecycle scripts reserve standard output for Orca's final JSON result.
 Progress and diagnostics go to standard error.
