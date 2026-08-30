@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/refs/heads/master/packages/nx/schemas/project-schema.json",
+  "name": "dev-docs",
+  "projectType": "library",
+  "root": "dev-docs",
+  "targets": {
+    "check": {
+      "cache": true,
+      "dependsOn": ["markdown:check", "prose:check"],
+      "outputs": [],
+      "executor": "nx:noop"
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rumdl fmt dev-docs",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "links": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default", "{workspaceRoot}/lychee.toml"],
+      "outputs": [],
+      "options": {
+        "command": "lychee --config lychee.toml 'dev-docs/**/*.md'",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "markdown:check": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default", "{workspaceRoot}/.rumdl.toml"],
+      "outputs": [],
+      "options": {
+        "command": "rumdl check dev-docs",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "prose:check": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default", "{workspaceRoot}/.vale.ini", "{workspaceRoot}/.vale/**/*"],
+      "outputs": [],
+      "options": {
+        "command": "vale dev-docs",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["scope:dev-docs"]
+}
