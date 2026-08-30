@@ -11,7 +11,7 @@ First of all, let's negotiate the terminology.
 Without the right terms no science can be done!
 And while we are not doing science here, we still need to have a common language.
 
-In this section, we will give definitions, show motivation behind the concepts, and explain how are they related to each other. 
+In this section, we will give definitions, show motivation behind the concepts, and explain how are they related to each other.
 
 ## Components
 
@@ -31,7 +31,7 @@ In the Highstate standard library, we have a set of predefined components that c
 We try to keep these components small and focused on a single task,
 so they can be easily reused and combined with other components.
 
-For example, we have a component called `common.existing-server.v1` which allows you to bring an existing server into the control of Highstate. 
+For example, we have a component called `common.existing-server.v1` which allows you to bring an existing server into the control of Highstate.
 Some other components like `proxmox.virtual-machine.v1` or `k3s.cluster.v1` may create some new infrastructure
 to be used by other components.
 
@@ -109,7 +109,7 @@ Learn how to define custom components and entities for your infrastructure.
 ## Units
 
 Well, now we have a way to define our infrastructure as a graph of components (or, more precisely, instances) that pass entities between each other.
-But how do we actually implement these components? 
+But how do we actually implement these components?
 
 There are a lot of good IaC tools like **Terraform**, **Pulumi**, **Ansible**, and we obviously don't want to reinvent the wheel.
 

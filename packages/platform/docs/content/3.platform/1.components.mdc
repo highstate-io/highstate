@@ -32,7 +32,7 @@ The standard library follows the same structure: `@highstate/library` contains c
 
 Here the folder structure you get:
 
-```
+```text
 .
 ├── packages
 │   ├── library          # component definitions
@@ -50,7 +50,7 @@ Here the minimal `package.json` for root folder:
 {
   "name": "acme",
   "private": true,
-  "packageManager": "bun@1.3.11",
+  "packageManager": "bun@1.3.13",
   "workspaces": ["packages/*"],
   "dependencies": {
     "@highstate/contract": "^0",
@@ -230,7 +230,7 @@ Here's what you get:
 | `z.enum([...])` | Dropdown select |
 | `z.enum([...]).array()` | Multi-select dropdown |
 | `z.object({...})` _(1 level deep)_ | The group of inputs |
-| `other` | YAML editor with schema validation | 
+| `other` | YAML editor with schema validation |
 
 Want to see all these types in action?
 Here's our blog with every argument type:
@@ -298,7 +298,7 @@ To prevent confusion, certain "empty" values are always considered as `not set`:
 
 The only exception is `z.boolean()`, which can be set to `false` and still be considered a valid value.
 
-If you explicitly set an argument to one of these values __OR__ to the default value, it will be removed from the component configuration.
+If you explicitly set an argument to one of these values **OR** to the default value, it will be removed from the component configuration.
 This behavior allows users to easily reset arguments to their defaults.
 
 Here are some examples to illustrate this behavior:
@@ -311,7 +311,7 @@ Here are some examples to illustrate this behavior:
    If you set it to `{}` or don't set it at all, the value will be removed from the component configuration.
    Your component implementation will receive an empty object `{}` in both cases.
 
-3. __But__ if you define an argument as `z.boolean().default(true)`, and you set it to `false`, the value will be kept in the component configuration.
+3. **But** if you define an argument as `z.boolean().default(true)`, and you set it to `false`, the value will be kept in the component configuration.
    However, if you define it as `z.boolean().default(false)`, and you set it to `false`, the value will be removed from the component configuration not because it's empty, but because it matches the default value.
 
 This behavior allows user to easily reset the argument to its defaults.

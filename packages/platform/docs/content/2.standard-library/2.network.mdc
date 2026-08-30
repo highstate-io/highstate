@@ -1,5 +1,5 @@
 ---
-title: Network 
+title: Network
 description: Highstate abstractions to work with network.
 navigation:
   icon: i-mdi-network
@@ -229,7 +229,6 @@ const endpoint5 = parseEndpoint("https://example.com:443/api")
 const str5 = l7EndpointToString(endpoint5) // "https://example.com:443/api"
 ```
 
-
 ### Endpoint Filter
 
 Almost every entity working with endpoints supports multiple endpoints.
@@ -271,7 +270,7 @@ This component outputs only hostname endpoints of the created DNS records, "mask
 If you need to merge DNS endpoints with other endpoints (to support both DNS and direct IP connectivity),
 you can use Highstate's native ability to merge entities from multiple sources.
 
-Just connect the outputs of both the DNS record set and the original endpoints to the target entity: 
+Just connect the outputs of both the DNS record set and the original endpoints to the target entity:
 
 ::designer-preview{title="DNS Record Set Merged" type="snippet" id="standard-library/network/dns-record-set-merged"}
 ::

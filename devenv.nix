@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   inputs,
   ...
@@ -25,25 +26,30 @@ in {
     crd2pulumi
     kubectl
     pkgs-unstable.kubernetes-helm
-    cilium-cli
-    talosctl
     yq-go
     jq
-    terraform
     nixos-anywhere
     sops
     ssh-to-age
-    clang-tools
-    protobuf
-    grpc-tools
-    python3
+    lychee
+    rumdl
+    shellcheck
+    vale
 
     # for libavoid-rust
     rustup
-    rustc
-    cargo
     wasm-pack
-    wasm-bindgen-cli
-    binaryen
   ];
+
+  profiles.ci.module = {
+    env.CHROMIUM_PATH = lib.mkForce null;
+    packages = lib.mkForce (with pkgs; [
+      bun
+      nodejs_24
+      lychee
+      rumdl
+      shellcheck
+      vale
+    ]);
+  };
 }

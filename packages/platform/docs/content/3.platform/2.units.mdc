@@ -23,23 +23,23 @@ import { defineUnit, z } from "@highstate/contract"
 
 export const postgresUnit = defineUnit({
   type: "mycompany.postgres.v1",
-  
+
   args: {
     size: z.number().default(10),
   },
-  
+
   secrets: {
     password: z.string().optional(),
   },
-  
+
   inputs: {
     network: networkEntity,
   },
-  
+
   outputs: {
     database: databaseEntity,
   },
-  
+
   source: {
     package: "@acme/units",
     path: "postgres",
@@ -300,7 +300,7 @@ You can show simple values or arrays of them.
 ```typescript
 export default outputs({
   server: { /* ... */ },
-  
+
   $statusFields: {
     ipAddress: server.publicIp,
     endpoints: server.endpoints.apply(l4EndpointToString)
@@ -410,13 +410,13 @@ const { invokedTriggers } = forUnit(myUnit)
 
 function handleTrigger(triggers: TriggerInvocation[]): UnitTrigger | undefined {
   const trigger = triggers.find(t => t.name === "backup")
-  
+
   if (trigger) {
     // perform backup
     new provider.BackupJob(`${name}-backup`, {})
     return undefined
   }
-  
+
   return {
     name: "backup",
     meta: { title: "Backup" },

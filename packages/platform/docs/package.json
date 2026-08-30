@@ -1,6 +1,36 @@
 {
   "name": "@highstate/docs",
   "private": true,
+  "nx": {
+    "targets": {
+      "check": {
+        "cache": true,
+        "dependsOn": ["markdown:check", "prose:check"],
+        "outputs": [],
+        "executor": "nx:noop"
+      },
+      "markdown:check": {
+        "cache": true,
+        "executor": "nx:run-commands",
+        "inputs": ["default", "{workspaceRoot}/.rumdl.toml"],
+        "outputs": [],
+        "options": {
+          "command": "rumdl check packages/platform/docs/content --include '**/*.mdc' --enable MD001,MD009,MD012,MD031,MD040,MD046,MD048,MD050",
+          "cwd": "{workspaceRoot}"
+        }
+      },
+      "prose:check": {
+        "cache": true,
+        "executor": "nx:run-commands",
+        "inputs": ["default", "{workspaceRoot}/.vale.ini", "{workspaceRoot}/.vale/**/*"],
+        "outputs": [],
+        "options": {
+          "command": "vale packages/platform/docs/content",
+          "cwd": "{workspaceRoot}"
+        }
+      }
+    }
+  },
   "scripts": {
     "dev": "nuxt dev",
     "build": "cd ../designer && nuxt prepare && cd ../docs/docus/layer && nuxt build && cd ../.. && NODE_OPTIONS=--max-old-space-size=4096 nuxt generate",

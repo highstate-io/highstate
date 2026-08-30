@@ -1,0 +1,9 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: error
+ignorecase: false
+swap:
+  Github: GitHub
+  HighState: Highstate
+  Javascript: JavaScript
+  Typescript: TypeScript

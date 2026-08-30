@@ -70,7 +70,7 @@ The Highstate is probably not for you if:
 ## The planned features that are not implemented yet
 
 - Self-Hosted/Cloud version (you can only use it as local tool right now)
-- Multi-user support and access control 
+- Multi-user support and access control
 - Collaboration features
 - Something else that is absolutely critical for production use
 

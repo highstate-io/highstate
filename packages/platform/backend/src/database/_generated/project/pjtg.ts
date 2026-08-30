@@ -6,7 +6,6 @@ declare global {
     // your declaration merging file is included in your tsconfig.json
     //
     // Learn more: https://github.com/arthurfiorette/prisma-json-types-generator/issues/143
-    // Declaration Merging: https://www.typescriptlang.org/docs/handbook/declaration-merging.html
   }
 }
 

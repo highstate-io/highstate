@@ -11,7 +11,7 @@ In Highstate, any server can be represented as a `common.server.v1` entity.
 
 Strictly speaking, a server is everything that:
 
-- has network connectivity and endpoints; 
+- has network connectivity and endpoints;
 - optionally, has SSH access available on these endpoints;
 - has `hostname` defined (which can be arbitrary string and used for display purposes).
 
