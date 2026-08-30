@@ -26,6 +26,10 @@ jobs:
       - name: Install devenv
         run: nix profile install nixpkgs#devenv
 
+      - name: Install dependencies
+        shell: devenv shell --profile ci bash -- -e {0}
+        run: bun install --frozen-lockfile
+
       - name: Prepare
         shell: devenv shell --profile ci bash -- -e {0}
         run: bun run ci:prepare
