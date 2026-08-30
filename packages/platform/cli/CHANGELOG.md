@@ -1,3 +1,13 @@
+## 0.30.0 (2026-08-30)
+
+### 🚀 Features
+
+- add trusted pull request previews ([40af35b](https://github.com/highstate-io/highstate/commit/40af35b))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.29.1 (2026-08-30)
 
 ### 🩹 Fixes
