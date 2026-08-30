@@ -35,20 +35,34 @@ jobs:
           mkdir -p "$tools_dir"
 
           if grep -qxE '@highstate/docs|dev-docs|orca-vm' <<< "$affected_projects"; then
-            curl -fsSL https://github.com/rvben/rumdl/releases/download/v0.1.86/rumdl-v0.1.86-x86_64-unknown-linux-gnu.tar.gz \
-              | tar -xz -C "$tools_dir"
-            curl -fsSL https://github.com/errata-ai/vale/releases/download/v3.14.1/vale_3.14.1_Linux_64-bit.tar.gz \
-              | tar -xz -C "$tools_dir" vale
+            curl -fsSL -o "$tools_dir/rumdl.tar.gz" \
+              https://github.com/rvben/rumdl/releases/download/v0.1.86/rumdl-v0.1.86-x86_64-unknown-linux-gnu.tar.gz
+            echo "2f411532ab0aac40b2c4c9b5b70cb96061f274771e846dcf6f6d6fe4469b74af  $tools_dir/rumdl.tar.gz" \
+              | sha256sum --check --strict --status -
+            tar -xzf "$tools_dir/rumdl.tar.gz" -C "$tools_dir" rumdl
+
+            curl -fsSL -o "$tools_dir/vale.tar.gz" \
+              https://github.com/errata-ai/vale/releases/download/v3.14.1/vale_3.14.1_Linux_64-bit.tar.gz
+            echo "ff2b49ffaa9dcd246fd5008f03ff67746d2790b75bf4d3657e2fb9530fb96db3  $tools_dir/vale.tar.gz" \
+              | sha256sum --check --strict --status -
+            tar -xzf "$tools_dir/vale.tar.gz" -C "$tools_dir" vale
           fi
 
           if grep -qx 'dev-docs' <<< "$affected_projects"; then
-            curl -fsSL https://github.com/lycheeverse/lychee/releases/download/lychee-v0.23.0/lychee-x86_64-unknown-linux-gnu.tar.gz \
-              | tar -xz -C "$tools_dir" lychee
+            curl -fsSL -o "$tools_dir/lychee.tar.gz" \
+              https://github.com/lycheeverse/lychee/releases/download/lychee-v0.23.0/lychee-x86_64-unknown-linux-gnu.tar.gz
+            echo "1fcb6ccf10d04c22b8c5873c5b9cb7be32ee7423e12169d6f1a79a6f1962ef81  $tools_dir/lychee.tar.gz" \
+              | sha256sum --check --strict --status -
+            tar -xzf "$tools_dir/lychee.tar.gz" -C "$tools_dir" lychee
           fi
 
           if grep -qx 'orca-vm' <<< "$affected_projects"; then
-            curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.gz \
-              | tar -xz -C "$tools_dir" --strip-components=1 shellcheck-v0.11.0/shellcheck
+            curl -fsSL -o "$tools_dir/shellcheck.tar.gz" \
+              https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.gz
+            echo "b7af85e41cc99489dcc21d66c6d5f3685138f06d34651e6d34b42ec6d54fe6f6  $tools_dir/shellcheck.tar.gz" \
+              | sha256sum --check --strict --status -
+            tar -xzf "$tools_dir/shellcheck.tar.gz" -C "$tools_dir" \
+              --strip-components=1 shellcheck-v0.11.0/shellcheck
           fi
 
           echo "$tools_dir" >> "$GITHUB_PATH"
