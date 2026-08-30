@@ -1,0 +1,8 @@
+environmentRecipes:
+  - id: yandex-cloud
+    name: Yandex Cloud
+    checkoutMode: provisioned-root
+    create: ./scripts/orca-vm/yandex-cloud/create.sh
+    suspend: ./scripts/orca-vm/yandex-cloud/suspend.sh
+    resume: ./scripts/orca-vm/yandex-cloud/resume.sh
+    destroy: ./scripts/orca-vm/yandex-cloud/destroy.sh

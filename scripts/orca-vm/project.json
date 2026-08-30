@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/refs/heads/master/packages/nx/schemas/project-schema.json",
+  "name": "orca-vm",
+  "projectType": "application",
+  "root": "scripts/orca-vm",
+  "targets": {
+    "check": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "shellcheck -x -P scripts/orca-vm/shared -P scripts/orca-vm/yandex-cloud scripts/orca-vm/shared/*.sh scripts/orca-vm/yandex-cloud/*.sh && rumdl check scripts/orca-vm/README.md scripts/orca-vm/yandex-cloud/README.md && vale scripts/orca-vm/README.md scripts/orca-vm/yandex-cloud/README.md",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["scope:tooling"]
+}

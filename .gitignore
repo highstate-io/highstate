@@ -7,9 +7,14 @@ node_modules
 
 .devenv
 .devenv.flake.nix
+.lycheecache
+.rumdl_cache
 
 /projects
 /.highstate
 /library
 
 /docs/.vitepress/cache
+
+/scripts/orca-vm/*/config.json
+/scripts/orca-vm/*/state.json
