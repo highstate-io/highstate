@@ -45,6 +45,11 @@ Use Conventional Commits with one of these types:
 - `docs`
 - `chore`
 
+Use `feat` only for a new product capability and `fix` only for a correction to product behavior.
+Never use `feat` or `fix` for non-product changes, including developer tooling, CI, build and release
+infrastructure, development environments, repository maintenance, or internal operational scripts.
+Use `chore` for those changes unless `docs`, `refactor`, or `style` describes them more precisely.
+
 Omit the scope or use the full lowercase npm package name, such as `@highstate/library`.
 Write the subject in imperative mood, begin it with a lowercase letter, and keep conventional
 abbreviations such as `api`, `ci`, and `dns` lowercase.
@@ -53,8 +58,8 @@ Use one sentence without a commit body.
 ## Pull Requests
 
 Write the pull request title in the same lowercase, imperative style as a commit subject.
-Include a Conventional Commit prefix when one accurately describes the pull request, such as `feat:` or
-`fix(@highstate/library):`.
+Include a Conventional Commit prefix when one accurately describes the pull request, such as `feat:` for a
+product capability or `chore:` for developer tooling.
 
 Write the body as a bulleted summary without headings or other sections.
 Use lowercase sentence fragments without terminal punctuation.
