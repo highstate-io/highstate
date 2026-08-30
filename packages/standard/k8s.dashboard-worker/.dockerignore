@@ -1,2 +1,7 @@
-.dockerignore
-Dockerfile
+*
+!dist/
+!dist/**
+!plugin/
+!plugin/dist/
+!plugin/dist/**
+!plugin/package.json

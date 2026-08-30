@@ -13,19 +13,42 @@
     ".": "./dist/index.js"
   },
   "nx": {
+    "targets": {
+      "build": {
+        "inputs": [
+          "default",
+          "^default",
+          "{projectRoot}/package.json",
+          "{workspaceRoot}/package.json",
+          "{workspaceRoot}/bun.lock"
+        ]
+      },
+      "build-plugin": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": [
+          "{projectRoot}/plugin/package.json",
+          "{projectRoot}/plugin/package-lock.json",
+          "{projectRoot}/plugin/tsconfig.json",
+          "{projectRoot}/plugin/src/**/*"
+        ],
+        "outputs": ["{projectRoot}/plugin/dist"],
+        "options": {
+          "command": "npm ci && npm run build",
+          "cwd": "{projectRoot}/plugin"
+        }
+      }
+    },
     "tags": [
       "stdlib"
     ]
   },
   "scripts": {
     "build": "highstate build",
-    "build-image": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-dashboard --load",
-    "push-image-debug": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-dashboard:debug --push",
     "test": "bun run --bun vitest --run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
-    "biome:check": "biome check --error-on-warnings",
-    "push-image": "docker push ghcr.io/highstate-io/highstate/worker.k8s-dashboard"
+    "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
     "@highstate/contract": "workspace:*",

@@ -16,18 +16,26 @@
     "access": "public"
   },
   "nx": {
+    "targets": {
+      "build": {
+        "inputs": [
+          "default",
+          "^default",
+          "{projectRoot}/package.json",
+          "{workspaceRoot}/package.json",
+          "{workspaceRoot}/bun.lock"
+        ]
+      }
+    },
     "tags": [
       "stdlib"
     ]
   },
   "scripts": {
     "build": "highstate build",
-    "build-image": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-monitor --load",
-    "push-image-debug": "docker build ../../.. -f Dockerfile -t ghcr.io/highstate-io/highstate/worker.k8s-monitor:debug --push",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
-    "biome:check": "biome check --error-on-warnings",
-    "push-image": "docker push ghcr.io/highstate-io/highstate/worker.k8s-monitor"
+    "biome:check": "biome check --error-on-warnings"
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:",
