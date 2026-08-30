@@ -1,0 +1,65 @@
+{
+  "name": "docker-images",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "root": "docker",
+  "targets": {
+    "check-images": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/docker-bake.hcl",
+        "{projectRoot}/**/*.dockerfile",
+        "{workspaceRoot}/packages/standard/k8s.monitor-worker/Dockerfile",
+        "{workspaceRoot}/packages/standard/k8s.dashboard-worker/Dockerfile"
+      ],
+      "outputs": [],
+      "options": {
+        "command": "docker buildx bake --file docker/docker-bake.hcl images --print",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "build-images": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": [
+        {
+          "projects": [
+            "@highstate/k8s.monitor-worker",
+            "@highstate/k8s.dashboard-worker"
+          ],
+          "target": "build"
+        },
+        {
+          "projects": ["@highstate/k8s.dashboard-worker"],
+          "target": "build-plugin"
+        }
+      ],
+      "options": {
+        "command": "docker buildx bake --file docker/docker-bake.hcl images --load",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "publish-images": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": [
+        {
+          "projects": [
+            "@highstate/k8s.monitor-worker",
+            "@highstate/k8s.dashboard-worker"
+          ],
+          "target": "build"
+        },
+        {
+          "projects": ["@highstate/k8s.dashboard-worker"],
+          "target": "build-plugin"
+        }
+      ],
+      "options": {
+        "command": "docker buildx bake --file docker/docker-bake.hcl images --push",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["infrastructure"]
+}
