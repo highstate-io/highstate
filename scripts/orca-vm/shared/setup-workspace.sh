@@ -48,6 +48,7 @@ if ! docker info >/dev/null 2>&1 && ! sudo docker info >/dev/null 2>&1; then
   exit 1
 fi
 
+devenv allow
 devenv shell -- bash -euo pipefail -c '
   bun install --frozen-lockfile
   bun run ci:prepare
