@@ -23,8 +23,6 @@ Shared workspace setup checks out the exact commit supplied by Orca, initializes
 verifies the shared toolchain.
 It then installs locked dependencies, runs the repository preparation script, and builds every Nx project before
 handoff.
-Workspace setup trusts the checkout with `devenv allow` so project environment activation also works in later
-interactive shells.
 
 Lifecycle scripts reserve standard output for Orca's final JSON result.
 Progress and diagnostics go to standard error.
