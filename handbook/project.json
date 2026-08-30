@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/refs/heads/master/packages/nx/schemas/project-schema.json",
+  "name": "handbook",
+  "projectType": "library",
+  "root": "handbook",
+  "targets": {
+    "check": {
+      "cache": true,
+      "dependsOn": ["markdown:check", "prose:check"],
+      "outputs": [],
+      "executor": "nx:noop"
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rumdl fmt handbook",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "links": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default", "{workspaceRoot}/lychee.toml"],
+      "outputs": [],
+      "options": {
+        "command": "lychee --config lychee.toml 'handbook/**/*.md'",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "markdown:check": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default", "{workspaceRoot}/.rumdl.toml"],
+      "outputs": [],
+      "options": {
+        "command": "rumdl check handbook",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "prose:check": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default", "{workspaceRoot}/.vale.ini", "{workspaceRoot}/.vale/**/*"],
+      "outputs": [],
+      "options": {
+        "command": "vale handbook",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["scope:handbook"]
+}

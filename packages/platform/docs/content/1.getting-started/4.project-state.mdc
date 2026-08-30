@@ -16,7 +16,7 @@ At least for now.
 ## The Right Audience
 
 Highstate shines for curious homelab owners, self-hosters, and developers who want to learn infrastructure patterns without drowning in YAML.
-It also suits small teams prototyping new topologies together so they can see connections, 
+It also suits small teams prototyping new topologies together so they can see connections,
 switch components, and experiment quickly before committing to a production approach.
 
 ## What Already Works
@@ -40,7 +40,9 @@ The last one is very unstable, though.
 We ship no enterprise support, no audit trail, and no SLA beyond what you build yourself.
 Just like any MIT licensed project, you use it at your own risk.
 
-For now, there is no hosted backend, and even no authentication or access control.
+For now, there is no hosted backend.
+The local designer and public API use different authentication paths, and the authorization model is still
+evolving.
 
 The bugs are real: some of them are small annoyances, but others can corrupt your project state or even lock you out of it.
 The tests are poor, and the documentation is not complete.

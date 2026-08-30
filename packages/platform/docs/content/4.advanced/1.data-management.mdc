@@ -122,7 +122,7 @@ Project models stay in your workspace as YAML files under `projects/<name>.yaml`
 
 The local backend launched by Highstate Designer stores everything under the workspace that contains `package.json`:
 
-```
+```text
 <workspace>/
 ├── .highstate/
 │   ├── backend.db           # Backend SQLite database (LibSQL)
@@ -142,8 +142,8 @@ Project model YAML files stay in the workspace `projects/` directory.
 
 ## Roadmap: Backend Federation
 
-Today Highstate ships with a single supported backend: the local runtime that launches with the designer.
+Today Highstate ships with a single supported backend implementation: the local runtime that launches with the designer.
 Project imports already let you share selected entities between projects, but all of that still happens inside the same local backend.
 We plan to add backend federation so your primary backend can spawn sub-backends, delegate individual projects, and proxy their requests while you stay in one control plane.
 That future setup would let you isolate production, staging, and hobby projects across different machines without losing the single entry point experience.
-Until federation arrives, run one backend per project to avoid conflicting writes.
+Until federation arrives, let only one backend actively manage a given project to avoid conflicting writes.

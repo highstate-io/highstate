@@ -8,7 +8,7 @@ navigation:
 ## The Power of Composition
 
 So you've learned about units - components that create actual infrastructure using Pulumi.
-But what happens when you need to combine multiple components into something bigger? 
+But what happens when you need to combine multiple components into something bigger?
 
 Let's say you want to create a Kubernetes cluster.
 You need:
@@ -44,13 +44,13 @@ import { defineComponent } from "@highstate/contract"
 
 export const myFirstComposite = defineComponent({
   type: "example.my-first-composite.v1",
-  
+
   create() {
     // composites must have a create function
     // this is where the magic happens
     return {}
   },
-  
+
   meta: {
     title: "My First Composite",
     icon: "mdi-cube-scan",
@@ -74,13 +74,13 @@ import { proxmox, distributions, ssh } from "@highstate/library"
 
 export const readyVM = defineComponent({
   type: "example.ready-vm.v1",
-  
+
   create({ name }) {
     // create SSH key pair for access
     const { keyPair } = ssh.keyPair({
       name,  // can reuse parent name - must be unique project-wide
     })
-    
+
     // create connection to Proxmox
     const { proxmoxCluster } = proxmox.connection({
       name,
@@ -92,12 +92,12 @@ export const readyVM = defineComponent({
         sshKeyPair: keyPair,
       },
     })
-    
+
     // get Ubuntu distribution
     const { image, cloudConfig } = distributions.ubuntu({
       name,
     })
-    
+
     // upload image to Proxmox
     const { image: proxmoxImage } = proxmox.image({
       name,
@@ -106,7 +106,7 @@ export const readyVM = defineComponent({
         file: image,
       },
     })
-    
+
     // create the VM
     const { server } = proxmox.virtualMachine({
       name,
@@ -124,7 +124,7 @@ export const readyVM = defineComponent({
         vendorData: cloudConfig,
       },
     })
-    
+
     return { server }
   },
 })
@@ -147,13 +147,13 @@ import { proxmox, common } from "@highstate/library"
 
 export const vmWithSetup = defineComponent({
   type: "example.vm-with-setup.v1",
-  
+
   inputs: {
     proxmoxCluster: proxmox.clusterEntity,
     image: proxmox.imageEntity,
     cloudConfig: common.fileEntity,
   },
-  
+
   create({ name, inputs }) {
     // pass composite inputs to child component
     const { server } = proxmox.virtualMachine({
@@ -172,7 +172,7 @@ export const vmWithSetup = defineComponent({
         vendorData: inputs.cloudConfig,          // rename if needed
       },
     })
-    
+
     return { server }
   },
 })
@@ -191,7 +191,7 @@ The real magic happens when you connect components together - one's output becom
 ```typescript
 export const singleNodeCluster = defineComponent({
   type: "example.single-node-cluster.v1",
-  
+
   create({ name, inputs }) {
     // step 1: create VM
     const { server } = proxmox.virtualMachine({
@@ -199,7 +199,7 @@ export const singleNodeCluster = defineComponent({
       args: { /* ... */ },
       inputs: { /* ... */ },
     })
-    
+
     // step 2: install k3s on that VM
     const { k8sCluster } = k3s.cluster({
       name,
@@ -211,7 +211,7 @@ export const singleNodeCluster = defineComponent({
         masters: [server],  // VM output → k3s input!
       },
     })
-    
+
     // step 3: install Cilium on that cluster  
     const { k8sCluster: withCilium } = k8s.cilium({
       name,
@@ -219,7 +219,7 @@ export const singleNodeCluster = defineComponent({
         k8sCluster,  // k3s output → Cilium input!
       },
     })
-    
+
     return { k8sCluster: withCilium }
   },
 })
@@ -242,14 +242,14 @@ import { proxmox, k3s, k8s } from "@highstate/library"
 
 export const configurableCluster = defineComponent({
   type: "example.configurable-cluster.v1",
-  
+
   args: {
     vmCores: z.number().default(4),
     vmMemory: z.number().default(4096),
     dashboardFqdn: z.string(),
     enableDashboard: z.boolean().default(true),
   },
-  
+
   create({ name, args, inputs }) {
     // use args to configure child components
     const { server } = proxmox.virtualMachine({
@@ -263,13 +263,13 @@ export const configurableCluster = defineComponent({
       },
       inputs: { /* ... */ },
     })
-    
+
     // create k3s cluster
     const { k8sCluster } = k3s.cluster({
       name,
       inputs: { masters: [server] },
     })
-    
+
     // use args for conditional logic
     if (args.enableDashboard) {
       k8s.apps.kubernetesDashboard({
@@ -283,7 +283,7 @@ export const configurableCluster = defineComponent({
         },
       })
     }
-    
+
     return { server, k8sCluster }
   },
 })
@@ -298,7 +298,7 @@ When enhancing components, use meaningful aliases to track the progression:
 ```typescript
 export const enhancedCluster = defineComponent({
   type: "example.enhanced-cluster.v1",
-  
+
   create({ name, inputs }) {
     // start with basic cluster
     const { k8sCluster: basicCluster } = k3s.cluster({
@@ -306,37 +306,37 @@ export const enhancedCluster = defineComponent({
       args: { cni: "none" },
       inputs: { /* ... */ },
     })
-    
+
     // enhance with Cilium networking
     const { k8sCluster: withCilium } = k8s.cilium({
       name,
       inputs: { k8sCluster: basicCluster },
     })
-    
+
     // enhance with Gateway API
     const { k8sCluster: withGatewayApi } = k8s.gatewayApi({
       name,
       inputs: { k8sCluster: withCilium },
     })
-    
+
     // enhance with cert-manager
     const { k8sCluster: withCertManager } = k8s.certManager({
       name,
       inputs: { k8sCluster: withCilium },  // cert-manager also uses Cilium-enhanced cluster
     })
-    
+
     // some components need gateway, others need cert-manager
     // we can easily parallelize infrastructure chains without issues when using meaningful aliases
     const { gateway } = k8s.apps.traefik({
       name,
       inputs: { k8sCluster: withGatewayApi },
     })
-    
+
     const { tlsIssuer } = k8s.dns01TlsIssuer({
       name,
       inputs: { k8sCluster: withCertManager },
     })
-    
+
     return { k8sCluster: withCertManager }
   },
 })
@@ -355,13 +355,13 @@ Composites often need to expose multiple outputs from different children:
 ```typescript
 export const fullStack = defineComponent({
   type: "example.full-stack.v1",
-  
+
   outputs: {
     k8sCluster: k8s.clusterEntity,
     server: common.serverEntity,
     accessPoint: common.accessPointEntity,
   },
-  
+
   create({ name, inputs }) {
     // create VM
     const { server } = proxmox.virtualMachine({
@@ -369,19 +369,19 @@ export const fullStack = defineComponent({
       args: { /* ... */ },
       inputs: { /* ... */ },
     })
-    
+
     // create cluster
     const { k8sCluster } = k3s.cluster({
       name,
       inputs: { masters: [server] },
     })
-    
+
     // create access point
     const { accessPoint } = common.accessPoint({
       name,
       inputs: { /* ... */ },
     })
-    
+
     // aggregate outputs from different children
     return {
       k8sCluster,   // from k3s.cluster
@@ -407,7 +407,7 @@ create({ name, args, inputs }) {
     name,
     inputs: { masters: inputs.servers },
   })
-  
+
   // only create dashboard if requested
   if (args.includeDashboard) {
     k8s.apps.kubernetesDashboard({
@@ -419,7 +419,7 @@ create({ name, args, inputs }) {
       },
     })
   }
-  
+
   // only add MariaDB if requested
   if (args.includeDatabase) {
     k8s.apps.mariadb({
@@ -427,7 +427,7 @@ create({ name, args, inputs }) {
       inputs: { k8sCluster },
     })
   }
-  
+
   return { k8sCluster }
 }
 ```
@@ -462,7 +462,7 @@ create({ name, args, inputs }) {
     })
     servers.push(server)
   }
-  
+
   // use VMs for cluster - first N as masters, rest as workers
   const { k8sCluster } = k3s.cluster({
     name,
@@ -471,7 +471,7 @@ create({ name, args, inputs }) {
       workers: servers.slice(args.masterCount),
     },
   })
-  
+
   return { k8sCluster, servers }
 }
 ```
@@ -483,7 +483,7 @@ Composites can use other composites:
 ```typescript
 export const multiClusterSetup = defineComponent({
   type: "example.multi-cluster.v1",
-  
+
   create({ name }) {
     // use our single-node cluster composite multiple times
     const staging = singleNodeCluster({
@@ -491,13 +491,13 @@ export const multiClusterSetup = defineComponent({
       args: { dashboardFqdn: "staging.example.com" },
       inputs: { /* ... */ },
     })
-    
+
     const production = singleNodeCluster({
       name: `${name}.production`,
       args: { dashboardFqdn: "prod.example.com" },
       inputs: { /* ... */ },
     })
-    
+
     return { staging, production }
   },
 })

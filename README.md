@@ -5,7 +5,7 @@ Highstate is a visual infrastructure orchestration platform built on top of Pulu
 ![](assets/designer.png)
 
 - [Main Documentation](https://highstate.io)
-- [Contributing Guide](CONTRIBUTING.md)
+- [Engineering Handbook](handbook/README.md)
 
 ## License
 
