@@ -24,7 +24,12 @@ jobs:
         run: git fetch --unshallow --tags
 
       - name: Install devenv
-        run: nix profile install nixpkgs#devenv
+        run: |
+          devenv_rev="$(jq -r '.nodes.devenv.locked.rev' devenv.lock)"
+          nix profile add "github:cachix/devenv/${devenv_rev}"
+
+      - name: Build CI environment
+        run: devenv shell --profile ci -- true
 
       - name: Install dependencies
         shell: devenv shell --profile ci bash -- -e {0}
