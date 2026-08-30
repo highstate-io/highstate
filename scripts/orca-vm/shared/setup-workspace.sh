@@ -30,7 +30,20 @@ if [[ -n "${OPENCODE_PERMISSION:-}" ]]; then
 fi
 
 for executable in bun devenv git jq nix node skills; do
-  test -x "/nix/var/nix/profiles/orca/bin/$executable"
+  executable_path="/nix/var/nix/profiles/orca/bin/$executable"
+  if [[ ! -x "$executable_path" ]]; then
+    printf 'Authenticated image is missing required executable: %s\n' "$executable_path" >&2
+    printf 'Rebuild the Yandex Cloud images with setup.sh sync before creating a workspace.\n' >&2
+    exit 1
+  fi
 done
-test -x "$HOME/.opencode/bin/opencode"
-docker info >/dev/null
+if [[ ! -x "$HOME/.opencode/bin/opencode" ]]; then
+  printf 'Authenticated image is missing OpenCode: %s/.opencode/bin/opencode\n' "$HOME" >&2
+  printf 'Rebuild the Yandex Cloud images with setup.sh sync before creating a workspace.\n' >&2
+  exit 1
+fi
+if ! docker info >/dev/null 2>&1 && ! sudo docker info >/dev/null 2>&1; then
+  printf 'Docker is not available in the authenticated image\n' >&2
+  printf 'Rebuild the Yandex Cloud images with setup.sh sync before creating a workspace.\n' >&2
+  exit 1
+fi
