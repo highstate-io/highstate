@@ -7,6 +7,7 @@ import {
   buildOverrides,
   fetchManifest,
   fetchNpmPackument,
+  fetchPrPreviewDescriptor,
   getDependencyRange,
   getProjectPlatformVersion,
   logger,
@@ -41,6 +42,10 @@ export class UpdateCommand extends Command {
     description: "Install dependencies after updating overrides.",
   })
 
+  pullRequest = Option.String("--pr", {
+    description: "Install packages published by a Highstate pull request preview.",
+  })
+
   async execute(): Promise<void> {
     const projectRoot = process.cwd()
 
@@ -48,6 +53,31 @@ export class UpdateCommand extends Command {
 
     if (this.platformOnly && this.stdlibOnly) {
       throw new Error('Flags "--platform" and "--stdlib" cannot be used together')
+    }
+
+    if (this.pullRequest) {
+      if (this.platformOnly || this.stdlibOnly || this.platformVersion || this.stdlibVersion) {
+        throw new Error('Flag "--pr" cannot be combined with version or package group flags')
+      }
+      const pullRequest = Number(this.pullRequest)
+      if (!Number.isSafeInteger(pullRequest) || pullRequest <= 0) {
+        throw new Error('Flag "--pr" must be a positive pull request number')
+      }
+
+      const preview = await fetchPrPreviewDescriptor(pullRequest)
+      const overrides = {
+        ...buildOverrides(preview.stable),
+        ...preview.packages,
+      }
+
+      await applyOverrides({ projectRoot, overrides })
+      await syncRootPulumiDependency({ projectRoot, pulumiVersion: preview.stable.pulumiVersion })
+
+      logger.info("installed preview for Highstate PR %d at %s", pullRequest, preview.sourceSha)
+
+      await this.installDependencies(projectRoot)
+
+      return
     }
 
     const updatePlatform = this.platformOnly || !this.stdlibOnly
@@ -91,19 +121,21 @@ export class UpdateCommand extends Command {
       bundle.pulumiVersion,
     )
 
-    if (this.install) {
-      const { installDependencies } = await import("nypm")
-
-      logger.info("installing dependencies using bun...")
-
-      await installDependencies({
-        cwd: projectRoot,
-        packageManager: "bun",
-        silent: false,
-      })
-    }
+    await this.installDependencies(projectRoot)
 
     logger.info("update completed successfully")
+  }
+
+  private async installDependencies(projectRoot: string): Promise<void> {
+    if (!this.install) {
+      return
+    }
+
+    const { installDependencies } = await import("nypm")
+
+    logger.info("installing dependencies using bun...")
+
+    await installDependencies({ cwd: projectRoot, packageManager: "bun", silent: false })
   }
 }
 

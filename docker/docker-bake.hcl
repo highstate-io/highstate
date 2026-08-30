@@ -1,5 +1,5 @@
 variable "IMAGE_PREFIX" {
-  default = "ghcr.io/highstate-io/highstate"
+  default = "ghcr.io/highstate-io"
 }
 
 variable "TAGS" {

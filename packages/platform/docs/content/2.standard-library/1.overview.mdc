@@ -39,6 +39,9 @@ highstate update --stdlib --stdlib-version 0.23.0
 
 # Update both the platform and the Standard Library to the latest possible versions
 highstate update
+
+# Install all affected packages from a pull request preview
+highstate update --pr 123
 ```
 
 The main package (`@highstate/library`) also must be included in `HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES` env variable.
