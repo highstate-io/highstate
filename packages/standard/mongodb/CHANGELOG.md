@@ -1,3 +1,7 @@
+## 0.27.1 (2026-08-30)
+
+This was a version bump only for @highstate/mongodb to align it with other projects, there were no code changes.
+
 ## 0.27.0 (2026-08-29)
 
 This was a version bump only for @highstate/mongodb to align it with other projects, there were no code changes.

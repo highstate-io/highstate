@@ -1,3 +1,13 @@
+## 0.29.1 (2026-08-30)
+
+### 🩹 Fixes
+
+- **@highstate/cli:** bundle worker dependencies ([f1cc409](https://github.com/highstate-io/highstate/commit/f1cc409))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.29.0 (2026-08-29)
 
 This was a version bump only for @highstate/cli to align it with other projects, there were no code changes.
