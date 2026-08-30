@@ -4,6 +4,9 @@ Some simple rules to follow:
 
 - When you work with database entities, read first their schema files in `packages/platform/backend/prisma/`.
 - Before writing docs, read `packages/platform/docs/content/1.getting-started/2.concepts.mdc` and `packages/platform/docs/content/3.platform/2.units.mdc` as good human-written examples of how to write docs.
+- Before editing the handbook, read `handbook/authoring/README.md` and apply its authority and maintenance rules
+  to architecture content.
+- Before creating commits or pull requests, read `handbook/engineering/changes.md`.
 - Use source code and executable tests as the authority for implemented behavior.
 - Use `packages/platform/docs` as the authority for public terminology, supported workflows, and user-facing
   compatibility promises.
