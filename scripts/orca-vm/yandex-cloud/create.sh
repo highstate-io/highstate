@@ -9,6 +9,8 @@ require_command yc
 require_command jq
 require_command ssh
 
+validate_shared_config
+
 [[ "${ORCA_RECIPE_RESULT_SCHEMA_VERSION:-}" == "2" ]] || {
   printf 'Yandex Cloud requires checkoutMode "provisioned-root" and schema version 2\n' >&2
   exit 1
@@ -17,7 +19,7 @@ require_command ssh
 folder_id="$(required_value YANDEX_FOLDER_ID folderId)"
 zone="$(required_value YANDEX_ZONE zone)"
 subnet_id="$(required_value YANDEX_SUBNET_ID subnetId)"
-image_id="$(required_value YANDEX_AUTHENTICATED_IMAGE_ID authenticatedImageId)"
+image_id="$(required_value YANDEX_BASE_IMAGE_ID baseImageId)"
 identity_file="$(expanded_path "$(required_value YANDEX_SSH_IDENTITY_FILE sshIdentityFile)")"
 public_key_file="$(expanded_path "$(required_value YANDEX_SSH_PUBLIC_KEY_FILE sshPublicKeyFile)")"
 ssh_username="$(config_value YANDEX_SSH_USERNAME sshUsername dev)"
@@ -26,23 +28,17 @@ platform="$(config_value YANDEX_PLATFORM platform standard-v3)"
 cores="$(config_value YANDEX_CORES cores 4)"
 memory="$(config_value YANDEX_MEMORY memory 8G)"
 core_fraction="$(config_value YANDEX_CORE_FRACTION coreFraction 100)"
-disk_size="$(config_value YANDEX_DISK_SIZE diskSize 50G)"
-disk_type="$(config_value YANDEX_DISK_TYPE diskType network-ssd)"
-opencode_permission="$(config_value YANDEX_OPENCODE_PERMISSION opencodePermission)"
-case "$opencode_permission" in
-  "" | allow | ask | deny) ;;
-  *)
-    printf 'OpenCode permission must be "allow", "ask", or "deny"\n' >&2
-    exit 1
-    ;;
-esac
-repo_url="${ORCA_REPO_URL:?ORCA_REPO_URL is required}"
+disk_size="$(config_value YANDEX_DISK_SIZE diskSize 93G)"
+disk_type="$(config_value YANDEX_DISK_TYPE diskType network-ssd-nonreplicated)"
+opencode_enabled_value="$(opencode_enabled)"
+repo_url="${ORCA_REPO_URL:-$(required_value YANDEX_REPO_URL repoUrl)}"
 if [[ "$repo_url" =~ ^git@github\.com:(.+)$ ]]; then
   repo_url="https://github.com/${BASH_REMATCH[1]}"
 fi
-repo_ref="${ORCA_REPO_REF:?ORCA_REPO_REF is required}"
-repo_ref_head="${ORCA_REPO_REF_HEAD:?ORCA_REPO_REF_HEAD is required}"
-repo_branch="${ORCA_REPO_BRANCH:?ORCA_REPO_BRANCH is required}"
+repo_ref="${ORCA_REPO_REF:-$(required_value YANDEX_REPO_REF repoRef)}"
+repo_root="$(cd "$provider_dir/../../.." && pwd)"
+repo_ref_head="${ORCA_REPO_REF_HEAD:-$(git -C "$repo_root" rev-parse HEAD)}"
+repo_branch="${ORCA_REPO_BRANCH:-orca-recipe-doctor}"
 workspace_name="${ORCA_WORKSPACE_NAME:-${ORCA_RECIPE_ID:-workspace}}"
 workspace_slug="$(printf '%s' "$workspace_name" | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]')"
 workspace_slug="${workspace_slug#-}"
@@ -57,6 +53,7 @@ cloud_init_file=""
 
 [[ -f "$identity_file" ]] || { printf 'SSH identity "%s" does not exist\n' "$identity_file" >&2; exit 1; }
 [[ -f "$public_key_file" ]] || { printf 'SSH public key "%s" does not exist\n' "$public_key_file" >&2; exit 1; }
+validate_base_image "$image_id" "$folder_id"
 
 cleanup() {
   local exit_code=$?
@@ -92,10 +89,11 @@ instance="$(yc compute instance create \
 instance_id="$(jq -r '.id' <<<"$instance")"
 public_ip="$(wait_for_public_ip "$instance_id" "$folder_id")"
 wait_for_ssh "$public_ip" "$ssh_username" "$identity_file"
+copy_workspace_credentials "$public_ip" "$ssh_username" "$identity_file"
 
 remote_environment="$(printf \
-  'PROJECT_ROOT=%q REPO_URL=%q REPO_REF=%q REPO_REF_HEAD=%q REPO_BRANCH=%q OPENCODE_PERMISSION=%q' \
-  "$project_root" "$repo_url" "$repo_ref" "$repo_ref_head" "$repo_branch" "$opencode_permission")"
+  'PROJECT_ROOT=%q REPO_URL=%q REPO_REF=%q REPO_REF_HEAD=%q REPO_BRANCH=%q OPENCODE_ENABLED=%q' \
+  "$project_root" "$repo_url" "$repo_ref" "$repo_ref_head" "$repo_branch" "$opencode_enabled_value")"
 # shellcheck disable=SC2029
 ssh -i "$identity_file" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new \
   "$ssh_username@$public_ip" "$remote_environment bash -s" \

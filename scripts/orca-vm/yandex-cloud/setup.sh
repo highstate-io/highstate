@@ -8,19 +8,20 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 require_command yc
 require_command jq
 require_command ssh
+validate_shared_config
 
 action="${1:-}"
 confirmation="${2:-}"
 case "$action" in
-  sync | base | auth-start | auth-finish | auth-migrate | cleanup) ;;
+  sync | base | cleanup) ;;
   *)
-    printf 'Usage: %s sync|base|auth-start|auth-finish|auth-migrate|cleanup\n' "$0" >&2
+    printf 'Usage: %s sync|base|cleanup --confirm-cloud-changes\n' "$0" >&2
     exit 1
     ;;
 esac
 [[ "$confirmation" == "--confirm-cloud-changes" ]] || {
   printf 'Refusing Yandex Cloud setup without informed confirmation\n' >&2
-  printf 'After explaining cloud cost and authentication storage, rerun with --confirm-cloud-changes\n' >&2
+  printf 'After explaining cloud cost, rerun with --confirm-cloud-changes\n' >&2
   exit 1
 }
 
@@ -36,12 +37,11 @@ platform="$(config_value YANDEX_PLATFORM platform standard-v3)"
 cores="$(config_value YANDEX_CORES cores 4)"
 memory="$(config_value YANDEX_MEMORY memory 8G)"
 core_fraction="$(config_value YANDEX_CORE_FRACTION coreFraction 100)"
-disk_size="$(config_value YANDEX_DISK_SIZE diskSize 50G)"
-disk_type="$(config_value YANDEX_DISK_TYPE diskType network-ssd)"
+disk_size="$(config_value YANDEX_DISK_SIZE diskSize 93G)"
+disk_type="$(config_value YANDEX_DISK_TYPE diskType network-ssd-nonreplicated)"
 ssh_options=(-i "$identity_file" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new)
 repo_root="$(cd "$provider_dir/../../.." && pwd)"
 instance_id=""
-cleanup_instance_ids=()
 cloud_init_file=""
 
 [[ -f "$identity_file" ]] || { printf 'SSH identity "%s" does not exist\n' "$identity_file" >&2; exit 1; }
@@ -50,10 +50,8 @@ cloud_init_file=""
 cleanup_instance() {
   local exit_code=$?
   [[ -z "$cloud_init_file" ]] || rm -f "$cloud_init_file"
-  if [[ $exit_code -ne 0 ]]; then
-    for cleanup_instance_id in "${cleanup_instance_ids[@]}"; do
-      yc compute instance delete "$cleanup_instance_id" --folder-id "$folder_id" --async >/dev/null 2>&1 || true
-    done
+  if [[ $exit_code -ne 0 && -n "$instance_id" ]]; then
+    yc compute instance delete "$instance_id" --folder-id "$folder_id" --async >/dev/null 2>&1 || true
   fi
   exit "$exit_code"
 }
@@ -65,12 +63,6 @@ create_cloud_init "$ssh_username" "$public_key_file" "$cloud_init_file"
 
 create_instance() {
   local name="$1"
-  local image_id="$2"
-  local source_disk="image-family=$image_family,image-folder-id=$image_folder_id"
-  if [[ -n "$image_id" ]]; then
-    source_disk="image-id=$image_id"
-  fi
-
   yc compute instance create \
     --name "$name" \
     --folder-id "$folder_id" \
@@ -81,34 +73,18 @@ create_instance() {
     --core-fraction "$core_fraction" \
     --preemptible \
     --network-interface "subnet-id=$subnet_id,nat-ip-version=ipv4" \
-    --create-boot-disk "name=$name,type=$disk_type,size=$disk_size,$source_disk,auto-delete=true" \
+    --create-boot-disk "name=$name,type=$disk_type,size=$disk_size,image-family=$image_family,image-folder-id=$image_folder_id,auto-delete=true" \
     --metadata-from-file "user-data=$cloud_init_file" \
     --format json
 }
 
-create_image() {
-  local source_instance_id="$1"
-  local image_name="$2"
-  local family="$3"
-  local disk_id
-  disk_id="$(yc compute instance get "$source_instance_id" --folder-id "$folder_id" --format json | jq -r '.boot_disk.disk_id')"
-  yc compute instance stop "$source_instance_id" --folder-id "$folder_id" >/dev/null
-  yc compute image create \
-    --name "$image_name" \
-    --folder-id "$folder_id" \
-    --source-disk-id "$disk_id" \
-    --family "$family" \
-    --format json | jq -r '.id'
-}
-
-delete_obsolete_images() {
+delete_images() {
   local family="$1"
-  local retained_id="$2"
+  local retained_id="${2:-}"
   local image_ids
   image_ids="$(yc compute image list --folder-id "$folder_id" --format json | jq -r \
     --arg family "$family" --arg retained "$retained_id" \
     '.[] | select(.family == $family and .id != $retained) | .id')"
-
   while IFS= read -r image_id; do
     [[ -n "$image_id" ]] || continue
     printf 'Deleting obsolete image "%s"\n' "$image_id" >&2
@@ -116,19 +92,29 @@ delete_obsolete_images() {
   done <<<"$image_ids"
 }
 
+sanitize_state() {
+  if [[ ! -f "$state_file" ]]; then
+    return 0
+  fi
+  jq 'del(.authenticatedImageId, .authInstanceId)' "$state_file" >"$state_file.tmp"
+  mv "$state_file.tmp" "$state_file"
+}
+
 build_base() {
   local name
   name="orca-highstate-base-$(date +%s)"
   local instance
-  instance="$(create_instance "$name" "")"
+  instance="$(create_instance "$name")"
   instance_id="$(jq -r '.id' <<<"$instance")"
-  cleanup_instance_ids+=("$instance_id")
   local public_ip
   public_ip="$(wait_for_public_ip "$instance_id" "$folder_id")"
   wait_for_ssh "$public_ip" "$ssh_username" "$identity_file"
 
   printf 'Installing the shared workspace toolchain\n' >&2
-  ssh "${ssh_options[@]}" "$ssh_username@$public_ip" 'bash -s' \
+  local remote_environment
+  remote_environment="$(printf 'OPENCODE_ENABLED=%q' "$(opencode_enabled)")"
+  # shellcheck disable=SC2029
+  ssh "${ssh_options[@]}" "$ssh_username@$public_ip" "$remote_environment bash -s" \
     <"$provider_dir/../shared/setup-base.sh"
 
   printf 'Warming the repository devenv\n' >&2
@@ -142,151 +128,35 @@ build_base() {
       cd "$warmup_dir"
       devenv shell -- true'
 
-  local image_id
-  image_id="$(create_image "$instance_id" "orca-highstate-base-$(date +%Y%m%d-%H%M%S)" orca-highstate-base)"
+  local disk_id image_id contract_hash
+  disk_id="$(yc compute instance get "$instance_id" --folder-id "$folder_id" --format json | jq -r '.boot_disk.disk_id')"
+  contract_hash="$(base_contract_hash)"
+  yc compute instance stop "$instance_id" --folder-id "$folder_id" >/dev/null
+  image_id="$(yc compute image create \
+    --name "orca-highstate-base-$(date +%Y%m%d-%H%M%S)" \
+    --folder-id "$folder_id" \
+    --source-disk-id "$disk_id" \
+    --family orca-highstate-base \
+    --labels "orca_base_contract=${base_contract_version:?},orca_base_hash=$contract_hash" \
+    --format json | jq -r '.id')"
   yc compute instance delete "$instance_id" --folder-id "$folder_id" >/dev/null
   instance_id=""
+  sanitize_state
   write_state "$(jq -n --arg id "$image_id" '{baseImageId: $id}')"
-  delete_obsolete_images orca-highstate-base "$image_id"
-}
-
-start_auth() {
-  local base_image_id
-  base_image_id="$(required_value YANDEX_BASE_IMAGE_ID baseImageId)"
-  local instance
-  instance="$(create_instance "orca-highstate-auth-$(date +%s)" "$base_image_id")"
-  instance_id="$(jq -r '.id' <<<"$instance")"
-  cleanup_instance_ids+=("$instance_id")
-  local public_ip
-  public_ip="$(wait_for_public_ip "$instance_id" "$folder_id")"
-  wait_for_ssh "$public_ip" "$ssh_username" "$identity_file"
-  write_state "$(jq -n --arg id "$instance_id" '{authInstanceId: $id}')"
-  instance_id=""
-
-  printf 'Authenticate OpenCode, then run "%s auth-finish":\n' "$0" >&2
-  printf 'ssh -t -i %q -o IdentitiesOnly=yes %q %q\n' \
-    "$identity_file" "$ssh_username@$public_ip" \
-    "mkdir -p \"\$HOME/.config/opencode\" && \$HOME/.opencode/bin/opencode auth login" >&2
-}
-
-finish_auth() {
-  instance_id="$(required_value YANDEX_AUTH_INSTANCE_ID authInstanceId)"
-  local public_ip
-  public_ip="$(wait_for_public_ip "$instance_id" "$folder_id")"
-  wait_for_ssh "$public_ip" "$ssh_username" "$identity_file"
-  ssh "${ssh_options[@]}" "$ssh_username@$public_ip" \
-    'test -s "$HOME/.local/share/opencode/auth.json" &&
-      jq -e "type == \"object\" and length > 0" "$HOME/.local/share/opencode/auth.json" >/dev/null' || {
-    printf 'OpenCode authentication is missing\n' >&2
-    exit 1
-  }
-
-  local image_id
-  image_id="$(create_image "$instance_id" "orca-highstate-auth-$(date +%Y%m%d-%H%M%S)" orca-highstate-auth)"
-  yc compute instance delete "$instance_id" --folder-id "$folder_id" >/dev/null
-  instance_id=""
-  write_state "$(jq -n --arg id "$image_id" '{authenticatedImageId: $id, authInstanceId: null}')"
-  delete_obsolete_images orca-highstate-auth "$image_id"
-}
-
-migrate_auth() {
-  local source_image_id
-  source_image_id="${1:-$(required_value YANDEX_AUTHENTICATED_IMAGE_ID authenticatedImageId)}"
-  local base_image_id
-  base_image_id="$(required_value YANDEX_BASE_IMAGE_ID baseImageId)"
-
-  printf 'Starting previous authenticated image "%s"\n' "$source_image_id" >&2
-  local source_instance
-  source_instance="$(create_instance "orca-highstate-auth-source-$(date +%s)" "$source_image_id")"
-  local source_instance_id
-  source_instance_id="$(jq -r '.id' <<<"$source_instance")"
-  cleanup_instance_ids+=("$source_instance_id")
-  local source_ip
-  source_ip="$(wait_for_public_ip "$source_instance_id" "$folder_id")"
-  wait_for_ssh "$source_ip" "$ssh_username" "$identity_file"
-  ssh "${ssh_options[@]}" "$ssh_username@$source_ip" \
-    'auth_file="$(sudo find /home -path "*/.local/share/opencode/auth.json" -type f -print -quit)"
-      test -n "$auth_file" && test -s "$auth_file" &&
-      sudo jq -e "type == \"object\" and length > 0" "$auth_file" >/dev/null &&
-      test -d "${auth_file%/.local/share/opencode/auth.json}/.config/opencode"' || {
-    printf 'The authenticated image does not contain both OpenCode authentication and user configuration\n' >&2
-    exit 1
-  }
-
-  printf 'Starting new base image "%s"\n' "$base_image_id" >&2
-  local target_instance
-  target_instance="$(create_instance "orca-highstate-auth-target-$(date +%s)" "$base_image_id")"
-  instance_id="$(jq -r '.id' <<<"$target_instance")"
-  cleanup_instance_ids+=("$instance_id")
-  local target_ip
-  target_ip="$(wait_for_public_ip "$instance_id" "$folder_id")"
-  wait_for_ssh "$target_ip" "$ssh_username" "$identity_file"
-
-  printf 'Copying OpenCode authentication and user configuration\n' >&2
-  ssh "${ssh_options[@]}" "$ssh_username@$source_ip" \
-    'auth_file="$(sudo find /home -path "*/.local/share/opencode/auth.json" -type f -print -quit)"
-      source_home="${auth_file%/.local/share/opencode/auth.json}"
-      sudo tar -C "$source_home" -cf - .local/share/opencode/auth.json .config/opencode' |
-    ssh "${ssh_options[@]}" "$ssh_username@$target_ip" \
-      'umask 077; tar -C "$HOME" -xf -; chmod 600 "$HOME/.local/share/opencode/auth.json"'
-
-  ssh "${ssh_options[@]}" "$ssh_username@$target_ip" \
-    'test -s "$HOME/.local/share/opencode/auth.json" &&
-      jq -e "type == \"object\" and length > 0" "$HOME/.local/share/opencode/auth.json" >/dev/null &&
-      test -d "$HOME/.config/opencode"'
-
-  local image_id
-  image_id="$(create_image "$instance_id" "orca-highstate-auth-$(date +%Y%m%d-%H%M%S)" orca-highstate-auth)"
-  yc compute instance delete "$instance_id" --folder-id "$folder_id" >/dev/null
-  instance_id=""
-  yc compute instance delete "$source_instance_id" --folder-id "$folder_id" >/dev/null
-  write_state "$(jq -n --arg id "$image_id" '{authenticatedImageId: $id, authInstanceId: null}')"
-  delete_obsolete_images orca-highstate-auth "$image_id"
-}
-
-latest_ready_image() {
-  local family="$1"
-  yc compute image list --folder-id "$folder_id" --format json | jq -r --arg family "$family" \
-    '[.[] | select(.family == $family and .status == "READY")] | sort_by(.created_at) | last | .id // empty'
+  delete_images orca-highstate-base "$image_id"
 }
 
 cleanup_images() {
+  sanitize_state
   local retained_base_image_id
   retained_base_image_id="$(config_value YANDEX_BASE_IMAGE_ID baseImageId)"
-  local retained_auth_image_id
-  retained_auth_image_id="$(config_value YANDEX_AUTHENTICATED_IMAGE_ID authenticatedImageId)"
-
-  if [[ -n "$retained_base_image_id" ]]; then
-    delete_obsolete_images orca-highstate-base "$retained_base_image_id"
-  fi
-  if [[ -n "$retained_auth_image_id" ]]; then
-    delete_obsolete_images orca-highstate-auth "$retained_auth_image_id"
-  fi
-}
-
-sync_images() {
-  local source_auth_image_id
-  source_auth_image_id="$(latest_ready_image orca-highstate-auth)"
-
-  build_base
-
-  if [[ -n "$source_auth_image_id" ]]; then
-    printf 'Migrating OpenCode authentication from image "%s"\n' "$source_auth_image_id" >&2
-    migrate_auth "$source_auth_image_id"
-  else
-    printf 'No authenticated image exists; starting interactive authentication\n' >&2
-    start_auth
-  fi
-
-  cleanup_images
+  delete_images orca-highstate-base "$retained_base_image_id"
+  delete_images orca-highstate-auth
 }
 
 case "$action" in
-  sync) sync_images ;;
+  sync) build_base; cleanup_images ;;
   base) build_base ;;
-  auth-start) start_auth ;;
-  auth-finish) finish_auth ;;
-  auth-migrate) migrate_auth ;;
   cleanup) cleanup_images ;;
 esac
 

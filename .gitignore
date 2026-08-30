@@ -18,4 +18,5 @@ node_modules
 
 /scripts/orca-vm/*/config.json
 /scripts/orca-vm/*/state.json
+/scripts/orca-vm/config.json
 /scripts/orca-vm/logs/

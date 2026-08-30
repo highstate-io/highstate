@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+: "${OPENCODE_ENABLED:?OPENCODE_ENABLED is required}"
+
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   ca-certificates curl docker.io xz-utils
@@ -47,14 +49,15 @@ for executable in "$shared_profile"/bin/*; do
   sudo ln -sfn "$executable" "/usr/local/bin/$(basename "$executable")"
 done
 
-if [[ ! -x "$HOME/.opencode/bin/opencode" ]]; then
-  curl -fsSL https://opencode.ai/install | bash
-fi
-if [[ ! -x "$HOME/.opencode/bin/opencode-real" ]]; then
-  mv "$HOME/.opencode/bin/opencode" "$HOME/.opencode/bin/opencode-real"
-fi
+if [[ "$OPENCODE_ENABLED" == true ]]; then
+  if [[ ! -x "$HOME/.opencode/bin/opencode" ]]; then
+    curl -fsSL https://opencode.ai/install | bash
+  fi
+  if [[ ! -x "$HOME/.opencode/bin/opencode-real" ]]; then
+    mv "$HOME/.opencode/bin/opencode" "$HOME/.opencode/bin/opencode-real"
+  fi
 
-cat >"$HOME/.opencode/bin/opencode" <<'EOF'
+  cat >"$HOME/.opencode/bin/opencode" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -64,10 +67,15 @@ if [[ -f "$PWD/devenv.nix" && -z "${DEVENV_ROOT:-}" ]]; then
 fi
 exec "$real_opencode" "$@"
 EOF
-chmod 0755 "$HOME/.opencode/bin/opencode"
+  chmod 0755 "$HOME/.opencode/bin/opencode"
+else
+  rm -rf "$HOME/.opencode"
+fi
 
 for executable in bun devenv git jq nix node skills; do
   test -x "$shared_profile/bin/$executable"
 done
-test -x "$HOME/.opencode/bin/opencode"
-test -x "$HOME/.opencode/bin/opencode-real"
+if [[ "$OPENCODE_ENABLED" == true ]]; then
+  test -x "$HOME/.opencode/bin/opencode"
+  test -x "$HOME/.opencode/bin/opencode-real"
+fi

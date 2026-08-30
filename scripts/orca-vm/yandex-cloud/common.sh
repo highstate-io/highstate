@@ -7,6 +7,28 @@ export ORCA_ENVIRONMENT_PROVIDER_DIR="$provider_dir"
 
 # shellcheck source=../shared/common.sh
 source "$provider_dir/../shared/common.sh"
+# shellcheck source=../shared/config.sh
+source "$provider_dir/../shared/config.sh"
+
+validate_base_image() {
+  local image_id="$1"
+  local folder_id="$2"
+  local expected_hash
+  expected_hash="$(base_contract_hash)"
+  local image
+  image="$(yc compute image get "$image_id" --folder-id "$folder_id" --format json)" || {
+    printf 'Yandex Cloud base image "%s" was not found\n' "$image_id" >&2
+    exit 1
+  }
+  jq -e --arg hash "$expected_hash" --arg contract "$base_contract_version" '
+    .status == "READY" and .family == "orca-highstate-base" and
+    .labels.orca_base_contract == $contract and .labels.orca_base_hash == $hash
+  ' <<<"$image" >/dev/null || {
+    printf 'Base image "%s" does not match the configured harnesses or setup scripts\n' "$image_id" >&2
+    printf 'Rebuild it with: bash scripts/orca-vm/yandex-cloud/setup.sh sync --confirm-cloud-changes\n' >&2
+    exit 1
+  }
+}
 
 yandex_instance_id_from_payload() {
   local payload="$1"

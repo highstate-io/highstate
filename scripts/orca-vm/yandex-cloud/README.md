@@ -1,62 +1,41 @@
 # Yandex Cloud Orca Environments
 
-The Yandex Cloud provider creates preemptible virtual machines from a reusable authenticated image.
-Shared lifecycle behavior is documented in the [Orca VM guide](../README.md).
+The Yandex Cloud provider creates preemptible virtual machines from one reusable base image. Credentials and
+user configuration are copied from the local machine to each new VM over SSH and never stored in that image.
+Shared harness configuration is documented in the [Orca VM guide](../README.md).
 
 ## Prerequisites
 
 The provider requires Bash, `yc`, `jq`, `ssh`, an SSH key pair, and an authenticated Yandex Cloud CLI.
-Cloud-init creates the configured SSH user, which defaults to `dev`, with passwordless sudo access.
-Image preparation creates temporary billable instances and reusable images.
-The authenticated image stores OpenCode authentication for disposable, single-user workspaces.
-Membership in the VM's `docker` group grants root-equivalent access inside the VM.
+Cloud-init creates the configured SSH user, which defaults to `dev`, with passwordless sudo access. Image
+preparation creates temporary billable instances and reusable images. Membership in the VM's `docker` group
+grants root-equivalent access inside the VM.
 
 ## Configuration
 
-Copy `config.example.json` to `config.json`, then set the cloud and SSH values.
-Both `config.json` and `state.json` are ignored by Git because they contain machine-specific identifiers and
-mutable local state.
+Copy `../config.example.json` to `../config.json` for shared files and harnesses. Copy `config.example.json` to
+`config.json` for Yandex Cloud, SSH, machine, and project settings. Both local configuration files and
+`state.json` are ignored by Git.
 
-## Prepare Images
+## Prepare The Base Image
 
-Synchronize the reusable images after toolchain or setup changes:
+Build and retain a base image after changing shared setup scripts or harness enablement:
 
 ```bash
 bash scripts/orca-vm/yandex-cloud/setup.sh sync --confirm-cloud-changes
 ```
 
-Synchronization rebuilds the base image and migrates OpenCode authentication from the newest ready
-authenticated image.
-When no authenticated image exists, it starts an instance for interactive authentication instead; complete
-the printed login command, then run `auth-finish` as described below.
+The image contains the shared toolchain and only the enabled harness executables. It has no user credentials or
+configuration. Its labels contain a contract version and setup fingerprint. Workspace creation rejects missing,
+unready, legacy, or mismatched images before creating a billable VM.
 
-Individual setup phases remain available for maintenance and recovery.
-Create only the base image:
+Build only the new image without a separate cleanup pass:
 
 ```bash
 bash scripts/orca-vm/yandex-cloud/setup.sh base --confirm-cloud-changes
 ```
 
-Start an instance for interactive OpenCode authentication:
-
-```bash
-bash scripts/orca-vm/yandex-cloud/setup.sh auth-start --confirm-cloud-changes
-```
-
-The command prints the SSH command to run in an interactive terminal.
-Complete OpenCode authentication there, then create the authenticated image:
-
-```bash
-bash scripts/orca-vm/yandex-cloud/setup.sh auth-finish --confirm-cloud-changes
-```
-
-When a new base image must retain authentication from the previous authenticated image, run:
-
-```bash
-bash scripts/orca-vm/yandex-cloud/setup.sh auth-migrate --confirm-cloud-changes
-```
-
-Remove obsolete base and authenticated images while retaining the IDs in current state:
+Delete obsolete base images and all legacy authenticated images:
 
 ```bash
 bash scripts/orca-vm/yandex-cloud/setup.sh cleanup --confirm-cloud-changes
@@ -70,10 +49,8 @@ Run the free static recipe doctor before creating a workspace:
 orca-ide vm recipe doctor yandex-cloud --repo-path "$PWD" --json
 ```
 
-On platforms where Orca provides a different session-specific command, use the executable selected by Orca
-for that session instead of `orca-ide`.
-
-The live doctor creates, validates, and destroys a billable workspace:
+The live doctor creates, validates, and destroys a billable workspace. It also transfers the credentials selected
+in the shared configuration:
 
 ```bash
 orca-ide vm recipe doctor yandex-cloud --repo-path "$PWD" --provision --json
@@ -82,9 +59,8 @@ orca-ide vm recipe doctor yandex-cloud --repo-path "$PWD" --provision --json
 ## For AI Agents
 
 - Never run `yc config list`; verify authentication with a scoped resource read that cannot return credentials.
-- Keep cloud credentials, SSH private key contents, and OpenCode credentials out of `config.json` and
-  `state.json`.
-- Obtain explicit approval before running image setup or live provisioning because these commands create
-  billable resources or persist OpenCode authentication.
+- Never print shared configuration contents, SSH private keys, OpenCode credentials, or copied file contents.
+- Obtain explicit approval before image setup or live provisioning because these commands create billable
+  resources and live provisioning transfers real credentials.
 - Run the static doctor before live validation.
 - After a failed setup or live validation, verify that no temporary instance remains.
