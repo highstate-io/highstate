@@ -15,8 +15,3 @@ node_modules
 /library
 
 /docs/.vitepress/cache
-
-/scripts/orca-vm/*/config.json
-/scripts/orca-vm/*/state.json
-/scripts/orca-vm/config.json
-/scripts/orca-vm/logs/

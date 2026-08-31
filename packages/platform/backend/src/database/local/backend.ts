@@ -47,6 +47,11 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
    * @param recipients AGE recipients that should retain access to the backend secrets.
    */
   async reencryptSecrets(recipients: string[]): Promise<void> {
+    if (!this.isEncryptionEnabled) {
+      this.logger.warn("backend encryption is disabled; skipping secret re-encryption")
+      return
+    }
+
     const meta = await readMetaFile(this.databasePath)
     if (!meta?.privateKey) {
       this.logger.warn(
@@ -113,6 +118,35 @@ export async function createBackendPrivateKey(identity: string): Promise<{
   }
 }
 
+export async function createUnencryptedBackendPrivateKey(): Promise<{
+  backendId: string
+  privateKey: string
+}> {
+  const privateKey = await generateIdentity()
+  const recipient = (await identityToRecipient(privateKey)).trim()
+
+  return {
+    backendId: cuidv2d(backendIdNamespace, recipient),
+    privateKey,
+  }
+}
+
+export async function readUnencryptedBackendPrivateKey(
+  privateKey: string,
+): Promise<{ backendId: string; privateKey: string }> {
+  if (privateKey.includes("-----BEGIN AGE ENCRYPTED FILE-----")) {
+    throw new Error(
+      "Backend metadata is encrypted. Remove HIGHSTATE_ENCRYPTION_ENABLED=false or use a separate development database.",
+    )
+  }
+
+  const recipient = (await identityToRecipient(privateKey)).trim()
+  return {
+    backendId: cuidv2d(backendIdNamespace, recipient),
+    privateKey,
+  }
+}
+
 export async function readBackendPrivateKey(
   encryptedPrivateKey: string,
   identity: string,
@@ -145,6 +179,34 @@ async function ensureDatabaseInitialized(
   logger: Logger,
 ): Promise<DatabaseInitializationResult> {
   const meta = await readMetaFile(databasePath)
+
+  if (!encryptionEnabled) {
+    if (meta?.masterKey) {
+      throw new Error(
+        "Backend metadata is encrypted. Remove HIGHSTATE_ENCRYPTION_ENABLED=false or use a separate development database.",
+      )
+    }
+
+    const privateKey = meta?.privateKey
+      ? await readUnencryptedBackendPrivateKey(meta.privateKey)
+      : await createUnencryptedBackendPrivateKey()
+    const metaFile: DatabaseMetaFile = {
+      version: meta?.version ?? 0,
+      privateKey: privateKey.privateKey,
+    }
+
+    if (meta && !meta.privateKey) {
+      await writeMetaFile(databasePath, metaFile)
+    }
+
+    return {
+      ...privateKey,
+      masterKey: undefined,
+      metaFile,
+      created: !meta,
+    }
+  }
+
   const identity = await getOrCreateBackendIdentity(config, logger)
 
   if (!meta) {
@@ -179,16 +241,6 @@ async function ensureDatabaseInitialized(
     privateKey = createdPrivateKey
     metaFile = { ...meta, privateKey: createdPrivateKey.encryptedPrivateKey }
     await writeMetaFile(databasePath, metaFile)
-  }
-
-  if (!encryptionEnabled) {
-    return {
-      backendId: privateKey.backendId,
-      privateKey: privateKey.privateKey,
-      masterKey: undefined,
-      metaFile,
-      created: false,
-    }
   }
 
   if (!metaFile.masterKey) {

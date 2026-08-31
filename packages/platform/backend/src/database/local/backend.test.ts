@@ -1,7 +1,12 @@
 import { cuidv2d } from "@highstate/contract"
 import { armor, Decrypter, generateIdentity, identityToRecipient } from "age-encryption"
 import { describe, expect, it } from "vitest"
-import { createBackendPrivateKey, readBackendPrivateKey } from "./backend"
+import {
+  createBackendPrivateKey,
+  createUnencryptedBackendPrivateKey,
+  readBackendPrivateKey,
+  readUnencryptedBackendPrivateKey,
+} from "./backend"
 
 const backendIdNamespace = "36d23d1d-b1ca-47d9-a5a3-664bb7aa250d"
 
@@ -35,5 +40,22 @@ describe("backend federation identity", () => {
       backendId: generated.backendId,
       privateKey: generated.privateKey,
     })
+  })
+
+  it("creates and restores a plaintext private key when encryption is disabled", async () => {
+    const generated = await createUnencryptedBackendPrivateKey()
+    const restored = await readUnencryptedBackendPrivateKey(generated.privateKey)
+
+    expect(generated.privateKey).toMatch(/^AGE-SECRET-KEY-/)
+    expect(restored).toEqual(generated)
+  })
+
+  it("rejects encrypted private keys when encryption is disabled", async () => {
+    const databaseIdentity = await generateIdentity()
+    const generated = await createBackendPrivateKey(databaseIdentity)
+
+    await expect(readUnencryptedBackendPrivateKey(generated.encryptedPrivateKey)).rejects.toThrow(
+      "Backend metadata is encrypted",
+    )
   })
 })

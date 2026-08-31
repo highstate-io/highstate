@@ -1,8 +1,8 @@
-environmentRecipes:
-  - id: yandex-cloud
-    name: Yandex Cloud
-    checkoutMode: provisioned-root
-    create: ./scripts/orca-vm/run-provider.sh yandex-cloud create
-    suspend: ./scripts/orca-vm/run-provider.sh yandex-cloud suspend
-    resume: ./scripts/orca-vm/run-provider.sh yandex-cloud resume
-    destroy: ./scripts/orca-vm/run-provider.sh yandex-cloud destroy
+scripts:
+  setup: |
+    devenv allow
+    devenv shell -- bash -euo pipefail -c '
+      bun install --frozen-lockfile
+      scripts/bootstrap-cli.sh
+      bun run dev:build
+    '
