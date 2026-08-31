@@ -2,7 +2,7 @@
 
 Some simple rules to follow:
 
-- Before working with Prisma schemas, database entities, or migrations, read `dev-docs/engineering/prisma.md`.
+- Before engineering tasks, read `dev-docs/engineering/README.md` and the related guides it links.
 - Before writing docs, read `packages/platform/docs/content/1.getting-started/2.concepts.mdc` and `packages/platform/docs/content/3.platform/2.units.mdc` as good human-written examples of how to write docs.
 - Before editing developer documentation, read `dev-docs/authoring/README.md` and apply its authority and
   maintenance rules to architecture content.
