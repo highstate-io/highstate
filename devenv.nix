@@ -41,6 +41,20 @@ in {
     wasm-pack
   ];
 
+  tasks."highstate:setup" = {
+    exec = ''
+      bun install --frozen-lockfile
+      scripts/bootstrap-cli.sh
+      bun run dev:build
+    '';
+    execIfModified = [
+      "bun.lock"
+      "package.json"
+      "scripts/bootstrap-cli.sh"
+    ];
+    before = ["devenv:enterShell"];
+  };
+
   profiles.ci.module = {
     env.CHROMIUM_PATH = lib.mkForce null;
     packages = lib.mkForce (with pkgs; [

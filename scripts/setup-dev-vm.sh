@@ -36,7 +36,7 @@ fi
 for value in "$DEV_PASSWORDLESS_SUDO" "$ENABLE_DOCKER" "$ENABLE_OPENCODE"; do
   if [[ "$value" != true && "$value" != false ]]; then
     printf 'Boolean configuration values must be either true or false\n' >&2
-    exit 1
+    exit 1  
   fi
 done
 
@@ -154,6 +154,9 @@ if ! grep -q '^# Highstate devenv activation$' /etc/bash.bashrc; then
 
 # Highstate devenv activation
 if [[ $- == *i* ]] && command -v devenv >/dev/null 2>&1; then
+  if [[ -f "$PWD/devenv.nix" ]]; then
+    devenv allow >/dev/null
+  fi
   eval "$(devenv hook bash)"
 fi
 EOF

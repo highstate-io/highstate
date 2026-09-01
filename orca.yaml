@@ -1,8 +1,0 @@
-scripts:
-  setup: |
-    devenv allow
-    devenv shell -- bash -euo pipefail -c '
-      bun install --frozen-lockfile
-      scripts/bootstrap-cli.sh
-      bun run dev:build
-    '
