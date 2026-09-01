@@ -4,7 +4,7 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 
-cli_version="v0.19.1"
+cli_version="v0.30.0"
 
 tmp_dir="$(mktemp -d)"
 cleanup() {
