@@ -41,6 +41,10 @@ in {
     wasm-pack
   ];
 
+  scripts.highstate.exec = ''
+    exec bun "$DEVENV_ROOT/packages/platform/cli/dist/main.js" "$@"
+  '';
+
   tasks."highstate:setup" = {
     exec = ''
       bun install --frozen-lockfile
