@@ -4,7 +4,7 @@ Highstate compatibility spans package releases, runtime versions, wire contracts
 persistent state.
 A dependency resolver accepting two versions does not prove that their runtime protocols are compatible.
 
-## Release Cohorts
+## Release Groups
 
 Platform packages form one fixed release group and standard-library packages form another.
 Packages within a group move together, while changes across groups require explicit compatibility review.

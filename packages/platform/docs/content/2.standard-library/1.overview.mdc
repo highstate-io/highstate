@@ -44,9 +44,6 @@ highstate update
 highstate update --pr 123
 ```
 
-Explicit versions must provide release group metadata.
-Versions published before this metadata was introduced cannot be selected with `highstate update`.
-
 The main package (`@highstate/library`) also must be included in `HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES` env variable.
 If you create the project using the Highstate CLI, this will be done automatically for you.
 
