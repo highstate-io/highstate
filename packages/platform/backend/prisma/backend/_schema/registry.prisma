@@ -1,0 +1,52 @@
+/// Backend-scoped credentials for an npm-compatible registry and package scope.
+model NpmRegistryCredential {
+    /// The CUIDv2 of the credential.
+    id String @id @default(cuid(2))
+
+    /// The metadata managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The normalized npm scope, including the leading `@` and trailing `/`, or an empty string for unscoped packages.
+    scope String @unique
+
+    /// The npm-compatible registry URL.
+    registryUrl String
+
+    /// The encrypted registry authentication material.
+    encryptedCredentials String
+
+    /// The time when the credential was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the credential was last updated.
+    updatedAt DateTime @updatedAt
+
+    runtimes ContainerRuntimeNpmRegistryCredential[]
+}
+
+/// Backend-scoped credentials for an OCI container registry.
+model ContainerRegistryCredential {
+    /// The CUIDv2 of the credential.
+    id String @id @default(cuid(2))
+
+    /// The metadata managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The normalized registry URL used in image names.
+    registryUrl String @unique
+
+    /// The encrypted registry authentication material.
+    encryptedCredentials String
+
+    /// The time when the credential was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the credential was last updated.
+    updatedAt DateTime @updatedAt
+
+    runtimes ContainerRuntimeContainerRegistryCredential[]
+}

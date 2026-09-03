@@ -1,0 +1,57 @@
+/// A reusable container runtime used to place all workloads for a project.
+model ContainerRuntime {
+    /// The CUIDv2 of the container runtime.
+    id String @id @default(cuid(2))
+
+    /// The metadata managed by the backend.
+    ///
+    /// [CommonObjectMeta]
+    meta Json
+
+    /// The Docker or Kubernetes runtime specification.
+    ///
+    /// [ContainerRuntimeSpec]
+    spec Json
+
+    /// The time when the runtime was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the runtime was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The projects using this runtime.
+    projects Project[]
+
+    /// Npm registry credentials available to this runtime.
+    npmRegistryCredentials ContainerRuntimeNpmRegistryCredential[]
+
+    /// Container registry credentials available to this runtime.
+    containerRegistryCredentials ContainerRuntimeContainerRegistryCredential[]
+
+    /// Project library images cached on this runtime.
+    librarySnapshotImages LibrarySnapshotImage[]
+}
+
+/// Makes one backend-scoped npm credential available to a container runtime.
+model ContainerRuntimeNpmRegistryCredential {
+    runtimeId String
+    credentialId String
+
+    runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+    credential NpmRegistryCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+    @@id([runtimeId, credentialId])
+    @@index([credentialId])
+}
+
+/// Makes one backend-scoped container registry credential available to a container runtime.
+model ContainerRuntimeContainerRegistryCredential {
+    runtimeId String
+    credentialId String
+
+    runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+    credential ContainerRegistryCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+    @@id([runtimeId, credentialId])
+    @@index([credentialId])
+}

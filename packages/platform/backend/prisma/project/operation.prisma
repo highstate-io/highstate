@@ -69,6 +69,9 @@ model Operation {
     /// [OperationPhase[]]
     phases Json?
 
+    /// The ID of the immutable project library snapshot captured for this operation.
+    librarySnapshotId String?
+
     /// The time when the operation started.
     startedAt DateTime @default(now())
 
@@ -86,6 +89,9 @@ model Operation {
 
     /// The entity snapshots created by this operation.
     entitySnapshots EntitySnapshot[]
+
+    /// The immutable project library snapshot captured for this operation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
 }
 
 model InstanceOperationState {
@@ -114,6 +120,15 @@ model InstanceOperationState {
     /// [InstanceResolvedInputs]
     resolvedInputs Json
 
+    /// The ID of the project library snapshot targeted by this instance operation.
+    librarySnapshotId String?
+
+    /// The ID of the package version supplying the targeted component implementation.
+    libraryPackageVersionId String?
+
+    /// The previously deployed package version when this operation performs an upgrade.
+    previousLibraryPackageVersionId String?
+
     /// The time when the operation on this instance started.
     /// Not populated on create, even if the instance is ready to start immediately.
     startedAt DateTime?
@@ -126,6 +141,15 @@ model InstanceOperationState {
 
     /// The instance this state belongs to.
     state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The project library snapshot targeted by this instance operation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
+
+    /// The package version supplying the targeted component implementation.
+    libraryPackageVersion LibraryPackageVersion? @relation("OperationPackageVersion", fields: [libraryPackageVersionId], references: [id])
+
+    /// The previously deployed package version when this operation performs an upgrade.
+    previousLibraryPackageVersion LibraryPackageVersion? @relation("PreviousOperationPackageVersion", fields: [previousLibraryPackageVersionId], references: [id])
 
     @@id([operationId, stateId])
 }

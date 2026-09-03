@@ -1,0 +1,305 @@
+syntax = "proto3";
+package io.highstate.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// SettingsMeta contains display metadata for a reusable backend setting.
+message SettingsMeta {
+  // The human-readable title.
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The optional description.
+  optional string description = 2;
+}
+
+// ContainerRuntime describes reusable backend-scoped workload placement.
+message ContainerRuntime {
+  // The stable runtime ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The runtime display metadata.
+  SettingsMeta meta = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The runtime implementation and connection settings.
+  ContainerRuntimeSpec spec = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Npm registry credential IDs available to this runtime.
+  repeated string npm_registry_credential_ids = 4;
+
+  // Container registry credential IDs available to this runtime.
+  repeated string container_registry_credential_ids = 5;
+
+  // The time when the runtime was created.
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the runtime was last updated.
+  google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ContainerRuntimeSpec selects one container runtime implementation.
+message ContainerRuntimeSpec {
+  // The implementation-specific runtime settings.
+  oneof runtime {
+    // Docker-compatible engine settings.
+    DockerRuntimeSpec docker = 1;
+
+    // Kubernetes cluster settings.
+    KubernetesRuntimeSpec kubernetes = 2;
+  }
+}
+
+// DockerRuntimeSpec configures a local or remote Docker-compatible engine.
+message DockerRuntimeSpec {
+  // The Docker engine endpoint.
+  string engine_endpoint = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether the engine shares the backend host and can use local bind mounts.
+  bool local = 2;
+
+  // The authenticated TLS runtime API URL reachable by workloads.
+  string runtime_api_url = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // A PEM CA bundle used by workloads to verify a private runtime API certificate.
+  optional bytes runtime_api_ca_bundle = 4;
+}
+
+// KubernetesRuntimeSpec configures workload placement in one Kubernetes namespace.
+message KubernetesRuntimeSpec {
+  // The kubeconfig content used to connect to the cluster.
+  bytes kubeconfig = 1 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // The kubeconfig context, when it cannot be inferred.
+  optional string context = 2;
+
+  // The namespace in which Highstate creates resources.
+  string namespace = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The Kubernetes service account assigned to workloads.
+  string service_account = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The authenticated TLS runtime API URL reachable by workloads.
+  string runtime_api_url = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // A PEM CA bundle used by workloads to verify a private runtime API certificate.
+  optional bytes runtime_api_ca_bundle = 6;
+
+  // The OCI image repository used for project library images.
+  string image_repository = 7 [(google.api.field_behavior) = REQUIRED];
+
+  // The rootless OCI builder image.
+  string builder_image = 8 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PulumiStateBackend describes reusable Pulumi state storage.
+message PulumiStateBackend {
+  // The stable state backend ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The state backend display metadata.
+  SettingsMeta meta = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The Pulumi backend URL.
+  string url = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Authentication configuration accepted only when creating or replacing the backend settings.
+  optional bytes credentials = 4 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // The time when the state backend was created.
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the state backend was last updated.
+  google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// NpmRegistryCredential describes reusable authentication for one npm package scope.
+message NpmRegistryCredential {
+  // The stable credential ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The credential display metadata.
+  SettingsMeta meta = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The normalized package scope, or an empty string for unscoped packages.
+  string scope = 3;
+
+  // The npm-compatible registry URL.
+  string registry_url = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Authentication material accepted only when creating or replacing the credential.
+  bytes credentials = 5 [(google.api.field_behavior) = INPUT_ONLY];
+}
+
+// ContainerRegistryCredential describes reusable authentication for one OCI registry.
+message ContainerRegistryCredential {
+  // The stable credential ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The credential display metadata.
+  SettingsMeta meta = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The normalized registry URL used in image names.
+  string registry_url = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Authentication material accepted only when creating or replacing the credential.
+  bytes credentials = 4 [(google.api.field_behavior) = INPUT_ONLY];
+}
+
+// ListContainerRuntimesRequest requests all configured container runtimes.
+message ListContainerRuntimesRequest {}
+
+// ListContainerRuntimesResponse returns configured container runtimes.
+message ListContainerRuntimesResponse {
+  // The configured runtimes.
+  repeated ContainerRuntime runtimes = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PutContainerRuntimeRequest creates or replaces a container runtime.
+message PutContainerRuntimeRequest {
+  // The runtime to persist. An empty ID creates a runtime.
+  ContainerRuntime runtime = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PutContainerRuntimeResponse returns the canonical container runtime.
+message PutContainerRuntimeResponse {
+  // The canonical runtime.
+  ContainerRuntime runtime = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteContainerRuntimeRequest removes an unused container runtime.
+message DeleteContainerRuntimeRequest {
+  // The stable runtime ID.
+  string container_runtime_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteContainerRuntimeResponse reports successful removal.
+message DeleteContainerRuntimeResponse {}
+
+// ListPulumiStateBackendsRequest requests all configured Pulumi state backends.
+message ListPulumiStateBackendsRequest {}
+
+// ListPulumiStateBackendsResponse returns configured Pulumi state backends.
+message ListPulumiStateBackendsResponse {
+  // The configured state backends.
+  repeated PulumiStateBackend backends = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PutPulumiStateBackendRequest creates or replaces a Pulumi state backend.
+message PutPulumiStateBackendRequest {
+  // The state backend to persist. An empty ID creates a state backend.
+  PulumiStateBackend backend = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PutPulumiStateBackendResponse returns the canonical Pulumi state backend.
+message PutPulumiStateBackendResponse {
+  // The canonical state backend.
+  PulumiStateBackend backend = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeletePulumiStateBackendRequest removes an unused Pulumi state backend.
+message DeletePulumiStateBackendRequest {
+  // The stable state backend ID.
+  string pulumi_state_backend_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeletePulumiStateBackendResponse reports successful removal.
+message DeletePulumiStateBackendResponse {}
+
+// ListNpmRegistryCredentialsRequest requests configured npm registry credentials.
+message ListNpmRegistryCredentialsRequest {}
+
+// ListNpmRegistryCredentialsResponse returns configured npm registry credentials without secret values.
+message ListNpmRegistryCredentialsResponse {
+  // The configured npm credentials.
+  repeated NpmRegistryCredential credentials = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PutNpmRegistryCredentialRequest creates or replaces an npm registry credential.
+message PutNpmRegistryCredentialRequest {
+  // The credential to persist. An empty ID creates a credential.
+  NpmRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PutNpmRegistryCredentialResponse returns the canonical credential without its secret value.
+message PutNpmRegistryCredentialResponse {
+  // The canonical npm registry credential.
+  NpmRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteNpmRegistryCredentialRequest removes an unused npm registry credential.
+message DeleteNpmRegistryCredentialRequest {
+  // The stable credential ID.
+  string npm_registry_credential_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteNpmRegistryCredentialResponse reports successful removal.
+message DeleteNpmRegistryCredentialResponse {}
+
+// ListContainerRegistryCredentialsRequest requests configured OCI registry credentials.
+message ListContainerRegistryCredentialsRequest {}
+
+// ListContainerRegistryCredentialsResponse returns configured OCI credentials without secret values.
+message ListContainerRegistryCredentialsResponse {
+  // The configured container registry credentials.
+  repeated ContainerRegistryCredential credentials = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PutContainerRegistryCredentialRequest creates or replaces an OCI registry credential.
+message PutContainerRegistryCredentialRequest {
+  // The credential to persist. An empty ID creates a credential.
+  ContainerRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PutContainerRegistryCredentialResponse returns the canonical credential without its secret value.
+message PutContainerRegistryCredentialResponse {
+  // The canonical container registry credential.
+  ContainerRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteContainerRegistryCredentialRequest removes an unused OCI registry credential.
+message DeleteContainerRegistryCredentialRequest {
+  // The stable credential ID.
+  string container_registry_credential_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteContainerRegistryCredentialResponse reports successful removal.
+message DeleteContainerRegistryCredentialResponse {}
+
+// RuntimeSettingsService manages reusable backend-scoped runtimes, state backends, and registry credentials.
+service RuntimeSettingsService {
+  // Lists configured container runtimes.
+  rpc ListContainerRuntimes(ListContainerRuntimesRequest) returns (ListContainerRuntimesResponse);
+
+  // Creates or replaces a container runtime.
+  rpc PutContainerRuntime(PutContainerRuntimeRequest) returns (PutContainerRuntimeResponse);
+
+  // Removes an unused container runtime.
+  rpc DeleteContainerRuntime(DeleteContainerRuntimeRequest) returns (DeleteContainerRuntimeResponse);
+
+  // Lists configured Pulumi state backends.
+  rpc ListPulumiStateBackends(ListPulumiStateBackendsRequest) returns (ListPulumiStateBackendsResponse);
+
+  // Creates or replaces a Pulumi state backend.
+  rpc PutPulumiStateBackend(PutPulumiStateBackendRequest) returns (PutPulumiStateBackendResponse);
+
+  // Removes an unused Pulumi state backend.
+  rpc DeletePulumiStateBackend(DeletePulumiStateBackendRequest) returns (DeletePulumiStateBackendResponse);
+
+  // Lists configured npm registry credentials.
+  rpc ListNpmRegistryCredentials(ListNpmRegistryCredentialsRequest) returns (ListNpmRegistryCredentialsResponse);
+
+  // Creates or replaces an npm registry credential.
+  rpc PutNpmRegistryCredential(PutNpmRegistryCredentialRequest) returns (PutNpmRegistryCredentialResponse);
+
+  // Removes an unused npm registry credential.
+  rpc DeleteNpmRegistryCredential(DeleteNpmRegistryCredentialRequest) returns (DeleteNpmRegistryCredentialResponse);
+
+  // Lists configured OCI registry credentials.
+  rpc ListContainerRegistryCredentials(ListContainerRegistryCredentialsRequest) returns (ListContainerRegistryCredentialsResponse);
+
+  // Creates or replaces an OCI registry credential.
+  rpc PutContainerRegistryCredential(PutContainerRegistryCredentialRequest) returns (PutContainerRegistryCredentialResponse);
+
+  // Removes an unused OCI registry credential.
+  rpc DeleteContainerRegistryCredential(DeleteContainerRegistryCredentialRequest) returns (DeleteContainerRegistryCredentialResponse);
+}

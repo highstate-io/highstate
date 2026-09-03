@@ -36,6 +36,9 @@ message Operation {
 
   // The time when the operation finished, when it has reached a final state.
   optional google.protobuf.Timestamp finished_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The immutable packaged library snapshot captured for planning and execution.
+  optional string library_snapshot_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // OperationMeta contains user-provided display metadata for an operation.
@@ -157,6 +160,27 @@ message OperationPhaseInstance {
 
   // The human-readable planning explanation.
   string message = 3;
+
+  // The package version change that makes this instance outdated, when applicable.
+  optional LibraryPackageUpgrade library_package_upgrade = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibraryPackageUpgrade describes a direct library package version change for one instance.
+message LibraryPackageUpgrade {
+  // The npm package name that owns the component implementation.
+  string package_name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The currently deployed exact package version, when known.
+  optional string previous_version = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The exact package version selected by the operation snapshot.
+  string version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The deployed package-version record, when known.
+  optional string previous_library_package_version_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The package-version record selected by the operation snapshot.
+  string library_package_version_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // OperationLog is one ordered operation log entry.

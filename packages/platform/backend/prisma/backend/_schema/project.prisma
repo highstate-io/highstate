@@ -16,11 +16,11 @@ model Project {
     /// The ID of the project model storage this project uses.
     modelStorageId String
 
-    /// The ID of the library used by this project.
-    libraryId String
+    /// The ID of the container runtime used by this project.
+    containerRuntimeId String
 
-    /// The ID of the Pulumi backend used by this project.
-    pulumiBackendId String
+    /// The ID of the Pulumi state backend used by this project.
+    pulumiStateBackendId String
 
     /// Encrypted project master key in AGE format.
     encryptedMasterKey String
@@ -52,11 +52,14 @@ model Project {
     /// The project model storage this project uses.
     modelStorage ProjectModelStorage @relation(fields: [modelStorageId], references: [id])
 
-    /// The library used by this project.
-    library Library @relation(fields: [libraryId], references: [id])
+    /// The container runtime used by this project.
+    containerRuntime ContainerRuntime @relation(fields: [containerRuntimeId], references: [id])
 
-    /// The Pulumi backend used by this project.
-    pulumiBackend PulumiBackend @relation(fields: [pulumiBackendId], references: [id])
+    /// The Pulumi state backend used by this project.
+    pulumiStateBackend PulumiStateBackend @relation(fields: [pulumiStateBackendId], references: [id])
+
+    /// Backend-local images materialized from this project's library snapshots.
+    librarySnapshotImages LibrarySnapshotImage[]
 
     /// The import ports in this project.
     importPorts ProjectImportPort[]
