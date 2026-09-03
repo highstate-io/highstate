@@ -14,6 +14,7 @@ _post_process_generated_package() {
         .version = \"$version\" | \
         .dependencies.typescript = \"^5.9.3\" | \
         .dependencies.\"@pulumi/pulumi\" = \"3.232.0\" | \
+        .files = [\"bin\"] | \
         .publishConfig = {\"access\": \"public\"} | \
         .repository = {\"url\": \"https://github.com/highstate-io/highstate\"} | \
         .scripts.build = \"tsc && cp package.json bin/package.json\" | \

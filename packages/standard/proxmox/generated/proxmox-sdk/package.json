@@ -1,6 +1,6 @@
 {
   "name": "@highstate/proxmox-sdk",
-  "version": "0.22.0",
+  "version": "0.28.0",
   "description": "A Pulumi provider dynamically bridged from proxmox.",
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
@@ -27,5 +27,8 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "files": [
+    "bin"
+  ]
 }

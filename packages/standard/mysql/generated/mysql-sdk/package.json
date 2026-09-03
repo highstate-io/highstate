@@ -1,6 +1,6 @@
 {
   "name": "@highstate/mysql-sdk",
-  "version": "0.19.1",
+  "version": "0.28.0",
   "description": "A Pulumi provider dynamically bridged from mysql.",
   "repository": {
     "url": "https://github.com/highstate-io/highstate"
@@ -13,7 +13,7 @@
     "@pulumi/pulumi": "3.232.0",
     "@types/node": "^18",
     "async-mutex": "^0.5.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   },
   "pulumi": {
     "resource": true,
@@ -27,5 +27,8 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "files": [
+    "bin"
+  ]
 }

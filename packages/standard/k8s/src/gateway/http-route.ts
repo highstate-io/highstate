@@ -27,6 +27,11 @@ export type HttpRouteArgs = Omit<ScopedResourceArgs, "namespace"> & {
   hostname?: Input<string>
 
   /**
+   * The hostnames to match against the HTTP Host header.
+   */
+  hostnames?: InputArray<string>
+
+  /**
    * The rule of the route.
    */
   rule?: Input<HttpRouteRuleArgs>
@@ -35,7 +40,7 @@ export type HttpRouteArgs = Omit<ScopedResourceArgs, "namespace"> & {
    * The rules of the route.
    */
   rules?: InputArray<HttpRouteRuleArgs>
-} & Omit<Partial<types.input.gateway.v1.HTTPRouteSpec>, "rules">
+} & Omit<Partial<types.input.gateway.v1.HTTPRouteSpec>, "hostnames" | "rules">
 
 export type HttpRouteRuleArgs = Omit<
   types.input.gateway.v1.HTTPRouteSpecRules,

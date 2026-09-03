@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cert-manager",
-  "version": "0.21.1",
+  "version": "0.28.0",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -19,8 +19,8 @@
   "dependencies": {
     "@pulumi/kubernetes": "4.23.0",
     "@pulumi/pulumi": "3.232.0",
-    "@types/node": "^18",
-    "glob": "^10.3.10",
+    "@types/node": "^20",
+    "glob": "^12.0.0",
     "shell-quote": "^1.6.1",
     "typescript": "^5.9.3"
   },
@@ -34,6 +34,9 @@
     "name": "crds",
     "version": "0.0.0-dev"
   },
+  "files": [
+    "bin"
+  ],
   "publishConfig": {
     "access": "public"
   }

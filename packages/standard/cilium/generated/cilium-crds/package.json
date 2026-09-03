@@ -1,6 +1,6 @@
 {
   "name": "@highstate/cilium-crds",
-  "version": "0.14.0",
+  "version": "0.28.0",
   "keywords": [
     "pulumi",
     "kubernetes",
@@ -24,7 +24,8 @@
     "glob": "^10.3.10",
     "node-fetch": "^2.3.0",
     "shell-quote": "^1.6.1",
-    "tmp": "^0.0.33"
+    "tmp": "^0.0.33",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
@@ -40,5 +41,8 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "files": [
+    "bin"
+  ]
 }

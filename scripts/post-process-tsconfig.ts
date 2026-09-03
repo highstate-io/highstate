@@ -17,4 +17,13 @@ if (parsed.error) {
 parsed.config.compilerOptions ??= {}
 parsed.config.compilerOptions.noCheck = true
 
-fs.writeFileSync(`${configPath}.tmp`, `${JSON.stringify(parsed.config, null, 2)}\n`)
+const format = Bun.spawnSync(["bun", "x", "biome", "format", `--stdin-file-path=${configPath}`], {
+  stdin: Buffer.from(`${JSON.stringify(parsed.config, null, 2)}\n`),
+  stderr: "inherit",
+})
+
+if (format.exitCode !== 0) {
+  throw new Error(`Failed to format ${configPath}`)
+}
+
+fs.writeFileSync(`${configPath}.tmp`, format.stdout)

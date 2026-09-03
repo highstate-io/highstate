@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
     "outDir": "bin",
-    "target": "ES2020",
-    "module": "commonjs",
-    "moduleResolution": "node",
     "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
     "stripInternal": true,
-    "experimentalDecorators": true,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
+    "types": ["node"],
     "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
     "noCheck": true
   },
   "files": [

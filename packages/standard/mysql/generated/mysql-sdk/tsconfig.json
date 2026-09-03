@@ -10,7 +10,8 @@
     "experimentalDecorators": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "strict": true,
+    "noCheck": true
   },
   "files": [
     "config/index.ts",
