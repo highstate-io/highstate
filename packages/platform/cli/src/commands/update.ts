@@ -11,6 +11,7 @@ import {
   getDependencyRange,
   getProjectPlatformVersion,
   logger,
+  resolvePreviewVersionBundle,
   resolveVersionBundle,
   writeJsonFile,
 } from "../shared"
@@ -65,8 +66,9 @@ export class UpdateCommand extends Command {
       }
 
       const preview = await fetchPrPreviewDescriptor(pullRequest)
+      const bundle = await resolvePreviewVersionBundle(preview)
       const overrides = {
-        ...buildOverrides(preview.stable),
+        ...buildOverrides(bundle),
         ...preview.packages,
       }
 

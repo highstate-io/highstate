@@ -1,9 +1,17 @@
-import { fetchLatestVersion, fetchManifest, getDependencyRange } from "./npm-registry"
+import {
+  fetchLatestVersion,
+  fetchManifest,
+  fetchPackageManifest,
+  getDependencyRange,
+  getReleaseGroupPackages,
+} from "./npm-registry"
 
 export type VersionBundle = {
   platformVersion: string
   stdlibVersion: string
   pulumiVersion: string
+  platformPackages: string[]
+  stdlibPackages: string[]
 }
 
 export type ResolveVersionBundleArgs = {
@@ -11,7 +19,7 @@ export type ResolveVersionBundleArgs = {
   stdlibVersion?: string
 }
 
-const platformSourcePackage = "@highstate/pulumi"
+const platformSourcePackage = "@highstate/contract"
 const stdlibSourcePackage = "@highstate/library"
 
 export async function resolveVersionBundle(args: ResolveVersionBundleArgs): Promise<VersionBundle> {
@@ -22,11 +30,15 @@ export async function resolveVersionBundle(args: ResolveVersionBundleArgs): Prom
     platformVersion ?? (await fetchLatestVersion(platformSourcePackage))
   const resolvedStdlibVersion = stdlibVersion ?? (await fetchLatestVersion(stdlibSourcePackage))
 
-  const platformManifest = await fetchManifest(platformSourcePackage, resolvedPlatformVersion)
-  const inferredPulumi = getDependencyRange(platformManifest, "@pulumi/pulumi")
+  const [platformManifest, stdlibManifest, pulumiManifest] = await Promise.all([
+    fetchManifest(platformSourcePackage, resolvedPlatformVersion),
+    fetchManifest(stdlibSourcePackage, resolvedStdlibVersion),
+    fetchManifest("@highstate/pulumi", resolvedPlatformVersion),
+  ])
+  const inferredPulumi = getDependencyRange(pulumiManifest, "@pulumi/pulumi")
   if (!inferredPulumi) {
     throw new Error(
-      `Unable to infer "@pulumi/pulumi" version from "${platformSourcePackage}@${resolvedPlatformVersion}"`,
+      `Unable to infer "@pulumi/pulumi" version from "@highstate/pulumi@${resolvedPlatformVersion}"`,
     )
   }
 
@@ -34,7 +46,43 @@ export async function resolveVersionBundle(args: ResolveVersionBundleArgs): Prom
     platformVersion: resolvedPlatformVersion,
     stdlibVersion: resolvedStdlibVersion,
     pulumiVersion: inferredPulumi,
+    platformPackages: getReleaseGroupPackages(platformManifest, "platform"),
+    stdlibPackages: getReleaseGroupPackages(stdlibManifest, "stdlib"),
   }
+}
+
+export async function resolvePreviewVersionBundle(args: {
+  stable: Omit<VersionBundle, "platformPackages" | "stdlibPackages">
+  packages: Record<string, string>
+}): Promise<VersionBundle> {
+  const [platformManifest, stdlibManifest] = await Promise.all([
+    fetchReleaseGroupManifest(
+      platformSourcePackage,
+      args.stable.platformVersion,
+      args.packages[platformSourcePackage],
+    ),
+    fetchReleaseGroupManifest(
+      stdlibSourcePackage,
+      args.stable.stdlibVersion,
+      args.packages[stdlibSourcePackage],
+    ),
+  ])
+
+  return {
+    ...args.stable,
+    platformPackages: getReleaseGroupPackages(platformManifest, "platform"),
+    stdlibPackages: getReleaseGroupPackages(stdlibManifest, "stdlib"),
+  }
+}
+
+async function fetchReleaseGroupManifest(
+  packageName: string,
+  version: string,
+  previewUrl: string | undefined,
+): Promise<import("./npm-registry").NpmRegistryManifest> {
+  return previewUrl
+    ? await fetchPackageManifest(previewUrl)
+    : await fetchManifest(packageName, version)
 }
 
 function normalizeProvidedVersion(value: string | undefined, label: string): string | undefined {

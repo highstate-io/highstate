@@ -35,7 +35,7 @@ To update the Standard Library in a local project, you can use the Highstate CLI
 highstate update --stdlib
 
 # Or update to a specific Standard Library version
-highstate update --stdlib --stdlib-version 0.23.0
+highstate update --stdlib --stdlib-version "$STDLIB_VERSION"
 
 # Update both the platform and the Standard Library to the latest possible versions
 highstate update

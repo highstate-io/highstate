@@ -54,7 +54,7 @@ module.exports = async ({ github, context }) => {
     pullRequest: context.issue.number,
     sourceSha: process.env.SOURCE_SHA,
     stable: {
-      platformVersion: trustedPackages.get("@highstate/pulumi"),
+      platformVersion: trustedPackages.get("@highstate/contract"),
       stdlibVersion: trustedPackages.get("@highstate/library"),
       pulumiVersion: JSON.parse(
         fs.readFileSync("trusted/packages/platform/pulumi/package.json", "utf8"),

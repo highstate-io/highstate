@@ -12,6 +12,21 @@
         "mode": "manual",
         "version": "1"
       }
+    },
+    "release": {
+      "group": "platform",
+      "packages": [
+        "@highstate/api",
+        "@highstate/backend",
+        "@highstate/backend-api",
+        "@highstate/cli",
+        "@highstate/contract",
+        "@highstate/designer",
+        "@highstate/mcp",
+        "@highstate/pulumi",
+        "@highstate/worker-sdk",
+        "create-highstate"
+      ]
     }
   },
   "exports": {

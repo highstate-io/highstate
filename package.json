@@ -23,10 +23,12 @@
   },
   "scripts": {
     "ci:prepare": "scripts/bootstrap-cli.sh && bun install",
-    "ci:release": "nx run-many -t test,build,biome:check,publish-images,typecheck",
-    "ci:verify": "nx affected --base=origin/main -t test,biome:check,typecheck,check,links",
+    "ci:release": "bun run release-groups:update && nx run-many -t test,build,biome:check,publish-images,typecheck",
+    "ci:verify": "bun run release-groups:check && nx affected --base=origin/main -t test,biome:check,typecheck,check,links",
     "test:scripts": "bun run --bun vitest run scripts",
     "dev:build": "nx run-many -t build --exclude @highstate/designer --exclude @highstate/docs",
+    "release-groups:check": "bun scripts/release-groups.ts --check",
+    "release-groups:update": "bun scripts/release-groups.ts",
     "update-diagrams": "ts-node --esm scripts/update-diagrams.ts"
   },
   "devDependencies": {
