@@ -66,5 +66,6 @@ Write the body as a bulleted summary without headings or other sections.
 Use lowercase sentence fragments without terminal punctuation.
 Describe the useful behavioral and implementation changes as precisely as possible with as few words as
 possible.
+Do not include commands, CI status, test counts, or other verification results in the change list.
 Do not blindly repeat commit messages; combine and reframe their details to explain the pull request as a
 coherent change.

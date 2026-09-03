@@ -11,6 +11,7 @@ import {
   type InstanceId,
   type InstanceInput,
   type InstanceModel,
+  inputKey,
   isUnitModel,
   parseInstanceId,
   type VersionedName,
@@ -53,7 +54,7 @@ export class OperationContext {
   private readonly inputHashResolverLock = new BetterLock()
 
   private readonly resolvedInstanceInputs = new Map<
-    string,
+    InstanceId,
     Record<InstanceId, ResolvedInstanceInput[]>
   >()
 
@@ -365,13 +366,75 @@ export class OperationContext {
     }[] = []
 
     for (const [instanceId, inputs] of this.resolvedInstanceInputs.entries()) {
-      for (const inputGroup of Object.values(inputs ?? {})) {
+      const instanceState = this.stateMap.get(instanceId)
+
+      for (const [inputName, inputGroup] of Object.entries(inputs ?? {})) {
+        const stableInputs = instanceState?.resolvedInputs?.[inputName] ?? []
+        const unusedStableInputs = new Set(stableInputs.keys())
+        const dependencyStateByHistoricalInput = new Map<string, InstanceState>()
+
+        for (const input of inputGroup) {
+          const dependencyState = this.stateMap.get(input.input.instanceId)
+          if (!dependencyState) {
+            continue
+          }
+
+          const stableInputIndex = stableInputs.findIndex(
+            (stableInput, index) =>
+              unusedStableInputs.has(index) &&
+              stableInput.stateId === dependencyState.id &&
+              stableInput.output === input.input.output &&
+              stableInput.path === input.input.path,
+          )
+          unusedStableInputs.delete(stableInputIndex)
+        }
+
         for (const input of inputGroup) {
           if (input.input.instanceId === instanceId) {
             continue
           }
 
-          const dependencyState = this.getState(input.input.instanceId)
+          let dependencyState = this.stateMap.get(input.input.instanceId)
+          if (!dependencyState) {
+            const historicalInputKey = inputKey(input.input)
+            dependencyState = dependencyStateByHistoricalInput.get(historicalInputKey)
+
+            if (!dependencyState) {
+              const matchingStableInputs = stableInputs
+                .map((stableInput, index) => ({ stableInput, index }))
+                .filter(
+                  ({ stableInput, index }) =>
+                    unusedStableInputs.has(index) &&
+                    stableInput.output === input.input.output &&
+                    stableInput.path === input.input.path,
+                )
+              const matchingStateIds = unique(
+                matchingStableInputs.map(({ stableInput }) => stableInput.stateId),
+              )
+
+              if (matchingStateIds.length > 1) {
+                throw new Error(
+                  `Multiple instance states match historical input from "${input.input.instanceId}" for "${instanceId}.${inputName}"`,
+                )
+              }
+
+              const stateId = matchingStateIds[0]
+              const currentInstanceId = stateId ? this.stateIdMap.get(stateId) : undefined
+              if (!currentInstanceId) {
+                this.getState(input.input.instanceId)
+              }
+
+              dependencyState = this.getState(currentInstanceId!)
+              dependencyStateByHistoricalInput.set(historicalInputKey, dependencyState)
+
+              for (const { stableInput, index } of matchingStableInputs) {
+                if (stableInput.stateId === stateId) {
+                  unusedStableInputs.delete(index)
+                }
+              }
+            }
+          }
+
           keys.push({
             stateId: dependencyState.id,
             output: input.input.output,
