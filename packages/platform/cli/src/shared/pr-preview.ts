@@ -1,8 +1,9 @@
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
 import semver from "semver"
-import { PLATFORM_PACKAGES, STDLIB_PACKAGES } from "./version-sets"
 
 const PREVIEW_MARKER = "highstate-pr-preview"
-const ALLOWED_PACKAGES = new Set([...PLATFORM_PACKAGES, ...STDLIB_PACKAGES])
+const execFileAsync = promisify(execFile)
 
 export type PrPreviewDescriptor = {
   schemaVersion: 1
@@ -51,7 +52,7 @@ export function parsePrPreviewComment(
   }
 
   for (const [name, url] of Object.entries(descriptor.packages)) {
-    if (!ALLOWED_PACKAGES.has(name)) {
+    if (name !== "create-highstate" && !/^@highstate\/[a-z0-9.-]+$/.test(name)) {
       throw new Error(`Preview includes unknown package "${name}"`)
     }
 
@@ -59,7 +60,7 @@ export function parsePrPreviewComment(
     if (
       parsed.protocol !== "https:" ||
       parsed.hostname !== "pkg.pr.new" ||
-      !parsed.pathname.startsWith("/highstate-io/highstate/")
+      !parsed.pathname.startsWith(`/highstate-io/highstate/${name}@`)
     ) {
       throw new Error(`Preview package "${name}" has an invalid URL`)
     }
@@ -70,7 +71,9 @@ export function parsePrPreviewComment(
 
 export async function fetchPrPreviewDescriptor(pullRequest: number): Promise<PrPreviewDescriptor> {
   const headers: Record<string, string> = { Accept: "application/vnd.github+json" }
-  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
+  const token = await getGitHubToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+
   const [response, pullResponse] = await Promise.all([
     fetch(
       `https://api.github.com/repos/highstate-io/highstate/issues/${pullRequest}/comments?per_page=100`,
@@ -80,6 +83,12 @@ export async function fetchPrPreviewDescriptor(pullRequest: number): Promise<PrP
   ])
 
   if (!response.ok) {
+    if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0") {
+      throw new Error(
+        `Unable to fetch Highstate PR ${pullRequest} comments because the GitHub API rate limit was exceeded; run "gh auth login" or set GH_TOKEN`,
+      )
+    }
+
     throw new Error(
       `Unable to fetch Highstate PR ${pullRequest} comments (HTTP ${response.status})`,
     )
@@ -105,4 +114,23 @@ export async function fetchPrPreviewDescriptor(pullRequest: number): Promise<PrP
   }
 
   throw new Error(`Highstate PR ${pullRequest} does not have a current preview`)
+}
+
+export async function getGitHubToken(commandPath = "gh"): Promise<string | undefined> {
+  const environmentToken = process.env.GH_TOKEN?.trim() || process.env.GITHUB_TOKEN?.trim()
+  if (environmentToken) {
+    return environmentToken
+  }
+
+  try {
+    const { stdout } = await execFileAsync(commandPath, [
+      "auth",
+      "token",
+      "--hostname",
+      "github.com",
+    ])
+    return stdout.trim() || undefined
+  } catch {
+    return undefined
+  }
 }
