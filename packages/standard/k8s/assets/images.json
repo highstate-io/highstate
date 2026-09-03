@@ -2,17 +2,17 @@
   "terminal-kubectl": {
     "name": "ghcr.io/highstate-io/terminal.kubectl",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/terminal.kubectl:latest@sha256:1f98bb66375f34ea2579ab42871930028b578a5304b3a969b5c9eaf00ab95c9d"
+    "image": "ghcr.io/highstate-io/terminal.kubectl:latest@sha256:5c4981032eeafbdc5a596ef4a3bf7762061c7bacca73dc3870b19a67461b6b75"
   },
   "worker.k8s-monitor": {
     "name": "ghcr.io/highstate-io/worker.k8s-monitor",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/worker.k8s-monitor:latest@sha256:cbadc5b8843f0ff026dede4213d43a3d77a80961e79a123c06f6b92a22e585f5"
+    "image": "ghcr.io/highstate-io/worker.k8s-monitor:latest@sha256:cf810d5cbe721bc8a5c925c2959c9a95e72c59e9a0546902628fd64aebe01644"
   },
   "worker.k8s-dashboard": {
     "name": "ghcr.io/highstate-io/worker.k8s-dashboard",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/worker.k8s-dashboard:latest@sha256:1c5b323b4a0445e67e1a76384d2938b278462b36f7018a9ed73bbbe0fdeba054"
+    "image": "ghcr.io/highstate-io/worker.k8s-dashboard:latest@sha256:13becd3b34931ec5dc242a080f4f9c81987a659d385bbdf933c543fac83a7925"
   },
   "alpine": {
     "name": "alpine",
