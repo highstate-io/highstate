@@ -1,3 +1,13 @@
+## 0.30.2 (2026-09-03)
+
+### 🩹 Fixes
+
+- resolve renamed snapshot dependencies by state ID ([#26](https://github.com/highstate-io/highstate/pull/26))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.30.1 (2026-09-03)
 
 This was a version bump only for @highstate/backend to align it with other projects, there were no code changes.
