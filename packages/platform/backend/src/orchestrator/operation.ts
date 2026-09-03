@@ -42,10 +42,28 @@ import { createOperationPlan } from "./operation-plan"
 import { OperationWorkset } from "./operation-workset"
 import { resolveUnitInputValues } from "./unit-input-values"
 
+type UnitOperationFailure = {
+  instanceId: InstanceId
+  error: unknown
+  sequence: number
+}
+
+class InstanceOperationError extends Error {
+  constructor(
+    readonly instanceId: InstanceId,
+    readonly unitFailures: UnitOperationFailure[],
+    options?: ErrorOptions,
+  ) {
+    super(`Instance "${instanceId}" failed`, options)
+    this.name = "InstanceOperationError"
+  }
+}
+
 export class RuntimeOperation {
   private readonly instancePromiseMap = new Map<InstanceId, Promise<void>>()
   private readonly promiseTracker = new PromiseTracker()
   private readonly pendingGhostDeletionIds = new Set<InstanceId>()
+  private failureSequence = 0
 
   private workset!: OperationWorkset
   private context!: OperationContext
@@ -206,15 +224,59 @@ export class RuntimeOperation {
   }
 
   private getNonAbortErrors(error: unknown): unknown[] {
-    if (isAbortErrorLike(error)) {
-      return []
+    const errors = new Set<unknown>()
+
+    const collect = (cause: unknown): void => {
+      if (isAbortErrorLike(cause)) {
+        return
+      }
+
+      if (cause instanceof InstanceOperationError && cause.unitFailures.length > 0) {
+        for (const failure of cause.unitFailures) {
+          errors.add(failure.error)
+        }
+        return
+      }
+
+      if (cause instanceof AggregateError) {
+        for (const nestedCause of cause.errors) {
+          collect(nestedCause)
+        }
+        return
+      }
+
+      errors.add(cause)
+    }
+
+    collect(error)
+    return Array.from(errors)
+  }
+
+  private getUnitFailures(error: unknown): UnitOperationFailure[] {
+    if (error instanceof InstanceOperationError) {
+      return error.unitFailures
     }
 
     if (error instanceof AggregateError) {
-      return Array.from(error.errors).flatMap(cause => this.getNonAbortErrors(cause))
+      return Array.from(error.errors).flatMap(cause => this.getUnitFailures(cause))
     }
 
-    return [error]
+    return []
+  }
+
+  private formatCompositeError(
+    instanceId: InstanceId,
+    unitFailures: UnitOperationFailure[],
+  ): string {
+    const uniqueFailures = Array.from(
+      new Map(unitFailures.map(failure => [failure.instanceId, failure])).values(),
+    ).sort((a, b) => a.sequence - b.sequence)
+    const firstFailure = uniqueFailures[0]!
+    const errors = uniqueFailures
+      .map(failure => `Unit "${failure.instanceId}" failed:\n${errorToString(failure.error)}`)
+      .join("\n\n")
+
+    return `Composite component "${instanceId}" failed. Unit "${firstFailure.instanceId}" failed first.\n\n${errors}`
   }
 
   private launchLockAcquisitionSequence(): void {
@@ -1348,7 +1410,28 @@ export class RuntimeOperation {
       .waitForInstanceLock(state.id, abortController.signal)
       .then(() => fn(logger, abortController.signal, forceAbortController.signal))
       .catch(error => {
-        if (this.operation.status !== "failing") {
+        const aborted = isAbortErrorLike(error)
+        const childUnitFailures = this.getUnitFailures(error)
+        const unitFailures =
+          state.kind === "unit" && !aborted && childUnitFailures.length === 0
+            ? [
+                {
+                  instanceId,
+                  error,
+                  sequence: this.failureSequence++,
+                },
+              ]
+            : childUnitFailures
+        const failed = !aborted && (state.kind === "composite" || childUnitFailures.length === 0)
+        const propagatedError =
+          failed || unitFailures.length > 0
+            ? new InstanceOperationError(instanceId, unitFailures, { cause: error })
+            : error
+
+        if (
+          failed &&
+          (this.operation.status === "pending" || this.operation.status === "running")
+        ) {
           // report the failing status of the operation
           this.operation.status = "failing"
           this.promiseTracker.track(this.updateOperation({ status: this.operation.status }))
@@ -1359,7 +1442,7 @@ export class RuntimeOperation {
           this.promiseTracker.track(
             this.workset.updateState(instanceId, {
               operationState: {
-                status: isAbortErrorLike(error) ? "cancelled" : "failed",
+                status: failed ? "failed" : "cancelled",
                 finishedAt: new Date(),
               },
               instanceState: {
@@ -1369,20 +1452,25 @@ export class RuntimeOperation {
             }),
           )
 
-          if (!isAbortErrorLike(error)) {
+          if (failed) {
+            const message =
+              state.kind === "composite" && unitFailures.length > 0
+                ? this.formatCompositeError(instanceId, unitFailures)
+                : errorToString(error)
+
             this.promiseTracker.track(
               this.operationService.appendLog(
                 this.project.id,
                 this.operation.id,
                 state.id,
-                errorToString(error),
+                message,
               ),
             )
           }
         }
 
         // rethrow the error
-        throw error
+        throw propagatedError
       })
       .finally(() => {
         if (!this.workset.isLastPhaseForInstance(instanceId)) {
@@ -1433,12 +1521,10 @@ export class RuntimeOperation {
     for (const state of unfinishedStates) {
       await this.workset.updateState(state.instanceId, {
         operationState: {
-          status: "failed",
+          status: "cancelled",
           finishedAt: new Date(),
         },
-        instanceState: {
-          status: state.status === "deployed" ? "deployed" : "failed",
-        },
+        instanceState: { status: state.status },
       })
 
       this.logger.warn(`finalized operation state for unfinished instance "%s"`, state.instanceId)
