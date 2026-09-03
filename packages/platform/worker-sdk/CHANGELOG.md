@@ -1,3 +1,7 @@
+## 0.30.1 (2026-09-03)
+
+This was a version bump only for @highstate/worker-sdk to align it with other projects, there were no code changes.
+
 ## 0.30.0 (2026-08-30)
 
 ### 🚀 Features

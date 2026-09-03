@@ -1,3 +1,13 @@
+## 0.30.1 (2026-09-03)
+
+### 🩹 Fixes
+
+- authenticate pull request preview requests ([#25](https://github.com/highstate-io/highstate/pull/25))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.30.0 (2026-08-30)
 
 ### 🚀 Features
