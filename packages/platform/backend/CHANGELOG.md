@@ -1,3 +1,13 @@
+## 0.30.3 (2026-09-03)
+
+### 🩹 Fixes
+
+- clarify composite operation failures ([#27](https://github.com/highstate-io/highstate/pull/27))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.30.2 (2026-09-03)
 
 ### 🩹 Fixes

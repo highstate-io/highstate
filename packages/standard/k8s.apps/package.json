@@ -1,6 +1,6 @@
 {
   "name": "@highstate/k8s.apps",
-  "version": "0.28.2",
+  "version": "0.28.3",
   "type": "module",
   "files": [
     "dist"

@@ -1,6 +1,6 @@
 {
   "name": "@highstate/mcp",
-  "version": "0.30.2",
+  "version": "0.30.3",
   "type": "module",
   "bin": {
     "highstate-mcp": "./dist/standalone.js"

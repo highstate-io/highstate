@@ -1,6 +1,6 @@
 {
   "name": "@highstate/designer",
-  "version": "0.30.2",
+  "version": "0.30.3",
   "type": "module",
   "scripts": {
     "dev": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
