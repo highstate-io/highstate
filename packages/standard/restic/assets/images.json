@@ -2,6 +2,6 @@
   "terminal-restic": {
     "name": "ghcr.io/highstate-io/terminal.restic",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/terminal.restic:latest@sha256:fa37bdffcfdf02f18a29feb6a744d87e45842623b0c1bd39a9f0ab3eb2bb3f1e"
+    "image": "ghcr.io/highstate-io/terminal.restic:latest@sha256:1ff61d50c0eeddc396869e5abacb385584db6f1c29050b7464a3b023a82b6d81"
   }
 }
