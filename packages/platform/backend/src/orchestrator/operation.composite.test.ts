@@ -477,4 +477,221 @@ describe("Operation - Composite", () => {
       expect(grandParentStateUpdates).toContain("undeployed")
     },
   )
+
+  operationTest(
+    "marks containing composites failed and cancelled siblings cancelled",
+    async ({
+      project,
+      logger,
+      runnerBackend,
+      libraryBackend,
+      artifactService,
+      instanceLockService,
+      operationService,
+      secretService,
+      instanceStateService,
+      projectModelService,
+      unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
+      libraryService,
+      projectPortService,
+      createComposite,
+      createUnit,
+      createDeployedUnitState,
+      createOperation,
+      createContext,
+      setupPersistenceMocks,
+      setupImmediateLocking,
+      expect,
+    }) => {
+      const grandParent = createComposite("GrandParent")
+      const composite = { ...createComposite("Parent"), parentId: grandParent.id }
+      const failingUnit = { ...createUnit("Failing"), parentId: composite.id }
+      const cancelledUnit = {
+        ...createUnit("Cancelled"),
+        parentId: composite.id,
+        inputs: {
+          dependency: [{ instanceId: failingUnit.id, output: "value" }],
+        },
+      }
+      const instances = [grandParent, composite, failingUnit, cancelledUnit]
+
+      await createContext({
+        instances,
+        states: instances.map(createDeployedUnitState),
+      })
+      setupImmediateLocking()
+      setupPersistenceMocks({ instances })
+
+      runnerBackend.update.mockImplementation(async input => {
+        if (input.instanceName === "Failing") {
+          throw new Error("primary failure")
+        }
+      })
+
+      const operation = createOperation({
+        type: "update",
+        requestedInstanceIds: [grandParent.id],
+        phases: [
+          {
+            type: "update",
+            instances: [
+              { id: grandParent.id, message: "requested", parentId: undefined },
+              { id: composite.id, message: "child", parentId: grandParent.id },
+              { id: failingUnit.id, message: "child", parentId: composite.id },
+              { id: cancelledUnit.id, message: "child", parentId: composite.id },
+            ],
+          },
+        ],
+      })
+
+      const runtimeOperation = new RuntimeOperation(
+        project,
+        operation,
+        runnerBackend,
+        libraryBackend,
+        artifactService,
+        instanceLockService,
+        operationService,
+        secretService,
+        instanceStateService,
+        projectModelService,
+        unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
+        logger,
+        libraryService,
+        projectPortService,
+      )
+
+      await runtimeOperation.operateSafe()
+
+      const finalStatuses = new Map(
+        instanceStateService.updateOperationState.mock.calls
+          .filter(([, , , options]) => options.operationState?.finishedAt != null)
+          .map(([, stateId, , options]) => [stateId, options.operationState?.status]),
+      )
+      expect(finalStatuses.get(failingUnit.id)).toBe("failed")
+      expect(finalStatuses.get(cancelledUnit.id)).toBe("cancelled")
+      expect(finalStatuses.get(composite.id)).toBe("failed")
+      expect(finalStatuses.get(grandParent.id)).toBe("failed")
+
+      for (const compositeId of [composite.id, grandParent.id]) {
+        const compositeLogs = operationService.appendLog.mock.calls.filter(
+          ([, , stateId]) => stateId === compositeId,
+        )
+        expect(compositeLogs).toHaveLength(1)
+        expect(compositeLogs[0]?.[3]).toContain(`Unit "${failingUnit.id}" failed first`)
+        expect(compositeLogs[0]?.[3]).toContain("primary failure")
+        expect(compositeLogs[0]?.[3]).not.toContain(cancelledUnit.id)
+      }
+      expect(operationService.updateOperation).toHaveBeenCalledWith(
+        project.id,
+        operation.id,
+        expect.objectContaining({ status: "failed" }),
+      )
+    },
+  )
+
+  operationTest(
+    "includes every failed child unit in the composite error",
+    async ({
+      project,
+      logger,
+      runnerBackend,
+      runner,
+      libraryBackend,
+      artifactService,
+      instanceLockService,
+      operationService,
+      secretService,
+      instanceStateService,
+      projectModelService,
+      unitExtraService,
+      entitySnapshotService,
+      unitOutputService,
+      libraryService,
+      projectPortService,
+      createComposite,
+      createUnit,
+      createDeployedUnitState,
+      createOperation,
+      createContext,
+      setupPersistenceMocks,
+      setupImmediateLocking,
+      expect,
+    }) => {
+      const composite = createComposite("Parent")
+      const firstUnit = { ...createUnit("First"), parentId: composite.id }
+      const secondUnit = { ...createUnit("Second"), parentId: composite.id }
+      const instances = [composite, firstUnit, secondUnit]
+
+      await createContext({
+        instances,
+        states: instances.map(createDeployedUnitState),
+      })
+      setupImmediateLocking()
+      setupPersistenceMocks({ instances })
+
+      runner.setAutoCompletion(false)
+      const bothUnitsStarted = createDeferred<void>()
+      let startedUnitCount = 0
+      runner.setUpdateImpl(async () => {
+        startedUnitCount++
+        if (startedUnitCount === 2) {
+          bothUnitsStarted.resolve()
+        }
+      })
+
+      const operation = createOperation({
+        type: "update",
+        requestedInstanceIds: [composite.id],
+        phases: [
+          {
+            type: "update",
+            instances: [
+              { id: composite.id, message: "requested", parentId: undefined },
+              { id: firstUnit.id, message: "child", parentId: composite.id },
+              { id: secondUnit.id, message: "child", parentId: composite.id },
+            ],
+          },
+        ],
+      })
+
+      const runtimeOperation = new RuntimeOperation(
+        project,
+        operation,
+        runnerBackend,
+        libraryBackend,
+        artifactService,
+        instanceLockService,
+        operationService,
+        secretService,
+        instanceStateService,
+        projectModelService,
+        unitExtraService,
+        entitySnapshotService,
+        unitOutputService,
+        logger,
+        libraryService,
+        projectPortService,
+      )
+
+      const operatePromise = runtimeOperation.operateSafe()
+      await bothUnitsStarted.promise
+      runner.emitError(firstUnit.id, "first error")
+      runner.emitError(secondUnit.id, "second error")
+      await operatePromise
+
+      const compositeLog = operationService.appendLog.mock.calls.find(
+        ([, , stateId]) => stateId === composite.id,
+      )?.[3]
+      expect(compositeLog).toContain(`Unit "${firstUnit.id}" failed first`)
+      expect(compositeLog).toContain(`Unit "${firstUnit.id}" failed`)
+      expect(compositeLog).toContain("first error")
+      expect(compositeLog).toContain(`Unit "${secondUnit.id}" failed`)
+      expect(compositeLog).toContain("second error")
+    },
+  )
 })
