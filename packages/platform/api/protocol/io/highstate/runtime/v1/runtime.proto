@@ -1,0 +1,482 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+
+// RuntimeMessage multiplexes one logical runtime event over an authenticated workload connection.
+message RuntimeMessage {
+  // The runtime connection instance ID assigned during registration.
+  optional string runtime_instance_id = 1;
+
+  // The workload ID within the selected container runtime.
+  optional string workload_id = 2;
+
+  // The project operation ID, when the event belongs to an operation.
+  optional string operation_id = 3;
+
+  // The independently cancellable action ID, when the event belongs to an action.
+  optional string action_id = 4;
+
+  // The logical byte-stream ID, when the event carries streaming traffic.
+  optional string stream_id = 5;
+
+  // The request ID used to correlate a request and its terminal response.
+  optional string request_id = 6;
+
+  // The event carried by this envelope.
+  oneof event {
+    // The initial workload handshake.
+    ClientHello client_hello = 10;
+
+    // The accepted workload handshake.
+    ServerHello server_hello = 11;
+
+    // A connection heartbeat and lease renewal.
+    Heartbeat heartbeat = 12;
+
+    // A flow-control window update for one logical stream.
+    WindowUpdate window_update = 13;
+
+    // A request to run one Pulumi action.
+    PulumiActionRequest pulumi_action_request = 20;
+
+    // A structured Pulumi engine event.
+    PulumiEngineEvent pulumi_engine_event = 21;
+
+    // Standard output or standard error from an action.
+    ActionOutput action_output = 22;
+
+    // Successful completion of an action.
+    ActionCompleted action_completed = 23;
+
+    // Failure of a request or action.
+    RuntimeError error = 24;
+
+    // A request for resolved unit configuration.
+    UnitConfigurationRequest unit_configuration_request = 30;
+
+    // Resolved unit configuration supplied by the backend.
+    UnitConfigurationResponse unit_configuration_response = 31;
+
+    // Unit results submitted to the backend.
+    UnitResult unit_result = 32;
+
+    // A request to create an operation-scoped sidecar.
+    CreateSidecarRequest create_sidecar_request = 40;
+
+    // The result of sidecar creation.
+    CreateSidecarResponse create_sidecar_response = 41;
+
+    // A sidecar lifecycle event.
+    SidecarEvent sidecar_event = 42;
+
+    // Registration state for a worker workload.
+    WorkerRegistration worker_registration = 50;
+
+    // A worker control event from the backend.
+    WorkerControl worker_control = 51;
+
+    // Worker panel or proxy traffic.
+    WorkerProxyData worker_proxy_data = 52;
+
+    // Interactive terminal input.
+    TerminalInput terminal_input = 60;
+
+    // Interactive terminal output.
+    TerminalOutput terminal_output = 61;
+
+    // An interactive terminal resize.
+    TerminalResize terminal_resize = 62;
+
+    // Closure of terminal input.
+    TerminalClose terminal_close = 63;
+
+    // Terminal process exit.
+    TerminalExit terminal_exit = 64;
+
+    // A request to cancel one action or operation.
+    CancelRequest cancel_request = 70;
+
+    // Acknowledgement of a cancellation request.
+    CancelResponse cancel_response = 71;
+  }
+}
+
+// ClientHello registers one runtime-aware workload with the backend.
+message ClientHello {
+  // The highest runtime protocol version supported by the workload.
+  uint32 protocol_version = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The backend ID from the workload credential scope.
+  string backend_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The project ID from the workload credential scope.
+  string project_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The selected container runtime ID.
+  string container_runtime_id = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The runtime-assigned workload ID.
+  string workload_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // The workload role.
+  WorkloadKind workload_kind = 6 [(google.api.field_behavior) = REQUIRED];
+
+  // Capabilities implemented by the workload agent.
+  repeated RuntimeCapability capabilities = 7;
+}
+
+// ServerHello accepts a workload and establishes its renewable lease.
+message ServerHello {
+  // The negotiated runtime protocol version.
+  uint32 protocol_version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The unique ID of this concrete runtime connection.
+  string runtime_instance_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The lease duration in milliseconds.
+  uint64 lease_duration_ms = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The initial receive window in bytes for each logical byte stream.
+  uint64 stream_window_bytes = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// WorkloadKind identifies the domain role of a connected workload.
+enum WorkloadKind {
+  // The workload kind was not specified or is not recognized.
+  WORKLOAD_KIND_UNSPECIFIED = 0;
+
+  // The workload runs Pulumi operations and unit programs.
+  WORKLOAD_KIND_PULUMI = 1;
+
+  // The workload hosts a supervised worker version.
+  WORKLOAD_KIND_WORKER = 2;
+
+  // The workload builds a project library snapshot image.
+  WORKLOAD_KIND_LIBRARY_BUILD = 3;
+}
+
+// RuntimeCapability identifies an operation supported by a workload agent.
+enum RuntimeCapability {
+  // The capability was not specified or is not recognized.
+  RUNTIME_CAPABILITY_UNSPECIFIED = 0;
+
+  // The agent can run Pulumi actions.
+  RUNTIME_CAPABILITY_PULUMI_ACTIONS = 1;
+
+  // The agent can request and execute unit configuration.
+  RUNTIME_CAPABILITY_UNIT_EXECUTION = 2;
+
+  // The agent can request operation-scoped sidecars.
+  RUNTIME_CAPABILITY_SIDECARS = 3;
+
+  // The agent supports worker registration and control traffic.
+  RUNTIME_CAPABILITY_WORKER = 4;
+
+  // The agent can build project library images.
+  RUNTIME_CAPABILITY_LIBRARY_BUILD = 5;
+}
+
+// Heartbeat renews the workload lease and reports its local monotonic sequence.
+message Heartbeat {
+  // A monotonically increasing sequence generated by the sender.
+  uint64 sequence = 1;
+}
+
+// WindowUpdate grants additional receive capacity to one logical byte stream.
+message WindowUpdate {
+  // The number of additional bytes the peer may send.
+  uint64 bytes = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PulumiActionRequest starts one independently cancellable Pulumi action.
+message PulumiActionRequest {
+  // The Pulumi lifecycle action to execute.
+  PulumiAction action = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The Pulumi stack name.
+  string stack_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The backend URL for the selected Pulumi state backend.
+  string state_backend_url = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Secret Pulumi state backend environment supplied only to this action.
+  map<string, string> state_backend_environment = 4 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Pulumi stack configuration keyed by configuration name.
+  map<string, string> stack_configuration = 5;
+
+  // Whether Pulumi engine and provider debug logging is enabled.
+  bool debug = 6;
+}
+
+// PulumiAction identifies a Pulumi lifecycle command.
+enum PulumiAction {
+  // The action was not specified or is not recognized.
+  PULUMI_ACTION_UNSPECIFIED = 0;
+
+  // Preview proposed resource changes.
+  PULUMI_ACTION_PREVIEW = 1;
+
+  // Apply desired resource changes.
+  PULUMI_ACTION_UPDATE = 2;
+
+  // Destroy managed resources.
+  PULUMI_ACTION_DESTROY = 3;
+
+  // Refresh state from providers.
+  PULUMI_ACTION_REFRESH = 4;
+}
+
+// PulumiEngineEvent carries one encoded structured engine event.
+message PulumiEngineEvent {
+  // The JSON-encoded Pulumi engine event.
+  bytes json = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ActionOutput carries ordered process output for one action.
+message ActionOutput {
+  // The output channel.
+  OutputChannel channel = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The unmodified output bytes.
+  bytes data = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// OutputChannel identifies a process output stream.
+enum OutputChannel {
+  // The channel was not specified or is not recognized.
+  OUTPUT_CHANNEL_UNSPECIFIED = 0;
+
+  // Standard output.
+  OUTPUT_CHANNEL_STDOUT = 1;
+
+  // Standard error.
+  OUTPUT_CHANNEL_STDERR = 2;
+}
+
+// ActionCompleted reports successful completion of an action.
+message ActionCompleted {
+  // The process exit code.
+  int32 exit_code = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Action-specific structured result data.
+  optional google.protobuf.Struct result = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// RuntimeError reports terminal failure of a request, action, or logical stream.
+message RuntimeError {
+  // A stable machine-readable error code.
+  string code = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A human-readable error description.
+  string message = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Structured error details when available.
+  optional google.protobuf.Struct details = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// UnitConfigurationRequest requests backend-owned configuration for one unit invocation.
+message UnitConfigurationRequest {
+  // The instance state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation phase that will invoke the unit.
+  string phase = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UnitConfigurationResponse supplies resolved configuration for one unit invocation.
+message UnitConfigurationResponse {
+  // The resolved unit arguments.
+  google.protobuf.Struct arguments = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resolved unit inputs.
+  google.protobuf.Struct inputs = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Secret environment variables scoped to the invocation.
+  map<string, string> secret_environment = 3 [(google.api.field_behavior) = INPUT_ONLY];
+}
+
+// UnitResult submits outputs and runtime state produced by one unit invocation.
+message UnitResult {
+  // The instance state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The unit outputs.
+  google.protobuf.Struct outputs = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Runtime-defined status fields.
+  optional google.protobuf.Value status_fields = 3;
+
+  // Whether destroy requires invoking resource hooks.
+  bool has_resource_hooks = 4;
+}
+
+// CreateSidecarRequest asks the backend to place one sidecar in the operation environment.
+message CreateSidecarRequest {
+  // The sidecar name used for runtime DNS.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The immutable image reference.
+  string image = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The sidecar process command.
+  repeated string command = 3;
+
+  // Non-secret environment variables.
+  map<string, string> environment = 4;
+
+  // Secret environment variables.
+  map<string, string> secret_environment = 5 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Container ports exposed within the operation environment.
+  repeated uint32 ports = 6;
+}
+
+// CreateSidecarResponse reports placement of one sidecar.
+message CreateSidecarResponse {
+  // The runtime-assigned sidecar workload ID.
+  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The sidecar DNS name within the operation environment.
+  string hostname = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SidecarEvent reports a lifecycle transition for one sidecar.
+message SidecarEvent {
+  // The runtime-assigned sidecar workload ID.
+  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The current lifecycle state.
+  SidecarState state = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A human-readable lifecycle or health message.
+  optional string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SidecarState identifies one sidecar lifecycle state.
+enum SidecarState {
+  // The state was not specified or is not recognized.
+  SIDECAR_STATE_UNSPECIFIED = 0;
+
+  // The sidecar is starting.
+  SIDECAR_STATE_STARTING = 1;
+
+  // The sidecar is healthy and ready.
+  SIDECAR_STATE_READY = 2;
+
+  // The sidecar stopped.
+  SIDECAR_STATE_STOPPED = 3;
+
+  // The sidecar failed or became unhealthy.
+  SIDECAR_STATE_FAILED = 4;
+}
+
+// WorkerRegistration announces one worker version and its current unit registrations.
+message WorkerRegistration {
+  // The worker version ID.
+  string worker_version_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The concrete worker instance ID.
+  string worker_instance_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The worker-owned unit registrations.
+  repeated WorkerUnitRegistration units = 3;
+}
+
+// WorkerUnitRegistration contains runtime parameters for one registered unit state.
+message WorkerUnitRegistration {
+  // The unit state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Worker-defined runtime parameters.
+  google.protobuf.Struct parameters = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WorkerControl carries one backend command for a supervised worker.
+message WorkerControl {
+  // The control operation.
+  WorkerControlKind kind = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The affected unit state ID, when the operation is unit-specific.
+  optional string state_id = 2;
+
+  // Worker-defined command data.
+  optional google.protobuf.Struct data = 3;
+}
+
+// WorkerControlKind identifies a backend command for a worker.
+enum WorkerControlKind {
+  // The command was not specified or is not recognized.
+  WORKER_CONTROL_KIND_UNSPECIFIED = 0;
+
+  // Add or replace a unit registration.
+  WORKER_CONTROL_KIND_REGISTER_UNIT = 1;
+
+  // Remove a unit registration.
+  WORKER_CONTROL_KIND_DEREGISTER_UNIT = 2;
+
+  // Stop the worker gracefully.
+  WORKER_CONTROL_KIND_STOP = 3;
+}
+
+// WorkerProxyData carries binary panel or proxy traffic.
+message WorkerProxyData {
+  // Whether these bytes end the logical request or response body.
+  bool end_stream = 1;
+
+  // The unmodified proxy payload.
+  bytes data = 2;
+}
+
+// TerminalInput carries binary input for an interactive terminal.
+message TerminalInput {
+  // The unmodified terminal input bytes.
+  bytes data = 1;
+}
+
+// TerminalOutput carries binary output from an interactive terminal.
+message TerminalOutput {
+  // The unmodified terminal output bytes.
+  bytes data = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// TerminalResize changes the dimensions of an interactive terminal.
+message TerminalResize {
+  // The terminal width in character cells.
+  uint32 columns = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The terminal height in character cells.
+  uint32 rows = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// TerminalClose closes terminal input while allowing remaining output to drain.
+message TerminalClose {}
+
+// TerminalExit reports termination of the interactive process.
+message TerminalExit {
+  // The process exit code, when one is available.
+  optional int32 exit_code = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The terminating signal name, when the process exited due to a signal.
+  optional string signal = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CancelRequest requests graceful or forced termination at one multiplexing scope.
+message CancelRequest {
+  // Whether to skip graceful interruption and force termination immediately.
+  bool force = 1;
+}
+
+// CancelResponse reports whether the targeted work accepted cancellation.
+message CancelResponse {
+  // Whether cancellation was accepted for active work.
+  bool accepted = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// RuntimeService connects authenticated runtime-aware workloads to the backend orchestrator.
+service RuntimeService {
+  // Opens one multiplexed workload connection.
+  rpc Connect(stream RuntimeMessage) returns (stream RuntimeMessage);
+}

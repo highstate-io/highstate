@@ -15,9 +15,15 @@ Add content only when it:
 Keep package-specific setup, commands, and contribution instructions with that package.
 Keep public product documentation with the documentation application.
 
-Do not add decision logs, plans, meeting records, retrospectives, task summaries, generated references,
+Do not add decision logs, meeting records, retrospectives, task summaries, generated references,
 generic advice, or prose that restates source code.
 Use issues, pull requests, and Git history for discussions and superseded decisions.
+
+Active system designs belong in `design/` when they need to describe implemented behavior together with
+coherent intended changes spanning packages or subsystems.
+They are living descriptions of the system's current direction, not historical plans.
+Every design document states its implementation status in its overview and distinguishes current behavior
+from behavior that is not implemented yet.
 
 Architecture content may synthesize a constraint spread across packages or subsystems.
 Explain the boundary and its consequences, then identify the source that owns its exact behavior.
@@ -35,10 +41,12 @@ Code, configuration, schemas, package metadata, and executable tests own exact b
 Public product documentation owns user-facing terminology, supported workflows, and compatibility promises.
 The developer documentation owns durable system boundaries, dependency direction, and compatibility
 constraints.
+Design documents describe current design intent and implementation progress but do not override implemented
+source, public compatibility promises, or current architecture documentation.
 Package instructions own package-specific development procedures.
 
 Generated files are not primary authority when their generator inputs exist.
-Future designs and unsupported implementations do not belong in current architecture documentation.
+Future designs and unsupported implementations belong in `design/`, not current architecture documentation.
 When authorities disagree, verify the implementation, determine whether the behavior or documentation is
 wrong, and update every affected source in the same change.
 
@@ -47,6 +55,7 @@ wrong, and update every affected source in the same change.
 Use these top-level sections:
 
 - `architecture/` for current system-wide boundaries, dependency direction, and compatibility rules
+- `design/` for living system designs that identify implemented and intended behavior
 - `engineering/` for development practices shared across the Highstate workspace
 - `authoring/` for rules governing this documentation
 
@@ -56,9 +65,25 @@ purpose, primary audience guides, and this authoring guide.
 Make every page reachable by following links from the root `README.md`, normally through its section
 `README.md`.
 
-Organize architecture documents around boundaries and lifecycles rather than source directories or classes.
+Organize architecture and design documents around boundaries and lifecycles rather than source directories
+or classes.
 Do not maintain package graphs, service catalogues, RPC tables, schema fields, version numbers, or copies of
 test cases in architecture documents.
+
+## Design Status
+
+Every document in `design/` contains an `## Overview` section near the beginning.
+The overview includes a bold `Status:` statement using a concise description such as `Proposed`,
+`Partially implemented`, or `Implemented`.
+It explains which major boundaries already exist and which remain intended when the status is not fully
+implemented.
+
+Update the status and the body whenever implementation changes any described boundary, including partial
+delivery.
+Describe the resulting integrated design rather than appending a progress diary.
+Remove superseded proposals and preserve only the current intended or implemented shape.
+When a design becomes fully implemented, reconcile affected architecture and public documentation in the same
+change and mark the design `Implemented`.
 
 ## File Names
 
@@ -132,6 +157,7 @@ Before finishing a change:
 - Confirm that every fact is stated only in its owning document and replace duplicates with links.
 - Remove obsolete statements.
 - Compare architecture claims with current source and executable tests, not only existing prose.
+- Update affected design status and distinguish implemented behavior from remaining intended behavior.
 - Check whether changed constraints affect public compatibility promises.
 - Link to generator inputs or stable source entry points instead of generated output.
 - Run the configured checks and verify links.

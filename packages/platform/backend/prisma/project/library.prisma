@@ -1,0 +1,145 @@
+/// One npm package containing Highstate component and entity definitions selected by the project.
+model LibraryPackage {
+    /// The CUIDv2 of the package selection.
+    id String @id @default(cuid(2))
+
+    /// The npm package name.
+    packageName String @unique
+
+    /// The exact npm version selected for future snapshots.
+    selectedVersion String
+
+    /// The package display and merge order.
+    order Int
+
+    /// The time when the package was added.
+    createdAt DateTime @default(now())
+
+    /// The time when the package selection was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// Cached evaluated versions associated with this package selection.
+    versions LibraryPackageVersion[]
+
+    @@unique([order])
+}
+
+/// An immutable cached evaluation of one exact npm library package version.
+model LibraryPackageVersion {
+    /// The CUIDv2 of the cached package version.
+    id String @id @default(cuid(2))
+
+    /// The current package selection associated with this version, when it still exists.
+    libraryPackageId String?
+
+    /// The npm package name retained independently of the mutable package selection.
+    packageName String
+
+    /// The exact npm package version.
+    version String
+
+    /// The npm-compatible registry URL from which the package was resolved.
+    registryUrl String
+
+    /// The registry-provided package integrity value.
+    packageIntegrity String
+
+    /// The resolved package tarball URL.
+    tarballUrl String
+
+    /// The serialized package-specific evaluated library model.
+    evaluatedModel Bytes
+
+    /// The package source manifest.
+    sourceManifest Json
+
+    /// Cached npm package metadata used for display and compatibility checks.
+    packageMetadata Json
+
+    /// The time when this version was evaluated.
+    createdAt DateTime @default(now())
+
+    /// The current package selection associated with this version.
+    libraryPackage LibraryPackage? @relation(fields: [libraryPackageId], references: [id], onDelete: SetNull)
+
+    /// Snapshots containing this direct package version.
+    snapshots LibrarySnapshotVersion[]
+
+    /// Instance states last operated by this package version.
+    instanceStates InstanceState[]
+
+    /// Per-instance operation states targeting this package version.
+    operationStates InstanceOperationState[] @relation("OperationPackageVersion")
+
+    /// Per-instance operation states upgraded from this package version.
+    previousOperationStates InstanceOperationState[] @relation("PreviousOperationPackageVersion")
+
+    @@unique([packageName, version, packageIntegrity])
+    @@index([libraryPackageId])
+}
+
+/// An immutable, reproducible resolution of the project's complete packaged library environment.
+model LibrarySnapshot {
+    /// The CUIDv2 of the snapshot.
+    id String @id @default(cuid(2))
+
+    /// The deterministic hash of the canonical snapshot content.
+    hash String @unique
+
+    /// The complete resolved package-manager lockfile.
+    lockfile String
+
+    /// The serialized merged component and entity model.
+    evaluatedModel Bytes
+
+    /// The merged source manifest and component ownership index.
+    sourceManifest Json
+
+    /// Runtime and package format compatibility requirements.
+    compatibility Json
+
+    /// The time when the snapshot was created.
+    createdAt DateTime @default(now())
+
+    /// Direct package versions included in this snapshot.
+    versions LibrarySnapshotVersion[]
+
+    /// Singleton project library states that currently desire this snapshot.
+    desiredBy ProjectLibraryState[]
+
+    /// Operations captured against this snapshot.
+    operations Operation[]
+
+    /// Instance states last operated with this snapshot.
+    instanceStates InstanceState[]
+
+    /// Per-instance operation states targeting this snapshot.
+    operationStates InstanceOperationState[]
+}
+
+/// Records one direct library package version included in a complete project snapshot.
+model LibrarySnapshotVersion {
+    snapshotId String
+    libraryPackageVersionId String
+    packageName String
+    version String
+    order Int
+
+    snapshot LibrarySnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+    libraryPackageVersion LibraryPackageVersion @relation(fields: [libraryPackageVersionId], references: [id])
+
+    @@id([snapshotId, libraryPackageVersionId])
+    @@unique([snapshotId, packageName])
+    @@unique([snapshotId, order])
+    @@index([libraryPackageVersionId])
+}
+
+/// Singleton state identifying the project's desired packaged library snapshot.
+model ProjectLibraryState {
+    id String @id @default("default")
+    desiredSnapshotId String?
+    localOverlayEnabled Boolean @default(true)
+    updatedAt DateTime @updatedAt
+
+    desiredSnapshot LibrarySnapshot? @relation(fields: [desiredSnapshotId], references: [id])
+}

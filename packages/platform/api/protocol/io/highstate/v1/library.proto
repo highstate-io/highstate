@@ -3,6 +3,7 @@ package io.highstate.v1;
 
 import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 import "io/highstate/v1/common.proto";
 
 // Library contains the stable catalog exposed by the selected project library.
@@ -12,6 +13,12 @@ message Library {
 
   // The entities keyed by versioned entity type.
   map<string, Entity> entities = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The packaged snapshot from which this catalog was assembled.
+  optional string library_snapshot_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The state of the optional local development overlay.
+  LocalLibraryOverlay local_overlay = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Component describes one component definition while preserving component-owned schemas as dynamic data.
@@ -36,6 +43,9 @@ message Component {
 
   // The CRC32 of the component definition.
   uint32 definition_hash = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The source that supplied this component.
+  LibraryCatalogSource source = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ComponentSummary contains fields needed to browse a component catalog.
@@ -48,6 +58,9 @@ message ComponentSummary {
 
   // The component display metadata.
   ComponentMeta meta = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The source that supplied this component.
+  LibraryCatalogSource source = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ComponentArgument describes a component-owned argument schema.
@@ -164,6 +177,204 @@ message Entity {
 
   // The CRC32 of the entity definition.
   uint32 definition_hash = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The source that supplied this entity.
+  LibraryCatalogSource source = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibraryCatalogSource identifies the package or local overlay that owns one catalog entry.
+message LibraryCatalogSource {
+  // The kind of catalog source.
+  LibraryCatalogSourceKind kind = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The npm package name for a packaged source.
+  optional string package_name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The exact npm package version for a packaged source.
+  optional string package_version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The package-version record for a packaged source.
+  optional string library_package_version_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibraryCatalogSourceKind identifies how a catalog entry entered the effective library.
+enum LibraryCatalogSourceKind {
+  // The source kind was not specified or is not recognized.
+  LIBRARY_CATALOG_SOURCE_KIND_UNSPECIFIED = 0;
+
+  // The entry came from a package in the project snapshot.
+  LIBRARY_CATALOG_SOURCE_KIND_PACKAGE = 1;
+
+  // The entry came from the local development overlay.
+  LIBRARY_CATALOG_SOURCE_KIND_LOCAL = 2;
+
+  // The entry is a project-specific virtual component.
+  LIBRARY_CATALOG_SOURCE_KIND_VIRTUAL = 3;
+}
+
+// LibraryPackage describes one npm package selected for the project library.
+message LibraryPackage {
+  // The stable package-selection ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The npm package name.
+  string package_name = 2 [(google.api.field_behavior) = IMMUTABLE];
+
+  // The exact version selected for future snapshots.
+  string selected_version = 3;
+
+  // The package display and merge order.
+  int32 order = 4;
+
+  // The time when the package was added.
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the package selection was last updated.
+  google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibraryPackageVersion describes an evaluated exact package version.
+message LibraryPackageVersion {
+  // The stable package-version ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The npm package name.
+  string package_name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The exact npm package version.
+  string version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The registry from which the package was resolved.
+  string registry_url = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The registry-provided package integrity value.
+  string package_integrity = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Cached npm package metadata.
+  google.protobuf.Struct package_metadata = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when this package version was evaluated.
+  google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibrarySnapshot describes one immutable packaged library environment.
+message LibrarySnapshot {
+  // The stable snapshot ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The deterministic hash of the canonical snapshot content.
+  string hash = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The direct package versions included in merge order.
+  repeated LibrarySnapshotVersion versions = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Runtime and package-format compatibility requirements.
+  google.protobuf.Struct compatibility = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the snapshot was created.
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibrarySnapshotVersion identifies one direct package version in a snapshot.
+message LibrarySnapshotVersion {
+  // The package-version record included in the snapshot.
+  string library_package_version_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The npm package name.
+  string package_name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The exact npm package version.
+  string version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The package merge order.
+  int32 order = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibrarySnapshotImage describes backend-local materialization of a project snapshot.
+message LibrarySnapshotImage {
+  // The backend-local image cache ID.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The project snapshot ID.
+  string library_snapshot_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The project snapshot hash verified by the backend.
+  string library_snapshot_hash = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The container runtime where the image is materialized.
+  string container_runtime_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The current materialization phase.
+  LibrarySnapshotImagePhase phase = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable progress for the current phase.
+  optional string message = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Completion within the current phase from zero through one, when measurable.
+  optional double progress = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The runtime-local or registry image reference, when available.
+  optional string image_ref = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The immutable OCI image digest, when available.
+  optional string image_digest = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The most recent materialization error.
+  optional string error = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when the cache entry was last updated.
+  google.protobuf.Timestamp updated_at = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LibrarySnapshotImagePhase identifies snapshot image materialization progress.
+enum LibrarySnapshotImagePhase {
+  // The phase was not specified or is not recognized.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_UNSPECIFIED = 0;
+
+  // Materialization is queued.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_QUEUED = 1;
+
+  // Packages are being resolved.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_RESOLVING = 2;
+
+  // The frozen package graph is being installed.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_INSTALLING = 3;
+
+  // Package definitions are being evaluated.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_EVALUATING = 4;
+
+  // The merged catalog is being validated.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_VALIDATING = 5;
+
+  // The OCI image is being built.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_BUILDING = 6;
+
+  // The OCI image is being pushed.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_PUSHING = 7;
+
+  // The built image and snapshot hash are being verified.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_VERIFYING = 8;
+
+  // The image is ready for operations.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_READY = 9;
+
+  // Materialization failed.
+  LIBRARY_SNAPSHOT_IMAGE_PHASE_FAILED = 10;
+}
+
+// LocalLibraryOverlay describes availability and conflict state for local development libraries.
+message LocalLibraryOverlay {
+  // Whether the project requests the local overlay.
+  bool enabled = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the complete local overlay is active in the effective catalog.
+  bool active = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Why the requested overlay is unavailable or disabled.
+  optional string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Component and entity types conflicting with the packaged snapshot.
+  repeated string conflicting_types = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EntityMeta contains display metadata for an entity definition.
@@ -197,6 +408,156 @@ message EntityInclusion {
 
   // The field containing the included value.
   string field = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GetProjectLibraryRequest requests project package, snapshot, image, and overlay state.
+message GetProjectLibraryRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetProjectLibraryResponse returns the complete project library configuration state.
+message GetProjectLibraryResponse {
+  // The selected direct packages in merge order.
+  repeated LibraryPackage packages = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The desired immutable packaged snapshot, when resolution has succeeded.
+  optional LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The backend-local image state for the desired snapshot, when available.
+  optional LibrarySnapshotImage desired_snapshot_image = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The local development overlay state.
+  LocalLibraryOverlay local_overlay = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// AddLibraryPackageRequest adds one exact npm package version to the project library.
+message AddLibraryPackageRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The npm package name.
+  string package_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The exact npm package version.
+  string version = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AddLibraryPackageResponse returns the committed package and desired snapshot.
+message AddLibraryPackageResponse {
+  // The canonical package selection.
+  LibraryPackage package = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The newly desired immutable snapshot.
+  LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RemoveLibraryPackageRequest removes one selected package from the project library.
+message RemoveLibraryPackageRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The stable package-selection ID.
+  string library_package_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RemoveLibraryPackageResponse returns the newly desired snapshot.
+message RemoveLibraryPackageResponse {
+  // The newly desired immutable snapshot.
+  LibrarySnapshot desired_snapshot = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateLibraryPackageRequest atomically selects one exact version and rebuilds the project snapshot.
+message UpdateLibraryPackageRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The stable package-selection ID.
+  string library_package_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The exact npm package version to select.
+  string version = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateLibraryPackageResponse returns the committed package and desired snapshot.
+message UpdateLibraryPackageResponse {
+  // The canonical package selection.
+  LibraryPackage package = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The newly desired immutable snapshot.
+  LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateAllLibraryPackagesRequest selects the latest eligible exact version for every package.
+message UpdateAllLibraryPackagesRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateAllLibraryPackagesResponse returns the atomic package selection and desired snapshot.
+message UpdateAllLibraryPackagesResponse {
+  // The canonical package selections in merge order.
+  repeated LibraryPackage packages = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The newly desired immutable snapshot.
+  LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListLibraryPackageVersionsRequest requests available exact npm versions for one package.
+message ListLibraryPackageVersionsRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The npm package name.
+  string package_name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListLibraryPackageVersionsResponse returns available exact npm versions.
+message ListLibraryPackageVersionsResponse {
+  // Exact package versions available from the selected npm registry.
+  repeated string versions = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GetLibraryPackageVersionRequest requests one evaluated package-version record.
+message GetLibraryPackageVersionRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The stable package-version ID.
+  string library_package_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetLibraryPackageVersionResponse returns one evaluated package version.
+message GetLibraryPackageVersionResponse {
+  // The canonical package-version record.
+  LibraryPackageVersion package_version = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SetLocalLibraryOverlayRequest enables or disables the local development overlay.
+message SetLocalLibraryOverlayRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether the project requests the local overlay.
+  bool enabled = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SetLocalLibraryOverlayResponse returns the effective overlay state.
+message SetLocalLibraryOverlayResponse {
+  // The canonical local overlay state.
+  LocalLibraryOverlay local_overlay = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RetryLibrarySnapshotImageRequest retries materialization of the desired snapshot image.
+message RetryLibrarySnapshotImageRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RetryLibrarySnapshotImageResponse returns the queued image state.
+message RetryLibrarySnapshotImageResponse {
+  // The canonical backend-local image state.
+  LibrarySnapshotImage image = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetLibraryRequest requests the selected project's library catalog.
@@ -247,8 +608,35 @@ message GetComponentResponse {
   Component component = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
-// LibraryService exposes project component and entity catalogs.
+// LibraryService manages project packages and exposes the effective component and entity catalog.
 service LibraryService {
+  // Gets project package selections, the desired snapshot, image progress, and local overlay state.
+  rpc GetProjectLibrary(GetProjectLibraryRequest) returns (GetProjectLibraryResponse);
+
+  // Adds one exact npm package version after validating the complete proposed package set.
+  rpc AddLibraryPackage(AddLibraryPackageRequest) returns (AddLibraryPackageResponse);
+
+  // Removes one package and atomically creates the resulting desired snapshot.
+  rpc RemoveLibraryPackage(RemoveLibraryPackageRequest) returns (RemoveLibraryPackageResponse);
+
+  // Updates one package to an exact version after validating the complete proposed package set.
+  rpc UpdateLibraryPackage(UpdateLibraryPackageRequest) returns (UpdateLibraryPackageResponse);
+
+  // Updates every package as one atomic package-set change.
+  rpc UpdateAllLibraryPackages(UpdateAllLibraryPackagesRequest) returns (UpdateAllLibraryPackagesResponse);
+
+  // Lists exact versions available for an npm package.
+  rpc ListLibraryPackageVersions(ListLibraryPackageVersionsRequest) returns (ListLibraryPackageVersionsResponse);
+
+  // Gets one evaluated exact package version.
+  rpc GetLibraryPackageVersion(GetLibraryPackageVersionRequest) returns (GetLibraryPackageVersionResponse);
+
+  // Enables or disables the optional local development overlay.
+  rpc SetLocalLibraryOverlay(SetLocalLibraryOverlayRequest) returns (SetLocalLibraryOverlayResponse);
+
+  // Retries image materialization for the desired snapshot.
+  rpc RetryLibrarySnapshotImage(RetryLibrarySnapshotImageRequest) returns (RetryLibrarySnapshotImageResponse);
+
   // Gets the complete library catalog.
   rpc GetLibrary(GetLibraryRequest) returns (GetLibraryResponse);
 

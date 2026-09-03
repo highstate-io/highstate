@@ -128,11 +128,23 @@ model InstanceState {
     /// Whether the instance has resource hooks and requires running program on destroy to properly clean up resources.
     hasResourceHooks Boolean @default(false)
 
+    /// The ID of the complete project library snapshot used by the last successful non-preview operation.
+    librarySnapshotId String?
+
+    /// The ID of the direct package version that supplied this instance's component implementation.
+    libraryPackageVersionId String?
+
     /// The parent instance.
     parent InstanceState? @relation("InstanceHierarchy", fields: [parentId], references: [id])
 
     /// The child instances, if any.
     children InstanceState[] @relation("InstanceHierarchy")
+
+    /// The complete project library snapshot used by the last successful operation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
+
+    /// The direct package version used by the last successful operation.
+    libraryPackageVersion LibraryPackageVersion? @relation(fields: [libraryPackageVersionId], references: [id])
 
     /// The evaluation state of this instance.
     evaluationState InstanceEvaluationState?
