@@ -9,7 +9,11 @@ const descriptor = {
   repository: "highstate-io/highstate",
   pullRequest: 12,
   sourceSha: "a".repeat(40),
-  stable: { platformVersion: "0.29.0", stdlibVersion: "0.27.0", pulumiVersion: "3.232.0" },
+  stable: {
+    platformVersion: "0.29.0",
+    stdlibVersion: "0.27.0",
+    pulumiVersion: "3.232.0",
+  },
   packages: {
     "@highstate/k8s": "https://pkg.pr.new/highstate-io/highstate/@highstate/k8s@abc1234",
   },

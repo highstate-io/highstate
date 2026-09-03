@@ -3,7 +3,44 @@
   "version": "0.28.2",
   "type": "module",
   "highstate": {
-    "type": "library"
+    "type": "library",
+    "release": {
+      "group": "stdlib",
+      "packages": [
+        "@highstate/cilium",
+        "@highstate/cloudflare",
+        "@highstate/common",
+        "@highstate/distributions",
+        "@highstate/envoy",
+        "@highstate/etcd",
+        "@highstate/gcp",
+        "@highstate/git",
+        "@highstate/influxdb3",
+        "@highstate/k3s",
+        "@highstate/k8s",
+        "@highstate/k8s.apps",
+        "@highstate/k8s.game-servers",
+        "@highstate/k8s.obfuscators",
+        "@highstate/library",
+        "@highstate/minio",
+        "@highstate/mongodb",
+        "@highstate/mullvad",
+        "@highstate/mysql",
+        "@highstate/netaminity",
+        "@highstate/nixos",
+        "@highstate/postgresql",
+        "@highstate/proxmox",
+        "@highstate/redis",
+        "@highstate/restic",
+        "@highstate/rustfs",
+        "@highstate/sops",
+        "@highstate/talos",
+        "@highstate/timeweb",
+        "@highstate/vault",
+        "@highstate/wireguard",
+        "@highstate/yandex"
+      ]
+    }
   },
   "files": [
     "dist",
