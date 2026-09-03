@@ -1,17 +1,24 @@
-model PulumiBackend {
-    /// The CUIDv2 of the Pulumi backend.
+/// A reusable Pulumi state backend configuration.
+model PulumiStateBackend {
+    /// The CUIDv2 of the Pulumi state backend.
     id String @id @default(cuid(2))
 
-    /// The backend meta managed by the backend.
+    /// The metadata managed by the backend.
     ///
     /// [CommonObjectMeta]
     meta Json
 
-    /// The spec of the Pulumi backend.
+    /// The state backend specification, including its URL and encrypted authentication configuration.
     ///
-    /// [PulumiBackendSpec]
+    /// [PulumiStateBackendSpec]
     spec Json
 
-    /// The projects using this backend.
+    /// The time when the state backend was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the state backend was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The projects using this state backend.
     projects Project[]
 }
