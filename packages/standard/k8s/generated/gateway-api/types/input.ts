@@ -15,17 +15,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"BackendTLSPolicy">;
+            kind?: pulumi.Input<"BackendTLSPolicy" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpec>;
-            status?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatus | undefined>;
         }
 
         /**
@@ -44,7 +44,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * TargetRefs identifies an API object to apply the policy to.
              * Note that this config applies to the entire referenced resource
@@ -104,8 +104,8 @@ export namespace gateway {
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
              */
-            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecTargetRefs>[]>;
-            validation?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidation>;
+            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecTargetRefs>[] | undefined>;
+            validation?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidation | undefined>;
         }
 
         /**
@@ -124,7 +124,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * TargetRefs identifies an API object to apply the policy to.
              * Note that this config applies to the entire referenced resource
@@ -184,8 +184,8 @@ export namespace gateway {
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
              */
-            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecTargetRefsPatch>[]>;
-            validation?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationPatch>;
+            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecTargetRefsPatch>[] | undefined>;
+            validation?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationPatch | undefined>;
         }
 
         /**
@@ -203,15 +203,15 @@ export namespace gateway {
             /**
              * Group is the group of the target resource.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the target resource.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the target resource.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SectionName is the name of a section within the target resource. When
              * unspecified, this targetRef targets the entire resource. In the following
@@ -225,7 +225,7 @@ export namespace gateway {
              * the Policy must fail to attach, and the policy implementation should record
              * a `ResolvedRefs` or similar Condition in the Policy's status.
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -243,15 +243,15 @@ export namespace gateway {
             /**
              * Group is the group of the target resource.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the target resource.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the target resource.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SectionName is the name of a section within the target resource. When
              * unspecified, this targetRef targets the entire resource. In the following
@@ -265,7 +265,7 @@ export namespace gateway {
              * the Policy must fail to attach, and the policy implementation should record
              * a `ResolvedRefs` or similar Condition in the Policy's status.
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -318,7 +318,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationCaCertificateRefs>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationCaCertificateRefs>[] | undefined>;
             /**
              * Hostname is used for two purposes in the connection between Gateways and
              * backends:
@@ -332,7 +332,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * SubjectAltNames contains one or more Subject Alternative Names.
              * When specified the certificate served from the backend MUST
@@ -340,7 +340,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNames>[]>;
+            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNames>[] | undefined>;
             /**
              * WellKnownCACertificates specifies whether a well-known set of CA certificates
              * may be used in the TLS handshake between the gateway and backend pod.
@@ -362,7 +362,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            wellKnownCACertificates?: pulumi.Input<string>;
+            wellKnownCACertificates?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -380,15 +380,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -406,15 +406,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -467,7 +467,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationCaCertificateRefsPatch>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationCaCertificateRefsPatch>[] | undefined>;
             /**
              * Hostname is used for two purposes in the connection between Gateways and
              * backends:
@@ -481,7 +481,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * SubjectAltNames contains one or more Subject Alternative Names.
              * When specified the certificate served from the backend MUST
@@ -489,7 +489,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNamesPatch>[]>;
+            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicySpecValidationSubjectAltNamesPatch>[] | undefined>;
             /**
              * WellKnownCACertificates specifies whether a well-known set of CA certificates
              * may be used in the TLS handshake between the gateway and backend pod.
@@ -511,7 +511,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            wellKnownCACertificates?: pulumi.Input<string>;
+            wellKnownCACertificates?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -524,13 +524,13 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Type determines the format of the Subject Alternative Name. Always required.
              *
              * Support: Core
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * URI contains Subject Alternative Name specified in a full URI format.
              * It MUST include both a scheme (e.g., "http" or "ftp") and a scheme-specific-part.
@@ -539,7 +539,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            uri?: pulumi.Input<string>;
+            uri?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -552,13 +552,13 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Type determines the format of the Subject Alternative Name. Always required.
              *
              * Support: Core
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * URI contains Subject Alternative Name specified in a full URI format.
              * It MUST include both a scheme (e.g., "http" or "ftp") and a scheme-specific-part.
@@ -567,7 +567,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            uri?: pulumi.Input<string>;
+            uri?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -605,7 +605,7 @@ export namespace gateway {
              * additional Gateways would be able to reference the Service targeted by
              * the BackendTLSPolicy.
              */
-            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestors>[]>;
+            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestors>[] | undefined>;
         }
 
         /**
@@ -641,11 +641,11 @@ export namespace gateway {
          * with a composite key made up of the AncestorRef and the ControllerName.
          */
         export interface BackendTLSPolicyStatusAncestors {
-            ancestorRef?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestorsAncestorRef>;
+            ancestorRef?: pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestorsAncestorRef | undefined>;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestorsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.BackendTLSPolicyStatusAncestorsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -661,7 +661,7 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
+            controllerName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -677,7 +677,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -688,13 +688,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -707,7 +707,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -734,7 +734,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -761,7 +761,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -772,18 +772,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -791,15 +791,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -835,17 +835,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"GRPCRoute">;
+            kind?: pulumi.Input<"GRPCRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.GRPCRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.GRPCRouteStatus | undefined>;
         }
 
         /**
@@ -904,7 +904,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -957,11 +957,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of GRPC matchers, filters and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -987,7 +987,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -998,13 +998,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -1017,7 +1017,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -1044,7 +1044,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -1071,7 +1071,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1097,7 +1097,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -1108,13 +1108,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -1127,7 +1127,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -1154,7 +1154,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -1181,7 +1181,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1240,7 +1240,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -1293,11 +1293,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of GRPC matchers, filters and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -1336,7 +1336,7 @@ export namespace gateway {
              *
              * Support for weight: Core
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Filters define the filters that are applied to requests that match
              * this rule.
@@ -1363,7 +1363,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFilters>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFilters>[] | undefined>;
             /**
              * Matches define conditions used for matching the rule against incoming
              * gRPC requests. Each match is independent, i.e. this rule will be matched
@@ -1415,13 +1415,13 @@ export namespace gateway {
              * matching precedence MUST be granted to the first matching rule meeting
              * the above criteria.
              */
-            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatches>[]>;
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatches>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              *
              * Support: Extended
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1440,12 +1440,12 @@ export namespace gateway {
              * Support: Implementation-specific (For broader support of filters, use the
              * Filters field in GRPCRouteRule.)
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFilters>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFilters>[] | undefined>;
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -1462,11 +1462,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -1478,7 +1478,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -1486,7 +1486,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -1502,7 +1502,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -1514,10 +1514,10 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface GRPCRouteSpecRulesBackendRefsFilters {
-            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersExtensionRef>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifier>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirror>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifier>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersExtensionRef | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifier | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirror | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifier | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -1544,7 +1544,7 @@ export namespace gateway {
              * MUST NOT be skipped. Instead, requests that would have been processed by
              * that filter MUST receive a HTTP error response.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1562,15 +1562,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1588,15 +1588,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1608,10 +1608,10 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersPatch {
-            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersExtensionRefPatch>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierPatch>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorPatch>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierPatch>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersExtensionRefPatch | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierPatch | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorPatch | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierPatch | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -1638,7 +1638,7 @@ export namespace gateway {
              * MUST NOT be skipped. Instead, requests that would have been processed by
              * that filter MUST receive a HTTP error response.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1666,7 +1666,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -1686,7 +1686,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -1704,7 +1704,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -1721,11 +1721,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1742,11 +1742,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1774,7 +1774,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -1794,7 +1794,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -1812,7 +1812,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -1829,11 +1829,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1850,11 +1850,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -1869,8 +1869,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersRequestMirror {
-            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef>;
-            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorFraction>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorFraction | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -1879,7 +1879,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -1916,7 +1916,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -1933,11 +1933,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -1949,7 +1949,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -1957,7 +1957,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -1994,7 +1994,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -2011,11 +2011,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -2027,7 +2027,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -2035,7 +2035,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2046,8 +2046,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorFraction {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2058,8 +2058,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2074,8 +2074,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorPatch {
-            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch>;
-            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -2084,7 +2084,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2112,7 +2112,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -2132,7 +2132,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -2150,7 +2150,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -2167,11 +2167,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2188,11 +2188,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2220,7 +2220,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -2240,7 +2240,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -2258,7 +2258,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -2275,11 +2275,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2296,11 +2296,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2319,12 +2319,12 @@ export namespace gateway {
              * Support: Implementation-specific (For broader support of filters, use the
              * Filters field in GRPCRouteRule.)
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersPatch>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsFiltersPatch>[] | undefined>;
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -2341,11 +2341,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -2357,7 +2357,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -2365,7 +2365,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -2381,7 +2381,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2393,10 +2393,10 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface GRPCRouteSpecRulesFilters {
-            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersExtensionRef>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifier>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirror>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifier>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersExtensionRef | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifier | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirror | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifier | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -2423,7 +2423,7 @@ export namespace gateway {
              * MUST NOT be skipped. Instead, requests that would have been processed by
              * that filter MUST receive a HTTP error response.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2441,15 +2441,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2467,15 +2467,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2487,10 +2487,10 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface GRPCRouteSpecRulesFiltersPatch {
-            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersExtensionRefPatch>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierPatch>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorPatch>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierPatch>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersExtensionRefPatch | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierPatch | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorPatch | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierPatch | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -2517,7 +2517,7 @@ export namespace gateway {
              * MUST NOT be skipped. Instead, requests that would have been processed by
              * that filter MUST receive a HTTP error response.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2545,7 +2545,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -2565,7 +2565,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -2583,7 +2583,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -2600,11 +2600,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2621,11 +2621,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2653,7 +2653,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -2673,7 +2673,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -2691,7 +2691,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -2708,11 +2708,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2729,11 +2729,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -2748,8 +2748,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GRPCRouteSpecRulesFiltersRequestMirror {
-            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorBackendRef>;
-            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorFraction>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorBackendRef | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorFraction | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -2758,7 +2758,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2795,7 +2795,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -2812,11 +2812,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -2828,7 +2828,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -2836,7 +2836,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2873,7 +2873,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -2890,11 +2890,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -2906,7 +2906,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -2914,7 +2914,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2925,8 +2925,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface GRPCRouteSpecRulesFiltersRequestMirrorFraction {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2937,8 +2937,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface GRPCRouteSpecRulesFiltersRequestMirrorFractionPatch {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2953,8 +2953,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GRPCRouteSpecRulesFiltersRequestMirrorPatch {
-            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorBackendRefPatch>;
-            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorFractionPatch>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorBackendRefPatch | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersRequestMirrorFractionPatch | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -2963,7 +2963,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -2991,7 +2991,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -3011,7 +3011,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -3029,7 +3029,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -3046,11 +3046,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3067,11 +3067,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3099,7 +3099,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -3119,7 +3119,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -3137,7 +3137,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersResponseHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -3154,11 +3154,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3175,11 +3175,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3207,8 +3207,8 @@ export namespace gateway {
              * ANDed together, meaning, a request MUST match all the specified headers
              * to select the route.
              */
-            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesHeaders>[]>;
-            method?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesMethod>;
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesHeaders>[] | undefined>;
+            method?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesMethod | undefined>;
         }
 
         /**
@@ -3225,15 +3225,15 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the header.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of the gRPC Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3250,15 +3250,15 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the header.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of the gRPC Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3272,14 +3272,14 @@ export namespace gateway {
              *
              * At least one of Service and Method MUST be a non-empty string.
              */
-            method?: pulumi.Input<string>;
+            method?: pulumi.Input<string | undefined>;
             /**
              * Value of the service to match against. If left empty or omitted, will
              * match any service.
              *
              * At least one of Service and Method MUST be a non-empty string.
              */
-            service?: pulumi.Input<string>;
+            service?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the service and/or method.
              * Support: Core (Exact with service and method specified)
@@ -3288,7 +3288,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (RegularExpression)
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3302,14 +3302,14 @@ export namespace gateway {
              *
              * At least one of Service and Method MUST be a non-empty string.
              */
-            method?: pulumi.Input<string>;
+            method?: pulumi.Input<string | undefined>;
             /**
              * Value of the service to match against. If left empty or omitted, will
              * match any service.
              *
              * At least one of Service and Method MUST be a non-empty string.
              */
-            service?: pulumi.Input<string>;
+            service?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the service and/or method.
              * Support: Core (Exact with service and method specified)
@@ -3318,7 +3318,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (RegularExpression)
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3346,8 +3346,8 @@ export namespace gateway {
              * ANDed together, meaning, a request MUST match all the specified headers
              * to select the route.
              */
-            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesHeadersPatch>[]>;
-            method?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesMethodPatch>;
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesHeadersPatch>[] | undefined>;
+            method?: pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesMethodPatch | undefined>;
         }
 
         /**
@@ -3386,7 +3386,7 @@ export namespace gateway {
              *
              * Support for weight: Core
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Filters define the filters that are applied to requests that match
              * this rule.
@@ -3413,7 +3413,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersPatch>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesFiltersPatch>[] | undefined>;
             /**
              * Matches define conditions used for matching the rule against incoming
              * gRPC requests. Each match is independent, i.e. this rule will be matched
@@ -3465,13 +3465,13 @@ export namespace gateway {
              * matching precedence MUST be granted to the first matching rule meeting
              * the above criteria.
              */
-            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesPatch>[]>;
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteSpecRulesMatchesPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              *
              * Support: Extended
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3494,7 +3494,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -3523,7 +3523,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -3539,8 +3539,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.GRPCRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -3551,18 +3551,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -3570,15 +3570,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3594,7 +3594,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -3605,13 +3605,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -3624,7 +3624,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -3651,7 +3651,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -3678,7 +3678,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3691,17 +3691,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"Gateway">;
+            kind?: pulumi.Input<"Gateway" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.GatewaySpec>;
-            status?: pulumi.Input<inputs.gateway.v1.GatewayStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.GatewaySpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.GatewayStatus | undefined>;
         }
 
         /**
@@ -3730,17 +3730,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"GatewayClass">;
+            kind?: pulumi.Input<"GatewayClass" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.GatewayClassSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.GatewayClassStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.GatewayClassSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.GatewayClassStatus | undefined>;
         }
 
         /**
@@ -3757,12 +3757,12 @@ export namespace gateway {
              *
              * Support: Core
              */
-            controllerName?: pulumi.Input<string>;
+            controllerName?: pulumi.Input<string | undefined>;
             /**
              * Description helps describe a GatewayClass with more details.
              */
-            description?: pulumi.Input<string>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewayClassSpecParametersRef>;
+            description?: pulumi.Input<string | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewayClassSpecParametersRef | undefined>;
         }
 
         /**
@@ -3789,21 +3789,21 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              * This field is required when referring to a Namespace-scoped resource and
              * MUST be unset when referring to a Cluster-scoped resource.
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3830,21 +3830,21 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              * This field is required when referring to a Namespace-scoped resource and
              * MUST be unset when referring to a Cluster-scoped resource.
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3861,12 +3861,12 @@ export namespace gateway {
              *
              * Support: Core
              */
-            controllerName?: pulumi.Input<string>;
+            controllerName?: pulumi.Input<string | undefined>;
             /**
              * Description helps describe a GatewayClass with more details.
              */
-            description?: pulumi.Input<string>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewayClassSpecParametersRefPatch>;
+            description?: pulumi.Input<string | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewayClassSpecParametersRefPatch | undefined>;
         }
 
         /**
@@ -3883,12 +3883,12 @@ export namespace gateway {
              * Controllers should prefer to publish conditions using values
              * of GatewayClassConditionType for the type of each Condition.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayClassStatusConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayClassStatusConditions>[] | undefined>;
             /**
              * SupportedFeatures is the set of features the GatewayClass support.
              * It MUST be sorted in ascending alphabetical order by the Name key.
              */
-            supportedFeatures?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayClassStatusSupportedFeatures>[]>;
+            supportedFeatures?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayClassStatusSupportedFeatures>[] | undefined>;
         }
 
         /**
@@ -3899,18 +3899,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -3918,15 +3918,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         export interface GatewayClassStatusSupportedFeatures {
@@ -3934,7 +3934,7 @@ export namespace gateway {
              * FeatureName is used to describe distinct features that are covered by
              * conformance tests.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -3963,14 +3963,14 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAddresses>[]>;
-            allowedListeners?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListeners>;
+            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAddresses>[] | undefined>;
+            allowedListeners?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListeners | undefined>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
              */
-            gatewayClassName?: pulumi.Input<string>;
-            infrastructure?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructure>;
+            gatewayClassName?: pulumi.Input<string | undefined>;
+            infrastructure?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructure | undefined>;
             /**
              * Listeners associated with this Gateway. Listeners define
              * logical endpoints that are bound on this Gateway's addresses.
@@ -4140,8 +4140,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListeners>[]>;
-            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTls>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListeners>[] | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTls | undefined>;
         }
 
         /**
@@ -4151,7 +4151,7 @@ export namespace gateway {
             /**
              * Type of the address.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * When a value is unspecified, an implementation SHOULD automatically
              * assign an address matching the requested type if possible.
@@ -4161,7 +4161,7 @@ export namespace gateway {
              *
              * Examples: `1.2.3.4`, `128::1`, `my-ip-address`.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4171,7 +4171,7 @@ export namespace gateway {
             /**
              * Type of the address.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * When a value is unspecified, an implementation SHOULD automatically
              * assign an address matching the requested type if possible.
@@ -4181,7 +4181,7 @@ export namespace gateway {
              *
              * Examples: `1.2.3.4`, `128::1`, `my-ip-address`.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4189,7 +4189,7 @@ export namespace gateway {
          * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListeners {
-            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespaces>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespaces | undefined>;
         }
 
         /**
@@ -4208,8 +4208,8 @@ export namespace gateway {
              *
              * The default value None
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelector>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelector | undefined>;
         }
 
         /**
@@ -4228,8 +4228,8 @@ export namespace gateway {
              *
              * The default value None
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorPatch>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorPatch | undefined>;
         }
 
         /**
@@ -4241,13 +4241,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressions>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressions>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -4258,19 +4258,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -4281,19 +4281,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -4305,13 +4305,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressionsPatch>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressionsPatch>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -4319,7 +4319,7 @@ export namespace gateway {
          * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersPatch {
-            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesPatch>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersNamespacesPatch | undefined>;
         }
 
         /**
@@ -4338,7 +4338,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * Labels that SHOULD be applied to any resources created in response to this Gateway.
              *
@@ -4352,8 +4352,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructureParametersRef>;
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructureParametersRef | undefined>;
         }
 
         /**
@@ -4378,15 +4378,15 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4411,15 +4411,15 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4438,7 +4438,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * Labels that SHOULD be applied to any resources created in response to this Gateway.
              *
@@ -4452,8 +4452,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructureParametersRefPatch>;
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructureParametersRefPatch | undefined>;
         }
 
         /**
@@ -4461,7 +4461,7 @@ export namespace gateway {
          * network connections.
          */
         export interface GatewaySpecListeners {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutes>;
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutes | undefined>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -4511,28 +4511,28 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the Listener. This name MUST be unique within a
              * Gateway.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port. Multiple listeners may use the
              * same port, subject to the Listener compatibility rules.
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Protocol specifies the network protocol this listener expects to receive.
              *
              * Support: Core
              */
-            protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTls>;
+            protocol?: pulumi.Input<string | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTls | undefined>;
         }
 
         /**
@@ -4575,8 +4575,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesKinds>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespaces>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesKinds>[] | undefined>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespaces | undefined>;
         }
 
         /**
@@ -4586,11 +4586,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4600,11 +4600,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4625,8 +4625,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelector>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelector | undefined>;
         }
 
         /**
@@ -4647,8 +4647,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelectorPatch>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelectorPatch | undefined>;
         }
 
         /**
@@ -4662,13 +4662,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -4679,19 +4679,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -4702,19 +4702,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -4728,13 +4728,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -4777,8 +4777,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesKindsPatch>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesPatch>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesKindsPatch>[] | undefined>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesNamespacesPatch | undefined>;
         }
 
         /**
@@ -4786,7 +4786,7 @@ export namespace gateway {
          * network connections.
          */
         export interface GatewaySpecListenersPatch {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesPatch>;
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersAllowedRoutesPatch | undefined>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -4836,28 +4836,28 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the Listener. This name MUST be unique within a
              * Gateway.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port. Multiple listeners may use the
              * same port, subject to the Listener compatibility rules.
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Protocol specifies the network protocol this listener expects to receive.
              *
              * Support: Core
              */
-            protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsPatch>;
+            protocol?: pulumi.Input<string | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsPatch | undefined>;
         }
 
         /**
@@ -4900,7 +4900,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsCertificateRefs>[]>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsCertificateRefs>[] | undefined>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -4916,7 +4916,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
             /**
              * Options are a list of key/value pairs to enable extended TLS
              * configuration for each implementation. For example, configuring the
@@ -4929,7 +4929,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -4948,15 +4948,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -4968,7 +4968,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -4987,15 +4987,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5007,7 +5007,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5050,7 +5050,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsCertificateRefsPatch>[]>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersTlsCertificateRefsPatch>[] | undefined>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -5066,7 +5066,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
             /**
              * Options are a list of key/value pairs to enable extended TLS
              * configuration for each implementation. For example, configuring the
@@ -5079,7 +5079,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -5108,14 +5108,14 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAddressesPatch>[]>;
-            allowedListeners?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersPatch>;
+            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecAddressesPatch>[] | undefined>;
+            allowedListeners?: pulumi.Input<inputs.gateway.v1.GatewaySpecAllowedListenersPatch | undefined>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
              */
-            gatewayClassName?: pulumi.Input<string>;
-            infrastructure?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructurePatch>;
+            gatewayClassName?: pulumi.Input<string | undefined>;
+            infrastructure?: pulumi.Input<inputs.gateway.v1.GatewaySpecInfrastructurePatch | undefined>;
             /**
              * Listeners associated with this Gateway. Listeners define
              * logical endpoints that are bound on this Gateway's addresses.
@@ -5285,8 +5285,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersPatch>[]>;
-            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsPatch>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecListenersPatch>[] | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsPatch | undefined>;
         }
 
         /**
@@ -5295,8 +5295,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GatewaySpecTls {
-            backend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackend>;
-            frontend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontend>;
+            backend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackend | undefined>;
+            frontend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontend | undefined>;
         }
 
         /**
@@ -5310,7 +5310,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsBackend {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRef>;
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRef | undefined>;
         }
 
         /**
@@ -5344,15 +5344,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5364,7 +5364,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5398,15 +5398,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5418,7 +5418,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5432,7 +5432,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsBackendPatch {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRefPatch>;
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendClientCertificateRefPatch | undefined>;
         }
 
         /**
@@ -5440,7 +5440,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontend {
-            default?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefault>;
+            default?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefault | undefined>;
             /**
              * PerPort specifies tls configuration assigned per port.
              * Per port configuration is optional. Once set this configuration overrides
@@ -5450,7 +5450,7 @@ export namespace gateway {
              *
              * support: Core
              */
-            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPort>[]>;
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPort>[] | undefined>;
         }
 
         /**
@@ -5461,7 +5461,7 @@ export namespace gateway {
          * support: Core
          */
         export interface GatewaySpecTlsFrontendDefault {
-            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidation>;
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidation | undefined>;
         }
 
         /**
@@ -5472,7 +5472,7 @@ export namespace gateway {
          * support: Core
          */
         export interface GatewaySpecTlsFrontendDefaultPatch {
-            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationPatch>;
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationPatch | undefined>;
         }
 
         /**
@@ -5530,7 +5530,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -5549,7 +5549,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5567,15 +5567,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5587,7 +5587,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5605,15 +5605,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5625,7 +5625,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5683,7 +5683,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -5702,7 +5702,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5710,7 +5710,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontendPatch {
-            default?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultPatch>;
+            default?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendDefaultPatch | undefined>;
             /**
              * PerPort specifies tls configuration assigned per port.
              * Per port configuration is optional. Once set this configuration overrides
@@ -5720,7 +5720,7 @@ export namespace gateway {
              *
              * support: Core
              */
-            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortPatch>[]>;
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortPatch>[] | undefined>;
         }
 
         export interface GatewaySpecTlsFrontendPerPort {
@@ -5731,8 +5731,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
-            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTls>;
+            port?: pulumi.Input<number | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTls | undefined>;
         }
 
         export interface GatewaySpecTlsFrontendPerPortPatch {
@@ -5743,8 +5743,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
-            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsPatch>;
+            port?: pulumi.Input<number | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsPatch | undefined>;
         }
 
         /**
@@ -5754,7 +5754,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontendPerPortTls {
-            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidation>;
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidation | undefined>;
         }
 
         /**
@@ -5764,7 +5764,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontendPerPortTlsPatch {
-            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationPatch>;
+            validation?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationPatch | undefined>;
         }
 
         /**
@@ -5822,7 +5822,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -5841,7 +5841,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5859,15 +5859,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5879,7 +5879,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5897,15 +5897,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -5917,7 +5917,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -5975,7 +5975,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -5994,7 +5994,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6003,8 +6003,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GatewaySpecTlsPatch {
-            backend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendPatch>;
-            frontend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPatch>;
+            backend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsBackendPatch | undefined>;
+            frontend?: pulumi.Input<inputs.gateway.v1.GatewaySpecTlsFrontendPatch | undefined>;
         }
 
         /**
@@ -6022,7 +6022,7 @@ export namespace gateway {
              *   * a combination of specified and dynamic addresses are assigned
              *   * a specified address was unusable (e.g. already in use)
              */
-            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusAddresses>[]>;
+            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusAddresses>[] | undefined>;
             /**
              * AttachedListenerSets represents the total number of ListenerSets that have been
              * successfully attached to this Gateway.
@@ -6035,7 +6035,7 @@ export namespace gateway {
              * Uses for this field include troubleshooting AttachedListenerSets attachment and
              * measuring blast radius/impact of changes to a Gateway.
              */
-            attachedListenerSets?: pulumi.Input<number>;
+            attachedListenerSets?: pulumi.Input<number | undefined>;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -6050,11 +6050,11 @@ export namespace gateway {
              * * "Programmed"
              * * "Ready"
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusConditions>[] | undefined>;
             /**
              * Listeners provide status for each unique listener port defined in the Spec.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusListeners>[]>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusListeners>[] | undefined>;
         }
 
         /**
@@ -6064,14 +6064,14 @@ export namespace gateway {
             /**
              * Type of the address.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value of the address. The validity of the values will depend
              * on the type and support by the controller.
              *
              * Examples: `1.2.3.4`, `128::1`, `my-ip-address`.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6082,18 +6082,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -6101,15 +6101,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6138,15 +6138,15 @@ export namespace gateway {
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
              */
-            attachedRoutes?: pulumi.Input<number>;
+            attachedRoutes?: pulumi.Input<number | undefined>;
             /**
              * Conditions describe the current condition of this listener.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusListenersConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusListenersConditions>[] | undefined>;
             /**
              * Name is the name of the Listener that this status corresponds to.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
              * listener. This MUST represent the kinds supported by an implementation for
@@ -6158,7 +6158,7 @@ export namespace gateway {
              * and invalid Route kinds are specified, the implementation MUST
              * reference the valid Route kinds that have been specified.
              */
-            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusListenersSupportedKinds>[]>;
+            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.GatewayStatusListenersSupportedKinds>[] | undefined>;
         }
 
         /**
@@ -6169,18 +6169,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -6188,15 +6188,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6206,11 +6206,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6223,17 +6223,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"HTTPRoute">;
+            kind?: pulumi.Input<"HTTPRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.HTTPRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.HTTPRouteStatus | undefined>;
         }
 
         /**
@@ -6295,7 +6295,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -6348,11 +6348,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of HTTP matchers, filters and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -6378,7 +6378,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -6389,13 +6389,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -6408,7 +6408,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -6435,7 +6435,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -6462,7 +6462,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6488,7 +6488,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -6499,13 +6499,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -6518,7 +6518,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -6545,7 +6545,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -6572,7 +6572,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -6634,7 +6634,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -6687,11 +6687,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of HTTP matchers, filters and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -6737,7 +6737,7 @@ export namespace gateway {
              *
              * Support for weight: Core
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Filters define the filters that are applied to requests that match
              * this rule.
@@ -6776,7 +6776,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFilters>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFilters>[] | undefined>;
             /**
              * Matches define conditions used for matching the rule against incoming
              * HTTP requests. Each match is independent, i.e. this rule will be matched
@@ -6835,14 +6835,14 @@ export namespace gateway {
              * When no rules matching a request have been successfully attached to the
              * parent a request is coming from, a HTTP 404 status code MUST be returned.
              */
-            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatches>[]>;
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatches>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              *
              * Support: Extended
              */
-            name?: pulumi.Input<string>;
-            timeouts?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesTimeouts>;
+            name?: pulumi.Input<string | undefined>;
+            timeouts?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesTimeouts | undefined>;
         }
 
         /**
@@ -6861,12 +6861,12 @@ export namespace gateway {
              * Support: Implementation-specific (For broader support of filters, use the
              * Filters field in HTTPRouteRule.)
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFilters>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFilters>[] | undefined>;
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -6883,11 +6883,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -6899,7 +6899,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -6907,7 +6907,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -6923,7 +6923,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -6935,12 +6935,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesBackendRefsFilters {
-            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersCors>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRef>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifier>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirror>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirect>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifier>;
+            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersCors | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRef | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifier | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirror | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirect | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifier | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -6975,8 +6975,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewrite>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewrite | undefined>;
         }
 
         /**
@@ -6999,7 +6999,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -7040,7 +7040,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -7083,7 +7083,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -7144,7 +7144,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -7184,7 +7184,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -7199,7 +7199,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7222,7 +7222,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -7263,7 +7263,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -7306,7 +7306,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -7367,7 +7367,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -7407,7 +7407,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -7422,7 +7422,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7440,15 +7440,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -7466,15 +7466,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -7486,12 +7486,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersPatch {
-            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersCorsPatch>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRefPatch>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierPatch>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorPatch>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPatch>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierPatch>;
+            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersCorsPatch | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRefPatch | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierPatch | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorPatch | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPatch | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierPatch | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -7526,8 +7526,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePatch>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePatch | undefined>;
         }
 
         /**
@@ -7555,7 +7555,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -7575,7 +7575,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -7593,7 +7593,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -7610,11 +7610,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -7631,11 +7631,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -7663,7 +7663,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -7683,7 +7683,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -7701,7 +7701,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -7718,11 +7718,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -7739,11 +7739,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -7758,8 +7758,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirror {
-            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef>;
-            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFraction>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFraction | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -7768,7 +7768,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7805,7 +7805,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -7822,11 +7822,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -7838,7 +7838,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -7846,7 +7846,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7883,7 +7883,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -7900,11 +7900,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -7916,7 +7916,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -7924,7 +7924,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7935,8 +7935,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFraction {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7947,8 +7947,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7963,8 +7963,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorPatch {
-            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch>;
-            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -7973,7 +7973,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -7990,8 +7990,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPath | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -8016,7 +8016,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -8033,7 +8033,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -8046,7 +8046,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -8063,8 +8063,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPathPatch | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -8089,7 +8089,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -8106,7 +8106,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -8119,7 +8119,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -8134,7 +8134,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -8153,7 +8153,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -8165,7 +8165,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8180,7 +8180,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -8199,7 +8199,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -8211,7 +8211,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8239,7 +8239,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -8259,7 +8259,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -8277,7 +8277,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -8294,11 +8294,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8315,11 +8315,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8347,7 +8347,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -8367,7 +8367,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -8385,7 +8385,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -8402,11 +8402,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8423,11 +8423,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8442,8 +8442,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePath | undefined>;
         }
 
         /**
@@ -8458,8 +8458,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePathPatch | undefined>;
         }
 
         /**
@@ -8472,7 +8472,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -8491,7 +8491,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -8503,7 +8503,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8516,7 +8516,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -8535,7 +8535,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -8547,7 +8547,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -8566,12 +8566,12 @@ export namespace gateway {
              * Support: Implementation-specific (For broader support of filters, use the
              * Filters field in HTTPRouteRule.)
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersPatch>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsFiltersPatch>[] | undefined>;
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -8588,11 +8588,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -8604,7 +8604,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -8612,7 +8612,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -8628,7 +8628,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -8640,12 +8640,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesFilters {
-            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersCors>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersExtensionRef>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifier>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirror>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirect>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifier>;
+            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersCors | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersExtensionRef | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifier | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirror | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirect | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifier | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -8680,8 +8680,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewrite>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewrite | undefined>;
         }
 
         /**
@@ -8704,7 +8704,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -8745,7 +8745,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -8788,7 +8788,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -8849,7 +8849,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -8889,7 +8889,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -8904,7 +8904,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -8927,7 +8927,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -8968,7 +8968,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -9011,7 +9011,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -9072,7 +9072,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -9112,7 +9112,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -9127,7 +9127,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9145,15 +9145,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9171,15 +9171,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9191,12 +9191,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesFiltersPatch {
-            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersCorsPatch>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersExtensionRefPatch>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierPatch>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorPatch>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirectPatch>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierPatch>;
+            cors?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersCorsPatch | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersExtensionRefPatch | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierPatch | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorPatch | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirectPatch | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierPatch | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -9231,8 +9231,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewritePatch>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewritePatch | undefined>;
         }
 
         /**
@@ -9260,7 +9260,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -9280,7 +9280,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -9298,7 +9298,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -9315,11 +9315,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9336,11 +9336,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9368,7 +9368,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -9388,7 +9388,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -9406,7 +9406,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -9423,11 +9423,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9444,11 +9444,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9463,8 +9463,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirror {
-            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRef>;
-            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorFraction>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRef | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorFraction | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -9473,7 +9473,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9510,7 +9510,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -9527,11 +9527,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -9543,7 +9543,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -9551,7 +9551,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9588,7 +9588,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -9605,11 +9605,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -9621,7 +9621,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -9629,7 +9629,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9640,8 +9640,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorFraction {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9652,8 +9652,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorFractionPatch {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9668,8 +9668,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorPatch {
-            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRefPatch>;
-            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorFractionPatch>;
+            backendRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRefPatch | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestMirrorFractionPatch | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -9678,7 +9678,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9695,8 +9695,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirectPath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirectPath | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -9721,7 +9721,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -9738,7 +9738,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -9751,7 +9751,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9768,8 +9768,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirectPathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersRequestRedirectPathPatch | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -9794,7 +9794,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -9811,7 +9811,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -9824,7 +9824,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -9839,7 +9839,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -9858,7 +9858,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -9870,7 +9870,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9885,7 +9885,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -9904,7 +9904,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -9916,7 +9916,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -9944,7 +9944,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -9964,7 +9964,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -9982,7 +9982,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -9999,11 +9999,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10020,11 +10020,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10052,7 +10052,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -10072,7 +10072,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -10090,7 +10090,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -10107,11 +10107,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10128,11 +10128,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10147,8 +10147,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewritePath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewritePath | undefined>;
         }
 
         /**
@@ -10163,8 +10163,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewritePathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersUrlRewritePathPatch | undefined>;
         }
 
         /**
@@ -10177,7 +10177,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -10196,7 +10196,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -10208,7 +10208,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10221,7 +10221,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -10240,7 +10240,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -10252,7 +10252,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10280,7 +10280,7 @@ export namespace gateway {
              * ANDed together, meaning, a request must match all the specified headers
              * to select the route.
              */
-            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesHeaders>[]>;
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesHeaders>[] | undefined>;
             /**
              * Method specifies HTTP method matcher.
              * When specified, this route will be matched only if the request has the
@@ -10288,8 +10288,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            method?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesPath>;
+            method?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesPath | undefined>;
             /**
              * QueryParams specifies HTTP query parameter matchers. Multiple match
              * values are ANDed together, meaning, a request must match all the
@@ -10297,7 +10297,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesQueryParams>[]>;
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesQueryParams>[] | undefined>;
         }
 
         /**
@@ -10321,7 +10321,7 @@ export namespace gateway {
              * https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2 regarding
              * processing a repeated header, with special handling for "Set-Cookie".
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the header.
              *
@@ -10334,11 +10334,11 @@ export namespace gateway {
              * of regular expressions. Please read the implementation's documentation to
              * determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10362,7 +10362,7 @@ export namespace gateway {
              * https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2 regarding
              * processing a repeated header, with special handling for "Set-Cookie".
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the header.
              *
@@ -10375,11 +10375,11 @@ export namespace gateway {
              * of regular expressions. Please read the implementation's documentation to
              * determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10407,7 +10407,7 @@ export namespace gateway {
              * ANDed together, meaning, a request must match all the specified headers
              * to select the route.
              */
-            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesHeadersPatch>[]>;
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesHeadersPatch>[] | undefined>;
             /**
              * Method specifies HTTP method matcher.
              * When specified, this route will be matched only if the request has the
@@ -10415,8 +10415,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            method?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesPathPatch>;
+            method?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesPathPatch | undefined>;
             /**
              * QueryParams specifies HTTP query parameter matchers. Multiple match
              * values are ANDed together, meaning, a request must match all the
@@ -10424,7 +10424,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesQueryParamsPatch>[]>;
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesQueryParamsPatch>[] | undefined>;
         }
 
         /**
@@ -10439,11 +10439,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (RegularExpression)
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value of the HTTP path to match against.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10458,11 +10458,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (RegularExpression)
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value of the HTTP path to match against.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10489,7 +10489,7 @@ export namespace gateway {
              * Users SHOULD NOT route traffic based on repeated query params to guard
              * themselves against potential differences in the implementations.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the query parameter.
              *
@@ -10502,11 +10502,11 @@ export namespace gateway {
              * dialects of regular expressions. Please read the implementation's
              * documentation to determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP query param to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10533,7 +10533,7 @@ export namespace gateway {
              * Users SHOULD NOT route traffic based on repeated query params to guard
              * themselves against potential differences in the implementations.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the query parameter.
              *
@@ -10546,11 +10546,11 @@ export namespace gateway {
              * dialects of regular expressions. Please read the implementation's
              * documentation to determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP query param to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10596,7 +10596,7 @@ export namespace gateway {
              *
              * Support for weight: Core
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Filters define the filters that are applied to requests that match
              * this rule.
@@ -10635,7 +10635,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersPatch>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesFiltersPatch>[] | undefined>;
             /**
              * Matches define conditions used for matching the rule against incoming
              * HTTP requests. Each match is independent, i.e. this rule will be matched
@@ -10694,14 +10694,14 @@ export namespace gateway {
              * When no rules matching a request have been successfully attached to the
              * parent a request is coming from, a HTTP 404 status code MUST be returned.
              */
-            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesPatch>[]>;
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesMatchesPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              *
              * Support: Extended
              */
-            name?: pulumi.Input<string>;
-            timeouts?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesTimeoutsPatch>;
+            name?: pulumi.Input<string | undefined>;
+            timeouts?: pulumi.Input<inputs.gateway.v1.HTTPRouteSpecRulesTimeoutsPatch | undefined>;
         }
 
         /**
@@ -10731,7 +10731,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            backendRequest?: pulumi.Input<string>;
+            backendRequest?: pulumi.Input<string | undefined>;
             /**
              * Request specifies the maximum duration for a gateway to respond to an HTTP request.
              * If the gateway has not been able to respond before this deadline is met, the gateway
@@ -10756,7 +10756,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            request?: pulumi.Input<string>;
+            request?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10786,7 +10786,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            backendRequest?: pulumi.Input<string>;
+            backendRequest?: pulumi.Input<string | undefined>;
             /**
              * Request specifies the maximum duration for a gateway to respond to an HTTP request.
              * If the gateway has not been able to respond before this deadline is met, the gateway
@@ -10811,7 +10811,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            request?: pulumi.Input<string>;
+            request?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10834,7 +10834,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -10863,7 +10863,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -10879,8 +10879,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.HTTPRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -10891,18 +10891,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -10910,15 +10910,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -10934,7 +10934,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -10945,13 +10945,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -10964,7 +10964,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -10991,7 +10991,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -11018,7 +11018,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11055,17 +11055,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"ListenerSet">;
+            kind?: pulumi.Input<"ListenerSet" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.ListenerSetSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.ListenerSetStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.ListenerSetSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.ListenerSetStatus | undefined>;
         }
 
         /**
@@ -11100,12 +11100,12 @@ export namespace gateway {
              * sensitive information that the child would not otherwise have access
              * to. This can include contents of secrets etc.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListeners>[]>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecParentRef>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListeners>[] | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecParentRef | undefined>;
         }
 
         export interface ListenerSetSpecListeners {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutes>;
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutes | undefined>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -11132,7 +11132,7 @@ export namespace gateway {
              * as a suffix match. That means that a match for `*.example.com` would match
              * both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the Listener. This name MUST be unique within a
              * ListenerSet.
@@ -11141,17 +11141,17 @@ export namespace gateway {
              * Routes can attach to a Listener by having a ListenerSet as a parentRef
              * and setting the SectionName
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port. Multiple listeners may use the
              * same port, subject to the Listener compatibility rules.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Protocol specifies the network protocol this listener expects to receive.
              */
-            protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTls>;
+            protocol?: pulumi.Input<string | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTls | undefined>;
         }
 
         /**
@@ -11192,8 +11192,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKinds>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespaces>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKinds>[] | undefined>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespaces | undefined>;
         }
 
         /**
@@ -11203,11 +11203,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11217,11 +11217,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11242,8 +11242,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelector>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelector | undefined>;
         }
 
         /**
@@ -11264,8 +11264,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorPatch | undefined>;
         }
 
         /**
@@ -11279,13 +11279,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -11296,19 +11296,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -11319,19 +11319,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -11345,13 +11345,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -11392,12 +11392,12 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKindsPatch>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesPatch>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesKindsPatch>[] | undefined>;
+            namespaces?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesNamespacesPatch | undefined>;
         }
 
         export interface ListenerSetSpecListenersPatch {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesPatch>;
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersAllowedRoutesPatch | undefined>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -11424,7 +11424,7 @@ export namespace gateway {
              * as a suffix match. That means that a match for `*.example.com` would match
              * both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the Listener. This name MUST be unique within a
              * ListenerSet.
@@ -11433,17 +11433,17 @@ export namespace gateway {
              * Routes can attach to a Listener by having a ListenerSet as a parentRef
              * and setting the SectionName
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port. Multiple listeners may use the
              * same port, subject to the Listener compatibility rules.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Protocol specifies the network protocol this listener expects to receive.
              */
-            protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsPatch>;
+            protocol?: pulumi.Input<string | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsPatch | undefined>;
         }
 
         /**
@@ -11484,7 +11484,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefs>[]>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefs>[] | undefined>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -11500,7 +11500,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
             /**
              * Options are a list of key/value pairs to enable extended TLS
              * configuration for each implementation. For example, configuring the
@@ -11513,7 +11513,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -11532,15 +11532,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -11552,7 +11552,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11571,15 +11571,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -11591,7 +11591,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11632,7 +11632,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefsPatch>[]>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersTlsCertificateRefsPatch>[] | undefined>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -11648,7 +11648,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
             /**
              * Options are a list of key/value pairs to enable extended TLS
              * configuration for each implementation. For example, configuring the
@@ -11661,7 +11661,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -11671,21 +11671,21 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Gateway".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.  If not present,
              * the namespace of the referent is assumed to be the same as
              * the namespace of the referring object.
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11695,21 +11695,21 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Gateway".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.  If not present,
              * the namespace of the referent is assumed to be the same as
              * the namespace of the referring object.
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11744,8 +11744,8 @@ export namespace gateway {
              * sensitive information that the child would not otherwise have access
              * to. This can include contents of secrets etc.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersPatch>[]>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecParentRefPatch>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetSpecListenersPatch>[] | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.ListenerSetSpecParentRefPatch | undefined>;
         }
 
         /**
@@ -11765,11 +11765,11 @@ export namespace gateway {
              * * "Accepted"
              * * "Programmed"
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusConditions>[] | undefined>;
             /**
              * Listeners provide status for each unique listener port defined in the Spec.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListeners>[]>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListeners>[] | undefined>;
         }
 
         /**
@@ -11780,18 +11780,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -11799,15 +11799,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11836,15 +11836,15 @@ export namespace gateway {
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
              */
-            attachedRoutes?: pulumi.Input<number>;
+            attachedRoutes?: pulumi.Input<number | undefined>;
             /**
              * Conditions describe the current condition of this listener.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListenersConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListenersConditions>[] | undefined>;
             /**
              * Name is the name of the Listener that this status corresponds to.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
              * listener. This MUST represent the kinds supported by an implementation for
@@ -11856,7 +11856,7 @@ export namespace gateway {
              * and invalid Route kinds are specified, the implementation MUST
              * reference the valid Route kinds that have been specified.
              */
-            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListenersSupportedKinds>[]>;
+            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ListenerSetStatusListenersSupportedKinds>[] | undefined>;
         }
 
         /**
@@ -11867,18 +11867,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -11886,15 +11886,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11904,11 +11904,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -11933,16 +11933,16 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"ReferenceGrant">;
+            kind?: pulumi.Input<"ReferenceGrant" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.ReferenceGrantSpec>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.ReferenceGrantSpec | undefined>;
         }
 
         /**
@@ -11957,7 +11957,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecFrom>[]>;
+            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecFrom>[] | undefined>;
             /**
              * To describes the resources that may be referenced by the resources
              * described in "From". Each entry in this list MUST be considered to be an
@@ -11966,7 +11966,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecTo>[]>;
+            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecTo>[] | undefined>;
         }
 
         /**
@@ -11979,7 +11979,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -11997,13 +11997,13 @@ export namespace gateway {
              * * TLSRoute
              * * UDPRoute
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12016,7 +12016,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -12034,13 +12034,13 @@ export namespace gateway {
              * * TLSRoute
              * * UDPRoute
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12055,7 +12055,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecFromPatch>[]>;
+            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecFromPatch>[] | undefined>;
             /**
              * To describes the resources that may be referenced by the resources
              * described in "From". Each entry in this list MUST be considered to be an
@@ -12064,7 +12064,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecToPatch>[]>;
+            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1.ReferenceGrantSpecToPatch>[] | undefined>;
         }
 
         /**
@@ -12078,7 +12078,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -12087,13 +12087,13 @@ export namespace gateway {
              * * Secret when used to permit a SecretObjectReference
              * * Service when used to permit a BackendObjectReference
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent. When unspecified, this policy
              * refers to all resources of the specified Group and Kind in the local
              * namespace.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12107,7 +12107,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -12116,13 +12116,13 @@ export namespace gateway {
              * * Secret when used to permit a SecretObjectReference
              * * Service when used to permit a BackendObjectReference
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent. When unspecified, this policy
              * refers to all resources of the specified Group and Kind in the local
              * namespace.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12134,17 +12134,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"TCPRoute">;
+            kind?: pulumi.Input<"TCPRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.TCPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.TCPRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.TCPRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.TCPRouteStatus | undefined>;
         }
 
         /**
@@ -12203,11 +12203,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of TCP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -12233,7 +12233,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -12244,13 +12244,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -12263,7 +12263,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -12290,7 +12290,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -12317,7 +12317,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12343,7 +12343,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -12354,13 +12354,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -12373,7 +12373,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -12400,7 +12400,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -12427,7 +12427,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12486,11 +12486,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of TCP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -12507,11 +12507,11 @@ export namespace gateway {
              *
              * Support: Core for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12532,7 +12532,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -12549,11 +12549,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -12565,7 +12565,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -12573,7 +12573,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -12589,7 +12589,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -12610,7 +12610,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -12627,11 +12627,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -12643,7 +12643,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -12651,7 +12651,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -12667,7 +12667,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -12684,11 +12684,11 @@ export namespace gateway {
              *
              * Support: Core for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12711,7 +12711,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -12740,7 +12740,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TCPRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -12756,8 +12756,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.TCPRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.TCPRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -12768,18 +12768,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -12787,15 +12787,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12811,7 +12811,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -12822,13 +12822,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -12841,7 +12841,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -12868,7 +12868,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -12895,7 +12895,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -12910,17 +12910,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"TLSRoute">;
+            kind?: pulumi.Input<"TLSRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.TLSRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.TLSRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.TLSRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.TLSRouteStatus | undefined>;
         }
 
         /**
@@ -12936,7 +12936,7 @@ export namespace gateway {
              * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
              *    label must appear by itself as the first label.
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -12989,11 +12989,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -13019,7 +13019,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -13030,13 +13030,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -13049,7 +13049,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -13076,7 +13076,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -13103,7 +13103,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13129,7 +13129,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -13140,13 +13140,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -13159,7 +13159,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -13186,7 +13186,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -13213,7 +13213,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13229,7 +13229,7 @@ export namespace gateway {
              * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
              *    label must appear by itself as the first label.
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -13282,11 +13282,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -13316,11 +13316,11 @@ export namespace gateway {
              *
              * Support for BackendTLSPolicy: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13341,7 +13341,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -13358,11 +13358,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -13374,7 +13374,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -13382,7 +13382,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -13398,7 +13398,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -13419,7 +13419,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -13436,11 +13436,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -13452,7 +13452,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -13460,7 +13460,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -13476,7 +13476,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -13506,11 +13506,11 @@ export namespace gateway {
              *
              * Support for BackendTLSPolicy: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13533,7 +13533,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -13562,7 +13562,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.TLSRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -13578,8 +13578,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.TLSRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.TLSRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -13590,18 +13590,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -13609,15 +13609,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13633,7 +13633,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -13644,13 +13644,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -13663,7 +13663,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -13690,7 +13690,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -13717,7 +13717,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13729,17 +13729,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"UDPRoute">;
+            kind?: pulumi.Input<"UDPRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1.UDPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1.UDPRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1.UDPRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1.UDPRouteStatus | undefined>;
         }
 
         /**
@@ -13798,11 +13798,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of UDP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -13828,7 +13828,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -13839,13 +13839,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -13858,7 +13858,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -13885,7 +13885,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -13912,7 +13912,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -13938,7 +13938,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -13949,13 +13949,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -13968,7 +13968,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -13995,7 +13995,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -14022,7 +14022,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14081,11 +14081,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of UDP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -14102,11 +14102,11 @@ export namespace gateway {
              *
              * Support: Extended for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14127,7 +14127,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -14144,11 +14144,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -14160,7 +14160,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -14168,7 +14168,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -14184,7 +14184,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -14205,7 +14205,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -14222,11 +14222,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -14238,7 +14238,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -14246,7 +14246,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -14262,7 +14262,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -14279,11 +14279,11 @@ export namespace gateway {
              *
              * Support: Extended for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14306,7 +14306,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -14335,7 +14335,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1.UDPRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -14351,8 +14351,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1.UDPRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1.UDPRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -14363,18 +14363,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -14382,15 +14382,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14406,7 +14406,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -14417,13 +14417,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -14436,7 +14436,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -14463,7 +14463,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -14490,7 +14490,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
     }
@@ -14505,17 +14505,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"TCPRoute">;
+            kind?: pulumi.Input<"TCPRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatus | undefined>;
         }
 
         /**
@@ -14574,11 +14574,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of TCP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -14604,7 +14604,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -14615,13 +14615,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -14634,7 +14634,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -14661,7 +14661,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -14688,7 +14688,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14714,7 +14714,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -14725,13 +14725,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -14744,7 +14744,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -14771,7 +14771,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -14798,7 +14798,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14857,11 +14857,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of TCP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -14878,11 +14878,11 @@ export namespace gateway {
              *
              * Support: Core for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -14903,7 +14903,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -14920,11 +14920,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -14936,7 +14936,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -14944,7 +14944,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -14960,7 +14960,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -14981,7 +14981,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -14998,11 +14998,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -15014,7 +15014,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -15022,7 +15022,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -15038,7 +15038,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -15055,11 +15055,11 @@ export namespace gateway {
              *
              * Support: Core for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15082,7 +15082,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -15111,7 +15111,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -15127,8 +15127,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1alpha2.TCPRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -15139,18 +15139,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -15158,15 +15158,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15182,7 +15182,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -15193,13 +15193,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -15212,7 +15212,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -15239,7 +15239,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -15266,7 +15266,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15278,17 +15278,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"TLSRoute">;
+            kind?: pulumi.Input<"TLSRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatus | undefined>;
         }
 
         /**
@@ -15330,7 +15330,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -15383,11 +15383,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of TLS matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -15413,7 +15413,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -15424,13 +15424,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -15443,7 +15443,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -15470,7 +15470,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -15497,7 +15497,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15523,7 +15523,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -15534,13 +15534,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -15553,7 +15553,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -15580,7 +15580,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -15607,7 +15607,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15649,7 +15649,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -15702,11 +15702,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of TLS matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -15736,11 +15736,11 @@ export namespace gateway {
              *
              * Support for BackendTLSPolicy: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15761,7 +15761,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -15778,11 +15778,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -15794,7 +15794,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -15802,7 +15802,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -15818,7 +15818,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -15839,7 +15839,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -15856,11 +15856,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -15872,7 +15872,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -15880,7 +15880,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -15896,7 +15896,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -15926,11 +15926,11 @@ export namespace gateway {
              *
              * Support for BackendTLSPolicy: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -15953,7 +15953,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -15982,7 +15982,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -15998,8 +15998,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1alpha2.TLSRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -16010,18 +16010,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -16029,15 +16029,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16053,7 +16053,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -16064,13 +16064,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -16083,7 +16083,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -16110,7 +16110,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -16137,7 +16137,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16149,17 +16149,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha2" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"UDPRoute">;
+            kind?: pulumi.Input<"UDPRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatus | undefined>;
         }
 
         /**
@@ -16218,11 +16218,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of UDP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -16248,7 +16248,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -16259,13 +16259,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -16278,7 +16278,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -16305,7 +16305,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -16332,7 +16332,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16358,7 +16358,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -16369,13 +16369,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -16388,7 +16388,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -16415,7 +16415,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -16442,7 +16442,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16501,11 +16501,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of UDP matchers and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -16522,11 +16522,11 @@ export namespace gateway {
              *
              * Support: Extended for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16547,7 +16547,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -16564,11 +16564,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -16580,7 +16580,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -16588,7 +16588,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -16604,7 +16604,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -16625,7 +16625,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -16642,11 +16642,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -16658,7 +16658,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -16666,7 +16666,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -16682,7 +16682,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -16699,11 +16699,11 @@ export namespace gateway {
              *
              * Support: Extended for Kubernetes Service
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16726,7 +16726,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -16755,7 +16755,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -16771,8 +16771,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1alpha2.UDPRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -16783,18 +16783,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -16802,15 +16802,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -16826,7 +16826,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -16837,13 +16837,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -16856,7 +16856,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -16883,7 +16883,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -16910,7 +16910,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
     }
@@ -16924,17 +16924,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha3">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha3" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"BackendTLSPolicy">;
+            kind?: pulumi.Input<"BackendTLSPolicy" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatus | undefined>;
         }
 
         /**
@@ -16953,7 +16953,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * TargetRefs identifies an API object to apply the policy to.
              * Note that this config applies to the entire referenced resource
@@ -17013,8 +17013,8 @@ export namespace gateway {
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
              */
-            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefs>[]>;
-            validation?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidation>;
+            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefs>[] | undefined>;
+            validation?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidation | undefined>;
         }
 
         /**
@@ -17033,7 +17033,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * TargetRefs identifies an API object to apply the policy to.
              * Note that this config applies to the entire referenced resource
@@ -17093,8 +17093,8 @@ export namespace gateway {
              * by default, but this default may change in the future to provide
              * a more granular application of the policy.
              */
-            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefsPatch>[]>;
-            validation?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationPatch>;
+            targetRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecTargetRefsPatch>[] | undefined>;
+            validation?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationPatch | undefined>;
         }
 
         /**
@@ -17112,15 +17112,15 @@ export namespace gateway {
             /**
              * Group is the group of the target resource.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the target resource.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the target resource.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SectionName is the name of a section within the target resource. When
              * unspecified, this targetRef targets the entire resource. In the following
@@ -17134,7 +17134,7 @@ export namespace gateway {
              * the Policy must fail to attach, and the policy implementation should record
              * a `ResolvedRefs` or similar Condition in the Policy's status.
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17152,15 +17152,15 @@ export namespace gateway {
             /**
              * Group is the group of the target resource.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the target resource.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the target resource.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SectionName is the name of a section within the target resource. When
              * unspecified, this targetRef targets the entire resource. In the following
@@ -17174,7 +17174,7 @@ export namespace gateway {
              * the Policy must fail to attach, and the policy implementation should record
              * a `ResolvedRefs` or similar Condition in the Policy's status.
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17227,7 +17227,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationCaCertificateRefs>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationCaCertificateRefs>[] | undefined>;
             /**
              * Hostname is used for two purposes in the connection between Gateways and
              * backends:
@@ -17241,7 +17241,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * SubjectAltNames contains one or more Subject Alternative Names.
              * When specified the certificate served from the backend MUST
@@ -17249,7 +17249,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNames>[]>;
+            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNames>[] | undefined>;
             /**
              * WellKnownCACertificates specifies whether a well-known set of CA certificates
              * may be used in the TLS handshake between the gateway and backend pod.
@@ -17271,7 +17271,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            wellKnownCACertificates?: pulumi.Input<string>;
+            wellKnownCACertificates?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17289,15 +17289,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17315,15 +17315,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17376,7 +17376,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationCaCertificateRefsPatch>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationCaCertificateRefsPatch>[] | undefined>;
             /**
              * Hostname is used for two purposes in the connection between Gateways and
              * backends:
@@ -17390,7 +17390,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * SubjectAltNames contains one or more Subject Alternative Names.
              * When specified the certificate served from the backend MUST
@@ -17398,7 +17398,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNamesPatch>[]>;
+            subjectAltNames?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicySpecValidationSubjectAltNamesPatch>[] | undefined>;
             /**
              * WellKnownCACertificates specifies whether a well-known set of CA certificates
              * may be used in the TLS handshake between the gateway and backend pod.
@@ -17420,7 +17420,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            wellKnownCACertificates?: pulumi.Input<string>;
+            wellKnownCACertificates?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17433,13 +17433,13 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Type determines the format of the Subject Alternative Name. Always required.
              *
              * Support: Core
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * URI contains Subject Alternative Name specified in a full URI format.
              * It MUST include both a scheme (e.g., "http" or "ftp") and a scheme-specific-part.
@@ -17448,7 +17448,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            uri?: pulumi.Input<string>;
+            uri?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17461,13 +17461,13 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Type determines the format of the Subject Alternative Name. Always required.
              *
              * Support: Core
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * URI contains Subject Alternative Name specified in a full URI format.
              * It MUST include both a scheme (e.g., "http" or "ftp") and a scheme-specific-part.
@@ -17476,7 +17476,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            uri?: pulumi.Input<string>;
+            uri?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17514,7 +17514,7 @@ export namespace gateway {
              * additional Gateways would be able to reference the Service targeted by
              * the BackendTLSPolicy.
              */
-            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatusAncestors>[]>;
+            ancestors?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatusAncestors>[] | undefined>;
         }
 
         /**
@@ -17550,11 +17550,11 @@ export namespace gateway {
          * with a composite key made up of the AncestorRef and the ControllerName.
          */
         export interface BackendTLSPolicyStatusAncestors {
-            ancestorRef?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatusAncestorsAncestorRef>;
+            ancestorRef?: pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatusAncestorsAncestorRef | undefined>;
             /**
              * Conditions describes the status of the Policy with respect to the given Ancestor.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatusAncestorsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.BackendTLSPolicyStatusAncestorsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -17570,7 +17570,7 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
+            controllerName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17586,7 +17586,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -17597,13 +17597,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -17616,7 +17616,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -17643,7 +17643,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -17670,7 +17670,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17681,18 +17681,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -17700,15 +17700,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17723,17 +17723,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha3">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1alpha3" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"TLSRoute">;
+            kind?: pulumi.Input<"TLSRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatus | undefined>;
         }
 
         /**
@@ -17749,7 +17749,7 @@ export namespace gateway {
              * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
              *    label must appear by itself as the first label.
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -17802,11 +17802,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -17832,7 +17832,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -17843,13 +17843,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -17862,7 +17862,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -17889,7 +17889,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -17916,7 +17916,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -17942,7 +17942,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -17953,13 +17953,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -17972,7 +17972,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -17999,7 +17999,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -18026,7 +18026,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18042,7 +18042,7 @@ export namespace gateway {
              * 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
              *    label must appear by itself as the first label.
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -18095,11 +18095,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -18129,11 +18129,11 @@ export namespace gateway {
              *
              * Support for BackendTLSPolicy: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18154,7 +18154,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -18171,11 +18171,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -18187,7 +18187,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -18195,7 +18195,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -18211,7 +18211,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -18232,7 +18232,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -18249,11 +18249,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -18265,7 +18265,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -18273,7 +18273,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -18289,7 +18289,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -18319,11 +18319,11 @@ export namespace gateway {
              *
              * Support for BackendTLSPolicy: Extended
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18346,7 +18346,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -18375,7 +18375,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -18391,8 +18391,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1alpha3.TLSRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -18403,18 +18403,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -18422,15 +18422,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18446,7 +18446,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -18457,13 +18457,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -18476,7 +18476,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -18503,7 +18503,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -18530,7 +18530,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
     }
@@ -18544,17 +18544,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"Gateway">;
+            kind?: pulumi.Input<"Gateway" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpec>;
-            status?: pulumi.Input<inputs.gateway.v1beta1.GatewayStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1beta1.GatewayStatus | undefined>;
         }
 
         /**
@@ -18580,17 +18580,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"GatewayClass">;
+            kind?: pulumi.Input<"GatewayClass" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassSpec>;
-            status?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassStatus | undefined>;
         }
 
         /**
@@ -18607,12 +18607,12 @@ export namespace gateway {
              *
              * Support: Core
              */
-            controllerName?: pulumi.Input<string>;
+            controllerName?: pulumi.Input<string | undefined>;
             /**
              * Description helps describe a GatewayClass with more details.
              */
-            description?: pulumi.Input<string>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassSpecParametersRef>;
+            description?: pulumi.Input<string | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassSpecParametersRef | undefined>;
         }
 
         /**
@@ -18639,21 +18639,21 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              * This field is required when referring to a Namespace-scoped resource and
              * MUST be unset when referring to a Cluster-scoped resource.
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18680,21 +18680,21 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              * This field is required when referring to a Namespace-scoped resource and
              * MUST be unset when referring to a Cluster-scoped resource.
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18711,12 +18711,12 @@ export namespace gateway {
              *
              * Support: Core
              */
-            controllerName?: pulumi.Input<string>;
+            controllerName?: pulumi.Input<string | undefined>;
             /**
              * Description helps describe a GatewayClass with more details.
              */
-            description?: pulumi.Input<string>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassSpecParametersRefPatch>;
+            description?: pulumi.Input<string | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewayClassSpecParametersRefPatch | undefined>;
         }
 
         /**
@@ -18733,12 +18733,12 @@ export namespace gateway {
              * Controllers should prefer to publish conditions using values
              * of GatewayClassConditionType for the type of each Condition.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayClassStatusConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayClassStatusConditions>[] | undefined>;
             /**
              * SupportedFeatures is the set of features the GatewayClass support.
              * It MUST be sorted in ascending alphabetical order by the Name key.
              */
-            supportedFeatures?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayClassStatusSupportedFeatures>[]>;
+            supportedFeatures?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayClassStatusSupportedFeatures>[] | undefined>;
         }
 
         /**
@@ -18749,18 +18749,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -18768,15 +18768,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         export interface GatewayClassStatusSupportedFeatures {
@@ -18784,7 +18784,7 @@ export namespace gateway {
              * FeatureName is used to describe distinct features that are covered by
              * conformance tests.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -18813,14 +18813,14 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAddresses>[]>;
-            allowedListeners?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListeners>;
+            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAddresses>[] | undefined>;
+            allowedListeners?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListeners | undefined>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
              */
-            gatewayClassName?: pulumi.Input<string>;
-            infrastructure?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructure>;
+            gatewayClassName?: pulumi.Input<string | undefined>;
+            infrastructure?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructure | undefined>;
             /**
              * Listeners associated with this Gateway. Listeners define
              * logical endpoints that are bound on this Gateway's addresses.
@@ -18990,8 +18990,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListeners>[]>;
-            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTls>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListeners>[] | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTls | undefined>;
         }
 
         /**
@@ -19001,7 +19001,7 @@ export namespace gateway {
             /**
              * Type of the address.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * When a value is unspecified, an implementation SHOULD automatically
              * assign an address matching the requested type if possible.
@@ -19011,7 +19011,7 @@ export namespace gateway {
              *
              * Examples: `1.2.3.4`, `128::1`, `my-ip-address`.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19021,7 +19021,7 @@ export namespace gateway {
             /**
              * Type of the address.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * When a value is unspecified, an implementation SHOULD automatically
              * assign an address matching the requested type if possible.
@@ -19031,7 +19031,7 @@ export namespace gateway {
              *
              * Examples: `1.2.3.4`, `128::1`, `my-ip-address`.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19039,7 +19039,7 @@ export namespace gateway {
          * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListeners {
-            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespaces>;
+            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespaces | undefined>;
         }
 
         /**
@@ -19058,8 +19058,8 @@ export namespace gateway {
              *
              * The default value None
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelector>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelector | undefined>;
         }
 
         /**
@@ -19078,8 +19078,8 @@ export namespace gateway {
              *
              * The default value None
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorPatch>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorPatch | undefined>;
         }
 
         /**
@@ -19091,13 +19091,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressions>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressions>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -19108,19 +19108,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -19131,19 +19131,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -19155,13 +19155,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressionsPatch>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesSelectorMatchExpressionsPatch>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -19169,7 +19169,7 @@ export namespace gateway {
          * The default value is to allow no ListenerSets.
          */
         export interface GatewaySpecAllowedListenersPatch {
-            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesPatch>;
+            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersNamespacesPatch | undefined>;
         }
 
         /**
@@ -19188,7 +19188,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * Labels that SHOULD be applied to any resources created in response to this Gateway.
              *
@@ -19202,8 +19202,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructureParametersRef>;
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructureParametersRef | undefined>;
         }
 
         /**
@@ -19228,15 +19228,15 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19261,15 +19261,15 @@ export namespace gateway {
             /**
              * Group is the group of the referent.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19288,7 +19288,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * Labels that SHOULD be applied to any resources created in response to this Gateway.
              *
@@ -19302,8 +19302,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructureParametersRefPatch>;
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+            parametersRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructureParametersRefPatch | undefined>;
         }
 
         /**
@@ -19311,7 +19311,7 @@ export namespace gateway {
          * network connections.
          */
         export interface GatewaySpecListeners {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutes>;
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutes | undefined>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -19361,28 +19361,28 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the Listener. This name MUST be unique within a
              * Gateway.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port. Multiple listeners may use the
              * same port, subject to the Listener compatibility rules.
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Protocol specifies the network protocol this listener expects to receive.
              *
              * Support: Core
              */
-            protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTls>;
+            protocol?: pulumi.Input<string | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTls | undefined>;
         }
 
         /**
@@ -19425,8 +19425,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesKinds>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespaces>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesKinds>[] | undefined>;
+            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespaces | undefined>;
         }
 
         /**
@@ -19436,11 +19436,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19450,11 +19450,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19475,8 +19475,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelector>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelector | undefined>;
         }
 
         /**
@@ -19497,8 +19497,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<string>;
-            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelectorPatch>;
+            from?: pulumi.Input<string | undefined>;
+            selector?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelectorPatch | undefined>;
         }
 
         /**
@@ -19512,13 +19512,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressions>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -19529,19 +19529,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -19552,19 +19552,19 @@ export namespace gateway {
             /**
              * key is the label key that the selector applies to.
              */
-            key?: pulumi.Input<string>;
+            key?: pulumi.Input<string | undefined>;
             /**
              * operator represents a key's relationship to a set of values.
              * Valid operators are In, NotIn, Exists and DoesNotExist.
              */
-            operator?: pulumi.Input<string>;
+            operator?: pulumi.Input<string | undefined>;
             /**
              * values is an array of string values. If the operator is In or NotIn,
              * the values array must be non-empty. If the operator is Exists or DoesNotExist,
              * the values array must be empty. This array is replaced during a strategic
              * merge patch.
              */
-            values?: pulumi.Input<pulumi.Input<string>[]>;
+            values?: pulumi.Input<pulumi.Input<string>[] | undefined>;
         }
 
         /**
@@ -19578,13 +19578,13 @@ export namespace gateway {
             /**
              * matchExpressions is a list of label selector requirements. The requirements are ANDed.
              */
-            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[]>;
+            matchExpressions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesSelectorMatchExpressionsPatch>[] | undefined>;
             /**
              * matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
              * map is equivalent to an element of matchExpressions, whose key field is "key", the
              * operator is "In", and the values array contains only "value". The requirements are ANDed.
              */
-            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            matchLabels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -19627,8 +19627,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesKindsPatch>[]>;
-            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesPatch>;
+            kinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesKindsPatch>[] | undefined>;
+            namespaces?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesNamespacesPatch | undefined>;
         }
 
         /**
@@ -19636,7 +19636,7 @@ export namespace gateway {
          * network connections.
          */
         export interface GatewaySpecListenersPatch {
-            allowedRoutes?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesPatch>;
+            allowedRoutes?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersAllowedRoutesPatch | undefined>;
             /**
              * Hostname specifies the virtual hostname to match for protocol types that
              * define this concept. When unspecified, all hostnames are matched. This
@@ -19686,28 +19686,28 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
+            hostname?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the Listener. This name MUST be unique within a
              * Gateway.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port. Multiple listeners may use the
              * same port, subject to the Listener compatibility rules.
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Protocol specifies the network protocol this listener expects to receive.
              *
              * Support: Core
              */
-            protocol?: pulumi.Input<string>;
-            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsPatch>;
+            protocol?: pulumi.Input<string | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsPatch | undefined>;
         }
 
         /**
@@ -19750,7 +19750,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsCertificateRefs>[]>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsCertificateRefs>[] | undefined>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -19766,7 +19766,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
             /**
              * Options are a list of key/value pairs to enable extended TLS
              * configuration for each implementation. For example, configuring the
@@ -19779,7 +19779,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -19798,15 +19798,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -19818,7 +19818,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19837,15 +19837,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -19857,7 +19857,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -19900,7 +19900,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific (More than one reference or other resource types)
              */
-            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsCertificateRefsPatch>[]>;
+            certificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersTlsCertificateRefsPatch>[] | undefined>;
             /**
              * Mode defines the TLS behavior for the TLS session initiated by the client.
              * There are two possible modes:
@@ -19916,7 +19916,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
             /**
              * Options are a list of key/value pairs to enable extended TLS
              * configuration for each implementation. For example, configuring the
@@ -19929,7 +19929,7 @@ export namespace gateway {
              *
              * Support: Implementation-specific
              */
-            options?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            options?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
         }
 
         /**
@@ -19958,14 +19958,14 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAddressesPatch>[]>;
-            allowedListeners?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersPatch>;
+            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAddressesPatch>[] | undefined>;
+            allowedListeners?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecAllowedListenersPatch | undefined>;
             /**
              * GatewayClassName used for this Gateway. This is the name of a
              * GatewayClass resource.
              */
-            gatewayClassName?: pulumi.Input<string>;
-            infrastructure?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructurePatch>;
+            gatewayClassName?: pulumi.Input<string | undefined>;
+            infrastructure?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecInfrastructurePatch | undefined>;
             /**
              * Listeners associated with this Gateway. Listeners define
              * logical endpoints that are bound on this Gateway's addresses.
@@ -20135,8 +20135,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersPatch>[]>;
-            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsPatch>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecListenersPatch>[] | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsPatch | undefined>;
         }
 
         /**
@@ -20145,8 +20145,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GatewaySpecTls {
-            backend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackend>;
-            frontend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontend>;
+            backend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackend | undefined>;
+            frontend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontend | undefined>;
         }
 
         /**
@@ -20160,7 +20160,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsBackend {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRef>;
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRef | undefined>;
         }
 
         /**
@@ -20194,15 +20194,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -20214,7 +20214,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20248,15 +20248,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "Secret".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -20268,7 +20268,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20282,7 +20282,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsBackendPatch {
-            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRefPatch>;
+            clientCertificateRef?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendClientCertificateRefPatch | undefined>;
         }
 
         /**
@@ -20290,7 +20290,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontend {
-            default?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefault>;
+            default?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefault | undefined>;
             /**
              * PerPort specifies tls configuration assigned per port.
              * Per port configuration is optional. Once set this configuration overrides
@@ -20300,7 +20300,7 @@ export namespace gateway {
              *
              * support: Core
              */
-            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPort>[]>;
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPort>[] | undefined>;
         }
 
         /**
@@ -20311,7 +20311,7 @@ export namespace gateway {
          * support: Core
          */
         export interface GatewaySpecTlsFrontendDefault {
-            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidation>;
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidation | undefined>;
         }
 
         /**
@@ -20322,7 +20322,7 @@ export namespace gateway {
          * support: Core
          */
         export interface GatewaySpecTlsFrontendDefaultPatch {
-            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationPatch>;
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationPatch | undefined>;
         }
 
         /**
@@ -20380,7 +20380,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefs>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -20399,7 +20399,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20417,15 +20417,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -20437,7 +20437,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20455,15 +20455,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -20475,7 +20475,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20533,7 +20533,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultValidationCaCertificateRefsPatch>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -20552,7 +20552,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20560,7 +20560,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontendPatch {
-            default?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultPatch>;
+            default?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendDefaultPatch | undefined>;
             /**
              * PerPort specifies tls configuration assigned per port.
              * Per port configuration is optional. Once set this configuration overrides
@@ -20570,7 +20570,7 @@ export namespace gateway {
              *
              * support: Core
              */
-            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortPatch>[]>;
+            perPort?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortPatch>[] | undefined>;
         }
 
         export interface GatewaySpecTlsFrontendPerPort {
@@ -20581,8 +20581,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
-            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTls>;
+            port?: pulumi.Input<number | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTls | undefined>;
         }
 
         export interface GatewaySpecTlsFrontendPerPortPatch {
@@ -20593,8 +20593,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            port?: pulumi.Input<number>;
-            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsPatch>;
+            port?: pulumi.Input<number | undefined>;
+            tls?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsPatch | undefined>;
         }
 
         /**
@@ -20604,7 +20604,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontendPerPortTls {
-            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidation>;
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidation | undefined>;
         }
 
         /**
@@ -20614,7 +20614,7 @@ export namespace gateway {
          * Support: Core
          */
         export interface GatewaySpecTlsFrontendPerPortTlsPatch {
-            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationPatch>;
+            validation?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationPatch | undefined>;
         }
 
         /**
@@ -20672,7 +20672,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefs>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -20691,7 +20691,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20709,15 +20709,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -20729,7 +20729,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20747,15 +20747,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When set to the empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "ConfigMap" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referenced object. When unspecified, the local
              * namespace is inferred.
@@ -20767,7 +20767,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20825,7 +20825,7 @@ export namespace gateway {
              * Support: Implementation-specific - More than one reference, other kinds
              * of resources, or a single reference that includes multiple certificates.
              */
-            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch>[]>;
+            caCertificateRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPerPortTlsValidationCaCertificateRefsPatch>[] | undefined>;
             /**
              * FrontendValidationMode defines the mode for validating the client certificate.
              * There are two possible modes:
@@ -20844,7 +20844,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            mode?: pulumi.Input<string>;
+            mode?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20853,8 +20853,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface GatewaySpecTlsPatch {
-            backend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendPatch>;
-            frontend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPatch>;
+            backend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsBackendPatch | undefined>;
+            frontend?: pulumi.Input<inputs.gateway.v1beta1.GatewaySpecTlsFrontendPatch | undefined>;
         }
 
         /**
@@ -20872,7 +20872,7 @@ export namespace gateway {
              *   * a combination of specified and dynamic addresses are assigned
              *   * a specified address was unusable (e.g. already in use)
              */
-            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusAddresses>[]>;
+            addresses?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusAddresses>[] | undefined>;
             /**
              * AttachedListenerSets represents the total number of ListenerSets that have been
              * successfully attached to this Gateway.
@@ -20885,7 +20885,7 @@ export namespace gateway {
              * Uses for this field include troubleshooting AttachedListenerSets attachment and
              * measuring blast radius/impact of changes to a Gateway.
              */
-            attachedListenerSets?: pulumi.Input<number>;
+            attachedListenerSets?: pulumi.Input<number | undefined>;
             /**
              * Conditions describe the current conditions of the Gateway.
              *
@@ -20900,11 +20900,11 @@ export namespace gateway {
              * * "Programmed"
              * * "Ready"
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusConditions>[] | undefined>;
             /**
              * Listeners provide status for each unique listener port defined in the Spec.
              */
-            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusListeners>[]>;
+            listeners?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusListeners>[] | undefined>;
         }
 
         /**
@@ -20914,14 +20914,14 @@ export namespace gateway {
             /**
              * Type of the address.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value of the address. The validity of the values will depend
              * on the type and support by the controller.
              *
              * Examples: `1.2.3.4`, `128::1`, `my-ip-address`.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20932,18 +20932,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -20951,15 +20951,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -20988,15 +20988,15 @@ export namespace gateway {
              * Uses for this field include troubleshooting Route attachment and
              * measuring blast radius/impact of changes to a Listener.
              */
-            attachedRoutes?: pulumi.Input<number>;
+            attachedRoutes?: pulumi.Input<number | undefined>;
             /**
              * Conditions describe the current condition of this listener.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusListenersConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusListenersConditions>[] | undefined>;
             /**
              * Name is the name of the Listener that this status corresponds to.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * SupportedKinds is the list indicating the Kinds supported by this
              * listener. This MUST represent the kinds supported by an implementation for
@@ -21008,7 +21008,7 @@ export namespace gateway {
              * and invalid Route kinds are specified, the implementation MUST
              * reference the valid Route kinds that have been specified.
              */
-            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusListenersSupportedKinds>[]>;
+            supportedKinds?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.GatewayStatusListenersSupportedKinds>[] | undefined>;
         }
 
         /**
@@ -21019,18 +21019,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -21038,15 +21038,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -21056,11 +21056,11 @@ export namespace gateway {
             /**
              * Group is the group of the Route.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the Route.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -21073,17 +21073,17 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"HTTPRoute">;
+            kind?: pulumi.Input<"HTTPRoute" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpec>;
-            status?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatus>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpec | undefined>;
+            status?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatus | undefined>;
         }
 
         /**
@@ -21145,7 +21145,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -21198,11 +21198,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecParentRefs>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecParentRefs>[] | undefined>;
             /**
              * Rules are a list of HTTP matchers, filters and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRules>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRules>[] | undefined>;
         }
 
         /**
@@ -21228,7 +21228,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -21239,13 +21239,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -21258,7 +21258,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -21285,7 +21285,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -21312,7 +21312,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -21338,7 +21338,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -21349,13 +21349,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -21368,7 +21368,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -21395,7 +21395,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -21422,7 +21422,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -21484,7 +21484,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostnames?: pulumi.Input<pulumi.Input<string>[]>;
+            hostnames?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ParentRefs references the resources (usually Gateways) that a Route wants
              * to be attached to. Note that the referenced parent resource needs to
@@ -21537,11 +21537,11 @@ export namespace gateway {
              * Gateway has the AllowedRoutes field, and ReferenceGrant provides a
              * generic way to enable other kinds of cross-namespace reference.
              */
-            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecParentRefsPatch>[]>;
+            parentRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecParentRefsPatch>[] | undefined>;
             /**
              * Rules are a list of HTTP matchers, filters and actions.
              */
-            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesPatch>[]>;
+            rules?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesPatch>[] | undefined>;
         }
 
         /**
@@ -21587,7 +21587,7 @@ export namespace gateway {
              *
              * Support for weight: Core
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefs>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefs>[] | undefined>;
             /**
              * Filters define the filters that are applied to requests that match
              * this rule.
@@ -21626,7 +21626,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFilters>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFilters>[] | undefined>;
             /**
              * Matches define conditions used for matching the rule against incoming
              * HTTP requests. Each match is independent, i.e. this rule will be matched
@@ -21685,14 +21685,14 @@ export namespace gateway {
              * When no rules matching a request have been successfully attached to the
              * parent a request is coming from, a HTTP 404 status code MUST be returned.
              */
-            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatches>[]>;
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatches>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              *
              * Support: Extended
              */
-            name?: pulumi.Input<string>;
-            timeouts?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesTimeouts>;
+            name?: pulumi.Input<string | undefined>;
+            timeouts?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesTimeouts | undefined>;
         }
 
         /**
@@ -21711,12 +21711,12 @@ export namespace gateway {
              * Support: Implementation-specific (For broader support of filters, use the
              * Filters field in HTTPRouteRule.)
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFilters>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFilters>[] | undefined>;
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -21733,11 +21733,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -21749,7 +21749,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -21757,7 +21757,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -21773,7 +21773,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -21785,12 +21785,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesBackendRefsFilters {
-            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersCors>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRef>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifier>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirror>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirect>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifier>;
+            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersCors | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRef | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifier | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirror | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirect | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifier | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -21825,8 +21825,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewrite>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewrite | undefined>;
         }
 
         /**
@@ -21849,7 +21849,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -21890,7 +21890,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -21933,7 +21933,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -21994,7 +21994,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -22034,7 +22034,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -22049,7 +22049,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22072,7 +22072,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -22113,7 +22113,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -22156,7 +22156,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -22217,7 +22217,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -22257,7 +22257,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -22272,7 +22272,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22290,15 +22290,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -22316,15 +22316,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -22336,12 +22336,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersPatch {
-            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersCorsPatch>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRefPatch>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierPatch>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorPatch>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPatch>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierPatch>;
+            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersCorsPatch | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersExtensionRefPatch | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierPatch | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorPatch | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPatch | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierPatch | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -22376,8 +22376,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePatch>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePatch | undefined>;
         }
 
         /**
@@ -22405,7 +22405,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -22425,7 +22425,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -22443,7 +22443,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -22460,11 +22460,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -22481,11 +22481,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -22513,7 +22513,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -22533,7 +22533,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -22551,7 +22551,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -22568,11 +22568,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -22589,11 +22589,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -22608,8 +22608,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirror {
-            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef>;
-            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFraction>;
+            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRef | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFraction | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -22618,7 +22618,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22655,7 +22655,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -22672,11 +22672,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -22688,7 +22688,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -22696,7 +22696,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22733,7 +22733,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -22750,11 +22750,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -22766,7 +22766,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -22774,7 +22774,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22785,8 +22785,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFraction {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22797,8 +22797,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22813,8 +22813,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorPatch {
-            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch>;
-            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch>;
+            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorBackendRefPatch | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestMirrorFractionPatch | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -22823,7 +22823,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22840,8 +22840,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPath | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -22866,7 +22866,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -22883,7 +22883,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -22896,7 +22896,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22913,8 +22913,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersRequestRedirectPathPatch | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -22939,7 +22939,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -22956,7 +22956,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -22969,7 +22969,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -22984,7 +22984,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -23003,7 +23003,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -23015,7 +23015,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23030,7 +23030,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -23049,7 +23049,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -23061,7 +23061,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23089,7 +23089,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -23109,7 +23109,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -23127,7 +23127,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -23144,11 +23144,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23165,11 +23165,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23197,7 +23197,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -23217,7 +23217,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -23235,7 +23235,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersResponseHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -23252,11 +23252,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23273,11 +23273,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23292,8 +23292,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePath | undefined>;
         }
 
         /**
@@ -23308,8 +23308,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersUrlRewritePathPatch | undefined>;
         }
 
         /**
@@ -23322,7 +23322,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -23341,7 +23341,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -23353,7 +23353,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23366,7 +23366,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -23385,7 +23385,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -23397,7 +23397,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -23416,12 +23416,12 @@ export namespace gateway {
              * Support: Implementation-specific (For broader support of filters, use the
              * Filters field in HTTPRouteRule.)
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersPatch>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsFiltersPatch>[] | undefined>;
             /**
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -23438,11 +23438,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -23454,7 +23454,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -23462,7 +23462,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Weight specifies the proportion of requests forwarded to the referenced
              * backend. This is computed as weight/(sum of all weights in this
@@ -23478,7 +23478,7 @@ export namespace gateway {
              *
              * Support for this field varies based on the context where used.
              */
-            weight?: pulumi.Input<number>;
+            weight?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -23490,12 +23490,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesFilters {
-            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersCors>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersExtensionRef>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifier>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirror>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirect>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifier>;
+            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersCors | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersExtensionRef | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifier | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirror | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirect | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifier | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -23530,8 +23530,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewrite>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewrite | undefined>;
         }
 
         /**
@@ -23554,7 +23554,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -23595,7 +23595,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -23638,7 +23638,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -23699,7 +23699,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -23739,7 +23739,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -23754,7 +23754,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -23777,7 +23777,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowCredentials?: pulumi.Input<boolean>;
+            allowCredentials?: pulumi.Input<boolean | undefined>;
             /**
              * AllowHeaders indicates which HTTP request headers are supported for
              * accessing the requested resource.
@@ -23818,7 +23818,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            allowHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowMethods indicates which HTTP methods are supported for accessing the
              * requested resource.
@@ -23861,7 +23861,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+            allowMethods?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * AllowOrigins indicates whether the response can be shared with requested
              * resource from the given `Origin`.
@@ -23922,7 +23922,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            allowOrigins?: pulumi.Input<pulumi.Input<string>[]>;
+            allowOrigins?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * ExposeHeaders indicates which HTTP response headers can be exposed
              * to client-side scripts in response to a cross-origin request.
@@ -23962,7 +23962,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            exposeHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+            exposeHeaders?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * MaxAge indicates the duration (in seconds) for the client to cache the
              * results of a "preflight" request.
@@ -23977,7 +23977,7 @@ export namespace gateway {
              * When the `MaxAge` field is unspecified, the gateway sets the response
              * header "Access-Control-Max-Age: 5" by default.
              */
-            maxAge?: pulumi.Input<number>;
+            maxAge?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -23995,15 +23995,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24021,15 +24021,15 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent. For example "HTTPRoute" or "Service".
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24041,12 +24041,12 @@ export namespace gateway {
          * guarantee/conformance is defined based on the type of the filter.
          */
         export interface HTTPRouteSpecRulesFiltersPatch {
-            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersCorsPatch>;
-            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersExtensionRefPatch>;
-            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierPatch>;
-            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorPatch>;
-            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirectPatch>;
-            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierPatch>;
+            cors?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersCorsPatch | undefined>;
+            extensionRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersExtensionRefPatch | undefined>;
+            requestHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierPatch | undefined>;
+            requestMirror?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorPatch | undefined>;
+            requestRedirect?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirectPatch | undefined>;
+            responseHeaderModifier?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierPatch | undefined>;
             /**
              * Type identifies the type of filter to apply. As with other API fields,
              * types are classified into three conformance levels:
@@ -24081,8 +24081,8 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
-            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewritePatch>;
+            type?: pulumi.Input<string | undefined>;
+            urlRewrite?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewritePatch | undefined>;
         }
 
         /**
@@ -24110,7 +24110,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -24130,7 +24130,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -24148,7 +24148,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -24165,11 +24165,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24186,11 +24186,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24218,7 +24218,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -24238,7 +24238,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -24256,7 +24256,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -24273,11 +24273,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24294,11 +24294,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24313,8 +24313,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirror {
-            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRef>;
-            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorFraction>;
+            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRef | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorFraction | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -24323,7 +24323,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24360,7 +24360,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -24377,11 +24377,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -24393,7 +24393,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -24401,7 +24401,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24438,7 +24438,7 @@ export namespace gateway {
              * Group is the group of the referent. For example, "gateway.networking.k8s.io".
              * When unspecified or empty string, core API group is inferred.
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the Kubernetes resource kind of the referent. For example
              * "Service".
@@ -24455,11 +24455,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (Services with type ExternalName)
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the backend. When unspecified, the local
              * namespace is inferred.
@@ -24471,7 +24471,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port specifies the destination port number to use for this resource.
              * Port is required when the referent is a Kubernetes Service. In this
@@ -24479,7 +24479,7 @@ export namespace gateway {
              * For other resources, destination port might be derived from the referent
              * resource or this field.
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24490,8 +24490,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorFraction {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24502,8 +24502,8 @@ export namespace gateway {
          * is specified, 100% of requests will be mirrored.
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorFractionPatch {
-            denominator?: pulumi.Input<number>;
-            numerator?: pulumi.Input<number>;
+            denominator?: pulumi.Input<number | undefined>;
+            numerator?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24518,8 +24518,8 @@ export namespace gateway {
          * Support: Extended
          */
         export interface HTTPRouteSpecRulesFiltersRequestMirrorPatch {
-            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRefPatch>;
-            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorFractionPatch>;
+            backendRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorBackendRefPatch | undefined>;
+            fraction?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestMirrorFractionPatch | undefined>;
             /**
              * Percent represents the percentage of requests that should be
              * mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
@@ -24528,7 +24528,7 @@ export namespace gateway {
              * Only one of Fraction or Percent may be specified. If neither field
              * is specified, 100% of requests will be mirrored.
              */
-            percent?: pulumi.Input<number>;
+            percent?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24545,8 +24545,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirectPath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirectPath | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -24571,7 +24571,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -24588,7 +24588,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -24601,7 +24601,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24618,8 +24618,8 @@ export namespace gateway {
              *
              * Support: Core
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirectPathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersRequestRedirectPathPatch | undefined>;
             /**
              * Port is the port to be used in the value of the `Location`
              * header in the response.
@@ -24644,7 +24644,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * Scheme is the scheme to be used in the value of the `Location` header in
              * the response. When empty, the scheme of the request is used.
@@ -24661,7 +24661,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            scheme?: pulumi.Input<string>;
+            scheme?: pulumi.Input<string | undefined>;
             /**
              * StatusCode is the HTTP status code to be used in response.
              *
@@ -24674,7 +24674,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            statusCode?: pulumi.Input<number>;
+            statusCode?: pulumi.Input<number | undefined>;
         }
 
         /**
@@ -24689,7 +24689,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -24708,7 +24708,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -24720,7 +24720,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24735,7 +24735,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -24754,7 +24754,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -24766,7 +24766,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24794,7 +24794,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAdd>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAdd>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -24814,7 +24814,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -24832,7 +24832,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSet>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSet>[] | undefined>;
         }
 
         /**
@@ -24849,11 +24849,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24870,11 +24870,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24902,7 +24902,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: foo,bar,baz
              */
-            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAddPatch>[]>;
+            add?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierAddPatch>[] | undefined>;
             /**
              * Remove the given header(s) from the HTTP request before the action. The
              * value of Remove is a list of HTTP header names. Note that the header
@@ -24922,7 +24922,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header2: bar
              */
-            remove?: pulumi.Input<pulumi.Input<string>[]>;
+            remove?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * Set overwrites the request with the given header (name, value)
              * before the action.
@@ -24940,7 +24940,7 @@ export namespace gateway {
              *   GET /foo HTTP/1.1
              *   my-header: bar
              */
-            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSetPatch>[]>;
+            set?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersResponseHeaderModifierSetPatch>[] | undefined>;
         }
 
         /**
@@ -24957,11 +24957,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24978,11 +24978,11 @@ export namespace gateway {
              * case-insensitivity of header names, "foo" and "Foo" are considered
              * equivalent.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -24997,8 +24997,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewritePath>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewritePath | undefined>;
         }
 
         /**
@@ -25013,8 +25013,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            hostname?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewritePathPatch>;
+            hostname?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersUrlRewritePathPatch | undefined>;
         }
 
         /**
@@ -25027,7 +25027,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -25046,7 +25046,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -25058,7 +25058,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25071,7 +25071,7 @@ export namespace gateway {
              * ReplaceFullPath specifies the value with which to replace the full path
              * of a request during a rewrite or redirect.
              */
-            replaceFullPath?: pulumi.Input<string>;
+            replaceFullPath?: pulumi.Input<string | undefined>;
             /**
              * ReplacePrefixMatch specifies the value with which to replace the prefix
              * match of a request during a rewrite or redirect. For example, a request
@@ -25090,7 +25090,7 @@ export namespace gateway {
              *
              * Request Path | Prefix Match | Replace Prefix | Modified Path
              */
-            replacePrefixMatch?: pulumi.Input<string>;
+            replacePrefixMatch?: pulumi.Input<string | undefined>;
             /**
              * Type defines the type of path modifier. Additional types may be
              * added in a future release of the API.
@@ -25102,7 +25102,7 @@ export namespace gateway {
              * Accepted Condition for the Route to `status: False`, with a
              * Reason of `UnsupportedValue`.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25130,7 +25130,7 @@ export namespace gateway {
              * ANDed together, meaning, a request must match all the specified headers
              * to select the route.
              */
-            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesHeaders>[]>;
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesHeaders>[] | undefined>;
             /**
              * Method specifies HTTP method matcher.
              * When specified, this route will be matched only if the request has the
@@ -25138,8 +25138,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            method?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesPath>;
+            method?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesPath | undefined>;
             /**
              * QueryParams specifies HTTP query parameter matchers. Multiple match
              * values are ANDed together, meaning, a request must match all the
@@ -25147,7 +25147,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesQueryParams>[]>;
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesQueryParams>[] | undefined>;
         }
 
         /**
@@ -25171,7 +25171,7 @@ export namespace gateway {
              * https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2 regarding
              * processing a repeated header, with special handling for "Set-Cookie".
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the header.
              *
@@ -25184,11 +25184,11 @@ export namespace gateway {
              * of regular expressions. Please read the implementation's documentation to
              * determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25212,7 +25212,7 @@ export namespace gateway {
              * https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2 regarding
              * processing a repeated header, with special handling for "Set-Cookie".
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the header.
              *
@@ -25225,11 +25225,11 @@ export namespace gateway {
              * of regular expressions. Please read the implementation's documentation to
              * determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP Header to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25257,7 +25257,7 @@ export namespace gateway {
              * ANDed together, meaning, a request must match all the specified headers
              * to select the route.
              */
-            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesHeadersPatch>[]>;
+            headers?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesHeadersPatch>[] | undefined>;
             /**
              * Method specifies HTTP method matcher.
              * When specified, this route will be matched only if the request has the
@@ -25265,8 +25265,8 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            method?: pulumi.Input<string>;
-            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesPathPatch>;
+            method?: pulumi.Input<string | undefined>;
+            path?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesPathPatch | undefined>;
             /**
              * QueryParams specifies HTTP query parameter matchers. Multiple match
              * values are ANDed together, meaning, a request must match all the
@@ -25274,7 +25274,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesQueryParamsPatch>[]>;
+            queryParams?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesQueryParamsPatch>[] | undefined>;
         }
 
         /**
@@ -25289,11 +25289,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (RegularExpression)
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value of the HTTP path to match against.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25308,11 +25308,11 @@ export namespace gateway {
              *
              * Support: Implementation-specific (RegularExpression)
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value of the HTTP path to match against.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25339,7 +25339,7 @@ export namespace gateway {
              * Users SHOULD NOT route traffic based on repeated query params to guard
              * themselves against potential differences in the implementations.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the query parameter.
              *
@@ -25352,11 +25352,11 @@ export namespace gateway {
              * dialects of regular expressions. Please read the implementation's
              * documentation to determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP query param to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25383,7 +25383,7 @@ export namespace gateway {
              * Users SHOULD NOT route traffic based on repeated query params to guard
              * themselves against potential differences in the implementations.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Type specifies how to match against the value of the query parameter.
              *
@@ -25396,11 +25396,11 @@ export namespace gateway {
              * dialects of regular expressions. Please read the implementation's
              * documentation to determine the supported dialect.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
             /**
              * Value is the value of HTTP query param to be matched.
              */
-            value?: pulumi.Input<string>;
+            value?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25446,7 +25446,7 @@ export namespace gateway {
              *
              * Support for weight: Core
              */
-            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsPatch>[]>;
+            backendRefs?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesBackendRefsPatch>[] | undefined>;
             /**
              * Filters define the filters that are applied to requests that match
              * this rule.
@@ -25485,7 +25485,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersPatch>[]>;
+            filters?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesFiltersPatch>[] | undefined>;
             /**
              * Matches define conditions used for matching the rule against incoming
              * HTTP requests. Each match is independent, i.e. this rule will be matched
@@ -25544,14 +25544,14 @@ export namespace gateway {
              * When no rules matching a request have been successfully attached to the
              * parent a request is coming from, a HTTP 404 status code MUST be returned.
              */
-            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesPatch>[]>;
+            matches?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesMatchesPatch>[] | undefined>;
             /**
              * Name is the name of the route rule. This name MUST be unique within a Route if it is set.
              *
              * Support: Extended
              */
-            name?: pulumi.Input<string>;
-            timeouts?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesTimeoutsPatch>;
+            name?: pulumi.Input<string | undefined>;
+            timeouts?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteSpecRulesTimeoutsPatch | undefined>;
         }
 
         /**
@@ -25581,7 +25581,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            backendRequest?: pulumi.Input<string>;
+            backendRequest?: pulumi.Input<string | undefined>;
             /**
              * Request specifies the maximum duration for a gateway to respond to an HTTP request.
              * If the gateway has not been able to respond before this deadline is met, the gateway
@@ -25606,7 +25606,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            request?: pulumi.Input<string>;
+            request?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25636,7 +25636,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            backendRequest?: pulumi.Input<string>;
+            backendRequest?: pulumi.Input<string | undefined>;
             /**
              * Request specifies the maximum duration for a gateway to respond to an HTTP request.
              * If the gateway has not been able to respond before this deadline is met, the gateway
@@ -25661,7 +25661,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            request?: pulumi.Input<string>;
+            request?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25684,7 +25684,7 @@ export namespace gateway {
              * A maximum of 32 Gateways will be represented in this list. An empty list
              * means the route has not been attached to any Gateway.
              */
-            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParents>[]>;
+            parents?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParents>[] | undefined>;
         }
 
         /**
@@ -25713,7 +25713,7 @@ export namespace gateway {
              * * The Route is of a type that the controller does not support.
              * * The Route is in a namespace to which the controller does not have access.
              */
-            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParentsConditions>[]>;
+            conditions?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParentsConditions>[] | undefined>;
             /**
              * ControllerName is a domain/path string that indicates the name of the
              * controller that wrote this status. This corresponds with the
@@ -25729,8 +25729,8 @@ export namespace gateway {
              * entries to status populated with their ControllerName are cleaned up when they are no
              * longer necessary.
              */
-            controllerName?: pulumi.Input<string>;
-            parentRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParentsParentRef>;
+            controllerName?: pulumi.Input<string | undefined>;
+            parentRef?: pulumi.Input<inputs.gateway.v1beta1.HTTPRouteStatusParentsParentRef | undefined>;
         }
 
         /**
@@ -25741,18 +25741,18 @@ export namespace gateway {
              * lastTransitionTime is the last time the condition transitioned from one status to another.
              * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
              */
-            lastTransitionTime?: pulumi.Input<string>;
+            lastTransitionTime?: pulumi.Input<string | undefined>;
             /**
              * message is a human readable message indicating details about the transition.
              * This may be an empty string.
              */
-            message?: pulumi.Input<string>;
+            message?: pulumi.Input<string | undefined>;
             /**
              * observedGeneration represents the .metadata.generation that the condition was set based upon.
              * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
              * with respect to the current state of the instance.
              */
-            observedGeneration?: pulumi.Input<number>;
+            observedGeneration?: pulumi.Input<number | undefined>;
             /**
              * reason contains a programmatic identifier indicating the reason for the condition's last transition.
              * Producers of specific condition types may define expected values and meanings for this field,
@@ -25760,15 +25760,15 @@ export namespace gateway {
              * The value should be a CamelCase string.
              * This field may not be empty.
              */
-            reason?: pulumi.Input<string>;
+            reason?: pulumi.Input<string | undefined>;
             /**
              * status of the condition, one of True, False, Unknown.
              */
-            status?: pulumi.Input<string>;
+            status?: pulumi.Input<string | undefined>;
             /**
              * type of condition in CamelCase or in foo.example.com/CamelCase.
              */
-            type?: pulumi.Input<string>;
+            type?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25784,7 +25784,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is kind of the referent.
              *
@@ -25795,13 +25795,13 @@ export namespace gateway {
              *
              * Support for other resources is Implementation-Specific.
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent.
              *
              * Support: Core
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent. When unspecified, this refers
              * to the local namespace of the Route.
@@ -25814,7 +25814,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * Port is the network port this Route targets. It can be interpreted
              * differently based on the type of parent resource.
@@ -25841,7 +25841,7 @@ export namespace gateway {
              *
              * Support: Extended
              */
-            port?: pulumi.Input<number>;
+            port?: pulumi.Input<number | undefined>;
             /**
              * SectionName is the name of a section within the target resource. In the
              * following resources, SectionName is interpreted as the following:
@@ -25868,7 +25868,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            sectionName?: pulumi.Input<string>;
+            sectionName?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25893,16 +25893,16 @@ export namespace gateway {
             /**
              * APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
              */
-            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1">;
+            apiVersion?: pulumi.Input<"gateway.networking.k8s.io/v1beta1" | undefined>;
             /**
              * Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<"ReferenceGrant">;
+            kind?: pulumi.Input<"ReferenceGrant" | undefined>;
             /**
              * Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta>;
-            spec?: pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpec>;
+            metadata?: pulumi.Input<inputs.meta.v1.ObjectMeta | undefined>;
+            spec?: pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpec | undefined>;
         }
 
         /**
@@ -25917,7 +25917,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecFrom>[]>;
+            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecFrom>[] | undefined>;
             /**
              * To describes the resources that may be referenced by the resources
              * described in "From". Each entry in this list MUST be considered to be an
@@ -25926,7 +25926,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecTo>[]>;
+            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecTo>[] | undefined>;
         }
 
         /**
@@ -25939,7 +25939,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -25957,13 +25957,13 @@ export namespace gateway {
              * * TLSRoute
              * * UDPRoute
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -25976,7 +25976,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -25994,13 +25994,13 @@ export namespace gateway {
              * * TLSRoute
              * * UDPRoute
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Namespace is the namespace of the referent.
              *
              * Support: Core
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26015,7 +26015,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecFromPatch>[]>;
+            from?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecFromPatch>[] | undefined>;
             /**
              * To describes the resources that may be referenced by the resources
              * described in "From". Each entry in this list MUST be considered to be an
@@ -26024,7 +26024,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecToPatch>[]>;
+            to?: pulumi.Input<pulumi.Input<inputs.gateway.v1beta1.ReferenceGrantSpecToPatch>[] | undefined>;
         }
 
         /**
@@ -26038,7 +26038,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -26047,13 +26047,13 @@ export namespace gateway {
              * * Secret when used to permit a SecretObjectReference
              * * Service when used to permit a BackendObjectReference
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent. When unspecified, this policy
              * refers to all resources of the specified Group and Kind in the local
              * namespace.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26067,7 +26067,7 @@ export namespace gateway {
              *
              * Support: Core
              */
-            group?: pulumi.Input<string>;
+            group?: pulumi.Input<string | undefined>;
             /**
              * Kind is the kind of the referent. Although implementations may support
              * additional resources, the following types are part of the "Core"
@@ -26076,13 +26076,13 @@ export namespace gateway {
              * * Secret when used to permit a SecretObjectReference
              * * Service when used to permit a BackendObjectReference
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name is the name of the referent. When unspecified, this policy
              * refers to all resources of the specified Group and Kind in the local
              * namespace.
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
         }
     }
 }
@@ -26096,19 +26096,25 @@ export namespace meta {
             /**
              * continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a consistent list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response, unless you have received this token from an error message.
              */
-            continue?: pulumi.Input<string>;
+            continue?: pulumi.Input<string | undefined>;
             /**
              * remainingItemCount is the number of subsequent items in the list which are not included in this list response. If the list request contained label or field selectors, then the number of remaining items is unknown and the field will be left unset and omitted during serialization. If the list is complete (either because it is not chunking or because this is the last chunk), then there are no more remaining items and this field will be left unset and omitted during serialization. Servers older than v1.15 do not set this field. The intended use of the remainingItemCount is *estimating* the size of a collection. Clients should not rely on the remainingItemCount to be set or to be exact.
              */
-            remainingItemCount?: pulumi.Input<number>;
+            remainingItemCount?: pulumi.Input<number | undefined>;
             /**
              * String that identifies the server's internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
              */
-            resourceVersion?: pulumi.Input<string>;
+            resourceVersion?: pulumi.Input<string | undefined>;
             /**
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
-            selfLink?: pulumi.Input<string>;
+            selfLink?: pulumi.Input<string | undefined>;
+            /**
+             * shardInfo is set when the list is a filtered subset of the full collection, as selected by a shard selector on the request. It echoes back the selector so clients can verify which shard they received and merge sharded responses. Clients should not cache sharded list responses as a full representation of the collection.
+             *
+             * This is an alpha field and requires enabling the ShardedListAndWatch feature gate.
+             */
+            shardInfo?: pulumi.Input<inputs.meta.v1.ShardInfo | undefined>;
         }
 
         /**
@@ -26118,31 +26124,31 @@ export namespace meta {
             /**
              * APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
              */
-            fieldsType?: pulumi.Input<string>;
+            fieldsType?: pulumi.Input<string | undefined>;
             /**
              * FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
              */
-            fieldsV1?: any;
+            fieldsV1?: any | undefined;
             /**
              * Manager is an identifier of the workflow managing these fields.
              */
-            manager?: pulumi.Input<string>;
+            manager?: pulumi.Input<string | undefined>;
             /**
              * Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
              */
-            operation?: pulumi.Input<string>;
+            operation?: pulumi.Input<string | undefined>;
             /**
              * Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
              */
-            subresource?: pulumi.Input<string>;
+            subresource?: pulumi.Input<string | undefined>;
             /**
              * Time is the timestamp of when the ManagedFields entry was added. The timestamp will also be updated if a field is added, the manager changes any of the owned fields value or removes a field. The timestamp does not update when a field is removed from the entry because another manager took it over.
              */
-            time?: pulumi.Input<string>;
+            time?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26152,31 +26158,31 @@ export namespace meta {
             /**
              * APIVersion defines the version of this resource that this field set applies to. The format is "group/version" just like the top-level APIVersion field. It is necessary to track the version of a field set because it cannot be automatically converted.
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * FieldsType is the discriminator for the different fields format and version. There is currently only one possible value: "FieldsV1"
              */
-            fieldsType?: pulumi.Input<string>;
+            fieldsType?: pulumi.Input<string | undefined>;
             /**
              * FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
              */
-            fieldsV1?: any;
+            fieldsV1?: any | undefined;
             /**
              * Manager is an identifier of the workflow managing these fields.
              */
-            manager?: pulumi.Input<string>;
+            manager?: pulumi.Input<string | undefined>;
             /**
              * Operation is the type of operation which lead to this ManagedFieldsEntry being created. The only valid values for this field are 'Apply' and 'Update'.
              */
-            operation?: pulumi.Input<string>;
+            operation?: pulumi.Input<string | undefined>;
             /**
              * Subresource is the name of the subresource used to update that object, or empty string if the object was updated through the main resource. The value of this field is used to distinguish between managers, even if they share the same name. For example, a status update will be distinct from a regular update using the same manager name. Note that the APIVersion field is not related to the Subresource field and it always corresponds to the version of the main resource.
              */
-            subresource?: pulumi.Input<string>;
+            subresource?: pulumi.Input<string | undefined>;
             /**
              * Time is the timestamp of when the ManagedFields entry was added. The timestamp will also be updated if a field is added, the manager changes any of the owned fields value or removes a field. The timestamp does not update when a field is removed from the entry because another manager took it over.
              */
-            time?: pulumi.Input<string>;
+            time?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26186,27 +26192,27 @@ export namespace meta {
             /**
              * Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
              */
-            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
              *
              * Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            creationTimestamp?: pulumi.Input<string>;
+            creationTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
              */
-            deletionGracePeriodSeconds?: pulumi.Input<number>;
+            deletionGracePeriodSeconds?: pulumi.Input<number | undefined>;
             /**
              * DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
              *
              * Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            deletionTimestamp?: pulumi.Input<string>;
+            deletionTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
              */
-            finalizers?: pulumi.Input<pulumi.Input<string>[]>;
+            finalizers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
              *
@@ -26214,49 +26220,49 @@ export namespace meta {
              *
              * Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
              */
-            generateName?: pulumi.Input<string>;
+            generateName?: pulumi.Input<string | undefined>;
             /**
              * A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
              */
-            generation?: pulumi.Input<number>;
+            generation?: pulumi.Input<number | undefined>;
             /**
              * Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
              */
-            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
              */
-            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntry>[]>;
+            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntry>[] | undefined>;
             /**
              * Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
              *
              * Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
              */
-            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReference>[]>;
+            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReference>[] | undefined>;
             /**
              * An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
              *
              * Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
              */
-            resourceVersion?: pulumi.Input<string>;
+            resourceVersion?: pulumi.Input<string | undefined>;
             /**
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
-            selfLink?: pulumi.Input<string>;
+            selfLink?: pulumi.Input<string | undefined>;
             /**
              * UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
              *
              * Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
-            uid?: pulumi.Input<string>;
+            uid?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26266,27 +26272,27 @@ export namespace meta {
             /**
              * Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
              */
-            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            annotations?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
              *
              * Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            creationTimestamp?: pulumi.Input<string>;
+            creationTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
              */
-            deletionGracePeriodSeconds?: pulumi.Input<number>;
+            deletionGracePeriodSeconds?: pulumi.Input<number | undefined>;
             /**
              * DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
              *
              * Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
              */
-            deletionTimestamp?: pulumi.Input<string>;
+            deletionTimestamp?: pulumi.Input<string | undefined>;
             /**
              * Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
              */
-            finalizers?: pulumi.Input<pulumi.Input<string>[]>;
+            finalizers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
             /**
              * GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
              *
@@ -26294,49 +26300,49 @@ export namespace meta {
              *
              * Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
              */
-            generateName?: pulumi.Input<string>;
+            generateName?: pulumi.Input<string | undefined>;
             /**
              * A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
              */
-            generation?: pulumi.Input<number>;
+            generation?: pulumi.Input<number | undefined>;
             /**
              * Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
              */
-            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+            labels?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
             /**
              * ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
              */
-            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntryPatch>[]>;
+            managedFields?: pulumi.Input<pulumi.Input<inputs.meta.v1.ManagedFieldsEntryPatch>[] | undefined>;
             /**
              * Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
              *
              * Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
              */
-            namespace?: pulumi.Input<string>;
+            namespace?: pulumi.Input<string | undefined>;
             /**
              * List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
              */
-            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReferencePatch>[]>;
+            ownerReferences?: pulumi.Input<pulumi.Input<inputs.meta.v1.OwnerReferencePatch>[] | undefined>;
             /**
              * An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
              *
              * Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
              */
-            resourceVersion?: pulumi.Input<string>;
+            resourceVersion?: pulumi.Input<string | undefined>;
             /**
              * Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
              */
-            selfLink?: pulumi.Input<string>;
+            selfLink?: pulumi.Input<string | undefined>;
             /**
              * UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
              *
              * Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
-            uid?: pulumi.Input<string>;
+            uid?: pulumi.Input<string | undefined>;
         }
 
         /**
@@ -26350,11 +26356,11 @@ export namespace meta {
             /**
              * If true, AND if the owner has the "foregroundDeletion" finalizer, then the owner cannot be deleted from the key-value store until this reference is removed. See https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion for how the garbage collector interacts with this field and enforces the foreground deletion. Defaults to false. To set this field, a user needs "delete" permission of the owner, otherwise 422 (Unprocessable Entity) will be returned.
              */
-            blockOwnerDeletion?: pulumi.Input<boolean>;
+            blockOwnerDeletion?: pulumi.Input<boolean | undefined>;
             /**
              * If true, this reference points to the managing controller.
              */
-            controller?: pulumi.Input<boolean>;
+            controller?: pulumi.Input<boolean | undefined>;
             /**
              * Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
@@ -26376,27 +26382,37 @@ export namespace meta {
             /**
              * API version of the referent.
              */
-            apiVersion?: pulumi.Input<string>;
+            apiVersion?: pulumi.Input<string | undefined>;
             /**
              * If true, AND if the owner has the "foregroundDeletion" finalizer, then the owner cannot be deleted from the key-value store until this reference is removed. See https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion for how the garbage collector interacts with this field and enforces the foreground deletion. Defaults to false. To set this field, a user needs "delete" permission of the owner, otherwise 422 (Unprocessable Entity) will be returned.
              */
-            blockOwnerDeletion?: pulumi.Input<boolean>;
+            blockOwnerDeletion?: pulumi.Input<boolean | undefined>;
             /**
              * If true, this reference points to the managing controller.
              */
-            controller?: pulumi.Input<boolean>;
+            controller?: pulumi.Input<boolean | undefined>;
             /**
              * Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
              */
-            kind?: pulumi.Input<string>;
+            kind?: pulumi.Input<string | undefined>;
             /**
              * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
              */
-            name?: pulumi.Input<string>;
+            name?: pulumi.Input<string | undefined>;
             /**
              * UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
              */
-            uid?: pulumi.Input<string>;
+            uid?: pulumi.Input<string | undefined>;
+        }
+
+        /**
+         * ShardInfo describes the shard selector that was applied to produce a list response. Its presence on a list response indicates the list is a filtered subset.
+         */
+        export interface ShardInfo {
+            /**
+             * selector is the shard selector string from the request, echoed back so clients can verify which shard they received and merge responses from multiple shards.
+             */
+            selector: pulumi.Input<string>;
         }
 
     }

@@ -9,7 +9,9 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "moduleDetection": "force",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
