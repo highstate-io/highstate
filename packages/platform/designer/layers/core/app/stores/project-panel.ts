@@ -31,6 +31,7 @@ export const useProjectPanelStore = defineMultiStore({
       }>()
       let nextFocusRequestId = 0
 
+      const canvasStore = useCanvasStore.ensureCreated("project", projectId)
       const {
         vueFlowStore,
         nodeFactory,
@@ -40,7 +41,7 @@ export const useProjectPanelStore = defineMultiStore({
         onInstanceNodeDeleted,
         onNodesMoved,
         edgeEndpointOffsets,
-      } = useCanvasStore.ensureCreated("project", projectId)
+      } = canvasStore
 
       const { $client } = useNuxtApp()
 
@@ -409,7 +410,7 @@ export const useProjectPanelStore = defineMultiStore({
         const node = nodeFactory.createNodeFromInstance(instance, { blueprint })
         await until(vueFlowStore.areNodesInitialized).toBe(true)
 
-        if (!blueprint) {
+        if (!blueprint && !instance.position) {
           if (instancesStore.isGhostInstance(instance.id)) {
             return
           }
@@ -426,6 +427,20 @@ export const useProjectPanelStore = defineMultiStore({
               position: newPosition,
             }
           })
+        }
+
+        for (const currentInstance of instancesStore.getProjectInstances()) {
+          nodeFactory.createEdgesForInstance(currentInstance)
+        }
+
+        for (const currentHub of instancesStore.hubs.values()) {
+          nodeFactory.createEdgesForHub(currentHub)
+        }
+      })
+
+      instancesStore.onInstanceUpdated(({ instance }) => {
+        if (nodeFactory.instanceIdToNodeIdMap.has(instance.id)) {
+          canvasStore.updateInstanceNode(instance)
         }
       })
 
@@ -446,7 +461,7 @@ export const useProjectPanelStore = defineMultiStore({
         nodeFactory.createNodeFromHub(hub, { blueprint })
         await until(vueFlowStore.areNodesInitialized).toBe(true)
 
-        if (!blueprint) {
+        if (!blueprint && !hub.position) {
           vueFlowStore.updateNode(hub.id, node => {
             const newPosition = {
               x: node.position.x - node.dimensions.width / 2,
@@ -460,6 +475,18 @@ export const useProjectPanelStore = defineMultiStore({
             }
           })
         }
+
+        for (const currentInstance of instancesStore.getProjectInstances()) {
+          nodeFactory.createEdgesForInstance(currentInstance)
+        }
+
+        for (const currentHub of instancesStore.hubs.values()) {
+          nodeFactory.createEdgesForHub(currentHub)
+        }
+      })
+
+      instancesStore.onHubUpdated(hub => {
+        canvasStore.updateHubNode(hub)
       })
 
       return {

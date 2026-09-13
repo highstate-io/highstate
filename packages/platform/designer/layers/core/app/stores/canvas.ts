@@ -1,4 +1,4 @@
-import { getIncomers, useVueFlow, type GraphEdge, type GraphNode } from "@vue-flow/core"
+import { useVueFlow, type GraphEdge, type GraphNode } from "@vue-flow/core"
 import {
   useBlueprintClipboard,
   useBlueprintPlacement,
@@ -147,7 +147,7 @@ export const useCanvasStore = defineMultiStore({
           vueFlowStore.updateNode(node.id, { position: instance.position })
         }
 
-        const nodeEdges = getIncomers(vueFlowStore, vueFlowStore.nodes.value)
+        const nodeEdges = vueFlowStore.edges.value.filter(edge => edge.target === node.id)
         const createdEdgeIds = nodeFactory.createEdgesForInstance(instance)
 
         const orphanedEdges = nodeEdges.filter(edge => !createdEdgeIds.includes(edge.id))
@@ -165,7 +165,7 @@ export const useCanvasStore = defineMultiStore({
         vueFlowStore.updateNodeData(node.id, { hub })
         vueFlowStore.updateNode(node.id, { position: hub.position })
 
-        const nodeEdges = getIncomers(vueFlowStore, vueFlowStore.nodes.value)
+        const nodeEdges = vueFlowStore.edges.value.filter(edge => edge.target === node.id)
         const createdEdgeIds = nodeFactory.createEdgesForHub(hub)
 
         const orphanedEdges = nodeEdges.filter(edge => !createdEdgeIds.includes(edge.id))
