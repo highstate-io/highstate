@@ -1,3 +1,13 @@
+## 0.31.0 (2026-09-13)
+
+### 🚀 Features
+
+- support local Designer passkey migrations ([#29](https://github.com/highstate-io/highstate/pull/29))
+
+### ❤️ Thank You
+
+- Fedor Chubukov @Exeteres
+
 ## 0.30.3 (2026-09-03)
 
 This was a version bump only for @highstate/designer to align it with other projects, there were no code changes.
