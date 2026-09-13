@@ -5,6 +5,7 @@ import {
   type UnlockMethodFormData,
 } from "#layers/core/app/features/unlock-methods"
 import { camelCaseToHumanReadable } from "@highstate/contract"
+import { createId } from "@paralleldrive/cuid2"
 
 const visible = defineModel<boolean>("visible")
 
@@ -41,9 +42,14 @@ const isFormValid = computed(() => {
 const createProject = async () => {
   if (!isFormValid.value) return
 
-  const unlockMethod = await createUnlockMethodFromForm(unlockMethodData.value)
+  const projectId = createId()
+  const unlockMethod = await createUnlockMethodFromForm(unlockMethodData.value, {
+    id: projectId,
+    name: projectName.value,
+  })
 
   const project = await projectsStore.createProject(
+    projectId,
     projectName.value,
     { title: title.value },
     unlockMethod,

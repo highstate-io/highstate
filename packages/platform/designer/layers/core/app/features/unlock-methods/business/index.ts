@@ -33,12 +33,15 @@ export async function createPasswordUnlockMethod(
 
 export async function createPasskeyUnlockMethod(
   meta: UnlockMethodMeta,
+  project: { id: string; name: string },
 ): Promise<UnlockMethodInput> {
   if (!meta.title) {
     throw new Error("Display name is required for passkey unlock method")
   }
 
-  const identity = await webauthn.createCredential({ keyName: meta.title })
+  const identity = await webauthn.createCredential({
+    keyName: `[${project.id}] ${project.name} | ${meta.title}`,
+  })
   const encrypter = new Encrypter()
   encrypter.addRecipient(new webauthn.WebAuthnRecipient({ identity }))
   const unlockMethod = await createUnlockMethod(meta, encrypter)
@@ -60,6 +63,7 @@ export type UnlockMethodFormData = {
 
 export function createUnlockMethodFromForm(
   formData: UnlockMethodFormData,
+  project: { id: string; name: string },
 ): Promise<UnlockMethodInput> {
   const meta: UnlockMethodMeta = {
     title: formData.title,
@@ -71,7 +75,7 @@ export function createUnlockMethodFromForm(
   }
 
   if (formData.type === "passkey") {
-    return createPasskeyUnlockMethod(meta)
+    return createPasskeyUnlockMethod(meta, project)
   }
 
   throw new Error(`Unsupported unlock method type: ${formData.type}`)

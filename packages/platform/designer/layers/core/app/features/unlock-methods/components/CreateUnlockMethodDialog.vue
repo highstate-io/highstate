@@ -9,6 +9,7 @@ const emit = defineEmits<{
 }>()
 
 const settingsStore = useProjectUnlockMethodSettingsStore()
+const { infoStore } = useProjectStores()
 
 const valid = ref(false)
 const loading = ref(false)
@@ -36,7 +37,10 @@ const handleCreate = async () => {
   error.value = null
 
   try {
-    const unlockMethod = await createUnlockMethodFromForm(formData.value)
+    const unlockMethod = await createUnlockMethodFromForm(formData.value, {
+      id: infoStore.projectInfo.id,
+      name: infoStore.projectInfo.name,
+    })
 
     await settingsStore.create(unlockMethod)
 

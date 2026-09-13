@@ -28,6 +28,7 @@ export const projectRouter = router({
   createProject: backendProcedure
     .input(
       z.object({
+        projectId: z.cuid2(),
         projectInput: projectInputSchema,
         unlockMethodInput: unlockMethodInputSchema,
       }),
@@ -37,6 +38,7 @@ export const projectRouter = router({
         ctx.requestContext,
         input.projectInput,
         input.unlockMethodInput,
+        input.projectId,
       )
     }),
 
