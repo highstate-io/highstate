@@ -18,6 +18,7 @@ export const useProjectsStore = defineStore("projects", () => {
   const loadingCreateProject = ref<boolean>(false)
 
   const createProject = async (
+    id: string,
     name: string,
     meta: CommonObjectMeta,
     unlockMethodInput: UnlockMethodInput,
@@ -26,6 +27,7 @@ export const useProjectsStore = defineStore("projects", () => {
 
     try {
       const project = await $client.project.createProject.mutate({
+        projectId: id,
         projectInput: {
           meta,
           name,

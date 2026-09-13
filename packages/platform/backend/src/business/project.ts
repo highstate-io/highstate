@@ -118,16 +118,16 @@ export class ProjectService {
    *
    * @param projectInput The input for the new project.
    * @param unlockMethodInput The unlock method to use for the new project.
+   * @param projectId The ID reserved for the new project.
    */
   async createProject(
     context: BackendRequestContext,
     projectInput: ProjectInput,
     unlockMethodInput: UnlockMethodInput,
+    projectId = createId(),
   ): Promise<Project> {
     requireBackendPermission(context, "project.create")
 
-    // start by generating a random ID
-    const projectId = createId()
     const logger = createProjectLogger(this.logger, projectId)
 
     logger.info("creating new project")

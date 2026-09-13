@@ -39,12 +39,17 @@ describe("createPasskeyUnlockMethod", () => {
   test("creates and uses a new WebAuthn credential", async () => {
     mocks.createCredential.mockResolvedValue("passkey identity")
 
-    const unlockMethod = await createPasskeyUnlockMethod({
-      title: "YubiKey",
-      description: "",
-    })
+    const unlockMethod = await createPasskeyUnlockMethod(
+      {
+        title: "YubiKey",
+        description: "",
+      },
+      { id: "project-id", name: "home-lab" },
+    )
 
-    expect(mocks.createCredential).toHaveBeenCalledWith({ keyName: "YubiKey" })
+    expect(mocks.createCredential).toHaveBeenCalledWith({
+      keyName: "[project-id] home-lab | YubiKey",
+    })
     expect(mocks.recipientOptions).toHaveBeenCalledWith({ identity: "passkey identity" })
     expect(unlockMethod).toEqual({
       type: "passkey",
