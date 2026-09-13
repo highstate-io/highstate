@@ -200,9 +200,13 @@ jobs:
       - name: Select and build affected packages
         id: packages
         run: |
-          paths=$(bun /tmp/highstate-trusted/scripts/affected-package-paths.ts --root . --trusted-root /tmp/highstate-trusted --base origin/main --output affected-packages.json)
+          paths=$(bun /tmp/highstate-trusted/scripts/affected-package-paths.ts --root . --trusted-root /tmp/highstate-trusted --base origin/main --head '${{ needs.publish-images.outputs.sha }}' --output affected-packages.json)
           echo "paths=$paths" >> "$GITHUB_OUTPUT"
           if [ -n "$paths" ]; then bun nx run-many -t build --projects="$(jq -r 'map(.name) | join(",")' affected-packages.json)"; fi
+
+      - name: Prepare package manifests
+        if: steps.packages.outputs.paths != ''
+        run: bun /tmp/highstate-trusted/scripts/prepare-preview-packages.ts --root . --trusted-root /tmp/highstate-trusted --metadata affected-packages.json
 
       - name: Publish packages
         if: steps.packages.outputs.paths != ''
