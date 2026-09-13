@@ -137,6 +137,7 @@ export const useProjectInstancesStore = defineMultiStore({
         hub: HubModel
         blueprint: boolean
       }>()
+      const { on: onHubUpdated, trigger: triggerHubUpdated } = createEventHook<HubModel>()
       const { on: onHubDeleted, trigger: triggerHubDeleted } = createEventHook<string>()
 
       const componentTypeToInstancesMap = shallowReactive(new Map()) as Map<string, InstanceModel[]>
@@ -536,6 +537,76 @@ export const useProjectInstancesStore = defineMultiStore({
                 if (event.virtualComponentsUpdated) {
                   await libraryStore.refreshVirtualComponents()
                   refreshAllResolverNodes()
+                }
+
+                const renamedInstanceIds = new Set<string>()
+                if (
+                  event.updatedInstances?.length === 1 &&
+                  event.deletedInstanceIds?.length === 1
+                ) {
+                  const updatedInstance = event.updatedInstances[0]
+                  const deletedInstanceId = event.deletedInstanceIds[0]
+                  const deletedInstance = instances.get(deletedInstanceId)
+
+                  if (deletedInstance?.type === updatedInstance.type) {
+                    renameInstanceLocally(deletedInstanceId, updatedInstance)
+                    renamedInstanceIds.add(deletedInstanceId)
+                  }
+                }
+
+                for (const instanceId of event.deletedInstanceIds ?? []) {
+                  if (renamedInstanceIds.has(instanceId)) {
+                    continue
+                  }
+
+                  const instance = instances.get(instanceId)
+                  if (instance) {
+                    await deleteInstance(instance, false)
+                  }
+                }
+
+                for (const hubId of event.deletedHubIds ?? []) {
+                  const hub = hubs.get(hubId)
+                  if (hub) {
+                    await deleteHub(hub, false)
+                  }
+                }
+
+                const createdInstances: InstanceModel[] = []
+                for (const instance of event.updatedInstances ?? []) {
+                  const existingInstance = instances.get(instance.id)
+
+                  residentInstanceIds.add(instance.id)
+                  ghostInstanceIds.delete(instance.id)
+                  virtualInstanceIds.delete(instance.id)
+
+                  if (!existingInstance) {
+                    addComponentInstance(instance)
+                    instanceNameSet.add(instance.name)
+                    createdInstances.push(instance)
+                  }
+
+                  updateInstanceState(instance)
+                }
+
+                const createdHubs: HubModel[] = []
+                for (const hub of event.updatedHubs ?? []) {
+                  const existingHub = hubs.get(hub.id)
+                  updateHubState(hub)
+
+                  if (existingHub) {
+                    await triggerHubUpdated(hub)
+                  } else {
+                    createdHubs.push(hub)
+                  }
+                }
+
+                for (const instance of createdInstances) {
+                  await triggerInstanceCreated({ instance, blueprint: false })
+                }
+
+                for (const hub of createdHubs) {
+                  await triggerHubCreated({ hub, blueprint: false })
                 }
 
                 const promotedVirtualInstanceIds = new Set<string>()
@@ -1072,6 +1143,43 @@ export const useProjectInstancesStore = defineMultiStore({
         }
       }
 
+      const renameInstanceLocally = (instanceId: InstanceId, instance: InstanceModel) => {
+        const existingInstance = instances.get(instanceId)
+        if (!existingInstance) {
+          return
+        }
+
+        triggerInstanceNameChanged({
+          oldName: existingInstance.name,
+          oldId: instanceId,
+          newName: instance.name,
+          newId: instance.id,
+        })
+
+        for (const targetInstance of instances.values()) {
+          if (targetInstance.id !== instanceId) {
+            updateInstanceReferencesInInstance(targetInstance, instanceId, instance.id)
+          }
+        }
+
+        for (const hub of hubs.values()) {
+          updateInstanceReferencesInHub(hub, instanceId, instance.id)
+        }
+
+        deleteInputResolverInput(`instance:${instanceId}`)
+        instances.delete(instanceId)
+        residentInstanceIds.delete(instanceId)
+        ghostInstanceIds.delete(instanceId)
+        virtualInstanceIds.delete(instanceId)
+        instanceNameSet.delete(existingInstance.name)
+        deleteComponentInstance(existingInstance.type, instanceId)
+
+        residentInstanceIds.add(instance.id)
+        instanceNameSet.add(instance.name)
+        addComponentInstance(instance)
+        updateInstanceState(instance)
+      }
+
       const updateInstance = async (
         instanceId: InstanceId,
         newName: string,
@@ -1181,7 +1289,6 @@ export const useProjectInstancesStore = defineMultiStore({
           deleteInstanceReferencesInHub(hub, instance.id)
         }
 
-        triggerInstanceDeleted(instance.id)
         removeInstanceLocally(instance.id)
         deleteComponentInstance(instance.type, instance.id)
 
@@ -1312,6 +1419,7 @@ export const useProjectInstancesStore = defineMultiStore({
         onInstanceDeleted,
 
         onHubCreated,
+        onHubUpdated,
         onHubDeleted,
 
         onInstanceInputAdded,
