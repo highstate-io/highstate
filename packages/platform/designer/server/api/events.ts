@@ -1,3 +1,5 @@
+import { isDesignerOrigin } from "../utils/designer-host"
+
 type EventsBridgeState = {
   pendingMessages: string[]
   upstream: WebSocket
@@ -8,7 +10,8 @@ const stateByPeerId = new Map<string, EventsBridgeState>()
 export default defineWebSocketHandler({
   upgrade: request => {
     const origin = request.headers.get("origin")
-    if (!origin || !isDesignerOrigin(origin, request.url)) {
+    const redirectDisabled = process.env.HIGHSTATE_DESIGNER_NO_REDIRECT !== undefined
+    if (!origin || !isDesignerOrigin(origin, request.url, redirectDisabled)) {
       return new Response("Forbidden", { status: 403 })
     }
   },
@@ -71,17 +74,3 @@ export default defineWebSocketHandler({
     stateByPeerId.delete(peer.id)
   },
 })
-
-function isDesignerOrigin(origin: string, requestUrl: string): boolean {
-  try {
-    const originUrl = new URL(origin)
-    const targetUrl = new URL(requestUrl)
-    return (
-      originUrl.hostname === "highstate.localhost" &&
-      originUrl.protocol === targetUrl.protocol.replace("ws", "http") &&
-      originUrl.port === targetUrl.port
-    )
-  } catch {
-    return false
-  }
-}
