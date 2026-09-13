@@ -13,17 +13,21 @@ const value = (name: string): string => {
 }
 
 const base = value("--base")
+const head = value("--head")
 const output = value("--output")
 const rootIndex = process.argv.indexOf("--root")
 const root = resolve(rootIndex === -1 ? "." : process.argv[rootIndex + 1])
 const trustedRootIndex = process.argv.indexOf("--trusted-root")
 const trustedRoot = resolve(trustedRootIndex === -1 ? root : process.argv[trustedRootIndex + 1])
 
-const nx = Bun.spawn(["bun", "nx", "show", "projects", "--affected", `--base=${base}`, "--json"], {
-  cwd: root,
-  stdout: "pipe",
-  stderr: "inherit",
-})
+const nx = Bun.spawn(
+  ["bun", "nx", "show", "projects", "--affected", `--base=${base}`, `--head=${head}`, "--json"],
+  {
+    cwd: root,
+    stdout: "pipe",
+    stderr: "inherit",
+  },
+)
 const projects = JSON.parse(await new Response(nx.stdout).text()) as string[]
 
 if ((await nx.exited) !== 0) {
