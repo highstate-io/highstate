@@ -8,9 +8,11 @@ A dependency resolver accepting two versions does not prove that their runtime p
 
 Platform packages form one fixed release group and standard-library packages form another.
 Packages within a group move together, while changes across groups require explicit compatibility review.
-`nx.json` owns release group membership and package manifests own exact versions.
-Release automation derives public package membership from Nx project metadata and publishes each versioned group
-on its anchor package: `@highstate/contract` for the platform and `@highstate/library` for the standard library.
+`nx.json` owns release group membership, Changesets owns version calculation, and package manifests own exact
+versions.
+Release automation derives public package membership from Nx project metadata, synchronizes the Changesets fixed
+groups, and publishes each versioned group on its anchor package: `@highstate/contract` for the platform and
+`@highstate/library` for the standard library.
 The CLI resolves groups from those npm manifests rather than embedding repository package lists, so an installed
 CLI can update to groups introduced by newer releases.
 
