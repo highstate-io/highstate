@@ -19,6 +19,7 @@
 		"@highstate/example.units": "workspace:*",
 		"@highstate/gateway-api": "workspace:*",
 		"@highstate/git": "workspace:*",
+		"@highstate/hetzner": "workspace:*",
 		"@highstate/k3s": "workspace:*",
 		"@highstate/k8s": "workspace:*",
 		"@highstate/k8s.apps": "workspace:*",

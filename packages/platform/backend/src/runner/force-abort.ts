@@ -83,7 +83,6 @@ export async function createForceAbortableCommand(
             "--mount",
             "--propagation",
             "private",
-            "--forward-signals",
             "--kill-child=SIGKILL",
             "--",
             "sh",
