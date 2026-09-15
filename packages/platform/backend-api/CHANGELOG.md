@@ -1,3 +1,13 @@
+## 0.31.1
+
+### Patch Changes
+
+- Updated dependencies [[`50644cc`](https://github.com/highstate-io/highstate/commit/50644cc03012b993ea85ff42ab2a48be5eeb143a)]:
+  - @highstate/backend@0.31.1
+  - @highstate/cli@0.31.1
+  - @highstate/api@0.31.1
+  - @highstate/contract@0.31.1
+
 ## 0.31.0 (2026-09-13)
 
 This was a version bump only for @highstate/backend-api to align it with other projects, there were no code changes.

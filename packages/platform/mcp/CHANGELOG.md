@@ -1,3 +1,11 @@
+## 0.31.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @highstate/cli@0.31.1
+  - @highstate/api@0.31.1
+
 ## 0.31.0 (2026-09-13)
 
 This was a version bump only for @highstate/mcp to align it with other projects, there were no code changes.

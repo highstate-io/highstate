@@ -1,3 +1,15 @@
+## 0.30.0
+
+### Patch Changes
+
+- Updated dependencies [[`50644cc`](https://github.com/highstate-io/highstate/commit/50644cc03012b993ea85ff42ab2a48be5eeb143a)]:
+  - @highstate/library@0.30.0
+  - @highstate/common@0.30.0
+  - @highstate/etcd@0.30.0
+  - @highstate/k8s@0.30.0
+  - @highstate/pulumi@0.31.1
+  - @highstate/contract@0.31.1
+
 ## 0.29.0 (2026-09-13)
 
 This was a version bump only for @highstate/wireguard to align it with other projects, there were no code changes.

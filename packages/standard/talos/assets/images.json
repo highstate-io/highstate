@@ -2,6 +2,6 @@
   "terminal-talosctl": {
     "name": "ghcr.io/highstate-io/terminal.talosctl",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/terminal.talosctl:latest@sha256:f5860b20ba446bdd43b8541855ad31778a7d352c370f29517dccd9ef6ccee8fe"
+    "image": "ghcr.io/highstate-io/terminal.talosctl:latest@sha256:18abd28fd6522a3b0aef7c9c6aa3ce20ea285f1373c2e9de1de8d4af3ad5ed7a"
   }
 }

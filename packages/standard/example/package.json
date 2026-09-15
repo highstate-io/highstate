@@ -35,10 +35,10 @@
 		"@highstate/talos": "workspace:*",
 		"@highstate/wireguard": "workspace:*",
 		"@highstate/yandex": "workspace:*",
-    "@highstate/influxdb3": "workspace:*",
-    "@highstate/mysql": "workspace:*",
-    "@highstate/etcd": "workspace:*",
-    "@highstate/minio": "workspace:*"
+		"@highstate/influxdb3": "workspace:*",
+		"@highstate/mysql": "workspace:*",
+		"@highstate/etcd": "workspace:*",
+		"@highstate/minio": "workspace:*"
 	},
 	"repository": {
 		"url": "https://github.com/highstate-io/highstate"

@@ -1,3 +1,12 @@
+## 0.31.1
+
+### Patch Changes
+
+- [#36](https://github.com/highstate-io/highstate/pull/36) [`50644cc`](https://github.com/highstate-io/highstate/commit/50644cc03012b993ea85ff42ab2a48be5eeb143a) Thanks [@Exeteres](https://github.com/Exeteres)! - Add Hetzner Cloud connection, IP address, and virtual machine units, and improve force-abort compatibility with unprivileged user namespaces.
+
+- Updated dependencies []:
+  - @highstate/contract@0.31.1
+
 ## 0.31.0 (2026-09-13)
 
 ### 🚀 Features

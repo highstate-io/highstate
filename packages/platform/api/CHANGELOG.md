@@ -1,3 +1,5 @@
+## 0.31.1
+
 ## 0.31.0 (2026-09-13)
 
 This was a version bump only for @highstate/api to align it with other projects, there were no code changes.
