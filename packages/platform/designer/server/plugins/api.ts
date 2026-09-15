@@ -11,7 +11,6 @@ export default defineNitroPlugin(async app => {
 
   const port = process.env.HIGHSTATE_DESIGNER_PORT ?? process.env.NITRO_PORT ?? "7283"
   services.logger.info(`grpc api listening at "%s"`, `http://api.highstate.localhost:${port}`)
-  services.logger.info(`mcp api listening at "%s"`, `http://api.highstate.localhost:${port}/mcp`)
 
   // auto-unlock projects for development environment
   await services.projectUnlockService.autoUnlockProjects()

@@ -98,7 +98,6 @@
     "@highstate/backend": "workspace:*",
     "@highstate/backend-api": "workspace:*",
     "@highstate/contract": "workspace:*",
-    "@highstate/mcp": "workspace:*",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/internals": "^6.14.0",
     "@vue/shared": "^3.5.33",

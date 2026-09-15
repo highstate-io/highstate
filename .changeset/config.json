@@ -15,7 +15,6 @@
       "@highstate/cli",
       "@highstate/contract",
       "@highstate/designer",
-      "@highstate/mcp",
       "@highstate/pulumi",
       "@highstate/worker-sdk",
       "create-highstate"

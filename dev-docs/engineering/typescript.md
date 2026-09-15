@@ -73,6 +73,9 @@ When the configured formatter keeps a long call on one line, use its supported f
 to preserve a readable break.
 
 Separate guards, loops, multiline calls, and distinct logical blocks with blank lines.
+Separate every class method from fields and neighboring methods with a blank line.
+In CLI command classes, isolate the static `paths` and `usage` declarations from each other and from
+option fields with blank lines.
 Keep a single assignment directly beside the `if` guard that checks it:
 
 ```typescript

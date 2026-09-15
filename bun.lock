@@ -129,10 +129,14 @@
       },
       "dependencies": {
         "@aws-crypto/crc32": "^5.2.0",
+        "@bufbuild/protobuf": "catalog:",
+        "@connectrpc/connect": "catalog:",
+        "@highstate/api": "workspace:*",
         "@highstate/backend": "workspace:*",
         "@highstate/contract": "workspace:*",
         "@inquirer/prompts": "^7.8.6",
         "@msgpack/msgpack": "^3.1.2",
+        "@napi-rs/keyring": "^1.1.8",
         "@pulumi/pulumi": "3.232.0",
         "age-encryption": "^0.2.4",
         "ajv": "^8.17.1",
@@ -203,7 +207,6 @@
         "@highstate/backend": "workspace:*",
         "@highstate/backend-api": "workspace:*",
         "@highstate/contract": "workspace:*",
-        "@highstate/mcp": "workspace:*",
         "@paralleldrive/cuid2": "^2.2.2",
         "@prisma/internals": "^6.14.0",
         "@vue/shared": "^3.5.33",
@@ -322,28 +325,6 @@
         "ufo": "^1.6.3",
         "vuetify": "^3.10.5",
         "yaml": "^2.8.3",
-      },
-    },
-    "packages/platform/mcp": {
-      "name": "@highstate/mcp",
-      "version": "0.31.0",
-      "bin": {
-        "highstate-mcp": "./dist/standalone.js",
-      },
-      "dependencies": {
-        "@bufbuild/protobuf": "catalog:",
-        "@connectrpc/connect": "catalog:",
-        "@highstate/api": "workspace:*",
-        "@highstate/cli": "workspace:*",
-        "@modelcontextprotocol/sdk": "^1.29.0",
-        "yaml": "^2.8.2",
-        "zod": "^4.3.6",
-      },
-      "devDependencies": {
-        "@biomejs/biome": "2.5.0",
-        "@typescript/native-preview": "^7.0.0-dev.20250920.1",
-        "bun-types": "^1.3.13",
-        "vitest": "catalog:",
       },
     },
     "packages/platform/pulumi": {
@@ -1910,8 +1891,6 @@
     "@highstate/k8s.obfuscators": ["@highstate/k8s.obfuscators@workspace:packages/standard/k8s.obfuscators"],
 
     "@highstate/library": ["@highstate/library@workspace:packages/standard/library"],
-
-    "@highstate/mcp": ["@highstate/mcp@workspace:packages/platform/mcp"],
 
     "@highstate/minio": ["@highstate/minio@workspace:packages/standard/minio"],
 

@@ -14,6 +14,7 @@ Add content only when it:
 
 Keep package-specific setup, commands, and contribution instructions with that package.
 Keep public product documentation with the documentation application.
+Write public product documentation exclusively for humans and keep AI-specific instructions out of it.
 
 Do not add decision logs, plans, meeting records, retrospectives, task summaries, generated references,
 generic advice, or prose that restates source code.
