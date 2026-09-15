@@ -31,6 +31,19 @@ jobs:
           persist-credentials: false
           submodules: true
 
+      - name: Fetch base branch
+        run: git fetch 'https://github.com/${{ github.repository }}.git' '${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}'
+
+      - name: Checkout trusted image selector
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted-checkout
+          persist-credentials: false
+
+      - name: Isolate trusted image selector
+        run: mv trusted-checkout /tmp/highstate-trusted
+
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -49,26 +62,32 @@ jobs:
           bun install --frozen-lockfile
           bun run ci:prepare
 
+      - name: Select affected images
+        id: images
+        run: |
+          mkdir -p preview-images
+          targets=$(bun /tmp/highstate-trusted/scripts/affected-image-targets.ts --root . --base origin/main --head '${{ github.event.pull_request.head.sha }}' --output preview-images/affected-images.json)
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+
       - name: Build OCI archives
+        if: steps.images.outputs.targets != ''
         env:
           TAGS: ${{ env.IMAGE_TAG }}
           PLATFORMS: linux/amd64,linux/arm64
         run: |
           bun nx run docker-images:prepare-images
-          mkdir -p preview-images
           docker buildx bake --file docker/docker-bake.hcl images --print > preview-bake.json
-          mapfile -t targets < <(jq -r '.group.images.targets[]' preview-bake.json)
           outputs=()
-          for target in "${targets[@]}"; do
+          for target in ${{ steps.images.outputs.targets }}; do
             outputs+=(--set "$target.output=type=oci,dest=preview-images/$target.tar")
           done
-          docker buildx bake --file docker/docker-bake.hcl images "${outputs[@]}"
+          docker buildx bake --file docker/docker-bake.hcl ${{ steps.images.outputs.targets }} "${outputs[@]}"
 
       - name: Upload images
         uses: actions/upload-artifact@v4
         with:
           name: preview-images
-          path: preview-images/*.tar
+          path: preview-images
           retention-days: 1
 
   publish-images:
@@ -112,8 +131,9 @@ jobs:
         run: |
           skopeo login ghcr.io --username 'github-actions[bot]' --password-stdin <<< "$GHCR_TOKEN"
           docker buildx bake --file trusted/docker/docker-bake.hcl images --print > trusted-bake.json
-          mapfile -t targets < <(jq -r '.group.images.targets[]' trusted-bake.json)
+          mapfile -t targets < <(jq -r '.targets[]' images/affected-images.json)
           for target in "${targets[@]}"; do
+            jq -e --arg target "$target" '.group.images.targets | index($target)' trusted-bake.json > /dev/null
             test -f "images/$target.tar"
             reference=$(jq -r --arg target "$target" '.target[$target].tags[0]' trusted-bake.json)
             if [[ "$reference" != "$IMAGE_PREFIX/"*":$IMAGE_TAG" ]]; then
@@ -122,6 +142,7 @@ jobs:
             fi
             skopeo copy --all "oci-archive:images/$target.tar" "docker://$reference"
           done
+          jq --argjson targets "$(jq '.targets' images/affected-images.json)" '.group.images.targets = $targets' trusted-bake.json > published-bake.json
 
       - name: Record published image digests
         run: |
@@ -129,7 +150,7 @@ jobs:
             --root trusted \
             --prefix "$IMAGE_PREFIX" \
             --tag "$IMAGE_TAG" \
-            --bake trusted-bake.json \
+            --bake published-bake.json \
             --output published-images.json
 
       - name: Upload published image metadata
