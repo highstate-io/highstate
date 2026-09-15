@@ -177,6 +177,34 @@ export type CreateEditorArgumentsOptions = {
   treatStringArraysAsStructured?: boolean
 }
 
+type PlainEditorArgumentType = "string" | "number" | "integer"
+
+function getPlainSchemaType(
+  schema: z.core.JSONSchema.BaseSchema,
+): PlainEditorArgumentType | undefined {
+  if (schema.type === "string" || schema.type === "number" || schema.type === "integer") {
+    return schema.type
+  }
+
+  const unionSchemas =
+    (Array.isArray(schema.anyOf) ? schema.anyOf : undefined) ??
+    (Array.isArray(schema.oneOf) ? schema.oneOf : undefined)
+  if (!unionSchemas) {
+    return undefined
+  }
+
+  const types = unionSchemas.map(unionSchema => {
+    if (typeof unionSchema !== "object") {
+      return undefined
+    }
+
+    return getPlainSchemaType(unionSchema)
+  })
+  const type = types[0]
+
+  return type && types.every(unionType => unionType === type) ? type : undefined
+}
+
 function isStringArraySchema(schema: z.core.JSONSchema.BaseSchema) {
   if (schema.type !== "array") {
     return false
@@ -186,7 +214,7 @@ function isStringArraySchema(schema: z.core.JSONSchema.BaseSchema) {
     return false
   }
 
-  return schema.items.type === "string"
+  return getPlainSchemaType(schema.items) === "string"
 }
 
 function shouldUseStructuredEditor(
@@ -229,18 +257,15 @@ function tryCreatePlainArgument(
       return null
     }
 
-    if (
-      schema.items?.type === "string" ||
-      schema.items?.type === "number" ||
-      schema.items?.type === "integer"
-    ) {
+    const itemType = getPlainSchemaType(schema.items)
+    if (itemType) {
       if (schema.items.enum) {
         return {
           name,
           title,
           description,
           kind: "select",
-          type: schema.items.type,
+          type: itemType,
           enum: schema.items.enum,
           multiple: true,
           default: parentDefault ?? schema.default,
@@ -252,7 +277,7 @@ function tryCreatePlainArgument(
         title,
         description,
         kind: "combobox",
-        type: schema.items.type,
+        type: itemType,
         default: parentDefault ?? schema.default,
       }
     }
