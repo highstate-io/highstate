@@ -1,8 +1,17 @@
 name: Release
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      retry_existing_version:
+        description: Publish the current package versions without consuming changesets
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -12,8 +21,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci skip') &&
-      !contains(github.event.head_commit.message, 'skip ci')"
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
       packages: write
@@ -23,11 +31,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
           submodules: true
-
-      - name: Fetch all tags
-        run: git fetch --unshallow --tags
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -57,7 +63,25 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Validate pending changesets
+        if: inputs.retry_existing_version == false
+        run: |
+          bun run release-groups:check
+          bun run changeset status --output changeset-status.json
+          if [ "$(jq '.releases | length' changeset-status.json)" -eq 0 ]; then
+            echo "No pending changesets to release" >&2
+            exit 1
+          fi
+          rm changeset-status.json
+
+      - name: Calculate package versions
+        if: inputs.retry_existing_version == false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run release:version
+
       - name: Configure image build
+        if: inputs.retry_existing_version == false
         run: |
           {
             echo "TAGS=latest,${GITHUB_SHA::7}"
@@ -66,6 +90,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Run release tasks
+        if: inputs.retry_existing_version == false
         env:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
@@ -74,8 +99,19 @@ jobs:
           bun run ci:release
           bunx nx-cloud stop-all-agents
 
+      - name: Verify retry
+        if: inputs.retry_existing_version
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+        run: |
+          bunx nx-cloud start-ci-run --no-distribution
+          bun run ci:prepare
+          bun run release-groups:check
+          bun nx run-many -t test,build,biome:check,typecheck
+          bunx nx-cloud stop-all-agents
+
       - name: Synchronize production image references
-        id: images
+        if: inputs.retry_existing_version == false
         run: |
           docker buildx bake --file docker/docker-bake.hcl images --print > trusted-bake.json
           bun scripts/sync-repository-images.ts \
@@ -83,24 +119,29 @@ jobs:
             --tag latest \
             --bake trusted-bake.json \
             --output image-metadata.json
+          rm trusted-bake.json image-metadata.json
 
       - name: Commit image references
-        id: image-commit
+        if: inputs.retry_existing_version == false
         run: |
-          if git diff --quiet -- 'packages/**/assets/images.json'; then exit 0; fi
-          git add -- 'packages/**/assets/images.json'
-          git commit -m 'chore: update release image hashes [skip ci]'
+          git add --all
+          git commit -m 'chore(release): publish packages [skip ci]'
           git push origin HEAD:main
 
       - name: Rebuild packages affected by image references
-        if: steps.image-commit.outcome == 'success'
+        if: inputs.retry_existing_version == false
         run: |
           if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
             bun nx affected --base="$GITHUB_SHA" --head=HEAD -t build
           fi
 
       - name: Publish packages
-        run: bun nx release -y || echo "Failed to publish packages, but continuing to deploy docs"
+        run: |
+          set +e
+          bun run release:publish
+          publish_status=$?
+          git push origin --follow-tags
+          exit "$publish_status"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}

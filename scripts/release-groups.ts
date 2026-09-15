@@ -25,10 +25,17 @@ type NxProjectGraph = {
   }
 }
 
+type ChangesetsConfiguration = {
+  fixed?: string[][]
+  [key: string]: unknown
+}
+
 export const RELEASE_GROUP_ANCHORS = {
   platform: "packages/platform/contract/package.json",
   stdlib: "packages/standard/library/package.json",
 } as const
+
+const CHANGESETS_CONFIGURATION = ".changeset/config.json"
 
 export function collectReleaseGroupPackages(
   configuration: NxConfiguration,
@@ -70,6 +77,13 @@ export function withReleaseGroup(
   }
 }
 
+export function withFixedReleaseGroups(
+  configuration: ChangesetsConfiguration,
+  releaseGroups: string[][],
+): ChangesetsConfiguration {
+  return { ...configuration, fixed: releaseGroups }
+}
+
 export async function synchronizeReleaseGroups(root: string, check: boolean): Promise<void> {
   const configuration = JSON.parse(await readFile(resolve(root, "nx.json"), "utf8")) as NxConfiguration
   const nx = Bun.spawn(["bun", "nx", "graph", "--file=stdout"], {
@@ -84,11 +98,13 @@ export async function synchronizeReleaseGroups(root: string, check: boolean): Pr
   const graph = JSON.parse(graphOutput) as NxProjectGraph
 
   const stale: string[] = []
+  const releaseGroups: string[][] = []
   for (const [group, relativePath] of Object.entries(RELEASE_GROUP_ANCHORS)) {
     const path = resolve(root, relativePath)
     const source = await readFile(path, "utf8")
     const manifest = JSON.parse(source) as ProjectManifest
     const packages = collectReleaseGroupPackages(configuration, graph, group)
+    releaseGroups.push(packages)
     if (!manifest.name || !packages.includes(manifest.name)) {
       throw new Error(`Release group anchor "${relativePath}" does not belong to group "${group}"`)
     }
@@ -102,6 +118,22 @@ export async function synchronizeReleaseGroups(root: string, check: boolean): Pr
       stale.push(relativePath)
     } else {
       await writeFile(path, updated)
+    }
+  }
+
+  const changesetsPath = resolve(root, CHANGESETS_CONFIGURATION)
+  const changesetsSource = await readFile(changesetsPath, "utf8")
+  const changesetsConfiguration = JSON.parse(changesetsSource) as ChangesetsConfiguration
+  const updatedChangesets = `${JSON.stringify(
+    withFixedReleaseGroups(changesetsConfiguration, releaseGroups),
+    null,
+    2,
+  )}\n`
+  if (changesetsSource !== updatedChangesets) {
+    if (check) {
+      stale.push(CHANGESETS_CONFIGURATION)
+    } else {
+      await writeFile(changesetsPath, updatedChangesets)
     }
   }
 
