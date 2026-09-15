@@ -9,7 +9,7 @@ import {
   readDocument,
   toHub,
   toInstance,
-} from "../shared"
+} from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class InstanceCreateCommand extends RemoteCommand {

@@ -7,7 +7,7 @@ import {
   type RemoteTarget,
   resolveRemoteTarget,
   writeOutput,
-} from "../shared"
+} from "../shared/remote"
 
 export abstract class RemoteCommand extends Command {
   contextName = Option.String("--context")

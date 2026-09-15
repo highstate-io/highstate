@@ -9,7 +9,7 @@ import {
   validateContextName,
   writeOutput,
   writeRemoteConfig,
-} from "../shared"
+} from "../shared/remote"
 
 abstract class ContextCommand extends Command {
   output = Option.String("--output", "human")

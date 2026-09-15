@@ -1,6 +1,6 @@
 import { GetProjectResponseSchema, ListProjectsResponseSchema } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson, readRemoteConfig, writeRemoteConfig } from "../shared"
+import { messageJson, readRemoteConfig, writeRemoteConfig } from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class ProjectListCommand extends RemoteCommand {

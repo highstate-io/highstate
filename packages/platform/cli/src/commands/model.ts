@@ -7,7 +7,7 @@ import {
   InstanceStateSchema,
 } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson, nodesInputSchema, readDocument, toHub, toInstance } from "../shared"
+import { messageJson, nodesInputSchema, readDocument, toHub, toInstance } from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class ModelGetCommand extends RemoteCommand {

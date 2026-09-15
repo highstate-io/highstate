@@ -18,7 +18,7 @@ import {
   planDocumentSchema,
   readDocument,
   timestampFromUlid,
-} from "../shared"
+} from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 abstract class OperationRequestCommand extends RemoteCommand {

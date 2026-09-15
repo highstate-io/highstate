@@ -5,7 +5,7 @@ import {
   ListInstanceStatesResponseSchema,
 } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson } from "../shared"
+import { messageJson } from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class StateListCommand extends RemoteCommand {
