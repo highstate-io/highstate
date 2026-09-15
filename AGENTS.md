@@ -26,7 +26,8 @@ Some additional notes:
 - Generate documentation thumbnails only with `bun run update-thumbnails -- --filter ... --force` from the docs package.
 - Use `bun run test` in desired package to run tests, not LSP tools.
 - Unless the user asks for another mode, launch Designer development servers from
-  `packages/platform/designer` with `HIGHSTATE_ENCRYPTION_ENABLED=false bun run dev` so local development does not
-  depend on an OS secret service.
+  the workspace root with
+  `HIGHSTATE_ENCRYPTION_ENABLED=false bun run --bun --filter @highstate/designer dev` so Designer uses the Bun
+  runtime and local development does not depend on an OS secret service.
 - If the `orca-cli` skill is visible, use it to organize development terminals and expose services. If it is not
   visible, do not try to load, discover, or install it.
