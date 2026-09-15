@@ -105,6 +105,7 @@ jobs:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
           bunx nx-cloud start-ci-run --no-distribution
+          bun run release:lockfile
           bun run ci:prepare
           bun run release-groups:check
           bun nx run-many -t test,build,biome:check,typecheck
@@ -150,6 +151,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Create GitHub releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run release:github
 
       - name: Upload docs artifact
         uses: actions/upload-pages-artifact@v4
