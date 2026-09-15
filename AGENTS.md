@@ -17,6 +17,8 @@ Some simple rules to follow:
   stale or incorrect authority in the same change.
 - If user say that something is not working, assume he did correctly compile/rerun the code and information is up to date.
 - Don't use subagents unless explicitly asked to do so.
+- After creating or updating a pull request, monitor its checks until all required checks succeed. Fix and push
+  failures, then continue monitoring the new checks.
 
 Some additional notes:
 

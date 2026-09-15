@@ -15,6 +15,7 @@
         "@highstate/etcd",
         "@highstate/gcp",
         "@highstate/git",
+        "@highstate/hetzner",
         "@highstate/influxdb3",
         "@highstate/k3s",
         "@highstate/k8s",
