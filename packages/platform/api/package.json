@@ -24,6 +24,9 @@
     "access": "public"
   },
   "nx": {
+    "implicitDependencies": [
+      "!@highstate/cli"
+    ],
     "tags": [
       "platform"
     ]

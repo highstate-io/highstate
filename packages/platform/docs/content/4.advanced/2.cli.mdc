@@ -1,0 +1,190 @@
+---
+title: Command Line Interface
+description: Manage an active Highstate backend from a terminal or script.
+navigation:
+  icon: i-lucide-terminal
+---
+
+## Connecting to a Backend
+
+The Highstate CLI can inspect and manage the same active backend used by the Designer.
+It connects through the public API, so the backend must be running and the API key must have permission to
+access the requested project.
+
+A **context** gives a backend URL a local name and can remember one selected project.
+The CLI stores context metadata in your user configuration directory and stores the API token in your operating
+system keyring.
+The token does not appear in the context file.
+
+Create a context for a local Designer backend:
+
+```bash
+printf '%s' "$HIGHSTATE_API_TOKEN" | highstate context add local \
+  --api-url http://api.highstate.localhost:7283 \
+  --api-token-stdin
+```
+
+The first context becomes active automatically.
+You can add more backends and switch between them:
+
+```bash
+highstate context list
+highstate context use local
+highstate context test
+```
+
+List the projects visible to the API key, then select one for later commands:
+
+```bash
+highstate project list
+highstate project use <project-id>
+```
+
+The project must be unlocked before the public API can access its model or runtime state.
+
+## Selecting a Target
+
+Most API commands accept `--context`, `--api-url`, and `--project`.
+Explicit flags take precedence over environment variables, and environment variables take precedence over the
+active context.
+
+The supported environment variables are:
+
+```text
+HIGHSTATE_CONTEXT
+HIGHSTATE_API_URL
+HIGHSTATE_API_TOKEN
+HIGHSTATE_PROJECT_ID
+```
+
+This makes a context convenient for interactive work while allowing an automated process to select every target
+explicitly:
+
+```bash
+HIGHSTATE_API_URL=https://highstate.example.com \
+HIGHSTATE_API_TOKEN="$TOKEN" \
+HIGHSTATE_PROJECT_ID="$PROJECT_ID" \
+highstate instance list --output json
+```
+
+## Inspecting a Project
+
+Start with compact listings, then request complete objects only when you need them:
+
+```bash
+highstate library list
+highstate component get common.existing-server.v1
+highstate component schema common.existing-server.v1
+
+highstate instance list
+highstate instance get common.existing-server.v1:server --with-state
+highstate state list
+highstate operation list
+```
+
+`instance get --recursive` includes evaluated composite children and retained ghost children.
+`state get --all-projections` includes evaluation, operation, parent, extra, and custom-status projections.
+
+Use `--all` on paginated list commands when you need every page.
+Without it, the response includes the backend's continuation token for the next request.
+
+## Structured Output
+
+Commands use a compact human-readable format by default.
+Use `--output json` or `--output yaml` for scripts:
+
+```bash
+highstate project get --output json
+highstate model get --include-virtual --include-ghost --output yaml
+```
+
+Structured output uses the public API's snake-case field names.
+Normal results are written to standard output and diagnostics are written to standard error, so standard output
+can be parsed without removing log lines.
+
+## Editing the Model
+
+Complex model values are provided as JSON or YAML documents.
+Pass `-` as the path to read a document from standard input.
+
+Create one instance:
+
+```bash
+highstate instance create --file - <<'YAML'
+id: common.existing-server.v1:server
+kind: unit
+type: common.existing-server.v1
+name: server
+args:
+  hostname: server.example.com
+position:
+  x: 100
+  y: 100
+YAML
+```
+
+Patch only selected fields:
+
+```bash
+highstate instance update common.existing-server.v1:server --patch - <<'YAML'
+args:
+  hostname: replacement.example.com
+YAML
+```
+
+The keys present in a patch form the update mask.
+An omitted field remains unchanged, an empty collection clears that collection, and `position: null` clears the
+canvas position.
+
+`highstate model create --file <path>` creates multiple instances and hubs atomically.
+The document has top-level `instances` and `hubs` arrays.
+
+Deleting an instance removes it from desired state but does not automatically destroy deployed infrastructure.
+Run and complete the required destroy operation before deleting the model object.
+Deletion and cancellation commands require `--yes`.
+
+## Planning Operations
+
+Infrastructure operations support `update`, `preview`, `destroy`, `recreate`, and `refresh`.
+Plan an operation and save the exact reviewed plan:
+
+```bash
+highstate operation plan update common.existing-server.v1:server \
+  --output json > plan.json
+```
+
+Review `plan.json`, then launch those phases without replanning:
+
+```bash
+highstate operation launch \
+  --plan plan.json \
+  --title "Update server"
+```
+
+The plan document records its format version, project, operation type, requested instances, options, and phases.
+The CLI rejects a plan when its project differs from the selected project.
+
+For interactive use, `operation run` combines planning, review, confirmation, and launch:
+
+```bash
+highstate operation run update common.existing-server.v1:server
+```
+
+Non-interactive execution requires `--yes`:
+
+```bash
+highstate operation run update common.existing-server.v1:server \
+  --yes \
+  --output json
+```
+
+Observe or control a launched operation with:
+
+```bash
+highstate operation get <operation-id>
+highstate operation logs <operation-id> --follow
+highstate operation wait <operation-id> --timeout 600
+highstate operation cancel <operation-id> --yes
+```
+
+`--timeout` is measured in seconds.

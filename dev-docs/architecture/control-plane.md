@@ -19,16 +19,16 @@ terminals, and process-local unlock, pubsub, and lock implementations.
 ## Embedding And Transports
 
 The designer's Nitro process is the integrated local host.
-It creates the backend services and mounts three different access paths:
+It creates the backend services and mounts two different access paths:
 
 - Designer tRPC is a trusted local UI facade over the in-process service graph.
 - ConnectRPC exposes public and worker APIs around the same domain services.
-- MCP acts as a client of the ConnectRPC boundary.
 
-The CLI also imports backend services directly.
+The CLI manages active backends as a ConnectRPC client.
+It also imports backend services directly for local backend administration and integrated development commands.
 `@highstate/backend-api` can expose an existing service graph over HTTP or a Unix socket, but it does not
 assemble or own the backend runtime.
-Business behavior therefore belongs below transport adapters rather than in tRPC, ConnectRPC, or MCP handlers.
+Business behavior therefore belongs below transport adapters rather than in tRPC, ConnectRPC, or CLI commands.
 
 The source entry points are `packages/platform/designer/server/`,
 `packages/platform/backend-api/src/index.ts`, and `packages/platform/cli/src/shared/services.ts`.

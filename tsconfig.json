@@ -23,9 +23,6 @@
       "path": "./packages/platform/designer/tsconfig.json"
     },
     {
-      "path": "./packages/platform/mcp/tsconfig.json"
-    },
-    {
       "path": "./packages/platform/docs/tsconfig.json"
     },
     {
