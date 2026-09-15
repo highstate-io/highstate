@@ -21,8 +21,10 @@ const dependencyFields: DependencyField[] = [
 export function replaceWorkspaceDependencies(
   manifest: PackageManifest,
   workspaceVersions: ReadonlyMap<string, string>,
+  previewVersion: string,
 ): PackageManifest {
   const result = structuredClone(manifest)
+  result.version = previewVersion
 
   for (const field of dependencyFields) {
     const dependencies = result[field]
@@ -51,6 +53,7 @@ async function preparePreviewPackages(
   root: string,
   trustedRoot: string,
   metadataPath: string,
+  previewVersion: string,
 ): Promise<void> {
   const packages = JSON.parse(await readFile(metadataPath, "utf8")) as Array<{ path: string }>
   const workspaceVersions = await readWorkspaceVersions(trustedRoot)
@@ -58,7 +61,7 @@ async function preparePreviewPackages(
   for (const pkg of packages) {
     const path = resolve(root, pkg.path, "package.json")
     const manifest = JSON.parse(await readFile(path, "utf8")) as PackageManifest
-    const prepared = replaceWorkspaceDependencies(manifest, workspaceVersions)
+    const prepared = replaceWorkspaceDependencies(manifest, workspaceVersions, previewVersion)
     await writeFile(path, `${JSON.stringify(prepared, null, 2)}\n`)
   }
 }
@@ -88,5 +91,14 @@ if (import.meta.main) {
     throw new Error("Missing --metadata")
   }
 
-  await preparePreviewPackages(root, trustedRoot, resolve(metadata))
+  const previewVersionIndex = process.argv.indexOf("--preview-version")
+  const previewVersion = process.argv[previewVersionIndex + 1]
+  if (previewVersionIndex === -1 || !previewVersion) {
+    throw new Error("Missing --preview-version")
+  }
+  if (!/^0\.0\.0-preview-[a-f0-9]{40}$/.test(previewVersion)) {
+    throw new Error(`Invalid preview version "${previewVersion}"`)
+  }
+
+  await preparePreviewPackages(root, trustedRoot, resolve(metadata), previewVersion)
 }

@@ -18,9 +18,11 @@ test("replaces workspace dependencies with publishable versions", () => {
         ["@highstate/mcp", "0.30.3"],
         ["@highstate/contract", "0.30.3"],
       ]),
+      "0.0.0-preview-abc1234",
     ),
   ).toEqual({
     name: "@highstate/designer",
+    version: "0.0.0-preview-abc1234",
     dependencies: {
       "@highstate/backend": "0.30.3",
       nuxt: "4.3.1",
@@ -35,6 +37,7 @@ test("rejects workspace dependencies without a package version", () => {
     replaceWorkspaceDependencies(
       { dependencies: { "@highstate/missing": "workspace:*" } },
       new Map(),
+      "0.0.0-preview-abc1234",
     ),
   ).toThrow('Unable to resolve workspace dependency "@highstate/missing"')
 })
