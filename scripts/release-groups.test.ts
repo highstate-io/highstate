@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { collectReleaseGroupPackages, withReleaseGroup } from "./release-groups"
+import { collectReleaseGroupPackages, withFixedReleaseGroups, withReleaseGroup } from "./release-groups"
 
 const configuration = {
   release: {
@@ -73,5 +73,12 @@ test("withReleaseGroup preserves other Highstate metadata", () => {
       sourceHash: {},
       release: { group: "platform", packages: ["@highstate/contract"] },
     },
+  })
+})
+
+test("withFixedReleaseGroups preserves other Changesets configuration", () => {
+  expect(withFixedReleaseGroups({ baseBranch: "main", fixed: [] }, [["@highstate/contract"]])).toEqual({
+    baseBranch: "main",
+    fixed: [["@highstate/contract"]],
   })
 })

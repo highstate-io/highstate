@@ -51,34 +51,14 @@
     }
   },
   "release": {
-    "changelog": {
-      "projectChangelogs": {
-        "createRelease": "github"
-      }
-    },
-    "version": {
-      "conventionalCommits": true
-    },
     "groups": {
       "platform": {
         "projects": ["tag:platform"],
-        "projectsRelationship": "fixed",
-        "releaseTagPattern": "platform@v{version}",
-        "version": {
-          "git": {
-            "commitMessage": "chore(release): publish platform v{version} [skip ci]"
-          }
-        }
+        "projectsRelationship": "fixed"
       },
       "stdlib": {
         "projects": ["tag:stdlib"],
-        "projectsRelationship": "fixed",
-        "releaseTagPattern": "stdlib@v{version}",
-        "version": {
-          "git": {
-            "commitMessage": "chore(release): publish stdlib v{version} [skip ci]"
-          }
-        }
+        "projectsRelationship": "fixed"
       }
     }
   },

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "highstate-io/highstate"
+    }
+  ],
+  "commit": false,
+  "fixed": [
+    [
+      "@highstate/api",
+      "@highstate/backend",
+      "@highstate/backend-api",
+      "@highstate/cli",
+      "@highstate/contract",
+      "@highstate/designer",
+      "@highstate/mcp",
+      "@highstate/pulumi",
+      "@highstate/worker-sdk",
+      "create-highstate"
+    ],
+    [
+      "@highstate/cilium",
+      "@highstate/cloudflare",
+      "@highstate/common",
+      "@highstate/distributions",
+      "@highstate/envoy",
+      "@highstate/etcd",
+      "@highstate/gcp",
+      "@highstate/git",
+      "@highstate/influxdb3",
+      "@highstate/k3s",
+      "@highstate/k8s",
+      "@highstate/k8s.apps",
+      "@highstate/k8s.game-servers",
+      "@highstate/k8s.obfuscators",
+      "@highstate/library",
+      "@highstate/minio",
+      "@highstate/mongodb",
+      "@highstate/mullvad",
+      "@highstate/mysql",
+      "@highstate/netaminity",
+      "@highstate/nixos",
+      "@highstate/postgresql",
+      "@highstate/proxmox",
+      "@highstate/redis",
+      "@highstate/restic",
+      "@highstate/rustfs",
+      "@highstate/sops",
+      "@highstate/talos",
+      "@highstate/timeweb",
+      "@highstate/vault",
+      "@highstate/wireguard",
+      "@highstate/yandex"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "bumpVersionsWithWorkspaceProtocolOnly": true,
+  "ignore": [],
+  "privatePackages": {
+    "version": false,
+    "tag": false
+  }
+}

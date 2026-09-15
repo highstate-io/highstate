@@ -69,3 +69,17 @@ possible.
 Do not include commands, CI status, test counts, or other verification results in the change list.
 Do not blindly repeat commit messages; combine and reframe their details to explain the pull request as a
 coherent change.
+
+### Unreleased Changes
+
+A pull request that changes a published package includes a changeset describing the user-visible change.
+Run `bun run changeset`, select each published package directly changed by the pull request, and choose the
+appropriate `patch`, `minor`, or `major` increment.
+Write the summary as release notes for package users, then commit the generated `.changeset/*.md` file.
+
+Changesets are not required for documentation, tests, CI, release infrastructure, repository maintenance, or
+changes limited to private packages.
+Do not edit package versions or released changelog sections manually.
+The release workflow consumes pending changesets, calculates versions, and updates package changelogs.
+Packages in a fixed release group move together automatically, so a changeset names only the packages directly
+changed by the pull request.
