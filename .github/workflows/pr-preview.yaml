@@ -227,11 +227,19 @@ jobs:
 
       - name: Prepare package manifests
         if: steps.packages.outputs.paths != ''
-        run: bun /tmp/highstate-trusted/scripts/prepare-preview-packages.ts --root . --trusted-root /tmp/highstate-trusted --metadata affected-packages.json
+        run: bun /tmp/highstate-trusted/scripts/prepare-preview-packages.ts --root . --trusted-root /tmp/highstate-trusted --metadata affected-packages.json --preview-version '0.0.0-preview-${{ needs.publish-images.outputs.sha }}'
+
+      - name: Pack packages
+        if: steps.packages.outputs.paths != ''
+        run: |
+          mkdir preview-packages
+          for path in ${{ steps.packages.outputs.paths }}; do
+            bun pm pack --cwd "$path" --destination "$GITHUB_WORKSPACE/preview-packages"
+          done
 
       - name: Publish packages
         if: steps.packages.outputs.paths != ''
-        run: bun run pkg-pr-new publish --previewVersion --comment=off --packageManager=bun --no-template --no-compact --json=package-metadata.json ${{ steps.packages.outputs.paths }}
+        run: bun run pkg-pr-new publish --comment=off --packageManager=bun --no-template --no-compact --json=package-metadata.json preview-packages/*.tgz
 
       - name: Write empty package metadata
         if: steps.packages.outputs.paths == ''
