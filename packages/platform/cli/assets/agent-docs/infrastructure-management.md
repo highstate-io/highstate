@@ -9,6 +9,10 @@ authorization, ask the user to configure or provide an API key. If it names a lo
 unlock that project. Do not attempt to extract, rotate, create, or bypass credentials unless the user explicitly
 requested credential administration and the available interface supports it.
 
+When no project is specified, ask the user which project to use. Pass `--project <project-id>` explicitly to
+`agent status`, `agent instructions`, and every project-scoped command. Do not run `project use`; it mutates the
+user's persistent CLI configuration.
+
 Normal output goes to stdout and diagnostics go to stderr. Use `--output json` for data you need to inspect or
 transform reliably.
 

@@ -175,7 +175,7 @@ export async function collectAgentStatus(options: {
 
   if (!projectId) {
     status.next_actions.push(
-      "Ask the user which project to use, then select it with highstate project use <project-id>.",
+      "Ask the user which project to use, then pass --project <project-id> explicitly to highstate agent instructions and every project-scoped command. Do not run highstate project use because it mutates the user's configuration.",
     )
     return status
   }

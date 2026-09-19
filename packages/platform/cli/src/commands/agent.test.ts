@@ -100,7 +100,7 @@ describe("agent status", () => {
     )
   })
 
-  it("asks the user to select a project after backend authorization succeeds", async () => {
+  it("asks for an explicit project after backend authorization succeeds", async () => {
     const status = await collectAgentStatus({
       moduleUrl,
       env: env({
@@ -112,6 +112,6 @@ describe("agent status", () => {
 
     expect(status.backend.state).toBe("ready")
     expect(status.project.state).toBe("missing")
-    expect(status.next_actions[0]).toContain("highstate project use")
+    expect(status.next_actions[0]).toContain("--project <project-id>")
   })
 })
