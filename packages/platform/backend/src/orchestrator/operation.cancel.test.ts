@@ -52,13 +52,18 @@ describe("Operation - Cancel", () => {
       )
 
       const started = createDeferred<void>()
+      let forceAborted = false
       runner.setUpdateImpl(async input => {
         started.resolve(undefined)
 
         const signal = input.signal
-        if (!signal) {
-          throw new Error("expected runner update to receive abort signal")
+        const forceSignal = input.forceSignal
+        if (!signal || !forceSignal) {
+          throw new Error("expected runner update to receive abort signals")
         }
+        forceSignal.addEventListener("abort", () => {
+          forceAborted = true
+        })
 
         await new Promise<void>((_resolve, reject) => {
           signal.addEventListener("abort", () => reject(new AbortError("Operation aborted")), {
@@ -101,7 +106,11 @@ describe("Operation - Cancel", () => {
       const operationPromise = runtimeOperation.operateSafe()
       await started.promise
 
-      runtimeOperation.cancel()
+      expect(runtimeOperation.cancel()).toBe(false)
+      expect(runtimeOperation.cancel()).toBe(true)
+      expect(forceAborted).toBe(false)
+      expect(runtimeOperation.cancel(true)).toBe(false)
+      expect(forceAborted).toBe(true)
 
       // assert
       await cancelled.promise

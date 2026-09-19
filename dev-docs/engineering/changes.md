@@ -25,6 +25,7 @@ version.
 ## Verification
 
 Use the repository's documented commands and configured tools.
+Follow the [testing guide](testing.md) when adding or changing tests.
 Run type checking, tests, linting, formatting checks, and builds that exercise the changed behavior.
 Do not assume a successful build includes type checking.
 

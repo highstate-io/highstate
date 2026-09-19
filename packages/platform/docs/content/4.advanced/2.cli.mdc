@@ -51,6 +51,15 @@ highstate project use <project-id>
 
 The project must be unlocked before the public API can access its model or runtime state.
 
+## Agent Integration
+
+Highstate provides a small installable skill that discovers version-aligned reference documents from the CLI.
+Install it with the [Skills CLI](https://skills.sh):
+
+```bash
+npx skills add highstate-io/skills --skill highstate
+```
+
 ## Selecting a Target
 
 Most API commands accept `--context`, `--api-url`, and `--project`.
@@ -233,6 +242,13 @@ highstate operation get <operation-id>
 highstate operation logs <operation-id> --follow
 highstate operation wait <operation-id> --timeout 600
 highstate operation cancel <operation-id> --yes
+highstate operation cancel-instance <operation-id> <instance-id> --yes
 ```
+
+The first cancellation request asks the active operation or instance to stop gracefully.
+If graceful cancellation is already in progress, the command suggests adding `--force` instead of escalating
+automatically.
+Run the same command with `--force` to request hard cancellation.
+Hard cancellation can interrupt cleanup and leave partial infrastructure changes.
 
 `--timeout` is measured in seconds.

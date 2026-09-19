@@ -376,7 +376,7 @@ export class OperationWorkset {
     return pair
   }
 
-  cancelInstance(instanceId: InstanceId, allowForceAbort = true): void {
+  cancelInstance(instanceId: InstanceId, force = false): boolean {
     const abortControllerPair = this.instanceAbortControllers.get(instanceId)
     if (!abortControllerPair) {
       throw new Error(`No abort controller found for instance "${instanceId}"`)
@@ -384,34 +384,40 @@ export class OperationWorkset {
 
     const { abortController, forceAbortController } = abortControllerPair
 
-    // first try to cancel the operation gracefully
-
     if (!abortController.signal.aborted) {
       abortController.abort()
-      return
+      if (!force) {
+        return false
+      }
     }
 
-    if (!allowForceAbort) {
-      return
+    if (!force) {
+      return !forceAbortController.signal.aborted
     }
 
-    // then try to force cancel the operation
     if (!forceAbortController.signal.aborted) {
       forceAbortController.abort()
-      return
     }
+
+    return false
   }
 
-  cancel(): void {
+  cancel(force = false): boolean {
     if (!this.abortController.signal.aborted) {
       this.abortController.abort()
-      return
+      if (!force) {
+        return false
+      }
     }
 
-    // then try to force cancel the operation
+    if (!force) {
+      return !this.forceAbortController.signal.aborted
+    }
+
     if (!this.forceAbortController.signal.aborted) {
       this.forceAbortController.abort()
-      return
     }
+
+    return false
   }
 }

@@ -295,10 +295,16 @@ message CancelOperationRequest {
 
   // The operation ID.
   string operation_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether to force cancellation without waiting for graceful cleanup.
+  bool force = 3;
 }
 
 // CancelOperationResponse reports that cancellation was requested.
-message CancelOperationResponse {}
+message CancelOperationResponse {
+  // Whether graceful cancellation was already requested and force is now required.
+  bool force_required = 1;
+}
 
 // CancelInstanceOperationRequest requests cancellation of one instance within an operation.
 message CancelInstanceOperationRequest {
@@ -310,10 +316,16 @@ message CancelInstanceOperationRequest {
 
   // The instance ID.
   string instance_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether to force cancellation without waiting for graceful cleanup.
+  bool force = 4;
 }
 
 // CancelInstanceOperationResponse reports that instance cancellation was requested.
-message CancelInstanceOperationResponse {}
+message CancelInstanceOperationResponse {
+  // Whether graceful cancellation was already requested and force is now required.
+  bool force_required = 1;
+}
 
 // OperationService plans, launches, observes, and cancels project operations.
 service OperationService {
