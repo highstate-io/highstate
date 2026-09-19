@@ -1,3 +1,4 @@
+export * from "./agent"
 export * from "./backend/identity"
 export * from "./backend/unlock-method/add"
 export * from "./backend/unlock-method/delete"

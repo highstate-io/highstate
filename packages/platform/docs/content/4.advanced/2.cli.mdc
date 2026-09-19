@@ -51,6 +51,36 @@ highstate project use <project-id>
 
 The project must be unlocked before the public API can access its model or runtime state.
 
+## Agent Integration
+
+Highstate provides a small installable skill that discovers version-aligned reference documents from the CLI.
+Install it with the [Skills CLI](https://skills.sh):
+
+```bash
+npx skills add highstate-io/skills --skill highstate
+```
+
+An agent starts by retrieving current access status, next steps, and the reference catalog:
+
+```bash
+highstate agent instructions
+```
+
+The instructions distinguish backend authorization from project authorization, report whether the selected
+project is locked, and list the available agent references.
+When authorization is missing or a project is locked, the agent asks the user to provide access or unlock that
+specific project.
+
+`highstate agent status` prints only the current diagnostic state when no instructions or reference catalog are
+needed.
+
+References ship with `@highstate/cli`, so their instructions match the installed Highstate version.
+Retrieve every document needed for a task in one call:
+
+```bash
+highstate agent docs get component-authoring infrastructure-management
+```
+
 ## Selecting a Target
 
 Most API commands accept `--context`, `--api-url`, and `--project`.

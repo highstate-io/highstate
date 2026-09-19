@@ -1,4 +1,5 @@
 import { Builtins, Cli } from "clipanion"
+import { AgentDocsGetCommand, AgentInstructionsCommand, AgentStatusCommand } from "./commands/agent"
 import { BackendIdentityCommand } from "./commands/backend/identity"
 import { BackendUnlockMethodAddCommand } from "./commands/backend/unlock-method/add"
 import { BackendUnlockMethodDeleteCommand } from "./commands/backend/unlock-method/delete"
@@ -25,6 +26,9 @@ cli.register(BuildCommand)
 cli.register(DesignerCommand)
 cli.register(InitCommand)
 cli.register(UpdateCommand)
+cli.register(AgentStatusCommand)
+cli.register(AgentInstructionsCommand)
+cli.register(AgentDocsGetCommand)
 cli.register(BackendIdentityCommand)
 cli.register(BackendUnlockMethodListCommand)
 cli.register(BackendUnlockMethodAddCommand)
