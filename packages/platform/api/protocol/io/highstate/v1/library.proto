@@ -324,6 +324,15 @@ message LibrarySnapshotImage {
 
   // The time when the cache entry was last updated.
   google.protobuf.Timestamp updated_at = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The materialization generation used to reject stale workload updates.
+  uint64 generation = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The hash reported by the verified image build.
+  optional string image_hash = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when image materialization completed.
+  optional google.protobuf.Timestamp completed_at = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // LibrarySnapshotImagePhase identifies snapshot image materialization progress.

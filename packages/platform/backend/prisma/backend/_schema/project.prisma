@@ -61,6 +61,9 @@ model Project {
     /// Backend-local images materialized from this project's library snapshots.
     librarySnapshotImages LibrarySnapshotImage[]
 
+    /// Backend-owned logical workloads placed for this project.
+    runtimeWorkloads RuntimeWorkload[]
+
     /// The import ports in this project.
     importPorts ProjectImportPort[]
 

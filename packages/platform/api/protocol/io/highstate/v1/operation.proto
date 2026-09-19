@@ -216,10 +216,28 @@ message PlanOperationRequest {
   OperationOptions options = 4;
 }
 
-// PlanOperationResponse returns the planned execution phases.
-message PlanOperationResponse {
+// OperationPlan is a backend-issued plan bound to the desired state that was reviewed.
+message OperationPlan {
+  // An opaque backend-issued token binding every plan field and revision.
+  string token = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // The ordered execution phases.
-  repeated OperationPhase phases = 1;
+  repeated OperationPhase phases = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The desired library snapshot used for planning, when packaged components are involved.
+  optional string library_snapshot_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resident project model revision used for planning.
+  string model_revision = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The local library overlay revision used for planning, when active.
+  optional string local_overlay_revision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PlanOperationResponse returns a backend-issued revision-bound operation plan.
+message PlanOperationResponse {
+  // The operation plan.
+  OperationPlan plan = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // LaunchOperationRequest launches an operation, optionally using a previously reviewed plan.
@@ -239,8 +257,8 @@ message LaunchOperationRequest {
   // The operation display metadata.
   OperationMeta meta = 5 [(google.api.field_behavior) = REQUIRED];
 
-  // A caller-supplied plan to execute instead of replanning.
-  repeated OperationPhase plan = 6;
+  // The token of a previously reviewed backend-issued plan to execute instead of replanning.
+  optional string plan_token = 6;
 }
 
 // LaunchOperationResponse returns the canonical launched operation.

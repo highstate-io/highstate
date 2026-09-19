@@ -1,0 +1,64 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+
+// CreateSidecarRequest asks the backend to place one sidecar in the operation environment.
+message CreateSidecarRequest {
+  // The sidecar name used for runtime DNS.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The immutable image reference.
+  string image = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The sidecar process command.
+  repeated string command = 3;
+
+  // Non-secret environment variables.
+  map<string, string> environment = 4;
+
+  // Secret environment variables.
+  map<string, string> secret_environment = 5 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Container ports exposed within the operation environment.
+  repeated uint32 ports = 6;
+}
+
+// CreateSidecarResponse reports placement of one sidecar.
+message CreateSidecarResponse {
+  // The runtime-assigned sidecar workload ID.
+  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The sidecar DNS name within the operation environment.
+  string hostname = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SidecarEvent reports a lifecycle transition for one sidecar.
+message SidecarEvent {
+  // The runtime-assigned sidecar workload ID.
+  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The current lifecycle state.
+  SidecarState state = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A human-readable lifecycle or health message.
+  optional string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SidecarState identifies one sidecar lifecycle state.
+enum SidecarState {
+  // The state was not specified or is not recognized.
+  SIDECAR_STATE_UNSPECIFIED = 0;
+
+  // The sidecar is starting.
+  SIDECAR_STATE_STARTING = 1;
+
+  // The sidecar is healthy and ready.
+  SIDECAR_STATE_READY = 2;
+
+  // The sidecar stopped.
+  SIDECAR_STATE_STOPPED = 3;
+
+  // The sidecar failed or became unhealthy.
+  SIDECAR_STATE_FAILED = 4;
+}

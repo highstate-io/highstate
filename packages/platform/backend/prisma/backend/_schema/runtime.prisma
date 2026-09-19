@@ -19,39 +19,136 @@ model ContainerRuntime {
     /// The time when the runtime was last updated.
     updatedAt DateTime @updatedAt
 
+    /// The optimistic concurrency revision of the runtime settings.
+    revision Int @default(1)
+
     /// The projects using this runtime.
     projects Project[]
 
     /// Npm registry credentials available to this runtime.
-    npmRegistryCredentials ContainerRuntimeNpmRegistryCredential[]
+    npmRegistryCredentials NpmRegistryCredential[]
 
     /// Container registry credentials available to this runtime.
-    containerRegistryCredentials ContainerRuntimeContainerRegistryCredential[]
+    containerRegistryCredentials ContainerRegistryCredential[]
 
     /// Project library images cached on this runtime.
     librarySnapshotImages LibrarySnapshotImage[]
+
+    /// Logical workloads placed on this runtime.
+    workloads RuntimeWorkload[]
 }
 
-/// Makes one backend-scoped npm credential available to a container runtime.
-model ContainerRuntimeNpmRegistryCredential {
-    runtimeId String
-    credentialId String
-
-    runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-    credential NpmRegistryCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
-
-    @@id([runtimeId, credentialId])
-    @@index([credentialId])
+enum RuntimeWorkloadKind {
+    pulumi
+    composite_evaluation
+    library_build
+    sidecar
+    worker
+    terminal
 }
 
-/// Makes one backend-scoped container registry credential available to a container runtime.
-model ContainerRuntimeContainerRegistryCredential {
+enum RuntimeWorkloadStatus {
+    pending
+    starting
+    running
+    stopping
+    completed
+    failed
+    cancelled
+    lost
+}
+
+enum RuntimeWorkloadDesiredState {
+    running
+    stopped
+    deleted
+}
+
+enum RuntimeActionKind {
+    pulumi
+    composite_evaluation
+}
+
+enum RuntimeActionStatus {
+    pending
+    running
+    cancelling
+    completed
+    failed
+    cancelled
+    interrupted
+}
+
+/// A backend-owned logical workload placed by a container runtime adapter.
+///
+/// Engine-specific child resources are discovered through runtime labels rather than persisted individually.
+model RuntimeWorkload {
+    /// The CUIDv2 used as the workload ownership label and credential subject.
+    id String @id @default(cuid(2))
+
     runtimeId String
-    credentialId String
+    projectId String
+    kind RuntimeWorkloadKind
 
-    runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-    credential ContainerRegistryCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+    /// The domain object that owns the workload, such as an operation, terminal, worker version, or image build.
+    ownerId String
 
-    @@id([runtimeId, credentialId])
-    @@index([credentialId])
+    /// The runtime-native root resource handle used for inspection and reconciliation.
+    nativeResourceId String?
+
+    desiredState RuntimeWorkloadDesiredState @default(running)
+    status RuntimeWorkloadStatus @default(pending)
+
+    /// Incremented whenever a new connection is authorized for this logical workload.
+    leaseGeneration Int @default(1)
+    leaseExpiresAt DateTime?
+    connectedAt DateTime?
+    finishedAt DateTime?
+    cleanupStartedAt DateTime?
+    cleanedUpAt DateTime?
+    lastError String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Restrict)
+    project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+    actions RuntimeAction[]
+    imageBuildAttempts LibrarySnapshotImageAttempt[]
+
+    @@unique([runtimeId, nativeResourceId])
+    @@index([projectId, kind, status])
+    @@index([runtimeId, desiredState, status])
+    @@index([leaseExpiresAt])
+}
+
+/// One independently cancellable action executed by a logical runtime workload.
+model RuntimeAction {
+    /// The globally unique action ID carried by runtime protocol envelopes.
+    id String @id @default(cuid(2))
+
+    workloadId String
+    kind RuntimeActionKind
+
+    /// The domain object that owns the action, such as an operation or evaluation generation.
+    ownerId String
+
+    /// The project snapshot loaded for this action, when applicable.
+    snapshotId String?
+
+    /// The verified snapshot image digest loaded for this action, when applicable.
+    imageDigest String?
+
+    status RuntimeActionStatus @default(pending)
+    cancellationRequestedAt DateTime?
+    forceCancellationRequestedAt DateTime?
+    startedAt DateTime?
+    finishedAt DateTime?
+    lastError String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    workload RuntimeWorkload @relation(fields: [workloadId], references: [id], onDelete: Cascade)
+
+    @@index([workloadId, status])
+    @@index([ownerId, kind])
 }

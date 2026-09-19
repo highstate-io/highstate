@@ -5,6 +5,9 @@ The backend package owns the Prisma schemas and migration tooling for the backen
 Read the relevant schema under `packages/platform/backend/prisma/` before changing a database entity.
 Run migration commands from `packages/platform/backend`.
 
+Use Prisma's implicit many-to-many relations when the relationship has no fields of its own.
+Create an explicit join model only when the relationship stores domain data or has its own identity.
+
 ## Project Database
 
 Reset the temporary migration database before generating a project database migration:
