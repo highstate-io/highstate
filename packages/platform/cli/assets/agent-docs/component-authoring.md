@@ -18,16 +18,34 @@ Do not infer current APIs from memory when installed source or types are availab
 Define reusable data with `defineEntity`. Define Pulumi-backed components with `defineUnit`, and composition-only
 components with `defineComponent`.
 
-- Give every public component and entity a stable type such as `acme.database.v1`. Introduce a new numbered
-  variant for an incompatible public shape.
+- Give every public component and entity a stable type such as `acme.database.v1`. Introduce a new major version
+  only for an incompatible public API change or a major internal implementation change that can cause downtime,
+  such as Pulumi resource renames or forced resource recreation. Keep compatible contract and implementation
+  changes on the current major version.
 - Put ordinary configuration in `args` and credentials or sensitive generated values in `secrets`.
 - Prefer useful defaults over optional arguments. Keep schemas usable in the Designer and avoid optional enums
   that users cannot reset cleanly.
 - Model dependencies as typed entity inputs and results as typed entity outputs. Use `required: false` for an
   optional connection and `multiple: true` for a collection.
-- Add concise metadata that helps users recognize and place the component: title, icon, category, description,
-  and default name prefix where appropriate.
+- Add concise metadata that helps users recognize and place the component: title, Iconify icon, category,
+  description, and default name prefix where appropriate.
 - Export every definition from the library package's public entry point.
+
+Choose icons from the [Iconify icon sets catalog](https://icon-sets.iconify.design/) and store the returned
+`prefix:name` identifier. Search programmatically with:
+
+```text
+GET https://api.iconify.design/search?query=<url-encoded-query>&limit=64
+```
+
+Narrow results with the optional `prefix`, `prefixes`, or `category` query parameter. The response includes icon
+identifiers and collection license metadata. Validate or retrieve selected icons from one icon set with:
+
+```text
+GET https://api.iconify.design/<prefix>.json?icons=<comma-separated-icon-names>
+```
+
+Use a separate icon-data request for each prefix. Do not invent an icon identifier without confirming it exists.
 
 Keep units focused on one independently managed lifecycle. Use a composite when a capability is better expressed
 as multiple independently planned and deployed components.
@@ -70,8 +88,12 @@ public library package.
 - Configure providers explicitly when the input contract supplies connection or tenancy information.
 
 Add `$statusFields`, `$pages`, `$terminals`, `$triggers`, or `$workers` only when they provide a concrete user-facing
-capability. Keep secret material out of ordinary status and logs. Trigger implementations must remain safe when
-the Pulumi program is run repeatedly.
+capability. Status fields are snapshots refreshed only when the unit is updated, not real-time telemetry. Use them
+only for static or update-time discovered values such as created addresses, endpoints, or discovered identifiers.
+Do not expose health, load, progress, availability, or other values that can change between unit updates. Do not
+repeat provided arguments unless the discovered effective value can differ from the requested value. Keep secret
+material out of ordinary status and logs. Trigger implementations must remain safe when the Pulumi program is run
+repeatedly.
 
 ## Verify The Change
 

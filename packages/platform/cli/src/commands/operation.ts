@@ -453,6 +453,7 @@ function humanLogs(
 
 abstract class CancelCommand extends RemoteCommand {
   yes = Option.Boolean("--yes", false)
+  force = Option.Boolean("--force", false)
 
   protected requireConfirmation(): void {
     if (!this.yes) {
@@ -466,7 +467,7 @@ export class OperationCancelCommand extends CancelCommand {
 
   static usage = Command.Usage({
     category: "Backend API",
-    description: "Requests operation cancellation.",
+    description: "Requests graceful operation cancellation; use --force for hard cancellation.",
   })
 
   id = Option.String({ required: true })
@@ -476,9 +477,16 @@ export class OperationCancelCommand extends CancelCommand {
 
     const { clients, target } = await this.remote()
 
-    await clients.operation.cancelOperation({ projectId: target.projectId, operationId: this.id })
+    const response = await clients.operation.cancelOperation({
+      projectId: target.projectId,
+      operationId: this.id,
+      force: this.force,
+    })
 
-    this.print({}, `Requested cancellation of operation "${this.id}"`)
+    const message = response.forceRequired
+      ? `Graceful cancellation of operation "${this.id}" was already requested. Use --force to force cancellation.`
+      : `Requested ${this.force ? "forced" : "graceful"} cancellation of operation "${this.id}"`
+    this.print({ force_required: response.forceRequired }, message)
   }
 }
 
@@ -487,7 +495,8 @@ export class OperationCancelInstanceCommand extends CancelCommand {
 
   static usage = Command.Usage({
     category: "Backend API",
-    description: "Requests cancellation of one instance in an operation.",
+    description:
+      "Requests graceful cancellation of one instance; use --force for hard cancellation.",
   })
 
   operationId = Option.String({ required: true })
@@ -498,12 +507,16 @@ export class OperationCancelInstanceCommand extends CancelCommand {
 
     const { clients, target } = await this.remote()
 
-    await clients.operation.cancelInstanceOperation({
+    const response = await clients.operation.cancelInstanceOperation({
       projectId: target.projectId,
       operationId: this.operationId,
       instanceId: this.instanceId,
+      force: this.force,
     })
 
-    this.print({}, `Requested cancellation of instance "${this.instanceId}"`)
+    const message = response.forceRequired
+      ? `Graceful cancellation of instance "${this.instanceId}" was already requested. Use --force to force cancellation.`
+      : `Requested ${this.force ? "forced" : "graceful"} cancellation of instance "${this.instanceId}"`
+    this.print({ force_required: response.forceRequired }, message)
   }
 }

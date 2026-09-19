@@ -123,18 +123,22 @@ export class OperationManager {
    * Cancels the current operation.
    * Does nothing if no operation is running.
    */
-  cancel(operationId: string): void {
+  cancel(operationId: string, force = false): boolean {
     const runtimeOperation = this.runtimeOperations.get(operationId)
     if (runtimeOperation) {
-      runtimeOperation.cancel()
+      return runtimeOperation.cancel(force)
     }
+
+    return false
   }
 
-  cancelInstance(operationId: string, instanceId: InstanceId): void {
+  cancelInstance(operationId: string, instanceId: InstanceId, force = false): boolean {
     const runtimeOperation = this.runtimeOperations.get(operationId)
     if (runtimeOperation) {
-      runtimeOperation.cancelInstance(instanceId)
+      return runtimeOperation.cancelInstance(instanceId, force)
     }
+
+    return false
   }
 
   private startOperation(project: Project, operation: Operation): void {

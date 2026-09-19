@@ -89,14 +89,16 @@ export class RuntimeOperation {
     private readonly projectPortService: ProjectPortService,
   ) {}
 
-  cancel(): void {
-    this.workset.cancel()
+  cancel(force = false): boolean {
+    const forceRequired = this.workset.cancel(force)
     this.tryMarkOperationCancelling()
+    return forceRequired
   }
 
-  cancelInstance(instanceId: InstanceId): void {
-    this.workset.cancelInstance(instanceId)
+  cancelInstance(instanceId: InstanceId, force = false): boolean {
+    const forceRequired = this.workset.cancelInstance(instanceId, force)
     this.tryMarkOperationCancelling()
+    return forceRequired
   }
 
   private tryMarkOperationCancelling(): void {

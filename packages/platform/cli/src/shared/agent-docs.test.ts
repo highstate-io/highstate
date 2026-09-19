@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { agentDocuments, readAgentDocuments } from "./agent-docs"
+import { readAgentDocuments } from "./agent-docs"
 
 describe("agent documents", () => {
-  it("exposes task-oriented document metadata", () => {
-    expect(agentDocuments.map(document => document.id)).toEqual([
-      "component-authoring",
-      "infrastructure-management",
-    ])
-  })
-
   it("reads multiple documents in requested order", async () => {
     const result = await readAgentDocuments(["infrastructure-management", "component-authoring"])
 

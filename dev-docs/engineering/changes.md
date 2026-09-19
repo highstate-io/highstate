@@ -27,6 +27,8 @@ version.
 Use the repository's documented commands and configured tools.
 Run type checking, tests, linting, formatting checks, and builds that exercise the changed behavior.
 Do not assume a successful build includes type checking.
+Do not add tests whose only purpose is to assert static data, prose, metadata, document inventories, or constants.
+Test behavior or an externally meaningful contract instead.
 
 Determine affected packages explicitly and verify each one before reporting completion.
 Prefer focused checks while iterating, then run the repository's required full checks.

@@ -89,9 +89,9 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
       const operationId = parseValue(request.operationId, "operationId", z.string().min(1))
       await services.operationService.getOperationOrThrow(requestContext, operationId)
 
-      services.operationManager.cancel(operationId)
+      const forceRequired = services.operationManager.cancel(operationId, request.force)
 
-      return {}
+      return { forceRequired }
     },
 
     async cancelInstanceOperation(request, context) {
@@ -100,9 +100,13 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
       const instanceId = parseValue(request.instanceId, "instanceId", instanceIdSchema)
       await services.operationService.getOperationOrThrow(requestContext, operationId)
 
-      services.operationManager.cancelInstance(operationId, instanceId)
+      const forceRequired = services.operationManager.cancelInstance(
+        operationId,
+        instanceId,
+        request.force,
+      )
 
-      return {}
+      return { forceRequired }
     },
   }
 }

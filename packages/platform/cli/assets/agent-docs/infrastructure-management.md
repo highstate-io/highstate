@@ -4,10 +4,10 @@ Use this reference to research or update an active Highstate project through the
 
 ## Establish Access
 
-Use `highstate agent instructions` to refresh current access status and next steps before project work. If it
-reports missing authorization, ask the user to configure or provide an API key. If it names a locked project, ask
-the user to unlock that project. Do not attempt to extract, rotate, create, or bypass credentials unless the user
-explicitly requested credential administration and the available interface supports it.
+Use `highstate agent status` to refresh current access status before project work. If it reports missing
+authorization, ask the user to configure or provide an API key. If it names a locked project, ask the user to
+unlock that project. Do not attempt to extract, rotate, create, or bypass credentials unless the user explicitly
+requested credential administration and the available interface supports it.
 
 Normal output goes to stdout and diagnostics go to stderr. Use `--output json` for data you need to inspect or
 transform reliably.
@@ -70,6 +70,10 @@ highstate operation wait <operation-id> --timeout <seconds>
 ```
 
 Cancellation can leave partial infrastructure changes because an operation is not a transaction across all units.
+Cancellation is graceful unless `--force` is explicit. Repeating a graceful request does not escalate; the CLI
+suggests `--force` when graceful cancellation is already in progress. A forced cancellation can interrupt cleanup.
+Use `operation cancel <operation-id> --yes` for the whole operation or `operation cancel-instance <operation-id>
+<instance-id> --yes` for one instance, and add `--force` only when a hard abort is required.
 Treat retry and cleanup as reconciliation from the resulting state, not as rollback from an untouched state.
 
 ## Verify The Result
