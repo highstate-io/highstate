@@ -9,6 +9,7 @@ const contextNameSchema = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)
 const contextSchema = z.object({
   apiUrl: z.string().url().or(z.string().startsWith("unix://")),
   projectId: z.string().min(1).optional(),
+  apiToken: z.string().min(1).optional(),
 })
 const configSchema = z.object({
   activeContext: z.string().optional(),
@@ -64,20 +65,102 @@ function credentialEntry(name: string): AsyncEntry {
   return new AsyncEntry(serviceName, `context:${validateContextName(name)}`)
 }
 
+export class KeyringUnavailableError extends Error {
+  readonly details?: string
+
+  constructor(error: unknown) {
+    const details =
+      typeof error === "object" && error !== null
+        ? [
+            "code" in error ? String(error.code) : undefined,
+            "message" in error ? String(error.message) : undefined,
+          ]
+            .filter((value, index, values) => value && values.indexOf(value) === index)
+            .join(": ") || undefined
+        : undefined
+
+    super(
+      "System keyring is unavailable; ensure a keyring or secret service is available, or use --insecure to store the API token in plaintext",
+      { cause: error },
+    )
+
+    this.details = details
+  }
+}
+
+export async function assertKeyringAvailable(): Promise<void> {
+  const id = crypto.randomUUID()
+  const entry = new AsyncEntry(serviceName, `__highstate_keyring_probe__:${id}`)
+  const token = `probe-${id}`
+  let credentialCreated = false
+
+  try {
+    await entry.setPassword(token)
+    credentialCreated = true
+
+    if ((await entry.getPassword()) !== token) {
+      throw new Error("Keyring probe returned a different value")
+    }
+  } catch (error) {
+    if (credentialCreated) {
+      try {
+        await entry.deleteCredential()
+      } catch {
+        // Preserve the failure that made the keyring unavailable.
+      }
+    }
+
+    throw new KeyringUnavailableError(error)
+  }
+
+  try {
+    await entry.deleteCredential()
+  } catch (error) {
+    throw new KeyringUnavailableError(error)
+  }
+}
+
+async function accessContextToken<T>(
+  name: string,
+  operation: string,
+  callback: (entry: AsyncEntry) => Promise<T>,
+): Promise<T> {
+  try {
+    return await callback(credentialEntry(name))
+  } catch (error) {
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? ` (${String(error.code)})`
+        : ""
+
+    throw new Error(
+      `Failed to ${operation} the API token for Highstate context "${name}" in the system keyring${code}; ensure a keyring or secret service is available`,
+      { cause: error },
+    )
+  }
+}
+
 export async function setContextToken(name: string, token: string): Promise<void> {
   if (!token.trim()) {
     throw new Error("API token cannot be empty")
   }
 
-  await credentialEntry(name).setPassword(token.trim())
+  await accessContextToken(name, "store", entry => entry.setPassword(token.trim()))
 }
 
-export async function getContextToken(name: string): Promise<string | undefined> {
-  return await credentialEntry(name).getPassword()
+export async function getContextToken(
+  name: string,
+  context?: RemoteContext,
+): Promise<string | undefined> {
+  if (context?.apiToken) {
+    return context.apiToken
+  }
+
+  return await accessContextToken(name, "read", entry => entry.getPassword())
 }
 
 export async function deleteContextToken(name: string): Promise<void> {
-  await credentialEntry(name).deleteCredential()
+  await accessContextToken(name, "delete", entry => entry.deleteCredential())
 }
 
 export type RemoteOverrides = {
@@ -113,7 +196,8 @@ export async function resolveRemoteTarget(
   }
 
   const apiToken =
-    env.HIGHSTATE_API_TOKEN ?? (contextName ? await getContextToken(contextName) : undefined)
+    env.HIGHSTATE_API_TOKEN ??
+    (contextName ? await getContextToken(contextName, context) : undefined)
 
   if (!apiToken) {
     throw new Error("No API token available for the active Highstate backend")

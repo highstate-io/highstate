@@ -14,7 +14,10 @@ access the requested project.
 A **context** gives a backend URL a local name and can remember one selected project.
 The CLI stores context metadata in your user configuration directory and stores the API token in your operating
 system keyring.
-The token does not appear in the context file.
+It checks keyring access before asking for the token.
+If the keyring is unavailable, interactive use can choose to store the token in plaintext in the context file;
+the confirmation defaults to no.
+Pass `--insecure` to select plaintext storage directly, including in non-interactive environments.
 
 Create a context for a local Designer backend:
 

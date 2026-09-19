@@ -1,9 +1,11 @@
-import { password } from "@inquirer/prompts"
+import { confirm, password } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
 import {
+  assertKeyringAvailable,
   createHighstateClients,
   deleteContextToken,
   getContextToken,
+  KeyringUnavailableError,
   readRemoteConfig,
   setContextToken,
   validateContextName,
@@ -18,6 +20,18 @@ abstract class ContextCommand extends Command {
     const format = this.output === "json" || this.output === "yaml" ? this.output : "human"
     writeOutput(value, format, human)
   }
+
+  async catch(error: unknown): Promise<void> {
+    const message = error instanceof Error ? error.message : "Context command failed"
+
+    if (this.output === "json") {
+      process.stderr.write(`${JSON.stringify({ error: { message } })}\n`)
+    } else {
+      process.stderr.write(`${message}\n`)
+    }
+
+    process.exitCode = 1
+  }
 }
 
 export class ContextAddCommand extends ContextCommand {
@@ -29,6 +43,7 @@ export class ContextAddCommand extends ContextCommand {
   apiUrl = Option.String("--api-url", { required: true })
   projectId = Option.String("--project")
   tokenStdin = Option.Boolean("--api-token-stdin", false)
+  insecure = Option.Boolean("--insecure", false)
   force = Option.Boolean("--force", false)
 
   async execute(): Promise<void> {
@@ -36,6 +51,36 @@ export class ContextAddCommand extends ContextCommand {
     const config = await readRemoteConfig()
     if (config.contexts[name] && !this.force) {
       throw new Error(`Highstate context "${name}" already exists; use --force to replace it`)
+    }
+
+    let storeInConfig = this.insecure
+    if (!storeInConfig) {
+      try {
+        await assertKeyringAvailable()
+      } catch (error) {
+        if (!(error instanceof KeyringUnavailableError)) {
+          throw error
+        }
+
+        if (!process.stdin.isTTY) {
+          throw error
+        }
+
+        process.stderr.write(`${error.message}\n`)
+        if (error.details) {
+          process.stderr.write(`Keyring details: ${error.details}\n`)
+        }
+
+        storeInConfig = await confirm({
+          message: "Store the API token in plaintext instead?",
+          default: false,
+        })
+
+        if (!storeInConfig) {
+          process.exitCode = 1
+          return
+        }
+      }
     }
 
     let token = process.env.HIGHSTATE_API_TOKEN
@@ -48,13 +93,26 @@ export class ContextAddCommand extends ContextCommand {
       throw new Error("Provide an API token through --api-token-stdin or HIGHSTATE_API_TOKEN")
     }
 
-    await setContextToken(name, token)
-    config.contexts[name] = { apiUrl: this.apiUrl, projectId: this.projectId }
+    if (!storeInConfig) {
+      await setContextToken(name, token)
+    }
+
+    config.contexts[name] = {
+      apiUrl: this.apiUrl,
+      projectId: this.projectId,
+      apiToken: storeInConfig ? token.trim() : undefined,
+    }
     config.activeContext ??= name
     await writeRemoteConfig(config)
 
     this.print(
-      { name, ...config.contexts[name], active: config.activeContext === name },
+      {
+        name,
+        api_url: this.apiUrl,
+        project_id: this.projectId,
+        token_storage: storeInConfig ? "plaintext" : "keyring",
+        active: config.activeContext === name,
+      },
       `Added context "${name}"`,
     )
   }
@@ -73,7 +131,8 @@ export class ContextListCommand extends ContextCommand {
         api_url: value.apiUrl,
         project_id: value.projectId,
         active: name === config.activeContext,
-        has_token: Boolean(await getContextToken(name)),
+        has_token: Boolean(await getContextToken(name, value)),
+        token_storage: value.apiToken ? "plaintext" : "keyring",
       })),
     )
 
@@ -114,7 +173,8 @@ export class ContextShowCommand extends ContextCommand {
       api_url: context.apiUrl,
       project_id: context.projectId,
       active: name === config.activeContext,
-      has_token: Boolean(await getContextToken(name)),
+      has_token: Boolean(await getContextToken(name, context)),
+      token_storage: context.apiToken ? "plaintext" : "keyring",
     }
 
     this.print(
@@ -168,12 +228,16 @@ export class ContextDeleteCommand extends ContextCommand {
       throw new Error(`Highstate context "${this.name}" not found`)
     }
 
+    const context = config.contexts[this.name]
     delete config.contexts[this.name]
     if (config.activeContext === this.name) {
       config.activeContext = undefined
     }
 
-    await deleteContextToken(this.name)
+    if (!context.apiToken) {
+      await deleteContextToken(this.name)
+    }
+
     await writeRemoteConfig(config)
 
     this.print({}, `Deleted context "${this.name}"`)
@@ -195,7 +259,7 @@ export class ContextTestCommand extends ContextCommand {
     }
 
     const context = config.contexts[name]
-    const token = await getContextToken(name)
+    const token = await getContextToken(name, context)
     if (!token) {
       throw new Error(`No API token stored for context "${name}"`)
     }
