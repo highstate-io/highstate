@@ -1,4 +1,4 @@
-import { confirm, password } from "@inquirer/prompts"
+import { confirm, input, password } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
 import {
   assertKeyringAvailable,
@@ -40,16 +40,16 @@ export class ContextAddCommand extends ContextCommand {
 
   static usage = Command.Usage({ category: "Backend API", description: "Adds a backend context." })
 
-  name = Option.String({ required: true })
-  apiUrl = Option.String("--api-url", { required: true })
+  name = Option.String({ required: false })
+  apiUrl = Option.String("--api-url")
   projectId = Option.String("--project")
   tokenStdin = Option.Boolean("--api-token-stdin", false)
   insecure = Option.Boolean("--insecure", false)
   force = Option.Boolean("--force", false)
 
   async execute(): Promise<void> {
-    const name = validateContextName(this.name)
-    const apiUrl = normalizeApiUrl(this.apiUrl)
+    const name = await this.resolveName()
+    const apiUrl = await this.resolveApiUrl()
     const config = await readRemoteConfig()
     if (config.contexts[name] && !this.force) {
       throw new Error(`Highstate context "${name}" already exists; use --force to replace it`)
@@ -117,6 +117,52 @@ export class ContextAddCommand extends ContextCommand {
       },
       `Added context "${name}"`,
     )
+  }
+
+  private async resolveName(): Promise<string> {
+    if (this.name) {
+      return validateContextName(this.name)
+    }
+
+    if (!process.stdin.isTTY) {
+      throw new Error("Provide a context name")
+    }
+
+    return await input({
+      message: "Context name",
+      validate: value => {
+        try {
+          validateContextName(value)
+          return true
+        } catch {
+          return "Use letters, numbers, dots, underscores, or hyphens"
+        }
+      },
+    })
+  }
+
+  private async resolveApiUrl(): Promise<string> {
+    if (this.apiUrl) {
+      return normalizeApiUrl(this.apiUrl)
+    }
+
+    if (!process.stdin.isTTY) {
+      throw new Error("Provide a backend URL through --api-url")
+    }
+
+    const value = await input({
+      message: "Backend URL",
+      validate: inputValue => {
+        try {
+          normalizeApiUrl(inputValue)
+          return true
+        } catch (error) {
+          return error instanceof Error ? error.message : "Enter a valid backend URL"
+        }
+      },
+    })
+
+    return normalizeApiUrl(value)
   }
 }
 
