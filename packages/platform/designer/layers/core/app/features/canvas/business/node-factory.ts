@@ -279,6 +279,28 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     ]
   }
 
+  const updateInstanceNode = (instance: InstanceModel) => {
+    const nodeId = instanceIdToNodeIdMap.get(instance.id)
+    const node = vueFlowStore.findNode(nodeId)
+    if (!node) {
+      throw new Error(`Node with id ${instance.id} not found`)
+    }
+
+    vueFlowStore.updateNodeData(node.id, { instance })
+
+    if (instance.position) {
+      vueFlowStore.updateNode(node.id, { position: instance.position })
+    }
+
+    const nodeEdges = vueFlowStore.edges.value.filter(edge => edge.target === node.id)
+    const createdEdgeIds = createEdgesForInstance(instance)
+
+    const orphanedEdges = nodeEdges.filter(edge => !createdEdgeIds.includes(edge.id))
+    for (const edge of orphanedEdges) {
+      vueFlowStore.removeEdges(edge.id)
+    }
+  }
+
   const createEdgeForHubInput = (hub: HubModel, input: InstanceInput): string | undefined => {
     const sourceNodeId = getInstanceNodeId(input.instanceId)
     if (!sourceNodeId) return
@@ -415,6 +437,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     instanceIdToNodeIdMap,
     createNodeFromInstance,
     createNodeFromHub,
+    updateInstanceNode,
     createEdgesForInstance,
     createEdgesForHub,
 
