@@ -14,12 +14,13 @@ export class ProjectListCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients } = await this.remote(false)
+    const pageSize = parsePageSize(this.pageSize)
     const projects = []
     let pageToken = this.pageToken ?? ""
 
     do {
       const response = await clients.project.listProjects({
-        pageSize: Number(this.pageSize ?? 0),
+        pageSize,
         pageToken,
       })
 
@@ -54,6 +55,19 @@ export class ProjectListCommand extends RemoteCommand {
         .join("\n") || "No projects",
     )
   }
+}
+
+export function parsePageSize(value: string | undefined): number | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+
+  const pageSize = Number(value)
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+    throw new Error("Page size must be an integer between 1 and 100")
+  }
+
+  return pageSize
 }
 
 export class ProjectGetCommand extends RemoteCommand {
