@@ -19,11 +19,17 @@ If the keyring is unavailable, interactive use can choose to store the token in 
 the confirmation defaults to no.
 Pass `--insecure` to select plaintext storage directly, including in non-interactive environments.
 
-Create a context for a local Designer backend:
+Create a context interactively and follow the prompts for the backend URL and API token:
 
 ```bash
-printf '%s' "$HIGHSTATE_API_TOKEN" | highstate context add local \
-  --api-url http://api.highstate.localhost:7283 \
+highstate context add production
+```
+
+For non-interactive use, provide the URL and read the token from standard input:
+
+```bash
+printf '%s' "$HIGHSTATE_API_TOKEN" | highstate context add production \
+  --api-url https://api.highstate.example.com \
   --api-token-stdin
 ```
 
@@ -32,7 +38,7 @@ You can add more backends and switch between them:
 
 ```bash
 highstate context list
-highstate context use local
+highstate context use production
 highstate context test
 ```
 
@@ -64,7 +70,7 @@ This makes a context convenient for interactive work while allowing an automated
 explicitly:
 
 ```bash
-HIGHSTATE_API_URL=https://highstate.example.com \
+HIGHSTATE_API_URL=https://api.highstate.example.com \
 HIGHSTATE_API_TOKEN="$TOKEN" \
 HIGHSTATE_PROJECT_ID="$PROJECT_ID" \
 highstate instance list --output json
