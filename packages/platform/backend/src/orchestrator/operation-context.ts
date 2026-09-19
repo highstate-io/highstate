@@ -192,9 +192,16 @@ export class OperationContext {
   }
 
   public setState(state: InstanceState): void {
+    this.indexState(state)
+    this.addStateRelationships(state)
+  }
+
+  private indexState(state: InstanceState): void {
     this.stateMap.set(state.instanceId, state)
     this.stateIdMap.set(state.id, state.instanceId)
+  }
 
+  private addStateRelationships(state: InstanceState): void {
     if (state.parentInstanceId) {
       let children = this.stateChildIdMap.get(state.parentInstanceId)
       if (!children) {
@@ -350,7 +357,11 @@ export class OperationContext {
 
   public setStates(states: InstanceState[]): void {
     for (const state of states) {
-      this.setState(state)
+      this.indexState(state)
+    }
+
+    for (const state of states) {
+      this.addStateRelationships(state)
     }
   }
 

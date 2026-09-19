@@ -69,6 +69,7 @@ possible.
 Do not include commands, CI status, test counts, or other verification results in the change list.
 Do not blindly repeat commit messages; combine and reframe their details to explain the pull request as a
 coherent change.
+When a pull request closes reported issues, add a final `Closes: #123, #456` line after the change list.
 
 ### Unreleased Changes
 
