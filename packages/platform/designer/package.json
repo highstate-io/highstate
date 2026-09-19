@@ -3,11 +3,12 @@
   "version": "0.31.2",
   "type": "module",
   "scripts": {
-    "dev": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
+    "dev": "bun scripts/dev.ts",
+    "dev:server": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
     "build": "nuxt build",
     "typecheck": "nuxt typecheck",
-    "biome": "biome check --write --unsafe --error-on-warnings app layers server nuxt.config.ts --files-ignore-unknown=true",
-    "biome:check": "biome check --error-on-warnings app layers server nuxt.config.ts --files-ignore-unknown=true",
+    "biome": "biome check --write --unsafe --error-on-warnings app layers scripts server nuxt.config.ts --files-ignore-unknown=true",
+    "biome:check": "biome check --error-on-warnings app layers scripts server nuxt.config.ts --files-ignore-unknown=true",
     "build-libavoid": "bash ./scripts/build-libavoid.sh"
   },
   "files": [

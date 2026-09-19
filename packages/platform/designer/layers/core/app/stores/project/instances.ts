@@ -137,7 +137,10 @@ export const useProjectInstancesStore = defineMultiStore({
         hub: HubModel
         blueprint: boolean
       }>()
-      const { on: onHubUpdated, trigger: triggerHubUpdated } = createEventHook<HubModel>()
+      const { on: onProjectNodesUpdated, trigger: triggerProjectNodesUpdated } = createEventHook<{
+        instances: InstanceModel[]
+        hubs: HubModel[]
+      }>()
       const { on: onHubDeleted, trigger: triggerHubDeleted } = createEventHook<string>()
 
       const componentTypeToInstancesMap = shallowReactive(new Map()) as Map<string, InstanceModel[]>
@@ -594,9 +597,7 @@ export const useProjectInstancesStore = defineMultiStore({
                   const existingHub = hubs.get(hub.id)
                   updateHubState(hub)
 
-                  if (existingHub) {
-                    await triggerHubUpdated(hub)
-                  } else {
+                  if (!existingHub) {
                     createdHubs.push(hub)
                   }
                 }
@@ -607,6 +608,13 @@ export const useProjectInstancesStore = defineMultiStore({
 
                 for (const hub of createdHubs) {
                   await triggerHubCreated({ hub, blueprint: false })
+                }
+
+                if (event.updatedInstances || event.updatedHubs) {
+                  await triggerProjectNodesUpdated({
+                    instances: event.updatedInstances ?? [],
+                    hubs: event.updatedHubs ?? [],
+                  })
                 }
 
                 const promotedVirtualInstanceIds = new Set<string>()
@@ -1419,7 +1427,7 @@ export const useProjectInstancesStore = defineMultiStore({
         onInstanceDeleted,
 
         onHubCreated,
-        onHubUpdated,
+        onProjectNodesUpdated,
         onHubDeleted,
 
         onInstanceInputAdded,
