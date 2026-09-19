@@ -1,3 +1,12 @@
+## 1.1.0
+
+### Patch Changes
+
+- Updated dependencies [[`7c925a9`](https://github.com/highstate-io/highstate/commit/7c925a936d0d7d989f26aa2ebbc8945a93bd28de), [`ca2afab`](https://github.com/highstate-io/highstate/commit/ca2afab1c3498ac3c62aa60ecf9a25d83a813d7c)]:
+  - @highstate/backend@1.1.0
+  - @highstate/backend-api@1.1.0
+  - @highstate/contract@1.1.0
+
 ## 1.0.0
 
 ### Major Changes

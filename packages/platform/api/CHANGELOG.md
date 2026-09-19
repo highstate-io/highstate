@@ -1,3 +1,10 @@
+## 1.1.0
+
+### Minor Changes
+
+- [#45](https://github.com/highstate-io/highstate/pull/45) [`ca2afab`](https://github.com/highstate-io/highstate/commit/ca2afab1c3498ac3c62aa60ecf9a25d83a813d7c) Thanks [@Exeteres](https://github.com/Exeteres)! - Add agent access diagnostics and version-aligned task references, and require an explicit `--force` flag for hard
+  operation cancellation.
+
 ## 1.0.0
 
 ### Minor Changes

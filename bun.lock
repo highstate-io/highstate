@@ -22,7 +22,7 @@
     },
     "packages/platform/api": {
       "name": "@highstate/api",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@bufbuild/protobuf": "catalog:",
         "@connectrpc/connect": "catalog:",
@@ -39,7 +39,7 @@
     },
     "packages/platform/backend": {
       "name": "@highstate/backend",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@aws-crypto/crc32": "^5.2.0",
         "@highstate/contract": "workspace:*",
@@ -95,7 +95,7 @@
     },
     "packages/platform/backend-api": {
       "name": "@highstate/backend-api",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@bufbuild/protobuf": "catalog:",
         "@connectrpc/connect": "catalog:",
@@ -123,7 +123,7 @@
     },
     "packages/platform/cli": {
       "name": "@highstate/cli",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "bin": {
         "highstate": "./dist/main.js",
       },
@@ -169,7 +169,7 @@
     },
     "packages/platform/contract": {
       "name": "@highstate/contract",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@noble/hashes": "^2.0.0",
         "@paralleldrive/cuid2": "^2.2.2",
@@ -187,7 +187,7 @@
     },
     "packages/platform/create-highstate": {
       "name": "create-highstate",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "bin": {
         "create-highstate": "./dist/main.js",
       },
@@ -202,7 +202,7 @@
     },
     "packages/platform/designer": {
       "name": "@highstate/designer",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@highstate/backend": "workspace:*",
         "@highstate/backend-api": "workspace:*",
@@ -329,7 +329,7 @@
     },
     "packages/platform/pulumi": {
       "name": "@highstate/pulumi",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "@pulumi/pulumi": "3.232.0",
@@ -355,7 +355,7 @@
     },
     "packages/platform/worker-sdk": {
       "name": "@highstate/worker-sdk",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": {
         "@bufbuild/protobuf": "catalog:",
         "@connectrpc/connect": "catalog:",
@@ -371,7 +371,7 @@
     },
     "packages/standard/cilium": {
       "name": "@highstate/cilium",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cilium-crds": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -415,7 +415,7 @@
     },
     "packages/standard/common": {
       "name": "@highstate/common",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "@highstate/library": "workspace:*",
@@ -445,7 +445,7 @@
     },
     "packages/standard/distributions": {
       "name": "@highstate/distributions",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -462,7 +462,7 @@
     },
     "packages/standard/envoy": {
       "name": "@highstate/envoy",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -498,7 +498,7 @@
     },
     "packages/standard/etcd": {
       "name": "@highstate/etcd",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -600,7 +600,7 @@
     },
     "packages/standard/git": {
       "name": "@highstate/git",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -619,7 +619,7 @@
     },
     "packages/standard/influxdb3": {
       "name": "@highstate/influxdb3",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -635,7 +635,7 @@
     },
     "packages/standard/k3s": {
       "name": "@highstate/k3s",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -656,7 +656,7 @@
     },
     "packages/standard/k8s": {
       "name": "@highstate/k8s",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -688,7 +688,7 @@
     },
     "packages/standard/k8s.apps": {
       "name": "@highstate/k8s.apps",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -729,7 +729,7 @@
     },
     "packages/standard/k8s.game-servers": {
       "name": "@highstate/k8s.game-servers",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -771,7 +771,7 @@
     },
     "packages/standard/k8s.obfuscators": {
       "name": "@highstate/k8s.obfuscators",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -825,7 +825,7 @@
     },
     "packages/standard/library": {
       "name": "@highstate/library",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "remeda": "^2.21.0",
@@ -839,7 +839,7 @@
     },
     "packages/standard/minio": {
       "name": "@highstate/minio",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@aws-sdk/client-s3": "^3.985.0",
         "@highstate/common": "workspace:*",
@@ -857,7 +857,7 @@
     },
     "packages/standard/mongodb": {
       "name": "@highstate/mongodb",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -884,7 +884,7 @@
     },
     "packages/standard/mysql": {
       "name": "@highstate/mysql",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -911,7 +911,7 @@
     },
     "packages/standard/netaminity": {
       "name": "@highstate/netaminity",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -929,7 +929,7 @@
     },
     "packages/standard/nixos": {
       "name": "@highstate/nixos",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -948,7 +948,7 @@
     },
     "packages/standard/postgresql": {
       "name": "@highstate/postgresql",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -965,7 +965,7 @@
     },
     "packages/standard/proxmox": {
       "name": "@highstate/proxmox",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -992,7 +992,7 @@
     },
     "packages/standard/redis": {
       "name": "@highstate/redis",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/library": "workspace:*",
@@ -1007,7 +1007,7 @@
     },
     "packages/standard/restic": {
       "name": "@highstate/restic",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1026,7 +1026,7 @@
     },
     "packages/standard/rustfs": {
       "name": "@highstate/rustfs",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1043,7 +1043,7 @@
     },
     "packages/standard/sops": {
       "name": "@highstate/sops",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1060,7 +1060,7 @@
     },
     "packages/standard/talos": {
       "name": "@highstate/talos",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cilium": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -1083,7 +1083,7 @@
     },
     "packages/standard/vault": {
       "name": "@highstate/vault",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1100,7 +1100,7 @@
     },
     "packages/standard/wireguard": {
       "name": "@highstate/wireguard",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1128,7 +1128,7 @@
     },
     "packages/third-party/cloudflare": {
       "name": "@highstate/cloudflare",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/cert-manager": "workspace:*",
         "@highstate/common": "workspace:*",
@@ -1151,7 +1151,7 @@
     },
     "packages/third-party/gcp": {
       "name": "@highstate/gcp",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1168,7 +1168,7 @@
     },
     "packages/third-party/hetzner": {
       "name": "@highstate/hetzner",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",
@@ -1185,7 +1185,7 @@
     },
     "packages/third-party/mullvad": {
       "name": "@highstate/mullvad",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/k8s": "workspace:*",
@@ -1205,7 +1205,7 @@
     },
     "packages/third-party/timeweb": {
       "name": "@highstate/timeweb",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/k8s": "workspace:*",
@@ -1233,7 +1233,7 @@
     },
     "packages/third-party/yandex": {
       "name": "@highstate/yandex",
-      "version": "0.30.2",
+      "version": "0.30.3",
       "dependencies": {
         "@highstate/common": "workspace:*",
         "@highstate/contract": "workspace:*",

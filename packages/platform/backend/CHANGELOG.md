@@ -1,3 +1,17 @@
+## 1.1.0
+
+### Minor Changes
+
+- [#45](https://github.com/highstate-io/highstate/pull/45) [`ca2afab`](https://github.com/highstate-io/highstate/commit/ca2afab1c3498ac3c62aa60ecf9a25d83a813d7c) Thanks [@Exeteres](https://github.com/Exeteres)! - Add agent access diagnostics and version-aligned task references, and require an explicit `--force` flag for hard
+  operation cancellation.
+
+### Patch Changes
+
+- [#47](https://github.com/highstate-io/highstate/pull/47) [`7c925a9`](https://github.com/highstate-io/highstate/commit/7c925a936d0d7d989f26aa2ebbc8945a93bd28de) Thanks [@Exeteres](https://github.com/Exeteres)! - Preserve reverse dependency order when destroying composite children regardless of persisted state ordering.
+
+- Updated dependencies []:
+  - @highstate/contract@1.1.0
+
 ## 1.0.0
 
 ### Minor Changes

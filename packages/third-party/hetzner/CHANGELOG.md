@@ -1,5 +1,15 @@
 # @highstate/hetzner
 
+## 0.30.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @highstate/pulumi@1.1.0
+  - @highstate/common@0.30.3
+  - @highstate/library@0.30.3
+  - @highstate/contract@1.1.0
+
 ## 0.30.2
 
 ### Patch Changes

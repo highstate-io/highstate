@@ -1,3 +1,10 @@
+## 1.1.0
+
+### Patch Changes
+
+- Updated dependencies [[`ca2afab`](https://github.com/highstate-io/highstate/commit/ca2afab1c3498ac3c62aa60ecf9a25d83a813d7c)]:
+  - @highstate/cli@1.1.0
+
 ## 1.0.0
 
 ### Patch Changes
