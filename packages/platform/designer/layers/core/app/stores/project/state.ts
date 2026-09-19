@@ -17,6 +17,7 @@ import {
 import { armor } from "age-encryption"
 import { useProjectInstancesStore } from "./instances"
 import { useProjectLibraryStore } from "./library"
+import { applyInstanceStatePatch } from "./state-event"
 
 export const useProjectStateStore = defineMultiStore({
   name: "project-state",
@@ -111,21 +112,28 @@ export const useProjectStateStore = defineMultiStore({
                   }
                   case "patched": {
                     const instanceId = stateIdToInstanceIdMap.get(event.stateId)
-                    if (!instanceId) {
+                    const newState = applyInstanceStatePatch(
+                      event.stateId,
+                      event.patch,
+                      instanceId ? instanceStates.get(instanceId) : undefined,
+                    )
+                    if (!newState) {
                       logger.warn({ stateId: event.stateId }, "received patch for unknown state ID")
                       return
                     }
 
-                    const existingState = instanceStates.get(instanceId)
-                    const newState = { ...existingState, ...event.patch }
-
-                    updateState(newState as InstanceState)
+                    updateState(newState)
                     break
                   }
                   case "patched-batch": {
                     for (const item of event.patches) {
                       const instanceId = stateIdToInstanceIdMap.get(item.stateId)
-                      if (!instanceId) {
+                      const newState = applyInstanceStatePatch(
+                        item.stateId,
+                        item.patch,
+                        instanceId ? instanceStates.get(instanceId) : undefined,
+                      )
+                      if (!newState) {
                         logger.warn(
                           { stateId: item.stateId },
                           "received patch for unknown state ID",
@@ -133,10 +141,7 @@ export const useProjectStateStore = defineMultiStore({
                         continue
                       }
 
-                      const existingState = instanceStates.get(instanceId)
-                      const newState = { ...existingState, ...item.patch }
-
-                      updateState(newState as InstanceState)
+                      updateState(newState)
                     }
 
                     break
