@@ -1,0 +1,68 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+
+// WorkerRegistration announces one worker version and its current unit registrations.
+message WorkerRegistration {
+  // The worker version ID.
+  string worker_version_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The concrete worker instance ID.
+  string worker_instance_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The worker-owned unit registrations.
+  repeated WorkerUnitRegistration units = 3;
+
+  // The latest desired registration revision applied by this worker.
+  uint64 applied_revision = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WorkerUnitRegistration contains runtime parameters for one registered unit state.
+message WorkerUnitRegistration {
+  // The unit state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Worker-defined runtime parameters.
+  google.protobuf.Struct parameters = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WorkerControl carries one backend command for a supervised worker.
+message WorkerControl {
+  // The control operation.
+  WorkerControlKind kind = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The affected unit state ID, when the operation is unit-specific.
+  optional string state_id = 2;
+
+  // Worker-defined command data.
+  optional google.protobuf.Struct data = 3;
+
+  // The complete desired-state revision produced by this command.
+  uint64 revision = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WorkerControlKind identifies a backend command for a worker.
+enum WorkerControlKind {
+  // The command was not specified or is not recognized.
+  WORKER_CONTROL_KIND_UNSPECIFIED = 0;
+
+  // Add or replace a unit registration.
+  WORKER_CONTROL_KIND_REGISTER_UNIT = 1;
+
+  // Remove a unit registration.
+  WORKER_CONTROL_KIND_DEREGISTER_UNIT = 2;
+
+  // Stop the worker gracefully.
+  WORKER_CONTROL_KIND_STOP = 3;
+}
+
+// WorkerProxyData carries binary panel or proxy traffic.
+message WorkerProxyData {
+  // Whether these bytes end the logical request or response body.
+  bool end_stream = 1;
+
+  // The unmodified proxy payload.
+  bytes data = 2;
+}

@@ -23,7 +23,8 @@ model NpmRegistryCredential {
     /// The time when the credential was last updated.
     updatedAt DateTime @updatedAt
 
-    runtimes ContainerRuntimeNpmRegistryCredential[]
+    /// The container runtimes that can use this credential.
+    runtimes ContainerRuntime[]
 }
 
 /// Backend-scoped credentials for an OCI container registry.
@@ -48,5 +49,6 @@ model ContainerRegistryCredential {
     /// The time when the credential was last updated.
     updatedAt DateTime @updatedAt
 
-    runtimes ContainerRuntimeContainerRegistryCredential[]
+    /// The container runtimes that can use this credential.
+    runtimes ContainerRuntime[]
 }

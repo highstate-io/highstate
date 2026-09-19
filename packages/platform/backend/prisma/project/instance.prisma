@@ -140,11 +140,8 @@ model InstanceState {
     /// The child instances, if any.
     children InstanceState[] @relation("InstanceHierarchy")
 
-    /// The complete project library snapshot used by the last successful operation.
-    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
-
-    /// The direct package version used by the last successful operation.
-    libraryPackageVersion LibraryPackageVersion? @relation(fields: [libraryPackageVersionId], references: [id])
+    /// The exact snapshot membership used by the last successful operation.
+    librarySnapshotVersion LibrarySnapshotVersion? @relation(fields: [librarySnapshotId, libraryPackageVersionId], references: [snapshotId, libraryPackageVersionId])
 
     /// The evaluation state of this instance.
     evaluationState InstanceEvaluationState?

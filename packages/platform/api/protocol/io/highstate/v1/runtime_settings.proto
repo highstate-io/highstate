@@ -35,6 +35,9 @@ message ContainerRuntime {
 
   // The time when the runtime was last updated.
   google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optimistic concurrency revision of these settings.
+  uint64 revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ContainerRuntimeSpec selects one container runtime implementation.
@@ -47,6 +50,15 @@ message ContainerRuntimeSpec {
     // Kubernetes cluster settings.
     KubernetesRuntimeSpec kubernetes = 2;
   }
+
+  // The OCI repository used when images must be pushed for this runtime.
+  optional string image_repository = 3;
+
+  // The authenticated TLS runtime API URL reachable by workloads.
+  string runtime_api_url = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // A PEM CA bundle used by workloads to verify a private runtime API certificate.
+  optional bytes runtime_api_ca_bundle = 5;
 }
 
 // DockerRuntimeSpec configures a local or remote Docker-compatible engine.
@@ -57,17 +69,29 @@ message DockerRuntimeSpec {
   // Whether the engine shares the backend host and can use local bind mounts.
   bool local = 2;
 
-  // The authenticated TLS runtime API URL reachable by workloads.
-  string runtime_api_url = 3 [(google.api.field_behavior) = REQUIRED];
+  // TLS client configuration for a remote Docker-compatible engine.
+  optional DockerEngineTlsConfig tls = 3;
+}
 
-  // A PEM CA bundle used by workloads to verify a private runtime API certificate.
-  optional bytes runtime_api_ca_bundle = 4;
+// DockerEngineTlsConfig configures mutual TLS for a remote Docker-compatible engine.
+message DockerEngineTlsConfig {
+  // The CA bundle used to verify the engine certificate.
+  optional bytes ca_bundle = 1 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // The client certificate presented to the engine.
+  optional bytes client_certificate = 2 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // The private key for the client certificate.
+  optional bytes client_key = 3 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Whether complete TLS client configuration is already stored.
+  bool configured = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // KubernetesRuntimeSpec configures workload placement in one Kubernetes namespace.
 message KubernetesRuntimeSpec {
   // The kubeconfig content used to connect to the cluster.
-  bytes kubeconfig = 1 [(google.api.field_behavior) = INPUT_ONLY];
+  optional bytes kubeconfig = 1 [(google.api.field_behavior) = INPUT_ONLY];
 
   // The kubeconfig context, when it cannot be inferred.
   optional string context = 2;
@@ -78,17 +102,11 @@ message KubernetesRuntimeSpec {
   // The Kubernetes service account assigned to workloads.
   string service_account = 4 [(google.api.field_behavior) = REQUIRED];
 
-  // The authenticated TLS runtime API URL reachable by workloads.
-  string runtime_api_url = 5 [(google.api.field_behavior) = REQUIRED];
+  // The rootless BuildKit image used by image-build jobs.
+  string buildkit_image = 5 [(google.api.field_behavior) = REQUIRED];
 
-  // A PEM CA bundle used by workloads to verify a private runtime API certificate.
-  optional bytes runtime_api_ca_bundle = 6;
-
-  // The OCI image repository used for project library images.
-  string image_repository = 7 [(google.api.field_behavior) = REQUIRED];
-
-  // The rootless OCI builder image.
-  string builder_image = 8 [(google.api.field_behavior) = REQUIRED];
+  // Whether a kubeconfig is already stored.
+  bool kubeconfig_configured = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // PulumiStateBackend describes reusable Pulumi state storage.
@@ -104,6 +122,9 @@ message PulumiStateBackend {
 
   // Authentication configuration accepted only when creating or replacing the backend settings.
   optional bytes credentials = 4 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Whether authentication configuration is already stored.
+  bool credentials_configured = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The time when the state backend was created.
   google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -127,7 +148,10 @@ message NpmRegistryCredential {
   string registry_url = 4 [(google.api.field_behavior) = REQUIRED];
 
   // Authentication material accepted only when creating or replacing the credential.
-  bytes credentials = 5 [(google.api.field_behavior) = INPUT_ONLY];
+  optional bytes credentials = 5 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Whether authentication material is already stored.
+  bool credentials_configured = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ContainerRegistryCredential describes reusable authentication for one OCI registry.
@@ -142,7 +166,10 @@ message ContainerRegistryCredential {
   string registry_url = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Authentication material accepted only when creating or replacing the credential.
-  bytes credentials = 4 [(google.api.field_behavior) = INPUT_ONLY];
+  optional bytes credentials = 4 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Whether authentication material is already stored.
+  bool credentials_configured = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListContainerRuntimesRequest requests all configured container runtimes.
@@ -158,6 +185,9 @@ message ListContainerRuntimesResponse {
 message PutContainerRuntimeRequest {
   // The runtime to persist. An empty ID creates a runtime.
   ContainerRuntime runtime = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The current settings revision, required when replacing an existing runtime.
+  optional uint64 expected_revision = 2;
 }
 
 // PutContainerRuntimeResponse returns the canonical container runtime.
@@ -265,6 +295,69 @@ message DeleteContainerRegistryCredentialRequest {
 // DeleteContainerRegistryCredentialResponse reports successful removal.
 message DeleteContainerRegistryCredentialResponse {}
 
+// ContainerRuntimeCapability identifies one capability verified for a configured container runtime.
+enum ContainerRuntimeCapability {
+  // The capability was not specified or is not recognized.
+  CONTAINER_RUNTIME_CAPABILITY_UNSPECIFIED = 0;
+
+  // The runtime can build OCI images.
+  CONTAINER_RUNTIME_CAPABILITY_IMAGE_BUILD = 1;
+
+  // The runtime can retain images without pushing them.
+  CONTAINER_RUNTIME_CAPABILITY_LOCAL_IMAGE_STORE = 2;
+
+  // The runtime can push and pull images through the configured repository.
+  CONTAINER_RUNTIME_CAPABILITY_REGISTRY = 3;
+
+  // The runtime supports interactive attachment.
+  CONTAINER_RUNTIME_CAPABILITY_ATTACH = 4;
+
+  // The runtime supports command execution in running workloads.
+  CONTAINER_RUNTIME_CAPABILITY_EXEC = 5;
+
+  // The runtime provides workload networking and DNS.
+  CONTAINER_RUNTIME_CAPABILITY_NETWORKING = 6;
+
+  // The runtime supports persistent workload volumes.
+  CONTAINER_RUNTIME_CAPABILITY_PERSISTENT_VOLUMES = 7;
+
+  // The runtime can mount local development library sources.
+  CONTAINER_RUNTIME_CAPABILITY_LOCAL_LIBRARY_OVERLAY = 8;
+}
+
+// CheckContainerRuntimeRequest requests connectivity, permission, and capability preflight.
+message CheckContainerRuntimeRequest {
+  // The configured runtime to check.
+  string container_runtime_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether to launch a probe workload to verify workload-to-backend connectivity.
+  bool probe_runtime_api = 2;
+}
+
+// CheckContainerRuntimeResponse reports verified capabilities and actionable failures.
+message CheckContainerRuntimeResponse {
+  // Whether every requirement for the configured runtime passed.
+  bool ready = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Capabilities verified by the preflight.
+  repeated ContainerRuntimeCapability capabilities = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Individual preflight checks.
+  repeated ContainerRuntimeCheck checks = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ContainerRuntimeCheck reports one preflight result.
+message ContainerRuntimeCheck {
+  // A stable machine-readable check name.
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the check passed.
+  bool passed = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A human-readable result or remediation message.
+  optional string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
 // RuntimeSettingsService manages reusable backend-scoped runtimes, state backends, and registry credentials.
 service RuntimeSettingsService {
   // Lists configured container runtimes.
@@ -275,6 +368,9 @@ service RuntimeSettingsService {
 
   // Removes an unused container runtime.
   rpc DeleteContainerRuntime(DeleteContainerRuntimeRequest) returns (DeleteContainerRuntimeResponse);
+
+  // Checks runtime connectivity, permissions, workload reachability, and supported capabilities.
+  rpc CheckContainerRuntime(CheckContainerRuntimeRequest) returns (CheckContainerRuntimeResponse);
 
   // Lists configured Pulumi state backends.
   rpc ListPulumiStateBackends(ListPulumiStateBackendsRequest) returns (ListPulumiStateBackendsResponse);

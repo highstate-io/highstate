@@ -18,9 +18,6 @@ model LibraryPackage {
     /// The time when the package selection was last updated.
     updatedAt DateTime @updatedAt
 
-    /// Cached evaluated versions associated with this package selection.
-    versions LibraryPackageVersion[]
-
     @@unique([order])
 }
 
@@ -28,9 +25,6 @@ model LibraryPackage {
 model LibraryPackageVersion {
     /// The CUIDv2 of the cached package version.
     id String @id @default(cuid(2))
-
-    /// The current package selection associated with this version, when it still exists.
-    libraryPackageId String?
 
     /// The npm package name retained independently of the mutable package selection.
     packageName String
@@ -59,23 +53,13 @@ model LibraryPackageVersion {
     /// The time when this version was evaluated.
     createdAt DateTime @default(now())
 
-    /// The current package selection associated with this version.
-    libraryPackage LibraryPackage? @relation(fields: [libraryPackageId], references: [id], onDelete: SetNull)
-
     /// Snapshots containing this direct package version.
     snapshots LibrarySnapshotVersion[]
-
-    /// Instance states last operated by this package version.
-    instanceStates InstanceState[]
-
-    /// Per-instance operation states targeting this package version.
-    operationStates InstanceOperationState[] @relation("OperationPackageVersion")
 
     /// Per-instance operation states upgraded from this package version.
     previousOperationStates InstanceOperationState[] @relation("PreviousOperationPackageVersion")
 
     @@unique([packageName, version, packageIntegrity])
-    @@index([libraryPackageId])
 }
 
 /// An immutable, reproducible resolution of the project's complete packaged library environment.
@@ -110,26 +94,26 @@ model LibrarySnapshot {
     /// Operations captured against this snapshot.
     operations Operation[]
 
-    /// Instance states last operated with this snapshot.
-    instanceStates InstanceState[]
-
-    /// Per-instance operation states targeting this snapshot.
-    operationStates InstanceOperationState[]
+    /// Composite evaluation states produced from this snapshot.
+    evaluationStates InstanceEvaluationState[]
 }
 
 /// Records one direct library package version included in a complete project snapshot.
 model LibrarySnapshotVersion {
     snapshotId String
     libraryPackageVersionId String
-    packageName String
-    version String
     order Int
 
     snapshot LibrarySnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
     libraryPackageVersion LibraryPackageVersion @relation(fields: [libraryPackageVersionId], references: [id])
 
+    /// Instance states deployed with this exact snapshot membership.
+    instanceStates InstanceState[]
+
+    /// Per-instance operation states executed with this exact snapshot membership.
+    operationStates InstanceOperationState[]
+
     @@id([snapshotId, libraryPackageVersionId])
-    @@unique([snapshotId, packageName])
     @@unique([snapshotId, order])
     @@index([libraryPackageVersionId])
 }

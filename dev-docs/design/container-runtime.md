@@ -21,8 +21,8 @@ through this runtime.
 
 ## Boundaries
 
-The container runtime owns generic image, environment, workload, network, log, attach, and execution
-mechanics.
+The container runtime adapter owns generic image, environment, workload, network, log, attach, and execution
+mechanics for Docker or Kubernetes.
 It does not own Pulumi planning, sidecar semantics, terminal sessions, worker registrations, library package
 resolution, or project persistence.
 Those behaviors remain in workload-specific managers that translate domain requests into generic runtime
@@ -31,6 +31,7 @@ operations.
 The intended managers are:
 
 - A Pulumi operation manager for operation-scoped runner workloads.
+- A composite evaluation manager for snapshot-scoped evaluation workloads.
 - A sidecar manager for operation-scoped supporting workloads.
 - A terminal manager for interactive sessions and persisted terminal logs.
 - A worker manager for supervised long-running worker versions.
@@ -39,6 +40,13 @@ The intended managers are:
 The backend remains the owner of orchestration, locking, operation recovery, authorization, persistence,
 credentials, and workload leases.
 Containers are execution boundaries, not security boundaries for untrusted code.
+
+Domain managers operate on Pulumi operations, evaluations, builds, sidecars, workers, and terminals rather
+than Docker containers or Kubernetes resources.
+An internal runtime coordinator converts those requests into generic workload intents and persists one logical
+workload record before asking the selected adapter to place it.
+The workload-facing gRPC protocol is separate from this backend-to-adapter interface: agents connect to the
+backend through gRPC, while adapters are backend-owned implementations that call Docker or Kubernetes APIs.
 
 ## Project Selection
 
@@ -71,10 +79,25 @@ Kubernetes image builds use an unprivileged OCI builder such as rootless BuildKi
 remote container registry.
 Privileged Docker-in-Docker is not part of the design.
 
+The runtime specifies an OCI image repository when built images must be pushed.
+It is optional for local Docker and required for remote Docker and Kubernetes.
+Kubernetes additionally specifies the rootless BuildKit image used by image-build Jobs; Docker builds through
+the engine API and does not require a builder image.
+
 Runtime implementations report capabilities explicitly, including image building, local image retention,
 registry pushes, interactive attachment, command execution, workload networking, and persistent volumes.
 Managers reject requests that the selected runtime cannot support instead of relying on engine-specific
 failure behavior.
+
+Runtime settings expose a preflight operation that verifies engine or cluster connectivity, namespace and
+service-account permissions, registry access, image building, attach and exec support, networking, persistent
+storage, and local-overlay availability.
+An optional probe workload verifies that placed workloads can establish the authenticated runtime API stream.
+Remote Docker settings support client TLS material independently of the workload-facing runtime API TLS
+configuration.
+Write-only kubeconfig, Docker TLS, Pulumi, npm, and container registry secrets are preserved when omitted from
+an update and replaced only when explicitly supplied.
+Runtime updates use an optimistic settings revision so concurrent edits and stale full replacements fail.
 
 ## Generic Operations
 
@@ -93,6 +116,17 @@ The common runtime contract supports:
 Every workload receives opaque backend, project, runtime, workload, and operation identifiers as applicable.
 Docker resources and Kubernetes resources carry these identifiers as labels.
 The backend uses labels and persisted leases to reconcile stale resources after restart.
+
+The backend persists every Highstate-owned logical workload, including its runtime, project, kind, domain
+owner, desired and observed states, native root resource handle, lease generation and expiry, and cleanup
+state.
+Agent-backed workloads own persistent action records for each independently cancellable Pulumi or evaluation
+execution, including status, cancellation state, snapshot and image identity, timestamps, and terminal error.
+One runner may execute multiple actions, while one-shot evaluation workloads own one action.
+It does not persist every engine-created child resource: a Kubernetes Deployment, ReplicaSet, Pod, Service,
+and Secret or a Docker container, network, and volume remain adapter details discovered through ownership
+labels.
+Unrelated resources not labeled as Highstate-owned are outside this inventory.
 
 ## Docker Placement
 
@@ -136,26 +170,36 @@ It is distinct from the public `io.highstate.v1` API and the worker-specific
 
 The primary service is an authenticated bidirectional gRPC stream owned by the backend.
 Runtime-aware workload agents connect outward to the configured backend URL.
-The stream multiplexes logical sessions using runtime instance, workload, operation, action, request, and
-stream identifiers.
+The authenticated connection identifies its workload, and the stream multiplexes logical sessions using
+operation, action, request, and stream identifiers.
 
 The protocol carries:
 
 - Protocol negotiation, workload registration, heartbeats, and lease renewal.
+- Composite evaluation requests, generated virtual instances, branch errors, and invalid results.
 - Pulumi action requests, engine events, standard output, standard error, completion, and errors.
 - Unit configuration requests and result submission.
 - Sidecar creation and lifecycle responses.
 - Worker registration, control, panel, and proxy traffic.
-- Terminal input, output, resize, close, and exit events.
 - Graceful cancellation and forced termination.
 
-Terminal and proxy payloads use protobuf byte fields.
+Proxy payloads use protobuf byte fields.
 Flow control is bounded per logical stream so one noisy workload cannot exhaust backend memory or block other
 sessions.
 
+`ClientHello` and `ServerHello` are the first messages in their respective directions.
+The workload advertises a supported protocol range and capabilities, and the backend selects one version or
+rejects the connection.
+Identifiers required by an event are validated from its envelope and cannot be reused for concurrent work.
+A typed evaluation result terminates that action, `ActionCompleted` terminates a Pulumi command action, and
+`RuntimeError` explicitly identifies and terminates one request, stream, action, operation, or connection.
+A cancellation response only acknowledges the request; it does not indicate that the action has terminated.
+
 Each workload receives a short-lived credential scoped to its backend, project, runtime, workload ID, kind,
-expiry, and allowed protocol operations.
+lease generation, expiry, and allowed protocol operations.
 The backend validates the scope of every message.
+Authorizing a newer lease generation invalidates older credentials and streams so a replaced runner cannot
+renew its lease or publish stale results.
 TLS uses normal certificate verification, with an explicitly configured CA bundle for private PKI.
 
 ## Workload Communication
@@ -167,14 +211,41 @@ concurrent unit actions.
 Normal cancellation sends an interrupt to one action; force cancellation kills only that action before an
 operation-wide workload stop is considered.
 
+The runner is a disposable execution agent, not an owner of durable state.
+It holds active processes, temporary workspaces, loaded implementations, short-lived secrets, and buffered
+events only while running.
+Pulumi state remains in the selected state backend, project and operation state remains in the project
+database, workload leases remain in the backend database, and artifacts and logs use their configured durable
+stores.
+Loss of a runner fails its active actions rather than resuming its memory; a retry starts a new runner and
+reconciles through Pulumi state.
+
+Composite evaluation runs as a short-lived workload from the selected project library snapshot image.
+The backend sends the complete resident instance graph, resolved inputs, project-specific virtual component
+definitions, and model and local-overlay revisions as one independently cancellable action.
+The workload returns generated virtual instances and ordinary branch errors; project-level validation failures
+invalidate the complete result, while process or transport failures use the runtime error event.
+The backend owns duplicate-ID validation, revision fencing, persistence, and publication of evaluation state.
+Persisted evaluation state records the snapshot, resident model revision, local-overlay revision, and runtime
+action that produced it so later planning can reject stale virtual models after a backend restart.
+
 Arbitrary terminal images are not required to contain Highstate software.
-The Docker or Kubernetes adapter attaches to those workloads and translates engine I/O into the same internal
-runtime stream representation used by the terminal manager.
+The terminal manager uses the internal Docker or Kubernetes adapter attach interface directly; terminal I/O
+does not travel over the workload-agent gRPC protocol.
 
 Application data traffic between a unit and its sidecar remains direct over the runtime network.
 It is not proxied through the control stream.
 Worker control and panel/proxy traffic use the runtime stream so workers do not depend on backend-host Unix
 socket mounts or host-published loopback ports.
+
+Project library materialization is an adapter-owned logical workload rather than a workload-agent action.
+The build manager supplies the snapshot ID and hash, build generation, frozen lockfile, source manifest,
+compatibility requirements, immutable base image, target platforms, and optional push repository through the
+internal adapter interface.
+The Docker adapter drives the engine build API, while the Kubernetes adapter owns a rootless BuildKit Job.
+Adapter progress callbacks report stable phases and the verified image reference, digest, and image hash.
+The backend accepts updates only for the current image attempt and generation, preventing an obsolete build
+from replacing a newer desired image.
 
 ## Images And Registries
 
@@ -211,6 +282,8 @@ Runtime image caches and stale workload records are reconstructible.
 The backend reconciles resources by labels and leases, preserves persistent workers that should still run,
 and removes orphaned operation resources.
 Cleanup failures remain visible and retryable rather than being treated as successful finalization.
+Project and runtime deletion first marks owned workloads for deletion and completes adapter cleanup; database
+relations restrict deleting those owners while workload records still retain cleanup state.
 
 ## Delivery
 

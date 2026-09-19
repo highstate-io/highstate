@@ -32,6 +32,8 @@ resolutions.
 A `LibraryPackageVersion` is an immutable cache for one evaluated exact package version.
 It records its package, exact version, registry, package integrity, evaluated package library model, source
 manifest, and relevant package metadata.
+It is identified by package name, exact version, and integrity independently of mutable package selections, so
+removing and later re-adding a selection does not mutate or duplicate the cached version.
 It can be recreated from npm and may be garbage-collected when no snapshot or instance state references it.
 
 Different configured packages in one project cannot export the same component or entity type.
@@ -57,6 +59,8 @@ Rebuilding uses frozen lockfile semantics and fails if package resolution would 
 A snapshot has explicit relations to every direct `LibraryPackageVersion` used in it.
 These relations preserve cached versions, expose package and version information efficiently, and identify the
 package version that owns each component.
+Snapshot membership stores only the package-version reference and merge order; package identity comes from the
+immutable package-version record.
 The lockfile remains authoritative for the complete dependency graph.
 
 The project database records its current desired snapshot.
@@ -93,6 +97,10 @@ single selected runtime.
 Build progress is persisted in the backend cache and exposed to the Designer.
 Stable phases include queued, resolving, installing, evaluating, validating, building, pushing, verifying,
 ready, and failed.
+Each materialization attempt increments a cache generation and owns one logical runtime workload through a
+persisted attempt record.
+Only adapter callbacks matching the current attempt and generation may update the cache, so an obsolete build
+may finish without replacing a newer desired image.
 
 Resolution and evaluation happen for the complete proposed package set.
 Highstate commits a version change only after it can produce a valid conflict-free snapshot.
@@ -151,6 +159,8 @@ Resolution uses the snapshot's ownership index to map an instance type to its ow
 non-preview component operation.
 The snapshot identifies the complete image and dependency graph.
 The package version identifies the direct package that supplied the component implementation.
+Packaged provenance references the exact snapshot-membership row so a package version cannot be paired with a
+snapshot that does not contain it.
 
 Operation and per-instance operation state also snapshot these references so reviewed plans, logs, recovery,
 and history remain stable when project package selections later change.
@@ -172,9 +182,13 @@ This preserves the code and dependency environment that last managed the resourc
 
 ## Operation Barrier
 
-Every operation captures one immutable snapshot before planning.
-Planning resolves every packaged instance against that snapshot, and execution uses the matching verified
-image.
+Every operation captures one desired snapshot before planning.
+Planning resolves desired packaged instances against that snapshot, but each per-instance operation state
+records the snapshot actually used for execution.
+Update, preview, and recreate normally use the desired snapshot; refresh and destroy use each instance's
+deployed historical snapshot when they execute implementation code.
+An operation containing instances from multiple historical snapshots is split into snapshot-homogeneous
+execution workloads while remaining one user-visible operation.
 
 If the desired snapshot image is queued or building, new component operations remain pending in the
 orchestrator.
@@ -185,6 +199,9 @@ A failed build blocks the operations with the associated actionable error.
 Changing the desired snapshot invalidates a previously reviewed plan.
 Launch rejects a supplied plan whose snapshot no longer matches the desired snapshot and requires the user to
 review a new plan.
+Plan responses contain a backend-issued token bound to the desired snapshot, resident model revision, local
+overlay revision, operation type and options, requested instances, and planned phases.
+Launch validates that token rather than trusting caller-submitted phases.
 
 ## Local Library Overlay
 
@@ -204,6 +221,10 @@ Highstate reports the conflicts and does not merge only the non-conflicting subs
 Local instance state has no package-version or packaged-snapshot provenance and continues to rely on local
 source and model hashes.
 
+Per-instance operation history records whether the local overlay was active and its source revision.
+This provenance supports diagnostics and stale-plan detection without treating local sources as portable
+snapshots.
+
 An operation containing packaged and local units uses the packaged snapshot image with explicit local source
 mounts.
 Those mounts are a development overlay and are not represented by the image or snapshot hash.
@@ -217,6 +238,12 @@ portable project.
 `LibrarySnapshotImage` and runtime workload records live in the backend database because they describe
 backend-local placement and caches.
 They can be discarded and reconstructed.
+
+Snapshot and image garbage collection follows durable reachability rather than age alone.
+Desired snapshots, deployed instance provenance, operation history retained by policy, active evaluations,
+and running image builds keep snapshots reachable.
+Runtime images and workload records may be removed only after no reachable project record needs them and any
+runtime cleanup has completed.
 
 Portability does not require copying container images.
 It does require retaining the complete resolved lockfile and enough registry configuration to fetch the exact
