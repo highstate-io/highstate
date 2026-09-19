@@ -6,6 +6,7 @@ import {
   deleteContextToken,
   getContextToken,
   KeyringUnavailableError,
+  normalizeApiUrl,
   readRemoteConfig,
   setContextToken,
   validateContextName,
@@ -48,6 +49,7 @@ export class ContextAddCommand extends ContextCommand {
 
   async execute(): Promise<void> {
     const name = validateContextName(this.name)
+    const apiUrl = normalizeApiUrl(this.apiUrl)
     const config = await readRemoteConfig()
     if (config.contexts[name] && !this.force) {
       throw new Error(`Highstate context "${name}" already exists; use --force to replace it`)
@@ -98,7 +100,7 @@ export class ContextAddCommand extends ContextCommand {
     }
 
     config.contexts[name] = {
-      apiUrl: this.apiUrl,
+      apiUrl,
       projectId: this.projectId,
       apiToken: storeInConfig ? token.trim() : undefined,
     }
@@ -108,7 +110,7 @@ export class ContextAddCommand extends ContextCommand {
     this.print(
       {
         name,
-        api_url: this.apiUrl,
+        api_url: apiUrl,
         project_id: this.projectId,
         token_storage: storeInConfig ? "plaintext" : "keyring",
         active: config.activeContext === name,

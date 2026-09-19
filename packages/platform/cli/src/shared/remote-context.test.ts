@@ -20,6 +20,7 @@ import {
   assertKeyringAvailable,
   getContextToken,
   getRemoteConfigPath,
+  normalizeApiUrl,
   readRemoteConfig,
   resolveRemoteTarget,
   setContextToken,
@@ -60,6 +61,20 @@ describe("remote context configuration", () => {
   it("validates context names", () => {
     expect(validateContextName("production.eu-1")).toBe("production.eu-1")
     expect(() => validateContextName("bad context")).toThrow()
+  })
+
+  it("normalizes context API URLs", () => {
+    expect(normalizeApiUrl("api.highstate.localhost:3000")).toBe(
+      "http://api.highstate.localhost:3000",
+    )
+    expect(normalizeApiUrl("https://api.example.com/")).toBe("https://api.example.com")
+    expect(normalizeApiUrl("unix:///var/run/highstate.sock")).toBe("unix:///var/run/highstate.sock")
+  })
+
+  it("rejects unsupported context API URL protocols", () => {
+    expect(() => normalizeApiUrl("ftp://api.example.com")).toThrow(
+      'Unsupported Highstate API URL protocol "ftp:"; use http, https, or unix',
+    )
   })
 
   it("reports non-error keyring rejections", async () => {

@@ -23,6 +23,31 @@ export function validateContextName(name: string): string {
   return contextNameSchema.parse(name)
 }
 
+export function normalizeApiUrl(value: string): string {
+  const input = value.trim()
+
+  if (input.startsWith("unix://")) {
+    if (input === "unix://") {
+      throw new Error("Highstate API URL must include a Unix socket path")
+    }
+
+    return input
+  }
+
+  const url = new URL(input.includes("://") ? input : `http://${input}`)
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error(
+      `Unsupported Highstate API URL protocol "${url.protocol}"; use http, https, or unix`,
+    )
+  }
+
+  if (!url.hostname) {
+    throw new Error("Highstate API URL must include a hostname")
+  }
+
+  return url.toString().replace(/\/$/, "")
+}
+
 export function getRemoteConfigPath(env: NodeJS.ProcessEnv = process.env): string {
   return (
     env.HIGHSTATE_CONFIG_PATH ??
