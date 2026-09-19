@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process"
 import { readFile } from "node:fs/promises"
 import { Command, Option } from "clipanion"
 import { readPackageJSON, resolvePackageJSON } from "pkg-types"
@@ -133,11 +134,20 @@ export class UpdateCommand extends Command {
       return
     }
 
-    const { installDependencies } = await import("nypm")
-
     logger.info("installing dependencies using bun...")
 
-    await installDependencies({ cwd: projectRoot, packageManager: "bun", silent: false })
+    const child = spawn("bun", ["install", "--force"], {
+      cwd: projectRoot,
+      stdio: "inherit",
+    })
+    const exitCode = await new Promise<number | null>((resolve, reject) => {
+      child.once("error", reject)
+      child.once("close", resolve)
+    })
+
+    if (exitCode !== 0) {
+      throw new Error(`Command "bun install --force" failed with exit code ${exitCode}`)
+    }
   }
 }
 
