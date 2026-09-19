@@ -1,5 +1,4 @@
 import { Builtins, Cli } from "clipanion"
-import { AgentDocsGetCommand, AgentInstructionsCommand, AgentStatusCommand } from "./commands/agent"
 import { BackendIdentityCommand } from "./commands/backend/identity"
 import { BackendUnlockMethodAddCommand } from "./commands/backend/unlock-method/add"
 import { BackendUnlockMethodDeleteCommand } from "./commands/backend/unlock-method/delete"
@@ -26,9 +25,6 @@ cli.register(BuildCommand)
 cli.register(DesignerCommand)
 cli.register(InitCommand)
 cli.register(UpdateCommand)
-cli.register(AgentStatusCommand)
-cli.register(AgentInstructionsCommand)
-cli.register(AgentDocsGetCommand)
 cli.register(BackendIdentityCommand)
 cli.register(BackendUnlockMethodListCommand)
 cli.register(BackendUnlockMethodAddCommand)
@@ -43,8 +39,14 @@ cli.register(Builtins.VersionCommand)
 const args = process.argv.slice(2)
 
 if (args[0] !== "build") {
+  const { AgentDocsGetCommand, AgentInstructionsCommand, AgentStatusCommand } = await import(
+    "./commands/agent"
+  )
   const { default: registerRemoteCommands } = await import("./register-remote-commands")
 
+  cli.register(AgentStatusCommand)
+  cli.register(AgentInstructionsCommand)
+  cli.register(AgentDocsGetCommand)
   registerRemoteCommands(cli)
 }
 
