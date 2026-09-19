@@ -428,20 +428,6 @@ export const useProjectPanelStore = defineMultiStore({
             }
           })
         }
-
-        for (const currentInstance of instancesStore.getProjectInstances()) {
-          nodeFactory.createEdgesForInstance(currentInstance)
-        }
-
-        for (const currentHub of instancesStore.hubs.values()) {
-          nodeFactory.createEdgesForHub(currentHub)
-        }
-      })
-
-      instancesStore.onInstanceUpdated(({ instance }) => {
-        if (nodeFactory.instanceIdToNodeIdMap.has(instance.id)) {
-          canvasStore.updateInstanceNode(instance)
-        }
       })
 
       instancesStore.onInstanceDeleted(instanceId => {
@@ -475,18 +461,28 @@ export const useProjectPanelStore = defineMultiStore({
             }
           })
         }
-
-        for (const currentInstance of instancesStore.getProjectInstances()) {
-          nodeFactory.createEdgesForInstance(currentInstance)
-        }
-
-        for (const currentHub of instancesStore.hubs.values()) {
-          nodeFactory.createEdgesForHub(currentHub)
-        }
       })
 
-      instancesStore.onHubUpdated(hub => {
-        canvasStore.updateHubNode(hub)
+      instancesStore.onProjectNodesUpdated(({ instances, hubs }) => {
+        for (const instance of instances) {
+          if (nodeFactory.instanceIdToNodeIdMap.has(instance.id)) {
+            canvasStore.updateInstanceNode(instance)
+          }
+        }
+
+        for (const hub of hubs) {
+          if (vueFlowStore.findNode(hub.id)) {
+            canvasStore.updateHubNode(hub)
+          }
+        }
+
+        for (const instance of instancesStore.getProjectInstances()) {
+          nodeFactory.createEdgesForInstance(instance)
+        }
+
+        for (const hub of instancesStore.hubs.values()) {
+          nodeFactory.createEdgesForHub(hub)
+        }
       })
 
       return {

@@ -1,3 +1,15 @@
+## 0.31.2
+
+### Patch Changes
+
+- [#41](https://github.com/highstate-io/highstate/pull/41) [`8c30735`](https://github.com/highstate-io/highstate/commit/8c307352e66e938af38b212d48eb5fff8f983beb) Thanks [@Exeteres](https://github.com/Exeteres)! - Publish maintenance updates for the Highstate library and Designer.
+
+- Updated dependencies []:
+  - @highstate/backend@0.31.2
+  - @highstate/backend-api@0.31.2
+  - @highstate/contract@0.31.2
+  - @highstate/mcp@0.31.2
+
 ## 0.31.1
 
 ### Patch Changes

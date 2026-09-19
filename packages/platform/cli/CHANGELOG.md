@@ -1,3 +1,11 @@
+## 0.31.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @highstate/backend@0.31.2
+  - @highstate/contract@0.31.2
+
 ## 0.31.1
 
 ### Patch Changes

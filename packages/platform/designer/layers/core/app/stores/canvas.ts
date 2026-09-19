@@ -134,27 +134,8 @@ export const useCanvasStore = defineMultiStore({
         }
       }
 
-      const updateInstanceNode = (instance: InstanceModel) => {
-        const nodeId = nodeFactory.instanceIdToNodeIdMap.get(instance.id)
-        const node = vueFlowStore.findNode(nodeId)
-        if (!node) {
-          throw new Error(`Node with id ${instance.id} not found`)
-        }
-
-        vueFlowStore.updateNodeData(node.id, { instance })
-
-        if (instance.position) {
-          vueFlowStore.updateNode(node.id, { position: instance.position })
-        }
-
-        const nodeEdges = vueFlowStore.edges.value.filter(edge => edge.target === node.id)
-        const createdEdgeIds = nodeFactory.createEdgesForInstance(instance)
-
-        const orphanedEdges = nodeEdges.filter(edge => !createdEdgeIds.includes(edge.id))
-        for (const edge of orphanedEdges) {
-          vueFlowStore.removeEdges(edge.id)
-        }
-      }
+      const updateInstanceNode = (instance: InstanceModel) =>
+        nodeFactory.updateInstanceNode(instance)
 
       const updateHubNode = (hub: HubModel) => {
         const node = vueFlowStore.findNode(hub.id)

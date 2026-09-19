@@ -105,6 +105,7 @@ jobs:
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
         run: |
           bunx nx-cloud start-ci-run --no-distribution
+          bun run release:lockfile
           bun run ci:prepare
           bun run release-groups:check
           bun nx run-many -t test,build,biome:check,typecheck
@@ -135,11 +136,6 @@ jobs:
             bun nx affected --base="$GITHUB_SHA" --head=HEAD -t build
           fi
 
-      - name: Configure npm authentication
-        run: npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN" --location=user
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: Publish packages
         run: |
           set +e
@@ -149,7 +145,13 @@ jobs:
           exit "$publish_status"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Create GitHub releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run release:github
 
       - name: Upload docs artifact
         uses: actions/upload-pages-artifact@v4

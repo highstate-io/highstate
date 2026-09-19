@@ -11,20 +11,25 @@ From the workspace root, start Designer with:
 HIGHSTATE_ENCRYPTION_ENABLED=false bun run --bun --filter @highstate/designer dev
 ```
 
-Designer serves its frontend on port `3000` and its event WebSocket server on port `3002`.
-Open `http://highstate.localhost:3000/` after both listeners have started.
-An HTTP request to the root of port `3002` returns `404` because that port only serves the WebSocket endpoint.
+Designer prefers port `3000` for its frontend and port `3002` for its event WebSocket server.
+The development command assigns free ports when either preferred port is already in use and prints both assigned
+endpoints before starting Nuxt.
+Set `NITRO_PORT` and `NUXT_PUBLIC_EVENTS_PORT` to override either port.
+The two ports must be different.
+
+Open the printed frontend URL after both listeners have started.
+An HTTP request to the root of the event port returns `404` because that port only serves the WebSocket endpoint.
 
 ## Orca Remote Environments
 
 Use an Orca-managed terminal in the remote worktree so Orca can route both Designer ports to its browser.
-Create the terminal first and wait for its development shell to reach a prompt before sending the launch command.
-Sending a command while the automatic development shell is still initializing can display the command without
-executing it.
+Create the terminal first and read its rendered screen until the automatic development shell reaches a prompt.
+Sending the command through `terminal create --command`, or through `terminal send` before the prompt appears,
+can display the command without executing it.
 
 ```bash
 orca terminal create --worktree active --title Designer --json
-orca terminal read --terminal <terminal-handle> --json
+orca terminal read --terminal <terminal-handle> --screen --json
 orca terminal send \
   --terminal <terminal-handle> \
   --text 'HIGHSTATE_ENCRYPTION_ENABLED=false bun run --bun --filter @highstate/designer dev' \
@@ -32,14 +37,18 @@ orca terminal send \
   --json
 ```
 
+The default accumulated-output read does not reproduce terminal repainting and can appear stuck on devenv's
+startup progress after the command is running.
+
 Keep that terminal running and open Designer in Orca's embedded browser:
 
 ```bash
-orca tab create --url http://highstate.localhost:3000/ --json
+orca tab create --url <printed-frontend-url> --json
 ```
 
-Reload an existing Designer tab after restarting the server so its WebSocket client reconnects to port `3002`.
-Successful verification includes a loaded project and no `Bun is not defined`, tRPC connection, or port `3002`
+Reload an existing Designer tab after restarting the server so its WebSocket client reconnects to the assigned
+event port.
+Successful verification includes a loaded project and no `Bun is not defined`, tRPC connection, or event-port
 WebSocket errors in the browser console.
 
 ## For AI Agents

@@ -13,6 +13,10 @@ versions.
 Release automation derives public package membership from Nx project metadata, synchronizes the Changesets fixed
 groups, and publishes each versioned group on its anchor package: `@highstate/contract` for the platform and
 `@highstate/library` for the standard library.
+The package changelogs within each group provide the notes for the corresponding platform and standard-library
+GitHub releases.
+The versioning step synchronizes Bun's workspace importer versions before publishing so local dependency protocols
+resolve to the versions calculated by Changesets.
 The CLI resolves groups from those npm manifests rather than embedding repository package lists, so an installed
 CLI can update to groups introduced by newer releases.
 
