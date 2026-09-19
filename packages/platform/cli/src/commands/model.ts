@@ -1,5 +1,6 @@
 import { toJson } from "@bufbuild/protobuf"
 import {
+  ComponentKind,
   GetProjectModelResponseSchema,
   HubSchema,
   type Instance,
@@ -7,7 +8,15 @@ import {
   InstanceStateSchema,
 } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson, nodesInputSchema, readDocument, toHub, toInstance } from "../shared/remote"
+import {
+  humanDetails,
+  humanTable,
+  messageJson,
+  nodesInputSchema,
+  readDocument,
+  toHub,
+  toInstance,
+} from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class ModelGetCommand extends RemoteCommand {
@@ -27,7 +36,7 @@ export class ModelGetCommand extends RemoteCommand {
     })
     this.print(
       messageJson(GetProjectModelResponseSchema, response),
-      `${response.model?.instances.length ?? 0} instances, ${response.model?.hubs.length ?? 0} hubs`,
+      humanDetails(messageJson(GetProjectModelResponseSchema, response)),
     )
   }
 }
@@ -113,12 +122,23 @@ export class InstanceListCommand extends RemoteCommand {
 
     this.print(
       { instances },
-      instances
-        .map(
-          value =>
-            `${value.instance_id}\t${value.is_ghost ? "ghost" : "resident"}\t${value.dependencies.join(", ")}`,
-        )
-        .join("\n") || "No instances",
+      humanTable(
+        ["NAME", "KIND", "RESIDENCY", "DEPENDENCIES", ...(this.withState ? ["STATUS"] : [])],
+        instances.map(value => [
+          value.instance_id,
+          ComponentKind[value.kind] ?? "Unknown",
+          value.is_ghost ? "Ghost" : "Resident",
+          value.dependencies,
+          ...(this.withState
+            ? [
+                value.state && typeof value.state === "object" && "status" in value.state
+                  ? value.state.status
+                  : undefined,
+              ]
+            : []),
+        ]),
+        "No instances",
+      ),
     )
   }
 }
@@ -207,10 +227,9 @@ export class InstanceGetCommand extends RemoteCommand {
       }
     }
 
-    this.print(
-      item(instance),
-      `${instance.id}\n${instance.type}\n${childrenByParent.get(instance.id)?.length ?? 0} children`,
-    )
+    const result = item(instance)
+
+    this.print(result, humanDetails(result))
   }
 }
 
@@ -225,7 +244,18 @@ export class HubListCommand extends RemoteCommand {
     const hubs =
       response.model?.hubs.map(value => toJson(HubSchema, value, { useProtoFieldName: true })) ?? []
 
-    this.print({ hubs }, response.model?.hubs.map(value => value.id).join("\n") || "No hubs")
+    this.print(
+      { hubs },
+      humanTable(
+        ["NAME", "INPUTS", "INJECTED HUBS"],
+        (response.model?.hubs ?? []).map(value => [
+          value.id,
+          value.inputs.length,
+          value.injectionInputs.length,
+        ]),
+        "No hubs",
+      ),
+    )
   }
 }
 
@@ -244,6 +274,8 @@ export class HubGetCommand extends RemoteCommand {
       throw new Error(`Hub "${this.id}" not found`)
     }
 
-    this.print({ hub: toJson(HubSchema, hub, { useProtoFieldName: true }) }, hub.id)
+    const result = { hub: toJson(HubSchema, hub, { useProtoFieldName: true }) }
+
+    this.print(result, humanDetails(result))
   }
 }

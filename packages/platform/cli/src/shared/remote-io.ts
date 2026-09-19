@@ -29,9 +29,121 @@ export function messageJson<Desc extends DescMessage>(
   return toJson(schema, message, { useProtoFieldName: true })
 }
 
+export function humanTable(headers: string[], rows: unknown[][], empty: string): string {
+  if (rows.length === 0) {
+    return empty
+  }
+
+  const values = [headers, ...rows].map(row => row.map(formatTableValue))
+  const widths = headers.map((_, index) =>
+    Math.max(...values.map(row => visibleLength(row[index] ?? ""))),
+  )
+
+  return values
+    .map(row =>
+      row
+        .map((value, index) => (index === row.length - 1 ? value : value.padEnd(widths[index]!)))
+        .join("  ")
+        .trimEnd(),
+    )
+    .join("\n")
+}
+
+export function humanDetails(value: unknown): string {
+  return formatDetails(value, 0).join("\n")
+}
+
+function formatTableValue(value: unknown): string {
+  if (value === undefined || value === null || value === "") {
+    return "<none>"
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? value.map(formatTableValue).join(",") : "<none>"
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value)
+  }
+
+  const text = String(value).replace(
+    /^(?:COMPONENT_KIND|INSTANCE_SOURCE|INSTANCE_STATUS|EVALUATION_STATUS|INSTANCE_OPERATION_STATUS|OPERATION_TYPE|OPERATION_STATUS|OPERATION_PHASE_TYPE)_/,
+    "",
+  )
+
+  return text.replaceAll(/\r?\n/g, "\\n")
+}
+
+function visibleLength(value: string): number {
+  return [...value].length
+}
+
+function formatDetails(value: unknown, depth: number): string[] {
+  const indent = "  ".repeat(depth)
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return [`${indent}<none>`]
+    }
+
+    return value.flatMap(item => {
+      if (item !== null && typeof item === "object") {
+        const lines = formatDetails(item, depth + 1)
+        const first = lines.shift() ?? `${"  ".repeat(depth + 1)}<none>`
+
+        return [`${indent}- ${first.trimStart()}`, ...lines]
+      }
+
+      return [`${indent}- ${formatTableValue(item)}`]
+    })
+  }
+
+  if (value !== null && typeof value === "object") {
+    const entries = Object.entries(value).filter(([, entry]) => !isEmptyDetailValue(entry))
+    if (entries.length === 0) {
+      return [`${indent}<none>`]
+    }
+
+    return entries.flatMap(([key, entry]) => {
+      const label = key
+        .replaceAll("_", " ")
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .replace(/^./, character => character.toUpperCase())
+        .replace(/\b(Id|Api|Url|Fqdn)\b/g, value => value.toUpperCase())
+
+      if (entry !== null && typeof entry === "object") {
+        return [`${indent}${label}:`, ...formatDetails(entry, depth + 1)]
+      }
+
+      if (typeof entry === "string" && entry.includes("\n")) {
+        return [
+          `${indent}${label}:`,
+          ...entry.split(/\r?\n/).map(line => `${"  ".repeat(depth + 1)}${line || " "}`),
+        ]
+      }
+
+      return [`${indent}${label}: ${formatTableValue(entry)}`]
+    })
+  }
+
+  return [`${indent}${formatTableValue(value)}`]
+}
+
+function isEmptyDetailValue(value: unknown): boolean {
+  if (value === undefined || value === null) {
+    return true
+  }
+
+  if (Array.isArray(value)) {
+    return value.length === 0
+  }
+
+  return typeof value === "object" && Object.keys(value).length === 0
+}
+
 export function writeOutput(value: unknown, format: OutputFormat, human?: string): void {
   if (format === "human") {
-    process.stdout.write(`${human ?? stringify(value, { lineWidth: 0 }).trimEnd()}\n`)
+    process.stdout.write(`${human ?? humanDetails(value)}\n`)
     return
   }
 

@@ -93,7 +93,9 @@ Without it, the response includes the backend's continuation token for the next 
 
 ## Structured Output
 
-Commands use a compact human-readable format by default.
+Commands use a kubectl-style human-readable format by default.
+List commands print aligned tables with headers, get commands print labeled resource details, and mutation
+commands print a concise result.
 Use `--output json` or `--output yaml` for scripts:
 
 ```bash

@@ -4,10 +4,13 @@ import {
   ListOperationsResponseSchema,
   OperationSchema,
   OperationStatus,
+  OperationType,
 } from "@highstate/api/v1"
 import { confirm } from "@inquirer/prompts"
 import { Command, Option } from "clipanion"
 import {
+  humanDetails,
+  humanTable,
   operationOptions,
   operationOptionsInputSchema,
   operationType,
@@ -248,9 +251,7 @@ export class OperationListCommand extends RemoteCommand {
       if (!this.all) {
         this.print(
           toJson(ListOperationsResponseSchema, response, { useProtoFieldName: true }),
-          response.operations
-            .map(value => `${value.id}\t${value.type}\t${value.status}\t${value.meta?.title}`)
-            .join("\n") || "No operations",
+          operationTable(response.operations),
         )
         return
       }
@@ -265,9 +266,7 @@ export class OperationListCommand extends RemoteCommand {
           toJson(OperationSchema, value, { useProtoFieldName: true }),
         ),
       },
-      operations
-        .map(value => `${value.id}\t${value.type}\t${value.status}\t${value.meta?.title}`)
-        .join("\n") || "No operations",
+      operationTable(operations),
     )
   }
 }
@@ -285,10 +284,9 @@ export class OperationGetCommand extends RemoteCommand {
       projectId: target.projectId,
       operationId: this.id,
     })
-    this.print(
-      toJson(GetOperationResponseSchema, response, { useProtoFieldName: true }),
-      `${response.operation?.id}\t${response.operation?.status}\t${response.operation?.meta?.title}`,
-    )
+    const result = toJson(GetOperationResponseSchema, response, { useProtoFieldName: true })
+
+    this.print(result, humanDetails(result))
   }
 }
 
@@ -321,7 +319,7 @@ export class OperationWaitCommand extends RemoteCommand {
       if (response.operation && finalStatuses.has(response.operation.status)) {
         this.print(
           toJson(GetOperationResponseSchema, response, { useProtoFieldName: true }),
-          `${response.operation.id}\t${response.operation.status}`,
+          humanDetails(toJson(GetOperationResponseSchema, response, { useProtoFieldName: true })),
         )
         return response.operation.status === OperationStatus.COMPLETED ? 0 : 1
       }
@@ -333,6 +331,28 @@ export class OperationWaitCommand extends RemoteCommand {
       await Bun.sleep(1000)
     }
   }
+}
+
+function operationTable(
+  operations: Array<{
+    id: string
+    type: unknown
+    status: unknown
+    meta?: { title?: string }
+  }>,
+): string {
+  return humanTable(
+    ["NAME", "TYPE", "STATUS", "TITLE"],
+    operations.map(value => [
+      value.id,
+      typeof value.type === "number" ? (OperationType[value.type] ?? "Unknown") : value.type,
+      typeof value.status === "number"
+        ? (OperationStatus[value.status] ?? "Unknown")
+        : value.status,
+      value.meta?.title,
+    ]),
+    "No operations",
+  )
 }
 
 export class OperationLogsCommand extends RemoteCommand {

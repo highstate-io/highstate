@@ -2,10 +2,11 @@ import { toJson } from "@bufbuild/protobuf"
 import {
   GetInstanceStateResponseSchema,
   InstanceStateSchema,
+  InstanceStatus,
   ListInstanceStatesResponseSchema,
 } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson } from "../shared/remote"
+import { humanDetails, humanTable, messageJson } from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class StateListCommand extends RemoteCommand {
@@ -45,9 +46,7 @@ export class StateListCommand extends RemoteCommand {
       if (!this.all) {
         this.print(
           messageJson(ListInstanceStatesResponseSchema, response),
-          response.states
-            .map(value => `${value.id}\t${value.instanceId}\t${value.status}`)
-            .join("\n") || "No instance states",
+          stateTable(response.states),
         )
         return
       }
@@ -62,8 +61,7 @@ export class StateListCommand extends RemoteCommand {
           toJson(InstanceStateSchema, value, { useProtoFieldName: true }),
         ),
       },
-      states.map(value => `${value.id}\t${value.instanceId}\t${value.status}`).join("\n") ||
-        "No instance states",
+      stateTable(states),
     )
   }
 }
@@ -93,7 +91,19 @@ export class StateGetCommand extends RemoteCommand {
 
     this.print(
       messageJson(GetInstanceStateResponseSchema, response),
-      `${response.state?.instanceId}\t${response.state?.status}`,
+      humanDetails(messageJson(GetInstanceStateResponseSchema, response)),
     )
   }
+}
+
+function stateTable(states: Array<{ id: string; instanceId: string; status: unknown }>): string {
+  return humanTable(
+    ["INSTANCE", "STATE", "STATUS"],
+    states.map(value => [
+      value.instanceId,
+      value.id,
+      typeof value.status === "number" ? (InstanceStatus[value.status] ?? "Unknown") : value.status,
+    ]),
+    "No instance states",
+  )
 }

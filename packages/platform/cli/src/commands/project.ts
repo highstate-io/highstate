@@ -1,6 +1,12 @@
 import { GetProjectResponseSchema, ListProjectsResponseSchema } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson, readRemoteConfig, writeRemoteConfig } from "../shared/remote"
+import {
+  humanDetails,
+  humanTable,
+  messageJson,
+  readRemoteConfig,
+  writeRemoteConfig,
+} from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class ProjectListCommand extends RemoteCommand {
@@ -30,12 +36,7 @@ export class ProjectListCommand extends RemoteCommand {
       if (!this.all) {
         this.print(
           messageJson(ListProjectsResponseSchema, response),
-          response.projects
-            .map(
-              entry =>
-                `${entry.project?.id}\t${entry.project?.meta?.title ?? entry.project?.name}\t${entry.isLocked ? "locked" : "unlocked"}`,
-            )
-            .join("\n") || "No projects",
+          projectTable(response.projects),
         )
         return
       }
@@ -47,12 +48,7 @@ export class ProjectListCommand extends RemoteCommand {
           messageJson(ListProjectsResponseSchema.field.projects.message!, entry),
         ),
       },
-      projects
-        .map(
-          entry =>
-            `${entry.project?.id}\t${entry.project?.meta?.title ?? entry.project?.name}\t${entry.isLocked ? "locked" : "unlocked"}`,
-        )
-        .join("\n") || "No projects",
+      projectTable(projects),
     )
   }
 }
@@ -87,9 +83,26 @@ export class ProjectGetCommand extends RemoteCommand {
 
     this.print(
       messageJson(GetProjectResponseSchema, response),
-      `${response.project?.meta?.title ?? response.project?.name} (${response.project?.id})\n${response.isLocked ? "Locked" : "Unlocked"}`,
+      humanDetails(messageJson(GetProjectResponseSchema, response)),
     )
   }
+}
+
+function projectTable(
+  projects: Array<{
+    project?: { id: string; name: string; meta?: { title?: string } }
+    isLocked: boolean
+  }>,
+): string {
+  return humanTable(
+    ["NAME", "ID", "STATUS"],
+    projects.map(entry => [
+      entry.project?.meta?.title ?? entry.project?.name,
+      entry.project?.id,
+      entry.isLocked ? "Locked" : "Unlocked",
+    ]),
+    "No projects",
+  )
 }
 
 export class ProjectUseCommand extends RemoteCommand {

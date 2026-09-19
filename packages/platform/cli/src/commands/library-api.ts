@@ -6,7 +6,7 @@ import {
   ListComponentsResponseSchema,
 } from "@highstate/api/v1"
 import { Command, Option } from "clipanion"
-import { messageJson } from "../shared/remote"
+import { humanDetails, humanTable, messageJson } from "../shared/remote"
 import { RemoteCommand } from "./remote"
 
 export class LibraryListCommand extends RemoteCommand {
@@ -33,10 +33,14 @@ export class LibraryListCommand extends RemoteCommand {
 
     this.print(
       result,
-      [
-        ...result.components.map(value => `component\t${value.type}\t${value.title}`),
-        ...result.entities.map(value => `entity\t${value.type}\t${value.title}`),
-      ].join("\n") || "Library is empty",
+      humanTable(
+        ["KIND", "TYPE", "TITLE"],
+        [
+          ...result.components.map(value => ["Component", value.type, value.title]),
+          ...result.entities.map(value => ["Entity", value.type, value.title]),
+        ],
+        "Library is empty",
+      ),
     )
   }
 }
@@ -66,9 +70,7 @@ export class ComponentListCommand extends RemoteCommand {
       if (!this.all) {
         this.print(
           messageJson(ListComponentsResponseSchema, response),
-          response.components
-            .map(value => `${value.type}\t${value.meta?.title ?? value.type}`)
-            .join("\n") || "No components",
+          componentTable(response.components),
         )
         return
       }
@@ -85,8 +87,7 @@ export class ComponentListCommand extends RemoteCommand {
           }),
         ),
       },
-      components.map(value => `${value.type}\t${value.meta?.title ?? value.type}`).join("\n") ||
-        "No components",
+      componentTable(components),
     )
   }
 }
@@ -111,7 +112,7 @@ export class ComponentGetCommand extends RemoteCommand {
     if (this.includeSchemas) {
       this.print(
         messageJson(GetComponentResponseSchema, response),
-        `${response.component?.type}\n${response.component?.meta?.description ?? ""}`.trim(),
+        humanDetails(messageJson(GetComponentResponseSchema, response)),
       )
       return
     }
@@ -132,10 +133,7 @@ export class ComponentGetCommand extends RemoteCommand {
       )
     }
 
-    this.print(
-      { component },
-      `${response.component?.type}\n${response.component?.meta?.description ?? ""}`.trim(),
-    )
+    this.print({ component }, humanDetails({ component }))
   }
 }
 
@@ -196,7 +194,11 @@ export class EntityListCommand extends RemoteCommand {
 
     this.print(
       { entities },
-      entities.map(value => `${value.type}\t${value.title}`).join("\n") || "No entities",
+      humanTable(
+        ["TYPE", "TITLE"],
+        entities.map(value => [value.type, value.title]),
+        "No entities",
+      ),
     )
   }
 }
@@ -219,9 +221,16 @@ export class EntityGetCommand extends RemoteCommand {
       throw new Error(`Entity "${this.type}" not found`)
     }
 
-    this.print(
-      { entity: toJson(EntitySchema, entity, { useProtoFieldName: true }) },
-      `${entity.type}\n${entity.meta?.description ?? ""}`.trim(),
-    )
+    const result = { entity: toJson(EntitySchema, entity, { useProtoFieldName: true }) }
+
+    this.print(result, humanDetails(result))
   }
+}
+
+function componentTable(components: Array<{ type: string; meta?: { title?: string } }>): string {
+  return humanTable(
+    ["TYPE", "TITLE"],
+    components.map(value => [value.type, value.meta?.title ?? value.type]),
+    "No components",
+  )
 }

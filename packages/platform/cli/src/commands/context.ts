@@ -5,6 +5,8 @@ import {
   createHighstateClients,
   deleteContextToken,
   getContextToken,
+  humanDetails,
+  humanTable,
   KeyringUnavailableError,
   normalizeApiUrl,
   readRemoteConfig,
@@ -186,14 +188,17 @@ export class ContextListCommand extends ContextCommand {
 
     this.print(
       { contexts },
-      contexts.length
-        ? contexts
-            .map(
-              value =>
-                `${value.active ? "*" : " "} ${value.name}\t${value.api_url}\t${value.project_id ?? "-"}`,
-            )
-            .join("\n")
-        : "No contexts configured",
+      humanTable(
+        ["CURRENT", "NAME", "API URL", "PROJECT", "TOKEN STORAGE"],
+        contexts.map(value => [
+          value.active ? "*" : "",
+          value.name,
+          value.api_url,
+          value.project_id,
+          value.token_storage,
+        ]),
+        "No contexts configured",
+      ),
     )
   }
 }
@@ -225,10 +230,7 @@ export class ContextShowCommand extends ContextCommand {
       token_storage: context.apiToken ? "plaintext" : "keyring",
     }
 
-    this.print(
-      value,
-      `${value.active ? "Active " : ""}context "${name}"\nAPI URL: ${value.api_url}\nProject: ${value.project_id ?? "not selected"}\nToken: ${value.has_token ? "stored" : "missing"}`,
-    )
+    this.print(value, humanDetails(value))
   }
 }
 
