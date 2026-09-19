@@ -105,7 +105,7 @@ The common runtime contract supports:
 
 - Engine and credential preflight checks.
 - Image lookup, pull, build, push, and immutable digest verification.
-- Isolated workload environments and runtime-provided DNS.
+- Isolated workload environments and operation-scoped DNS.
 - One-off and long-running workloads.
 - Workload inspection, health, stop, force stop, and cleanup.
 - Structured log streaming.
@@ -141,17 +141,34 @@ Images needed by remote Docker are pushed to the configured container registry a
 immutable digest.
 Local library overlays are unavailable on remote Docker.
 
-Operation workloads and dynamically created sidecars join one operation environment and use runtime DNS.
+Operation workloads and dynamically created sidecars join one operation environment and use operation-scoped
+DNS.
 The design removes generated `/etc/hosts` files, loopback IP allocation, `unshare`, and host networking from
 Pulumi-sidecar communication.
+
+The sidecar caller supplies its complete DNS name from a stable Pulumi resource or connection identity.
+That name is an immutable sidecar identity, is persisted in Pulumi state, and is exposed unchanged by every
+runtime.
+Runtime adapters do not append suffixes or include operation, workload, container, Pod, or Service identifiers
+in it.
+Creating the same name and declaration again within an operation reuses the logical sidecar; a different
+declaration with the same name fails.
+Separate operation environments may use the same name concurrently because DNS visibility is scoped to the
+operation.
+
+Docker exposes the name as an alias on the operation bridge network.
+Engine resource names remain opaque and unique independently of that alias.
 
 ## Kubernetes Placement
 
 Pulumi operations run in operation-scoped Pods.
 Sidecars share the operation Pod when their declaration and lifecycle allow them to be known before Pod
 creation.
-Dynamically created or independently managed sidecars run as separate Pods with operation-scoped Services or
-DNS names.
+Dynamically created or independently managed sidecars run as separate Pods behind uniquely named Services.
+Each operation workload uses an operation-specific DNS resolver that maps its caller-owned sidecar names to
+those Services and forwards other queries to cluster DNS.
+The resolver gives concurrent operations isolated DNS views without requiring caller-visible names to be
+valid or unique Kubernetes resource names.
 
 Terminal sessions run in Pods and use Kubernetes attach or exec for interactive traffic.
 Worker versions run as Deployments and use Services only where direct workload data endpoints are necessary.

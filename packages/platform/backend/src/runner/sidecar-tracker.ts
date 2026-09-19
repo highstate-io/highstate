@@ -32,7 +32,7 @@ type OperationSidecars = {
 
 type SidecarState = {
   id: string
-  identity: string
+  dnsName: string
   specKey: string
   host: string
   ip: string
@@ -49,8 +49,6 @@ type DockerResult = {
   stderr: string
 }
 
-const endpointSuffix = ".highstate.local"
-const identityPattern = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/
 const sidecarPrefixOpen = "\x1b[1;35m"
 const sidecarPrefixClose = "\x1b[0m"
 
@@ -101,37 +99,33 @@ export class SidecarTracker {
     unitId: InstanceId,
     input: RuntimeSidecarStartInput,
   ): Promise<RuntimeSidecarStartOutput> {
-    if (!identityPattern.test(input.identity)) {
-      throw new Error(`Invalid sidecar identity "${input.identity}"`)
-    }
-
     const operation = await this.getOrCreateOperation(operationId)
     const specKey = JSON.stringify(input)
-    const existing = operation.sidecars.get(input.identity)
+    const existing = operation.sidecars.get(input.dnsName)
     if (existing) {
       if (existing.specKey !== specKey) {
-        throw new Error(`Sidecar "${input.identity}" already exists with different configuration`)
+        throw new Error(`Sidecar "${input.dnsName}" already exists with different configuration`)
       }
 
       existing.consumers.add(unitId)
-      this.emitUnitLifecycleLog(unitId, existing.identity, `reusing sidecar`)
+      this.emitUnitLifecycleLog(unitId, existing.dnsName, `reusing sidecar`)
 
       if (!existing.output) {
-        throw new Error(`Sidecar "${input.identity}" exists without startup state`)
+        throw new Error(`Sidecar "${input.dnsName}" exists without startup state`)
       }
 
       return await existing.output
     }
 
     const id = randomUUID()
-    const host = `${input.identity}${endpointSuffix}`
+    const host = input.dnsName
     const ip = this.allocateIp()
     const containerName = `highstate-sidecar-${id}`
     operation.hosts.set(host, ip)
 
     const sidecar: SidecarState = {
       id,
-      identity: input.identity,
+      dnsName: input.dnsName,
       specKey,
       host,
       ip,
@@ -141,32 +135,32 @@ export class SidecarTracker {
       stderrBuffer: "",
     }
 
-    this.emitUnitLifecycleLog(unitId, input.identity, `starting sidecar`)
+    this.emitUnitLifecycleLog(unitId, input.dnsName, `starting sidecar`)
     sidecar.output = this.startNewSidecar(operation, input, sidecar)
 
-    operation.sidecars.set(input.identity, sidecar)
+    operation.sidecars.set(input.dnsName, sidecar)
     await this.writeHostsFile(operation)
 
     try {
       if (!sidecar.output) {
-        throw new Error(`Sidecar "${input.identity}" did not start`)
+        throw new Error(`Sidecar "${input.dnsName}" did not start`)
       }
 
       return await sidecar.output
     } catch (error) {
       this.emitSidecarLog(sidecar, `failed to start sidecar: ${this.errorToString(error)}`)
       this.options.logger.warn(
-        { error, operationId: operation.operationId, identity: input.identity },
+        { error, operationId: operation.operationId, dnsName: input.dnsName },
         "failed to start sidecar",
       )
 
       operation.hosts.delete(host)
-      operation.sidecars.delete(input.identity)
+      operation.sidecars.delete(input.dnsName)
       this.allocatedIps.delete(ip)
       await this.writeHostsFile(operation)
       await this.stopContainer(containerName)
 
-      throw new Error(`Failed to start sidecar "${input.identity}". See unit sidecar logs.`)
+      throw new Error(`Failed to start sidecar "${input.dnsName}". See unit sidecar logs.`)
     }
   }
 
@@ -212,7 +206,7 @@ export class SidecarTracker {
       args.push("-e", `${key}=${value}`)
     }
 
-    const filesPath = join(operation.tempPath, input.identity, "files")
+    const filesPath = join(operation.tempPath, input.dnsName, "files")
     for (const file of input.files) {
       const filePath = join(filesPath, file.path.replace(/^\/+/, ""))
       await mkdir(dirname(filePath), { recursive: true })
@@ -230,14 +224,14 @@ export class SidecarTracker {
     const result = await this.runDocker(args)
     const containerId = result.stdout.trim()
     if (!containerId) {
-      throw new Error(`Failed to start sidecar "${input.identity}" without container ID`)
+      throw new Error(`Failed to start sidecar "${input.dnsName}" without container ID`)
     }
 
     await this.startLogStream(operation, input, sidecar)
-    await this.waitUntilReady(input.identity, sidecar, input.ports, input.readiness)
+    await this.waitUntilReady(input.dnsName, sidecar, input.ports, input.readiness)
 
     this.options.logger.info(
-      { operationId: operation.operationId, sidecarId: sidecar.id, identity: input.identity },
+      { operationId: operation.operationId, sidecarId: sidecar.id, dnsName: input.dnsName },
       "sidecar started",
     )
 
@@ -290,14 +284,14 @@ export class SidecarTracker {
     sidecar.logProcess.catch(error => {
       if (error instanceof SubprocessError && error.signalName === "SIGTERM") {
         this.options.logger.info(
-          { operationId: operation.operationId, identity: input.identity },
+          { operationId: operation.operationId, dnsName: input.dnsName },
           "sidecar log stream stopped",
         )
         return
       }
 
       this.options.logger.warn(
-        { error, operationId: operation.operationId, identity: input.identity },
+        { error, operationId: operation.operationId, dnsName: input.dnsName },
         "sidecar log stream failed",
       )
     })
@@ -317,7 +311,7 @@ export class SidecarTracker {
       this.flushLogBuffer(sidecar, "stderrBuffer")
 
       this.options.logger.info(
-        { operationId: operation.operationId, identity: input.identity, code, signal },
+        { operationId: operation.operationId, dnsName: input.dnsName, code, signal },
         "sidecar log stream closed",
       )
     })
@@ -348,7 +342,7 @@ export class SidecarTracker {
 
   private emitSidecarLog(sidecar: SidecarState, message: string): void {
     for (const unitId of sidecar.consumers) {
-      this.emitUnitLifecycleLog(unitId, sidecar.identity, message)
+      this.emitUnitLifecycleLog(unitId, sidecar.dnsName, message)
     }
   }
 
@@ -470,7 +464,7 @@ export class SidecarTracker {
 
   private async stopSidecar(operation: OperationSidecars, sidecar: SidecarState): Promise<void> {
     this.options.logger.info(
-      { operationId: operation.operationId, identity: sidecar.identity },
+      { operationId: operation.operationId, dnsName: sidecar.dnsName },
       "stopping sidecar container",
     )
 
@@ -479,7 +473,7 @@ export class SidecarTracker {
       .then(process => process.kill())
       .catch(error => {
         this.options.logger.warn(
-          { error, operationId: operation.operationId, identity: sidecar.identity },
+          { error, operationId: operation.operationId, dnsName: sidecar.dnsName },
           "failed to stop sidecar log process",
         )
       })
