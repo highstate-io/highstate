@@ -29,6 +29,8 @@ It also imports backend services directly for local backend administration and i
 `@highstate/backend-api` can expose an existing service graph over HTTP or a Unix socket, but it does not
 assemble or own the backend runtime.
 Business behavior therefore belongs below transport adapters rather than in tRPC, ConnectRPC, or CLI commands.
+Multi-step model mutations remain atomic within the selected project-model adapter; transports submit the
+operation but do not implement its read-modify-write behavior.
 
 The source entry points are `packages/platform/designer/server/`,
 `packages/platform/backend-api/src/index.ts`, and `packages/platform/cli/src/shared/services.ts`.

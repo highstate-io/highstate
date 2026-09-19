@@ -141,6 +141,43 @@ The keys present in a patch form the update mask.
 An omitted field remains unchanged, an empty collection clears that collection, and `position: null` clears the
 canvas position.
 
+For nested argument changes, use `instance args` instead of replacing the complete argument map:
+
+```bash
+highstate instance args get common.existing-server.v1:server
+highstate instance args patch common.existing-server.v1:server \
+  --set /hostname=replacement.example.com \
+  --set-string /labels/environment=production \
+  --unset /obsolete
+```
+
+Paths are [JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901) rooted at the argument map.
+`--set` parses its value as YAML, while `--set-string` always uses the text after `=` as a string.
+`--set-file /path=<file>` reads a JSON or YAML value from a file, and `--dry-run` validates the result without
+saving it.
+
+Use `--patch` for ordered `add`, `replace`, `remove`, and `test` operations:
+
+```yaml [arguments.patch.yaml]
+- op: test
+  path: /hostname
+  value: server.example.com
+- op: replace
+  path: /hostname
+  value: replacement.example.com
+- op: add
+  path: /ports/-
+  value: 443
+```
+
+```bash
+highstate instance args patch common.existing-server.v1:server \
+  --patch arguments.patch.yaml
+```
+
+All operations and final schema validation succeed or no change is saved.
+YAML argument wrappers are traversed transparently, but ordinary string values remain opaque.
+
 `highstate model create --file <path>` creates multiple instances and hubs atomically.
 The document has top-level `instances` and `hubs` arrays.
 

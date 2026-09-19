@@ -1,11 +1,17 @@
 import { create, toJson } from "@bufbuild/protobuf"
-import { OperationPhaseSchema, OperationPhaseType } from "@highstate/api/v1"
+import { ValueSchema } from "@bufbuild/protobuf/wkt"
+import {
+  InstanceArgumentPatchOperation_Operation,
+  OperationPhaseSchema,
+  OperationPhaseType,
+} from "@highstate/api/v1"
 import { describe, expect, it } from "vitest"
 import {
   operationOptions,
   phasesFromPlan,
   phasesToJson,
   planDocumentSchema,
+  toArgumentPatchOperation,
   toInstance,
 } from "./remote-model"
 
@@ -44,5 +50,19 @@ describe("remote model conversion", () => {
       toJson(OperationPhaseSchema, phase),
     )
     expect(operationOptions(document.options).refresh).toBe(true)
+  })
+
+  it("converts argument patch documents to protobuf messages", () => {
+    const replace = toArgumentPatchOperation({
+      op: "replace",
+      path: "/config/enabled",
+      value: true,
+    })
+    const remove = toArgumentPatchOperation({ op: "remove", path: "/obsolete" })
+
+    expect(replace.operation).toBe(InstanceArgumentPatchOperation_Operation.REPLACE)
+    expect(replace.value && toJson(ValueSchema, replace.value)).toBe(true)
+    expect(remove.operation).toBe(InstanceArgumentPatchOperation_Operation.REMOVE)
+    expect(remove.value).toBeUndefined()
   })
 })

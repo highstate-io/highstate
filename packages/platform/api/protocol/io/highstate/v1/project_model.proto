@@ -3,6 +3,7 @@ package io.highstate.v1;
 
 import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 import "io/highstate/v1/common.proto";
 
 // ProjectModel contains the instances and hubs that define a project.
@@ -128,6 +129,57 @@ message UpdateInstanceResponse {
   Instance instance = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// InstanceArgumentPatchOperation applies one RFC 6902 operation to an instance argument path.
+message InstanceArgumentPatchOperation {
+  // The supported JSON Patch operation.
+  enum Operation {
+    // The operation was not specified.
+    OPERATION_UNSPECIFIED = 0;
+
+    // Adds or replaces a value at the path.
+    OPERATION_ADD = 1;
+
+    // Replaces an existing value at the path.
+    OPERATION_REPLACE = 2;
+
+    // Removes an existing value at the path.
+    OPERATION_REMOVE = 3;
+
+    // Asserts that the value at the path is equal to this value.
+    OPERATION_TEST = 4;
+  }
+
+  // The operation to apply.
+  Operation operation = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The RFC 6901 JSON Pointer rooted at the instance argument map.
+  string path = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The value used by add, replace, and test operations.
+  google.protobuf.Value value = 3;
+}
+
+// PatchInstanceArgumentsRequest patches nested instance argument values atomically.
+message PatchInstanceArgumentsRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The resident instance ID.
+  string instance_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The ordered patch operations.
+  repeated InstanceArgumentPatchOperation operations = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Whether to validate and return the result without persisting it.
+  bool dry_run = 4;
+}
+
+// PatchInstanceArgumentsResponse returns the canonical patched instance.
+message PatchInstanceArgumentsResponse {
+  // The patched instance.
+  Instance instance = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
 // RenameInstanceRequest renames an instance while preserving command semantics for reference updates.
 message RenameInstanceRequest {
   // The project ID.
@@ -198,6 +250,9 @@ service ProjectModelService {
 
   // Replaces selected mutable fields of an instance.
   rpc UpdateInstance(UpdateInstanceRequest) returns (UpdateInstanceResponse);
+
+  // Patches nested instance argument values atomically.
+  rpc PatchInstanceArguments(PatchInstanceArgumentsRequest) returns (PatchInstanceArgumentsResponse);
 
   // Renames an instance and updates its references.
   rpc RenameInstance(RenameInstanceRequest) returns (RenameInstanceResponse);

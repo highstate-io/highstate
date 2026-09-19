@@ -5,7 +5,10 @@ import type {
   InstanceModel,
   InstanceModelPatch,
 } from "@highstate/contract"
+import { HighstateSignature } from "@highstate/contract"
 import { describe, expect, test } from "vitest"
+import { parse } from "yaml"
+import { ProjectModelArgumentPatchError } from "./errors"
 import {
   applyHubPatch,
   applyInstancePatch,
@@ -13,9 +16,76 @@ import {
   cleanupInstanceReferences,
   deleteHubReferences,
   deleteInstanceReferences,
+  patchInstanceArguments,
   renameInstanceReferences,
   updateInstanceReferences,
 } from "./utils"
+
+describe("patchInstanceArguments", () => {
+  test("applies ordered object and escaped pointer operations without mutating input", () => {
+    const args = { config: { "a/b": { "x~y": 1 } } }
+
+    const patched = patchInstanceArguments(args, [
+      { operation: "test", path: "/config/a~1b/x~0y", value: 1 },
+      { operation: "replace", path: "/config/a~1b/x~0y", value: 2 },
+      { operation: "add", path: "/enabled", value: true },
+      { operation: "remove", path: "/config/a~1b" },
+    ])
+
+    expect(patched).toEqual({ config: {}, enabled: true })
+    expect(args).toEqual({ config: { "a/b": { "x~y": 1 } } })
+  })
+
+  test("uses JSON Patch array add, replace, and remove semantics", () => {
+    const patched = patchInstanceArguments({ values: ["a", "c"] }, [
+      { operation: "add", path: "/values/1", value: "b" },
+      { operation: "add", path: "/values/-", value: "d" },
+      { operation: "replace", path: "/values/0", value: "A" },
+      { operation: "remove", path: "/values/2" },
+    ])
+
+    expect(patched).toEqual({ values: ["A", "b", "d"] })
+  })
+
+  test("traverses and rewraps YAML values", () => {
+    const patched = patchInstanceArguments(
+      {
+        config: {
+          [HighstateSignature.Yaml]: true,
+          value: "servers:\n  - host: old\n",
+        },
+      },
+      [{ operation: "replace", path: "/config/servers/0/host", value: "new" }],
+    )
+
+    const wrapper = patched.config as { value: string }
+    expect(parse(wrapper.value)).toEqual({ servers: [{ host: "new" }] })
+    expect(patched.config).toMatchObject({ [HighstateSignature.Yaml]: true })
+  })
+
+  test("treats ordinary strings as opaque", () => {
+    expect(() =>
+      patchInstanceArguments({ config: "value" }, [
+        { operation: "replace", path: "/config/nested", value: true },
+      ]),
+    ).toThrow(ProjectModelArgumentPatchError)
+
+    expect(
+      patchInstanceArguments({ config: "value" }, [
+        { operation: "replace", path: "/config", value: "changed" },
+      ]),
+    ).toEqual({ config: "changed" })
+  })
+
+  test("aborts the sequence when a test operation fails", () => {
+    expect(() =>
+      patchInstanceArguments({ count: 1 }, [
+        { operation: "test", path: "/count", value: 2 },
+        { operation: "replace", path: "/count", value: 3 },
+      ]),
+    ).toThrowError(expect.objectContaining({ operationIndex: 0, violationReason: "TEST_FAILED" }))
+  })
+})
 
 describe("deleteInstanceReferences", () => {
   test.concurrent("removes references to deleted instance from inputs", () => {

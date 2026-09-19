@@ -1,8 +1,7 @@
 version: v2
 modules:
   - path: protocol
-deps:
-  - buf.build/googleapis/googleapis
+  - path: vendor/googleapis
 lint:
   use:
     - STANDARD

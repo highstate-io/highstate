@@ -8,6 +8,8 @@ import {
   HubReferenceSchema,
   HubSchema,
   type Instance,
+  InstanceArgumentPatchOperation_Operation,
+  InstanceArgumentPatchOperationSchema,
   InstanceReferenceListSchema,
   InstanceReferenceSchema,
   InstanceSchema,
@@ -56,6 +58,30 @@ export const nodesInputSchema = z.object({
   instances: z.array(instanceInputSchema).default([]),
   hubs: z.array(hubInputSchema).default([]),
 })
+
+export const argumentPatchSchema = z.array(
+  z.discriminatedUnion("op", [
+    z.object({ op: z.literal("add"), path: z.string(), value: z.json() }),
+    z.object({ op: z.literal("replace"), path: z.string(), value: z.json() }),
+    z.object({ op: z.literal("remove"), path: z.string() }),
+    z.object({ op: z.literal("test"), path: z.string(), value: z.json() }),
+  ]),
+)
+
+export type ArgumentPatch = z.infer<typeof argumentPatchSchema>[number]
+
+export function toArgumentPatchOperation(operation: ArgumentPatch) {
+  return create(InstanceArgumentPatchOperationSchema, {
+    operation: {
+      add: InstanceArgumentPatchOperation_Operation.ADD,
+      replace: InstanceArgumentPatchOperation_Operation.REPLACE,
+      remove: InstanceArgumentPatchOperation_Operation.REMOVE,
+      test: InstanceArgumentPatchOperation_Operation.TEST,
+    }[operation.op],
+    path: operation.path,
+    value: operation.op === "remove" ? undefined : fromJson(ValueSchema, operation.value),
+  })
+}
 
 export function toInstance(input: z.infer<typeof instanceInputSchema>): Instance {
   return create(InstanceSchema, {

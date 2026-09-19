@@ -19,6 +19,7 @@ Some simple rules to follow:
 - Don't use subagents unless explicitly asked to do so.
 - After creating or updating a pull request, monitor its checks until all required checks succeed. Fix and push
   failures, then continue monitoring the new checks.
+- After pushing changes to a pull request, run local smoke tests in parallel with GitHub CI monitoring.
 
 Some additional notes:
 

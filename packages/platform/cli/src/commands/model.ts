@@ -1,4 +1,5 @@
 import { toJson } from "@bufbuild/protobuf"
+import { ValueSchema } from "@bufbuild/protobuf/wkt"
 import {
   ComponentKind,
   GetProjectModelResponseSchema,
@@ -7,6 +8,7 @@ import {
   InstanceSchema,
   InstanceStateSchema,
 } from "@highstate/api/v1"
+import { parseArgumentValue } from "@highstate/contract"
 import { Command, Option } from "clipanion"
 import {
   humanDetails,
@@ -230,6 +232,35 @@ export class InstanceGetCommand extends RemoteCommand {
     const result = item(instance)
 
     this.print(result, humanDetails(result))
+  }
+}
+
+export class InstanceArgumentsGetCommand extends RemoteCommand {
+  static paths = [["instance", "args", "get"]]
+
+  static usage = Command.Usage({
+    category: "Backend API",
+    description: "Gets an instance's argument values.",
+  })
+
+  id = Option.String({ required: true })
+
+  async execute(): Promise<void> {
+    const { clients, target } = await this.remote()
+    const response = await clients.projectModel.getProjectModel({ projectId: target.projectId })
+    const instance = response.model?.instances.find(value => value.id === this.id)
+    if (!instance) {
+      throw new Error(`Instance "${this.id}" not found`)
+    }
+
+    const args = Object.fromEntries(
+      instance.arguments.map(argument => [
+        argument.key,
+        parseArgumentValue(argument.value ? toJson(ValueSchema, argument.value) : null),
+      ]),
+    )
+
+    this.print({ arguments: args }, humanDetails(args))
   }
 }
 

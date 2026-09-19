@@ -6,6 +6,10 @@ import type {
 } from "@highstate/contract"
 import type { ProjectModel, ProjectModelStorageSpec, ProjectOutput } from "../shared"
 
+export type InstanceArgumentPatchOperation =
+  | { operation: "add" | "replace" | "test"; path: string; value: unknown }
+  | { operation: "remove"; path: string }
+
 /**
  * Interface for project model backends that handle storage-specific operations.
  */
@@ -77,6 +81,25 @@ export interface ProjectModelBackend {
     spec: ProjectModelStorageSpec,
     instanceId: string,
     patch: InstanceModelPatch,
+  ): Promise<InstanceModel>
+
+  /**
+   * Applies ordered patch operations to an instance's arguments atomically.
+   *
+   * @param project The project containing the instance.
+   * @param spec The project model storage specification.
+   * @param instanceId The ID of the instance to update.
+   * @param operations The ordered argument patch operations.
+   * @param validate Validates the complete patched argument map before persistence.
+   * @param dryRun Whether to return the result without persisting it.
+   */
+  patchInstanceArguments(
+    project: ProjectOutput,
+    spec: ProjectModelStorageSpec,
+    instanceId: string,
+    operations: readonly InstanceArgumentPatchOperation[],
+    validate: (args: Record<string, unknown>) => void,
+    dryRun: boolean,
   ): Promise<InstanceModel>
 
   /**

@@ -16,6 +16,8 @@ import {
   HubGetCommand,
   HubListCommand,
   HubUpdateCommand,
+  InstanceArgumentsGetCommand,
+  InstanceArgumentsPatchCommand,
   InstanceCreateCommand,
   InstanceDeleteCommand,
   InstanceGetCommand,
@@ -63,6 +65,8 @@ export default function registerRemoteCommands(cli: Cli): void {
   cli.register(ModelCreateCommand)
   cli.register(InstanceListCommand)
   cli.register(InstanceGetCommand)
+  cli.register(InstanceArgumentsGetCommand)
+  cli.register(InstanceArgumentsPatchCommand)
   cli.register(InstanceCreateCommand)
   cli.register(InstanceUpdateCommand)
   cli.register(InstanceRenameCommand)

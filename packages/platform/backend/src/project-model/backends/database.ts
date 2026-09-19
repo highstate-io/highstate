@@ -1,7 +1,7 @@
 import type { Logger } from "pino"
 import type { DatabaseManager } from "../../database"
 import type { ProjectModel, ProjectModelStorageSpec, ProjectOutput } from "../../shared"
-import type { ProjectModelBackend } from "../abstractions"
+import type { InstanceArgumentPatchOperation, ProjectModelBackend } from "../abstractions"
 import {
   getInstanceId,
   type HubModel,
@@ -12,6 +12,7 @@ import {
   instanceModelSchema,
 } from "@highstate/contract"
 import {
+  ProjectModelError,
   ProjectModelHubAlreadyExistsError,
   ProjectModelHubNotFoundError,
   ProjectModelInstanceAlreadyExistsError,
@@ -23,6 +24,7 @@ import {
   applyInstancePatch,
   cleanupHubReferences,
   cleanupInstanceReferences,
+  patchInstanceArguments,
   updateInstanceReferences,
 } from "../utils"
 
@@ -111,6 +113,50 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
       return instance
     } catch (error) {
       throw new ProjectModelOperationError("update instance", project.id, error)
+    }
+  }
+
+  async patchInstanceArguments(
+    project: ProjectOutput,
+    spec: ProjectModelStorageSpec,
+    instanceId: string,
+    operations: readonly InstanceArgumentPatchOperation[],
+    validate: (args: Record<string, unknown>) => void,
+    dryRun: boolean,
+  ): Promise<InstanceModel> {
+    assertDatabaseSpec(spec)
+
+    try {
+      const projectDatabase = await this.database.forProject(project.id)
+      const instance = await projectDatabase.$transaction(async tx => {
+        const existingRecord = await tx.instanceModel.findUnique({ where: { id: instanceId } })
+        if (!existingRecord) {
+          throw new ProjectModelInstanceNotFoundError(project.id, instanceId)
+        }
+
+        const patchedInstance = instanceModelSchema.parse(existingRecord.model)
+        const args = patchInstanceArguments(patchedInstance.args ?? {}, operations)
+        validate(args)
+        patchedInstance.args = args
+
+        if (!dryRun) {
+          await tx.instanceModel.update({
+            where: { id: instanceId },
+            data: { model: patchedInstance },
+          })
+        }
+
+        return patchedInstance
+      })
+
+      this.logger.info(
+        { projectId: project.id, instanceId, dryRun },
+        "patched instance arguments in project model",
+      )
+      return instance
+    } catch (error) {
+      if (error instanceof ProjectModelError) throw error
+      throw new ProjectModelOperationError("patch instance arguments", project.id, error)
     }
   }
 

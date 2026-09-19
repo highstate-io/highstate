@@ -7,6 +7,237 @@ import type {
   InstanceModel,
   InstanceModelPatch,
 } from "@highstate/contract"
+import type { InstanceArgumentPatchOperation } from "./abstractions"
+import { isDeepStrictEqual } from "node:util"
+import { yamlValueSchema } from "@highstate/contract"
+import { parse, stringify } from "yaml"
+import { ProjectModelArgumentPatchError } from "./errors"
+
+type JsonContainer = Record<string, unknown> | unknown[]
+
+/**
+ * Applies ordered JSON Patch operations to an instance argument map.
+ * YAML wrapper values are traversed as their parsed structure and reserialized after mutation.
+ *
+ * @param args The current instance argument map.
+ * @param operations The ordered operations to apply.
+ * @returns A patched copy of the argument map.
+ */
+export function patchInstanceArguments(
+  args: Record<string, unknown>,
+  operations: readonly InstanceArgumentPatchOperation[],
+): Record<string, unknown> {
+  let result = structuredClone(args)
+
+  for (const [operationIndex, operation] of operations.entries()) {
+    try {
+      const tokens = parseJsonPointer(operation.path)
+
+      if (tokens.length === 0) {
+        if (operation.operation === "remove") {
+          throw new PatchFailure("ROOT_REMOVAL_UNSUPPORTED", "The argument map cannot be removed")
+        }
+
+        if (operation.operation === "test") {
+          if (!isDeepStrictEqual(result, operation.value)) {
+            throw new PatchFailure("TEST_FAILED", "The value at the path does not match")
+          }
+          continue
+        }
+
+        if (!isRecord(operation.value)) {
+          throw new PatchFailure("ROOT_VALUE_INVALID", "The argument map must be an object")
+        }
+
+        result = structuredClone(operation.value)
+        continue
+      }
+
+      applyAtPath(result, tokens, operation)
+    } catch (error) {
+      if (error instanceof ProjectModelArgumentPatchError) {
+        throw error
+      }
+
+      const failure =
+        error instanceof PatchFailure
+          ? error
+          : new PatchFailure("VALUE_INVALID", "The value at the path cannot be patched", error)
+      throw new ProjectModelArgumentPatchError(
+        operationIndex,
+        operation.path,
+        failure.reason,
+        failure.message,
+        failure.cause,
+      )
+    }
+  }
+
+  return result
+}
+
+function parseJsonPointer(path: string): string[] {
+  if (path === "") return []
+  if (!path.startsWith("/")) {
+    throw new PatchFailure("PATH_INVALID", "The path must be an RFC 6901 JSON Pointer")
+  }
+
+  return path
+    .slice(1)
+    .split("/")
+    .map(segment => {
+      if (/~(?:[^01]|$)/.test(segment)) {
+        throw new PatchFailure("PATH_INVALID", "The path contains an invalid escape sequence")
+      }
+
+      return segment.replaceAll("~1", "/").replaceAll("~0", "~")
+    })
+}
+
+function applyAtPath(
+  current: unknown,
+  tokens: readonly string[],
+  operation: InstanceArgumentPatchOperation,
+): void {
+  const yamlValue = yamlValueSchema.safeParse(current)
+  if (yamlValue.success) {
+    let parsed: unknown
+    try {
+      parsed = parse(yamlValue.data.value) as unknown
+    } catch (error) {
+      throw new PatchFailure("YAML_INVALID", "The YAML value at the path cannot be parsed", error)
+    }
+
+    applyAtPath(parsed, tokens, operation)
+    Object.defineProperty(current as Record<string, unknown>, "value", {
+      value: stringify(parsed),
+      configurable: true,
+      enumerable: true,
+      writable: true,
+    })
+    return
+  }
+
+  if (!isContainer(current)) {
+    throw new PatchFailure("PATH_NOT_TRAVERSABLE", "The path traverses a scalar value")
+  }
+
+  const [token, ...remaining] = tokens
+  if (token === undefined) return
+
+  if (remaining.length > 0) {
+    const child = getExistingValue(current, token)
+    applyAtPath(child, remaining, operation)
+    return
+  }
+
+  applyToContainer(current, token, operation)
+}
+
+function applyToContainer(
+  container: JsonContainer,
+  token: string,
+  operation: InstanceArgumentPatchOperation,
+): void {
+  if (operation.operation === "test") {
+    const existing = getExistingValue(container, token)
+    if (!isDeepStrictEqual(existing, operation.value)) {
+      throw new PatchFailure("TEST_FAILED", "The value at the path does not match")
+    }
+    return
+  }
+
+  if (Array.isArray(container)) {
+    applyToArray(container, token, operation)
+    return
+  }
+
+  const exists = Object.hasOwn(container, token)
+  if (operation.operation === "remove") {
+    if (!exists) throw pathNotFound()
+    delete container[token]
+    return
+  }
+
+  if (operation.operation === "replace" && !exists) throw pathNotFound()
+  Object.defineProperty(container, token, {
+    value: structuredClone(operation.value),
+    configurable: true,
+    enumerable: true,
+    writable: true,
+  })
+}
+
+function applyToArray(
+  array: unknown[],
+  token: string,
+  operation: Exclude<InstanceArgumentPatchOperation, { operation: "test" }>,
+): void {
+  if (operation.operation === "add" && token === "-") {
+    array.push(structuredClone(operation.value))
+    return
+  }
+
+  const index = parseArrayIndex(token)
+  if (operation.operation === "add") {
+    if (index > array.length) throw pathNotFound()
+    array.splice(index, 0, structuredClone(operation.value))
+    return
+  }
+
+  if (index >= array.length) throw pathNotFound()
+  if (operation.operation === "remove") {
+    array.splice(index, 1)
+  } else {
+    array[index] = structuredClone(operation.value)
+  }
+}
+
+function getExistingValue(container: JsonContainer, token: string): unknown {
+  if (Array.isArray(container)) {
+    const index = parseArrayIndex(token)
+    if (index >= container.length) throw pathNotFound()
+    return container[index]
+  }
+
+  if (!Object.hasOwn(container, token)) throw pathNotFound()
+  return container[token]
+}
+
+function parseArrayIndex(token: string): number {
+  if (!/^(0|[1-9]\d*)$/.test(token)) {
+    throw new PatchFailure("ARRAY_INDEX_INVALID", "The path contains an invalid array index")
+  }
+
+  const index = Number(token)
+  if (!Number.isSafeInteger(index)) {
+    throw new PatchFailure("ARRAY_INDEX_INVALID", "The path contains an invalid array index")
+  }
+
+  return index
+}
+
+function isContainer(value: unknown): value is JsonContainer {
+  return Array.isArray(value) || isRecord(value)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function pathNotFound(): PatchFailure {
+  return new PatchFailure("PATH_NOT_FOUND", "The path does not exist")
+}
+
+class PatchFailure extends Error {
+  constructor(
+    readonly reason: string,
+    message: string,
+    options?: unknown,
+  ) {
+    super(message, { cause: options })
+  }
+}
 
 /**
  * Deletes all references to an instance from other instances' inputs.

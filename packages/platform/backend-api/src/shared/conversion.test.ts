@@ -1,9 +1,15 @@
-import { create } from "@bufbuild/protobuf"
-import { timestampDate } from "@bufbuild/protobuf/wkt"
-import { ComponentKind, InstanceSchema } from "@highstate/api/v1"
+import { create, fromJson } from "@bufbuild/protobuf"
+import { timestampDate, ValueSchema } from "@bufbuild/protobuf/wkt"
+import {
+  ComponentKind,
+  InstanceArgumentPatchOperation_Operation,
+  InstanceArgumentPatchOperationSchema,
+  InstanceSchema,
+} from "@highstate/api/v1"
 import { describe, expect, it } from "vitest"
 import {
   fromInstance,
+  fromInstanceArgumentPatchOperation,
   toInstance,
   toInstancePatch,
   toNullableTimestamp,
@@ -71,6 +77,27 @@ describe("resource conversion", () => {
     })
 
     expect(toInstancePatch(instance, ["position"])).toEqual({ position: null })
+  })
+
+  it("converts instance argument patch operations", () => {
+    expect(
+      fromInstanceArgumentPatchOperation(
+        create(InstanceArgumentPatchOperationSchema, {
+          operation: InstanceArgumentPatchOperation_Operation.REPLACE,
+          path: "/config/enabled",
+          value: fromJson(ValueSchema, true),
+        }),
+      ),
+    ).toEqual({ operation: "replace", path: "/config/enabled", value: true })
+
+    expect(
+      fromInstanceArgumentPatchOperation(
+        create(InstanceArgumentPatchOperationSchema, {
+          operation: InstanceArgumentPatchOperation_Operation.REMOVE,
+          path: "/obsolete",
+        }),
+      ),
+    ).toEqual({ operation: "remove", path: "/obsolete" })
   })
 
   it("converts valid and nullable dates", () => {
