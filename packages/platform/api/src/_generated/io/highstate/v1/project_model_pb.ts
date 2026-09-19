@@ -2,11 +2,11 @@
 // @generated from file io/highstate/v1/project_model.proto (package io.highstate.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import type { FieldMask } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_field_mask } from "@bufbuild/protobuf/wkt";
+import type { FieldMask, Value } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_field_mask, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import type { ComponentArgumentMapEntry, ComponentKind, HubReference, InstanceReference, InstanceReferenceList, Position } from "./common_pb";
 import { file_io_highstate_v1_common } from "./common_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/project_model.proto.
  */
 export const file_io_highstate_v1_project_model: GenFile = /*@__PURE__*/
-  fileDesc("CiNpby9oaWdoc3RhdGUvdjEvcHJvamVjdF9tb2RlbC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxImoKDFByb2plY3RNb2RlbBIxCglpbnN0YW5jZXMYASADKAsyGS5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VCA+BBAxInCgRodWJzGAIgAygLMhQuaW8uaGlnaHN0YXRlLnYxLkh1YkID4EEDIs4HCghJbnN0YW5jZRIPCgJpZBgBIAEoCUID4EEFEjEKBGtpbmQYAiABKA4yHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50S2luZEID4EEFEhEKBHR5cGUYAyABKAlCA+BBBRIMCgRuYW1lGAQgASgJEj0KCWFyZ3VtZW50cxgFIAMoCzIqLmlvLmhpZ2hzdGF0ZS52MS5Db21wb25lbnRBcmd1bWVudE1hcEVudHJ5EjUKBmlucHV0cxgGIAMoCzIlLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZS5JbnB1dHNFbnRyeRI8CgpodWJfaW5wdXRzGAcgAygLMiguaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlLkh1YklucHV0c0VudHJ5EjcKEGluamVjdGlvbl9pbnB1dHMYCCADKAsyHS5pby5oaWdoc3RhdGUudjEuSHViUmVmZXJlbmNlEjAKCHBvc2l0aW9uGAkgASgLMhkuaW8uaGlnaHN0YXRlLnYxLlBvc2l0aW9uSACIAQESGwoJcGFyZW50X2lkGAsgASgJQgPgQQNIAYgBARI8CgdvdXRwdXRzGAwgAygLMiYuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlLk91dHB1dHNFbnRyeUID4EEDEk0KEHJlc29sdmVkX291dHB1dHMYDSADKAsyLi5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2UuUmVzb2x2ZWRPdXRwdXRzRW50cnlCA+BBAxpVCgtJbnB1dHNFbnRyeRILCgNrZXkYASABKAkSNQoFdmFsdWUYAiABKAsyJi5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VSZWZlcmVuY2VMaXN0OgI4ARpTCg5IdWJJbnB1dHNFbnRyeRILCgNrZXkYASABKAkSMAoFdmFsdWUYAiABKAsyIS5pby5oaWdoc3RhdGUudjEuSHViUmVmZXJlbmNlTGlzdDoCOAEaVgoMT3V0cHV0c0VudHJ5EgsKA2tleRgBIAEoCRI1CgV2YWx1ZRgCIAEoCzImLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZVJlZmVyZW5jZUxpc3Q6AjgBGl4KFFJlc29sdmVkT3V0cHV0c0VudHJ5EgsKA2tleRgBIAEoCRI1CgV2YWx1ZRgCIAEoCzImLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZVJlZmVyZW5jZUxpc3Q6AjgBQgsKCV9wb3NpdGlvbkIMCgpfcGFyZW50X2lkSgQIChALUg9yZXNvbHZlZF9pbnB1dHMiQQoQSHViUmVmZXJlbmNlTGlzdBItCgZ2YWx1ZXMYASADKAsyHS5pby5oaWdoc3RhdGUudjEuSHViUmVmZXJlbmNlIsIBCgNIdWISDwoCaWQYASABKAlCA+BBBRIwCghwb3NpdGlvbhgCIAEoCzIZLmlvLmhpZ2hzdGF0ZS52MS5Qb3NpdGlvbkgAiAEBEjIKBmlucHV0cxgDIAMoCzIiLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZVJlZmVyZW5jZRI3ChBpbmplY3Rpb25faW5wdXRzGAQgAygLMh0uaW8uaGlnaHN0YXRlLnYxLkh1YlJlZmVyZW5jZUILCglfcG9zaXRpb24idQoWR2V0UHJvamVjdE1vZGVsUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISIQoZaW5jbHVkZV92aXJ0dWFsX2luc3RhbmNlcxgCIAEoCBIfChdpbmNsdWRlX2dob3N0X2luc3RhbmNlcxgDIAEoCCJMChdHZXRQcm9qZWN0TW9kZWxSZXNwb25zZRIxCgVtb2RlbBgBIAEoCzIdLmlvLmhpZ2hzdGF0ZS52MS5Qcm9qZWN0TW9kZWxCA+BBAiJ/ChJDcmVhdGVOb2Rlc1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEiwKCWluc3RhbmNlcxgCIAMoCzIZLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZRIiCgRodWJzGAMgAygLMhQuaW8uaGlnaHN0YXRlLnYxLkh1YiIVChNDcmVhdGVOb2Rlc1Jlc3BvbnNlIpgBChVVcGRhdGVJbnN0YW5jZVJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEjAKCGluc3RhbmNlGAIgASgLMhkuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQgPgQQISNAoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgPgQQIiSgoWVXBkYXRlSW5zdGFuY2VSZXNwb25zZRIwCghpbnN0YW5jZRgBIAEoCzIZLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZUID4EECImEKFVJlbmFtZUluc3RhbmNlUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGAoLaW5zdGFuY2VfaWQYAiABKAlCA+BBAhIVCghuZXdfbmFtZRgDIAEoCUID4EECIkoKFlJlbmFtZUluc3RhbmNlUmVzcG9uc2USMAoIaW5zdGFuY2UYASABKAsyGS5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VCA+BBAiJKChVEZWxldGVJbnN0YW5jZVJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhgKC2luc3RhbmNlX2lkGAIgASgJQgPgQQIiGAoWRGVsZXRlSW5zdGFuY2VSZXNwb25zZSKJAQoQVXBkYXRlSHViUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISJgoDaHViGAIgASgLMhQuaW8uaGlnaHN0YXRlLnYxLkh1YkID4EECEjQKC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0ID4EECIjsKEVVwZGF0ZUh1YlJlc3BvbnNlEiYKA2h1YhgBIAEoCzIULmlvLmhpZ2hzdGF0ZS52MS5IdWJCA+BBAiJAChBEZWxldGVIdWJSZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhITCgZodWJfaWQYAiABKAlCA+BBAiITChFEZWxldGVIdWJSZXNwb25zZTKmBQoTUHJvamVjdE1vZGVsU2VydmljZRJkCg9HZXRQcm9qZWN0TW9kZWwSJy5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdE1vZGVsUmVxdWVzdBooLmlvLmhpZ2hzdGF0ZS52MS5HZXRQcm9qZWN0TW9kZWxSZXNwb25zZRJYCgtDcmVhdGVOb2RlcxIjLmlvLmhpZ2hzdGF0ZS52MS5DcmVhdGVOb2Rlc1JlcXVlc3QaJC5pby5oaWdoc3RhdGUudjEuQ3JlYXRlTm9kZXNSZXNwb25zZRJhCg5VcGRhdGVJbnN0YW5jZRImLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVJbnN0YW5jZVJlcXVlc3QaJy5pby5oaWdoc3RhdGUudjEuVXBkYXRlSW5zdGFuY2VSZXNwb25zZRJhCg5SZW5hbWVJbnN0YW5jZRImLmlvLmhpZ2hzdGF0ZS52MS5SZW5hbWVJbnN0YW5jZVJlcXVlc3QaJy5pby5oaWdoc3RhdGUudjEuUmVuYW1lSW5zdGFuY2VSZXNwb25zZRJhCg5EZWxldGVJbnN0YW5jZRImLmlvLmhpZ2hzdGF0ZS52MS5EZWxldGVJbnN0YW5jZVJlcXVlc3QaJy5pby5oaWdoc3RhdGUudjEuRGVsZXRlSW5zdGFuY2VSZXNwb25zZRJSCglVcGRhdGVIdWISIS5pby5oaWdoc3RhdGUudjEuVXBkYXRlSHViUmVxdWVzdBoiLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVIdWJSZXNwb25zZRJSCglEZWxldGVIdWISIS5pby5oaWdoc3RhdGUudjEuRGVsZXRlSHViUmVxdWVzdBoiLmlvLmhpZ2hzdGF0ZS52MS5EZWxldGVIdWJSZXNwb25zZWIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_field_mask, file_io_highstate_v1_common]);
+  fileDesc("CiNpby9oaWdoc3RhdGUvdjEvcHJvamVjdF9tb2RlbC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxImoKDFByb2plY3RNb2RlbBIxCglpbnN0YW5jZXMYASADKAsyGS5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VCA+BBAxInCgRodWJzGAIgAygLMhQuaW8uaGlnaHN0YXRlLnYxLkh1YkID4EEDIs4HCghJbnN0YW5jZRIPCgJpZBgBIAEoCUID4EEFEjEKBGtpbmQYAiABKA4yHi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50S2luZEID4EEFEhEKBHR5cGUYAyABKAlCA+BBBRIMCgRuYW1lGAQgASgJEj0KCWFyZ3VtZW50cxgFIAMoCzIqLmlvLmhpZ2hzdGF0ZS52MS5Db21wb25lbnRBcmd1bWVudE1hcEVudHJ5EjUKBmlucHV0cxgGIAMoCzIlLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZS5JbnB1dHNFbnRyeRI8CgpodWJfaW5wdXRzGAcgAygLMiguaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlLkh1YklucHV0c0VudHJ5EjcKEGluamVjdGlvbl9pbnB1dHMYCCADKAsyHS5pby5oaWdoc3RhdGUudjEuSHViUmVmZXJlbmNlEjAKCHBvc2l0aW9uGAkgASgLMhkuaW8uaGlnaHN0YXRlLnYxLlBvc2l0aW9uSACIAQESGwoJcGFyZW50X2lkGAsgASgJQgPgQQNIAYgBARI8CgdvdXRwdXRzGAwgAygLMiYuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlLk91dHB1dHNFbnRyeUID4EEDEk0KEHJlc29sdmVkX291dHB1dHMYDSADKAsyLi5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2UuUmVzb2x2ZWRPdXRwdXRzRW50cnlCA+BBAxpVCgtJbnB1dHNFbnRyeRILCgNrZXkYASABKAkSNQoFdmFsdWUYAiABKAsyJi5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VSZWZlcmVuY2VMaXN0OgI4ARpTCg5IdWJJbnB1dHNFbnRyeRILCgNrZXkYASABKAkSMAoFdmFsdWUYAiABKAsyIS5pby5oaWdoc3RhdGUudjEuSHViUmVmZXJlbmNlTGlzdDoCOAEaVgoMT3V0cHV0c0VudHJ5EgsKA2tleRgBIAEoCRI1CgV2YWx1ZRgCIAEoCzImLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZVJlZmVyZW5jZUxpc3Q6AjgBGl4KFFJlc29sdmVkT3V0cHV0c0VudHJ5EgsKA2tleRgBIAEoCRI1CgV2YWx1ZRgCIAEoCzImLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZVJlZmVyZW5jZUxpc3Q6AjgBQgsKCV9wb3NpdGlvbkIMCgpfcGFyZW50X2lkSgQIChALUg9yZXNvbHZlZF9pbnB1dHMiQQoQSHViUmVmZXJlbmNlTGlzdBItCgZ2YWx1ZXMYASADKAsyHS5pby5oaWdoc3RhdGUudjEuSHViUmVmZXJlbmNlIsIBCgNIdWISDwoCaWQYASABKAlCA+BBBRIwCghwb3NpdGlvbhgCIAEoCzIZLmlvLmhpZ2hzdGF0ZS52MS5Qb3NpdGlvbkgAiAEBEjIKBmlucHV0cxgDIAMoCzIiLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZVJlZmVyZW5jZRI3ChBpbmplY3Rpb25faW5wdXRzGAQgAygLMh0uaW8uaGlnaHN0YXRlLnYxLkh1YlJlZmVyZW5jZUILCglfcG9zaXRpb24idQoWR2V0UHJvamVjdE1vZGVsUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISIQoZaW5jbHVkZV92aXJ0dWFsX2luc3RhbmNlcxgCIAEoCBIfChdpbmNsdWRlX2dob3N0X2luc3RhbmNlcxgDIAEoCCJMChdHZXRQcm9qZWN0TW9kZWxSZXNwb25zZRIxCgVtb2RlbBgBIAEoCzIdLmlvLmhpZ2hzdGF0ZS52MS5Qcm9qZWN0TW9kZWxCA+BBAiJ/ChJDcmVhdGVOb2Rlc1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEiwKCWluc3RhbmNlcxgCIAMoCzIZLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZRIiCgRodWJzGAMgAygLMhQuaW8uaGlnaHN0YXRlLnYxLkh1YiIVChNDcmVhdGVOb2Rlc1Jlc3BvbnNlIpgBChVVcGRhdGVJbnN0YW5jZVJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEjAKCGluc3RhbmNlGAIgASgLMhkuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQgPgQQISNAoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgPgQQIiSgoWVXBkYXRlSW5zdGFuY2VSZXNwb25zZRIwCghpbnN0YW5jZRgBIAEoCzIZLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZUID4EECIqkCCh5JbnN0YW5jZUFyZ3VtZW50UGF0Y2hPcGVyYXRpb24SUQoJb3BlcmF0aW9uGAEgASgOMjkuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQXJndW1lbnRQYXRjaE9wZXJhdGlvbi5PcGVyYXRpb25CA+BBAhIRCgRwYXRoGAIgASgJQgPgQQISJQoFdmFsdWUYAyABKAsyFi5nb29nbGUucHJvdG9idWYuVmFsdWUiegoJT3BlcmF0aW9uEhkKFU9QRVJBVElPTl9VTlNQRUNJRklFRBAAEhEKDU9QRVJBVElPTl9BREQQARIVChFPUEVSQVRJT05fUkVQTEFDRRACEhQKEE9QRVJBVElPTl9SRU1PVkUQAxISCg5PUEVSQVRJT05fVEVTVBAEIq0BCh1QYXRjaEluc3RhbmNlQXJndW1lbnRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGAoLaW5zdGFuY2VfaWQYAiABKAlCA+BBAhJICgpvcGVyYXRpb25zGAMgAygLMi8uaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQXJndW1lbnRQYXRjaE9wZXJhdGlvbkID4EECEg8KB2RyeV9ydW4YBCABKAgiUgoeUGF0Y2hJbnN0YW5jZUFyZ3VtZW50c1Jlc3BvbnNlEjAKCGluc3RhbmNlGAEgASgLMhkuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQgPgQQIiYQoVUmVuYW1lSW5zdGFuY2VSZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhIYCgtpbnN0YW5jZV9pZBgCIAEoCUID4EECEhUKCG5ld19uYW1lGAMgASgJQgPgQQIiSgoWUmVuYW1lSW5zdGFuY2VSZXNwb25zZRIwCghpbnN0YW5jZRgBIAEoCzIZLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZUID4EECIkoKFURlbGV0ZUluc3RhbmNlUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGAoLaW5zdGFuY2VfaWQYAiABKAlCA+BBAiIYChZEZWxldGVJbnN0YW5jZVJlc3BvbnNlIokBChBVcGRhdGVIdWJSZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhImCgNodWIYAiABKAsyFC5pby5oaWdoc3RhdGUudjEuSHViQgPgQQISNAoLdXBkYXRlX21hc2sYAyABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQgPgQQIiOwoRVXBkYXRlSHViUmVzcG9uc2USJgoDaHViGAEgASgLMhQuaW8uaGlnaHN0YXRlLnYxLkh1YkID4EECIkAKEERlbGV0ZUh1YlJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhMKBmh1Yl9pZBgCIAEoCUID4EECIhMKEURlbGV0ZUh1YlJlc3BvbnNlMqEGChNQcm9qZWN0TW9kZWxTZXJ2aWNlEmQKD0dldFByb2plY3RNb2RlbBInLmlvLmhpZ2hzdGF0ZS52MS5HZXRQcm9qZWN0TW9kZWxSZXF1ZXN0GiguaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RNb2RlbFJlc3BvbnNlElgKC0NyZWF0ZU5vZGVzEiMuaW8uaGlnaHN0YXRlLnYxLkNyZWF0ZU5vZGVzUmVxdWVzdBokLmlvLmhpZ2hzdGF0ZS52MS5DcmVhdGVOb2Rlc1Jlc3BvbnNlEmEKDlVwZGF0ZUluc3RhbmNlEiYuaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZUluc3RhbmNlUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVJbnN0YW5jZVJlc3BvbnNlEnkKFlBhdGNoSW5zdGFuY2VBcmd1bWVudHMSLi5pby5oaWdoc3RhdGUudjEuUGF0Y2hJbnN0YW5jZUFyZ3VtZW50c1JlcXVlc3QaLy5pby5oaWdoc3RhdGUudjEuUGF0Y2hJbnN0YW5jZUFyZ3VtZW50c1Jlc3BvbnNlEmEKDlJlbmFtZUluc3RhbmNlEiYuaW8uaGlnaHN0YXRlLnYxLlJlbmFtZUluc3RhbmNlUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5SZW5hbWVJbnN0YW5jZVJlc3BvbnNlEmEKDkRlbGV0ZUluc3RhbmNlEiYuaW8uaGlnaHN0YXRlLnYxLkRlbGV0ZUluc3RhbmNlUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5EZWxldGVJbnN0YW5jZVJlc3BvbnNlElIKCVVwZGF0ZUh1YhIhLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVIdWJSZXF1ZXN0GiIuaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZUh1YlJlc3BvbnNlElIKCURlbGV0ZUh1YhIhLmlvLmhpZ2hzdGF0ZS52MS5EZWxldGVIdWJSZXF1ZXN0GiIuaW8uaGlnaHN0YXRlLnYxLkRlbGV0ZUh1YlJlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_field_mask, file_google_protobuf_struct, file_io_highstate_v1_common]);
 
 /**
  * ProjectModel contains the instances and hubs that define a project.
@@ -369,6 +369,152 @@ export const UpdateInstanceResponseSchema: GenMessage<UpdateInstanceResponse> = 
   messageDesc(file_io_highstate_v1_project_model, 9);
 
 /**
+ * InstanceArgumentPatchOperation applies one RFC 6902 operation to an instance argument path.
+ *
+ * @generated from message io.highstate.v1.InstanceArgumentPatchOperation
+ */
+export type InstanceArgumentPatchOperation = Message<"io.highstate.v1.InstanceArgumentPatchOperation"> & {
+  /**
+   * The operation to apply.
+   *
+   * @generated from field: io.highstate.v1.InstanceArgumentPatchOperation.Operation operation = 1;
+   */
+  operation: InstanceArgumentPatchOperation_Operation;
+
+  /**
+   * The RFC 6901 JSON Pointer rooted at the instance argument map.
+   *
+   * @generated from field: string path = 2;
+   */
+  path: string;
+
+  /**
+   * The value used by add, replace, and test operations.
+   *
+   * @generated from field: google.protobuf.Value value = 3;
+   */
+  value?: Value | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.InstanceArgumentPatchOperation.
+ * Use `create(InstanceArgumentPatchOperationSchema)` to create a new message.
+ */
+export const InstanceArgumentPatchOperationSchema: GenMessage<InstanceArgumentPatchOperation> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project_model, 10);
+
+/**
+ * The supported JSON Patch operation.
+ *
+ * @generated from enum io.highstate.v1.InstanceArgumentPatchOperation.Operation
+ */
+export enum InstanceArgumentPatchOperation_Operation {
+  /**
+   * The operation was not specified.
+   *
+   * @generated from enum value: OPERATION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Adds or replaces a value at the path.
+   *
+   * @generated from enum value: OPERATION_ADD = 1;
+   */
+  ADD = 1,
+
+  /**
+   * Replaces an existing value at the path.
+   *
+   * @generated from enum value: OPERATION_REPLACE = 2;
+   */
+  REPLACE = 2,
+
+  /**
+   * Removes an existing value at the path.
+   *
+   * @generated from enum value: OPERATION_REMOVE = 3;
+   */
+  REMOVE = 3,
+
+  /**
+   * Asserts that the value at the path is equal to this value.
+   *
+   * @generated from enum value: OPERATION_TEST = 4;
+   */
+  TEST = 4,
+}
+
+/**
+ * Describes the enum io.highstate.v1.InstanceArgumentPatchOperation.Operation.
+ */
+export const InstanceArgumentPatchOperation_OperationSchema: GenEnum<InstanceArgumentPatchOperation_Operation> = /*@__PURE__*/
+  enumDesc(file_io_highstate_v1_project_model, 10, 0);
+
+/**
+ * PatchInstanceArgumentsRequest patches nested instance argument values atomically.
+ *
+ * @generated from message io.highstate.v1.PatchInstanceArgumentsRequest
+ */
+export type PatchInstanceArgumentsRequest = Message<"io.highstate.v1.PatchInstanceArgumentsRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The resident instance ID.
+   *
+   * @generated from field: string instance_id = 2;
+   */
+  instanceId: string;
+
+  /**
+   * The ordered patch operations.
+   *
+   * @generated from field: repeated io.highstate.v1.InstanceArgumentPatchOperation operations = 3;
+   */
+  operations: InstanceArgumentPatchOperation[];
+
+  /**
+   * Whether to validate and return the result without persisting it.
+   *
+   * @generated from field: bool dry_run = 4;
+   */
+  dryRun: boolean;
+};
+
+/**
+ * Describes the message io.highstate.v1.PatchInstanceArgumentsRequest.
+ * Use `create(PatchInstanceArgumentsRequestSchema)` to create a new message.
+ */
+export const PatchInstanceArgumentsRequestSchema: GenMessage<PatchInstanceArgumentsRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project_model, 11);
+
+/**
+ * PatchInstanceArgumentsResponse returns the canonical patched instance.
+ *
+ * @generated from message io.highstate.v1.PatchInstanceArgumentsResponse
+ */
+export type PatchInstanceArgumentsResponse = Message<"io.highstate.v1.PatchInstanceArgumentsResponse"> & {
+  /**
+   * The patched instance.
+   *
+   * @generated from field: io.highstate.v1.Instance instance = 1;
+   */
+  instance?: Instance | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.PatchInstanceArgumentsResponse.
+ * Use `create(PatchInstanceArgumentsResponseSchema)` to create a new message.
+ */
+export const PatchInstanceArgumentsResponseSchema: GenMessage<PatchInstanceArgumentsResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project_model, 12);
+
+/**
  * RenameInstanceRequest renames an instance while preserving command semantics for reference updates.
  *
  * @generated from message io.highstate.v1.RenameInstanceRequest
@@ -401,7 +547,7 @@ export type RenameInstanceRequest = Message<"io.highstate.v1.RenameInstanceReque
  * Use `create(RenameInstanceRequestSchema)` to create a new message.
  */
 export const RenameInstanceRequestSchema: GenMessage<RenameInstanceRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 10);
+  messageDesc(file_io_highstate_v1_project_model, 13);
 
 /**
  * RenameInstanceResponse returns the canonical renamed instance.
@@ -422,7 +568,7 @@ export type RenameInstanceResponse = Message<"io.highstate.v1.RenameInstanceResp
  * Use `create(RenameInstanceResponseSchema)` to create a new message.
  */
 export const RenameInstanceResponseSchema: GenMessage<RenameInstanceResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 11);
+  messageDesc(file_io_highstate_v1_project_model, 14);
 
 /**
  * DeleteInstanceRequest deletes one resident instance.
@@ -450,7 +596,7 @@ export type DeleteInstanceRequest = Message<"io.highstate.v1.DeleteInstanceReque
  * Use `create(DeleteInstanceRequestSchema)` to create a new message.
  */
 export const DeleteInstanceRequestSchema: GenMessage<DeleteInstanceRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 12);
+  messageDesc(file_io_highstate_v1_project_model, 15);
 
 /**
  * DeleteInstanceResponse reports successful deletion.
@@ -465,7 +611,7 @@ export type DeleteInstanceResponse = Message<"io.highstate.v1.DeleteInstanceResp
  * Use `create(DeleteInstanceResponseSchema)` to create a new message.
  */
 export const DeleteInstanceResponseSchema: GenMessage<DeleteInstanceResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 13);
+  messageDesc(file_io_highstate_v1_project_model, 16);
 
 /**
  * UpdateHubRequest replaces selected mutable fields of a hub.
@@ -500,7 +646,7 @@ export type UpdateHubRequest = Message<"io.highstate.v1.UpdateHubRequest"> & {
  * Use `create(UpdateHubRequestSchema)` to create a new message.
  */
 export const UpdateHubRequestSchema: GenMessage<UpdateHubRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 14);
+  messageDesc(file_io_highstate_v1_project_model, 17);
 
 /**
  * UpdateHubResponse returns the canonical updated hub.
@@ -521,7 +667,7 @@ export type UpdateHubResponse = Message<"io.highstate.v1.UpdateHubResponse"> & {
  * Use `create(UpdateHubResponseSchema)` to create a new message.
  */
 export const UpdateHubResponseSchema: GenMessage<UpdateHubResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 15);
+  messageDesc(file_io_highstate_v1_project_model, 18);
 
 /**
  * DeleteHubRequest deletes one hub.
@@ -549,7 +695,7 @@ export type DeleteHubRequest = Message<"io.highstate.v1.DeleteHubRequest"> & {
  * Use `create(DeleteHubRequestSchema)` to create a new message.
  */
 export const DeleteHubRequestSchema: GenMessage<DeleteHubRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 16);
+  messageDesc(file_io_highstate_v1_project_model, 19);
 
 /**
  * DeleteHubResponse reports successful deletion.
@@ -564,7 +710,7 @@ export type DeleteHubResponse = Message<"io.highstate.v1.DeleteHubResponse"> & {
  * Use `create(DeleteHubResponseSchema)` to create a new message.
  */
 export const DeleteHubResponseSchema: GenMessage<DeleteHubResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_project_model, 17);
+  messageDesc(file_io_highstate_v1_project_model, 20);
 
 /**
  * ProjectModelService manages project models.
@@ -601,6 +747,16 @@ export const ProjectModelService: GenService<{
     methodKind: "unary";
     input: typeof UpdateInstanceRequestSchema;
     output: typeof UpdateInstanceResponseSchema;
+  },
+  /**
+   * Patches nested instance argument values atomically.
+   *
+   * @generated from rpc io.highstate.v1.ProjectModelService.PatchInstanceArguments
+   */
+  patchInstanceArguments: {
+    methodKind: "unary";
+    input: typeof PatchInstanceArgumentsRequestSchema;
+    output: typeof PatchInstanceArgumentsResponseSchema;
   },
   /**
    * Renames an instance and updates its references.

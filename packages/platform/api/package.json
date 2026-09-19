@@ -24,14 +24,17 @@
     "access": "public"
   },
   "nx": {
+    "implicitDependencies": [
+      "!@highstate/cli"
+    ],
     "tags": [
       "platform"
     ]
   },
   "scripts": {
     "build": "highstate build",
-    "generate-sdk": "buf lint && buf generate --include-imports",
-    "proto:check": "buf format --diff --exit-code && buf lint",
+    "generate-sdk": "buf lint protocol && buf generate --include-imports",
+    "proto:check": "buf format protocol --diff --exit-code && buf lint protocol",
     "test": "bun run --bun vitest run",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",

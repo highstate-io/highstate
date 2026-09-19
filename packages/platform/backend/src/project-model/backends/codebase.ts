@@ -1,6 +1,6 @@
 import type { Logger } from "pino"
 import type { ProjectModel, ProjectModelStorageSpec, ProjectOutput } from "../../shared"
-import type { ProjectModelBackend } from "../abstractions"
+import type { InstanceArgumentPatchOperation, ProjectModelBackend } from "../abstractions"
 import { constants } from "node:fs"
 import { access, mkdir, readFile, writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
@@ -18,6 +18,7 @@ import { parse, stringify } from "yaml"
 import { z } from "zod"
 import { resolveMainLocalProject } from "../../common"
 import {
+  ProjectModelError,
   ProjectModelHubAlreadyExistsError,
   ProjectModelHubNotFoundError,
   ProjectModelInstanceAlreadyExistsError,
@@ -29,6 +30,7 @@ import {
   applyInstancePatch,
   cleanupHubReferences,
   cleanupInstanceReferences,
+  patchInstanceArguments,
   updateInstanceReferences,
 } from "../utils"
 
@@ -114,6 +116,43 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
       })
     } catch (error) {
       throw new ProjectModelOperationError("update instance", project.id, error)
+    }
+  }
+
+  async patchInstanceArguments(
+    project: ProjectOutput,
+    spec: ProjectModelStorageSpec,
+    instanceId: string,
+    operations: readonly InstanceArgumentPatchOperation[],
+    validate: (args: Record<string, unknown>) => void,
+    dryRun: boolean,
+  ): Promise<InstanceModel> {
+    assertCodebaseSpec(spec)
+
+    try {
+      return await this.withProject(
+        project.name,
+        projectData => {
+          const instance = projectData.instances[instanceId]
+          if (!instance) {
+            throw new ProjectModelInstanceNotFoundError(project.id, instanceId)
+          }
+
+          const args = patchInstanceArguments(instance.args ?? {}, operations)
+          validate(args)
+          instance.args = args
+
+          this.logger.info(
+            { projectId: project.id, instanceId, dryRun },
+            "patched instance arguments in project model",
+          )
+          return instance
+        },
+        !dryRun,
+      )
+    } catch (error) {
+      if (error instanceof ProjectModelError) throw error
+      throw new ProjectModelOperationError("patch instance arguments", project.id, error)
     }
   }
 
@@ -330,12 +369,15 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
   private async withProject<T>(
     projectName: string,
     callback: (project: z.infer<typeof codebaseProjectDataSchema>) => T,
+    persist = true,
   ): Promise<T> {
     return await this.lock.acquire(projectName, async () => {
       const projectData = await this.loadProject(projectName)
 
       const result = callback(projectData)
-      await this.writeProject(projectName, projectData)
+      if (persist) {
+        await this.writeProject(projectName, projectData)
+      }
 
       return result
     })

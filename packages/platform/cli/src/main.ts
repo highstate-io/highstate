@@ -1,18 +1,16 @@
 import { Builtins, Cli } from "clipanion"
-import {
-  BackendIdentityCommand,
-  BackendUnlockMethodAddCommand,
-  BackendUnlockMethodDeleteCommand,
-  BackendUnlockMethodListCommand,
-  BuildCommand,
-  DesignerCommand,
-  InitCommand,
-  PackageCreateCommand,
-  PackageListCommand,
-  PackageRemoveCommand,
-  PackageUpdateReferencesCommand,
-  UpdateCommand,
-} from "./commands"
+import { BackendIdentityCommand } from "./commands/backend/identity"
+import { BackendUnlockMethodAddCommand } from "./commands/backend/unlock-method/add"
+import { BackendUnlockMethodDeleteCommand } from "./commands/backend/unlock-method/delete"
+import { BackendUnlockMethodListCommand } from "./commands/backend/unlock-method/list"
+import { BuildCommand } from "./commands/build"
+import { DesignerCommand } from "./commands/designer"
+import { InitCommand } from "./commands/init"
+import { PackageCreateCommand } from "./commands/package/create"
+import { PackageListCommand } from "./commands/package/list"
+import { PackageRemoveCommand } from "./commands/package/remove"
+import { PackageUpdateReferencesCommand } from "./commands/package/update-references"
+import { UpdateCommand } from "./commands/update"
 import { readCurrentPackageVersion } from "./shared"
 
 const version = await readCurrentPackageVersion(import.meta.url)
@@ -38,4 +36,12 @@ cli.register(PackageRemoveCommand)
 cli.register(Builtins.HelpCommand)
 cli.register(Builtins.VersionCommand)
 
-await cli.runExit(process.argv.slice(2))
+const args = process.argv.slice(2)
+
+if (args[0] !== "build") {
+  const { default: registerRemoteCommands } = await import("./register-remote-commands")
+
+  registerRemoteCommands(cli)
+}
+
+await cli.runExit(args)

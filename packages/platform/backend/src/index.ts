@@ -1,3 +1,4 @@
+export type { InstanceArgumentPatchOperation } from "./project-model"
 export * from "./business"
 export * from "./common"
 export * from "./config"

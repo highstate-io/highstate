@@ -2,6 +2,7 @@ import type { ServiceImpl } from "@connectrpc/connect"
 import type { Services } from "@highstate/backend"
 import {
   HubSchema,
+  InstanceArgumentPatchOperation_Operation,
   InstanceSchema,
   type ProjectModelService,
   type UpdateHubRequest,
@@ -13,6 +14,7 @@ import {
   authenticateProject,
   fromHub,
   fromInstance,
+  fromInstanceArgumentPatchOperation,
   parseArgument,
   parseValue,
   toHub,
@@ -42,6 +44,31 @@ const hubMutablePaths = new Set([
   "inputs",
   "injection_inputs",
 ])
+const patchOperationSchema = z
+  .object({
+    operation: z.union([
+      z.literal(InstanceArgumentPatchOperation_Operation.ADD),
+      z.literal(InstanceArgumentPatchOperation_Operation.REPLACE),
+      z.literal(InstanceArgumentPatchOperation_Operation.REMOVE),
+      z.literal(InstanceArgumentPatchOperation_Operation.TEST),
+    ]),
+    path: z.string(),
+    value: z.unknown().optional(),
+  })
+  .superRefine((operation, context) => {
+    const requiresValue =
+      operation.operation === InstanceArgumentPatchOperation_Operation.ADD ||
+      operation.operation === InstanceArgumentPatchOperation_Operation.REPLACE ||
+      operation.operation === InstanceArgumentPatchOperation_Operation.TEST
+
+    if (requiresValue && operation.value === undefined) {
+      context.addIssue({ code: "custom", path: ["value"], message: "Value is required" })
+    }
+
+    if (!requiresValue && operation.value !== undefined) {
+      context.addIssue({ code: "custom", path: ["value"], message: "Value must not be set" })
+    }
+  })
 
 export function createProjectModelService(
   services: Services,
@@ -81,6 +108,27 @@ export function createProjectModelService(
         requestContext,
         instanceId,
         patch,
+      )
+
+      return { instance: toInstance(instance) }
+    },
+
+    async patchInstanceArguments(request, context) {
+      const requestContext = await authenticateProject(services, request, context)
+      const instanceId = parseArgument(request, "instanceId", instanceIdSchema)
+      const requestOperations = parseArgument(
+        request,
+        "operations",
+        patchOperationSchema.array().min(1),
+      )
+      const operations = requestOperations.map((_, index) =>
+        fromInstanceArgumentPatchOperation(request.operations[index]),
+      )
+      const instance = await services.projectService.patchInstanceArguments(
+        requestContext,
+        instanceId,
+        operations,
+        request.dryRun,
       )
 
       return { instance: toInstance(instance) }

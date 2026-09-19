@@ -10,12 +10,12 @@ test("replaces workspace dependencies with publishable versions", () => {
           "@highstate/backend": "workspace:*",
           nuxt: "4.3.1",
         },
-        optionalDependencies: { "@highstate/mcp": "workspace:^" },
+        optionalDependencies: { "@highstate/api": "workspace:^" },
         peerDependencies: { "@highstate/contract": "workspace:~" },
       },
       new Map([
         ["@highstate/backend", "0.30.3"],
-        ["@highstate/mcp", "0.30.3"],
+        ["@highstate/api", "0.30.3"],
         ["@highstate/contract", "0.30.3"],
       ]),
       "0.0.0-preview-abc1234",
@@ -27,7 +27,7 @@ test("replaces workspace dependencies with publishable versions", () => {
       "@highstate/backend": "0.30.3",
       nuxt: "4.3.1",
     },
-    optionalDependencies: { "@highstate/mcp": "0.30.3" },
+    optionalDependencies: { "@highstate/api": "0.30.3" },
     peerDependencies: { "@highstate/contract": "0.30.3" },
   })
 })

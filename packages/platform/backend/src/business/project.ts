@@ -1,6 +1,7 @@
 import type { InputJsonValue } from "@prisma/client/runtime/client"
 import type { Logger } from "pino"
 import type { BackendRequestContext, ProjectRequestContext } from "../common"
+import type { InstanceArgumentPatchOperation } from "../project-model"
 import type { PubSubManager } from "../pubsub"
 import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
@@ -14,9 +15,11 @@ import {
   type InstanceModelPatch,
   instanceModelSchema,
   isUnitModel,
+  parseArgumentValue,
   parseInstanceId,
 } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
+import { Ajv } from "ajv"
 import { z } from "zod"
 import {
   buildBackendAuthorizationWhere,
@@ -37,6 +40,7 @@ import {
 import {
   applyInstancePatch,
   type ProjectEvaluationSubsystem,
+  ProjectModelArgumentsInvalidError,
   type ProjectModelBackend,
   ProjectModelError,
   ProjectModelInstanceNotFoundError,
@@ -381,6 +385,89 @@ export class ProjectService {
       this.logger.error(
         { error, projectId: context.projectId, instanceId },
         "failed to update instance",
+      )
+      throw error
+    }
+  }
+
+  async patchInstanceArguments(
+    context: ProjectRequestContext,
+    instanceId: InstanceId,
+    operations: readonly InstanceArgumentPatchOperation[],
+    dryRun: boolean,
+  ): Promise<InstanceModel> {
+    requireProjectPermission(context, "instance-model.update", { instanceId })
+
+    try {
+      const [{ project, backend, spec }, library] = await Promise.all([
+        this.getProjectWithBackend(context.projectId),
+        this.libraryService.getLibraryModelCore(context.projectId),
+      ])
+      const componentType = parseInstanceId(instanceId)[0]
+      const component = library.components[componentType]
+      if (!component) {
+        throw new ProjectModelArgumentsInvalidError([
+          { argument: "", description: `Component "${componentType}" was not found` },
+        ])
+      }
+
+      const instance = await backend.patchInstanceArguments(
+        project,
+        spec,
+        instanceId,
+        operations,
+        args => {
+          const ajv = new Ajv({ strict: false })
+          const violations: { argument: string; description: string }[] = []
+
+          for (const name of Object.keys(args)) {
+            if (!(name in component.args)) {
+              violations.push({ argument: name, description: "The argument is not declared" })
+            }
+          }
+
+          for (const [name, argument] of Object.entries(component.args)) {
+            try {
+              const value = parseArgumentValue(args[name])
+              if (value === undefined) {
+                if (argument.required) {
+                  violations.push({ argument: name, description: "The argument is required" })
+                }
+                continue
+              }
+              if (!ajv.validate(argument.schema, value)) {
+                violations.push({ argument: name, description: ajv.errorsText() })
+              }
+            } catch (error) {
+              violations.push({
+                argument: name,
+                description: error instanceof Error ? error.message : String(error),
+              })
+            }
+          }
+
+          if (violations.length > 0) {
+            throw new ProjectModelArgumentsInvalidError(violations)
+          }
+        },
+        dryRun,
+      )
+
+      if (!dryRun) {
+        await this.pubsubManager.publish(["project-model", context.projectId], {
+          updatedInstances: [instance],
+        })
+
+        if (!isUnitModel(component)) {
+          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+        }
+      }
+
+      return instance
+    } catch (error) {
+      this.logger.error(
+        { error, projectId: context.projectId, instanceId, dryRun },
+        "failed to patch instance arguments",
       )
       throw error
     }

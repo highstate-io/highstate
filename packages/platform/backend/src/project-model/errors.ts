@@ -93,6 +93,44 @@ export class ProjectModelOperationError extends ProjectModelError {
   }
 }
 
+export class ProjectModelArgumentPatchError extends ProjectModelError {
+  constructor(
+    readonly operationIndex: number,
+    readonly path: string,
+    readonly violationReason: string,
+    description: string,
+    cause?: unknown,
+  ) {
+    super(`Instance argument patch operation ${operationIndex + 1} is invalid`, {
+      reason: "INSTANCE_ARGUMENT_PATCH_INVALID",
+      category: BackendErrorCategory.InvalidArgument,
+      metadata: { operationIndex: String(operationIndex), violationReason },
+      fieldViolations: [
+        {
+          field: `operations.${operationIndex}.path`,
+          reason: violationReason,
+          description,
+        },
+      ],
+      cause,
+    })
+  }
+}
+
+export class ProjectModelArgumentsInvalidError extends ProjectModelError {
+  constructor(readonly violations: readonly { argument: string; description: string }[]) {
+    super("Patched instance arguments do not satisfy the component schema", {
+      reason: "INSTANCE_ARGUMENTS_INVALID",
+      category: BackendErrorCategory.InvalidArgument,
+      fieldViolations: violations.map(violation => ({
+        field: `arguments.${violation.argument}`,
+        reason: "SCHEMA_INVALID",
+        description: violation.description,
+      })),
+    })
+  }
+}
+
 export class ProjectModelCircularInputReferenceError extends ProjectModelError {
   readonly cycle: readonly string[]
 

@@ -1,3 +1,4 @@
+import type { InstanceArgumentPatchOperation as BackendInstanceArgumentPatchOperation } from "@highstate/backend"
 import type {
   InstanceState as BackendInstanceState,
   Operation as BackendOperation,
@@ -17,6 +18,8 @@ import {
   type Hub,
   HubSchema,
   type Instance,
+  type InstanceArgumentPatchOperation,
+  InstanceArgumentPatchOperation_Operation,
   type InstanceCustomStatus,
   InstanceCustomStatusSchema,
   InstanceOperationStatus,
@@ -203,6 +206,25 @@ export function toInstancePatch(instance: Instance, paths: readonly string[]): I
   }
 
   return patch
+}
+
+export function fromInstanceArgumentPatchOperation(
+  operation: InstanceArgumentPatchOperation,
+): BackendInstanceArgumentPatchOperation {
+  const value = operation.value ? toJson(ValueSchema, operation.value) : undefined
+
+  switch (operation.operation) {
+    case InstanceArgumentPatchOperation_Operation.ADD:
+      return { operation: "add", path: operation.path, value }
+    case InstanceArgumentPatchOperation_Operation.REPLACE:
+      return { operation: "replace", path: operation.path, value }
+    case InstanceArgumentPatchOperation_Operation.REMOVE:
+      return { operation: "remove", path: operation.path }
+    case InstanceArgumentPatchOperation_Operation.TEST:
+      return { operation: "test", path: operation.path, value }
+    default:
+      throw new Error("Instance argument patch operation must be specified")
+  }
 }
 
 export function toHubPatch(hub: Hub, paths: readonly string[]): HubModelPatch {
