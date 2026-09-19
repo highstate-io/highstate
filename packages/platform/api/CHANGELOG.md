@@ -1,3 +1,9 @@
+## 1.0.0
+
+### Minor Changes
+
+- [#38](https://github.com/highstate-io/highstate/pull/38) [`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933) Thanks [@Exeteres](https://github.com/Exeteres)! - Patch nested instance arguments atomically through the public API and CLI, including values stored as YAML.
+
 ## 0.31.2
 
 ## 0.31.1

@@ -1,3 +1,20 @@
+## 1.0.0
+
+### Minor Changes
+
+- [#38](https://github.com/highstate-io/highstate/pull/38) [`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933) Thanks [@Exeteres](https://github.com/Exeteres)! - Manage remote Highstate projects through the CLI and remove the Designer-hosted MCP endpoint.
+
+- [#38](https://github.com/highstate-io/highstate/pull/38) [`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933) Thanks [@Exeteres](https://github.com/Exeteres)! - Patch nested instance arguments atomically through the public API and CLI, including values stored as YAML.
+
+### Patch Changes
+
+- [#44](https://github.com/highstate-io/highstate/pull/44) [`4fe79a5`](https://github.com/highstate-io/highstate/commit/4fe79a57877cebf05757af70ea951f54df9749ef) Thanks [@Exeteres](https://github.com/Exeteres)! - Force Bun to refresh dependencies after `highstate update`, including pull request previews.
+
+- Updated dependencies [[`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933)]:
+  - @highstate/api@1.0.0
+  - @highstate/backend@1.0.0
+  - @highstate/contract@1.0.0
+
 ## 0.31.2
 
 ### Patch Changes

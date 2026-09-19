@@ -1,3 +1,18 @@
+## 1.0.0
+
+### Major Changes
+
+- [#38](https://github.com/highstate-io/highstate/pull/38) [`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933) Thanks [@Exeteres](https://github.com/Exeteres)! - Manage remote Highstate projects through the CLI and remove the Designer-hosted MCP endpoint.
+
+### Patch Changes
+
+- [#43](https://github.com/highstate-io/highstate/pull/43) [`7aac9cb`](https://github.com/highstate-io/highstate/commit/7aac9cb039c984a1ee8bf6f44f76b4e6f4c79482) Thanks [@Exeteres](https://github.com/Exeteres)! - Preserve placed node positions and connections during external project model updates, and isolate concurrent development servers with independently assigned ports.
+
+- Updated dependencies [[`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933)]:
+  - @highstate/backend@1.0.0
+  - @highstate/backend-api@1.0.0
+  - @highstate/contract@1.0.0
+
 ## 0.31.2
 
 ### Patch Changes

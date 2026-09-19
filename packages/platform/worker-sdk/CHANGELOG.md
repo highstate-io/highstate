@@ -1,3 +1,11 @@
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933)]:
+  - @highstate/api@1.0.0
+  - @highstate/contract@1.0.0
+
 ## 0.31.2
 
 ### Patch Changes

@@ -1,3 +1,13 @@
+## 0.30.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @highstate/pulumi@1.0.0
+  - @highstate/common@0.30.2
+  - @highstate/library@0.30.2
+  - @highstate/contract@1.0.0
+
 ## 0.30.1
 
 ### Patch Changes

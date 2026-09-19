@@ -1,3 +1,10 @@
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933), [`4fe79a5`](https://github.com/highstate-io/highstate/commit/4fe79a57877cebf05757af70ea951f54df9749ef), [`cc06682`](https://github.com/highstate-io/highstate/commit/cc06682cfb43d2770b76f44aeacc8f9161470933)]:
+  - @highstate/cli@1.0.0
+
 ## 0.31.2
 
 ### Patch Changes
