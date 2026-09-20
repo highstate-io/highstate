@@ -24,9 +24,6 @@ message InstanceCustomStatusMeta {
 
 // InstanceState describes persisted runtime state for one project instance.
 message InstanceState {
-  reserved 18;
-  reserved "resolved_inputs";
-
   // The stable state ID.
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -77,6 +74,12 @@ message InstanceState {
 
   // The model snapshot captured at the latest non-preview operation start.
   optional Instance model = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The packaged library snapshot used by the latest successful non-preview operation.
+  optional string library_snapshot_id = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The direct package version that supplied the deployed component implementation.
+  optional string library_package_version_id = 19 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EvaluationState describes the latest composite evaluation result.
@@ -92,6 +95,18 @@ message EvaluationState {
 
   // The time when evaluation last finished.
   google.protobuf.Timestamp evaluated_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The packaged library snapshot used to produce this evaluation state.
+  optional string library_snapshot_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resident model revision used by the evaluation.
+  string model_revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The local development overlay revision used by the evaluation, when active.
+  optional string local_overlay_revision = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The runtime action that produced this evaluation state.
+  string evaluation_action_id = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // InstanceOperationState describes operation progress for one instance.
@@ -122,6 +137,21 @@ message InstanceOperationState {
 
   // The time when work on this instance finished.
   optional google.protobuf.Timestamp finished_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The packaged library snapshot targeted by this instance operation.
+  optional string library_snapshot_id = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The direct package version supplying the targeted component implementation.
+  optional string library_package_version_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The deployed direct package version replaced by this operation, when different.
+  optional string previous_library_package_version_id = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether this instance operation used the local development library overlay.
+  bool local_overlay_active = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The local development overlay revision used by this instance operation.
+  optional string local_overlay_revision = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // InstanceCustomStatus describes a worker-owned status attached to an instance.

@@ -1,0 +1,129 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "io/highstate/runtime/v1/common.proto";
+import "io/highstate/runtime/v1/evaluation.proto";
+import "io/highstate/runtime/v1/pulumi.proto";
+import "io/highstate/runtime/v1/sidecar.proto";
+import "io/highstate/runtime/v1/worker.proto";
+
+// ConnectRequest multiplexes one workload-originated event over an authenticated connection.
+message ConnectRequest {
+  // The project operation ID, when the event belongs to an operation.
+  optional string operation_id = 1;
+
+  // The independently cancellable action ID, when the event belongs to an action.
+  optional string action_id = 2;
+
+  // The logical byte-stream ID, when the event carries streaming traffic.
+  optional string stream_id = 3;
+
+  // The request ID used to correlate a request and its terminal response.
+  optional string request_id = 4;
+
+  // The workload-originated event carried by this envelope.
+  oneof event {
+    // The initial workload handshake.
+    ClientHello client_hello = 10;
+
+    // A connection heartbeat and lease renewal.
+    Heartbeat heartbeat = 11;
+
+    // A flow-control window update for one logical stream.
+    WindowUpdate window_update = 12;
+
+    // A structured Pulumi engine event.
+    PulumiEngineEvent pulumi_engine_event = 20;
+
+    // Standard output or standard error from an action.
+    ActionOutput action_output = 21;
+
+    // Successful completion of a command action.
+    ActionCompleted action_completed = 22;
+
+    // Failure of a request or action.
+    RuntimeError error = 23;
+
+    // The terminal result of evaluating the complete project composite graph.
+    CompositeEvaluationResult composite_evaluation_result = 24;
+
+    // A request for resolved unit configuration.
+    UnitConfigurationRequest unit_configuration_request = 30;
+
+    // Unit results submitted to the backend.
+    UnitResult unit_result = 31;
+
+    // A request to create an operation-scoped sidecar.
+    CreateSidecarRequest create_sidecar_request = 40;
+
+    // Registration state for a worker workload.
+    WorkerRegistration worker_registration = 50;
+
+    // Worker panel or proxy traffic.
+    WorkerProxyData worker_proxy_data = 51;
+
+    // Acknowledgement of a cancellation request.
+    CancelResponse cancel_response = 70;
+  }
+}
+
+// ConnectResponse multiplexes one backend-originated event over an authenticated workload connection.
+message ConnectResponse {
+  // The project operation ID, when the event belongs to an operation.
+  optional string operation_id = 1;
+
+  // The independently cancellable action ID, when the event belongs to an action.
+  optional string action_id = 2;
+
+  // The logical byte-stream ID, when the event carries streaming traffic.
+  optional string stream_id = 3;
+
+  // The request ID used to correlate a request and its terminal response.
+  optional string request_id = 4;
+
+  // The backend-originated event carried by this envelope.
+  oneof event {
+    // The accepted workload handshake.
+    ServerHello server_hello = 10;
+
+    // A flow-control window update for one logical stream.
+    WindowUpdate window_update = 11;
+
+    // Failure of a request, action, or stream.
+    RuntimeError error = 12;
+
+    // A request to run one Pulumi action.
+    PulumiActionRequest pulumi_action_request = 20;
+
+    // A request to evaluate the complete project composite graph.
+    CompositeEvaluationRequest composite_evaluation_request = 21;
+
+    // Resolved unit configuration supplied by the backend.
+    UnitConfigurationResponse unit_configuration_response = 30;
+
+    // The result of sidecar creation.
+    CreateSidecarResponse create_sidecar_response = 40;
+
+    // A sidecar lifecycle event.
+    SidecarEvent sidecar_event = 41;
+
+    // A worker control event from the backend.
+    WorkerControl worker_control = 50;
+
+    // Worker panel or proxy traffic.
+    WorkerProxyData worker_proxy_data = 51;
+
+    // A request to cancel one action or operation.
+    CancelRequest cancel_request = 70;
+  }
+}
+
+// RuntimeService connects authenticated runtime-aware workloads to the backend orchestrator.
+service RuntimeService {
+  // Opens one multiplexed workload connection.
+  //
+  // ClientHello and ServerHello are the first messages in their respective directions. Typed results are
+  // terminal for evaluation actions; ActionCompleted is terminal for Pulumi command actions;
+  // RuntimeError is terminal at the correlation scope carried by its envelope.
+  rpc Connect(stream ConnectRequest) returns (stream ConnectResponse);
+}

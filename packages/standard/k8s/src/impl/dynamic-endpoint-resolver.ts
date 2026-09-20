@@ -28,9 +28,10 @@ export const resolveDynamicEndpoint = dynamicEndpointResolverMediator.implement(
     const kubeconfig = await readFile(config.path, "utf-8")
 
     const identity = getEntityId(endpoint)
+    const dnsName = `${identity}.highstate.local`
 
-    await getHighstateRuntime().sidecar.start({
-      identity,
+    const sidecar = await getHighstateRuntime().sidecar.start({
+      dnsName,
       image: images["terminal-kubectl"].image,
       command: ["bash", "-lc"],
       args: [
@@ -66,6 +67,6 @@ export const resolveDynamicEndpoint = dynamicEndpointResolverMediator.implement(
       },
     })
 
-    return rebaseEndpoint(endpoint, parseEndpoint(`${identity}.highstate.local:${endpoint.port}`))
+    return rebaseEndpoint(endpoint, parseEndpoint(`${sidecar.host}:${endpoint.port}`))
   },
 )

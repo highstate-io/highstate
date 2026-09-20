@@ -36,11 +36,11 @@ message Project {
   // The ID of the project model storage.
   string model_storage_id = 5 [(google.api.field_behavior) = IMMUTABLE];
 
-  // The ID of the project library.
-  string library_id = 6 [(google.api.field_behavior) = IMMUTABLE];
+  // The ID of the container runtime used for every project workload.
+  string container_runtime_id = 6;
 
-  // The ID of the Pulumi backend.
-  string pulumi_backend_id = 7 [(google.api.field_behavior) = IMMUTABLE];
+  // The ID of the Pulumi state backend.
+  string pulumi_state_backend_id = 7;
 
   // The time when the project was created.
   google.protobuf.Timestamp created_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];

@@ -96,6 +96,7 @@ export async function createForceAbortableCommand(
 
       const proc = Bun.spawn(commandLine, {
         cwd,
+        detached: Boolean(options.hostsFilePath),
         env: options.hostsFilePath
           ? {
               ...env,
@@ -145,8 +146,17 @@ export async function createForceAbortableCommand(
       }
 
       if (signal) {
+        const kill = (signal: NodeJS.Signals) => {
+          if (options.hostsFilePath) {
+            process.kill(-proc.pid, signal)
+            return
+          }
+
+          proc.kill(signal)
+        }
+
         const abortHandler = () => {
-          proc.kill("SIGINT")
+          kill("SIGINT")
         }
 
         signal.addEventListener("abort", () => {
@@ -160,7 +170,7 @@ export async function createForceAbortableCommand(
         // custom logic to handle force kill
         if (signal.forceSignal) {
           const forceAbortHandler = () => {
-            proc.kill("SIGKILL")
+            kill("SIGKILL")
           }
 
           signal.forceSignal.addEventListener("abort", () => {

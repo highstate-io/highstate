@@ -43,7 +43,10 @@ export const runtimeSidecarReadinessSchema = z.discriminatedUnion("type", [
 ])
 
 export const runtimeSidecarStartInputSchema = z.object({
-  identity: z.string().regex(/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/),
+  dnsName: z
+    .string()
+    .max(253)
+    .regex(/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)(\.([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?))*$/),
   image: z.string(),
   command: z.string().array().optional(),
   args: z.string().array().default([]),

@@ -1,17 +1,96 @@
-model Library {
-    /// The CUIDv2 of the library.
+enum LibrarySnapshotImageStatus {
+    queued
+    resolving
+    installing
+    evaluating
+    validating
+    building
+    pushing
+    verifying
+    ready
+    failed
+}
+
+/// A backend-local image materialized from a portable project library snapshot.
+///
+/// The referenced snapshot lives in the project's separate database, so its ID and hash are stored without
+/// a database relation. This record is disposable cache state and can be rebuilt from the snapshot.
+model LibrarySnapshotImage {
+    /// The CUIDv2 of the image cache entry.
     id String @id @default(cuid(2))
 
-    /// The metadata of the library managed by the backend.
-    ///
-    /// [CommonObjectMeta]
-    meta Json
+    /// The ID of the project that owns the snapshot.
+    projectId String
 
-    /// The spec of the library.
-    ///
-    /// [LibrarySpec]
-    spec Json
+    /// The opaque ID of the library snapshot in the project database.
+    snapshotId String
 
-    /// The projects using this library.
-    projects Project[]
+    /// The canonical hash of the referenced library snapshot.
+    snapshotHash String
+
+    /// The ID of the runtime where the image is available.
+    runtimeId String
+
+    /// The current image materialization status.
+    status LibrarySnapshotImageStatus @default(queued)
+
+    /// Incremented for each materialization attempt so stale workload results can be rejected.
+    generation Int @default(1)
+
+    /// Progress details within the current materialization phase.
+    progress Json?
+
+    /// The runtime-local image reference, when available.
+    imageRef String?
+
+    /// The immutable OCI image digest, when available.
+    imageDigest String?
+
+    /// The hash reported by the completed image build.
+    imageHash String?
+
+    /// The most recent materialization error.
+    error String?
+
+    /// The time when the cache entry was created.
+    createdAt DateTime @default(now())
+
+    /// The time when the cache entry was last updated.
+    updatedAt DateTime @updatedAt
+
+    /// The time when image materialization completed.
+    completedAt DateTime?
+
+    /// The project that owns the snapshot.
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    /// The runtime where the image is available.
+    runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+
+    /// Materialization attempts for this cache entry.
+    attempts LibrarySnapshotImageAttempt[]
+
+    @@unique([projectId, snapshotId, runtimeId])
+    @@index([runtimeId, status])
+}
+
+/// One generation-fenced attempt to materialize a project library snapshot image.
+model LibrarySnapshotImageAttempt {
+    id String @id @default(cuid(2))
+    imageId String
+    workloadId String @unique
+    generation Int
+    status LibrarySnapshotImageStatus @default(queued)
+    progress Json?
+    error String?
+    startedAt DateTime?
+    finishedAt DateTime?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    image LibrarySnapshotImage @relation(fields: [imageId], references: [id], onDelete: Cascade)
+    workload RuntimeWorkload @relation(fields: [workloadId], references: [id], onDelete: Restrict)
+
+    @@unique([imageId, generation])
+    @@index([status])
 }

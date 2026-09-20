@@ -1,0 +1,86 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+
+// PulumiActionRequest starts one independently cancellable Pulumi action.
+message PulumiActionRequest {
+  // The Pulumi lifecycle action to execute.
+  PulumiAction action = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The Pulumi stack name.
+  string stack_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The backend URL for the selected Pulumi state backend.
+  string state_backend_url = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Secret Pulumi state backend environment supplied only to this action.
+  map<string, string> state_backend_environment = 4 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Pulumi stack configuration keyed by configuration name.
+  map<string, string> stack_configuration = 5;
+
+  // Whether Pulumi engine and provider debug logging is enabled.
+  bool debug = 6;
+}
+
+// PulumiAction identifies a Pulumi lifecycle command.
+enum PulumiAction {
+  // The action was not specified or is not recognized.
+  PULUMI_ACTION_UNSPECIFIED = 0;
+
+  // Preview proposed resource changes.
+  PULUMI_ACTION_PREVIEW = 1;
+
+  // Apply desired resource changes.
+  PULUMI_ACTION_UPDATE = 2;
+
+  // Destroy managed resources.
+  PULUMI_ACTION_DESTROY = 3;
+
+  // Refresh state from providers.
+  PULUMI_ACTION_REFRESH = 4;
+}
+
+// PulumiEngineEvent carries one encoded structured engine event.
+message PulumiEngineEvent {
+  // The JSON-encoded Pulumi engine event.
+  bytes json = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// UnitConfigurationRequest requests backend-owned configuration for one unit invocation.
+message UnitConfigurationRequest {
+  // The instance state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation phase that will invoke the unit.
+  string phase = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UnitConfigurationResponse supplies resolved configuration for one unit invocation.
+message UnitConfigurationResponse {
+  // The resolved unit arguments.
+  google.protobuf.Struct arguments = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The resolved unit inputs.
+  google.protobuf.Struct inputs = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Secret environment variables scoped to the invocation.
+  map<string, string> secret_environment = 3 [(google.api.field_behavior) = INPUT_ONLY];
+}
+
+// UnitResult submits outputs and runtime state produced by one unit invocation.
+message UnitResult {
+  // The instance state ID.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The unit outputs.
+  google.protobuf.Struct outputs = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Runtime-defined status fields.
+  optional google.protobuf.Value status_fields = 3;
+
+  // Whether destroy requires invoking resource hooks.
+  bool has_resource_hooks = 4;
+}
