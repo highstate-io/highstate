@@ -1,5 +1,26 @@
 import { expect, test } from "vitest"
-import { validateChangesets } from "./check-changesets"
+import { parseChangeset, validateChangesets } from "./check-changesets"
+
+test("parses changeset frontmatter without Git branch state", () => {
+  expect(
+    parseChangeset(
+      "safe-release",
+      `---
+"@highstate/library": minor
+'@highstate/wireguard': patch
+---
+
+Release summary.
+`,
+    ),
+  ).toEqual({
+    id: "safe-release",
+    releases: [
+      { name: "@highstate/library", type: "minor" },
+      { name: "@highstate/wireguard", type: "patch" },
+    ],
+  })
+})
 
 test("accepts patch and minor changesets", () => {
   expect(() =>
