@@ -1,16 +1,17 @@
 import { parseAddress, parseEndpoint, parseSubnet } from "@highstate/common"
 import { common, type network as networkLibrary, wireguard } from "@highstate/library"
-import { forUnit, makeEntity, makeSecret } from "@highstate/pulumi"
+import { forUnit, makeEntity, makeSecret, toPromise } from "@highstate/pulumi"
 import { convertPrivateKeyToPublicKey } from "../shared"
 import { parseExistingConfig } from "./parser"
 
-const { name, stateId, args, outputs } = forUnit(wireguard.existingConfig)
+const { name, stateId, secrets, outputs } = forUnit(wireguard.existingConfig)
 
 function parseEndpointValue(endpoint: string): networkLibrary.L4Endpoint {
   return parseEndpoint(`udp://${endpoint}`, 4)
 }
 
-const parsedConfig = parseExistingConfig(args.config)
+const config = await toPromise(secrets.config)
+const parsedConfig = parseExistingConfig(config)
 const wireguardNetwork = makeEntity({
   entity: wireguard.networkEntity,
   identity: `${stateId}:network`,
@@ -97,7 +98,7 @@ const file = makeEntity({
     },
     content: {
       type: "embedded-secret",
-      value: makeSecret(args.config),
+      value: makeSecret(config),
     },
   },
 })

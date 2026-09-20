@@ -76,7 +76,8 @@ When a pull request closes reported issues, add a final `Closes: #123, #456` lin
 
 A pull request that changes a published package includes a changeset describing the user-visible change.
 Run `bun run changeset`, select each published package directly changed by the pull request, and choose the
-appropriate `patch`, `minor`, or `major` increment.
+appropriate `patch` or `minor` increment.
+Major changesets are not used and repository verification rejects them.
 Write the summary as release notes for package users, then commit the generated `.changeset/*.md` file.
 
 Changesets are not required for documentation, tests, CI, release infrastructure, repository maintenance, or

@@ -66,6 +66,7 @@ jobs:
       - name: Validate pending changesets
         if: inputs.retry_existing_version == false
         run: |
+          bun run changesets:check
           bun run release-groups:check
           bun run changeset status --output changeset-status.json
           if [ "$(jq '.releases | length' changeset-status.json)" -eq 0 ]; then

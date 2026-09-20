@@ -1273,7 +1273,7 @@ export const config = defineUnit({
 export const existingConfig = defineUnit({
   type: "wireguard.existing-config.v1",
 
-  args: {
+  secrets: {
     /**
      * The existing wg-quick or awg-quick configuration content.
      */
