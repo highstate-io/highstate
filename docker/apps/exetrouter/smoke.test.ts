@@ -1,9 +1,9 @@
 import { execFileSync } from "node:child_process"
 import { randomUUID } from "node:crypto"
 import { afterAll, beforeAll, expect, test } from "vitest"
-import { backupExcludes, onlineBackupScript, postRestoreScript } from "../packages/standard/k8s.apps/src/exetrouter/backup"
+import { backupExcludes, onlineBackupScript, postRestoreScript } from "../../../packages/standard/k8s.apps/src/exetrouter/backup"
 
-const image = "highstate-exetrouter:smoke"
+const image = "highstate/apps/exetrouter:smoke"
 const prefix = `highstate-exetrouter-${randomUUID()}`
 const volumes = ["state", "runtime", "config", "restored", "repo"].map(name => `${prefix}-${name}`)
 const [state, runtime, config, restored, repo] = volumes
@@ -18,7 +18,7 @@ const configMount = ["-v", `${config}:/etc/exetrouter:ro`]
 const runtimeMount = ["-v", `${runtime}:/run/exetrouter`]
 
 beforeAll(() => {
-  execFileSync("docker", ["build", "-t", image, "-f", "docker/exetrouter.dockerfile", "docker"], {
+  execFileSync("docker", ["build", "-t", image, "docker/apps/exetrouter"], {
     stdio: "inherit", timeout: 300_000,
   })
   for (const volume of volumes) {

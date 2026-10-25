@@ -3,21 +3,21 @@ import { writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
 
 const terminalTargets = [
-  "terminal-base",
-  "terminal-kubectl",
-  "terminal-restic",
-  "terminal-ssh",
-  "terminal-talosctl",
+  "core-terminal-base",
+  "core-terminal-kubectl",
+  "core-terminal-restic",
+  "core-terminal-ssh",
+  "core-terminal-talosctl",
 ] as const
-const workerTargets = ["worker-k8s-monitor", "worker-k8s-dashboard"] as const
-const allTargets = [...terminalTargets, ...workerTargets, "exetrouter"]
+const workerTargets = ["core-worker-k8s-monitor", "core-worker-k8s-dashboard"] as const
+const allTargets = [...terminalTargets, ...workerTargets, "apps-exetrouter"]
 
 const terminalDependents: Record<string, string[]> = {
-  "terminal-base": [...terminalTargets],
-  "terminal-kubectl": ["terminal-kubectl", "terminal-talosctl"],
-  "terminal-restic": ["terminal-restic"],
-  "terminal-ssh": ["terminal-ssh"],
-  "terminal-talosctl": ["terminal-talosctl"],
+  "core-terminal-base": [...terminalTargets],
+  "core-terminal-kubectl": ["core-terminal-kubectl", "core-terminal-talosctl"],
+  "core-terminal-restic": ["core-terminal-restic"],
+  "core-terminal-ssh": ["core-terminal-ssh"],
+  "core-terminal-talosctl": ["core-terminal-talosctl"],
 }
 
 export function selectAffectedImageTargets(
@@ -27,8 +27,8 @@ export function selectAffectedImageTargets(
   const targets = new Set<string>()
 
   for (const path of changedFiles) {
-    if (path.startsWith("docker/exetrouter")) {
-      targets.add("exetrouter")
+    if (path.startsWith("docker/apps/exetrouter/")) {
+      targets.add("apps-exetrouter")
     }
 
     if (path === "docker/docker-bake.hcl" || path === "docker/project.json") {
@@ -36,20 +36,25 @@ export function selectAffectedImageTargets(
       continue
     }
 
-    const match = path.match(/^docker\/(terminal\.[^.]+)\.dockerfile$/)
+    const worker = path.match(/^docker\/core\/(worker\.k8s-(?:monitor|dashboard))\.dockerfile$/)
+    if (worker) {
+      targets.add(`core-${worker[1].replaceAll(".", "-")}`)
+    }
+
+    const match = path.match(/^docker\/core\/(terminal\.[^.]+)\.dockerfile$/)
     if (!match) {
       continue
     }
 
-    const target = match[1].replaceAll(".", "-")
+    const target = `core-${match[1].replaceAll(".", "-")}`
     terminalDependents[target]?.forEach(dependent => targets.add(dependent))
   }
 
   if (affectedProjects.has("@highstate/k8s.monitor-worker")) {
-    targets.add("worker-k8s-monitor")
+    targets.add("core-worker-k8s-monitor")
   }
   if (affectedProjects.has("@highstate/k8s.dashboard-worker")) {
-    targets.add("worker-k8s-dashboard")
+    targets.add("core-worker-k8s-dashboard")
   }
 
   return allTargets.filter(target => targets.has(target))

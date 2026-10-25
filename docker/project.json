@@ -7,11 +7,11 @@
       "executor": "nx:run-commands",
       "cache": true,
       "inputs": [
-        "{projectRoot}/exetrouter*",
+        "{projectRoot}/apps/exetrouter/**/*",
         "{workspaceRoot}/packages/standard/k8s.apps/src/exetrouter/backup.ts"
       ],
       "options": {
-        "command": "bun run --bun vitest run docker/exetrouter-smoke.test.ts",
+        "command": "bun run --bun vitest run docker/apps/exetrouter/smoke.test.ts",
         "cwd": "{workspaceRoot}"
       }
     },
@@ -21,10 +21,7 @@
       "inputs": [
         "{projectRoot}/docker-bake.hcl",
         "{projectRoot}/**/*.dockerfile",
-        "{projectRoot}/exetrouter-entrypoint.sh",
-        "{projectRoot}/exetrouter-sshd.conf",
-        "{workspaceRoot}/packages/standard/k8s.monitor-worker/Dockerfile",
-        "{workspaceRoot}/packages/standard/k8s.dashboard-worker/Dockerfile"
+        "{projectRoot}/apps/**/*"
       ],
       "outputs": [],
       "options": {

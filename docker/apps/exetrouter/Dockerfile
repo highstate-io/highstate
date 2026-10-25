@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssh-server 
     && passwd -d routercli \
     && mkdir -p /run/sshd /var/empty /etc/exetrouter
 
-COPY exetrouter-entrypoint.sh /usr/local/bin/highstate-exetrouter
-COPY exetrouter-sshd.conf /etc/ssh/exetrouter.conf
+COPY entrypoint.sh /usr/local/bin/highstate-exetrouter
+COPY sshd.conf /etc/ssh/exetrouter.conf
 RUN chmod 755 /usr/local/bin/highstate-exetrouter
 ENV EXRD_CONFIG=/etc/exetrouter/config.json
 ENTRYPOINT ["/usr/local/bin/highstate-exetrouter"]

@@ -9,6 +9,36 @@ const roots: string[] = []
 afterEach(async () => Promise.all(roots.splice(0).map(root => rm(root, { recursive: true }))))
 
 describe("synchronizeRepositoryImages", () => {
+  test("preserves application namespaces when changing registry prefixes", async () => {
+    const root = join(tmpdir(), `.repository-images-${crypto.randomUUID()}`)
+    roots.push(root)
+    const assets = join(root, "packages", "standard", "apps", "assets")
+    await mkdir(assets, { recursive: true })
+    const path = join(assets, "images.json")
+    await writeFile(path, JSON.stringify({
+      exetrouter: {
+        name: "ghcr.io/highstate-io/apps/exetrouter",
+        tag: "latest",
+        image: "old",
+      },
+    }))
+    const digest = `sha256:${"e".repeat(64)}`
+
+    const result = await synchronizeRepositoryImages({
+      root,
+      prefix: "ghcr.io/highstate-io/dev",
+      tag: "pr-60",
+      imageNames: new Set(["exetrouter", "apps/exetrouter"]),
+      resolveDigest: async reference => {
+        expect(reference).toBe("ghcr.io/highstate-io/dev/apps/exetrouter:pr-60")
+        return digest
+      },
+    })
+
+    expect(result.images.exetrouter).toBe(`ghcr.io/highstate-io/dev/apps/exetrouter:pr-60@${digest}`)
+    expect(JSON.parse(await readFile(path, "utf8")).exetrouter.name).toBe("ghcr.io/highstate-io/dev/apps/exetrouter")
+  })
+
   test("updates managed images and preserves external images", async () => {
     const root = join(tmpdir(), `.repository-images-${crypto.randomUUID()}`)
     roots.push(root)
