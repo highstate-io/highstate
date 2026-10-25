@@ -16,6 +16,7 @@ export interface DualAbortSignal extends AbortSignal {
 
 export type ForceAbortableCommandOptions = {
   hostsFilePath?: string
+  unshareForwardSignals?: boolean
 }
 
 export async function createForceAbortableCommand(
@@ -83,6 +84,7 @@ export async function createForceAbortableCommand(
             "--mount",
             "--propagation",
             "private",
+            ...((options.unshareForwardSignals ?? true) ? ["--forward-signals"] : []),
             "--kill-child=SIGKILL",
             "--",
             "sh",

@@ -44,6 +44,10 @@ type Events = {
 export const localRunnerBackendConfig = z.object({
   HIGHSTATE_RUNNER_BACKEND_LOCAL_PRINT_OUTPUT: z.coerce.boolean().default(true),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_CACHE_DIR: z.string().optional(),
+  HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform(value => value === "true"),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_BINARY: z.string().default("docker"),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_USE_SUDO: z.coerce.boolean().default(false),
   HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_HOST: z.string().optional(),

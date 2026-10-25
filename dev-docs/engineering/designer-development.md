@@ -22,6 +22,11 @@ An HTTP request to the root of the event port returns `404` because that port on
 
 ## Orca Remote Environments
 
+The development VM's `unshare` does not support `--forward-signals`.
+Set `HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS=false` when starting Designer there so Pulumi
+commands can run.
+Signal forwarding is enabled by default to support cancellation and force kill in environments that support it.
+
 Use an Orca-managed terminal in the remote worktree so Orca can route both Designer ports to its browser.
 Create the terminal first and read its rendered screen until the automatic development shell reaches a prompt.
 Sending the command through `terminal create --command`, or through `terminal send` before the prompt appears,
@@ -32,7 +37,9 @@ orca terminal create --worktree active --title Designer --json
 orca terminal read --terminal <terminal-handle> --screen --json
 orca terminal send \
   --terminal <terminal-handle> \
-  --text 'HIGHSTATE_ENCRYPTION_ENABLED=false bun run --bun --filter @highstate/designer dev' \
+  --text 'HIGHSTATE_ENCRYPTION_ENABLED=false \
+    HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS=false \
+    bun run --bun --filter @highstate/designer dev' \
   --enter \
   --json
 ```

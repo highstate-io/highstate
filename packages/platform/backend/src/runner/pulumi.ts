@@ -29,6 +29,7 @@ export class LocalPulumiHost {
   private constructor(
     private readonly secretService: SecretService,
     private readonly logger: Logger,
+    private readonly unshareForwardSignals: boolean,
   ) {}
 
   async getCurrentUser(): Promise<WhoAmIResult | null> {
@@ -71,7 +72,10 @@ export class LocalPulumiHost {
             PULUMI_DEBUG_PROMISE_LEAKS: "true",
             ...envVars,
           },
-          pulumiCommand: await createForceAbortableCommand({ hostsFilePath }),
+          pulumiCommand: await createForceAbortableCommand({
+            hostsFilePath,
+            unshareForwardSignals: this.unshareForwardSignals,
+          }),
         },
       )
 
@@ -121,7 +125,10 @@ export class LocalPulumiHost {
             PULUMI_K8S_AWAIT_ALL: "true",
             ...envVars,
           },
-          pulumiCommand: await createForceAbortableCommand({ hostsFilePath }),
+          pulumiCommand: await createForceAbortableCommand({
+            hostsFilePath,
+            unshareForwardSignals: this.unshareForwardSignals,
+          }),
         },
       )
 
@@ -154,8 +161,12 @@ export class LocalPulumiHost {
     return false
   }
 
-  static create(secretService: SecretService, logger: Logger) {
-    return new LocalPulumiHost(secretService, logger.child({ service: "LocalPulumiHost" }))
+  static create(secretService: SecretService, logger: Logger, unshareForwardSignals = true) {
+    return new LocalPulumiHost(
+      secretService,
+      logger.child({ service: "LocalPulumiHost" }),
+      unshareForwardSignals,
+    )
   }
 }
 
