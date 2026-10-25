@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/project.proto.
  */
 export const file_io_highstate_v1_project: GenFile = /*@__PURE__*/
-  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvcHJvamVjdC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIooBCgtQcm9qZWN0TWV0YRINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBEhEKBGljb24YAyABKAlIAYgBARIXCgppY29uX2NvbG9yGAQgASgJSAKIAQFCDgoMX2Rlc2NyaXB0aW9uQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIq0CCgdQcm9qZWN0Eg8KAmlkGAEgASgJQgPgQQMSDAoEbmFtZRgCIAEoCRIqCgRtZXRhGAMgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhEhUKCHNwYWNlX2lkGAQgASgJQgPgQQUSHQoQbW9kZWxfc3RvcmFnZV9pZBgFIAEoCUID4EEFEhcKCmxpYnJhcnlfaWQYBiABKAlCA+BBBRIeChFwdWx1bWlfYmFja2VuZF9pZBgHIAEoCUID4EEFEjMKCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSMwoKdXBkYXRlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyIsChFHZXRQcm9qZWN0UmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQIiXAoSR2V0UHJvamVjdFJlc3BvbnNlEi4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECEhYKCWlzX2xvY2tlZBgCIAEoCEID4EEDImMKE0xpc3RQcm9qZWN0c1JlcXVlc3QSFgoJcGFnZV9zaXplGAEgASgFSACIAQESFwoKcGFnZV90b2tlbhgCIAEoCUgBiAEBQgwKCl9wYWdlX3NpemVCDQoLX3BhZ2VfdG9rZW4iVgoMUHJvamVjdEVudHJ5Ei4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECEhYKCWlzX2xvY2tlZBgCIAEoCEID4EEDIn4KFExpc3RQcm9qZWN0c1Jlc3BvbnNlEi8KCHByb2plY3RzGAEgAygLMh0uaW8uaGlnaHN0YXRlLnYxLlByb2plY3RFbnRyeRIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCA+BBA0gAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yxAEKDlByb2plY3RTZXJ2aWNlElUKCkdldFByb2plY3QSIi5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdFJlcXVlc3QaIy5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdFJlc3BvbnNlElsKDExpc3RQcm9qZWN0cxIkLmlvLmhpZ2hzdGF0ZS52MS5MaXN0UHJvamVjdHNSZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkxpc3RQcm9qZWN0c1Jlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_timestamp]);
+  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvcHJvamVjdC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIooBCgtQcm9qZWN0TWV0YRINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBEhEKBGljb24YAyABKAlIAYgBARIXCgppY29uX2NvbG9yGAQgASgJSAKIAQFCDgoMX2Rlc2NyaXB0aW9uQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIuoCCgdQcm9qZWN0Eg8KAmlkGAEgASgJQgPgQQMSDAoEbmFtZRgCIAEoCRIqCgRtZXRhGAMgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhEhUKCHNwYWNlX2lkGAQgASgJQgPgQQUSHQoQbW9kZWxfc3RvcmFnZV9pZBgFIAEoCUID4EEFEhYKCmxpYnJhcnlfaWQYBiABKAlCAhgBEh0KEXB1bHVtaV9iYWNrZW5kX2lkGAcgASgJQgIYARIzCgpjcmVhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDEjMKCnVwZGF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSHAoUY29udGFpbmVyX3J1bnRpbWVfaWQYCiABKAkSHwoXcHVsdW1pX3N0YXRlX2JhY2tlbmRfaWQYCyABKAkiLAoRR2V0UHJvamVjdFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECIlwKEkdldFByb2plY3RSZXNwb25zZRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJjChNMaXN0UHJvamVjdHNSZXF1ZXN0EhYKCXBhZ2Vfc2l6ZRgBIAEoBUgAiAEBEhcKCnBhZ2VfdG9rZW4YAiABKAlIAYgBAUIMCgpfcGFnZV9zaXplQg0KC19wYWdlX3Rva2VuIlYKDFByb2plY3RFbnRyeRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJ+ChRMaXN0UHJvamVjdHNSZXNwb25zZRIvCghwcm9qZWN0cxgBIAMoCzIdLmlvLmhpZ2hzdGF0ZS52MS5Qcm9qZWN0RW50cnkSIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgPgQQNIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuMsQBCg5Qcm9qZWN0U2VydmljZRJVCgpHZXRQcm9qZWN0EiIuaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RSZXF1ZXN0GiMuaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RSZXNwb25zZRJbCgxMaXN0UHJvamVjdHMSJC5pby5oaWdoc3RhdGUudjEuTGlzdFByb2plY3RzUmVxdWVzdBolLmlvLmhpZ2hzdGF0ZS52MS5MaXN0UHJvamVjdHNSZXNwb25zZWIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_timestamp]);
 
 /**
  * ProjectMeta contains display metadata for a project.
@@ -99,16 +99,18 @@ export type Project = Message<"io.highstate.v1.Project"> & {
   modelStorageId: string;
 
   /**
-   * The ID of the project library.
+   * The legacy backend-scoped library ID, superseded by project package selections.
    *
-   * @generated from field: string library_id = 6;
+   * @generated from field: string library_id = 6 [deprecated = true];
+   * @deprecated
    */
   libraryId: string;
 
   /**
-   * The ID of the Pulumi backend.
+   * The legacy Pulumi backend ID, superseded by pulumi_state_backend_id.
    *
-   * @generated from field: string pulumi_backend_id = 7;
+   * @generated from field: string pulumi_backend_id = 7 [deprecated = true];
+   * @deprecated
    */
   pulumiBackendId: string;
 
@@ -125,6 +127,20 @@ export type Project = Message<"io.highstate.v1.Project"> & {
    * @generated from field: google.protobuf.Timestamp updated_at = 9;
    */
   updatedAt?: Timestamp | undefined;
+
+  /**
+   * The ID of the container runtime used for every project workload.
+   *
+   * @generated from field: string container_runtime_id = 10;
+   */
+  containerRuntimeId: string;
+
+  /**
+   * The ID of the Pulumi state backend.
+   *
+   * @generated from field: string pulumi_state_backend_id = 11;
+   */
+  pulumiStateBackendId: string;
 };
 
 /**

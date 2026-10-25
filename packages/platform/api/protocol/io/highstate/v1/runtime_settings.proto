@@ -11,6 +11,12 @@ message SettingsMeta {
 
   // The optional description.
   optional string description = 2;
+
+  // The optional Iconify icon identifier.
+  optional string icon = 3;
+
+  // The optional display color of the icon.
+  optional string icon_color = 4;
 }
 
 // ContainerRuntime describes reusable backend-scoped workload placement.

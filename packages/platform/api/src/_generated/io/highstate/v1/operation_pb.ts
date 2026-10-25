@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/operation.proto.
  */
 export const file_io_highstate_v1_operation: GenFile = /*@__PURE__*/
-  fileDesc("Ch9pby9oaWdoc3RhdGUvdjEvb3BlcmF0aW9uLnByb3RvEg9pby5oaWdoc3RhdGUudjEi/QMKCU9wZXJhdGlvbhIPCgJpZBgBIAEoCUID4EEDEiwKBG1ldGEYAiABKAsyHi5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uTWV0YRIxCgR0eXBlGAMgASgOMh4uaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvblR5cGVCA+BBBRI1CgZzdGF0dXMYBCABKA4yIC5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uU3RhdHVzQgPgQQMSNwoHb3B0aW9ucxgFIAEoCzIhLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25PcHRpb25zQgPgQQUSIwoWcmVxdWVzdGVkX2luc3RhbmNlX2lkcxgGIAMoCUID4EEFEjQKBnBoYXNlcxgHIAMoCzIfLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25QaGFzZUID4EEDEjMKCnN0YXJ0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSMwoKdXBkYXRlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAxI5CgtmaW5pc2hlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBA0gAiAEBQg4KDF9maW5pc2hlZF9hdCJNCg1PcGVyYXRpb25NZXRhEhIKBXRpdGxlGAEgASgJQgPgQQISGAoLZGVzY3JpcHRpb24YAiABKAlIAIgBAUIOCgxfZGVzY3JpcHRpb24i9wMKEE9wZXJhdGlvbk9wdGlvbnMSIQoZZm9yY2VfdXBkYXRlX2RlcGVuZGVuY2llcxgBIAEoCBIjChtpZ25vcmVfY2hhbmdlZF9kZXBlbmRlbmNpZXMYAiABKAgSGwoTaWdub3JlX2RlcGVuZGVuY2llcxgDIAEoCBIdChVmb3JjZV91cGRhdGVfY2hpbGRyZW4YBCABKAgSGwoTb25seV9kZXN0cm95X2dob3N0cxgFIAEoCBIcChRmaXJzdF9kZXN0cm95X2dob3N0cxgGIAEoCBIVCg1pZ25vcmVfZ2hvc3RzGAcgASgIEiMKG2Rlc3Ryb3lfZGVwZW5kZW50X2luc3RhbmNlcxgIIAEoCBIfChdpbnZva2VfZGVzdHJveV90cmlnZ2VycxgJIAEoCBIkChxkZWxldGVfdW5yZWFjaGFibGVfcmVzb3VyY2VzGAogASgIEhoKEmZvcmNlX2RlbGV0ZV9zdGF0ZRgLIAEoCBIvCidhbGxvd19wYXJ0aWFsX2NvbXBvc2l0ZV9pbnN0YW5jZV91cGRhdGUYDCABKAgSNAosYWxsb3dfcGFydGlhbF9jb21wb3NpdGVfaW5zdGFuY2VfZGVzdHJ1Y3Rpb24YDSABKAgSDwoHcmVmcmVzaBgOIAEoCBINCgVkZWJ1ZxgPIAEoCCJ/Cg5PcGVyYXRpb25QaGFzZRIxCgR0eXBlGAEgASgOMiMuaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvblBoYXNlVHlwZRI6CglpbnN0YW5jZXMYAiADKAsyJy5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uUGhhc2VJbnN0YW5jZSJbChZPcGVyYXRpb25QaGFzZUluc3RhbmNlEgoKAmlkGAEgASgJEhYKCXBhcmVudF9pZBgCIAEoCUgAiAEBEg8KB21lc3NhZ2UYAyABKAlCDAoKX3BhcmVudF9pZCKRAQoMT3BlcmF0aW9uTG9nEg8KAmlkGAEgASgJQgPgQQMSGQoMb3BlcmF0aW9uX2lkGAIgASgJQgPgQQMSGgoIc3RhdGVfaWQYAyABKAlCA+BBA0gAiAEBEhYKCWlzX3N5c3RlbRgEIAEoCEID4EEDEhQKB2NvbnRlbnQYBSABKAlCA+BBA0ILCglfc3RhdGVfaWQisQEKFFBsYW5PcGVyYXRpb25SZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhIxCgR0eXBlGAIgASgOMh4uaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvblR5cGVCA+BBAhIZCgxpbnN0YW5jZV9pZHMYAyADKAlCA+BBAhIyCgdvcHRpb25zGAQgASgLMiEuaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvbk9wdGlvbnMiSAoVUGxhbk9wZXJhdGlvblJlc3BvbnNlEi8KBnBoYXNlcxgBIAMoCzIfLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25QaGFzZSKVAgoWTGF1bmNoT3BlcmF0aW9uUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISMQoEdHlwZRgCIAEoDjIeLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25UeXBlQgPgQQISGQoMaW5zdGFuY2VfaWRzGAMgAygJQgPgQQISMgoHb3B0aW9ucxgEIAEoCzIhLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25PcHRpb25zEjEKBG1ldGEYBSABKAsyHi5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uTWV0YUID4EECEi0KBHBsYW4YBiADKAsyHy5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uUGhhc2UiTQoXTGF1bmNoT3BlcmF0aW9uUmVzcG9uc2USMgoJb3BlcmF0aW9uGAEgASgLMhouaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvbkID4EECIkkKE0dldE9wZXJhdGlvblJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDG9wZXJhdGlvbl9pZBgCIAEoCUID4EECIkoKFEdldE9wZXJhdGlvblJlc3BvbnNlEjIKCW9wZXJhdGlvbhgBIAEoCzIaLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25CA+BBAiJXChVMaXN0T3BlcmF0aW9uc1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhEKCXBhZ2Vfc2l6ZRgCIAEoBRISCgpwYWdlX3Rva2VuGAMgASgJImEKFkxpc3RPcGVyYXRpb25zUmVzcG9uc2USLgoKb3BlcmF0aW9ucxgBIAMoCzIaLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb24SFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIpkBChhMaXN0T3BlcmF0aW9uTG9nc1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDG9wZXJhdGlvbl9pZBgCIAEoCUID4EECEhUKCHN0YXRlX2lkGAMgASgJSACIAQESEQoJcGFnZV9zaXplGAQgASgFEhIKCnBhZ2VfdG9rZW4YBSABKAlCCwoJX3N0YXRlX2lkImEKGUxpc3RPcGVyYXRpb25Mb2dzUmVzcG9uc2USKwoEbG9ncxgBIAMoCzIdLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25Mb2cSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIlsKFkNhbmNlbE9wZXJhdGlvblJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDG9wZXJhdGlvbl9pZBgCIAEoCUID4EECEg0KBWZvcmNlGAMgASgIIjEKF0NhbmNlbE9wZXJhdGlvblJlc3BvbnNlEhYKDmZvcmNlX3JlcXVpcmVkGAEgASgIIn0KHkNhbmNlbEluc3RhbmNlT3BlcmF0aW9uUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGQoMb3BlcmF0aW9uX2lkGAIgASgJQgPgQQISGAoLaW5zdGFuY2VfaWQYAyABKAlCA+BBAhINCgVmb3JjZRgEIAEoCCI5Ch9DYW5jZWxJbnN0YW5jZU9wZXJhdGlvblJlc3BvbnNlEhYKDmZvcmNlX3JlcXVpcmVkGAEgASgIMugFChBPcGVyYXRpb25TZXJ2aWNlEl4KDVBsYW5PcGVyYXRpb24SJS5pby5oaWdoc3RhdGUudjEuUGxhbk9wZXJhdGlvblJlcXVlc3QaJi5pby5oaWdoc3RhdGUudjEuUGxhbk9wZXJhdGlvblJlc3BvbnNlEmQKD0xhdW5jaE9wZXJhdGlvbhInLmlvLmhpZ2hzdGF0ZS52MS5MYXVuY2hPcGVyYXRpb25SZXF1ZXN0GiguaW8uaGlnaHN0YXRlLnYxLkxhdW5jaE9wZXJhdGlvblJlc3BvbnNlElsKDEdldE9wZXJhdGlvbhIkLmlvLmhpZ2hzdGF0ZS52MS5HZXRPcGVyYXRpb25SZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkdldE9wZXJhdGlvblJlc3BvbnNlEmEKDkxpc3RPcGVyYXRpb25zEiYuaW8uaGlnaHN0YXRlLnYxLkxpc3RPcGVyYXRpb25zUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5MaXN0T3BlcmF0aW9uc1Jlc3BvbnNlEmoKEUxpc3RPcGVyYXRpb25Mb2dzEikuaW8uaGlnaHN0YXRlLnYxLkxpc3RPcGVyYXRpb25Mb2dzUmVxdWVzdBoqLmlvLmhpZ2hzdGF0ZS52MS5MaXN0T3BlcmF0aW9uTG9nc1Jlc3BvbnNlEmQKD0NhbmNlbE9wZXJhdGlvbhInLmlvLmhpZ2hzdGF0ZS52MS5DYW5jZWxPcGVyYXRpb25SZXF1ZXN0GiguaW8uaGlnaHN0YXRlLnYxLkNhbmNlbE9wZXJhdGlvblJlc3BvbnNlEnwKF0NhbmNlbEluc3RhbmNlT3BlcmF0aW9uEi8uaW8uaGlnaHN0YXRlLnYxLkNhbmNlbEluc3RhbmNlT3BlcmF0aW9uUmVxdWVzdBowLmlvLmhpZ2hzdGF0ZS52MS5DYW5jZWxJbnN0YW5jZU9wZXJhdGlvblJlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_timestamp, file_io_highstate_v1_common]);
+  fileDesc("Ch9pby9oaWdoc3RhdGUvdjEvb3BlcmF0aW9uLnByb3RvEg9pby5oaWdoc3RhdGUudjEivAQKCU9wZXJhdGlvbhIPCgJpZBgBIAEoCUID4EEDEiwKBG1ldGEYAiABKAsyHi5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uTWV0YRIxCgR0eXBlGAMgASgOMh4uaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvblR5cGVCA+BBBRI1CgZzdGF0dXMYBCABKA4yIC5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uU3RhdHVzQgPgQQMSNwoHb3B0aW9ucxgFIAEoCzIhLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25PcHRpb25zQgPgQQUSIwoWcmVxdWVzdGVkX2luc3RhbmNlX2lkcxgGIAMoCUID4EEFEjQKBnBoYXNlcxgHIAMoCzIfLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25QaGFzZUID4EEDEjMKCnN0YXJ0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSMwoKdXBkYXRlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAxI5CgtmaW5pc2hlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBA0gAiAEBEiUKE2xpYnJhcnlfc25hcHNob3RfaWQYCyABKAlCA+BBA0gBiAEBQg4KDF9maW5pc2hlZF9hdEIWChRfbGlicmFyeV9zbmFwc2hvdF9pZCJNCg1PcGVyYXRpb25NZXRhEhIKBXRpdGxlGAEgASgJQgPgQQISGAoLZGVzY3JpcHRpb24YAiABKAlIAIgBAUIOCgxfZGVzY3JpcHRpb24i9wMKEE9wZXJhdGlvbk9wdGlvbnMSIQoZZm9yY2VfdXBkYXRlX2RlcGVuZGVuY2llcxgBIAEoCBIjChtpZ25vcmVfY2hhbmdlZF9kZXBlbmRlbmNpZXMYAiABKAgSGwoTaWdub3JlX2RlcGVuZGVuY2llcxgDIAEoCBIdChVmb3JjZV91cGRhdGVfY2hpbGRyZW4YBCABKAgSGwoTb25seV9kZXN0cm95X2dob3N0cxgFIAEoCBIcChRmaXJzdF9kZXN0cm95X2dob3N0cxgGIAEoCBIVCg1pZ25vcmVfZ2hvc3RzGAcgASgIEiMKG2Rlc3Ryb3lfZGVwZW5kZW50X2luc3RhbmNlcxgIIAEoCBIfChdpbnZva2VfZGVzdHJveV90cmlnZ2VycxgJIAEoCBIkChxkZWxldGVfdW5yZWFjaGFibGVfcmVzb3VyY2VzGAogASgIEhoKEmZvcmNlX2RlbGV0ZV9zdGF0ZRgLIAEoCBIvCidhbGxvd19wYXJ0aWFsX2NvbXBvc2l0ZV9pbnN0YW5jZV91cGRhdGUYDCABKAgSNAosYWxsb3dfcGFydGlhbF9jb21wb3NpdGVfaW5zdGFuY2VfZGVzdHJ1Y3Rpb24YDSABKAgSDwoHcmVmcmVzaBgOIAEoCBINCgVkZWJ1ZxgPIAEoCCJ/Cg5PcGVyYXRpb25QaGFzZRIxCgR0eXBlGAEgASgOMiMuaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvblBoYXNlVHlwZRI6CglpbnN0YW5jZXMYAiADKAsyJy5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uUGhhc2VJbnN0YW5jZSLKAQoWT3BlcmF0aW9uUGhhc2VJbnN0YW5jZRIKCgJpZBgBIAEoCRIWCglwYXJlbnRfaWQYAiABKAlIAIgBARIPCgdtZXNzYWdlGAMgASgJElEKF2xpYnJhcnlfcGFja2FnZV91cGdyYWRlGAQgASgLMiYuaW8uaGlnaHN0YXRlLnYxLkxpYnJhcnlQYWNrYWdlVXBncmFkZUID4EEDSAGIAQFCDAoKX3BhcmVudF9pZEIaChhfbGlicmFyeV9wYWNrYWdlX3VwZ3JhZGUiiQIKFUxpYnJhcnlQYWNrYWdlVXBncmFkZRIZCgxwYWNrYWdlX25hbWUYASABKAlCA+BBAxIiChBwcmV2aW91c192ZXJzaW9uGAIgASgJQgPgQQNIAIgBARIUCgd2ZXJzaW9uGAMgASgJQgPgQQMSNQojcHJldmlvdXNfbGlicmFyeV9wYWNrYWdlX3ZlcnNpb25faWQYBCABKAlCA+BBA0gBiAEBEicKGmxpYnJhcnlfcGFja2FnZV92ZXJzaW9uX2lkGAUgASgJQgPgQQNCEwoRX3ByZXZpb3VzX3ZlcnNpb25CJgokX3ByZXZpb3VzX2xpYnJhcnlfcGFja2FnZV92ZXJzaW9uX2lkIpEBCgxPcGVyYXRpb25Mb2cSDwoCaWQYASABKAlCA+BBAxIZCgxvcGVyYXRpb25faWQYAiABKAlCA+BBAxIaCghzdGF0ZV9pZBgDIAEoCUID4EEDSACIAQESFgoJaXNfc3lzdGVtGAQgASgIQgPgQQMSFAoHY29udGVudBgFIAEoCUID4EEDQgsKCV9zdGF0ZV9pZCKxAQoUUGxhbk9wZXJhdGlvblJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEjEKBHR5cGUYAiABKA4yHi5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uVHlwZUID4EECEhkKDGluc3RhbmNlX2lkcxgDIAMoCUID4EECEjIKB29wdGlvbnMYBCABKAsyIS5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uT3B0aW9ucyL6AQoNT3BlcmF0aW9uUGxhbhISCgV0b2tlbhgBIAEoCUID4EEDEjQKBnBoYXNlcxgCIAMoCzIfLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25QaGFzZUID4EEDEiUKE2xpYnJhcnlfc25hcHNob3RfaWQYAyABKAlCA+BBA0gAiAEBEhsKDm1vZGVsX3JldmlzaW9uGAQgASgJQgPgQQMSKAoWbG9jYWxfb3ZlcmxheV9yZXZpc2lvbhgFIAEoCUID4EEDSAGIAQFCFgoUX2xpYnJhcnlfc25hcHNob3RfaWRCGQoXX2xvY2FsX292ZXJsYXlfcmV2aXNpb24ifwoVUGxhbk9wZXJhdGlvblJlc3BvbnNlEjMKBnBoYXNlcxgBIAMoCzIfLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25QaGFzZUICGAESMQoEcGxhbhgCIAEoCzIeLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25QbGFuQgPgQQMiwQIKFkxhdW5jaE9wZXJhdGlvblJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEjEKBHR5cGUYAiABKA4yHi5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uVHlwZUID4EECEhkKDGluc3RhbmNlX2lkcxgDIAMoCUID4EECEjIKB29wdGlvbnMYBCABKAsyIS5pby5oaWdoc3RhdGUudjEuT3BlcmF0aW9uT3B0aW9ucxIxCgRtZXRhGAUgASgLMh4uaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvbk1ldGFCA+BBAhIxCgRwbGFuGAYgAygLMh8uaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvblBoYXNlQgIYARIXCgpwbGFuX3Rva2VuGAcgASgJSACIAQFCDQoLX3BsYW5fdG9rZW4iTQoXTGF1bmNoT3BlcmF0aW9uUmVzcG9uc2USMgoJb3BlcmF0aW9uGAEgASgLMhouaW8uaGlnaHN0YXRlLnYxLk9wZXJhdGlvbkID4EECIkkKE0dldE9wZXJhdGlvblJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDG9wZXJhdGlvbl9pZBgCIAEoCUID4EECIkoKFEdldE9wZXJhdGlvblJlc3BvbnNlEjIKCW9wZXJhdGlvbhgBIAEoCzIaLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25CA+BBAiJXChVMaXN0T3BlcmF0aW9uc1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhEKCXBhZ2Vfc2l6ZRgCIAEoBRISCgpwYWdlX3Rva2VuGAMgASgJImEKFkxpc3RPcGVyYXRpb25zUmVzcG9uc2USLgoKb3BlcmF0aW9ucxgBIAMoCzIaLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb24SFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIpkBChhMaXN0T3BlcmF0aW9uTG9nc1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDG9wZXJhdGlvbl9pZBgCIAEoCUID4EECEhUKCHN0YXRlX2lkGAMgASgJSACIAQESEQoJcGFnZV9zaXplGAQgASgFEhIKCnBhZ2VfdG9rZW4YBSABKAlCCwoJX3N0YXRlX2lkImEKGUxpc3RPcGVyYXRpb25Mb2dzUmVzcG9uc2USKwoEbG9ncxgBIAMoCzIdLmlvLmhpZ2hzdGF0ZS52MS5PcGVyYXRpb25Mb2cSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIlsKFkNhbmNlbE9wZXJhdGlvblJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhkKDG9wZXJhdGlvbl9pZBgCIAEoCUID4EECEg0KBWZvcmNlGAMgASgIIjEKF0NhbmNlbE9wZXJhdGlvblJlc3BvbnNlEhYKDmZvcmNlX3JlcXVpcmVkGAEgASgIIn0KHkNhbmNlbEluc3RhbmNlT3BlcmF0aW9uUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISGQoMb3BlcmF0aW9uX2lkGAIgASgJQgPgQQISGAoLaW5zdGFuY2VfaWQYAyABKAlCA+BBAhINCgVmb3JjZRgEIAEoCCI5Ch9DYW5jZWxJbnN0YW5jZU9wZXJhdGlvblJlc3BvbnNlEhYKDmZvcmNlX3JlcXVpcmVkGAEgASgIMugFChBPcGVyYXRpb25TZXJ2aWNlEl4KDVBsYW5PcGVyYXRpb24SJS5pby5oaWdoc3RhdGUudjEuUGxhbk9wZXJhdGlvblJlcXVlc3QaJi5pby5oaWdoc3RhdGUudjEuUGxhbk9wZXJhdGlvblJlc3BvbnNlEmQKD0xhdW5jaE9wZXJhdGlvbhInLmlvLmhpZ2hzdGF0ZS52MS5MYXVuY2hPcGVyYXRpb25SZXF1ZXN0GiguaW8uaGlnaHN0YXRlLnYxLkxhdW5jaE9wZXJhdGlvblJlc3BvbnNlElsKDEdldE9wZXJhdGlvbhIkLmlvLmhpZ2hzdGF0ZS52MS5HZXRPcGVyYXRpb25SZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkdldE9wZXJhdGlvblJlc3BvbnNlEmEKDkxpc3RPcGVyYXRpb25zEiYuaW8uaGlnaHN0YXRlLnYxLkxpc3RPcGVyYXRpb25zUmVxdWVzdBonLmlvLmhpZ2hzdGF0ZS52MS5MaXN0T3BlcmF0aW9uc1Jlc3BvbnNlEmoKEUxpc3RPcGVyYXRpb25Mb2dzEikuaW8uaGlnaHN0YXRlLnYxLkxpc3RPcGVyYXRpb25Mb2dzUmVxdWVzdBoqLmlvLmhpZ2hzdGF0ZS52MS5MaXN0T3BlcmF0aW9uTG9nc1Jlc3BvbnNlEmQKD0NhbmNlbE9wZXJhdGlvbhInLmlvLmhpZ2hzdGF0ZS52MS5DYW5jZWxPcGVyYXRpb25SZXF1ZXN0GiguaW8uaGlnaHN0YXRlLnYxLkNhbmNlbE9wZXJhdGlvblJlc3BvbnNlEnwKF0NhbmNlbEluc3RhbmNlT3BlcmF0aW9uEi8uaW8uaGlnaHN0YXRlLnYxLkNhbmNlbEluc3RhbmNlT3BlcmF0aW9uUmVxdWVzdBowLmlvLmhpZ2hzdGF0ZS52MS5DYW5jZWxJbnN0YW5jZU9wZXJhdGlvblJlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_timestamp, file_io_highstate_v1_common]);
 
 /**
  * Operation contains the canonical state of one project operation.
@@ -92,6 +92,13 @@ export type Operation = Message<"io.highstate.v1.Operation"> & {
    * @generated from field: optional google.protobuf.Timestamp finished_at = 10;
    */
   finishedAt?: Timestamp | undefined;
+
+  /**
+   * The immutable packaged library snapshot captured for planning and execution.
+   *
+   * @generated from field: optional string library_snapshot_id = 11;
+   */
+  librarySnapshotId?: string | undefined;
 };
 
 /**
@@ -345,6 +352,13 @@ export type OperationPhaseInstance = Message<"io.highstate.v1.OperationPhaseInst
    * @generated from field: string message = 3;
    */
   message: string;
+
+  /**
+   * The package version change that makes this instance outdated, when applicable.
+   *
+   * @generated from field: optional io.highstate.v1.LibraryPackageUpgrade library_package_upgrade = 4;
+   */
+  libraryPackageUpgrade?: LibraryPackageUpgrade | undefined;
 };
 
 /**
@@ -353,6 +367,55 @@ export type OperationPhaseInstance = Message<"io.highstate.v1.OperationPhaseInst
  */
 export const OperationPhaseInstanceSchema: GenMessage<OperationPhaseInstance> = /*@__PURE__*/
   messageDesc(file_io_highstate_v1_operation, 4);
+
+/**
+ * LibraryPackageUpgrade describes a direct library package version change for one instance.
+ *
+ * @generated from message io.highstate.v1.LibraryPackageUpgrade
+ */
+export type LibraryPackageUpgrade = Message<"io.highstate.v1.LibraryPackageUpgrade"> & {
+  /**
+   * The npm package name that owns the component implementation.
+   *
+   * @generated from field: string package_name = 1;
+   */
+  packageName: string;
+
+  /**
+   * The currently deployed exact package version, when known.
+   *
+   * @generated from field: optional string previous_version = 2;
+   */
+  previousVersion?: string | undefined;
+
+  /**
+   * The exact package version selected by the operation snapshot.
+   *
+   * @generated from field: string version = 3;
+   */
+  version: string;
+
+  /**
+   * The deployed package-version record, when known.
+   *
+   * @generated from field: optional string previous_library_package_version_id = 4;
+   */
+  previousLibraryPackageVersionId?: string | undefined;
+
+  /**
+   * The package-version record selected by the operation snapshot.
+   *
+   * @generated from field: string library_package_version_id = 5;
+   */
+  libraryPackageVersionId: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.LibraryPackageUpgrade.
+ * Use `create(LibraryPackageUpgradeSchema)` to create a new message.
+ */
+export const LibraryPackageUpgradeSchema: GenMessage<LibraryPackageUpgrade> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_operation, 5);
 
 /**
  * OperationLog is one ordered operation log entry.
@@ -401,7 +464,7 @@ export type OperationLog = Message<"io.highstate.v1.OperationLog"> & {
  * Use `create(OperationLogSchema)` to create a new message.
  */
 export const OperationLogSchema: GenMessage<OperationLog> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 5);
+  messageDesc(file_io_highstate_v1_operation, 6);
 
 /**
  * PlanOperationRequest requests an operation execution plan without launching it.
@@ -443,20 +506,77 @@ export type PlanOperationRequest = Message<"io.highstate.v1.PlanOperationRequest
  * Use `create(PlanOperationRequestSchema)` to create a new message.
  */
 export const PlanOperationRequestSchema: GenMessage<PlanOperationRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 6);
+  messageDesc(file_io_highstate_v1_operation, 7);
 
 /**
- * PlanOperationResponse returns the planned execution phases.
+ * OperationPlan is a backend-issued plan bound to the desired state that was reviewed.
+ *
+ * @generated from message io.highstate.v1.OperationPlan
+ */
+export type OperationPlan = Message<"io.highstate.v1.OperationPlan"> & {
+  /**
+   * An opaque backend-issued token binding every plan field and revision.
+   *
+   * @generated from field: string token = 1;
+   */
+  token: string;
+
+  /**
+   * The ordered execution phases.
+   *
+   * @generated from field: repeated io.highstate.v1.OperationPhase phases = 2;
+   */
+  phases: OperationPhase[];
+
+  /**
+   * The desired library snapshot used for planning, when packaged components are involved.
+   *
+   * @generated from field: optional string library_snapshot_id = 3;
+   */
+  librarySnapshotId?: string | undefined;
+
+  /**
+   * The resident project model revision used for planning.
+   *
+   * @generated from field: string model_revision = 4;
+   */
+  modelRevision: string;
+
+  /**
+   * The local library overlay revision used for planning, when active.
+   *
+   * @generated from field: optional string local_overlay_revision = 5;
+   */
+  localOverlayRevision?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.OperationPlan.
+ * Use `create(OperationPlanSchema)` to create a new message.
+ */
+export const OperationPlanSchema: GenMessage<OperationPlan> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_operation, 8);
+
+/**
+ * PlanOperationResponse returns a backend-issued revision-bound operation plan.
  *
  * @generated from message io.highstate.v1.PlanOperationResponse
  */
 export type PlanOperationResponse = Message<"io.highstate.v1.PlanOperationResponse"> & {
   /**
-   * The ordered execution phases.
+   * The legacy execution phases; use the revision-bound plan when supported.
    *
-   * @generated from field: repeated io.highstate.v1.OperationPhase phases = 1;
+   * @generated from field: repeated io.highstate.v1.OperationPhase phases = 1 [deprecated = true];
+   * @deprecated
    */
   phases: OperationPhase[];
+
+  /**
+   * The operation plan.
+   *
+   * @generated from field: io.highstate.v1.OperationPlan plan = 2;
+   */
+  plan?: OperationPlan | undefined;
 };
 
 /**
@@ -464,7 +584,7 @@ export type PlanOperationResponse = Message<"io.highstate.v1.PlanOperationRespon
  * Use `create(PlanOperationResponseSchema)` to create a new message.
  */
 export const PlanOperationResponseSchema: GenMessage<PlanOperationResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 7);
+  messageDesc(file_io_highstate_v1_operation, 9);
 
 /**
  * LaunchOperationRequest launches an operation, optionally using a previously reviewed plan.
@@ -508,11 +628,19 @@ export type LaunchOperationRequest = Message<"io.highstate.v1.LaunchOperationReq
   meta?: OperationMeta | undefined;
 
   /**
-   * A caller-supplied plan to execute instead of replanning.
+   * Legacy caller-supplied phases; token-aware servers reject these without a valid plan_token.
    *
-   * @generated from field: repeated io.highstate.v1.OperationPhase plan = 6;
+   * @generated from field: repeated io.highstate.v1.OperationPhase plan = 6 [deprecated = true];
+   * @deprecated
    */
   plan: OperationPhase[];
+
+  /**
+   * The token of a previously reviewed backend-issued plan to execute instead of replanning.
+   *
+   * @generated from field: optional string plan_token = 7;
+   */
+  planToken?: string | undefined;
 };
 
 /**
@@ -520,7 +648,7 @@ export type LaunchOperationRequest = Message<"io.highstate.v1.LaunchOperationReq
  * Use `create(LaunchOperationRequestSchema)` to create a new message.
  */
 export const LaunchOperationRequestSchema: GenMessage<LaunchOperationRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 8);
+  messageDesc(file_io_highstate_v1_operation, 10);
 
 /**
  * LaunchOperationResponse returns the canonical launched operation.
@@ -541,7 +669,7 @@ export type LaunchOperationResponse = Message<"io.highstate.v1.LaunchOperationRe
  * Use `create(LaunchOperationResponseSchema)` to create a new message.
  */
 export const LaunchOperationResponseSchema: GenMessage<LaunchOperationResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 9);
+  messageDesc(file_io_highstate_v1_operation, 11);
 
 /**
  * GetOperationRequest requests one operation.
@@ -569,7 +697,7 @@ export type GetOperationRequest = Message<"io.highstate.v1.GetOperationRequest">
  * Use `create(GetOperationRequestSchema)` to create a new message.
  */
 export const GetOperationRequestSchema: GenMessage<GetOperationRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 10);
+  messageDesc(file_io_highstate_v1_operation, 12);
 
 /**
  * GetOperationResponse returns one canonical operation.
@@ -590,7 +718,7 @@ export type GetOperationResponse = Message<"io.highstate.v1.GetOperationResponse
  * Use `create(GetOperationResponseSchema)` to create a new message.
  */
 export const GetOperationResponseSchema: GenMessage<GetOperationResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 11);
+  messageDesc(file_io_highstate_v1_operation, 13);
 
 /**
  * ListOperationsRequest requests one page of operations ordered by start time and ID descending.
@@ -625,7 +753,7 @@ export type ListOperationsRequest = Message<"io.highstate.v1.ListOperationsReque
  * Use `create(ListOperationsRequestSchema)` to create a new message.
  */
 export const ListOperationsRequestSchema: GenMessage<ListOperationsRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 12);
+  messageDesc(file_io_highstate_v1_operation, 14);
 
 /**
  * ListOperationsResponse returns one page of canonical operations.
@@ -653,7 +781,7 @@ export type ListOperationsResponse = Message<"io.highstate.v1.ListOperationsResp
  * Use `create(ListOperationsResponseSchema)` to create a new message.
  */
 export const ListOperationsResponseSchema: GenMessage<ListOperationsResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 13);
+  messageDesc(file_io_highstate_v1_operation, 15);
 
 /**
  * ListOperationLogsRequest requests one page of logs for an operation.
@@ -702,7 +830,7 @@ export type ListOperationLogsRequest = Message<"io.highstate.v1.ListOperationLog
  * Use `create(ListOperationLogsRequestSchema)` to create a new message.
  */
 export const ListOperationLogsRequestSchema: GenMessage<ListOperationLogsRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 14);
+  messageDesc(file_io_highstate_v1_operation, 16);
 
 /**
  * ListOperationLogsResponse returns one page of operation logs.
@@ -730,7 +858,7 @@ export type ListOperationLogsResponse = Message<"io.highstate.v1.ListOperationLo
  * Use `create(ListOperationLogsResponseSchema)` to create a new message.
  */
 export const ListOperationLogsResponseSchema: GenMessage<ListOperationLogsResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 15);
+  messageDesc(file_io_highstate_v1_operation, 17);
 
 /**
  * CancelOperationRequest requests cancellation of an operation.
@@ -765,7 +893,7 @@ export type CancelOperationRequest = Message<"io.highstate.v1.CancelOperationReq
  * Use `create(CancelOperationRequestSchema)` to create a new message.
  */
 export const CancelOperationRequestSchema: GenMessage<CancelOperationRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 16);
+  messageDesc(file_io_highstate_v1_operation, 18);
 
 /**
  * CancelOperationResponse reports that cancellation was requested.
@@ -786,7 +914,7 @@ export type CancelOperationResponse = Message<"io.highstate.v1.CancelOperationRe
  * Use `create(CancelOperationResponseSchema)` to create a new message.
  */
 export const CancelOperationResponseSchema: GenMessage<CancelOperationResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 17);
+  messageDesc(file_io_highstate_v1_operation, 19);
 
 /**
  * CancelInstanceOperationRequest requests cancellation of one instance within an operation.
@@ -828,7 +956,7 @@ export type CancelInstanceOperationRequest = Message<"io.highstate.v1.CancelInst
  * Use `create(CancelInstanceOperationRequestSchema)` to create a new message.
  */
 export const CancelInstanceOperationRequestSchema: GenMessage<CancelInstanceOperationRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 18);
+  messageDesc(file_io_highstate_v1_operation, 20);
 
 /**
  * CancelInstanceOperationResponse reports that instance cancellation was requested.
@@ -849,7 +977,7 @@ export type CancelInstanceOperationResponse = Message<"io.highstate.v1.CancelIns
  * Use `create(CancelInstanceOperationResponseSchema)` to create a new message.
  */
 export const CancelInstanceOperationResponseSchema: GenMessage<CancelInstanceOperationResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_operation, 19);
+  messageDesc(file_io_highstate_v1_operation, 21);
 
 /**
  * OperationService plans, launches, observes, and cancels project operations.

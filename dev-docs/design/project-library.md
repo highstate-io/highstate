@@ -3,6 +3,8 @@
 ## Overview
 
 **Status: Proposed.**
+Schema and protocol declarations describe the intended shape; persistence migrations and orchestration remain
+unimplemented.
 
 Highstate currently assigns one backend-scoped library to each project and loads package definitions and unit
 sources from the backend host's local workspace or `node_modules`.
@@ -20,8 +22,10 @@ from its snapshot.
 
 ## Package Model
 
-A `LibraryPackage` represents one npm package containing Highstate component and entity definitions.
-It stores the package name, one exact selected npm version, display order, and timestamps.
+The singleton `ProjectLibraryState` stores a typed `selectedPackages` JSON list of npm package names and exact
+versions, including initial configuration that has not yet resolved to a snapshot.
+Package names identify selections; selections have no independent IDs, timestamps, or manual ordering.
+Selections and snapshot package lists are normalized by package name, with one entry per name.
 Each project starts with a package selection for `@highstate/library`.
 
 Available versions come from the npm registry selected by package scope.
@@ -59,12 +63,13 @@ Rebuilding uses frozen lockfile semantics and fails if package resolution would 
 A snapshot has explicit relations to every direct `LibraryPackageVersion` used in it.
 These relations preserve cached versions, expose package and version information efficiently, and identify the
 package version that owns each component.
-Snapshot membership stores only the package-version reference and merge order; package identity comes from the
-immutable package-version record.
+The explicit `LibrarySnapshotVersion` join has identity because deployed and operation provenance reference
+that exact membership, preventing a package version from being paired with an unrelated snapshot.
+It stores only the snapshot and package-version references; package identity comes from the immutable version.
 The lockfile remains authoritative for the complete dependency graph.
 
 The project database records its current desired snapshot.
-Adding, removing, reordering, or changing the selected version of a package creates a new immutable snapshot.
+Adding, removing, or changing the selected version of a package creates a new immutable snapshot.
 Older snapshots remain available while referenced by deployed instance state or operation history.
 
 ## Snapshot Images
@@ -95,11 +100,12 @@ credentials.
 Package selection changes create a desired snapshot and enqueue its image materialization on the project's
 single selected runtime.
 Build progress is persisted in the backend cache and exposed to the Designer.
-Stable phases include queued, resolving, installing, evaluating, validating, building, pushing, verifying,
-ready, and failed.
-Each materialization attempt increments a cache generation and owns one logical runtime workload through a
-persisted attempt record.
-Only adapter callbacks matching the current attempt and generation may update the cache, so an obsolete build
+Stable phases include queued, installing the frozen graph, building, pushing, verifying, ready, and failed.
+Resolution, evaluation, and conflict validation finish before snapshot creation, outside image materialization.
+The image cache holds the current build state and workload link; retries increment its generation.
+Runtime workloads independently retain placement and cleanup state, including superseded builds.
+Detaching or deleting a cache entry does not delete its workload or bypass adapter cleanup.
+Only adapter callbacks matching the current workload and generation may update the cache, so an obsolete build
 may finish without replacing a newer desired image.
 
 Resolution and evaluation happen for the complete proposed package set.
@@ -112,7 +118,8 @@ When several changes arrive, a queued obsolete generation can be superseded.
 An already running build may finish, but it does not become the current image when its snapshot is no longer
 desired.
 
-Project creation resolves `@highstate/library`, creates the first snapshot, and starts the first image build.
+Project creation saves the exact initial selection for `@highstate/library`, resolves it, creates the first
+snapshot, and starts the first image build.
 If this fails, the project remains available for settings and diagnostics but component operations remain
 blocked.
 
@@ -210,7 +217,7 @@ They are optional and available only when the project uses the well-known local 
 execution requires host bind mounts.
 Remote Docker and Kubernetes disable them with an explanation.
 
-Local libraries do not create `LibraryPackage`, `LibraryPackageVersion`, `LibrarySnapshot`, or
+Local libraries do not enter `selectedPackages` or create `LibraryPackageVersion`, `LibrarySnapshot`, or
 `LibrarySnapshotImage` records.
 They do not alter the packaged snapshot lockfile and do not trigger project image rebuilds.
 Their source and definition hashes still trigger composite reevaluation and mark affected instances outdated.
@@ -231,7 +238,7 @@ Those mounts are a development overlay and are not represented by the image or s
 
 ## Persistence And Portability
 
-`LibraryPackage`, `LibraryPackageVersion`, and `LibrarySnapshot` live in the encrypted project database.
+`ProjectLibraryState`, `LibraryPackageVersion`, and `LibrarySnapshot` live in the encrypted project database.
 This keeps package selections, reproducible resolutions, evaluated models, and deployed provenance with the
 portable project.
 
@@ -273,8 +280,8 @@ runtime and Pulumi state backend references exist.
 It creates the default local Docker runtime and converts existing host Pulumi state configuration.
 
 For each existing project, migration identifies configured library packages and exact installed or registry
-versions, creates project-scoped package rows, resolves a frozen lockfile, evaluates package ownership, creates
-the initial snapshot, and builds its runtime image.
+versions, saves the normalized project package selection, resolves a frozen lockfile, evaluates package
+ownership, creates the initial snapshot, and builds its runtime image.
 Authored `InstanceModel` values and codebase-backed project YAML do not gain package or snapshot fields.
 
 Deployed instance states are backfilled only when their component type has one unambiguous package owner and

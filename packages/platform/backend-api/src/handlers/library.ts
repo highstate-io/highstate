@@ -5,7 +5,10 @@ import { ComponentNotFoundError } from "@highstate/backend/shared"
 import { z } from "@highstate/contract"
 import { authenticateProject, parseArgument, toComponent, toLibrary } from "../shared"
 
-export function createLibraryService(services: Services): ServiceImpl<typeof LibraryService> {
+// proposed package-management RPCs use Connect's default Unimplemented response until orchestration exists
+export function createLibraryService(
+  services: Services,
+): Partial<ServiceImpl<typeof LibraryService>> {
   return {
     async getLibrary(request, context) {
       const requestContext = await authenticateProject(services, request, context)

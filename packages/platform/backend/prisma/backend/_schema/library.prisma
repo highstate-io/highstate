@@ -1,9 +1,6 @@
 enum LibrarySnapshotImageStatus {
     queued
-    resolving
     installing
-    evaluating
-    validating
     building
     pushing
     verifying
@@ -38,7 +35,12 @@ model LibrarySnapshotImage {
     generation Int @default(1)
 
     /// Progress details within the current materialization phase.
+    ///
+    /// [LibraryImageProgress]
     progress Json?
+
+    /// The current build workload; older workloads retain their independent cleanup state.
+    workloadId String? @unique
 
     /// The runtime-local image reference, when available.
     imageRef String?
@@ -67,30 +69,9 @@ model LibrarySnapshotImage {
     /// The runtime where the image is available.
     runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
 
-    /// Materialization attempts for this cache entry.
-    attempts LibrarySnapshotImageAttempt[]
+    /// Deleting a workload after cleanup detaches the cache without losing its result.
+    workload RuntimeWorkload? @relation(fields: [workloadId], references: [id], onDelete: SetNull)
 
     @@unique([projectId, snapshotId, runtimeId])
     @@index([runtimeId, status])
-}
-
-/// One generation-fenced attempt to materialize a project library snapshot image.
-model LibrarySnapshotImageAttempt {
-    id String @id @default(cuid(2))
-    imageId String
-    workloadId String @unique
-    generation Int
-    status LibrarySnapshotImageStatus @default(queued)
-    progress Json?
-    error String?
-    startedAt DateTime?
-    finishedAt DateTime?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    image LibrarySnapshotImage @relation(fields: [imageId], references: [id], onDelete: Cascade)
-    workload RuntimeWorkload @relation(fields: [workloadId], references: [id], onDelete: Restrict)
-
-    @@unique([imageId, generation])
-    @@index([status])
 }

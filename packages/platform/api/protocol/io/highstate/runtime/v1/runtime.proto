@@ -9,14 +9,8 @@ import "io/highstate/runtime/v1/worker.proto";
 
 // ConnectRequest multiplexes one workload-originated event over an authenticated connection.
 message ConnectRequest {
-  // The project operation ID, when the event belongs to an operation.
-  optional string operation_id = 1;
-
-  // The independently cancellable action ID, when the event belongs to an action.
+  // Required for action events and agent-originated unit/sidecar requests; resolves backend operation ownership.
   optional string action_id = 2;
-
-  // The logical byte-stream ID, when the event carries streaming traffic.
-  optional string stream_id = 3;
 
   // The request ID used to correlate a request and its terminal response.
   optional string request_id = 4;
@@ -28,9 +22,6 @@ message ConnectRequest {
 
     // A connection heartbeat and lease renewal.
     Heartbeat heartbeat = 11;
-
-    // A flow-control window update for one logical stream.
-    WindowUpdate window_update = 12;
 
     // A structured Pulumi engine event.
     PulumiEngineEvent pulumi_engine_event = 20;
@@ -59,9 +50,6 @@ message ConnectRequest {
     // Registration state for a worker workload.
     WorkerRegistration worker_registration = 50;
 
-    // Worker panel or proxy traffic.
-    WorkerProxyData worker_proxy_data = 51;
-
     // Acknowledgement of a cancellation request.
     CancelResponse cancel_response = 70;
   }
@@ -69,14 +57,8 @@ message ConnectRequest {
 
 // ConnectResponse multiplexes one backend-originated event over an authenticated workload connection.
 message ConnectResponse {
-  // The project operation ID, when the event belongs to an operation.
-  optional string operation_id = 1;
-
   // The independently cancellable action ID, when the event belongs to an action.
   optional string action_id = 2;
-
-  // The logical byte-stream ID, when the event carries streaming traffic.
-  optional string stream_id = 3;
 
   // The request ID used to correlate a request and its terminal response.
   optional string request_id = 4;
@@ -86,10 +68,7 @@ message ConnectResponse {
     // The accepted workload handshake.
     ServerHello server_hello = 10;
 
-    // A flow-control window update for one logical stream.
-    WindowUpdate window_update = 11;
-
-    // Failure of a request, action, or stream.
+    // Failure of a request or action.
     RuntimeError error = 12;
 
     // A request to run one Pulumi action.
@@ -110,10 +89,7 @@ message ConnectResponse {
     // A worker control event from the backend.
     WorkerControl worker_control = 50;
 
-    // Worker panel or proxy traffic.
-    WorkerProxyData worker_proxy_data = 51;
-
-    // A request to cancel one action or operation.
+    // A request to cancel one action.
     CancelRequest cancel_request = 70;
   }
 }
@@ -124,6 +100,13 @@ service RuntimeService {
   //
   // ClientHello and ServerHello are the first messages in their respective directions. Typed results are
   // terminal for evaluation actions; ActionCompleted is terminal for Pulumi command actions;
-  // RuntimeError is terminal at the correlation scope carried by its envelope.
+  // RuntimeError terminates the request when request_id is set, otherwise the action.
   rpc Connect(stream ConnectRequest) returns (stream ConnectResponse);
+
+  // Opens a dedicated worker-originated HTTP proxy channel under the workload credential and lease.
+  // The worker sends WorkerProxyReady first; the backend then sends one request and receives one response.
+  // A worker maintains a bounded pool of idle channels and replenishes them after completion.
+  // Headers precede body chunks; half-close ends each body. Chunks are at most 64 KiB and sends and
+  // downstream writes must await transport backpressure without unbounded buffering. gRPC status ends errors.
+  rpc ProxyWorker(stream ProxyWorkerRequest) returns (stream ProxyWorkerResponse);
 }

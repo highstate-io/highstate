@@ -63,11 +63,29 @@ message UnitConfigurationResponse {
   // The resolved unit arguments.
   google.protobuf.Struct arguments = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The resolved unit inputs.
+  // UnitConfig.inputs: arrays of {value, source?} per input, retaining input provenance.
   google.protobuf.Struct inputs = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Secret environment variables scoped to the invocation.
-  map<string, string> secret_environment = 3 [(google.api.field_behavior) = INPUT_ONLY];
+  // UnitConfig.secretValues, including structured component-owned secrets; never log this field.
+  google.protobuf.Struct secret_values = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UnitConfig.instanceId.
+  string instance_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UnitConfig.stateId.
+  string state_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UnitConfig.invokedTriggers.
+  repeated TriggerInvocation invoked_triggers = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UnitConfig.importBasePath, resolved inside the runner's snapshot environment.
+  string import_base_path = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// TriggerInvocation matches the unit contract's named trigger invocation.
+message TriggerInvocation {
+  // The invoked trigger name.
+  string name = 1;
 }
 
 // UnitResult submits outputs and runtime state produced by one unit invocation.
@@ -75,7 +93,7 @@ message UnitResult {
   // The instance state ID.
   string state_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The unit outputs.
+  // The complete runtimeResultSubmitInput payload, including component outputs and $ runtime metadata.
   google.protobuf.Struct outputs = 2 [(google.api.field_behavior) = REQUIRED];
 
   // Runtime-defined status fields.

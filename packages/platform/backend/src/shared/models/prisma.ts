@@ -13,14 +13,22 @@ declare global {
     type BackendUnlockMethodMeta = shared.BackendUnlockMethodMeta
 
     type PulumiBackendSpec = shared.PulumiBackendSpec
+    type PulumiStateBackendSpec = shared.PulumiStateBackendSpec
+    type ContainerRuntimeSpec = shared.ContainerRuntimeSpec
     type ProjectModelStorageSpec = shared.ProjectModelStorageSpec
     type BackendRoleRules = shared.BackendRoleRules
     type UserGroupMeta = shared.UserGroupMeta
     type UserMeta = shared.UserMeta
+    type LibraryImageProgress = shared.LibraryImageProgress
   }
 
   // project
   namespace PrismaJson {
+    type SelectedLibraryPackages = contract.SelectedLibraryPackage[]
+    type LibrarySourceManifest = contract.LibrarySourceManifest
+    type LibrarySnapshotSourceManifest = contract.LibrarySnapshotSourceManifest
+    type LibraryPackageMetadata = contract.LibraryPackageMetadata
+    type LibraryCompatibility = contract.LibraryCompatibility
     type InstanceId = contract.InstanceId
     type NullableInstanceId = contract.InstanceId | null
     type InstanceIds = contract.InstanceId[]

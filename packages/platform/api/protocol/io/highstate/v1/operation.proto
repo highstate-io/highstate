@@ -236,8 +236,11 @@ message OperationPlan {
 
 // PlanOperationResponse returns a backend-issued revision-bound operation plan.
 message PlanOperationResponse {
+  // The legacy execution phases; use the revision-bound plan when supported.
+  repeated OperationPhase phases = 1 [deprecated = true];
+
   // The operation plan.
-  OperationPlan plan = 1 [(google.api.field_behavior) = REQUIRED];
+  OperationPlan plan = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // LaunchOperationRequest launches an operation, optionally using a previously reviewed plan.
@@ -257,8 +260,11 @@ message LaunchOperationRequest {
   // The operation display metadata.
   OperationMeta meta = 5 [(google.api.field_behavior) = REQUIRED];
 
+  // Legacy caller-supplied phases; token-aware servers reject these without a valid plan_token.
+  repeated OperationPhase plan = 6 [deprecated = true];
+
   // The token of a previously reviewed backend-issued plan to execute instead of replanning.
-  optional string plan_token = 6;
+  optional string plan_token = 7;
 }
 
 // LaunchOperationResponse returns the canonical launched operation.

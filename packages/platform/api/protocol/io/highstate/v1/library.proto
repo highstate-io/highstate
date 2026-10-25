@@ -212,25 +212,13 @@ enum LibraryCatalogSourceKind {
   LIBRARY_CATALOG_SOURCE_KIND_VIRTUAL = 3;
 }
 
-// LibraryPackage describes one npm package selected for the project library.
-message LibraryPackage {
-  // The stable package-selection ID.
-  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
+// SelectedLibraryPackage is one exact package selection, including before initial resolution succeeds.
+message SelectedLibraryPackage {
   // The npm package name.
-  string package_name = 2 [(google.api.field_behavior) = IMMUTABLE];
+  string package_name = 1;
 
   // The exact version selected for future snapshots.
-  string selected_version = 3;
-
-  // The package display and merge order.
-  int32 order = 4;
-
-  // The time when the package was added.
-  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The time when the package selection was last updated.
-  google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string version = 2;
 }
 
 // LibraryPackageVersion describes an evaluated exact package version.
@@ -265,7 +253,7 @@ message LibrarySnapshot {
   // The deterministic hash of the canonical snapshot content.
   string hash = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The direct package versions included in merge order.
+  // The direct package versions, normalized by package name.
   repeated LibrarySnapshotVersion versions = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Runtime and package-format compatibility requirements.
@@ -285,9 +273,6 @@ message LibrarySnapshotVersion {
 
   // The exact npm package version.
   string version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The package merge order.
-  int32 order = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // LibrarySnapshotImage describes backend-local materialization of a project snapshot.
@@ -343,17 +328,8 @@ enum LibrarySnapshotImagePhase {
   // Materialization is queued.
   LIBRARY_SNAPSHOT_IMAGE_PHASE_QUEUED = 1;
 
-  // Packages are being resolved.
-  LIBRARY_SNAPSHOT_IMAGE_PHASE_RESOLVING = 2;
-
   // The frozen package graph is being installed.
   LIBRARY_SNAPSHOT_IMAGE_PHASE_INSTALLING = 3;
-
-  // Package definitions are being evaluated.
-  LIBRARY_SNAPSHOT_IMAGE_PHASE_EVALUATING = 4;
-
-  // The merged catalog is being validated.
-  LIBRARY_SNAPSHOT_IMAGE_PHASE_VALIDATING = 5;
 
   // The OCI image is being built.
   LIBRARY_SNAPSHOT_IMAGE_PHASE_BUILDING = 6;
@@ -427,8 +403,8 @@ message GetProjectLibraryRequest {
 
 // GetProjectLibraryResponse returns the complete project library configuration state.
 message GetProjectLibraryResponse {
-  // The selected direct packages in merge order.
-  repeated LibraryPackage packages = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The exact selected packages, unique and sorted by package name, even before a snapshot exists.
+  repeated SelectedLibraryPackage selected_packages = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The desired immutable packaged snapshot, when resolution has succeeded.
   optional LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -455,7 +431,7 @@ message AddLibraryPackageRequest {
 // AddLibraryPackageResponse returns the committed package and desired snapshot.
 message AddLibraryPackageResponse {
   // The canonical package selection.
-  LibraryPackage package = 1 [(google.api.field_behavior) = REQUIRED];
+  SelectedLibraryPackage package = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The newly desired immutable snapshot.
   LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = REQUIRED];
@@ -466,8 +442,8 @@ message RemoveLibraryPackageRequest {
   // The project ID.
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The stable package-selection ID.
-  string library_package_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // The selected npm package name.
+  string package_name = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // RemoveLibraryPackageResponse returns the newly desired snapshot.
@@ -481,8 +457,8 @@ message UpdateLibraryPackageRequest {
   // The project ID.
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The stable package-selection ID.
-  string library_package_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // The selected npm package name.
+  string package_name = 2 [(google.api.field_behavior) = REQUIRED];
 
   // The exact npm package version to select.
   string version = 3 [(google.api.field_behavior) = REQUIRED];
@@ -491,7 +467,7 @@ message UpdateLibraryPackageRequest {
 // UpdateLibraryPackageResponse returns the committed package and desired snapshot.
 message UpdateLibraryPackageResponse {
   // The canonical package selection.
-  LibraryPackage package = 1 [(google.api.field_behavior) = REQUIRED];
+  SelectedLibraryPackage package = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The newly desired immutable snapshot.
   LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = REQUIRED];
@@ -505,8 +481,8 @@ message UpdateAllLibraryPackagesRequest {
 
 // UpdateAllLibraryPackagesResponse returns the atomic package selection and desired snapshot.
 message UpdateAllLibraryPackagesResponse {
-  // The canonical package selections in merge order.
-  repeated LibraryPackage packages = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The canonical package selections, unique and sorted by package name.
+  repeated SelectedLibraryPackage selected_packages = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The newly desired immutable snapshot.
   LibrarySnapshot desired_snapshot = 2 [(google.api.field_behavior) = REQUIRED];

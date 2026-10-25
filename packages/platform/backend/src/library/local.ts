@@ -10,7 +10,12 @@ import { readFile } from "node:fs/promises"
 import { dirname, isAbsolute, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { Worker } from "node:worker_threads"
-import { type ComponentModel, type InstanceModel, isUnitModel } from "@highstate/contract"
+import {
+  type ComponentModel,
+  type InstanceModel,
+  isUnitModel,
+  type LibrarySourceManifest,
+} from "@highstate/contract"
 import { decode } from "@msgpack/msgpack"
 import { BetterLock } from "better-lock"
 import { glob } from "glob"
@@ -43,10 +48,6 @@ export const localLibraryBackendConfig = z.object({
 type Events = {
   library: [LibraryUpdate[]]
   resolvedUnitSource: [ResolvedUnitSource]
-}
-
-type HighstateManifestJson = {
-  sourceHashes?: Record<string, number>
 }
 
 type LibraryPackage = {
@@ -450,11 +451,11 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   private async readLibraryPackageManifest(
     libraryPackage: LibraryPackage,
-  ): Promise<HighstateManifestJson | undefined> {
+  ): Promise<LibrarySourceManifest | undefined> {
     const manifestPath = resolve(libraryPackage.rootPath, "dist", "highstate.manifest.json")
 
     try {
-      const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as HighstateManifestJson
+      const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as LibrarySourceManifest
 
       return manifest
     } catch (error) {

@@ -3,6 +3,8 @@
 ## Overview
 
 **Status: Proposed.**
+Schema and protocol declarations describe the intended shape; adapters, migrations, and runtime orchestration
+remain unimplemented.
 
 Highstate currently has separate local implementations for Pulumi execution, Docker sidecars, Docker
 terminals, and Docker workers.
@@ -123,6 +125,9 @@ state.
 Agent-backed workloads own persistent action records for each independently cancellable Pulumi or evaluation
 execution, including status, cancellation state, snapshot and image identity, timestamps, and terminal error.
 One runner may execute multiple actions, while one-shot evaluation workloads own one action.
+Workloads own placement, connectivity, leases, and cleanup; actions own dispatch, cancellation, and termination.
+Existing operation and evaluation records remain authoritative for domain outcomes rather than duplicating
+those outcomes in runtime records.
 It does not persist every engine-created child resource: a Kubernetes Deployment, ReplicaSet, Pod, Service,
 and Secret or a Docker container, network, and volume remain adapter details discovered through ownership
 labels.
@@ -187,8 +192,9 @@ It is distinct from the public `io.highstate.v1` API and the worker-specific
 
 The primary service is an authenticated bidirectional gRPC stream owned by the backend.
 Runtime-aware workload agents connect outward to the configured backend URL.
-The authenticated connection identifies its workload, and the stream multiplexes logical sessions using
-operation, action, request, and stream identifiers.
+The authenticated connection identifies its workload, and the stream correlates concurrent work with action
+and request IDs.
+The backend derives operation ownership from the action, including agent-originated unit and sidecar requests.
 
 The protocol carries:
 
@@ -197,20 +203,34 @@ The protocol carries:
 - Pulumi action requests, engine events, standard output, standard error, completion, and errors.
 - Unit configuration requests and result submission.
 - Sidecar creation and lifecycle responses.
-- Worker registration, control, panel, and proxy traffic.
+- Worker identity and typed registration, deregistration, and stop events.
 - Graceful cancellation and forced termination.
 
-Proxy payloads use protobuf byte fields.
-Flow control is bounded per logical stream so one noisy workload cannot exhaust backend memory or block other
-sessions.
+Worker HTTP panel traffic uses a dedicated streaming RPC per request, separate from the control stream.
+Worker agents open a bounded pool of reverse channels so the backend can dispatch requests over outbound
+worker connections without requiring an inbound worker endpoint.
+The contract preserves method, path and query, state and panel routing, repeated headers, status, and body bytes.
+Headers precede bounded body chunks; transport half-close ends each body and gRPC status reports failures.
+Implementations await transport and downstream backpressure and bound channel queues and buffering.
+This carries the current HTTP panel capability without introducing generic logical byte streams or windows.
 
 `ClientHello` and `ServerHello` are the first messages in their respective directions.
 The workload advertises a supported protocol range and capabilities, and the backend selects one version or
 rejects the connection.
 Identifiers required by an event are validated from its envelope and cannot be reused for concurrent work.
 A typed evaluation result terminates that action, `ActionCompleted` terminates a Pulumi command action, and
-`RuntimeError` explicitly identifies and terminates one request, stream, action, operation, or connection.
+`RuntimeError` terminates the request when a request ID is present, otherwise the action.
+Connection failures use gRPC status.
+Cancellation always targets an action; the backend fans operation cancellation out to its active actions.
 A cancellation response only acknowledges the request; it does not indicate that the action has terminated.
+Worker connections receive current registrations followed by live typed changes, as in the existing worker API;
+registration revision reconciliation is deferred until a concrete replay requirement exists.
+
+Unit payloads preserve the existing `UnitConfig` capabilities, including input values and provenance, invoked
+triggers, structured secrets, instance identity, and runner-local import paths.
+Sidecar declarations preserve command and arguments, secret files and modes, named TCP ports, readiness,
+and runner-reachable host and port mappings from the domain runtime contract.
+Component-owned values retain their dynamic JSON shape rather than introducing a second domain schema.
 
 Each workload receives a short-lived credential scoped to its backend, project, runtime, workload ID, kind,
 lease generation, expiry, and allowed protocol operations.
@@ -252,8 +272,8 @@ does not travel over the workload-agent gRPC protocol.
 
 Application data traffic between a unit and its sidecar remains direct over the runtime network.
 It is not proxied through the control stream.
-Worker control and panel/proxy traffic use the runtime stream so workers do not depend on backend-host Unix
-socket mounts or host-published loopback ports.
+Worker control uses the runtime agent stream and panel/proxy traffic uses dedicated reverse streaming RPCs,
+so workers do not depend on backend-host Unix socket mounts or host-published loopback ports.
 
 Project library materialization is an adapter-owned logical workload rather than a workload-agent action.
 The build manager supplies the snapshot ID and hash, build generation, frozen lockfile, source manifest,
@@ -261,8 +281,8 @@ compatibility requirements, immutable base image, target platforms, and optional
 internal adapter interface.
 The Docker adapter drives the engine build API, while the Kubernetes adapter owns a rootless BuildKit Job.
 Adapter progress callbacks report stable phases and the verified image reference, digest, and image hash.
-The backend accepts updates only for the current image attempt and generation, preventing an obsolete build
-from replacing a newer desired image.
+The backend accepts updates only for the image cache's current workload and generation, preventing an obsolete
+build from replacing a newer desired image.
 
 ## Images And Registries
 

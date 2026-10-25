@@ -42,9 +42,6 @@ message ServerHello {
   // The lease duration in milliseconds.
   uint64 lease_duration_ms = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The initial receive window in bytes for each logical byte stream.
-  uint64 stream_window_bytes = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // The accepted lease generation that fences older credentials and streams.
   uint64 lease_generation = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
@@ -91,12 +88,6 @@ message Heartbeat {
   uint64 sequence = 1;
 }
 
-// WindowUpdate grants additional receive capacity to one logical byte stream.
-message WindowUpdate {
-  // The number of additional payload bytes the peer may send.
-  uint64 bytes = 1 [(google.api.field_behavior) = REQUIRED];
-}
-
 // ActionOutput carries ordered process output for one action.
 message ActionOutput {
   // The output channel.
@@ -127,11 +118,9 @@ message ActionCompleted {
   optional google.protobuf.Struct result = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// RuntimeError reports terminal failure at the correlation scope carried by its envelope.
+// RuntimeError terminates the envelope's request when request_id is set, otherwise its action.
+// Connection failures use the gRPC status rather than a runtime event.
 message RuntimeError {
-  // The envelope identifier that this error terminates.
-  CorrelationScope scope = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // A stable machine-readable error code.
   string code = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -142,32 +131,8 @@ message RuntimeError {
   optional google.protobuf.Struct details = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// CorrelationScope identifies which single envelope identifier an event targets.
-enum CorrelationScope {
-  // The scope was not specified or is not recognized.
-  CORRELATION_SCOPE_UNSPECIFIED = 0;
-
-  // The event targets the request_id.
-  CORRELATION_SCOPE_REQUEST = 1;
-
-  // The event targets the action_id.
-  CORRELATION_SCOPE_ACTION = 2;
-
-  // The event targets the stream_id.
-  CORRELATION_SCOPE_STREAM = 3;
-
-  // The event targets the operation_id.
-  CORRELATION_SCOPE_OPERATION = 4;
-
-  // The event targets the complete workload connection.
-  CORRELATION_SCOPE_CONNECTION = 5;
-}
-
-// CancelRequest requests graceful or forced termination at one multiplexing scope.
+// CancelRequest requests termination of the envelope's action; the backend fans operation cancellation out to actions.
 message CancelRequest {
-  // The single envelope identifier that selects work to cancel.
-  CorrelationScope scope = 1 [(google.api.field_behavior) = REQUIRED];
-
   // Whether to skip graceful interruption and force termination immediately.
   bool force = 2;
 }

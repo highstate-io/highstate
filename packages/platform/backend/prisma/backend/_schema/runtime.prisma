@@ -113,7 +113,7 @@ model RuntimeWorkload {
     runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Restrict)
     project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
     actions RuntimeAction[]
-    imageBuildAttempts LibrarySnapshotImageAttempt[]
+    currentImageBuild LibrarySnapshotImage?
 
     @@unique([runtimeId, nativeResourceId])
     @@index([projectId, kind, status])
@@ -122,6 +122,7 @@ model RuntimeWorkload {
 }
 
 /// One independently cancellable action executed by a logical runtime workload.
+/// Tracks dispatch and termination; operation and evaluation records own domain outcomes.
 model RuntimeAction {
     /// The globally unique action ID carried by runtime protocol envelopes.
     id String @id @default(cuid(2))
