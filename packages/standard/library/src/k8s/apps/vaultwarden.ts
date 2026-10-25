@@ -17,7 +17,7 @@ export const vaultwarden = defineUnit({
 
   args: {
     ...appName("vaultwarden"),
-    ...pick(sharedArgs, ["fqdn"]),
+    ...pick(sharedArgs, ["fqdn", "dnsChallengeAlias"]),
 
     /**
      * Whether signup is allowed for the Vaultwarden instance. Defaults to `false` for security reasons.

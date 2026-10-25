@@ -51,6 +51,7 @@ group "images" {
     "terminal-talosctl",
     "worker-k8s-monitor",
     "worker-k8s-dashboard",
+    "exetrouter",
   ]
 }
 
@@ -59,6 +60,15 @@ target "_common" {
   labels = {
     "org.opencontainers.image.source" = "https://github.com/highstate-io/highstate"
   }
+}
+
+target "exetrouter" {
+  inherits   = ["_common"]
+  context    = "docker"
+  dockerfile = "exetrouter.dockerfile"
+  tags       = image_tags("exetrouter")
+  cache-from = cache_from("exetrouter")
+  cache-to   = cache_to("exetrouter")
 }
 
 target "terminal-base" {

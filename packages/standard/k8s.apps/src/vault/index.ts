@@ -180,6 +180,7 @@ const chart = new Chart(
           main: {
             type: "http",
             fqdn: args.fqdn,
+            dnsChallengeAlias: args.dnsChallengeAlias,
             accessPoint: inputs.accessPoint,
             servicePort: 8200,
           },

@@ -9,6 +9,7 @@ import {
   output,
 } from "@highstate/pulumi"
 import { DnsRecordSet } from "./dns"
+import { isDnsNameInZone, normalizeDnsName } from "./dns-challenge"
 import { GatewayRoute, type GatewayRouteArgs } from "./gateway"
 import { TlsCertificate } from "./tls"
 
@@ -22,6 +23,16 @@ export type AccessPointRouteArgs = Except<GatewayRouteArgs, "gateway" | "metadat
    * Whether the route should be created without TLS even if the access point has TLS issuers.
    */
   plain?: Input<boolean>
+
+  /**
+   * The existing CNAME target that will hold the DNS01 verification TXT record for fqdn.
+   */
+  dnsChallengeAlias?: Input<string>
+
+  /**
+   * The delegated TXT record locations for routes with multiple certificate names.
+   */
+  dnsChallengeAliases?: Input<Record<string, string>>
 
   /**
    * The extra metadata to pass to the gateway route and tls certificate implementations.
@@ -51,25 +62,45 @@ export class AccessPointRoute extends ComponentResource {
     super("highstate:common:AccessPointRoute", name, args, opts)
 
     // 1. create TLS certificate if the route is HTTPS and the access point has TLS issuers
-    if (args.fqdn && args.type === "http" && !args.plain) {
-      this.tlsCertificate = output(args.accessPoint).apply(accessPoint => {
-        if (accessPoint.tlsIssuers.length === 0) {
-          return undefined
+    this.tlsCertificate = output({
+      accessPoint: args.accessPoint,
+      fqdn: args.fqdn,
+      fqdns: normalizeInputs(args.fqdn, args.fqdns),
+      plain: args.plain,
+      alias: args.dnsChallengeAlias,
+      aliases: args.dnsChallengeAliases,
+    }).apply(({ accessPoint, fqdn, fqdns, plain, alias, aliases }) => {
+      if (alias && !fqdn) {
+        throw new Error("A DNS challenge alias requires an application FQDN")
+      }
+
+      const dnsChallengeAliases = { ...aliases, ...(fqdn && alias ? { [fqdn]: alias } : {}) }
+      const hasAliases = Object.keys(dnsChallengeAliases).length > 0
+
+      if (
+        fqdns.length === 0 ||
+        args.type !== "http" ||
+        plain ||
+        accessPoint.tlsIssuers.length === 0
+      ) {
+        if (hasAliases) {
+          throw new Error("DNS challenge aliases require an HTTPS route with a TLS issuer")
         }
 
-        return TlsCertificate.createOnce(
-          name,
-          {
-            issuers: accessPoint.tlsIssuers,
-            dnsNames: normalizeInputs(args.fqdn, args.fqdns),
-            metadata: args.metadata,
-          },
-          { ...opts, parent: this },
-        )
-      })
-    } else {
-      this.tlsCertificate = output(undefined)
-    }
+        return undefined
+      }
+
+      return TlsCertificate.createOnce(
+        name,
+        {
+          issuers: accessPoint.tlsIssuers,
+          dnsNames: fqdns,
+          dnsChallengeAliases,
+          metadata: args.metadata,
+        },
+        { ...opts, parent: this },
+      )
+    })
 
     // 2. create the route and resolve the gateway endpoints
     this.route = this.tlsCertificate.apply(tlsCertificate => {
@@ -89,26 +120,43 @@ export class AccessPointRoute extends ComponentResource {
     this.dnsRecordSets = output({
       accessPoint: args.accessPoint,
       fqdns: normalizeInputs(args.fqdn, args.fqdns),
-    }).apply(async ({ accessPoint, fqdns }) => {
+      alias: args.dnsChallengeAlias,
+      aliases: args.dnsChallengeAliases,
+      fqdn: args.fqdn,
+    }).apply(async ({ accessPoint, fqdns, alias, aliases, fqdn: primaryFqdn }) => {
       if (accessPoint.dnsProviders.length === 0) {
         return []
       }
 
-      return fqdns.map(fqdn => {
-        return new DnsRecordSet(
-          fqdn,
-          {
-            providers: output(args.accessPoint).dnsProviders,
-            values:
-              accessPoint.gateway.endpoints.length > 0
-                ? accessPoint.gateway.endpoints
-                : this.route.endpoints,
-            waitAt: "local",
-            proxied: accessPoint.proxied,
-          },
-          { ...opts, parent: this },
-        )
-      })
+      const delegatedNames = new Set([
+        ...Object.keys(aliases ?? {}).map(normalizeDnsName),
+        ...(primaryFqdn && alias ? [normalizeDnsName(primaryFqdn)] : []),
+      ])
+
+      return fqdns
+        .filter(fqdn => {
+          return (
+            !delegatedNames.has(normalizeDnsName(fqdn)) ||
+            accessPoint.dnsProviders.some(provider =>
+              provider.zones.some(zone => isDnsNameInZone(fqdn, zone)),
+            )
+          )
+        })
+        .map(fqdn => {
+          return new DnsRecordSet(
+            fqdn,
+            {
+              providers: output(args.accessPoint).dnsProviders,
+              values:
+                accessPoint.gateway.endpoints.length > 0
+                  ? accessPoint.gateway.endpoints
+                  : this.route.endpoints,
+              waitAt: "local",
+              proxied: accessPoint.proxied,
+            },
+            { ...opts, parent: this },
+          )
+        })
     })
   }
 }

@@ -22,7 +22,7 @@ export const syncthing = defineUnit({
 
   args: {
     ...appName("syncthing"),
-    ...pick(sharedArgs, ["fqdn", "external"]),
+    ...pick(sharedArgs, ["fqdn", "dnsChallengeAlias", "external"]),
 
     /**
      * The FQDN of the Syncthing instance used to sync with other devices.

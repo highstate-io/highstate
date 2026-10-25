@@ -63,6 +63,7 @@ Deployment.create(
       type: "http",
       accessPoint: inputs.accessPoint,
       fqdn: args.fqdn,
+      dnsChallengeAlias: args.dnsChallengeAlias,
     },
   },
   { dependsOn: backupJobPair?.restoreJob, deletedWith: namespace },

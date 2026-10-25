@@ -66,6 +66,7 @@ const statefulSet = StatefulSet.create(
       type: "http",
       accessPoint: inputs.accessPoint,
       fqdn: args.fqdn,
+      dnsChallengeAlias: args.dnsChallengeAlias,
     },
   },
   { deletedWith: namespace, dependsOn: backupJobPair?.restoreJob },

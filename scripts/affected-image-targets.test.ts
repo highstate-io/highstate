@@ -35,6 +35,11 @@ describe("selectAffectedImageTargets", () => {
       "terminal-talosctl",
       "worker-k8s-monitor",
       "worker-k8s-dashboard",
+      "exetrouter",
     ])
+  })
+
+  test("rebuilds exetrouter when its runtime scripts change", () => {
+    expect(selectAffectedImageTargets(["docker/exetrouter-entrypoint.sh"], new Set())).toEqual(["exetrouter"])
   })
 })

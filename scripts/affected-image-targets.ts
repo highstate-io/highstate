@@ -10,7 +10,7 @@ const terminalTargets = [
   "terminal-talosctl",
 ] as const
 const workerTargets = ["worker-k8s-monitor", "worker-k8s-dashboard"] as const
-const allTargets = [...terminalTargets, ...workerTargets]
+const allTargets = [...terminalTargets, ...workerTargets, "exetrouter"]
 
 const terminalDependents: Record<string, string[]> = {
   "terminal-base": [...terminalTargets],
@@ -27,6 +27,10 @@ export function selectAffectedImageTargets(
   const targets = new Set<string>()
 
   for (const path of changedFiles) {
+    if (path.startsWith("docker/exetrouter")) {
+      targets.add("exetrouter")
+    }
+
     if (path === "docker/docker-bake.hcl" || path === "docker/project.json") {
       allTargets.forEach(target => targets.add(target))
       continue
@@ -48,10 +52,7 @@ export function selectAffectedImageTargets(
     targets.add("worker-k8s-dashboard")
   }
 
-  return [
-    ...terminalTargets.filter(target => targets.has(target)),
-    ...workerTargets.filter(target => targets.has(target)),
-  ]
+  return allTargets.filter(target => targets.has(target))
 }
 
 async function commandOutput(command: string[], cwd: string): Promise<string> {

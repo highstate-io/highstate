@@ -105,6 +105,11 @@ export const certificate = defineUnit({
     dnsNames: z.string().array().default([]),
 
     /**
+     * The TXT record locations delegated by existing _acme-challenge CNAME records, keyed by certificate DNS name.
+     */
+    dnsChallengeAliases: z.record(z.string(), z.string().min(1)).default({}),
+
+    /**
      * The private key configuration for the certificate.
      */
     privateKey: privateKeySchema,

@@ -36,6 +36,11 @@ export const sharedArgs = $args({
   fqdn: z.string(),
 
   /**
+   * The target TXT record location of an existing _acme-challenge CNAME for the application FQDN.
+   */
+  dnsChallengeAlias: z.string().min(1).optional(),
+
+  /**
    * The endpoints where the application will or should be accessible.
    *
    * Can be both L3 (IP addresses) or L4 (IP:port) endpoints and the interpretation is up to the application.

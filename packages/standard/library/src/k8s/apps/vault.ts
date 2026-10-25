@@ -22,6 +22,7 @@ export const vault = defineUnit({
     ...appName("vault"),
     ...pick(sharedArgs, [
       "fqdn",
+      "dnsChallengeAlias",
       "external",
       "namespace",
       "values",

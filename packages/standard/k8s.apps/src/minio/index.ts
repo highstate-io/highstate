@@ -88,6 +88,7 @@ const routes = {
         main: {
           type: "http" as const,
           fqdn: args.fqdn,
+          dnsChallengeAlias: args.dnsChallengeAlias,
           accessPoint: inputs.accessPoint!,
           servicePort: DATABASE_PORT,
         },
