@@ -22,7 +22,11 @@ export async function createRunnerBackend(
 ): Promise<RunnerBackend> {
   switch (config.HIGHSTATE_RUNNER_BACKEND_TYPE) {
     case "local": {
-      const localPulumiHost = LocalPulumiHost.create(secretService, logger)
+      const localPulumiHost = LocalPulumiHost.create(
+        secretService,
+        logger,
+        config.HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS,
+      )
 
       return await LocalRunnerBackend.create(
         config,
