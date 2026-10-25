@@ -4,6 +4,11 @@ import { ComponentResource, makeEntity, output, runtime, toPromise } from "@high
 import { expect, it, vi } from "vitest"
 import { TlsCertificate, tlsCertificateMediator } from "./tls"
 
+vi.hoisted(() => {
+  // other suites share the module cache because test isolation is disabled
+  vi.resetModules()
+})
+
 vi.mock("node:dns/promises", () => ({ resolveCname: vi.fn() }))
 
 runtime.setMocks({
