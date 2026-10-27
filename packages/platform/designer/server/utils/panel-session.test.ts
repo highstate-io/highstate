@@ -7,7 +7,10 @@ import {
   getPanelSession,
 } from "./panel-session"
 
-afterEach(() => vi.useRealTimers())
+afterEach(() => {
+  vi.useRealTimers()
+  vi.unstubAllEnvs()
+})
 
 describe("panel host utilities", () => {
   test("gets panel IDs from base and nested panel hosts", () => {
@@ -36,6 +39,19 @@ describe("panel host utilities", () => {
 })
 
 describe("panel launch sessions", () => {
+  test("hosted launches preserve other browsers' panel capabilities", () => {
+    vi.stubEnv("HIGHSTATE_AUTH_MODE", "hosted")
+    const first = exchangePanelLaunchTicket(
+      createPanelLaunchTicket("hosted-project", "shared-panel", "worker-a", "browser-a"),
+      "shared-panel",
+    )!
+    const second = exchangePanelLaunchTicket(
+      createPanelLaunchTicket("hosted-project", "shared-panel", "worker-b", "browser-b"),
+      "shared-panel",
+    )!
+    expect(getPanelSession(first, "shared-panel")?.designerSessionToken).toBe("browser-a")
+    expect(getPanelSession(second, "shared-panel")?.designerSessionToken).toBe("browser-b")
+  })
   test("pins each launch to its worker instance", () => {
     const firstTicket = createPanelLaunchTicket("project-pools", "panel-pools", "instance-a")
     const firstSessionId = exchangePanelLaunchTicket(firstTicket, "panel-pools")!

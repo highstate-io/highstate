@@ -21,6 +21,7 @@
       "inputs": [
         "{projectRoot}/docker-bake.hcl",
         "{projectRoot}/**/*.dockerfile",
+        "{projectRoot}/highstate-entrypoint.sh",
         "{projectRoot}/apps/**/*"
       ],
       "outputs": [],

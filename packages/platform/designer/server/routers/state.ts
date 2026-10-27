@@ -2,6 +2,7 @@ import { instanceIdSchema } from "@highstate/contract"
 import { z } from "zod"
 import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
 import { createPanelLaunchTicket } from "../utils/panel-session"
+import { getHostedAuthConfig, isHostedAuth } from "../utils/auth-config"
 
 export const stateRouter = router({
   getInstanceStates: projectProcedure
@@ -204,11 +205,18 @@ export const stateRouter = router({
         throw new Error(`Panel "${input.panelId}" is offline`)
       }
 
-      const ticket = createPanelLaunchTicket(input.projectId, panel.id, endpoint.workerInstanceId)
+      const ticket = createPanelLaunchTicket(
+        input.projectId,
+        panel.id,
+        endpoint.workerInstanceId,
+        ctx.designerSessionToken,
+      )
       const port = process.env.HIGHSTATE_DESIGNER_PORT ?? process.env.NITRO_PORT ?? "7283"
 
       return {
-        url: `http://${panel.id}.panels.highstate.localhost:${port}/api/panels/launch?ticket=${ticket}`,
+        url: isHostedAuth()
+          ? `https://${panel.id}.panels.${new URL(getHostedAuthConfig().publicUrl).host}/api/panels/launch?ticket=${ticket}`
+          : `http://${panel.id}.panels.highstate.localhost:${port}/api/panels/launch?ticket=${ticket}`,
       }
     }),
 

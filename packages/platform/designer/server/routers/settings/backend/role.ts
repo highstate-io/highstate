@@ -1,10 +1,16 @@
 import { backendRoleInputSchema, backendRoleQuerySchema } from "@highstate/backend/shared"
+import { humanRoleBindingSchema, setHumanBackendRoleBinding } from "@highstate/backend"
 import { z } from "zod"
 import { backendProcedure, router } from "../../../trpc"
 
 const roleInput = z.object({ roleId: z.cuid2() })
 
 export const backendRoleSettingsRouter = router({
+  setHumanBinding: backendProcedure
+    .input(humanRoleBindingSchema)
+    .mutation(async ({ ctx, input }) => {
+      await setHumanBackendRoleBinding(ctx.database, ctx.requestContext, input)
+    }),
   query: backendProcedure.input(backendRoleQuerySchema).query(async ({ ctx, input }) => {
     return await ctx.backendRoleSettingsService.query(ctx.requestContext, input)
   }),

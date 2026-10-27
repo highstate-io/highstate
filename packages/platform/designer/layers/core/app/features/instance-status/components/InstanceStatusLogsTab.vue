@@ -27,6 +27,7 @@ const writeLogEntry = (message: string) => {
 if (isTransientInstanceOperationStatus(operationState.status)) {
   const { unsubscribe } = $client.logs.watchInstanceLogs.subscribe(
     {
+      projectId: projectStore.projectId,
       stateId: operationState.stateId,
       operationId: operationState.operationId,
     },

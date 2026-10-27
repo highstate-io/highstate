@@ -41,6 +41,7 @@ export const operationRouter = router({
     .input(
       z.object({
         operationId: z.string(),
+        projectId: z.string(),
       }),
     )
     .mutation(({ input, ctx }) => {

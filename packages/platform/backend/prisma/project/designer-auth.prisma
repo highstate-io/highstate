@@ -1,0 +1,5 @@
+/// Prevents explicit hosted human administrator seeds from being reapplied after revocation.
+model DesignerAuthInitialization {
+  id String @id
+  createdAt DateTime @default(now())
+}

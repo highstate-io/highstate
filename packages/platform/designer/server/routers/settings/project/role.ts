@@ -1,8 +1,14 @@
 import { projectRoleInputSchema, projectRoleQuerySchema } from "@highstate/backend/shared"
+import { humanRoleBindingSchema, setHumanProjectRoleBinding } from "@highstate/backend"
 import { projectProcedure, router } from "../../../trpc"
 import { projectInput, roleInput } from "../shared"
 
 export const projectRoleSettingsRouter = router({
+  setHumanBinding: projectProcedure
+    .input(humanRoleBindingSchema)
+    .mutation(async ({ ctx, input }) => {
+      await setHumanProjectRoleBinding(ctx.database, ctx.requestContext, input)
+    }),
   query: projectProcedure
     .input(projectInput.extend({ query: projectRoleQuerySchema }))
     .query(async ({ ctx, input }) => {

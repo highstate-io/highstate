@@ -1,0 +1,32 @@
+/// Opaque browser credentials are stored only as SHA-256 hashes.
+model DesignerSession {
+  tokenHash String @id
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// [DesignerIdentity]
+  identity Json
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// A one-use, browser-bound authorization code transaction.
+model DesignerLoginTransaction {
+  tokenHash String @id
+  providerId String
+  state String
+  nonce String
+  codeVerifier String
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+/// Records bootstrap completion independently of later role/binding deletion.
+model DesignerAuthInitialization {
+  id String @id
+  createdAt DateTime @default(now())
+}

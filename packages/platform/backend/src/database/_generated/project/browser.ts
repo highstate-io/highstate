@@ -45,6 +45,11 @@ export type Artifact = Prisma.ArtifactModel
  */
 export type InstanceCustomStatus = Prisma.InstanceCustomStatusModel
 /**
+ * Model DesignerAuthInitialization
+ * Prevents explicit hosted human administrator seeds from being reapplied after revocation.
+ */
+export type DesignerAuthInitialization = Prisma.DesignerAuthInitializationModel
+/**
  * Model Entity
  * This model represents and instance of Highstate entity produced by one or many component instances one or many times.
  * Entity tracks EntitySnapshots by their unique IDs allowing to correlate them across different operations and instances.
