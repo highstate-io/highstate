@@ -21,6 +21,7 @@ import {
   triggerSettingsRouter,
   unlockMethodSettingsRouter,
   workerSettingsRouter,
+  runtimeSettingsRouter,
 } from "./routers/settings"
 import { stateRouter } from "./routers/state"
 import { terminalRouter } from "./routers/terminal"
@@ -34,6 +35,7 @@ export const appRouter = router({
   backendApiKeySettings: backendApiKeySettingsRouter,
   backendRoleSettings: backendRoleSettingsRouter,
   backendServiceAccountSettings: backendServiceAccountSettingsRouter,
+  runtimeSettings: runtimeSettingsRouter,
   projectApiKeySettings: projectApiKeySettingsRouter,
   projectRoleSettings: projectRoleSettingsRouter,
   projectServiceAccountSettings: projectServiceAccountSettingsRouter,

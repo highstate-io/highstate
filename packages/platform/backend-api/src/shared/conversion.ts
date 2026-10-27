@@ -1,4 +1,7 @@
-import type { InstanceArgumentPatchOperation as BackendInstanceArgumentPatchOperation } from "@highstate/backend"
+import type {
+  InstanceArgumentPatchOperation as BackendInstanceArgumentPatchOperation,
+  ProjectLibraryCatalog,
+} from "@highstate/backend"
 import type {
   InstanceState as BackendInstanceState,
   Operation as BackendOperation,
@@ -61,6 +64,7 @@ import {
   instanceModelSchema,
   z,
 } from "@highstate/contract"
+import { toCatalogSource, toLocalOverlay } from "./project-library"
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
   z.union([
@@ -81,8 +85,10 @@ export function toProject(project: ProjectOutput): Project {
     meta: project.meta,
     spaceId: project.spaceId,
     modelStorageId: project.modelStorageId,
-    libraryId: project.libraryId,
-    pulumiBackendId: project.pulumiBackendId,
+    libraryId: "",
+    pulumiBackendId: project.pulumiStateBackendId,
+    containerRuntimeId: project.containerRuntimeId,
+    pulumiStateBackendId: project.pulumiStateBackendId,
     createdAt: toTimestamp(project.createdAt),
     updatedAt: toTimestamp(project.updatedAt),
   })
@@ -271,6 +277,10 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
             ? toInstance(instanceModelSchema.parse(state.evaluationState.model))
             : undefined,
           evaluatedAt: toTimestamp(state.evaluationState.evaluatedAt),
+          librarySnapshotId: state.evaluationState.librarySnapshotId ?? undefined,
+          modelRevision: state.evaluationState.modelRevision,
+          localOverlayRevision: state.evaluationState.localOverlayRevision ?? undefined,
+          evaluationActionId: state.evaluationState.evaluationActionId,
         }
       : undefined,
     lastOperationState: state.lastOperationState
@@ -283,6 +293,12 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
           model: toInstance(instanceModelSchema.parse(state.lastOperationState.model)),
           startedAt: toNullableTimestamp(state.lastOperationState.startedAt),
           finishedAt: toNullableTimestamp(state.lastOperationState.finishedAt),
+          librarySnapshotId: state.lastOperationState.librarySnapshotId ?? undefined,
+          libraryPackageVersionId: state.lastOperationState.libraryPackageVersionId ?? undefined,
+          previousLibraryPackageVersionId:
+            state.lastOperationState.previousLibraryPackageVersionId ?? undefined,
+          localOverlayActive: state.lastOperationState.localOverlayActive,
+          localOverlayRevision: state.lastOperationState.localOverlayRevision ?? undefined,
         }
       : undefined,
     terminalIds: state.terminalIds ?? [],
@@ -296,6 +312,8 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
       ? fromJson(ValueSchema, jsonValueSchema.parse(state.statusFields))
       : undefined,
     model: model ? toInstance(model) : undefined,
+    librarySnapshotId: state.librarySnapshotId ?? undefined,
+    libraryPackageVersionId: state.libraryPackageVersionId ?? undefined,
   })
 }
 
@@ -354,6 +372,7 @@ export function toOperation(operation: BackendOperation): Operation {
     startedAt: toTimestamp(operation.startedAt),
     updatedAt: toTimestamp(operation.updatedAt),
     finishedAt: toNullableTimestamp(operation.finishedAt),
+    librarySnapshotId: operation.librarySnapshotId ?? undefined,
   })
 }
 
@@ -377,17 +396,31 @@ export function toOperationLog(
   })
 }
 
-export function toLibrary(library: {
-  components: Record<string, ComponentModel>
-  entities: Record<string, EntityModel>
-}): Library {
+export function toLibrary(
+  library: {
+    components: Record<string, ComponentModel>
+    entities: Record<string, EntityModel>
+  },
+  catalog?: ProjectLibraryCatalog,
+): Library {
   return create(LibrarySchema, {
     components: Object.fromEntries(
-      Object.entries(library.components).map(([type, component]) => [type, toComponent(component)]),
+      Object.entries(library.components).map(([type, component]) => [
+        type,
+        {
+          ...toComponent(component),
+          source: toCatalogSource(catalog?.sources[`components:${type}`]),
+        },
+      ]),
     ),
     entities: Object.fromEntries(
-      Object.entries(library.entities).map(([type, entity]) => [type, toEntity(entity)]),
+      Object.entries(library.entities).map(([type, entity]) => [
+        type,
+        { ...toEntity(entity), source: toCatalogSource(catalog?.sources[`entities:${type}`]) },
+      ]),
     ),
+    librarySnapshotId: catalog?.snapshotId ?? undefined,
+    localOverlay: catalog ? toLocalOverlay(catalog.overlay) : undefined,
   })
 }
 

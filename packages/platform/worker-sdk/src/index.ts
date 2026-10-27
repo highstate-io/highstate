@@ -6,14 +6,28 @@ import { type Client, createClient, type Transport } from "@connectrpc/connect"
 import { createApiTransport, createAuthenticationInterceptor } from "@highstate/api"
 import { PanelService } from "@highstate/api/v1"
 import { WorkerService } from "@highstate/api/worker.v1"
-import {
-  type CommonObjectMeta,
-  type ServiceAccountMeta,
-  type WorkerRunOptions,
-  workerRunOptionsSchema,
-  type z,
-} from "@highstate/contract"
-import { PanelDataServer, PanelTargetRegistry } from "./panel"
+import { type CommonObjectMeta, type ServiceAccountMeta, z } from "@highstate/contract"
+import { PanelTargetRegistry } from "./panel"
+import { WorkerRuntimeClient } from "./runtime"
+
+const runtimeRunOptionsSchema = z.object({
+  projectId: z.string().min(1),
+  workerVersionId: z.string().min(1),
+  workerInstanceId: z.string().min(1),
+  apiKey: z.string().min(1),
+  apiUrl: z.url(),
+  runtimeApiUrl: z.url(),
+  runtimeApiCaBundle: z.string().optional(),
+  runtimeToken: z.string().min(1),
+  scope: z.object({
+    backendId: z.string(),
+    projectId: z.string(),
+    runtimeId: z.string(),
+    workloadId: z.string(),
+    generation: z.number().int().positive(),
+  }),
+})
+type WorkerRunOptions = z.infer<typeof runtimeRunOptionsSchema>
 
 export * from "./panel"
 
@@ -41,7 +55,6 @@ export class Worker<TParamsSchema extends z.ZodType> {
   private readonly eventEmitter = new EventEmitter()
   private readonly transport: Transport
   private readonly panelTargets = new PanelTargetRegistry()
-  private readonly panelDataServer = new PanelDataServer(this.panelTargets)
 
   private constructor(
     private readonly options: WorkerOptions<TParamsSchema>,
@@ -128,24 +141,16 @@ export class Worker<TParamsSchema extends z.ZodType> {
       serviceAccountMeta: this.options.serviceAccountMeta,
     })
 
-    this.panelDataServer.start()
-
-    for await (const { event } of workerClient.connect({
-      projectId: this.runOptions.projectId,
-      workerVersionId: this.runOptions.workerVersionId,
-      workerInstanceId: this.runOptions.workerInstanceId,
-      dataEndpoint: this.runOptions.dataEndpoint,
-    })) {
-      switch (event.case) {
-        case "unitRegistration": {
-          this.eventEmitter.emit("unitRegistration", event.value.stateId, event.value.params)
-          break
-        }
-        case "unitDeregistration": {
-          this.eventEmitter.emit("unitDeregistration", event.value.stateId)
-          break
-        }
-      }
+    const runtime = new WorkerRuntimeClient(this.runOptions, this.panelTargets)
+    try {
+      await runtime.connect(async event => {
+        if (event.type === "register")
+          this.eventEmitter.emit("unitRegistration", event.stateId, event.params)
+        else if (event.type === "deregister")
+          this.eventEmitter.emit("unitDeregistration", event.stateId)
+      })
+    } finally {
+      runtime.close()
     }
   }
 
@@ -158,17 +163,20 @@ export class Worker<TParamsSchema extends z.ZodType> {
   static async create<TParamsSchema extends z.ZodType>(
     options: WorkerOptions<TParamsSchema>,
   ): Promise<Worker<TParamsSchema>> {
-    let runOptionsJson: unknown
+    let runOptionsJson: unknown = process.env.HIGHSTATE_WORKER_RUN_OPTIONS
+      ? JSON.parse(process.env.HIGHSTATE_WORKER_RUN_OPTIONS)
+      : undefined
+    delete process.env.HIGHSTATE_WORKER_RUN_OPTIONS
+    if (!runOptionsJson)
+      for await (const line of createInterface({ input: process.stdin })) {
+        try {
+          runOptionsJson = JSON.parse(line)
+        } catch (error) {
+          throw new Error("Failed to parse worker run options", { cause: error })
+        }
 
-    for await (const line of createInterface({ input: process.stdin })) {
-      try {
-        runOptionsJson = JSON.parse(line)
-      } catch (error) {
-        throw new Error("Failed to parse worker run options", { cause: error })
+        break
       }
-
-      break
-    }
 
     if (!runOptionsJson) {
       throw new Error("No worker run options provided")
@@ -177,7 +185,7 @@ export class Worker<TParamsSchema extends z.ZodType> {
     let runOptions: WorkerRunOptions
 
     try {
-      runOptions = workerRunOptionsSchema.parse(runOptionsJson)
+      runOptions = runtimeRunOptionsSchema.parse(runOptionsJson)
     } catch (error) {
       throw new Error("Invalid worker run options", { cause: error })
     }

@@ -69,12 +69,12 @@ message WorkerProxyRequestHead {
 
 // ProxyWorkerResponse carries the backend's HTTP request on the worker-originated RPC.
 message ProxyWorkerResponse {
-  // Headers first, followed by bounded body chunks until server half-close.
+  // Headers first, followed by bounded body chunks and an empty body frame marking request EOF.
   oneof event {
     // The request routing and HTTP headers.
     WorkerProxyRequestHead head = 1;
 
-    // Unmodified HTTP body bytes.
+    // Unmodified HTTP body bytes; an empty chunk ends the request body without completing the RPC.
     bytes body = 2;
   }
 }

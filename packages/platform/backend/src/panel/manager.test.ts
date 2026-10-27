@@ -1,8 +1,48 @@
+import type { WorkerProxyRegistry } from "../container-runtime"
 import type { PubSubManager } from "../pubsub"
 import { describe, expect, test, vi } from "vitest"
 import { PanelEndpointManager } from "./manager"
 
 describe("PanelEndpointManager", () => {
+  test("dispatches through the registered workload and fences pinned sessions after disconnect", async () => {
+    const request = vi.fn(async () => ({
+      status: 201,
+      headers: [],
+      body: (async function* () {
+        yield new Uint8Array([0, 255])
+      })(),
+    }))
+    const manager = new PanelEndpointManager(undefined, {
+      request,
+    } as unknown as WorkerProxyRegistry)
+    manager.connectRuntime("project", "worker", "instance", "workload")
+    manager.setPanels("project", "worker", "instance", "state", [
+      { id: "panel", name: "dashboard" },
+    ])
+    const input = {
+      method: "POST",
+      path: "/route?q=1",
+      headers: [
+        { name: "x-test", value: "one" },
+        { name: "x-test", value: "two" },
+      ],
+      body: (async function* () {
+        yield new Uint8Array([1])
+      })(),
+    }
+    const response = await manager.proxy("project", "worker", "panel", "instance", input)
+    expect(response.status).toBe(201)
+    expect(request).toHaveBeenCalledWith(
+      "workload",
+      { ...input, stateId: "state", panelName: "dashboard" },
+      undefined,
+    )
+    manager.disconnect("instance")
+    await expect(manager.proxy("project", "worker", "panel", "instance", input)).rejects.toThrow(
+      "unavailable",
+    )
+    expect(request).toHaveBeenCalledOnce()
+  })
   test("publishes and resolves panel endpoints for a connected instance", () => {
     const publish = vi.fn()
     const manager = new PanelEndpointManager(vi.mockObject({ publish } as unknown as PubSubManager))

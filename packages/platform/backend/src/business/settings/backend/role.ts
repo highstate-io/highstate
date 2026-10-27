@@ -3,12 +3,14 @@ import type {
   BackendApiKeyWhereInput,
   BackendRoleWhereInput,
   BackendServiceAccountWhereInput,
+  ContainerRegistryCredentialWhereInput,
+  ContainerRuntimeWhereInput,
   DatabaseManager,
-  LibraryWhereInput,
+  NpmRegistryCredentialWhereInput,
   ProjectModelStorageWhereInput,
   ProjectSpaceWhereInput,
   ProjectWhereInput,
-  PulumiBackendWhereInput,
+  PulumiStateBackendWhereInput,
 } from "../../../database"
 import type {
   BackendPermission,
@@ -180,66 +182,94 @@ export class BackendRoleSettingsService {
             target,
           })
         : ({ OR: [] } as TWhere)
-
-    const [projects, projectSpaces, libraries, pulumiBackends, storages, accounts, keys, roles] =
-      await Promise.all([
-        this.database.backend.project.findMany({
-          where: await authorization<ProjectWhereInput>("project.list", {
-            projects: ids => ({ id: { in: [...ids] } }),
-            projectsInSpaces: ids => ({ spaceId: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
+    const [
+      projects,
+      projectSpaces,
+      runtimes,
+      stateBackends,
+      npmCredentials,
+      containerCredentials,
+      storages,
+      accounts,
+      keys,
+      roles,
+    ] = await Promise.all([
+      this.database.backend.project.findMany({
+        where: await authorization<ProjectWhereInput>("project.list", {
+          projects: ids => ({ id: { in: [...ids] } }),
+          projectsInSpaces: ids => ({ spaceId: { in: [...ids] } }),
         }),
-        this.database.backend.projectSpace.findMany({
-          where: await authorization<ProjectSpaceWhereInput>("project-space.list", {
-            projectSpaces: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.projectSpace.findMany({
+        where: await authorization<ProjectSpaceWhereInput>("project-space.list", {
+          projectSpaces: ids => ({ id: { in: [...ids] } }),
         }),
-        this.database.backend.library.findMany({
-          where: await authorization<LibraryWhereInput>("library.list", {
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.containerRuntime.findMany({
+        where: await authorization<ContainerRuntimeWhereInput>("container-runtime.list", {
+          resources: ids => ({ id: { in: [...ids] } }),
+        }),
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.pulumiStateBackend.findMany({
+        where: await authorization<PulumiStateBackendWhereInput>("pulumi-state-backend.list", {
+          resources: ids => ({ id: { in: [...ids] } }),
+        }),
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.npmRegistryCredential.findMany({
+        where: await authorization<NpmRegistryCredentialWhereInput>(
+          "npm-registry-credential.list",
+          {
             resources: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
-        }),
-        this.database.backend.pulumiBackend.findMany({
-          where: await authorization<PulumiBackendWhereInput>("pulumi-backend.list", {
+          },
+        ),
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.containerRegistryCredential.findMany({
+        where: await authorization<ContainerRegistryCredentialWhereInput>(
+          "container-registry-credential.list",
+          {
             resources: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
+          },
+        ),
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.projectModelStorage.findMany({
+        where: await authorization<ProjectModelStorageWhereInput>("project-model-storage.list", {
+          resources: ids => ({ id: { in: [...ids] } }),
         }),
-        this.database.backend.projectModelStorage.findMany({
-          where: await authorization<ProjectModelStorageWhereInput>("project-model-storage.list", {
-            resources: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.backendServiceAccount.findMany({
+        where: await authorization<BackendServiceAccountWhereInput>("service-account.list", {
+          resources: ids => ({ id: { in: [...ids] } }),
         }),
-        this.database.backend.backendServiceAccount.findMany({
-          where: await authorization<BackendServiceAccountWhereInput>("service-account.list", {
-            resources: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.backendApiKey.findMany({
+        where: await authorization<BackendApiKeyWhereInput>("api-key.list", {
+          resources: ids => ({ id: { in: [...ids] } }),
         }),
-        this.database.backend.backendApiKey.findMany({
-          where: await authorization<BackendApiKeyWhereInput>("api-key.list", {
-            resources: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
+        select: { id: true, meta: true },
+      }),
+      this.database.backend.backendRole.findMany({
+        where: await authorization<BackendRoleWhereInput>("role.list", {
+          resources: ids => ({ id: { in: [...ids] } }),
         }),
-        this.database.backend.backendRole.findMany({
-          where: await authorization<BackendRoleWhereInput>("role.list", {
-            resources: ids => ({ id: { in: [...ids] } }),
-          }),
-          select: { id: true, meta: true },
-        }),
-      ])
-
+        select: { id: true, meta: true },
+      }),
+    ])
     return {
       projects,
       projectSpaces,
       resources: {
-        library: libraries,
-        "pulumi-backend": pulumiBackends,
+        "container-runtime": runtimes,
+        "pulumi-state-backend": stateBackends,
+        "npm-registry-credential": npmCredentials,
+        "container-registry-credential": containerCredentials,
         "project-model-storage": storages,
         "backend-service-account": accounts,
         "backend-api-key": keys,
@@ -317,14 +347,26 @@ export class BackendRoleSettingsService {
     let resources: BackendRoleRestrictionOption[]
 
     switch (type) {
-      case "library":
-        resources = await this.database.backend.library.findMany({
+      case "container-runtime":
+        resources = await this.database.backend.containerRuntime.findMany({
           where: { id: { in: ids } },
           select: { id: true, meta: true },
         })
         break
-      case "pulumi-backend":
-        resources = await this.database.backend.pulumiBackend.findMany({
+      case "pulumi-state-backend":
+        resources = await this.database.backend.pulumiStateBackend.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, meta: true },
+        })
+        break
+      case "npm-registry-credential":
+        resources = await this.database.backend.npmRegistryCredential.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, meta: true },
+        })
+        break
+      case "container-registry-credential":
+        resources = await this.database.backend.containerRegistryCredential.findMany({
           where: { id: { in: ids } },
           select: { id: true, meta: true },
         })

@@ -62,6 +62,10 @@ export const ModelName = {
   InstanceState: 'InstanceState',
   UserProjectViewport: 'UserProjectViewport',
   UserCompositeViewport: 'UserCompositeViewport',
+  LibraryPackageVersion: 'LibraryPackageVersion',
+  LibrarySnapshot: 'LibrarySnapshot',
+  LibrarySnapshotVersion: 'LibrarySnapshotVersion',
+  ProjectLibraryState: 'ProjectLibraryState',
   InstanceLock: 'InstanceLock',
   InstanceModel: 'InstanceModel',
   HubModel: 'HubModel',
@@ -192,6 +196,10 @@ export const InstanceEvaluationStateScalarFieldEnum = {
   status: 'status',
   message: 'message',
   model: 'model',
+  librarySnapshotId: 'librarySnapshotId',
+  modelRevision: 'modelRevision',
+  localOverlayRevision: 'localOverlayRevision',
+  evaluationActionId: 'evaluationActionId',
   evaluatedAt: 'evaluatedAt'
 } as const
 
@@ -215,7 +223,9 @@ export const InstanceStateScalarFieldEnum = {
   resolvedInputs: 'resolvedInputs',
   currentResourceCount: 'currentResourceCount',
   statusFields: 'statusFields',
-  hasResourceHooks: 'hasResourceHooks'
+  hasResourceHooks: 'hasResourceHooks',
+  librarySnapshotId: 'librarySnapshotId',
+  libraryPackageVersionId: 'libraryPackageVersionId'
 } as const
 
 export type InstanceStateScalarFieldEnum = (typeof InstanceStateScalarFieldEnum)[keyof typeof InstanceStateScalarFieldEnum]
@@ -236,6 +246,55 @@ export const UserCompositeViewportScalarFieldEnum = {
 } as const
 
 export type UserCompositeViewportScalarFieldEnum = (typeof UserCompositeViewportScalarFieldEnum)[keyof typeof UserCompositeViewportScalarFieldEnum]
+
+
+export const LibraryPackageVersionScalarFieldEnum = {
+  id: 'id',
+  packageName: 'packageName',
+  version: 'version',
+  registryUrl: 'registryUrl',
+  packageIntegrity: 'packageIntegrity',
+  tarballUrl: 'tarballUrl',
+  evaluatedModel: 'evaluatedModel',
+  sourceManifest: 'sourceManifest',
+  packageMetadata: 'packageMetadata',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryPackageVersionScalarFieldEnum = (typeof LibraryPackageVersionScalarFieldEnum)[keyof typeof LibraryPackageVersionScalarFieldEnum]
+
+
+export const LibrarySnapshotScalarFieldEnum = {
+  id: 'id',
+  hash: 'hash',
+  lockfile: 'lockfile',
+  evaluatedModel: 'evaluatedModel',
+  sourceManifest: 'sourceManifest',
+  compatibility: 'compatibility',
+  createdAt: 'createdAt'
+} as const
+
+export type LibrarySnapshotScalarFieldEnum = (typeof LibrarySnapshotScalarFieldEnum)[keyof typeof LibrarySnapshotScalarFieldEnum]
+
+
+export const LibrarySnapshotVersionScalarFieldEnum = {
+  snapshotId: 'snapshotId',
+  libraryPackageVersionId: 'libraryPackageVersionId'
+} as const
+
+export type LibrarySnapshotVersionScalarFieldEnum = (typeof LibrarySnapshotVersionScalarFieldEnum)[keyof typeof LibrarySnapshotVersionScalarFieldEnum]
+
+
+export const ProjectLibraryStateScalarFieldEnum = {
+  id: 'id',
+  selectedPackages: 'selectedPackages',
+  selectionInitialized: 'selectionInitialized',
+  desiredSnapshotId: 'desiredSnapshotId',
+  localOverlayEnabled: 'localOverlayEnabled',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectLibraryStateScalarFieldEnum = (typeof ProjectLibraryStateScalarFieldEnum)[keyof typeof ProjectLibraryStateScalarFieldEnum]
 
 
 export const InstanceLockScalarFieldEnum = {
@@ -276,6 +335,7 @@ export const OperationScalarFieldEnum = {
   options: 'options',
   requestedInstanceIds: 'requestedInstanceIds',
   phases: 'phases',
+  librarySnapshotId: 'librarySnapshotId',
   startedAt: 'startedAt',
   updatedAt: 'updatedAt',
   finishedAt: 'finishedAt'
@@ -292,6 +352,11 @@ export const InstanceOperationStateScalarFieldEnum = {
   totalResourceCount: 'totalResourceCount',
   model: 'model',
   resolvedInputs: 'resolvedInputs',
+  librarySnapshotId: 'librarySnapshotId',
+  libraryPackageVersionId: 'libraryPackageVersionId',
+  previousLibraryPackageVersionId: 'previousLibraryPackageVersionId',
+  localOverlayActive: 'localOverlayActive',
+  localOverlayRevision: 'localOverlayRevision',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
 } as const

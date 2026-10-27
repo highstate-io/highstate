@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/project.proto.
  */
 export const file_io_highstate_v1_project: GenFile = /*@__PURE__*/
-  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvcHJvamVjdC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIooBCgtQcm9qZWN0TWV0YRINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBEhEKBGljb24YAyABKAlIAYgBARIXCgppY29uX2NvbG9yGAQgASgJSAKIAQFCDgoMX2Rlc2NyaXB0aW9uQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIuoCCgdQcm9qZWN0Eg8KAmlkGAEgASgJQgPgQQMSDAoEbmFtZRgCIAEoCRIqCgRtZXRhGAMgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhEhUKCHNwYWNlX2lkGAQgASgJQgPgQQUSHQoQbW9kZWxfc3RvcmFnZV9pZBgFIAEoCUID4EEFEhYKCmxpYnJhcnlfaWQYBiABKAlCAhgBEh0KEXB1bHVtaV9iYWNrZW5kX2lkGAcgASgJQgIYARIzCgpjcmVhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDEjMKCnVwZGF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSHAoUY29udGFpbmVyX3J1bnRpbWVfaWQYCiABKAkSHwoXcHVsdW1pX3N0YXRlX2JhY2tlbmRfaWQYCyABKAkiLAoRR2V0UHJvamVjdFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECIlwKEkdldFByb2plY3RSZXNwb25zZRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJjChNMaXN0UHJvamVjdHNSZXF1ZXN0EhYKCXBhZ2Vfc2l6ZRgBIAEoBUgAiAEBEhcKCnBhZ2VfdG9rZW4YAiABKAlIAYgBAUIMCgpfcGFnZV9zaXplQg0KC19wYWdlX3Rva2VuIlYKDFByb2plY3RFbnRyeRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJ+ChRMaXN0UHJvamVjdHNSZXNwb25zZRIvCghwcm9qZWN0cxgBIAMoCzIdLmlvLmhpZ2hzdGF0ZS52MS5Qcm9qZWN0RW50cnkSIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgPgQQNIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuMsQBCg5Qcm9qZWN0U2VydmljZRJVCgpHZXRQcm9qZWN0EiIuaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RSZXF1ZXN0GiMuaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RSZXNwb25zZRJbCgxMaXN0UHJvamVjdHMSJC5pby5oaWdoc3RhdGUudjEuTGlzdFByb2plY3RzUmVxdWVzdBolLmlvLmhpZ2hzdGF0ZS52MS5MaXN0UHJvamVjdHNSZXNwb25zZWIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_timestamp]);
+  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvcHJvamVjdC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIooBCgtQcm9qZWN0TWV0YRINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBEhEKBGljb24YAyABKAlIAYgBARIXCgppY29uX2NvbG9yGAQgASgJSAKIAQFCDgoMX2Rlc2NyaXB0aW9uQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIuoCCgdQcm9qZWN0Eg8KAmlkGAEgASgJQgPgQQMSDAoEbmFtZRgCIAEoCRIqCgRtZXRhGAMgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhEhUKCHNwYWNlX2lkGAQgASgJQgPgQQUSHQoQbW9kZWxfc3RvcmFnZV9pZBgFIAEoCUID4EEFEhYKCmxpYnJhcnlfaWQYBiABKAlCAhgBEh0KEXB1bHVtaV9iYWNrZW5kX2lkGAcgASgJQgIYARIzCgpjcmVhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDEjMKCnVwZGF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSHAoUY29udGFpbmVyX3J1bnRpbWVfaWQYCiABKAkSHwoXcHVsdW1pX3N0YXRlX2JhY2tlbmRfaWQYCyABKAkiLAoRR2V0UHJvamVjdFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECIlwKEkdldFByb2plY3RSZXNwb25zZRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJjChNMaXN0UHJvamVjdHNSZXF1ZXN0EhYKCXBhZ2Vfc2l6ZRgBIAEoBUgAiAEBEhcKCnBhZ2VfdG9rZW4YAiABKAlIAYgBAUIMCgpfcGFnZV9zaXplQg0KC19wYWdlX3Rva2VuIlYKDFByb2plY3RFbnRyeRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJ+ChRMaXN0UHJvamVjdHNSZXNwb25zZRIvCghwcm9qZWN0cxgBIAMoCzIdLmlvLmhpZ2hzdGF0ZS52MS5Qcm9qZWN0RW50cnkSIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgPgQQNIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIr8BCh1VcGRhdGVQcm9qZWN0UGxhY2VtZW50UmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISIQoUY29udGFpbmVyX3J1bnRpbWVfaWQYAiABKAlCA+BBAhIkChdwdWx1bWlfc3RhdGVfYmFja2VuZF9pZBgDIAEoCUID4EECEiIKFWxvY2FsX292ZXJsYXlfZW5hYmxlZBgEIAEoCEgAiAEBQhgKFl9sb2NhbF9vdmVybGF5X2VuYWJsZWQiUAoeVXBkYXRlUHJvamVjdFBsYWNlbWVudFJlc3BvbnNlEi4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECMr8CCg5Qcm9qZWN0U2VydmljZRJVCgpHZXRQcm9qZWN0EiIuaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RSZXF1ZXN0GiMuaW8uaGlnaHN0YXRlLnYxLkdldFByb2plY3RSZXNwb25zZRJbCgxMaXN0UHJvamVjdHMSJC5pby5oaWdoc3RhdGUudjEuTGlzdFByb2plY3RzUmVxdWVzdBolLmlvLmhpZ2hzdGF0ZS52MS5MaXN0UHJvamVjdHNSZXNwb25zZRJ5ChZVcGRhdGVQcm9qZWN0UGxhY2VtZW50Ei4uaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZVByb2plY3RQbGFjZW1lbnRSZXF1ZXN0Gi8uaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZVByb2plY3RQbGFjZW1lbnRSZXNwb25zZWIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_timestamp]);
 
 /**
  * ProjectMeta contains display metadata for a project.
@@ -284,6 +284,69 @@ export const ListProjectsResponseSchema: GenMessage<ListProjectsResponse> = /*@_
   messageDesc(file_io_highstate_v1_project, 6);
 
 /**
+ * UpdateProjectPlacementRequest selects runtime and state storage for future project work.
+ *
+ * @generated from message io.highstate.v1.UpdateProjectPlacementRequest
+ */
+export type UpdateProjectPlacementRequest = Message<"io.highstate.v1.UpdateProjectPlacementRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The runtime used for every project workload.
+   *
+   * @generated from field: string container_runtime_id = 2;
+   */
+  containerRuntimeId: string;
+
+  /**
+   * The Pulumi state backend used by the project.
+   *
+   * @generated from field: string pulumi_state_backend_id = 3;
+   */
+  pulumiStateBackendId: string;
+
+  /**
+   * Explicitly enables or disables the local development overlay during migration.
+   *
+   * @generated from field: optional bool local_overlay_enabled = 4;
+   */
+  localOverlayEnabled?: boolean | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateProjectPlacementRequest.
+ * Use `create(UpdateProjectPlacementRequestSchema)` to create a new message.
+ */
+export const UpdateProjectPlacementRequestSchema: GenMessage<UpdateProjectPlacementRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 7);
+
+/**
+ * UpdateProjectPlacementResponse returns the canonical project placement.
+ *
+ * @generated from message io.highstate.v1.UpdateProjectPlacementResponse
+ */
+export type UpdateProjectPlacementResponse = Message<"io.highstate.v1.UpdateProjectPlacementResponse"> & {
+  /**
+   * The updated project.
+   *
+   * @generated from field: io.highstate.v1.Project project = 1;
+   */
+  project?: Project | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateProjectPlacementResponse.
+ * Use `create(UpdateProjectPlacementResponseSchema)` to create a new message.
+ */
+export const UpdateProjectPlacementResponseSchema: GenMessage<UpdateProjectPlacementResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 8);
+
+/**
  * ProjectService provides access to projects.
  *
  * @generated from service io.highstate.v1.ProjectService
@@ -308,6 +371,16 @@ export const ProjectService: GenService<{
     methodKind: "unary";
     input: typeof ListProjectsRequestSchema;
     output: typeof ListProjectsResponseSchema;
+  },
+  /**
+   * Changes project placement when no active work prevents migration.
+   *
+   * @generated from rpc io.highstate.v1.ProjectService.UpdateProjectPlacement
+   */
+  updateProjectPlacement: {
+    methodKind: "unary";
+    input: typeof UpdateProjectPlacementRequestSchema;
+    output: typeof UpdateProjectPlacementResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_io_highstate_v1_project, 0);

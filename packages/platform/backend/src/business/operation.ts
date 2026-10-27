@@ -23,6 +23,7 @@ import {
   type OperationMeta,
   OperationNotFoundError,
   type OperationOptions,
+  type OperationPhase,
   type OperationType,
   type PageRequest,
   type PageResult,
@@ -52,6 +53,7 @@ export class OperationService {
     type: OperationType,
     requestedInstanceIds: InstanceId[],
     options: OperationOptions,
+    captured?: { librarySnapshotId: string | null; phases: OperationPhase[] },
   ): Promise<Operation> {
     const database = await this.database.forProject(projectId)
 
@@ -62,6 +64,7 @@ export class OperationService {
         options,
         requestedInstanceIds,
         startedAt: new Date(),
+        ...captured,
       },
     })
 

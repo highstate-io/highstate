@@ -2,23 +2,18 @@
 
 ## Overview
 
-**Status: Proposed.**
-Schema and protocol declarations describe the intended shape; persistence migrations and orchestration remain
-unimplemented.
+**Status: Implemented.**
+Project persistence and migrations, npm resolution, snapshot-image coordination, catalog assembly, provenance,
+reviewed-plan fencing, reachability-based history collection, and Designer and CLI controls exist.
+The service graph wires bootstrap, catalog publication, snapshot images, evaluation, execution, and history
+collection on project unlock.
+Live lifecycle validation across remote Docker and Kubernetes remains outstanding because those environments
+are unavailable for verification.
 
-Highstate currently assigns one backend-scoped library to each project and loads package definitions and unit
-sources from the backend host's local workspace or `node_modules`.
-The project does not persist a reproducible package resolution, project library image, package-version
-provenance, or image-build progress.
-
-The intended design makes libraries project-scoped npm package selections stored in the encrypted project
-database.
-Each project has a reproducible `LibrarySnapshot` containing the resolved lockfile for all packaged libraries
-and dependencies.
-The selected [container runtime](container-runtime.md) builds that snapshot into an image used by project
-operations.
-Backend-level `LibrarySnapshotImage` records are disposable runtime caches because any image can be rebuilt
-from its snapshot.
+The [project library architecture](../architecture/project-library.md) owns the implemented durability and
+catalog boundaries.
+This design describes the integrated lifecycle and its validation coverage.
+The selected [container runtime](container-runtime.md) materializes packaged snapshots for execution.
 
 ## Package Model
 
@@ -212,10 +207,8 @@ Launch validates that token rather than trusting caller-submitted phases.
 
 ## Local Library Overlay
 
-Local libraries remain a special development source backed by the project-local workspace or `node_modules`.
-They are optional and available only when the project uses the well-known local Docker runtime because unit
-execution requires host bind mounts.
-Remote Docker and Kubernetes disable them with an explanation.
+The [development-source boundary](../architecture/project-library.md#development-sources) defines local-overlay
+availability and conflict handling.
 
 Local libraries do not enter `selectedPackages` or create `LibraryPackageVersion`, `LibrarySnapshot`, or
 `LibrarySnapshotImage` records.
@@ -232,9 +225,8 @@ Per-instance operation history records whether the local overlay was active and 
 This provenance supports diagnostics and stale-plan detection without treating local sources as portable
 snapshots.
 
-An operation containing packaged and local units uses the packaged snapshot image with explicit local source
-mounts.
-Those mounts are a development overlay and are not represented by the image or snapshot hash.
+Packaged units use snapshot workloads; local units retain the local runner.
+Local execution is not represented by the packaged image or snapshot hash.
 
 ## Persistence And Portability
 
@@ -246,11 +238,8 @@ portable project.
 backend-local placement and caches.
 They can be discarded and reconstructed.
 
-Snapshot and image garbage collection follows durable reachability rather than age alone.
-Desired snapshots, deployed instance provenance, operation history retained by policy, active evaluations,
-and running image builds keep snapshots reachable.
-Runtime images and workload records may be removed only after no reachable project record needs them and any
-runtime cleanup has completed.
+The [retention boundary](../architecture/project-library.md#retention) defines snapshot and package-version
+collection independently of runtime resource cleanup.
 
 Portability does not require copying container images.
 It does require retaining the complete resolved lockfile and enough registry configuration to fetch the exact
@@ -275,31 +264,24 @@ Secret credential fields are write-only.
 
 ## Migration
 
-Migration removes the backend-level `Project.libraryId` and `Project.pulumiBackendId` links after replacement
-runtime and Pulumi state backend references exist.
-It creates the default local Docker runtime and converts existing host Pulumi state configuration.
+Registered SQLite migrations replace the old backend library and Pulumi links with runtime and state-backend
+references while preserving legacy execution configuration.
+Host Pulumi state becomes a `legacy:host` marker; migration does not relocate state or make that marker a
+usable container state URL.
 
-For each existing project, migration identifies configured library packages and exact installed or registry
-versions, saves the normalized project package selection, resolves a frozen lockfile, evaluates package
-ownership, creates the initial snapshot, and builds its runtime image.
-Authored `InstanceModel` values and codebase-backed project YAML do not gain package or snapshot fields.
+Project migrations create library storage, invalidate old evaluation caches, and preserve deployed state,
+operation history, and logs with null historical package provenance.
+Bootstrap records initial exact selections before resolution and retries unresolved selections on unlock.
+SQL migration itself does not fetch npm packages, resolve snapshots, or build images.
+Authored instance models and codebase-backed YAML do not gain package or snapshot fields.
 
-Deployed instance states are backfilled only when their component type has one unambiguous package owner and
-the exact historical package version is known.
-Local or unresolved sources retain null package-version provenance.
-Migration must not claim that a newly resolved npm version is the historical code used for an existing
-deployment.
-The old executable environment remains available until affected states are upgraded or destroyed when exact
-historical provenance cannot be reconstructed.
+The [persistence compatibility constraint](../architecture/compatibility.md#persistence-compatibility) owns
+unknown-provenance handling, and public runtime upgrade guidance owns the operator workflow.
 
-## Delivery
+## Validation
 
-Implementation first introduces project package and snapshot persistence, npm resolution, conflict checking,
-and catalog assembly.
-It then adds runtime image building and progress, operation barriers, instance provenance, historical image
-reconstruction, Designer package controls, and local overlay restrictions.
-
-Verification covers frozen reconstruction, package integrity, update-all atomicity, conflict rejection,
-credential selection, progress and retry behavior, operation waiting and cancellation, stale plan rejection,
-upgrade badges, preview provenance, historical destroy and refresh, local overlay conflicts, and project
-migration between runtimes and backends.
+Focused tests cover package integrity, atomic proposals, conflicts, provenance, reviewed plans, image build
+generations, reachability-based history collection, and populated database upgrades.
+End-to-end verification still includes frozen reconstruction, image progress and retry, operation waiting and
+cancellation, historical destroy and refresh, local overlays, and movement between runtimes and backends.
+These are validation limits rather than remaining implementation boundaries.

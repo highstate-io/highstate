@@ -7,8 +7,8 @@ Unlocking connects these realms and grants one backend temporary access to a pro
 
 | Realm | Responsibilities |
 | --- | --- |
-| Backend database | Projects, spaces, libraries, backend authorization, encrypted project keys, and project database versions |
-| Project database | Evaluation, operations, instances, secrets, artifacts, workers, and project authorization |
+| Backend database | Projects, spaces, placement settings, encrypted credentials and project keys, runtime inventory, image caches, authorization, and project database versions |
+| Project database | Library selections and snapshots, execution provenance, evaluation, operations, instances, secrets, artifacts, workers, and project authorization |
 | Project model storage | Authored instances and hubs in codebase or database storage |
 | Runtime memory | Decrypted project material and ephemeral backend state |
 
@@ -50,3 +50,10 @@ Data crosses a project boundary only through an explicit sharing mechanism such 
 Sharing does not merge project databases, authorization realms, or operation ownership.
 
 Runtime ownership is defined by the [control-plane coordination boundary](control-plane.md#coordination-boundary).
+
+Runtime credentials are short-lived and scoped to a workload and lease generation.
+Replacing that generation invalidates the old connection and its authority to publish results.
+Registry and placement secrets remain backend-owned; workload managers supply only the credentials needed for
+their selected runtime and action.
+Containers execute trusted extension code and do not provide an untrusted-code security boundary.
+The runtime coordinator, credential signer, and settings service own exact validation and encryption behavior.

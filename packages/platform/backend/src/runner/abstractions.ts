@@ -1,5 +1,6 @@
 import type { GenericName, InstanceId, UnitConfig, VersionedName } from "@highstate/contract"
 import type { Artifact } from "../database"
+import type { OperationPhaseType } from "../shared"
 
 export type RawPulumiOutputValue = {
   value: unknown
@@ -59,6 +60,7 @@ export type UnitStateUpdate = {
        * Parsing and persistence is handled in the business layer.
        */
       rawOutputs?: RawPulumiOutputs | null
+      provenance?: { librarySnapshotId: string; libraryPackageVersionId: string }
     }
 )
 
@@ -83,7 +85,12 @@ export type UnitOptions = {
   /**
    * The library ID containing the unit definitions.
    */
-  libraryId: string
+  libraryId: string | undefined
+
+  /** The immutable desired snapshot captured before operation planning. */
+  librarySnapshotId?: string | null
+
+  executionPhase?: OperationPhaseType
 
   /**
    * The type of the instance to run.
@@ -158,7 +165,7 @@ export type UnitStateOptions = {
   /**
    * The library ID containing the unit definitions.
    */
-  libraryId: string
+  libraryId: string | undefined
 
   /**
    * The type of the instance to run.
@@ -196,6 +203,13 @@ export type UnitDestroyOptions = UnitOptions & {
 }
 
 export interface RunnerBackend {
+  prepareOperation?(
+    projectId: string,
+    operationId: string,
+    snapshotIds: string[],
+    signal: AbortSignal,
+  ): Promise<void>
+
   /**
    * Cleans up runner-owned resources associated with an operation.
    *

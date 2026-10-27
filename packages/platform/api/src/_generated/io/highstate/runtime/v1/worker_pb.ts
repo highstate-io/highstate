@@ -215,7 +215,7 @@ export const WorkerProxyRequestHeadSchema: GenMessage<WorkerProxyRequestHead> = 
  */
 export type ProxyWorkerResponse = Message<"io.highstate.runtime.v1.ProxyWorkerResponse"> & {
   /**
-   * Headers first, followed by bounded body chunks until server half-close.
+   * Headers first, followed by bounded body chunks and an empty body frame marking request EOF.
    *
    * @generated from oneof io.highstate.runtime.v1.ProxyWorkerResponse.event
    */
@@ -229,7 +229,7 @@ export type ProxyWorkerResponse = Message<"io.highstate.runtime.v1.ProxyWorkerRe
     case: "head";
   } | {
     /**
-     * Unmodified HTTP body bytes.
+     * Unmodified HTTP body bytes; an empty chunk ends the request body without completing the RPC.
      *
      * @generated from field: bytes body = 2;
      */
@@ -317,4 +317,3 @@ export type ProxyWorkerRequest = Message<"io.highstate.runtime.v1.ProxyWorkerReq
  */
 export const ProxyWorkerRequestSchema: GenMessage<ProxyWorkerRequest> = /*@__PURE__*/
   messageDesc(file_io_highstate_runtime_v1_worker, 8);
-

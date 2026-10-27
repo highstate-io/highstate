@@ -22,6 +22,12 @@ model Project {
     /// The ID of the Pulumi state backend used by this project.
     pulumiStateBackendId String
 
+    /// Original execution identifiers and host configuration retained during the runtime upgrade.
+    /// These are historical configuration, not references to backend library or runner records.
+    ///
+    /// [LegacyProjectExecutionConfig]
+    legacyExecutionConfig Json?
+
     /// Encrypted project master key in AGE format.
     encryptedMasterKey String
 

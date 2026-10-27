@@ -3,6 +3,7 @@ import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
 import type { LibraryBackend, ResolvedUnitSource } from "../library"
 import type { ProjectUnlockBackend } from "../unlock"
+import type { ProjectLibraryService } from "./project-library"
 import {
   type ComponentInput,
   type ComponentModel,
@@ -25,6 +26,13 @@ import {
 } from "../shared"
 import { projectImportPortDataSchema } from "../shared/models/import"
 
+export {
+  type ProjectLibraryCatalogProvider,
+  type ProjectLibraryDiagnostic,
+  type ProjectLibraryDto,
+  ProjectLibraryService,
+} from "./project-library"
+
 type ProjectRow = {
   id: string
   name: string
@@ -42,6 +50,7 @@ export class LibraryService {
     private readonly libraryBackend: LibraryBackend,
     private readonly projectUnlockBackend: ProjectUnlockBackend,
     private readonly logger: Logger,
+    private readonly projectLibrary?: Pick<ProjectLibraryService, "catalog">,
   ) {}
 
   /**
@@ -81,6 +90,8 @@ export class LibraryService {
 
     for (const importPort of importPorts) {
       const importComponent = await this.createImportComponent(importPort, privateKey)
+      if (Object.hasOwn(components, importComponent.type))
+        throw new Error(`Duplicate virtual component type "${importComponent.type}"`)
       components[importComponent.type] = importComponent
     }
 
@@ -109,27 +120,23 @@ export class LibraryService {
   }
 
   async getLibraryModelCore(projectId: string, signal?: AbortSignal): Promise<LibraryModel> {
-    const [project, baseLibrary, virtualComponents] = await Promise.all([
-      this.database.backend.project.findUnique({
-        where: { id: projectId },
-        select: { libraryId: true },
-      }),
-      this.database.backend.project
-        .findUnique({ where: { id: projectId }, select: { libraryId: true } })
-        .then(async value => {
-          if (!value) {
-            throw new Error(`Project "${projectId}" not found`)
-          }
-
-          return await this.libraryBackend.loadLibrary(value.libraryId, signal)
-        }),
+    signal?.throwIfAborted()
+    if (this.projectLibrary) {
+      return (await this.projectLibrary.catalog(projectId)).model
+    }
+    const [baseLibrary, virtualComponents] = await Promise.all([
+      this.libraryBackend.loadLibrary(undefined, signal),
       this.getVirtualComponentsCore(projectId, signal),
     ])
 
     const virtualEntities = this.getVirtualEntities()
-
-    if (!project) {
-      throw new Error(`Project "${projectId}" not found`)
+    for (const type of Object.keys(virtualComponents)) {
+      if (Object.hasOwn(baseLibrary.components, type))
+        throw new Error(`Duplicate virtual component type "${type}"`)
+    }
+    for (const type of Object.keys(virtualEntities)) {
+      if (Object.hasOwn(baseLibrary.entities, type))
+        throw new Error(`Duplicate virtual entity type "${type}"`)
     }
 
     const proxiedComponents = new Proxy(baseLibrary.components, {
@@ -236,7 +243,7 @@ export class LibraryService {
     )
   }
 
-  private getVirtualEntities(): Record<string, EntityModel> {
+  getVirtualEntities(): Record<string, EntityModel> {
     return {
       [objectEntity.model.type]: objectEntity.model,
     }

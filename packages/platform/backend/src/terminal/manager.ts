@@ -156,6 +156,11 @@ export class TerminalManager {
     }
   }
 
+  public async resize(sessionId: string, screenSize: ScreenSize): Promise<void> {
+    if (!this.managedTerminals.has(sessionId)) throw new Error("Terminal session is not active")
+    await this.terminalBackend.resize?.(sessionId, screenSize)
+  }
+
   public attach(
     sessionId: string,
     stdin: Stream,
@@ -239,6 +244,8 @@ export class TerminalManager {
       start: (screenSize: ScreenSize) => {
         void this.terminalBackend
           .run({
+            projectId,
+            sessionId: session.id,
             spec: terminal.spec,
             stdin: managedTerminal.stdin,
             stdout: managedTerminal.stdout,

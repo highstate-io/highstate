@@ -110,6 +110,9 @@ model ProjectLibraryState {
     /// [SelectedLibraryPackages]
     selectedPackages Json @default("[]")
 
+    /// Whether the exact initial selection (including an intentionally empty list) has been recorded.
+    selectionInitialized Boolean @default(false)
+
     desiredSnapshotId String?
     localOverlayEnabled Boolean @default(true)
     updatedAt DateTime @updatedAt

@@ -41,6 +41,11 @@ const options = ref<OperationOptionsType>({
 })
 
 const operationPlan = ref<OperationPhase[]>([])
+const reviewed = shallowRef<Awaited<ReturnType<typeof operationsStore.reviewOperation>>>()
+let planRequest = 0
+let launchWait: AbortController | undefined
+const waitingForImage = ref(false)
+const libraryStore = useProjectLibraryStore(projectStore.projectId).library
 const planLoading = ref(false)
 const planError = ref<string | null>(null)
 
@@ -72,7 +77,7 @@ watch(
 )
 
 watch(
-  () => options.value,
+  [() => options.value, () => operation, () => instances.map(instance => instance.id)],
   () => {
     requestPlan()
   },
@@ -84,6 +89,10 @@ watch(
   newVisible => {
     if (newVisible) {
       requestPlan()
+    } else {
+      planRequest++
+      reviewed.value = undefined
+      launchWait?.abort()
     }
   },
 )
@@ -93,23 +102,27 @@ const requestPlan = async () => {
     return
   }
 
+  const request = ++planRequest
+  reviewed.value = undefined
   planLoading.value = true
   planError.value = null
 
   try {
-    const newPlan = await operationsStore.planOperation({
+    const newPlan = await operationsStore.reviewOperation({
       projectId: projectStore.projectId,
       type: operation,
       instanceIds: instances.map(inst => inst.id),
       options: options.value,
     })
 
-    operationPlan.value = newPlan
+    if (request !== planRequest) return
+    reviewed.value = newPlan
+    operationPlan.value = newPlan.phases
   } catch (error) {
-    console.error("Failed to load operation plan:", error)
+    if (request !== planRequest) return
     planError.value = error instanceof Error ? error.message : "Unknown error"
   } finally {
-    planLoading.value = false
+    if (request === planRequest) planLoading.value = false
   }
 }
 
@@ -254,10 +267,45 @@ const opButtonColor = computed(() => {
 const loading = ref(false)
 
 const operate = async () => {
+  const review = reviewed.value
+  if (!review || loading.value) return
   loading.value = true
+  launchWait = new AbortController()
+  const signal = launchWait.signal
 
   try {
+    waitingForImage.value = true
+    while (review.librarySnapshotId) {
+      await libraryStore.refresh()
+      if (signal.aborted) return
+      const catalog = libraryStore.catalog
+      if (
+        catalog?.snapshotId !== review.librarySnapshotId ||
+        (catalog.overlay.revision ?? null) !== review.localOverlayRevision
+      ) {
+        throw new Error("Reviewed plan is stale; review the current library before launching")
+      }
+      const image = libraryStore.projectLibrary?.image
+      if (image && typeof image === "object" && "status" in image) {
+        if (image.status === "ready") break
+        if (image.status === "failed")
+          throw new Error("Snapshot image failed; retry its build in Project library")
+      }
+      await new Promise<void>(resolve => {
+        const finish = () => {
+          clearTimeout(timer)
+          signal.removeEventListener("abort", finish)
+          resolve()
+        }
+        const timer = setTimeout(finish, 1500)
+        signal.addEventListener("abort", finish, { once: true })
+      })
+      if (signal.aborted) return
+    }
+    waitingForImage.value = false
+    if (signal.aborted) return
     await operationsStore.launchOperation({
+      planToken: review.token,
       projectId: projectStore.projectId,
       type: operation,
       instanceIds: instances.map(inst => inst.id),
@@ -269,7 +317,12 @@ const operate = async () => {
     })
 
     visible.value = false
+  } catch (error) {
+    planError.value = error instanceof Error ? error.message : "Operation launch failed"
+    reviewed.value = undefined
   } finally {
+    waitingForImage.value = false
+    launchWait = undefined
     loading.value = false
   }
 }
@@ -362,6 +415,20 @@ const title = computed(() => {
                 >
                   Failed to load operation plan: {{ planError }}
                 </VAlert>
+                <VBtn v-if="planError" :disabled="loading || planLoading" @click="requestPlan"
+                  >Review current plan</VBtn
+                >
+                <div v-if="reviewed" class="text-caption mb-2">
+                  Snapshot {{ reviewed.librarySnapshotId ?? 'none' }} · Model
+                  {{ reviewed.modelRevision }}
+                  <span v-if="reviewed.localOverlayRevision">
+                    · Overlay {{ reviewed.localOverlayRevision }}</span
+                  >
+                </div>
+                <VAlert v-if="waitingForImage" type="info" class="mb-3">
+                  Waiting for the reviewed snapshot image. You can cancel this wait.
+                  <VBtn @click="launchWait?.abort()">Cancel wait</VBtn>
+                </VAlert>
               </div>
               <div class="plan-scrollable">
                 <OperationPlanTree :phases="operationPlan" />
@@ -386,7 +453,12 @@ const title = computed(() => {
       <VCardActions>
         <VSpacer />
         <VBtn @click="visible = false">Cancel</VBtn>
-        <VBtn :color="opButtonColor" :loading="loading" :disabled="planLoading" @click="operate">
+        <VBtn
+          :color="opButtonColor"
+          :loading="loading"
+          :disabled="planLoading || !reviewed"
+          @click="operate"
+        >
           {{ opButtonText }}
         </VBtn>
       </VCardActions>

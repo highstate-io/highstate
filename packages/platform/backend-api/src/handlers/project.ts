@@ -1,10 +1,25 @@
 import type { ServiceImpl } from "@connectrpc/connect"
 import type { ProjectService } from "@highstate/api/v1"
 import type { Services } from "@highstate/backend"
-import { authenticateBackend, authenticateProject, toProject } from "../shared"
+import { projectPlacementInputSchema } from "@highstate/backend/shared"
+import { z } from "@highstate/contract"
+import { authenticateBackend, authenticateProject, parseValue, toProject } from "../shared"
 
 export function createProjectService(services: Services): ServiceImpl<typeof ProjectService> {
   return {
+    async updateProjectPlacement(request, context) {
+      const requestContext = await authenticateBackend(services, context)
+      const projectId = parseValue(request.projectId, "projectId", z.string().min(1))
+      const input = parseValue(request, "request", projectPlacementInputSchema)
+      const project = await services.projectService.updateProjectPlacement(
+        requestContext,
+        projectId,
+        input,
+      )
+
+      return { project: toProject(project) }
+    },
+
     async getProject(request, context) {
       const requestContext = await authenticateProject(services, request, context)
 

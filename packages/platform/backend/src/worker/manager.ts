@@ -11,7 +11,6 @@ import { z } from "zod"
 import { type AsyncBatcher, createAsyncBatcher } from "../shared"
 
 export const workerManagerConfig = z.object({
-  HIGHSTATE_WORKER_API_PATH: z.string().default("/var/run/highstate.sock"),
   HIGHSTATE_WORKER_START_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   HIGHSTATE_WORKER_RESTART_BACKOFF_BASE_MS: z.coerce.number().int().nonnegative().default(1000),
   HIGHSTATE_WORKER_RESTART_BACKOFF_MAX_MS: z.coerce.number().int().nonnegative().default(30000),
@@ -304,7 +303,6 @@ export class WorkerManager {
         workerVersionId: workerVersion.id,
         workerInstanceId,
         image: `${workerVersion.worker.identity}@sha256:${workerVersion.digest}`,
-        apiPath: this.config.HIGHSTATE_WORKER_API_PATH,
         apiKey: token,
         stdout,
         signal: abortController.signal,
@@ -341,7 +339,8 @@ export class WorkerManager {
         }
 
         // attempt restart if not manually aborted
-        if (!info.abortController.signal.aborted) {
+        if (currentInfo === info && !info.abortController.signal.aborted) {
+          info.status = "starting"
           this.startWorkerVersionInBackground(projectId, workerVersion, true)
         }
       })

@@ -119,6 +119,26 @@ export type UserProjectViewport = Prisma.UserProjectViewportModel
  */
 export type UserCompositeViewport = Prisma.UserCompositeViewportModel
 /**
+ * Model LibraryPackageVersion
+ * An immutable cached evaluation of one exact npm library package version.
+ */
+export type LibraryPackageVersion = Prisma.LibraryPackageVersionModel
+/**
+ * Model LibrarySnapshot
+ * An immutable, reproducible resolution of the project's complete packaged library environment.
+ */
+export type LibrarySnapshot = Prisma.LibrarySnapshotModel
+/**
+ * Model LibrarySnapshotVersion
+ * Identifies exact snapshot membership referenced by deployed and operation provenance.
+ */
+export type LibrarySnapshotVersion = Prisma.LibrarySnapshotVersionModel
+/**
+ * Model ProjectLibraryState
+ * Singleton state identifying the project's desired packaged library snapshot.
+ */
+export type ProjectLibraryState = Prisma.ProjectLibraryStateModel
+/**
  * Model InstanceLock
  * 
  */

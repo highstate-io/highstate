@@ -39,6 +39,10 @@ export type InstanceEvaluationStateMinAggregateOutputType = {
   stateId: string | null
   status: $Enums.InstanceEvaluationStatus | null
   message: string | null
+  librarySnapshotId: string | null
+  modelRevision: string | null
+  localOverlayRevision: string | null
+  evaluationActionId: string | null
   evaluatedAt: Date | null
 }
 
@@ -46,6 +50,10 @@ export type InstanceEvaluationStateMaxAggregateOutputType = {
   stateId: string | null
   status: $Enums.InstanceEvaluationStatus | null
   message: string | null
+  librarySnapshotId: string | null
+  modelRevision: string | null
+  localOverlayRevision: string | null
+  evaluationActionId: string | null
   evaluatedAt: Date | null
 }
 
@@ -54,6 +62,10 @@ export type InstanceEvaluationStateCountAggregateOutputType = {
   status: number
   message: number
   model: number
+  librarySnapshotId: number
+  modelRevision: number
+  localOverlayRevision: number
+  evaluationActionId: number
   evaluatedAt: number
   _all: number
 }
@@ -63,6 +75,10 @@ export type InstanceEvaluationStateMinAggregateInputType = {
   stateId?: true
   status?: true
   message?: true
+  librarySnapshotId?: true
+  modelRevision?: true
+  localOverlayRevision?: true
+  evaluationActionId?: true
   evaluatedAt?: true
 }
 
@@ -70,6 +86,10 @@ export type InstanceEvaluationStateMaxAggregateInputType = {
   stateId?: true
   status?: true
   message?: true
+  librarySnapshotId?: true
+  modelRevision?: true
+  localOverlayRevision?: true
+  evaluationActionId?: true
   evaluatedAt?: true
 }
 
@@ -78,6 +98,10 @@ export type InstanceEvaluationStateCountAggregateInputType = {
   status?: true
   message?: true
   model?: true
+  librarySnapshotId?: true
+  modelRevision?: true
+  localOverlayRevision?: true
+  evaluationActionId?: true
   evaluatedAt?: true
   _all?: true
 }
@@ -159,6 +183,10 @@ export type InstanceEvaluationStateGroupByOutputType = {
   status: $Enums.InstanceEvaluationStatus
   message: string | null
   model:PrismaJson.InstanceModel | null
+  librarySnapshotId: string | null
+  modelRevision: string
+  localOverlayRevision: string | null
+  evaluationActionId: string
   evaluatedAt: Date
   _count: InstanceEvaluationStateCountAggregateOutputType | null
   _min: InstanceEvaluationStateMinAggregateOutputType | null
@@ -188,8 +216,13 @@ export type InstanceEvaluationStateWhereInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFilter<"InstanceEvaluationState"> | $Enums.InstanceEvaluationStatus
   message?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
   model?: Prisma.JsonNullableFilter<"InstanceEvaluationState">
+  librarySnapshotId?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  modelRevision?: Prisma.StringFilter<"InstanceEvaluationState"> | string
+  localOverlayRevision?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  evaluationActionId?: Prisma.StringFilter<"InstanceEvaluationState"> | string
   evaluatedAt?: Prisma.DateTimeFilter<"InstanceEvaluationState"> | Date | string
   state?: Prisma.XOR<Prisma.InstanceStateScalarRelationFilter, Prisma.InstanceStateWhereInput>
+  librarySnapshot?: Prisma.XOR<Prisma.LibrarySnapshotNullableScalarRelationFilter, Prisma.LibrarySnapshotWhereInput> | null
 }
 
 export type InstanceEvaluationStateOrderByWithRelationInput = {
@@ -197,8 +230,13 @@ export type InstanceEvaluationStateOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
+  modelRevision?: Prisma.SortOrder
+  localOverlayRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  evaluationActionId?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   state?: Prisma.InstanceStateOrderByWithRelationInput
+  librarySnapshot?: Prisma.LibrarySnapshotOrderByWithRelationInput
 }
 
 export type InstanceEvaluationStateWhereUniqueInput = Prisma.AtLeast<{
@@ -209,8 +247,13 @@ export type InstanceEvaluationStateWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumInstanceEvaluationStatusFilter<"InstanceEvaluationState"> | $Enums.InstanceEvaluationStatus
   message?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
   model?: Prisma.JsonNullableFilter<"InstanceEvaluationState">
+  librarySnapshotId?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  modelRevision?: Prisma.StringFilter<"InstanceEvaluationState"> | string
+  localOverlayRevision?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  evaluationActionId?: Prisma.StringFilter<"InstanceEvaluationState"> | string
   evaluatedAt?: Prisma.DateTimeFilter<"InstanceEvaluationState"> | Date | string
   state?: Prisma.XOR<Prisma.InstanceStateScalarRelationFilter, Prisma.InstanceStateWhereInput>
+  librarySnapshot?: Prisma.XOR<Prisma.LibrarySnapshotNullableScalarRelationFilter, Prisma.LibrarySnapshotWhereInput> | null
 }, "stateId">
 
 export type InstanceEvaluationStateOrderByWithAggregationInput = {
@@ -218,6 +261,10 @@ export type InstanceEvaluationStateOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
+  modelRevision?: Prisma.SortOrder
+  localOverlayRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  evaluationActionId?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
   _count?: Prisma.InstanceEvaluationStateCountOrderByAggregateInput
   _max?: Prisma.InstanceEvaluationStateMaxOrderByAggregateInput
@@ -232,6 +279,10 @@ export type InstanceEvaluationStateScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumInstanceEvaluationStatusWithAggregatesFilter<"InstanceEvaluationState"> | $Enums.InstanceEvaluationStatus
   message?: Prisma.StringNullableWithAggregatesFilter<"InstanceEvaluationState"> | string | null
   model?: Prisma.JsonNullableWithAggregatesFilter<"InstanceEvaluationState">
+  librarySnapshotId?: Prisma.StringNullableWithAggregatesFilter<"InstanceEvaluationState"> | string | null
+  modelRevision?: Prisma.StringWithAggregatesFilter<"InstanceEvaluationState"> | string
+  localOverlayRevision?: Prisma.StringNullableWithAggregatesFilter<"InstanceEvaluationState"> | string | null
+  evaluationActionId?: Prisma.StringWithAggregatesFilter<"InstanceEvaluationState"> | string
   evaluatedAt?: Prisma.DateTimeWithAggregatesFilter<"InstanceEvaluationState"> | Date | string
 }
 
@@ -239,8 +290,12 @@ export type InstanceEvaluationStateCreateInput = {
   status: $Enums.InstanceEvaluationStatus
   message?: string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
   evaluatedAt?: Date | string
   state: Prisma.InstanceStateCreateNestedOneWithoutEvaluationStateInput
+  librarySnapshot?: Prisma.LibrarySnapshotCreateNestedOneWithoutEvaluationStatesInput
 }
 
 export type InstanceEvaluationStateUncheckedCreateInput = {
@@ -248,6 +303,10 @@ export type InstanceEvaluationStateUncheckedCreateInput = {
   status: $Enums.InstanceEvaluationStatus
   message?: string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  librarySnapshotId?: string | null
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
   evaluatedAt?: Date | string
 }
 
@@ -255,8 +314,12 @@ export type InstanceEvaluationStateUpdateInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   state?: Prisma.InstanceStateUpdateOneRequiredWithoutEvaluationStateNestedInput
+  librarySnapshot?: Prisma.LibrarySnapshotUpdateOneWithoutEvaluationStatesNestedInput
 }
 
 export type InstanceEvaluationStateUncheckedUpdateInput = {
@@ -264,6 +327,10 @@ export type InstanceEvaluationStateUncheckedUpdateInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -272,6 +339,10 @@ export type InstanceEvaluationStateCreateManyInput = {
   status: $Enums.InstanceEvaluationStatus
   message?: string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  librarySnapshotId?: string | null
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
   evaluatedAt?: Date | string
 }
 
@@ -279,6 +350,9 @@ export type InstanceEvaluationStateUpdateManyMutationInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -287,6 +361,10 @@ export type InstanceEvaluationStateUncheckedUpdateManyInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -295,6 +373,10 @@ export type InstanceEvaluationStateCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   message?: Prisma.SortOrder
   model?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrder
+  modelRevision?: Prisma.SortOrder
+  localOverlayRevision?: Prisma.SortOrder
+  evaluationActionId?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
 }
 
@@ -302,6 +384,10 @@ export type InstanceEvaluationStateMaxOrderByAggregateInput = {
   stateId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrder
+  modelRevision?: Prisma.SortOrder
+  localOverlayRevision?: Prisma.SortOrder
+  evaluationActionId?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
 }
 
@@ -309,12 +395,26 @@ export type InstanceEvaluationStateMinOrderByAggregateInput = {
   stateId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrder
+  modelRevision?: Prisma.SortOrder
+  localOverlayRevision?: Prisma.SortOrder
+  evaluationActionId?: Prisma.SortOrder
   evaluatedAt?: Prisma.SortOrder
 }
 
 export type InstanceEvaluationStateNullableScalarRelationFilter = {
   is?: Prisma.InstanceEvaluationStateWhereInput | null
   isNot?: Prisma.InstanceEvaluationStateWhereInput | null
+}
+
+export type InstanceEvaluationStateListRelationFilter = {
+  every?: Prisma.InstanceEvaluationStateWhereInput
+  some?: Prisma.InstanceEvaluationStateWhereInput
+  none?: Prisma.InstanceEvaluationStateWhereInput
+}
+
+export type InstanceEvaluationStateOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type EnumInstanceEvaluationStatusFieldUpdateOperationsInput = {
@@ -353,17 +453,67 @@ export type InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstanceEvaluationStateUpdateToOneWithWhereWithoutStateInput, Prisma.InstanceEvaluationStateUpdateWithoutStateInput>, Prisma.InstanceEvaluationStateUncheckedUpdateWithoutStateInput>
 }
 
+export type InstanceEvaluationStateCreateNestedManyWithoutLibrarySnapshotInput = {
+  create?: Prisma.XOR<Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput> | Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput[] | Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput[]
+  connectOrCreate?: Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput[]
+  createMany?: Prisma.InstanceEvaluationStateCreateManyLibrarySnapshotInputEnvelope
+  connect?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+}
+
+export type InstanceEvaluationStateUncheckedCreateNestedManyWithoutLibrarySnapshotInput = {
+  create?: Prisma.XOR<Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput> | Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput[] | Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput[]
+  connectOrCreate?: Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput[]
+  createMany?: Prisma.InstanceEvaluationStateCreateManyLibrarySnapshotInputEnvelope
+  connect?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+}
+
+export type InstanceEvaluationStateUpdateManyWithoutLibrarySnapshotNestedInput = {
+  create?: Prisma.XOR<Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput> | Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput[] | Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput[]
+  connectOrCreate?: Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput[]
+  upsert?: Prisma.InstanceEvaluationStateUpsertWithWhereUniqueWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateUpsertWithWhereUniqueWithoutLibrarySnapshotInput[]
+  createMany?: Prisma.InstanceEvaluationStateCreateManyLibrarySnapshotInputEnvelope
+  set?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  disconnect?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  delete?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  connect?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  update?: Prisma.InstanceEvaluationStateUpdateWithWhereUniqueWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateUpdateWithWhereUniqueWithoutLibrarySnapshotInput[]
+  updateMany?: Prisma.InstanceEvaluationStateUpdateManyWithWhereWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateUpdateManyWithWhereWithoutLibrarySnapshotInput[]
+  deleteMany?: Prisma.InstanceEvaluationStateScalarWhereInput | Prisma.InstanceEvaluationStateScalarWhereInput[]
+}
+
+export type InstanceEvaluationStateUncheckedUpdateManyWithoutLibrarySnapshotNestedInput = {
+  create?: Prisma.XOR<Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput> | Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput[] | Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput[]
+  connectOrCreate?: Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput[]
+  upsert?: Prisma.InstanceEvaluationStateUpsertWithWhereUniqueWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateUpsertWithWhereUniqueWithoutLibrarySnapshotInput[]
+  createMany?: Prisma.InstanceEvaluationStateCreateManyLibrarySnapshotInputEnvelope
+  set?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  disconnect?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  delete?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  connect?: Prisma.InstanceEvaluationStateWhereUniqueInput | Prisma.InstanceEvaluationStateWhereUniqueInput[]
+  update?: Prisma.InstanceEvaluationStateUpdateWithWhereUniqueWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateUpdateWithWhereUniqueWithoutLibrarySnapshotInput[]
+  updateMany?: Prisma.InstanceEvaluationStateUpdateManyWithWhereWithoutLibrarySnapshotInput | Prisma.InstanceEvaluationStateUpdateManyWithWhereWithoutLibrarySnapshotInput[]
+  deleteMany?: Prisma.InstanceEvaluationStateScalarWhereInput | Prisma.InstanceEvaluationStateScalarWhereInput[]
+}
+
 export type InstanceEvaluationStateCreateWithoutStateInput = {
   status: $Enums.InstanceEvaluationStatus
   message?: string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
   evaluatedAt?: Date | string
+  librarySnapshot?: Prisma.LibrarySnapshotCreateNestedOneWithoutEvaluationStatesInput
 }
 
 export type InstanceEvaluationStateUncheckedCreateWithoutStateInput = {
   status: $Enums.InstanceEvaluationStatus
   message?: string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  librarySnapshotId?: string | null
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
   evaluatedAt?: Date | string
 }
 
@@ -387,13 +537,127 @@ export type InstanceEvaluationStateUpdateWithoutStateInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshot?: Prisma.LibrarySnapshotUpdateOneWithoutEvaluationStatesNestedInput
 }
 
 export type InstanceEvaluationStateUncheckedUpdateWithoutStateInput = {
   status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InstanceEvaluationStateCreateWithoutLibrarySnapshotInput = {
+  status: $Enums.InstanceEvaluationStatus
+  message?: string | null
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
+  evaluatedAt?: Date | string
+  state: Prisma.InstanceStateCreateNestedOneWithoutEvaluationStateInput
+}
+
+export type InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput = {
+  stateId: string
+  status: $Enums.InstanceEvaluationStatus
+  message?: string | null
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
+  evaluatedAt?: Date | string
+}
+
+export type InstanceEvaluationStateCreateOrConnectWithoutLibrarySnapshotInput = {
+  where: Prisma.InstanceEvaluationStateWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput>
+}
+
+export type InstanceEvaluationStateCreateManyLibrarySnapshotInputEnvelope = {
+  data: Prisma.InstanceEvaluationStateCreateManyLibrarySnapshotInput | Prisma.InstanceEvaluationStateCreateManyLibrarySnapshotInput[]
+}
+
+export type InstanceEvaluationStateUpsertWithWhereUniqueWithoutLibrarySnapshotInput = {
+  where: Prisma.InstanceEvaluationStateWhereUniqueInput
+  update: Prisma.XOR<Prisma.InstanceEvaluationStateUpdateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedUpdateWithoutLibrarySnapshotInput>
+  create: Prisma.XOR<Prisma.InstanceEvaluationStateCreateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedCreateWithoutLibrarySnapshotInput>
+}
+
+export type InstanceEvaluationStateUpdateWithWhereUniqueWithoutLibrarySnapshotInput = {
+  where: Prisma.InstanceEvaluationStateWhereUniqueInput
+  data: Prisma.XOR<Prisma.InstanceEvaluationStateUpdateWithoutLibrarySnapshotInput, Prisma.InstanceEvaluationStateUncheckedUpdateWithoutLibrarySnapshotInput>
+}
+
+export type InstanceEvaluationStateUpdateManyWithWhereWithoutLibrarySnapshotInput = {
+  where: Prisma.InstanceEvaluationStateScalarWhereInput
+  data: Prisma.XOR<Prisma.InstanceEvaluationStateUpdateManyMutationInput, Prisma.InstanceEvaluationStateUncheckedUpdateManyWithoutLibrarySnapshotInput>
+}
+
+export type InstanceEvaluationStateScalarWhereInput = {
+  AND?: Prisma.InstanceEvaluationStateScalarWhereInput | Prisma.InstanceEvaluationStateScalarWhereInput[]
+  OR?: Prisma.InstanceEvaluationStateScalarWhereInput[]
+  NOT?: Prisma.InstanceEvaluationStateScalarWhereInput | Prisma.InstanceEvaluationStateScalarWhereInput[]
+  stateId?: Prisma.StringFilter<"InstanceEvaluationState"> | string
+  status?: Prisma.EnumInstanceEvaluationStatusFilter<"InstanceEvaluationState"> | $Enums.InstanceEvaluationStatus
+  message?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  model?: Prisma.JsonNullableFilter<"InstanceEvaluationState">
+  librarySnapshotId?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  modelRevision?: Prisma.StringFilter<"InstanceEvaluationState"> | string
+  localOverlayRevision?: Prisma.StringNullableFilter<"InstanceEvaluationState"> | string | null
+  evaluationActionId?: Prisma.StringFilter<"InstanceEvaluationState"> | string
+  evaluatedAt?: Prisma.DateTimeFilter<"InstanceEvaluationState"> | Date | string
+}
+
+export type InstanceEvaluationStateCreateManyLibrarySnapshotInput = {
+  stateId: string
+  status: $Enums.InstanceEvaluationStatus
+  message?: string | null
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision: string
+  localOverlayRevision?: string | null
+  evaluationActionId: string
+  evaluatedAt?: Date | string
+}
+
+export type InstanceEvaluationStateUpdateWithoutLibrarySnapshotInput = {
+  status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  state?: Prisma.InstanceStateUpdateOneRequiredWithoutEvaluationStateNestedInput
+}
+
+export type InstanceEvaluationStateUncheckedUpdateWithoutLibrarySnapshotInput = {
+  stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
+  evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InstanceEvaluationStateUncheckedUpdateManyWithoutLibrarySnapshotInput = {
+  stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceEvaluationStatusFieldUpdateOperationsInput | $Enums.InstanceEvaluationStatus
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  modelRevision?: Prisma.StringFieldUpdateOperationsInput | string
+  localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evaluationActionId?: Prisma.StringFieldUpdateOperationsInput | string
   evaluatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -404,8 +668,13 @@ export type InstanceEvaluationStateSelect<ExtArgs extends runtime.Types.Extensio
   status?: boolean
   message?: boolean
   model?: boolean
+  librarySnapshotId?: boolean
+  modelRevision?: boolean
+  localOverlayRevision?: boolean
+  evaluationActionId?: boolean
   evaluatedAt?: boolean
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
+  librarySnapshot?: boolean | Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>
 }, ExtArgs["result"]["instanceEvaluationState"]>
 
 export type InstanceEvaluationStateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -413,8 +682,13 @@ export type InstanceEvaluationStateSelectCreateManyAndReturn<ExtArgs extends run
   status?: boolean
   message?: boolean
   model?: boolean
+  librarySnapshotId?: boolean
+  modelRevision?: boolean
+  localOverlayRevision?: boolean
+  evaluationActionId?: boolean
   evaluatedAt?: boolean
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
+  librarySnapshot?: boolean | Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>
 }, ExtArgs["result"]["instanceEvaluationState"]>
 
 export type InstanceEvaluationStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -422,8 +696,13 @@ export type InstanceEvaluationStateSelectUpdateManyAndReturn<ExtArgs extends run
   status?: boolean
   message?: boolean
   model?: boolean
+  librarySnapshotId?: boolean
+  modelRevision?: boolean
+  localOverlayRevision?: boolean
+  evaluationActionId?: boolean
   evaluatedAt?: boolean
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
+  librarySnapshot?: boolean | Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>
 }, ExtArgs["result"]["instanceEvaluationState"]>
 
 export type InstanceEvaluationStateSelectScalar = {
@@ -431,18 +710,25 @@ export type InstanceEvaluationStateSelectScalar = {
   status?: boolean
   message?: boolean
   model?: boolean
+  librarySnapshotId?: boolean
+  modelRevision?: boolean
+  localOverlayRevision?: boolean
+  evaluationActionId?: boolean
   evaluatedAt?: boolean
 }
 
-export type InstanceEvaluationStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"stateId" | "status" | "message" | "model" | "evaluatedAt", ExtArgs["result"]["instanceEvaluationState"]>
+export type InstanceEvaluationStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"stateId" | "status" | "message" | "model" | "librarySnapshotId" | "modelRevision" | "localOverlayRevision" | "evaluationActionId" | "evaluatedAt", ExtArgs["result"]["instanceEvaluationState"]>
 export type InstanceEvaluationStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
+  librarySnapshot?: boolean | Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>
 }
 export type InstanceEvaluationStateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
+  librarySnapshot?: boolean | Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>
 }
 export type InstanceEvaluationStateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
+  librarySnapshot?: boolean | Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>
 }
 
 export type $InstanceEvaluationStatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -452,6 +738,10 @@ export type $InstanceEvaluationStatePayload<ExtArgs extends runtime.Types.Extens
      * The instance this state belongs to.
      */
     state: Prisma.$InstanceStatePayload<ExtArgs>
+    /**
+     * The packaged library snapshot used by the evaluation.
+     */
+    librarySnapshot: Prisma.$LibrarySnapshotPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     /**
@@ -477,6 +767,22 @@ export type $InstanceEvaluationStatePayload<ExtArgs extends runtime.Types.Extens
      * [InstanceModel]
      */
     model:PrismaJson.InstanceModel | null
+    /**
+     * The packaged library snapshot used to produce this evaluation state.
+     */
+    librarySnapshotId: string | null
+    /**
+     * The backend-assigned resident model revision used by the evaluation.
+     */
+    modelRevision: string
+    /**
+     * The local development overlay revision used by the evaluation, when active.
+     */
+    localOverlayRevision: string | null
+    /**
+     * The runtime action that produced this evaluation state.
+     */
+    evaluationActionId: string
     /**
      * The time when the last evaluation was finished.
      */
@@ -876,6 +1182,7 @@ readonly fields: InstanceEvaluationStateFieldRefs;
 export interface Prisma__InstanceEvaluationStateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   state<T extends Prisma.InstanceStateDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceStateDefaultArgs<ExtArgs>>): Prisma.Prisma__InstanceStateClient<runtime.Types.Result.GetResult<Prisma.$InstanceStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  librarySnapshot<T extends Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceEvaluationState$librarySnapshotArgs<ExtArgs>>): Prisma.Prisma__LibrarySnapshotClient<runtime.Types.Result.GetResult<Prisma.$LibrarySnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -909,6 +1216,10 @@ export interface InstanceEvaluationStateFieldRefs {
   readonly status: Prisma.FieldRef<"InstanceEvaluationState", 'InstanceEvaluationStatus'>
   readonly message: Prisma.FieldRef<"InstanceEvaluationState", 'String'>
   readonly model: Prisma.FieldRef<"InstanceEvaluationState", 'Json'>
+  readonly librarySnapshotId: Prisma.FieldRef<"InstanceEvaluationState", 'String'>
+  readonly modelRevision: Prisma.FieldRef<"InstanceEvaluationState", 'String'>
+  readonly localOverlayRevision: Prisma.FieldRef<"InstanceEvaluationState", 'String'>
+  readonly evaluationActionId: Prisma.FieldRef<"InstanceEvaluationState", 'String'>
   readonly evaluatedAt: Prisma.FieldRef<"InstanceEvaluationState", 'DateTime'>
 }
     
@@ -1301,6 +1612,25 @@ export type InstanceEvaluationStateDeleteManyArgs<ExtArgs extends runtime.Types.
    * Limit how many InstanceEvaluationStates to delete.
    */
   limit?: number
+}
+
+/**
+ * InstanceEvaluationState.librarySnapshot
+ */
+export type InstanceEvaluationState$librarySnapshotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibrarySnapshot
+   */
+  select?: Prisma.LibrarySnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibrarySnapshot
+   */
+  omit?: Prisma.LibrarySnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibrarySnapshotInclude<ExtArgs> | null
+  where?: Prisma.LibrarySnapshotWhereInput
 }
 
 /**

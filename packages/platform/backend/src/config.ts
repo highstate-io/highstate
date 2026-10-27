@@ -27,6 +27,7 @@ const configSchema = z.object({
   ...workerManagerConfig.shape,
   ...artifactBackendConfig.shape,
   ...loggerConfig.shape,
+  HIGHSTATE_PUBLIC_API_URL: z.url().default("http://api.highstate.localhost:3000"),
 })
 
 export type Config = z.infer<typeof configSchema>

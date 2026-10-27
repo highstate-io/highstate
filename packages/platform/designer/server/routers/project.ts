@@ -1,5 +1,6 @@
 import {
   projectInputSchema,
+  projectPlacementInputSchema,
   projectModelInstanceSchema,
   unlockMethodInputSchema,
 } from "@highstate/backend/shared"
@@ -14,6 +15,16 @@ import { z } from "zod"
 import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
 
 export const projectRouter = router({
+  updatePlacement: backendProcedure
+    .input(z.object({ projectId: z.string().min(1), placement: projectPlacementInputSchema }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.projectService.updateProjectPlacement(
+        ctx.requestContext,
+        input.projectId,
+        input.placement,
+      )
+    }),
+
   getProjects: backendProcedure
     .input(
       z.object({

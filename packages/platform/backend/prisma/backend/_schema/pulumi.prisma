@@ -13,6 +13,8 @@ model PulumiStateBackend {
     /// [PulumiStateBackendSpec]
     spec Json
 
+    revision Int @default(1)
+
     /// The time when the state backend was created.
     createdAt DateTime @default(now())
 

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { type ComponentModel, parseVersionedName } from "@highstate/contract"
 import { ComponentCard, setComponentDragData } from "#layers/core/app/features/shared"
+import type { CatalogSource } from "@highstate/backend"
 
-const { components } = defineProps<{
+const { components, sources } = defineProps<{
   components: ComponentModel[]
+  sources?: Record<string, CatalogSource>
 }>()
 
 const selectedComponentType = ref(components[0]!.type)
@@ -12,6 +14,14 @@ const selectedComponent = computed(() => {
   return (
     components.find(component => component.type === selectedComponentType.value) ?? components[0]!
   )
+})
+
+const sourceLabel = computed(() => {
+  const source = sources?.[`components:${selectedComponent.value.type}`]
+  if (source?.kind === "package") return `${source.packageName}@${source.version}`
+  if (source?.kind === "local") return "Local overlay"
+  if (source?.kind === "virtual") return "Virtual"
+  return undefined
 })
 
 const versions = computed(() => {
@@ -57,6 +67,7 @@ const unstableTooltip =
     >
       <template #append>
         <div class="d-flex align-center ga-2">
+          <VChip v-if="sourceLabel" size="x-small" :title="sourceLabel">{{ sourceLabel }}</VChip>
           <VSelect
             v-if="versions.length > 1"
             v-model="selectedComponentType"

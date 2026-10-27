@@ -2,21 +2,20 @@
 
 ## Overview
 
-**Status: Proposed.**
-Schema and protocol declarations describe the intended shape; adapters, migrations, and runtime orchestration
-remain unimplemented.
+**Status: Implemented.**
+Docker and Kubernetes adapters, durable workload and action coordination, runtime agents, TLS transport,
+snapshot image builds, runtime-backed execution managers, migrations, and settings controls exist.
+The composition root wires these services, and API startup owns the optional dedicated TLS listener lifecycle.
+The default preflight composition supplies registry image checks and an authenticated disposable workload probe.
+Live remote Docker and Kubernetes environments are unavailable for lifecycle validation; adapter tests do not
+establish that validation.
+This is a validation limitation rather than a remaining implementation boundary.
+The sections below describe the integrated runtime and its validation coverage.
 
-Highstate currently has separate local implementations for Pulumi execution, Docker sidecars, Docker
-terminals, and Docker workers.
-Pulumi Automation API programs run on the backend host, sidecars use host networking and generated hosts
-files, and workers reach the backend through a mounted Unix socket.
-Kubernetes placement and a common runtime protocol are not implemented.
-
-The intended design replaces these execution-specific backends with one project-selected container runtime.
-It supports local or remote Docker engines and Kubernetes workloads in a configured namespace.
-Local Docker is the default.
-Pulumi operations, sidecars, terminals, workers, and project library image builds all use the same runtime
-selected by their project.
+The design gives each project one container runtime independently of Pulumi state placement.
+Current execution boundaries belong to [Control Plane](../architecture/control-plane.md#execution-boundaries).
+The local runner remains available for local overlays and deployments whose historical packaged provenance is
+unknown; those paths have not been replaced by snapshot workloads.
 
 The [project library design](project-library.md) defines how project library snapshots are built into images
 through this runtime.
@@ -30,7 +29,7 @@ resolution, or project persistence.
 Those behaviors remain in workload-specific managers that translate domain requests into generic runtime
 operations.
 
-The intended managers are:
+The workload managers cover:
 
 - A Pulumi operation manager for operation-scoped runner workloads.
 - A composite evaluation manager for snapshot-scoped evaluation workloads.
@@ -91,10 +90,12 @@ registry pushes, interactive attachment, command execution, workload networking,
 Managers reject requests that the selected runtime cannot support instead of relying on engine-specific
 failure behavior.
 
-Runtime settings expose a preflight operation that verifies engine or cluster connectivity, namespace and
-service-account permissions, registry access, image building, attach and exec support, networking, persistent
-storage, and local-overlay availability.
-An optional probe workload verifies that placed workloads can establish the authenticated runtime API stream.
+Runtime settings expose adapter preflight checks for engine or cluster connectivity and configuration.
+The integrated host supplies a registry check for the configured runner base image and a disposable workload
+probe that waits for an authenticated runtime agent stream.
+The probe requires a configured runner base image and an existing project assigned to the runtime.
+It requests cleanup after success, failure, timeout, or cancellation and reports cleanup failures.
+A successful preflight is not verification of every image-build, attach, storage, or networking path.
 Remote Docker settings support client TLS material independently of the workload-facing runtime API TLS
 configuration.
 Write-only kubeconfig, Docker TLS, Pulumi, npm, and container registry secrets are preserved when omitted from
@@ -167,9 +168,7 @@ Engine resource names remain opaque and unique independently of that alias.
 ## Kubernetes Placement
 
 Pulumi operations run in operation-scoped Pods.
-Sidecars share the operation Pod when their declaration and lifecycle allow them to be known before Pod
-creation.
-Dynamically created or independently managed sidecars run as separate Pods behind uniquely named Services.
+Sidecars run as separate Pods behind uniquely named Services.
 Each operation workload uses an operation-specific DNS resolver that maps its caller-owned sidecar names to
 those Services and forwards other queries to cluster DNS.
 The resolver gives concurrent operations isolated DNS views without requiring caller-visible names to be
@@ -232,11 +231,8 @@ Sidecar declarations preserve command and arguments, secret files and modes, nam
 and runner-reachable host and port mappings from the domain runtime contract.
 Component-owned values retain their dynamic JSON shape rather than introducing a second domain schema.
 
-Each workload receives a short-lived credential scoped to its backend, project, runtime, workload ID, kind,
-lease generation, expiry, and allowed protocol operations.
-The backend validates the scope of every message.
-Authorizing a newer lease generation invalidates older credentials and streams so a replaced runner cannot
-renew its lease or publish stale results.
+The [security architecture](../architecture/data-and-security.md#isolation-and-ownership) owns workload
+credential and trust boundaries.
 TLS uses normal certificate verification, with an explicitly configured CA bundle for private PKI.
 
 ## Workload Communication
@@ -298,7 +294,7 @@ The project library design defines the durable snapshot from which any missing i
 
 ## Pulumi State
 
-`PulumiStateBackend` replaces the current `PulumiBackend` concept and remains separate from
+`PulumiStateBackend` replaces the former `PulumiBackend` concept and remains separate from
 `ContainerRuntime`.
 It stores a Pulumi backend URL and encrypted authentication configuration reusable by projects.
 An operation workload receives only the state configuration selected by its project.
@@ -316,20 +312,21 @@ failure.
 Operation recovery marks interrupted work failed and later retries operate on potentially partial state.
 
 Runtime image caches and stale workload records are reconstructible.
-The backend reconciles resources by labels and leases, preserves persistent workers that should still run,
-and removes orphaned operation resources.
+The backend reconciles resources by labels and leases, interrupts actions without a live connection, and
+cleans expired or orphaned workloads.
+Worker supervision remains responsible for starting required worker versions after project unlock.
 Cleanup failures remain visible and retryable rather than being treated as successful finalization.
 Project and runtime deletion first marks owned workloads for deletion and completes adapter cleanup; database
 relations restrict deleting those owners while workload records still retain cleanup state.
 
-## Delivery
+## Compatibility And Validation
 
-Implementation proceeds by establishing the runtime contract and API first, then moving terminals, workers,
-sidecars, and Pulumi operations behind it.
-Docker local remains the first complete adapter, followed by remote Docker and Kubernetes.
-The old runner, terminal, worker, sidecar Docker implementations and the `unshare` command wrapper are removed
-only after their consumers use the generic runtime.
+The legacy local runner remains a migration and development compatibility path.
+Its removal requires an explicit replacement for unknown-provenance deployments and local overlays.
 
-Verification covers local Docker, remote Docker, and Kubernetes for image builds, Pulumi lifecycle commands,
-sidecar DNS, terminal attachment, worker reconnection, runtime API disconnects, cancellation, restart
+The live verification matrix includes local Docker, remote Docker, and Kubernetes image builds, Pulumi lifecycle
+commands, sidecar DNS, terminal attachment, worker reconnection, runtime API disconnects, cancellation, restart
 reconciliation, and credential isolation.
+The presence of adapter and coordinator tests does not mark that matrix complete.
+Focused probe tests cover scoped authentication, placement failures, timeout, cancellation, assignment races,
+and cleanup failure reporting.

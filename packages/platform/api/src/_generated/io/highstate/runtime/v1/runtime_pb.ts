@@ -284,7 +284,8 @@ export const RuntimeService: GenService<{
    * Opens a dedicated worker-originated HTTP proxy channel under the workload credential and lease.
    * The worker sends WorkerProxyReady first; the backend then sends one request and receives one response.
    * A worker maintains a bounded pool of idle channels and replenishes them after completion.
-   * Headers precede body chunks; half-close ends each body. Chunks are at most 64 KiB and sends and
+   * Headers precede body chunks; an empty body frame ends the backend's request body while keeping the RPC
+   * open for the response. Worker client half-close ends the response body. Chunks are at most 64 KiB and sends and
    * downstream writes must await transport backpressure without unbounded buffering. gRPC status ends errors.
    *
    * @generated from rpc io.highstate.runtime.v1.RuntimeService.ProxyWorker
@@ -296,4 +297,3 @@ export const RuntimeService: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_io_highstate_runtime_v1_runtime, 0);
-

@@ -6,9 +6,19 @@ import {
   SettingsListPage,
   type TableHeader,
 } from "#layers/core/app/features/settings"
+import { IdTableCell } from "#layers/core/app/features/settings"
+import type { ProjectOutput } from "@highstate/backend/shared"
+import ProjectPlacementDialog from "#layers/core/app/features/settings/components/ProjectPlacementDialog.vue"
 
 const projectsStore = useProjectsStore()
 const router = useRouter()
+const placementProject = shallowRef<ProjectOutput | null>(null)
+const placementVisible = ref(false)
+
+function editPlacement(project: ProjectOutput) {
+  placementProject.value = project
+  placementVisible.value = true
+}
 
 definePageMeta({
   name: "settings.project-list",
@@ -22,6 +32,8 @@ definePageMeta({
 const tableHeaders: TableHeader[] = [
   baseHeaders.name,
   baseHeaders.id,
+  { key: "containerRuntimeId", title: "Runtime" },
+  { key: "pulumiStateBackendId", title: "State backend" },
   baseHeaders.createdAt,
   {
     key: "actions",
@@ -81,6 +93,7 @@ const navigateToProject = (projectId: string) => {
       >
         <!-- Actions Column -->
         <template #item.actions="{ item }">
+          <VBtn variant="text" size="small" @click="editPlacement(item)">Placement</VBtn>
           <VBtn
             icon="mdi-arrow-right"
             variant="text"
@@ -91,4 +104,5 @@ const navigateToProject = (projectId: string) => {
       </SettingsDataTable>
     </template>
   </SettingsListPage>
+  <ProjectPlacementDialog v-model="placementVisible" :project="placementProject" />
 </template>

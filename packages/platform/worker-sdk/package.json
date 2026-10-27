@@ -34,6 +34,7 @@
     "bun-types": "^1.3.13"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.6",
     "@bufbuild/protobuf": "catalog:",
     "@connectrpc/connect": "catalog:",
     "@highstate/api": "workspace:*",

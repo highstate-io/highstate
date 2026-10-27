@@ -92,6 +92,24 @@ message DockerEngineTlsConfig {
 
   // Whether complete TLS client configuration is already stored.
   bool configured = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Clears the stored CA bundle; omission of ca_bundle otherwise preserves it.
+  bool clear_ca_bundle = 5 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Clears the stored client certificate.
+  bool clear_client_certificate = 6 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Clears the stored client private key.
+  bool clear_client_key = 7 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Whether a CA bundle is stored.
+  bool ca_bundle_configured = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether a client certificate is stored.
+  bool client_certificate_configured = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether a client private key is stored.
+  bool client_key_configured = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // KubernetesRuntimeSpec configures workload placement in one Kubernetes namespace.
@@ -113,6 +131,9 @@ message KubernetesRuntimeSpec {
 
   // Whether a kubeconfig is already stored.
   bool kubeconfig_configured = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Clears the stored kubeconfig; omission of kubeconfig otherwise preserves it.
+  bool clear_kubeconfig = 7 [(google.api.field_behavior) = INPUT_ONLY];
 }
 
 // PulumiStateBackend describes reusable Pulumi state storage.
@@ -137,6 +158,12 @@ message PulumiStateBackend {
 
   // The time when the state backend was last updated.
   google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optimistic concurrency revision of these settings.
+  uint64 revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Clears stored credentials; omission of credentials otherwise preserves them.
+  bool clear_credentials = 9 [(google.api.field_behavior) = INPUT_ONLY];
 }
 
 // NpmRegistryCredential describes reusable authentication for one npm package scope.
@@ -158,6 +185,15 @@ message NpmRegistryCredential {
 
   // Whether authentication material is already stored.
   bool credentials_configured = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optimistic concurrency revision of these settings.
+  uint64 revision = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when these settings were created.
+  google.protobuf.Timestamp created_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when these settings were last updated.
+  google.protobuf.Timestamp updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ContainerRegistryCredential describes reusable authentication for one OCI registry.
@@ -176,6 +212,15 @@ message ContainerRegistryCredential {
 
   // Whether authentication material is already stored.
   bool credentials_configured = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The optimistic concurrency revision of these settings.
+  uint64 revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when these settings were created.
+  google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The time when these settings were last updated.
+  google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListContainerRuntimesRequest requests all configured container runtimes.
@@ -206,6 +251,9 @@ message PutContainerRuntimeResponse {
 message DeleteContainerRuntimeRequest {
   // The stable runtime ID.
   string container_runtime_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The current settings revision required for deletion.
+  optional uint64 expected_revision = 2;
 }
 
 // DeleteContainerRuntimeResponse reports successful removal.
@@ -224,6 +272,9 @@ message ListPulumiStateBackendsResponse {
 message PutPulumiStateBackendRequest {
   // The state backend to persist. An empty ID creates a state backend.
   PulumiStateBackend backend = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Zero creates a setting; replacing an existing setting requires its current revision.
+  optional uint64 expected_revision = 2;
 }
 
 // PutPulumiStateBackendResponse returns the canonical Pulumi state backend.
@@ -236,6 +287,9 @@ message PutPulumiStateBackendResponse {
 message DeletePulumiStateBackendRequest {
   // The stable state backend ID.
   string pulumi_state_backend_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The current settings revision required for deletion.
+  optional uint64 expected_revision = 2;
 }
 
 // DeletePulumiStateBackendResponse reports successful removal.
@@ -254,6 +308,9 @@ message ListNpmRegistryCredentialsResponse {
 message PutNpmRegistryCredentialRequest {
   // The credential to persist. An empty ID creates a credential.
   NpmRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Zero creates a setting; replacing an existing setting requires its current revision.
+  optional uint64 expected_revision = 2;
 }
 
 // PutNpmRegistryCredentialResponse returns the canonical credential without its secret value.
@@ -266,6 +323,9 @@ message PutNpmRegistryCredentialResponse {
 message DeleteNpmRegistryCredentialRequest {
   // The stable credential ID.
   string npm_registry_credential_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The current settings revision required for deletion.
+  optional uint64 expected_revision = 2;
 }
 
 // DeleteNpmRegistryCredentialResponse reports successful removal.
@@ -284,6 +344,9 @@ message ListContainerRegistryCredentialsResponse {
 message PutContainerRegistryCredentialRequest {
   // The credential to persist. An empty ID creates a credential.
   ContainerRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Zero creates a setting; replacing an existing setting requires its current revision.
+  optional uint64 expected_revision = 2;
 }
 
 // PutContainerRegistryCredentialResponse returns the canonical credential without its secret value.
@@ -296,6 +359,9 @@ message PutContainerRegistryCredentialResponse {
 message DeleteContainerRegistryCredentialRequest {
   // The stable credential ID.
   string container_registry_credential_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The current settings revision required for deletion.
+  optional uint64 expected_revision = 2;
 }
 
 // DeleteContainerRegistryCredentialResponse reports successful removal.

@@ -195,6 +195,9 @@ message LibraryCatalogSource {
 
   // The package-version record for a packaged source.
   optional string library_package_version_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The immutable snapshot containing this packaged definition.
+  optional string library_snapshot_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // LibraryCatalogSourceKind identifies how a catalog entry entered the effective library.
@@ -360,6 +363,9 @@ message LocalLibraryOverlay {
 
   // Component and entity types conflicting with the packaged snapshot.
   repeated string conflicting_types = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The revision of the complete active local overlay.
+  optional string revision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EntityMeta contains display metadata for an entity definition.
@@ -414,6 +420,18 @@ message GetProjectLibraryResponse {
 
   // The local development overlay state.
   LocalLibraryOverlay local_overlay = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Actionable resolution, image, or publication failures for the desired library.
+  repeated ProjectLibraryDiagnostic diagnostics = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ProjectLibraryDiagnostic describes a failed phase without exposing registry credentials.
+message ProjectLibraryDiagnostic {
+  // The phase that failed.
+  string phase = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The actionable failure description.
+  string message = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // AddLibraryPackageRequest adds one exact npm package version to the project library.
@@ -508,8 +526,14 @@ message GetLibraryPackageVersionRequest {
   // The project ID.
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The stable package-version ID.
+  // The stable package-version ID of a desired snapshot member; alternatively supply package_name and version.
   string library_package_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The package name, when looking up an exact version instead of a snapshot member ID.
+  optional string package_name = 3;
+
+  // The exact package version paired with package_name.
+  optional string version = 4;
 }
 
 // GetLibraryPackageVersionResponse returns one evaluated package version.

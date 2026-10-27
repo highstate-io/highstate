@@ -60,6 +60,8 @@ export type InstanceStateMinAggregateOutputType = {
   dependencyOutputHash: number | null
   currentResourceCount: number | null
   hasResourceHooks: boolean | null
+  librarySnapshotId: string | null
+  libraryPackageVersionId: string | null
 }
 
 export type InstanceStateMaxAggregateOutputType = {
@@ -76,6 +78,8 @@ export type InstanceStateMaxAggregateOutputType = {
   dependencyOutputHash: number | null
   currentResourceCount: number | null
   hasResourceHooks: boolean | null
+  librarySnapshotId: string | null
+  libraryPackageVersionId: string | null
 }
 
 export type InstanceStateCountAggregateOutputType = {
@@ -96,6 +100,8 @@ export type InstanceStateCountAggregateOutputType = {
   currentResourceCount: number
   statusFields: number
   hasResourceHooks: number
+  librarySnapshotId: number
+  libraryPackageVersionId: number
   _all: number
 }
 
@@ -132,6 +138,8 @@ export type InstanceStateMinAggregateInputType = {
   dependencyOutputHash?: true
   currentResourceCount?: true
   hasResourceHooks?: true
+  librarySnapshotId?: true
+  libraryPackageVersionId?: true
 }
 
 export type InstanceStateMaxAggregateInputType = {
@@ -148,6 +156,8 @@ export type InstanceStateMaxAggregateInputType = {
   dependencyOutputHash?: true
   currentResourceCount?: true
   hasResourceHooks?: true
+  librarySnapshotId?: true
+  libraryPackageVersionId?: true
 }
 
 export type InstanceStateCountAggregateInputType = {
@@ -168,6 +178,8 @@ export type InstanceStateCountAggregateInputType = {
   currentResourceCount?: true
   statusFields?: true
   hasResourceHooks?: true
+  librarySnapshotId?: true
+  libraryPackageVersionId?: true
   _all?: true
 }
 
@@ -275,6 +287,8 @@ export type InstanceStateGroupByOutputType = {
   currentResourceCount: number | null
   statusFields:PrismaJson.InstanceStatusFields | null
   hasResourceHooks: boolean
+  librarySnapshotId: string | null
+  libraryPackageVersionId: string | null
   _count: InstanceStateCountAggregateOutputType | null
   _avg: InstanceStateAvgAggregateOutputType | null
   _sum: InstanceStateSumAggregateOutputType | null
@@ -318,8 +332,11 @@ export type InstanceStateWhereInput = {
   currentResourceCount?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   statusFields?: Prisma.JsonNullableFilter<"InstanceState">
   hasResourceHooks?: Prisma.BoolFilter<"InstanceState"> | boolean
+  librarySnapshotId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
+  libraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
   parent?: Prisma.XOR<Prisma.InstanceStateNullableScalarRelationFilter, Prisma.InstanceStateWhereInput> | null
   children?: Prisma.InstanceStateListRelationFilter
+  librarySnapshotVersion?: Prisma.XOR<Prisma.LibrarySnapshotVersionNullableScalarRelationFilter, Prisma.LibrarySnapshotVersionWhereInput> | null
   evaluationState?: Prisma.XOR<Prisma.InstanceEvaluationStateNullableScalarRelationFilter, Prisma.InstanceEvaluationStateWhereInput> | null
   operationStates?: Prisma.InstanceOperationStateListRelationFilter
   secrets?: Prisma.SecretListRelationFilter
@@ -354,8 +371,11 @@ export type InstanceStateOrderByWithRelationInput = {
   currentResourceCount?: Prisma.SortOrderInput | Prisma.SortOrder
   statusFields?: Prisma.SortOrderInput | Prisma.SortOrder
   hasResourceHooks?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
+  libraryPackageVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   parent?: Prisma.InstanceStateOrderByWithRelationInput
   children?: Prisma.InstanceStateOrderByRelationAggregateInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionOrderByWithRelationInput
   evaluationState?: Prisma.InstanceEvaluationStateOrderByWithRelationInput
   operationStates?: Prisma.InstanceOperationStateOrderByRelationAggregateInput
   secrets?: Prisma.SecretOrderByRelationAggregateInput
@@ -393,8 +413,11 @@ export type InstanceStateWhereUniqueInput = Prisma.AtLeast<{
   currentResourceCount?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   statusFields?: Prisma.JsonNullableFilter<"InstanceState">
   hasResourceHooks?: Prisma.BoolFilter<"InstanceState"> | boolean
+  librarySnapshotId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
+  libraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
   parent?: Prisma.XOR<Prisma.InstanceStateNullableScalarRelationFilter, Prisma.InstanceStateWhereInput> | null
   children?: Prisma.InstanceStateListRelationFilter
+  librarySnapshotVersion?: Prisma.XOR<Prisma.LibrarySnapshotVersionNullableScalarRelationFilter, Prisma.LibrarySnapshotVersionWhereInput> | null
   evaluationState?: Prisma.XOR<Prisma.InstanceEvaluationStateNullableScalarRelationFilter, Prisma.InstanceEvaluationStateWhereInput> | null
   operationStates?: Prisma.InstanceOperationStateListRelationFilter
   secrets?: Prisma.SecretListRelationFilter
@@ -429,6 +452,8 @@ export type InstanceStateOrderByWithAggregationInput = {
   currentResourceCount?: Prisma.SortOrderInput | Prisma.SortOrder
   statusFields?: Prisma.SortOrderInput | Prisma.SortOrder
   hasResourceHooks?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
+  libraryPackageVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.InstanceStateCountOrderByAggregateInput
   _avg?: Prisma.InstanceStateAvgOrderByAggregateInput
   _max?: Prisma.InstanceStateMaxOrderByAggregateInput
@@ -457,6 +482,8 @@ export type InstanceStateScalarWhereWithAggregatesInput = {
   currentResourceCount?: Prisma.IntNullableWithAggregatesFilter<"InstanceState"> | number | null
   statusFields?: Prisma.JsonNullableWithAggregatesFilter<"InstanceState">
   hasResourceHooks?: Prisma.BoolWithAggregatesFilter<"InstanceState"> | boolean
+  librarySnapshotId?: Prisma.StringNullableWithAggregatesFilter<"InstanceState"> | string | null
+  libraryPackageVersionId?: Prisma.StringNullableWithAggregatesFilter<"InstanceState"> | string | null
 }
 
 export type InstanceStateCreateInput = {
@@ -478,6 +505,7 @@ export type InstanceStateCreateInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -512,6 +540,8 @@ export type InstanceStateUncheckedCreateInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -548,6 +578,7 @@ export type InstanceStateUpdateInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -582,6 +613,8 @@ export type InstanceStateUncheckedUpdateInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -617,6 +650,8 @@ export type InstanceStateCreateManyInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
 }
 
 export type InstanceStateUpdateManyMutationInput = {
@@ -656,6 +691,8 @@ export type InstanceStateUncheckedUpdateManyInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InstanceStateListRelationFilter = {
@@ -696,6 +733,8 @@ export type InstanceStateCountOrderByAggregateInput = {
   currentResourceCount?: Prisma.SortOrder
   statusFields?: Prisma.SortOrder
   hasResourceHooks?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrder
+  libraryPackageVersionId?: Prisma.SortOrder
 }
 
 export type InstanceStateAvgOrderByAggregateInput = {
@@ -721,6 +760,8 @@ export type InstanceStateMaxOrderByAggregateInput = {
   dependencyOutputHash?: Prisma.SortOrder
   currentResourceCount?: Prisma.SortOrder
   hasResourceHooks?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrder
+  libraryPackageVersionId?: Prisma.SortOrder
 }
 
 export type InstanceStateMinOrderByAggregateInput = {
@@ -737,6 +778,8 @@ export type InstanceStateMinOrderByAggregateInput = {
   dependencyOutputHash?: Prisma.SortOrder
   currentResourceCount?: Prisma.SortOrder
   hasResourceHooks?: Prisma.SortOrder
+  librarySnapshotId?: Prisma.SortOrder
+  libraryPackageVersionId?: Prisma.SortOrder
 }
 
 export type InstanceStateSumOrderByAggregateInput = {
@@ -920,6 +963,48 @@ export type InstanceStateUpdateOneRequiredWithoutUserViewportsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstanceStateUpdateToOneWithWhereWithoutUserViewportsInput, Prisma.InstanceStateUpdateWithoutUserViewportsInput>, Prisma.InstanceStateUncheckedUpdateWithoutUserViewportsInput>
 }
 
+export type InstanceStateCreateNestedManyWithoutLibrarySnapshotVersionInput = {
+  create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput> | Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput[] | Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput[]
+  connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput[]
+  createMany?: Prisma.InstanceStateCreateManyLibrarySnapshotVersionInputEnvelope
+  connect?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+}
+
+export type InstanceStateUncheckedCreateNestedManyWithoutLibrarySnapshotVersionInput = {
+  create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput> | Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput[] | Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput[]
+  connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput[]
+  createMany?: Prisma.InstanceStateCreateManyLibrarySnapshotVersionInputEnvelope
+  connect?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+}
+
+export type InstanceStateUpdateManyWithoutLibrarySnapshotVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput> | Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput[] | Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput[]
+  connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput[]
+  upsert?: Prisma.InstanceStateUpsertWithWhereUniqueWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateUpsertWithWhereUniqueWithoutLibrarySnapshotVersionInput[]
+  createMany?: Prisma.InstanceStateCreateManyLibrarySnapshotVersionInputEnvelope
+  set?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  disconnect?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  delete?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  connect?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  update?: Prisma.InstanceStateUpdateWithWhereUniqueWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateUpdateWithWhereUniqueWithoutLibrarySnapshotVersionInput[]
+  updateMany?: Prisma.InstanceStateUpdateManyWithWhereWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateUpdateManyWithWhereWithoutLibrarySnapshotVersionInput[]
+  deleteMany?: Prisma.InstanceStateScalarWhereInput | Prisma.InstanceStateScalarWhereInput[]
+}
+
+export type InstanceStateUncheckedUpdateManyWithoutLibrarySnapshotVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput> | Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput[] | Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput[]
+  connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput[]
+  upsert?: Prisma.InstanceStateUpsertWithWhereUniqueWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateUpsertWithWhereUniqueWithoutLibrarySnapshotVersionInput[]
+  createMany?: Prisma.InstanceStateCreateManyLibrarySnapshotVersionInputEnvelope
+  set?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  disconnect?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  delete?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  connect?: Prisma.InstanceStateWhereUniqueInput | Prisma.InstanceStateWhereUniqueInput[]
+  update?: Prisma.InstanceStateUpdateWithWhereUniqueWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateUpdateWithWhereUniqueWithoutLibrarySnapshotVersionInput[]
+  updateMany?: Prisma.InstanceStateUpdateManyWithWhereWithoutLibrarySnapshotVersionInput | Prisma.InstanceStateUpdateManyWithWhereWithoutLibrarySnapshotVersionInput[]
+  deleteMany?: Prisma.InstanceStateScalarWhereInput | Prisma.InstanceStateScalarWhereInput[]
+}
+
 export type InstanceStateCreateNestedOneWithoutLockInput = {
   create?: Prisma.XOR<Prisma.InstanceStateCreateWithoutLockInput, Prisma.InstanceStateUncheckedCreateWithoutLockInput>
   connectOrCreate?: Prisma.InstanceStateCreateOrConnectWithoutLockInput
@@ -1073,6 +1158,7 @@ export type InstanceStateCreateWithoutArtifactsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -1106,6 +1192,8 @@ export type InstanceStateUncheckedCreateWithoutArtifactsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -1164,6 +1252,8 @@ export type InstanceStateScalarWhereInput = {
   currentResourceCount?: Prisma.IntNullableFilter<"InstanceState"> | number | null
   statusFields?: Prisma.JsonNullableFilter<"InstanceState">
   hasResourceHooks?: Prisma.BoolFilter<"InstanceState"> | boolean
+  librarySnapshotId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
+  libraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceState"> | string | null
 }
 
 export type InstanceStateCreateWithoutCustomStatusesInput = {
@@ -1185,6 +1275,7 @@ export type InstanceStateCreateWithoutCustomStatusesInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -1218,6 +1309,8 @@ export type InstanceStateUncheckedCreateWithoutCustomStatusesInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -1269,6 +1362,7 @@ export type InstanceStateUpdateWithoutCustomStatusesInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -1302,6 +1396,8 @@ export type InstanceStateUncheckedUpdateWithoutCustomStatusesInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -1337,6 +1433,7 @@ export type InstanceStateCreateWithoutEntitySnapshotsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -1370,6 +1467,8 @@ export type InstanceStateUncheckedCreateWithoutEntitySnapshotsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -1421,6 +1520,7 @@ export type InstanceStateUpdateWithoutEntitySnapshotsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -1454,6 +1554,8 @@ export type InstanceStateUncheckedUpdateWithoutEntitySnapshotsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -1489,6 +1591,7 @@ export type InstanceStateCreateWithoutEvaluationStateInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
   terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
@@ -1522,6 +1625,8 @@ export type InstanceStateUncheckedCreateWithoutEvaluationStateInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutStateInput
@@ -1573,6 +1678,7 @@ export type InstanceStateUpdateWithoutEvaluationStateInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
   terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
@@ -1606,6 +1712,8 @@ export type InstanceStateUncheckedUpdateWithoutEvaluationStateInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutStateNestedInput
@@ -1640,6 +1748,7 @@ export type InstanceStateCreateWithoutChildrenInput = {
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -1674,6 +1783,8 @@ export type InstanceStateUncheckedCreateWithoutChildrenInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutStateInput
@@ -1713,6 +1824,7 @@ export type InstanceStateCreateWithoutParentInput = {
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -1746,6 +1858,8 @@ export type InstanceStateUncheckedCreateWithoutParentInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -1801,6 +1915,7 @@ export type InstanceStateUpdateWithoutChildrenInput = {
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -1835,6 +1950,8 @@ export type InstanceStateUncheckedUpdateWithoutChildrenInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutStateNestedInput
@@ -1886,6 +2003,7 @@ export type InstanceStateCreateWithoutUserViewportsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -1919,6 +2037,8 @@ export type InstanceStateUncheckedCreateWithoutUserViewportsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -1970,6 +2090,7 @@ export type InstanceStateUpdateWithoutUserViewportsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -2003,6 +2124,8 @@ export type InstanceStateUncheckedUpdateWithoutUserViewportsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -2017,6 +2140,101 @@ export type InstanceStateUncheckedUpdateWithoutUserViewportsInput = {
   artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
   operationLogs?: Prisma.OperationLogUncheckedUpdateManyWithoutStateNestedInput
   entitySnapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutStateNestedInput
+}
+
+export type InstanceStateCreateWithoutLibrarySnapshotVersionInput = {
+  id?: string
+  instanceId:PrismaJson.InstanceId
+  status: $Enums.InstanceStatus
+  source: $Enums.InstanceSource
+  kind:PrismaJson.InstanceKind
+  inputHashNonce?: number | null
+  selfHash?: number | null
+  inputHash?: number | null
+  outputHash?: number | null
+  dependencyOutputHash?: number | null
+  exportedArtifactIds?:PrismaJson.InstanceArtifactIds | Prisma.NullableJsonNullValueInput
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  resolvedInputs?:PrismaJson.InstanceResolvedInputs | Prisma.NullableJsonNullValueInput
+  currentResourceCount?: number | null
+  statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
+  hasResourceHooks?: boolean
+  parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
+  children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
+  operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
+  secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
+  terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
+  pages?: Prisma.PageCreateNestedManyWithoutStateInput
+  triggers?: Prisma.TriggerCreateNestedManyWithoutStateInput
+  customStatuses?: Prisma.InstanceCustomStatusCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelCreateNestedManyWithoutStateInput
+  lock?: Prisma.InstanceLockCreateNestedOneWithoutStateInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationCreateNestedManyWithoutStateInput
+  artifacts?: Prisma.ArtifactCreateNestedManyWithoutInstancesInput
+  operationLogs?: Prisma.OperationLogCreateNestedManyWithoutStateInput
+  userViewports?: Prisma.UserCompositeViewportCreateNestedManyWithoutStateInput
+  entitySnapshots?: Prisma.EntitySnapshotCreateNestedManyWithoutStateInput
+}
+
+export type InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput = {
+  id?: string
+  instanceId:PrismaJson.InstanceId
+  status: $Enums.InstanceStatus
+  source: $Enums.InstanceSource
+  kind:PrismaJson.InstanceKind
+  parentId?: string | null
+  inputHashNonce?: number | null
+  selfHash?: number | null
+  inputHash?: number | null
+  outputHash?: number | null
+  dependencyOutputHash?: number | null
+  exportedArtifactIds?:PrismaJson.InstanceArtifactIds | Prisma.NullableJsonNullValueInput
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  resolvedInputs?:PrismaJson.InstanceResolvedInputs | Prisma.NullableJsonNullValueInput
+  currentResourceCount?: number | null
+  statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
+  hasResourceHooks?: boolean
+  children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
+  evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
+  operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
+  secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutStateInput
+  terminals?: Prisma.TerminalUncheckedCreateNestedManyWithoutStateInput
+  pages?: Prisma.PageUncheckedCreateNestedManyWithoutStateInput
+  triggers?: Prisma.TriggerUncheckedCreateNestedManyWithoutStateInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedCreateNestedManyWithoutStateInput
+  panels?: Prisma.PanelUncheckedCreateNestedManyWithoutStateInput
+  lock?: Prisma.InstanceLockUncheckedCreateNestedOneWithoutStateInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedCreateNestedManyWithoutStateInput
+  artifacts?: Prisma.ArtifactUncheckedCreateNestedManyWithoutInstancesInput
+  operationLogs?: Prisma.OperationLogUncheckedCreateNestedManyWithoutStateInput
+  userViewports?: Prisma.UserCompositeViewportUncheckedCreateNestedManyWithoutStateInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedCreateNestedManyWithoutStateInput
+}
+
+export type InstanceStateCreateOrConnectWithoutLibrarySnapshotVersionInput = {
+  where: Prisma.InstanceStateWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput>
+}
+
+export type InstanceStateCreateManyLibrarySnapshotVersionInputEnvelope = {
+  data: Prisma.InstanceStateCreateManyLibrarySnapshotVersionInput | Prisma.InstanceStateCreateManyLibrarySnapshotVersionInput[]
+}
+
+export type InstanceStateUpsertWithWhereUniqueWithoutLibrarySnapshotVersionInput = {
+  where: Prisma.InstanceStateWhereUniqueInput
+  update: Prisma.XOR<Prisma.InstanceStateUpdateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedUpdateWithoutLibrarySnapshotVersionInput>
+  create: Prisma.XOR<Prisma.InstanceStateCreateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedCreateWithoutLibrarySnapshotVersionInput>
+}
+
+export type InstanceStateUpdateWithWhereUniqueWithoutLibrarySnapshotVersionInput = {
+  where: Prisma.InstanceStateWhereUniqueInput
+  data: Prisma.XOR<Prisma.InstanceStateUpdateWithoutLibrarySnapshotVersionInput, Prisma.InstanceStateUncheckedUpdateWithoutLibrarySnapshotVersionInput>
+}
+
+export type InstanceStateUpdateManyWithWhereWithoutLibrarySnapshotVersionInput = {
+  where: Prisma.InstanceStateScalarWhereInput
+  data: Prisma.XOR<Prisma.InstanceStateUpdateManyMutationInput, Prisma.InstanceStateUncheckedUpdateManyWithoutLibrarySnapshotVersionInput>
 }
 
 export type InstanceStateCreateWithoutLockInput = {
@@ -2038,6 +2256,7 @@ export type InstanceStateCreateWithoutLockInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -2071,6 +2290,8 @@ export type InstanceStateUncheckedCreateWithoutLockInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -2122,6 +2343,7 @@ export type InstanceStateUpdateWithoutLockInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -2155,6 +2377,8 @@ export type InstanceStateUncheckedUpdateWithoutLockInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -2190,6 +2414,7 @@ export type InstanceStateCreateWithoutOperationStatesInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
   terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
@@ -2223,6 +2448,8 @@ export type InstanceStateUncheckedCreateWithoutOperationStatesInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   secrets?: Prisma.SecretUncheckedCreateNestedManyWithoutStateInput
@@ -2274,6 +2501,7 @@ export type InstanceStateUpdateWithoutOperationStatesInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
   terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
@@ -2307,6 +2535,8 @@ export type InstanceStateUncheckedUpdateWithoutOperationStatesInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   secrets?: Prisma.SecretUncheckedUpdateManyWithoutStateNestedInput
@@ -2342,6 +2572,7 @@ export type InstanceStateCreateWithoutOperationLogsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -2375,6 +2606,8 @@ export type InstanceStateUncheckedCreateWithoutOperationLogsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -2426,6 +2659,7 @@ export type InstanceStateUpdateWithoutOperationLogsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -2459,6 +2693,8 @@ export type InstanceStateUncheckedUpdateWithoutOperationLogsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -2494,6 +2730,7 @@ export type InstanceStateCreateWithoutPagesInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -2527,6 +2764,8 @@ export type InstanceStateUncheckedCreateWithoutPagesInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -2578,6 +2817,7 @@ export type InstanceStateUpdateWithoutPagesInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -2611,6 +2851,8 @@ export type InstanceStateUncheckedUpdateWithoutPagesInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -2646,6 +2888,7 @@ export type InstanceStateCreateWithoutPanelsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -2679,6 +2922,8 @@ export type InstanceStateUncheckedCreateWithoutPanelsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -2730,6 +2975,7 @@ export type InstanceStateUpdateWithoutPanelsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -2763,6 +3009,8 @@ export type InstanceStateUncheckedUpdateWithoutPanelsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -2798,6 +3046,7 @@ export type InstanceStateCreateWithoutSecretsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   terminals?: Prisma.TerminalCreateNestedManyWithoutStateInput
@@ -2831,6 +3080,8 @@ export type InstanceStateUncheckedCreateWithoutSecretsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -2882,6 +3133,7 @@ export type InstanceStateUpdateWithoutSecretsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
@@ -2915,6 +3167,8 @@ export type InstanceStateUncheckedUpdateWithoutSecretsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -2950,6 +3204,7 @@ export type InstanceStateCreateWithoutTerminalsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -2983,6 +3238,8 @@ export type InstanceStateUncheckedCreateWithoutTerminalsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -3034,6 +3291,7 @@ export type InstanceStateUpdateWithoutTerminalsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -3067,6 +3325,8 @@ export type InstanceStateUncheckedUpdateWithoutTerminalsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -3102,6 +3362,7 @@ export type InstanceStateCreateWithoutTriggersInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -3135,6 +3396,8 @@ export type InstanceStateUncheckedCreateWithoutTriggersInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -3186,6 +3449,7 @@ export type InstanceStateUpdateWithoutTriggersInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -3219,6 +3483,8 @@ export type InstanceStateUncheckedUpdateWithoutTriggersInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -3254,6 +3520,7 @@ export type InstanceStateCreateWithoutWorkerRegistrationsInput = {
   hasResourceHooks?: boolean
   parent?: Prisma.InstanceStateCreateNestedOneWithoutChildrenInput
   children?: Prisma.InstanceStateCreateNestedManyWithoutParentInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionCreateNestedOneWithoutInstanceStatesInput
   evaluationState?: Prisma.InstanceEvaluationStateCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateCreateNestedManyWithoutStateInput
   secrets?: Prisma.SecretCreateNestedManyWithoutStateInput
@@ -3287,6 +3554,8 @@ export type InstanceStateUncheckedCreateWithoutWorkerRegistrationsInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
   children?: Prisma.InstanceStateUncheckedCreateNestedManyWithoutParentInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedCreateNestedOneWithoutStateInput
   operationStates?: Prisma.InstanceOperationStateUncheckedCreateNestedManyWithoutStateInput
@@ -3338,6 +3607,7 @@ export type InstanceStateUpdateWithoutWorkerRegistrationsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -3371,6 +3641,8 @@ export type InstanceStateUncheckedUpdateWithoutWorkerRegistrationsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -3406,6 +3678,7 @@ export type InstanceStateUpdateWithoutArtifactsInput = {
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -3439,6 +3712,8 @@ export type InstanceStateUncheckedUpdateWithoutArtifactsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -3473,6 +3748,8 @@ export type InstanceStateUncheckedUpdateManyWithoutArtifactsInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InstanceStateCreateManyParentInput = {
@@ -3492,6 +3769,8 @@ export type InstanceStateCreateManyParentInput = {
   currentResourceCount?: number | null
   statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
   hasResourceHooks?: boolean
+  librarySnapshotId?: string | null
+  libraryPackageVersionId?: string | null
 }
 
 export type InstanceStateUpdateWithoutParentInput = {
@@ -3512,6 +3791,7 @@ export type InstanceStateUpdateWithoutParentInput = {
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  librarySnapshotVersion?: Prisma.LibrarySnapshotVersionUpdateOneWithoutInstanceStatesNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
   secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
@@ -3545,6 +3825,8 @@ export type InstanceStateUncheckedUpdateWithoutParentInput = {
   currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
   evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
   operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
@@ -3568,6 +3850,118 @@ export type InstanceStateUncheckedUpdateManyWithoutParentInput = {
   status?: Prisma.EnumInstanceStatusFieldUpdateOperationsInput | $Enums.InstanceStatus
   source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
   kind?: Prisma.StringFieldUpdateOperationsInput | string
+  inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  exportedArtifactIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  model?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  resolvedInputs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type InstanceStateCreateManyLibrarySnapshotVersionInput = {
+  id?: string
+  instanceId:PrismaJson.InstanceId
+  status: $Enums.InstanceStatus
+  source: $Enums.InstanceSource
+  kind:PrismaJson.InstanceKind
+  parentId?: string | null
+  inputHashNonce?: number | null
+  selfHash?: number | null
+  inputHash?: number | null
+  outputHash?: number | null
+  dependencyOutputHash?: number | null
+  exportedArtifactIds?:PrismaJson.InstanceArtifactIds | Prisma.NullableJsonNullValueInput
+  model?:PrismaJson.InstanceModel | Prisma.NullableJsonNullValueInput
+  resolvedInputs?:PrismaJson.InstanceResolvedInputs | Prisma.NullableJsonNullValueInput
+  currentResourceCount?: number | null
+  statusFields?:PrismaJson.InstanceStatusFields | Prisma.NullableJsonNullValueInput
+  hasResourceHooks?: boolean
+}
+
+export type InstanceStateUpdateWithoutLibrarySnapshotVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instanceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceStatusFieldUpdateOperationsInput | $Enums.InstanceStatus
+  source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  exportedArtifactIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  model?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  resolvedInputs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent?: Prisma.InstanceStateUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.InstanceStateUpdateManyWithoutParentNestedInput
+  evaluationState?: Prisma.InstanceEvaluationStateUpdateOneWithoutStateNestedInput
+  operationStates?: Prisma.InstanceOperationStateUpdateManyWithoutStateNestedInput
+  secrets?: Prisma.SecretUpdateManyWithoutStateNestedInput
+  terminals?: Prisma.TerminalUpdateManyWithoutStateNestedInput
+  pages?: Prisma.PageUpdateManyWithoutStateNestedInput
+  triggers?: Prisma.TriggerUpdateManyWithoutStateNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUpdateManyWithoutStateNestedInput
+  lock?: Prisma.InstanceLockUpdateOneWithoutStateNestedInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationUpdateManyWithoutStateNestedInput
+  artifacts?: Prisma.ArtifactUpdateManyWithoutInstancesNestedInput
+  operationLogs?: Prisma.OperationLogUpdateManyWithoutStateNestedInput
+  userViewports?: Prisma.UserCompositeViewportUpdateManyWithoutStateNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUpdateManyWithoutStateNestedInput
+}
+
+export type InstanceStateUncheckedUpdateWithoutLibrarySnapshotVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instanceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceStatusFieldUpdateOperationsInput | $Enums.InstanceStatus
+  source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  outputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dependencyOutputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  exportedArtifactIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  model?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  resolvedInputs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  currentResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statusFields?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  hasResourceHooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  children?: Prisma.InstanceStateUncheckedUpdateManyWithoutParentNestedInput
+  evaluationState?: Prisma.InstanceEvaluationStateUncheckedUpdateOneWithoutStateNestedInput
+  operationStates?: Prisma.InstanceOperationStateUncheckedUpdateManyWithoutStateNestedInput
+  secrets?: Prisma.SecretUncheckedUpdateManyWithoutStateNestedInput
+  terminals?: Prisma.TerminalUncheckedUpdateManyWithoutStateNestedInput
+  pages?: Prisma.PageUncheckedUpdateManyWithoutStateNestedInput
+  triggers?: Prisma.TriggerUncheckedUpdateManyWithoutStateNestedInput
+  customStatuses?: Prisma.InstanceCustomStatusUncheckedUpdateManyWithoutStateNestedInput
+  panels?: Prisma.PanelUncheckedUpdateManyWithoutStateNestedInput
+  lock?: Prisma.InstanceLockUncheckedUpdateOneWithoutStateNestedInput
+  workerRegistrations?: Prisma.WorkerUnitRegistrationUncheckedUpdateManyWithoutStateNestedInput
+  artifacts?: Prisma.ArtifactUncheckedUpdateManyWithoutInstancesNestedInput
+  operationLogs?: Prisma.OperationLogUncheckedUpdateManyWithoutStateNestedInput
+  userViewports?: Prisma.UserCompositeViewportUncheckedUpdateManyWithoutStateNestedInput
+  entitySnapshots?: Prisma.EntitySnapshotUncheckedUpdateManyWithoutStateNestedInput
+}
+
+export type InstanceStateUncheckedUpdateManyWithoutLibrarySnapshotVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  instanceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInstanceStatusFieldUpdateOperationsInput | $Enums.InstanceStatus
+  source?: Prisma.EnumInstanceSourceFieldUpdateOperationsInput | $Enums.InstanceSource
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   inputHashNonce?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selfHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   inputHash?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3738,8 +4132,11 @@ export type InstanceStateSelect<ExtArgs extends runtime.Types.Extensions.Interna
   currentResourceCount?: boolean
   statusFields?: boolean
   hasResourceHooks?: boolean
+  librarySnapshotId?: boolean
+  libraryPackageVersionId?: boolean
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
   children?: boolean | Prisma.InstanceState$childrenArgs<ExtArgs>
+  librarySnapshotVersion?: boolean | Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>
   evaluationState?: boolean | Prisma.InstanceState$evaluationStateArgs<ExtArgs>
   operationStates?: boolean | Prisma.InstanceState$operationStatesArgs<ExtArgs>
   secrets?: boolean | Prisma.InstanceState$secretsArgs<ExtArgs>
@@ -3775,7 +4172,10 @@ export type InstanceStateSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   currentResourceCount?: boolean
   statusFields?: boolean
   hasResourceHooks?: boolean
+  librarySnapshotId?: boolean
+  libraryPackageVersionId?: boolean
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
+  librarySnapshotVersion?: boolean | Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>
 }, ExtArgs["result"]["instanceState"]>
 
 export type InstanceStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -3796,7 +4196,10 @@ export type InstanceStateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   currentResourceCount?: boolean
   statusFields?: boolean
   hasResourceHooks?: boolean
+  librarySnapshotId?: boolean
+  libraryPackageVersionId?: boolean
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
+  librarySnapshotVersion?: boolean | Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>
 }, ExtArgs["result"]["instanceState"]>
 
 export type InstanceStateSelectScalar = {
@@ -3817,12 +4220,15 @@ export type InstanceStateSelectScalar = {
   currentResourceCount?: boolean
   statusFields?: boolean
   hasResourceHooks?: boolean
+  librarySnapshotId?: boolean
+  libraryPackageVersionId?: boolean
 }
 
-export type InstanceStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "status" | "source" | "kind" | "parentId" | "inputHashNonce" | "selfHash" | "inputHash" | "outputHash" | "dependencyOutputHash" | "exportedArtifactIds" | "model" | "resolvedInputs" | "currentResourceCount" | "statusFields" | "hasResourceHooks", ExtArgs["result"]["instanceState"]>
+export type InstanceStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "instanceId" | "status" | "source" | "kind" | "parentId" | "inputHashNonce" | "selfHash" | "inputHash" | "outputHash" | "dependencyOutputHash" | "exportedArtifactIds" | "model" | "resolvedInputs" | "currentResourceCount" | "statusFields" | "hasResourceHooks" | "librarySnapshotId" | "libraryPackageVersionId", ExtArgs["result"]["instanceState"]>
 export type InstanceStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
   children?: boolean | Prisma.InstanceState$childrenArgs<ExtArgs>
+  librarySnapshotVersion?: boolean | Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>
   evaluationState?: boolean | Prisma.InstanceState$evaluationStateArgs<ExtArgs>
   operationStates?: boolean | Prisma.InstanceState$operationStatesArgs<ExtArgs>
   secrets?: boolean | Prisma.InstanceState$secretsArgs<ExtArgs>
@@ -3841,9 +4247,11 @@ export type InstanceStateInclude<ExtArgs extends runtime.Types.Extensions.Intern
 }
 export type InstanceStateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
+  librarySnapshotVersion?: boolean | Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>
 }
 export type InstanceStateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.InstanceState$parentArgs<ExtArgs>
+  librarySnapshotVersion?: boolean | Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>
 }
 
 export type $InstanceStatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3857,6 +4265,10 @@ export type $InstanceStatePayload<ExtArgs extends runtime.Types.Extensions.Inter
      * The child instances, if any.
      */
     children: Prisma.$InstanceStatePayload<ExtArgs>[]
+    /**
+     * The exact snapshot membership used by the last successful operation.
+     */
+    librarySnapshotVersion: Prisma.$LibrarySnapshotVersionPayload<ExtArgs> | null
     /**
      * The evaluation state of this instance.
      */
@@ -4025,6 +4437,14 @@ export type $InstanceStatePayload<ExtArgs extends runtime.Types.Extensions.Inter
      * Whether the instance has resource hooks and requires running program on destroy to properly clean up resources.
      */
     hasResourceHooks: boolean
+    /**
+     * The ID of the complete project library snapshot used by the last successful non-preview operation.
+     */
+    librarySnapshotId: string | null
+    /**
+     * The ID of the direct package version that supplied this instance's component implementation.
+     */
+    libraryPackageVersionId: string | null
   }, ExtArgs["result"]["instanceState"]>
   composites: {}
 }
@@ -4421,6 +4841,7 @@ export interface Prisma__InstanceStateClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   parent<T extends Prisma.InstanceState$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$parentArgs<ExtArgs>>): Prisma.Prisma__InstanceStateClient<runtime.Types.Result.GetResult<Prisma.$InstanceStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.InstanceState$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstanceStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  librarySnapshotVersion<T extends Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$librarySnapshotVersionArgs<ExtArgs>>): Prisma.Prisma__LibrarySnapshotVersionClient<runtime.Types.Result.GetResult<Prisma.$LibrarySnapshotVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   evaluationState<T extends Prisma.InstanceState$evaluationStateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$evaluationStateArgs<ExtArgs>>): Prisma.Prisma__InstanceEvaluationStateClient<runtime.Types.Result.GetResult<Prisma.$InstanceEvaluationStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   operationStates<T extends Prisma.InstanceState$operationStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$operationStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InstanceOperationStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   secrets<T extends Prisma.InstanceState$secretsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.InstanceState$secretsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SecretPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4481,6 +4902,8 @@ export interface InstanceStateFieldRefs {
   readonly currentResourceCount: Prisma.FieldRef<"InstanceState", 'Int'>
   readonly statusFields: Prisma.FieldRef<"InstanceState", 'Json'>
   readonly hasResourceHooks: Prisma.FieldRef<"InstanceState", 'Boolean'>
+  readonly librarySnapshotId: Prisma.FieldRef<"InstanceState", 'String'>
+  readonly libraryPackageVersionId: Prisma.FieldRef<"InstanceState", 'String'>
 }
     
 
@@ -4915,6 +5338,25 @@ export type InstanceState$childrenArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.InstanceStateScalarFieldEnum | Prisma.InstanceStateScalarFieldEnum[]
+}
+
+/**
+ * InstanceState.librarySnapshotVersion
+ */
+export type InstanceState$librarySnapshotVersionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibrarySnapshotVersion
+   */
+  select?: Prisma.LibrarySnapshotVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibrarySnapshotVersion
+   */
+  omit?: Prisma.LibrarySnapshotVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibrarySnapshotVersionInclude<ExtArgs> | null
+  where?: Prisma.LibrarySnapshotVersionWhereInput
 }
 
 /**

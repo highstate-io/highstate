@@ -1,197 +1,195 @@
+import type { ProjectLibraryCatalog, ProjectLibraryDto } from "@highstate/backend"
 import type { ComponentModel, EntityModel } from "@highstate/contract"
-import { applyLibraryUpdate, type LibraryUpdate } from "@highstate/backend/shared"
-import { Index } from "flexsearch"
 
 export const useLibraryStore = defineMultiStore({
   name: "library",
-  getStoreId: (libraryId: string) => `libraries/${libraryId}`,
+  getStoreId: (projectId: string) => `projects/${projectId}/catalog`,
 
-  create: ({ storeId, id: [libraryId], logger, onDeactivated }) => {
+  create: ({ storeId, id: [projectId], logger, onDeactivated }) => {
     return defineStore(storeId, () => {
       const { $client } = useNuxtApp()
-
-      const componentIndex = new Index({ tokenize: "bidirectional" })
-
       const components = shallowReactive<Record<string, ComponentModel>>({})
       const entities = shallowReactive<Record<string, EntityModel>>({})
-
-      const unitSourceHashes = shallowReactive<Map<string, number>>(new Map())
-      const isReloading = ref(false)
+      const catalog = shallowRef<ProjectLibraryCatalog>()
+      const projectLibrary = shallowRef<ProjectLibraryDto>()
+      const unitSourceHashes = shallowReactive(new Map<string, number>())
       const isInitialized = ref(false)
-
-      const { on: onComponentUpdated, trigger: triggerComponentUpdated } =
+      const isReloading = ref(false)
+      const busy = ref(false)
+      const error = ref<string>()
+      const search = ref("")
+      const packageFilter = ref<string[]>([])
+      const sourceFilter = ref<string[]>([])
+      const { on: onComponentUpdated, trigger: componentUpdated } =
         createEventHook<ComponentModel>()
-
-      const { on: onComponentRemoved, trigger: triggerComponentRemoved } = createEventHook<string>()
-      const { on: onEntityUpdated, trigger: triggerEntityUpdated } = createEventHook<EntityModel>()
-      const { on: onEntityRemoved, trigger: triggerEntityRemoved } = createEventHook<string>()
-
-      const { on: onUnitSourceHashChanged, trigger: triggerUnitSourceHashChanged } =
-        createEventHook<{
-          unitType: string
-          sourceHash: number
-        }>()
-
-      const triggerUpdateEvent = (update: LibraryUpdate) => {
-        switch (update.type) {
-          case "reload-started":
-            isReloading.value = true
-            break
-          case "reload-completed":
-            isReloading.value = false
-            break
-          case "component-updated":
-            triggerComponentUpdated(update.component)
-            break
-          case "component-removed":
-            triggerComponentRemoved(update.componentType)
-            break
-          case "entity-updated":
-            triggerEntityUpdated(update.entity)
-            break
-          case "entity-removed":
-            triggerEntityRemoved(update.entityType)
-            break
-        }
-      }
-
-      const addComponentIndex = (component: ComponentModel): void => {
-        const content = `${component.type} ${component.meta.title} ${component.meta.description ?? ""} ${component.meta.category ?? ""}`
-        void componentIndex.add(component.type, content)
-      }
-
-      const updateComponentIndex = async (component: ComponentModel): Promise<void> => {
-        await componentIndex.remove(component.type)
-        addComponentIndex(component)
-      }
-
-      const handleLibraryUpdate = (update: LibraryUpdate): void => {
-        applyLibraryUpdate(components, entities, update)
-        triggerUpdateEvent(update)
-
-        switch (update.type) {
-          case "component-updated":
-            void updateComponentIndex(update.component)
-            break
-          case "component-removed":
-            void componentIndex.remove(update.componentType)
-            break
-        }
-      }
-
-      const initialize = async () => {
-        if (isInitialized.value) {
-          return
-        }
-
-        try {
-          logger.debug({ libraryId }, "initializing library store")
-
-          const library = await $client.library.get.query({ libraryId })
-
-          Object.assign(components, library.components)
-          Object.assign(entities, library.entities)
-
-          for (const component of Object.values(components)) {
-            addComponentIndex(component)
-          }
-
-          const libraryWatchSubscription = $client.library.watch.subscribe(
-            { libraryId },
-            {
-              onData(updates) {
-                for (const update of updates) {
-                  handleLibraryUpdate(update as LibraryUpdate)
-                }
-              },
-            },
-          )
-
-          const unitHashWatchSubscription = $client.library.watchUnitSourceHashes.subscribe(
-            { libraryId },
-            {
-              onData({ unitType, sourceHash }) {
-                const existingSourceHash = unitSourceHashes.get(unitType)
-                if (existingSourceHash === sourceHash) {
-                  return
-                }
-
-                unitSourceHashes.set(unitType, sourceHash)
-                triggerUnitSourceHashChanged({ unitType, sourceHash })
-
-                logger.info({ unitType, sourceHash, libraryId }, "unit source hash updated")
-              },
-            },
-          )
-
-          onDeactivated(() => {
-            logger.debug({ libraryId }, "cleaning up library store subscriptions")
-            libraryWatchSubscription.unsubscribe?.()
-            unitHashWatchSubscription.unsubscribe?.()
-          })
-
-          isInitialized.value = true
-          logger.debug({ libraryId }, "library store initialized successfully")
-        } catch (error) {
-          logger.error({ error, libraryId }, "failed to initialize library store")
-          throw error
-        }
-      }
+      const { on: onComponentRemoved, trigger: componentRemoved } = createEventHook<string>()
+      const { on: onEntityUpdated, trigger: entityUpdated } = createEventHook<EntityModel>()
+      const { on: onEntityRemoved, trigger: entityRemoved } = createEventHook<string>()
+      const { on: onUnitSourceHashChanged, trigger: hashChanged } = createEventHook<{
+        unitType: string
+        sourceHash: number
+      }>()
 
       const ensureUnitSourceHashesLoaded = async (unitTypes: string[], trigger = false) => {
-        const unitTypesToLoad = unitTypes.filter(unitType => !unitSourceHashes.has(unitType))
-        if (unitTypesToLoad.length === 0) {
-          return
-        }
-
-        const sourceHashes = await $client.library.getUnitSourceHashes.query({
-          libraryId,
-          unitTypes: unitTypesToLoad,
+        const types = unitTypes.filter(type => !unitSourceHashes.has(type) && components[type])
+        if (!types.length) return
+        const hashes = await $client.library.getUnitSourceHashes.query({
+          projectId,
+          unitTypes: types,
         })
-
-        for (const { unitType, sourceHash } of sourceHashes) {
-          unitSourceHashes.set(unitType, sourceHash)
-
-          if (trigger) {
-            triggerUnitSourceHashChanged({ unitType, sourceHash })
-          }
+        for (const hash of hashes) {
+          unitSourceHashes.set(hash.unitType, hash.sourceHash)
+          if (trigger) void hashChanged(hash)
         }
       }
 
-      const search = ref("")
-      const debouncedSearch = useDebounce(search, 100)
+      let refreshing: Promise<void> | undefined
+      const refresh = (): Promise<void> => {
+        if (refreshing) return refreshing
+        refreshing = (async () => {
+          const [next, state] = await Promise.all([
+            $client.library.get.query({ projectId }),
+            $client.library.getProjectLibrary.query({ projectId }),
+          ])
+          const changed = JSON.stringify(catalog.value) !== JSON.stringify(next)
+          if (changed) {
+            isReloading.value = true
+            for (const type of Object.keys(components)) {
+              if (!next.model.components[type]) {
+                delete components[type]
+                void componentRemoved(type)
+              }
+            }
+            for (const [type, component] of Object.entries(next.model.components)) {
+              if (JSON.stringify(components[type]) !== JSON.stringify(component)) {
+                components[type] = component
+                void componentUpdated(component)
+              }
+            }
+            for (const type of Object.keys(entities)) {
+              if (!next.model.entities[type]) {
+                delete entities[type]
+                void entityRemoved(type)
+              }
+            }
+            for (const [type, entity] of Object.entries(next.model.entities)) {
+              if (JSON.stringify(entities[type]) !== JSON.stringify(entity)) {
+                entities[type] = entity
+                void entityUpdated(entity)
+              }
+            }
+            const previousHashes = new Map(unitSourceHashes)
+            unitSourceHashes.clear()
+            await ensureUnitSourceHashesLoaded([...previousHashes.keys()])
+            for (const [unitType, sourceHash] of unitSourceHashes) {
+              if (previousHashes.get(unitType) !== sourceHash)
+                void hashChanged({ unitType, sourceHash })
+            }
+            catalog.value = next
+          }
+          projectLibrary.value = state
+        })().finally(() => {
+          refreshing = undefined
+          isReloading.value = false
+        })
+        return refreshing
+      }
 
-      const filteredComponents = computedAsync<ComponentModel[]>(async () => {
-        if (!debouncedSearch.value) {
-          return Object.values(components)
+      const { pause, resume } = useIntervalFn(
+        () => {
+          void refresh().catch(cause => {
+            logger.warn({ error: cause, projectId }, "failed to refresh project catalog")
+            error.value = cause instanceof Error ? cause.message : "Catalog refresh failed"
+          })
+        },
+        3000,
+        { immediate: false },
+      )
+      onDeactivated(pause)
+
+      const initialize = async () => {
+        if (isInitialized.value) return
+        await refresh()
+        isInitialized.value = true
+        resume()
+      }
+
+      const mutate = async (operation: () => Promise<unknown>) => {
+        if (busy.value) return false
+        busy.value = true
+        error.value = undefined
+        try {
+          await operation()
+          return true
+        } catch (cause) {
+          error.value = cause instanceof Error ? cause.message : "Library change failed"
+          return false
+        } finally {
+          try {
+            // a poll already in flight may predate the mutation
+            await refreshing
+            await refresh()
+          } catch (cause) {
+            error.value = cause instanceof Error ? cause.message : "Catalog refresh failed"
+          }
+          busy.value = false
         }
+      }
 
-        const result = await componentIndex.search(debouncedSearch.value)
-
-        const resultArray = Array.isArray(result) ? result : []
-        return resultArray.map(id => components[String(id)]).filter(Boolean)
-      }, [])
+      const matchesFilters = (component: ComponentModel) => {
+        const source = catalog.value?.sources[`components:${component.type}`]
+        return (
+          (!sourceFilter.value.length || (source && sourceFilter.value.includes(source.kind))) &&
+          (!packageFilter.value.length ||
+            (source?.kind === "package" && packageFilter.value.includes(source.packageName)))
+        )
+      }
+      const filteredComponents = computed(() =>
+        Object.values(components).filter(component => {
+          const text = `${component.type} ${component.meta.title} ${component.meta.description ?? ""} ${component.meta.category ?? ""}`
+          return (
+            matchesFilters(component) && text.toLowerCase().includes(search.value.toLowerCase())
+          )
+        }),
+      )
 
       return {
-        libraryId,
-        initialize,
-        ensureUnitSourceHashesLoaded,
-
+        projectId,
         components,
         entities,
-        isReloading,
+        catalog,
+        projectLibrary,
+        unitSourceHashes,
         isInitialized,
-
+        isReloading,
+        busy,
+        error,
+        search,
+        packageFilter,
+        sourceFilter,
+        filteredComponents,
+        matchesFilters,
+        initialize,
+        refresh,
+        ensureUnitSourceHashesLoaded,
         onComponentUpdated,
         onComponentRemoved,
         onEntityUpdated,
         onEntityRemoved,
-
-        search,
-        filteredComponents,
-
-        unitSourceHashes,
         onUnitSourceHashChanged,
+        addPackage: (packageName: string, version: string) =>
+          mutate(() => $client.library.addPackage.mutate({ projectId, packageName, version })),
+        updatePackage: (packageName: string, version?: string) =>
+          mutate(() => $client.library.updatePackage.mutate({ projectId, packageName, version })),
+        removePackage: (packageName: string) =>
+          mutate(() => $client.library.removePackage.mutate({ projectId, packageName })),
+        updateAll: () => mutate(() => $client.library.updateAll.mutate({ projectId })),
+        setLocalOverlay: (enabled: boolean) =>
+          mutate(() => $client.library.setLocalOverlay.mutate({ projectId, enabled })),
+        retryDesiredImage: () =>
+          mutate(() => $client.library.retryDesiredImage.mutate({ projectId })),
+        listPackageVersions: async (packageName: string) =>
+          await $client.library.listPackageVersions.query({ projectId, packageName }),
       }
     })
   },

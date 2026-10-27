@@ -25,11 +25,6 @@ export type WorkerRunOptions = {
   apiKey: string
 
   /**
-   * The path of the API socket to pass to the worker.
-   */
-  apiPath: string
-
-  /**
    * The output stream.
    */
   stdout: NodeJS.WritableStream

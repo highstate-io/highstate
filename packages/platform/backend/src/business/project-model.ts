@@ -89,7 +89,6 @@ export class ProjectModelService {
 
     const filteredInstances = this.filterInstancesWithKnownComponents(
       project.id,
-      project.libraryId,
       instances,
       library.components,
       "project-model",
@@ -169,7 +168,6 @@ export class ProjectModelService {
 
   private filterInstancesWithKnownComponents(
     projectId: string,
-    libraryId: string,
     instances: InstanceModel[],
     components: Record<string, unknown>,
     source: string,
@@ -185,7 +183,6 @@ export class ProjectModelService {
       this.logger.warn(
         {
           projectId,
-          libraryId,
           instanceId: instance.id,
           instanceType: instance.type,
           source,
@@ -197,7 +194,6 @@ export class ProjectModelService {
     return filteredInstances
   }
 
-  /**
   /**
    * Get the appropriate project model backend for the given project.
    *

@@ -34,7 +34,7 @@ import { defineComponent, defineEntity, defineUnit, getInstanceId, z } from "@hi
 import { createId } from "@paralleldrive/cuid2"
 import { type MockedObject, vi } from "vitest"
 import { test } from "../test-utils"
-import { OperationContext } from "./operation-context"
+import { OperationContext, type PinnedOperationLibrary } from "./operation-context"
 
 export interface Deferred<T> {
   promise: Promise<T>
@@ -103,6 +103,7 @@ export interface RunnerTestController {
     update?: {
       operationType?: OperationType
       rawOutputs?: RawPulumiOutputs | null
+      provenance?: { librarySnapshotId: string; libraryPackageVersionId: string }
     },
   ) => void
 }
@@ -137,6 +138,7 @@ export const operationTest = test.extend<{
     instances: InstanceModel[]
     states: InstanceState[]
     library?: LibraryModel
+    pinned?: PinnedOperationLibrary
   }) => Promise<OperationContext>
   setupPersistenceMocks: (input: { instances: InstanceModel[] }) => void
   setupImmediateLocking: () => void
@@ -216,6 +218,7 @@ export const operationTest = test.extend<{
           unitId: stateId as unknown as InstanceId,
           operationType,
           rawOutputs,
+          provenance: update.provenance,
         })
       },
     }
@@ -513,6 +516,8 @@ export const operationTest = test.extend<{
         parentId: null,
         parentInstanceId: instance.parentId ?? null,
         selfHash: null,
+        librarySnapshotId: null,
+        libraryPackageVersionId: null,
         inputHash: 12345,
         outputHash: 12345,
         dependencyOutputHash: 0,
@@ -524,6 +529,11 @@ export const operationTest = test.extend<{
         resolvedInputs: null,
         lastOperationState: {
           operationId: "test-op",
+          librarySnapshotId: null,
+          libraryPackageVersionId: null,
+          previousLibraryPackageVersionId: null,
+          localOverlayActive: false,
+          localOverlayRevision: null,
           stateId: instance.id,
           status: "updated" as InstanceOperationStatus,
           currentResourceCount: null,
@@ -549,6 +559,7 @@ export const operationTest = test.extend<{
     }): Operation => {
       return {
         id: createId(),
+        librarySnapshotId: null,
         meta: {
           title: "Test Operation",
           description: "Orchestrator runtime test",
@@ -595,6 +606,7 @@ export const operationTest = test.extend<{
       instances: InstanceModel[]
       states: InstanceState[]
       library?: LibraryModel
+      pinned?: PinnedOperationLibrary
     }): Promise<OperationContext> => {
       const library = input.library ?? createMockLibrary()
 
@@ -635,6 +647,7 @@ export const operationTest = test.extend<{
         projectModelService,
         undefined,
         logger,
+        input.pinned,
       )
     }
 
@@ -658,6 +671,11 @@ export const operationTest = test.extend<{
             ...instancePatch,
             lastOperationState: {
               operationId: opState.operationId,
+              librarySnapshotId: null,
+              libraryPackageVersionId: null,
+              previousLibraryPackageVersionId: null,
+              localOverlayActive: false,
+              localOverlayRevision: null,
               stateId: opState.stateId,
               status: opState.status,
               currentResourceCount: null,
@@ -690,6 +708,11 @@ export const operationTest = test.extend<{
             ...options.instanceState,
             lastOperationState: {
               operationId,
+              librarySnapshotId: null,
+              libraryPackageVersionId: null,
+              previousLibraryPackageVersionId: null,
+              localOverlayActive: false,
+              localOverlayRevision: null,
               stateId,
               status,
               currentResourceCount: null,

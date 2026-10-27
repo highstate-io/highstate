@@ -97,6 +97,27 @@ message ListProjectsResponse {
   optional string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// UpdateProjectPlacementRequest selects runtime and state storage for future project work.
+message UpdateProjectPlacementRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The runtime used for every project workload.
+  string container_runtime_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The Pulumi state backend used by the project.
+  string pulumi_state_backend_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Explicitly enables or disables the local development overlay during migration.
+  optional bool local_overlay_enabled = 4;
+}
+
+// UpdateProjectPlacementResponse returns the canonical project placement.
+message UpdateProjectPlacementResponse {
+  // The updated project.
+  Project project = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
 // ProjectService provides access to projects.
 service ProjectService {
   // Gets one project and whether it is currently locked.
@@ -104,4 +125,7 @@ service ProjectService {
 
   // Lists projects visible to the authenticated backend API key.
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+
+  // Changes project placement when no active work prevents migration.
+  rpc UpdateProjectPlacement(UpdateProjectPlacementRequest) returns (UpdateProjectPlacementResponse);
 }

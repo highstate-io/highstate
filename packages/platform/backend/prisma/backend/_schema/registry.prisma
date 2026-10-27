@@ -17,6 +17,8 @@ model NpmRegistryCredential {
     /// The encrypted registry authentication material.
     encryptedCredentials String
 
+    revision Int @default(1)
+
     /// The time when the credential was created.
     createdAt DateTime @default(now())
 
@@ -42,6 +44,8 @@ model ContainerRegistryCredential {
 
     /// The encrypted registry authentication material.
     encryptedCredentials String
+
+    revision Int @default(1)
 
     /// The time when the credential was created.
     createdAt DateTime @default(now())

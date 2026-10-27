@@ -14,6 +14,7 @@ import type {
   UnitOutputService,
 } from "../business"
 import type { ArtifactService } from "../business/artifact"
+import type { ProjectLibraryService } from "../business/project-library"
 import type { DatabaseManager, Operation, Project } from "../database"
 import type { LibraryBackend } from "../library"
 import type { RunnerBackend } from "../runner"
@@ -23,11 +24,14 @@ import {
   type OperationPhase,
   type OperationPlanInput,
   operationOptionsSchema,
+  stableJsonStringify,
 } from "../shared"
 import { finalInstanceOperationStatuses } from "../shared/models/project/state"
 import { RuntimeOperation } from "./operation"
 import { OperationContext } from "./operation-context"
 import { createOperationPlan } from "./operation-plan"
+import { type ReviewedPlan, ReviewedPlanSigner } from "./reviewed-plan"
+import { modelRevision } from "./revisions"
 
 export class OperationManager {
   constructor(
@@ -47,6 +51,8 @@ export class OperationManager {
     private readonly projectPortService: ProjectPortService,
     private readonly database: DatabaseManager,
     private readonly logger: Logger,
+    private readonly projectLibrary?: ProjectLibraryService,
+    private readonly planSigner = new ReviewedPlanSigner(),
   ) {
     this.projectUnlockService.registerUnlockTask(
       //
@@ -56,6 +62,7 @@ export class OperationManager {
   }
 
   private readonly runtimeOperations = new Map<string, RuntimeOperation>()
+  private readonly reviewedContexts = new WeakMap<ReviewedPlan, OperationContext>()
 
   /**
    * Plans the project operation without executing it.
@@ -64,6 +71,21 @@ export class OperationManager {
    * @returns The planned phases for the operation.
    */
   async plan(request: OperationPlanInput): Promise<OperationPhase[]> {
+    return (await this.planReviewed(request)).phases
+  }
+
+  async planReviewed(request: OperationPlanInput) {
+    const review = await this.review(request)
+    return {
+      token: this.planSigner.sign(review),
+      phases: review.phases,
+      librarySnapshotId: review.librarySnapshotId,
+      modelRevision: review.modelRevision,
+      localOverlayRevision: review.localOverlayRevision,
+    }
+  }
+
+  private async review(request: OperationPlanInput): Promise<ReviewedPlan> {
     this.logger.info({ request }, "planning operation")
 
     const project = await this.database.backend.project.findUnique({
@@ -74,6 +96,34 @@ export class OperationManager {
       throw new Error(`Project with ID "${request.projectId}" not found`)
     }
 
+    const catalog = await this.projectLibrary?.catalog(request.projectId)
+    const resolved = await this.projectModelService.resolveProject(request.projectId)
+    const revision = modelRevision({
+      instances: resolved.instances,
+      resolvedInputs: resolved.resolvedInputs,
+    })
+    if (catalog) {
+      const database = await this.database.forProject(request.projectId)
+      const evaluations = await database.instanceEvaluationState.findMany({
+        include: { state: { select: { instanceId: true } } },
+      })
+      const evaluatedIds = new Set(evaluations.map(state => state.state.instanceId))
+      if (
+        evaluations.some(
+          state =>
+            state.librarySnapshotId !== catalog.snapshotId ||
+            state.modelRevision !== revision ||
+            state.localOverlayRevision !== (catalog.overlay.revision ?? null) ||
+            !state.evaluationActionId,
+        ) ||
+        resolved.instances.some(
+          instance => instance.kind === "composite" && !evaluatedIds.has(instance.id),
+        )
+      )
+        throw new Error(
+          "Composite evaluation is stale; evaluate the current project before planning",
+        )
+    }
     const context = await OperationContext.load(
       request.projectId,
       this.libraryService,
@@ -81,11 +131,38 @@ export class OperationManager {
       this.projectModelService,
       undefined,
       this.logger,
+      catalog && this.projectLibrary
+        ? {
+            library: catalog.model,
+            snapshotId: catalog.snapshotId,
+            projectLibrary: this.projectLibrary,
+            modelRevision: revision,
+            localOverlayRevision: catalog.overlay.revision ?? null,
+          }
+        : undefined,
     )
 
     const options = operationOptionsSchema.parse(request.options ?? {})
 
-    return createOperationPlan(context, request.type, request.instanceIds, options)
+    const phases = createOperationPlan(context, request.type, request.instanceIds, options)
+    if (
+      catalog &&
+      (await this.projectLibrary!.catalog(request.projectId)).snapshotId !== catalog.snapshotId
+    )
+      throw new Error("Library snapshot changed during planning")
+    const review: ReviewedPlan = {
+      projectId: request.projectId,
+      type: request.type,
+      instanceIds: request.instanceIds,
+      options,
+      phases,
+      librarySnapshotId: catalog?.snapshotId ?? null,
+      modelRevision: revision,
+      localOverlayRevision: catalog?.overlay.revision ?? null,
+      expiresAt: Date.now() + 900_000,
+    }
+    this.reviewedContexts.set(review, context)
+    return review
   }
 
   /**
@@ -95,6 +172,16 @@ export class OperationManager {
    */
   async launch(request: OperationLaunchInput): Promise<Operation> {
     const options = operationOptionsSchema.parse(request.options ?? {})
+    if (request.plan)
+      throw new Error("Client-supplied phases are not accepted; supply a reviewed plan token")
+    const current = await this.review(request)
+    if (request.planToken) {
+      const reviewed = this.planSigner.verify(request.planToken)
+      const { expiresAt: _reviewedExpiry, ...reviewedContent } = reviewed
+      const { expiresAt: _currentExpiry, ...currentContent } = current
+      if (stableJsonStringify(reviewedContent) !== stableJsonStringify(currentContent))
+        throw new Error("Reviewed plan is stale or does not match the launch request")
+    }
 
     const operation = await this.operationService.createOperation(
       request.projectId,
@@ -102,6 +189,7 @@ export class OperationManager {
       request.type,
       request.instanceIds,
       options,
+      { librarySnapshotId: current.librarySnapshotId, phases: current.phases },
     )
 
     this.logger.info({ operation }, "launching operation")
@@ -114,7 +202,16 @@ export class OperationManager {
       throw new Error(`Project with ID "${request.projectId}" not found`)
     }
 
-    this.startOperation(project, operation)
+    const catalog = await this.projectLibrary?.catalog(project.id)
+    if (
+      catalog &&
+      (catalog.snapshotId !== current.librarySnapshotId ||
+        (catalog.overlay.revision ?? null) !== current.localOverlayRevision)
+    ) {
+      await this.operationService.markOperationFinished(project.id, operation.id, "failed")
+      throw new Error("Library changed before operation launch")
+    }
+    this.startOperation(project, operation, this.reviewedContexts.get(current))
 
     return operation
   }
@@ -141,7 +238,11 @@ export class OperationManager {
     return false
   }
 
-  private startOperation(project: Project, operation: Operation): void {
+  private startOperation(
+    project: Project,
+    operation: Operation,
+    pinnedContext?: OperationContext,
+  ): void {
     const runtimeOperation = new RuntimeOperation(
       project,
       operation,
@@ -159,6 +260,8 @@ export class OperationManager {
       this.logger.child({ operationId: operation.id }),
       this.libraryService,
       this.projectPortService,
+      this.projectLibrary,
+      pinnedContext,
     )
 
     this.runtimeOperations.set(operation.id, runtimeOperation)
