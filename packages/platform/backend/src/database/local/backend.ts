@@ -94,7 +94,7 @@ async function createMasterKey(identity: string) {
   return { armoredMasterKey, masterKey, recipient }
 }
 
-async function encryptSecret(secret: string, recipients: Iterable<string>): Promise<string> {
+export async function encryptSecret(secret: string, recipients: Iterable<string>): Promise<string> {
   const encrypter = new Encrypter()
 
   for (const recipient of recipients) {

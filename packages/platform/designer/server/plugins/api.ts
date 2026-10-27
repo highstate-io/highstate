@@ -1,10 +1,13 @@
 import { getSharedServices } from "@highstate/backend"
 import { startBackendApi } from "@highstate/backend-api"
 import { ensureLocalBackendUser } from "../authentication"
+import { isHostedAuth } from "../utils/auth-config"
+import { initializeHostedAuth } from "../utils/auth-initialization"
 
 export default defineNitroPlugin(async _app => {
   const services = await getSharedServices()
-  await ensureLocalBackendUser(services)
+  if (isHostedAuth()) await initializeHostedAuth(services)
+  else await ensureLocalBackendUser(services)
 
   services.logger.debug("starting backend api")
   await startBackendApi(services)

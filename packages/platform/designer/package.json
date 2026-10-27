@@ -3,6 +3,7 @@
   "version": "1.1.0",
   "type": "module",
   "scripts": {
+    "test": "bun run --bun vitest --run",
     "dev": "bun scripts/dev.ts",
     "dev:server": "FORCE_COLOR=true NODE_OPTIONS=--trace-warnings nuxt dev --host | pino-pretty",
     "build": "nuxt build",
@@ -96,6 +97,7 @@
     "zxcvbn-typescript": "^5.0.1"
   },
   "dependencies": {
+    "openid-client": "^6.8.1",
     "@highstate/backend": "workspace:*",
     "@highstate/backend-api": "workspace:*",
     "@highstate/contract": "workspace:*",

@@ -23,6 +23,21 @@ export * from './enums.ts';
  */
 export type BackendApiKey = Prisma.BackendApiKeyModel
 /**
+ * Model DesignerSession
+ * Opaque browser credentials are stored only as SHA-256 hashes.
+ */
+export type DesignerSession = Prisma.DesignerSessionModel
+/**
+ * Model DesignerLoginTransaction
+ * A one-use, browser-bound authorization code transaction.
+ */
+export type DesignerLoginTransaction = Prisma.DesignerLoginTransactionModel
+/**
+ * Model DesignerAuthInitialization
+ * Records bootstrap completion independently of later role/binding deletion.
+ */
+export type DesignerAuthInitialization = Prisma.DesignerAuthInitializationModel
+/**
  * Model ProjectImportPort
  * 
  */

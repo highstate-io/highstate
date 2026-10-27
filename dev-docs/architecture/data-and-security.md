@@ -13,9 +13,28 @@ Unlocking connects these realms and grants one backend temporary access to a pro
 | Runtime memory | Decrypted project material and ephemeral backend state |
 
 Backend and project schemas have separate migration lifecycles.
+Backend persistence can use local encrypted SQLite or PostgreSQL.
+PostgreSQL stores backend federation key metadata encrypted for AGE recipients; it does not encrypt all backend rows.
+Selecting PostgreSQL does not change the per-project encrypted SQLite or artifact encryption boundaries.
+Hosted startup requires a provisioned stable AGE identity, independent of the encrypted metadata in PostgreSQL.
 The Prisma schemas and registered migration packs own exact records, relationships, and migration behavior.
 Filesystem paths, environment variables, and operator procedures belong in public or source-adjacent
 documentation.
+
+## Recovery Boundary
+
+A recovery set spans backend metadata and key envelopes, encrypted project databases, artifacts, authored
+models, and the stable backend identity.
+Restoring one persistence realm independently does not establish a consistent recovered backend.
+Project unlock credentials remain independent of the backend identity.
+
+The Kubernetes deployment supports offline recovery sets by stopping the owning runtime and its Docker
+workloads before capturing the persistent filesystem and PostgreSQL metadata together.
+Encrypted project databases remain opaque files, including their journal companions; no live filesystem
+copy or plaintext SQLite export is part of that procedure.
+An independent bootstrap runtime or operator coordinates the stop, capture, and restart lifecycle.
+The source-owned [Kubernetes application guide](../../packages/standard/k8s.apps/README.md) owns the procedure
+and deployment requirements.
 
 ## Unlock Boundary
 
@@ -36,8 +55,12 @@ requests.
 Backend authorization and project authorization are separate realms.
 Public ConnectRPC requests authenticate API keys and resolve service-account role grants in the applicable
 realm.
-The designer's local tRPC path uses a separate trusted-local user model and is outside the public
-authentication contract.
+The designer defaults to a trusted-local user model.
+Hosted Designer authenticates human identities with OAuth/OIDC and durable opaque browser sessions,
+then resolves user and group role grants independently in the backend and project realms.
+Hosted mode never falls back to operating-system identity, and authentication alone grants no business permissions.
+Explicit configured administrator identities are seeded once per realm; later logins do not restore revoked grants.
+Designer streaming and panel capabilities remain bound to the browser session's expiry and revocation.
 
 Code in the backend API authentication layer, designer tRPC context, business services, and authorization
 schemas owns the exact permission checks.

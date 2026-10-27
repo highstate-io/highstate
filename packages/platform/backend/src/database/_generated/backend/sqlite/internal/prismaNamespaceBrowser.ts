@@ -52,6 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   BackendApiKey: 'BackendApiKey',
+  DesignerSession: 'DesignerSession',
+  DesignerLoginTransaction: 'DesignerLoginTransaction',
+  DesignerAuthInitialization: 'DesignerAuthInitialization',
   ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
@@ -97,6 +100,38 @@ export const BackendApiKeyScalarFieldEnum = {
 } as const
 
 export type BackendApiKeyScalarFieldEnum = (typeof BackendApiKeyScalarFieldEnum)[keyof typeof BackendApiKeyScalarFieldEnum]
+
+
+export const DesignerSessionScalarFieldEnum = {
+  tokenHash: 'tokenHash',
+  userId: 'userId',
+  identity: 'identity',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type DesignerSessionScalarFieldEnum = (typeof DesignerSessionScalarFieldEnum)[keyof typeof DesignerSessionScalarFieldEnum]
+
+
+export const DesignerLoginTransactionScalarFieldEnum = {
+  tokenHash: 'tokenHash',
+  providerId: 'providerId',
+  state: 'state',
+  nonce: 'nonce',
+  codeVerifier: 'codeVerifier',
+  expiresAt: 'expiresAt'
+} as const
+
+export type DesignerLoginTransactionScalarFieldEnum = (typeof DesignerLoginTransactionScalarFieldEnum)[keyof typeof DesignerLoginTransactionScalarFieldEnum]
+
+
+export const DesignerAuthInitializationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt'
+} as const
+
+export type DesignerAuthInitializationScalarFieldEnum = (typeof DesignerAuthInitializationScalarFieldEnum)[keyof typeof DesignerAuthInitializationScalarFieldEnum]
 
 
 export const ProjectImportPortScalarFieldEnum = {

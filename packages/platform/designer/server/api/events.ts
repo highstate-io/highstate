@@ -1,14 +1,36 @@
 import { isDesignerOrigin } from "../utils/designer-host"
+import { getSharedServices } from "@highstate/backend"
+import { isHostedAuth } from "../utils/auth-config"
+import {
+  authenticateHostedSession,
+  monitorHostedSession,
+  requireHostedOrigin,
+  sessionTokenFromHeaders,
+} from "../utils/hosted-session"
+import WebSocket from "ws"
 
 type EventsBridgeState = {
   pendingMessages: string[]
   upstream: WebSocket
+  timer?: ReturnType<typeof setInterval>
 }
 
 const stateByPeerId = new Map<string, EventsBridgeState>()
 
 export default defineWebSocketHandler({
-  upgrade: request => {
+  upgrade: async request => {
+    if (isHostedAuth()) {
+      try {
+        requireHostedOrigin(request.headers)
+        await authenticateHostedSession(
+          await getSharedServices(),
+          sessionTokenFromHeaders(request.headers),
+        )
+      } catch {
+        return new Response("Unauthorized", { status: 401 })
+      }
+      return
+    }
     const origin = request.headers.get("origin")
     const redirectDisabled = process.env.HIGHSTATE_DESIGNER_NO_REDIRECT !== undefined
     if (!origin || !isDesignerOrigin(origin, request.url, redirectDisabled)) {
@@ -16,16 +38,26 @@ export default defineWebSocketHandler({
     }
   },
 
-  open: peer => {
+  open: async peer => {
     const config = useRuntimeConfig()
-    const upstream = new WebSocket(`ws://127.0.0.1:${config.public.eventsPort}`)
-
+    const upstream = new WebSocket(`ws://127.0.0.1:${config.public.eventsPort}`, {
+      headers: isHostedAuth() ? { cookie: peer.request?.headers.get("cookie") ?? "" } : {},
+    })
     const state: EventsBridgeState = {
       pendingMessages: [],
       upstream,
     }
 
     stateByPeerId.set(peer.id, state)
+    if (isHostedAuth())
+      state.timer = monitorHostedSession(
+        await getSharedServices(),
+        peer.request ? sessionTokenFromHeaders(peer.request.headers) : undefined,
+        () => {
+          upstream.close()
+          peer.close(1008, "Session expired or revoked")
+        },
+      )
 
     upstream.addEventListener("open", () => {
       for (const message of state.pendingMessages) {
@@ -36,10 +68,11 @@ export default defineWebSocketHandler({
     })
 
     upstream.addEventListener("message", event => {
-      peer.send(event.data)
+      peer.send(String(event.data))
     })
 
     upstream.addEventListener("close", event => {
+      clearInterval(state.timer)
       stateByPeerId.delete(peer.id)
       peer.close(event.code, event.reason)
     })
@@ -72,6 +105,7 @@ export default defineWebSocketHandler({
     }
 
     state.upstream.close()
+    clearInterval(state.timer)
     stateByPeerId.delete(peer.id)
   },
 })

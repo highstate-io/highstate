@@ -5,3 +5,13 @@ dist
 .nx
 .devenv
 Dockerfile
+.git
+**/.highstate
+**/.env
+**/.env.*
+/projects
+/library
+**/node_modules
+**/dist
+**/.nuxt
+**/.output

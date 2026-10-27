@@ -24,6 +24,7 @@ export const logsRouter = router({
   watchInstanceLogs: publicProcedure
     .input(
       z.object({
+        projectId: z.cuid2(),
         operationId: z.cuid2(),
         stateId: z.cuid2(),
       }),

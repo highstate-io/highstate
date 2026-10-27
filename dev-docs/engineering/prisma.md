@@ -23,7 +23,19 @@ bun run migration:reset:backend
 bun run migration:create:backend -- --name <migration-name>
 ```
 
-The backend has no PostgreSQL migration pack, so do not generate PostgreSQL migrations.
+PostgreSQL has an independent backend migration pack.
+Use a disposable PostgreSQL database with permissions to create the shadow database, and set `DATABASE_URL`
+for both commands:
+
+```bash
+export DATABASE_URL=postgresql://postgres:password@localhost:5432/highstate_migrations
+bun run migration:reset:backend:postgresql
+bun run migration:create:backend:postgresql -- --name <migration-name>
+```
+
+Shared backend schema changes need migrations for both SQLite and PostgreSQL.
+The PostgreSQL bootstrap metadata table is owned by `src/database/postgresql.ts`, outside the Prisma schema,
+because it tracks the version needed to apply the first migration.
 
 ## Registration
 

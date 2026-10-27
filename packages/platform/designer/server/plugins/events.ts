@@ -1,6 +1,8 @@
+import { appRouter } from "../router"
 import { getSharedServices } from "@highstate/backend"
 import { createBunServeHandler } from "trpc-bun-adapter"
-import { appRouter } from "../router"
+import { isHostedAuth } from "../utils/auth-config"
+import { sessionTokenFromHeaders } from "../utils/hosted-session"
 
 export default defineNitroPlugin(async nitro => {
   const config = useRuntimeConfig()
@@ -9,10 +11,13 @@ export default defineNitroPlugin(async nitro => {
   const handler = createBunServeHandler({
     endpoint: "/",
     router: appRouter,
-    createContext: async () => {
+    createContext: async ({ req }: { req: Request }) => {
       const services = await getSharedServices()
 
-      return { ...services }
+      return {
+        ...services,
+        designerSessionToken: isHostedAuth() ? sessionTokenFromHeaders(req.headers) : undefined,
+      }
     },
     onError: ({ error }: { error: unknown }) => {
       logger.error({ error }, "trpc event request failed")

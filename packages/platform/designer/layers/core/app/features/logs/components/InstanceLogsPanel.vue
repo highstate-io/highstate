@@ -23,6 +23,7 @@ const writeLogEntry = (message: string) => {
 // TODO: check operation status
 const { unsubscribe } = $client.logs.watchInstanceLogs.subscribe(
   {
+    projectId: projectStore.projectId,
     operationId,
     stateId,
   },

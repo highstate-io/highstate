@@ -52,6 +52,7 @@ group "images" {
     "core-worker-k8s-monitor",
     "core-worker-k8s-dashboard",
     "apps-exetrouter",
+    "highstate",
   ]
 }
 
@@ -60,6 +61,15 @@ target "_common" {
   labels = {
     "org.opencontainers.image.source" = "https://github.com/highstate-io/highstate"
   }
+}
+
+target "highstate" {
+  inherits   = ["_common"]
+  context    = "."
+  dockerfile = "docker/highstate.dockerfile"
+  tags       = image_tags("highstate")
+  cache-from = cache_from("highstate")
+  cache-to   = cache_to("highstate")
 }
 
 target "apps-exetrouter" {

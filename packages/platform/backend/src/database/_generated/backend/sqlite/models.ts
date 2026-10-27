@@ -9,6 +9,9 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/BackendApiKey.ts'
+export type * from './models/DesignerSession.ts'
+export type * from './models/DesignerLoginTransaction.ts'
+export type * from './models/DesignerAuthInitialization.ts'
 export type * from './models/ProjectImportPort.ts'
 export type * from './models/UserWorkspaceLayout.ts'
 export type * from './models/Library.ts'

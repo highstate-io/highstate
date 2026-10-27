@@ -385,6 +385,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   BackendApiKey: 'BackendApiKey',
+  DesignerSession: 'DesignerSession',
+  DesignerLoginTransaction: 'DesignerLoginTransaction',
+  DesignerAuthInitialization: 'DesignerAuthInitialization',
   ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
@@ -417,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "backendApiKey" | "projectImportPort" | "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendRole" | "userBackendRoleBinding" | "userGroupBackendRoleBinding" | "serviceAccountBackendRoleBinding" | "backendServiceAccount" | "backendServiceAccountProjectBinding" | "backendUnlockMethod" | "user" | "userGroup"
+    modelProps: "backendApiKey" | "designerSession" | "designerLoginTransaction" | "designerAuthInitialization" | "projectImportPort" | "userWorkspaceLayout" | "library" | "object" | "project" | "projectSpace" | "projectModelStorage" | "pulumiBackend" | "backendRole" | "userBackendRoleBinding" | "userGroupBackendRoleBinding" | "serviceAccountBackendRoleBinding" | "backendServiceAccount" | "backendServiceAccountProjectBinding" | "backendUnlockMethod" | "user" | "userGroup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -492,6 +495,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BackendApiKeyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BackendApiKeyCountAggregateOutputType> | number
+        }
+      }
+    }
+    DesignerSession: {
+      payload: Prisma.$DesignerSessionPayload<ExtArgs>
+      fields: Prisma.DesignerSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DesignerSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DesignerSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.DesignerSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DesignerSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>
+        }
+        findMany: {
+          args: Prisma.DesignerSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>[]
+        }
+        create: {
+          args: Prisma.DesignerSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>
+        }
+        createMany: {
+          args: Prisma.DesignerSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DesignerSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.DesignerSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>
+        }
+        update: {
+          args: Prisma.DesignerSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DesignerSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DesignerSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DesignerSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DesignerSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.DesignerSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDesignerSession>
+        }
+        groupBy: {
+          args: Prisma.DesignerSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DesignerSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DesignerSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DesignerSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DesignerLoginTransaction: {
+      payload: Prisma.$DesignerLoginTransactionPayload<ExtArgs>
+      fields: Prisma.DesignerLoginTransactionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DesignerLoginTransactionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DesignerLoginTransactionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>
+        }
+        findFirst: {
+          args: Prisma.DesignerLoginTransactionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DesignerLoginTransactionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>
+        }
+        findMany: {
+          args: Prisma.DesignerLoginTransactionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>[]
+        }
+        create: {
+          args: Prisma.DesignerLoginTransactionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>
+        }
+        createMany: {
+          args: Prisma.DesignerLoginTransactionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DesignerLoginTransactionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>[]
+        }
+        delete: {
+          args: Prisma.DesignerLoginTransactionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>
+        }
+        update: {
+          args: Prisma.DesignerLoginTransactionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DesignerLoginTransactionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DesignerLoginTransactionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DesignerLoginTransactionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DesignerLoginTransactionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerLoginTransactionPayload>
+        }
+        aggregate: {
+          args: Prisma.DesignerLoginTransactionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDesignerLoginTransaction>
+        }
+        groupBy: {
+          args: Prisma.DesignerLoginTransactionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DesignerLoginTransactionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DesignerLoginTransactionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DesignerLoginTransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DesignerAuthInitialization: {
+      payload: Prisma.$DesignerAuthInitializationPayload<ExtArgs>
+      fields: Prisma.DesignerAuthInitializationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DesignerAuthInitializationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DesignerAuthInitializationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
+        }
+        findFirst: {
+          args: Prisma.DesignerAuthInitializationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DesignerAuthInitializationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
+        }
+        findMany: {
+          args: Prisma.DesignerAuthInitializationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>[]
+        }
+        create: {
+          args: Prisma.DesignerAuthInitializationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
+        }
+        createMany: {
+          args: Prisma.DesignerAuthInitializationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DesignerAuthInitializationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>[]
+        }
+        delete: {
+          args: Prisma.DesignerAuthInitializationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
+        }
+        update: {
+          args: Prisma.DesignerAuthInitializationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
+        }
+        deleteMany: {
+          args: Prisma.DesignerAuthInitializationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DesignerAuthInitializationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DesignerAuthInitializationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>[]
+        }
+        upsert: {
+          args: Prisma.DesignerAuthInitializationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
+        }
+        aggregate: {
+          args: Prisma.DesignerAuthInitializationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDesignerAuthInitialization>
+        }
+        groupBy: {
+          args: Prisma.DesignerAuthInitializationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DesignerAuthInitializationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DesignerAuthInitializationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DesignerAuthInitializationCountAggregateOutputType> | number
         }
       }
     }
@@ -1807,6 +2032,38 @@ export const BackendApiKeyScalarFieldEnum = {
 export type BackendApiKeyScalarFieldEnum = (typeof BackendApiKeyScalarFieldEnum)[keyof typeof BackendApiKeyScalarFieldEnum]
 
 
+export const DesignerSessionScalarFieldEnum = {
+  tokenHash: 'tokenHash',
+  userId: 'userId',
+  identity: 'identity',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type DesignerSessionScalarFieldEnum = (typeof DesignerSessionScalarFieldEnum)[keyof typeof DesignerSessionScalarFieldEnum]
+
+
+export const DesignerLoginTransactionScalarFieldEnum = {
+  tokenHash: 'tokenHash',
+  providerId: 'providerId',
+  state: 'state',
+  nonce: 'nonce',
+  codeVerifier: 'codeVerifier',
+  expiresAt: 'expiresAt'
+} as const
+
+export type DesignerLoginTransactionScalarFieldEnum = (typeof DesignerLoginTransactionScalarFieldEnum)[keyof typeof DesignerLoginTransactionScalarFieldEnum]
+
+
+export const DesignerAuthInitializationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt'
+} as const
+
+export type DesignerAuthInitializationScalarFieldEnum = (typeof DesignerAuthInitializationScalarFieldEnum)[keyof typeof DesignerAuthInitializationScalarFieldEnum]
+
+
 export const ProjectImportPortScalarFieldEnum = {
   projectId: 'projectId',
   sourceProjectId: 'sourceProjectId',
@@ -2208,6 +2465,9 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   backendApiKey?: Prisma.BackendApiKeyOmit
+  designerSession?: Prisma.DesignerSessionOmit
+  designerLoginTransaction?: Prisma.DesignerLoginTransactionOmit
+  designerAuthInitialization?: Prisma.DesignerAuthInitializationOmit
   projectImportPort?: Prisma.ProjectImportPortOmit
   userWorkspaceLayout?: Prisma.UserWorkspaceLayoutOmit
   library?: Prisma.LibraryOmit
