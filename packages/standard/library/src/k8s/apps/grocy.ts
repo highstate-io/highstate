@@ -19,7 +19,7 @@ export const grocy = defineUnit({
 
   args: {
     ...appName("grocy"),
-    ...pick(sharedArgs, ["fqdn"]),
+    ...pick(sharedArgs, ["fqdn", "dnsChallengeAlias"]),
   },
   secrets: {
     ...pick(sharedSecrets, ["backupKey"]),

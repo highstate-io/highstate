@@ -94,6 +94,11 @@ export const tlsIssuerEntity = defineEntity({
     zones: z.string().array(),
 
     /**
+     * Whether this issuer follows CNAME aliases for ACME DNS01 challenges.
+     */
+    supportsDnsChallengeAliases: z.boolean().optional(),
+
+    /**
      * The reference to the implementation of the TLS issuer.
      */
     implRef: implementationReferenceSchema,

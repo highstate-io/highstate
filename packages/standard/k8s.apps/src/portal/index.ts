@@ -23,6 +23,7 @@ Deployment.create(args.appName, {
     type: "http",
     accessPoint: inputs.accessPoint,
     fqdn: args.fqdn,
+    dnsChallengeAlias: args.dnsChallengeAlias,
   },
 })
 

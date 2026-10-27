@@ -8,6 +8,7 @@ const certificate = new TlsCertificate(name, {
   issuer: inputs.issuer,
   commonName: args.commonName,
   dnsNames: args.dnsNames,
+  dnsChallengeAliases: args.dnsChallengeAliases,
   privateKey: args.privateKey,
   usages: args.usages,
 })

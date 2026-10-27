@@ -69,6 +69,7 @@ Deployment.create(args.appName, {
         type: "http",
         accessPoint: inputs.accessPoint,
         fqdn: args.fqdn,
+        dnsChallengeAlias: args.dnsChallengeAlias,
         rules: {
           feed: {
             servicePort: "feed",
@@ -86,6 +87,7 @@ Deployment.create(args.appName, {
         type: "http",
         accessPoint: inputs.accessPoint,
         fqdn: args.fqdn,
+        dnsChallengeAlias: args.dnsChallengeAlias,
       },
 })
 

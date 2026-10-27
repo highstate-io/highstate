@@ -19,7 +19,7 @@ export const codeServer = defineUnit({
 
   args: {
     ...appName("code-server"),
-    ...pick(sharedArgs, ["fqdn"]),
+    ...pick(sharedArgs, ["fqdn", "dnsChallengeAlias"]),
   },
 
   secrets: {

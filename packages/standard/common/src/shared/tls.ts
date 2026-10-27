@@ -10,6 +10,7 @@ import {
   output,
   type Resource,
 } from "@highstate/pulumi"
+import { isDnsNameInZone, validateDnsChallengeAliases } from "./dns-challenge"
 import { ImplementationMediator } from "./impl-ref"
 
 export type TlsCertificateResult = {
@@ -44,6 +45,12 @@ export type TlsCertificateSpec = {
    * The alternative DNS names for the certificate.
    */
   dnsNames?: InputArray<string>
+
+  /**
+   * The delegated TXT record locations, keyed by certificate DNS name.
+   * The corresponding _acme-challenge CNAME must already exist.
+   */
+  dnsChallengeAliases?: Input<Record<string, string>>
 
   /**
    * The private key configuration for the certificate.
@@ -95,22 +102,30 @@ export class TlsCertificate extends ComponentResource {
       issuers,
       commonName: args.commonName,
       dnsNames: args.dnsNames,
+      dnsChallengeAliases: args.dnsChallengeAliases,
       privateKey: args.privateKey,
       usages: args.usages,
-    }).apply(async ({ issuers, commonName, dnsNames, privateKey }) => {
+    }).apply(async ({ issuers, commonName, dnsNames, dnsChallengeAliases, privateKey }) => {
+      const aliases = dnsChallengeAliases ?? {}
+      const names = [...new Set([...(commonName ? [commonName] : []), ...(dnsNames ?? [])])]
+      const issuerNames = await validateDnsChallengeAliases(names, aliases)
+      const hasAliases = Object.keys(aliases).length > 0
+
       // for now, we require single issuer to match all requested names
       const matchedIssuer = issuers.find(issuer => {
-        if (commonName && !issuer.zones.some(zone => commonName.endsWith(zone))) {
+        if (hasAliases && !issuer.supportsDnsChallengeAliases) {
           return false
         }
 
-        if (dnsNames && !dnsNames.every(name => issuer.zones.some(zone => name.endsWith(zone)))) {
-          return false
-        }
-
-        return true
+        return issuerNames.every(name => issuer.zones.some(zone => isDnsNameInZone(name, zone)))
       })
       if (!matchedIssuer) {
+        if (hasAliases) {
+          throw new Error(
+            `No TLS issuer supporting DNS challenge aliases matched "${issuerNames.join(", ")}"`,
+          )
+        }
+
         if (commonName && dnsNames && dnsNames.length > 0) {
           const dnsNameList = dnsNames.join(", ")
 
@@ -137,10 +152,12 @@ export class TlsCertificate extends ComponentResource {
         spec: {
           commonName,
           dnsNames,
+          dnsChallengeAliases: aliases,
           privateKey,
           usages: args.usages,
           metadata: args.metadata,
         },
+        opts: { ...opts, parent: this },
       })
     })
 

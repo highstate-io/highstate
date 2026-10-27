@@ -20,7 +20,7 @@ export const rustfs = defineUnit({
 
   args: {
     ...appName("rustfs"),
-    ...pick(optionalSharedArgs, ["fqdn", "namespace"]),
+    ...pick(optionalSharedArgs, ["fqdn", "dnsChallengeAlias", "namespace"]),
     ...pick(sharedArgs, ["external", "values", "patches", "service", "scheduling"]),
 
     /**

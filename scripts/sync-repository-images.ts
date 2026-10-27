@@ -25,7 +25,11 @@ const bake = JSON.parse(await readFile(bakePath, "utf8"))
 const imageNames = new Set<string>(
   bake.group.images.targets.map((target: string) => {
     const tag = bake.target[target].tags[0] as string
-    return tag.slice(tag.lastIndexOf("/") + 1, tag.lastIndexOf(":"))
+    if (!tag.startsWith(`${prefix}/`)) {
+      throw new Error(`Unexpected image prefix in "${tag}"`)
+    }
+
+    return tag.slice(prefix.length + 1, tag.lastIndexOf(":"))
   }),
 )
 

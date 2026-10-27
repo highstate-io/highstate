@@ -9,6 +9,7 @@
     "./code-server": "./dist/code-server/index.js",
     "./envoy-gateway": "./dist/envoy-gateway/index.js",
     "./etcd": "./dist/etcd/index.js",
+    "./exetrouter": "./dist/exetrouter/index.js",
     "./grafana": "./dist/grafana/index.js",
     "./grocy": "./dist/grocy/index.js",
     "./hubble": "./dist/hubble/index.js",

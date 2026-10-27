@@ -56,6 +56,7 @@ const chart = new Chart(
       type: "http",
       accessPoint: inputs.accessPoint,
       fqdn: args.fqdn,
+      dnsChallengeAlias: args.dnsChallengeAlias,
     },
   },
   { dependsOn: adminSecret, deletedWith: namespace },

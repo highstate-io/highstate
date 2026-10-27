@@ -10,7 +10,7 @@ export const portal = defineUnit({
 
   args: {
     ...appName("portal"),
-    ...pick(sharedArgs, ["fqdn"]),
+    ...pick(sharedArgs, ["fqdn", "dnsChallengeAlias"]),
   },
 
   inputs: {
