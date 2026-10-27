@@ -55,11 +55,6 @@ export type DesignerSession = Prisma.DesignerSessionModel
  */
 export type DesignerLoginTransaction = Prisma.DesignerLoginTransactionModel
 /**
- * Model DesignerAuthInitialization
- * Records bootstrap completion independently of later role/binding deletion.
- */
-export type DesignerAuthInitialization = Prisma.DesignerAuthInitializationModel
-/**
  * Model ProjectImportPort
  * 
  */

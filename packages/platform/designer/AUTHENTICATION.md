@@ -78,10 +78,12 @@ OIDC identity derivation remains compatible with existing users.
 OAuth identities use a separate protocol namespace and the configured stable authority.
 Changing an authority changes the resulting identities.
 
-Configured administrator IDs receive the existing administrator role once in the backend realm at startup.
-Each project seeds those explicit IDs once when its human authorization is first initialized.
-The initialization records persist even if an administrator binding is later removed.
-Changing environment variables or logging in again does not restore bindings in an initialized realm.
+Configured administrator IDs receive the existing administrator role in the backend realm at every startup.
+Project authorization initialization reapplies those grants before resolving hosted project permissions.
+Deleting a configured administrator binding is temporary: the next initialization restores it.
+To revoke a configured grant permanently, remove its ID from deployment configuration, restart Designer,
+and delete the existing binding in each affected realm.
+Removing an ID from configuration does not delete persisted bindings automatically.
 There is no first-login administrator rule.
 
 Other users receive only roles explicitly bound to their user ID or asserted group IDs in the applicable realm.
@@ -119,8 +121,8 @@ Hosted panels require their own panel cookie; origin-based active-session fallba
 
 ## Database deployment
 
-Apply backend migrations for `DesignerSession`, `DesignerLoginTransaction`, and `DesignerAuthInitialization`,
+Apply backend migrations for `DesignerSession` and `DesignerLoginTransaction`,
 and the backend `UserType.oauth` value before starting hosted Designer.
-Project migrations must add `DesignerAuthInitialization` and `UserType.oauth`.
+The project client must support `UserType.oauth`; SQLite stores user types as text and needs no schema migration for it.
 Regenerate both backend clients and the project client after schema changes.
 Keep authorization-code transaction records private: they contain short-lived PKCE verifiers.

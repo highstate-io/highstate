@@ -79,7 +79,9 @@ bun -e 'import { getOidcUserId, getOidcUserGroupId } from "@highstate/backend"; 
 
 For OAuth2 profiles, use `getOAuthUserId(authority, subject)` and `getOAuthUserGroupId(authority, group)`.
 The authority or OIDC issuer must match the provider configuration exactly.
-Admin grants are initialized once by hosted authentication; changing these arguments is not a role-management API.
+Hosted authentication reapplies configured admin grants during backend and project authorization initialization.
+To revoke a grant permanently, remove the configured ID, redeploy, and delete its existing bindings in each realm.
+Removing an ID from configuration does not automatically delete existing bindings.
 
 The unit generates stable `backendIdentity` and `backupKey` secrets through Highstate's secret lifecycle.
 For recovery, supply the original `backendIdentity` explicitly.

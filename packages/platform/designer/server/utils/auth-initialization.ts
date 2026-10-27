@@ -5,11 +5,8 @@ export async function initializeHostedAuth(services: Services): Promise<void> {
   const config = getHostedAuthConfig()
   if (process.env.HIGHSTATE_BACKEND_DATABASE_TYPE !== "postgresql")
     throw new Error("Hosted authentication requires HIGHSTATE_BACKEND_DATABASE_TYPE=postgresql")
+  if (!config.adminUserIds.length && !config.adminGroupIds.length) return
   await services.database.backend.$transaction(async database => {
-    if (await database.designerAuthInitialization.findUnique({ where: { id: "hosted-admin-v1" } }))
-      return
-    // A unique marker makes concurrent initialization transactional and prevents reseeding deleted grants.
-    await database.designerAuthInitialization.create({ data: { id: "hosted-admin-v1" } })
     const role = await database.backendRole.findUniqueOrThrow({ where: { systemName: "admin" } })
     for (const id of config.adminUserIds) {
       await database.user.upsert({
@@ -43,11 +40,9 @@ export async function initializeHostedProjectAuth(
   projectId: string,
 ): Promise<void> {
   const config = getHostedAuthConfig()
+  if (!config.adminUserIds.length && !config.adminGroupIds.length) return
   const project = await services.database.forProject(projectId)
   await project.$transaction(async database => {
-    if (await database.designerAuthInitialization.findUnique({ where: { id: "hosted-admin-v1" } }))
-      return
-    await database.designerAuthInitialization.create({ data: { id: "hosted-admin-v1" } })
     const role = await database.role.findUniqueOrThrow({ where: { systemName: "admin" } })
     for (const id of config.adminUserIds) {
       await database.user.upsert({

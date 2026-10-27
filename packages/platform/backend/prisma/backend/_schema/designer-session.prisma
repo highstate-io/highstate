@@ -24,9 +24,3 @@ model DesignerLoginTransaction {
 
   @@index([expiresAt])
 }
-
-/// Records bootstrap completion independently of later role/binding deletion.
-model DesignerAuthInitialization {
-  id String @id
-  createdAt DateTime @default(now())
-}

@@ -188,6 +188,7 @@ export type DesignerSessionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"DesignerSession"> | Date | string
   expiresAt?: Prisma.DateTimeFilter<"DesignerSession"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"DesignerSession"> | Date | string | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type DesignerSessionOrderByWithRelationInput = {
@@ -197,6 +198,7 @@ export type DesignerSessionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type DesignerSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -209,6 +211,7 @@ export type DesignerSessionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"DesignerSession"> | Date | string
   expiresAt?: Prisma.DateTimeFilter<"DesignerSession"> | Date | string
   revokedAt?: Prisma.DateTimeNullableFilter<"DesignerSession"> | Date | string | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "tokenHash">
 
 export type DesignerSessionOrderByWithAggregationInput = {
@@ -237,11 +240,11 @@ export type DesignerSessionScalarWhereWithAggregatesInput = {
 
 export type DesignerSessionCreateInput = {
   tokenHash: string
-  userId: string
   identity:PrismaJson.DesignerIdentity
   createdAt?: Date | string
   expiresAt: Date | string
   revokedAt?: Date | string | null
+  user: Prisma.UserCreateNestedOneWithoutDesignerSessionsInput
 }
 
 export type DesignerSessionUncheckedCreateInput = {
@@ -255,11 +258,11 @@ export type DesignerSessionUncheckedCreateInput = {
 
 export type DesignerSessionUpdateInput = {
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   identity?:PrismaJson.DesignerIdentity
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  user?: Prisma.UserUpdateOneRequiredWithoutDesignerSessionsNestedInput
 }
 
 export type DesignerSessionUncheckedUpdateInput = {
@@ -282,7 +285,6 @@ export type DesignerSessionCreateManyInput = {
 
 export type DesignerSessionUpdateManyMutationInput = {
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   identity?:PrismaJson.DesignerIdentity
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,6 +325,143 @@ export type DesignerSessionMinOrderByAggregateInput = {
   revokedAt?: Prisma.SortOrder
 }
 
+export type DesignerSessionListRelationFilter = {
+  every?: Prisma.DesignerSessionWhereInput
+  some?: Prisma.DesignerSessionWhereInput
+  none?: Prisma.DesignerSessionWhereInput
+}
+
+export type DesignerSessionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type DesignerSessionCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.DesignerSessionCreateWithoutUserInput, Prisma.DesignerSessionUncheckedCreateWithoutUserInput> | Prisma.DesignerSessionCreateWithoutUserInput[] | Prisma.DesignerSessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.DesignerSessionCreateOrConnectWithoutUserInput | Prisma.DesignerSessionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.DesignerSessionCreateManyUserInputEnvelope
+  connect?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+}
+
+export type DesignerSessionUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.DesignerSessionCreateWithoutUserInput, Prisma.DesignerSessionUncheckedCreateWithoutUserInput> | Prisma.DesignerSessionCreateWithoutUserInput[] | Prisma.DesignerSessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.DesignerSessionCreateOrConnectWithoutUserInput | Prisma.DesignerSessionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.DesignerSessionCreateManyUserInputEnvelope
+  connect?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+}
+
+export type DesignerSessionUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.DesignerSessionCreateWithoutUserInput, Prisma.DesignerSessionUncheckedCreateWithoutUserInput> | Prisma.DesignerSessionCreateWithoutUserInput[] | Prisma.DesignerSessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.DesignerSessionCreateOrConnectWithoutUserInput | Prisma.DesignerSessionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.DesignerSessionUpsertWithWhereUniqueWithoutUserInput | Prisma.DesignerSessionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.DesignerSessionCreateManyUserInputEnvelope
+  set?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  disconnect?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  delete?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  connect?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  update?: Prisma.DesignerSessionUpdateWithWhereUniqueWithoutUserInput | Prisma.DesignerSessionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.DesignerSessionUpdateManyWithWhereWithoutUserInput | Prisma.DesignerSessionUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.DesignerSessionScalarWhereInput | Prisma.DesignerSessionScalarWhereInput[]
+}
+
+export type DesignerSessionUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.DesignerSessionCreateWithoutUserInput, Prisma.DesignerSessionUncheckedCreateWithoutUserInput> | Prisma.DesignerSessionCreateWithoutUserInput[] | Prisma.DesignerSessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.DesignerSessionCreateOrConnectWithoutUserInput | Prisma.DesignerSessionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.DesignerSessionUpsertWithWhereUniqueWithoutUserInput | Prisma.DesignerSessionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.DesignerSessionCreateManyUserInputEnvelope
+  set?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  disconnect?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  delete?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  connect?: Prisma.DesignerSessionWhereUniqueInput | Prisma.DesignerSessionWhereUniqueInput[]
+  update?: Prisma.DesignerSessionUpdateWithWhereUniqueWithoutUserInput | Prisma.DesignerSessionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.DesignerSessionUpdateManyWithWhereWithoutUserInput | Prisma.DesignerSessionUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.DesignerSessionScalarWhereInput | Prisma.DesignerSessionScalarWhereInput[]
+}
+
+export type DesignerSessionCreateWithoutUserInput = {
+  tokenHash: string
+  identity:PrismaJson.DesignerIdentity
+  createdAt?: Date | string
+  expiresAt: Date | string
+  revokedAt?: Date | string | null
+}
+
+export type DesignerSessionUncheckedCreateWithoutUserInput = {
+  tokenHash: string
+  identity:PrismaJson.DesignerIdentity
+  createdAt?: Date | string
+  expiresAt: Date | string
+  revokedAt?: Date | string | null
+}
+
+export type DesignerSessionCreateOrConnectWithoutUserInput = {
+  where: Prisma.DesignerSessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.DesignerSessionCreateWithoutUserInput, Prisma.DesignerSessionUncheckedCreateWithoutUserInput>
+}
+
+export type DesignerSessionCreateManyUserInputEnvelope = {
+  data: Prisma.DesignerSessionCreateManyUserInput | Prisma.DesignerSessionCreateManyUserInput[]
+}
+
+export type DesignerSessionUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.DesignerSessionWhereUniqueInput
+  update: Prisma.XOR<Prisma.DesignerSessionUpdateWithoutUserInput, Prisma.DesignerSessionUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.DesignerSessionCreateWithoutUserInput, Prisma.DesignerSessionUncheckedCreateWithoutUserInput>
+}
+
+export type DesignerSessionUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.DesignerSessionWhereUniqueInput
+  data: Prisma.XOR<Prisma.DesignerSessionUpdateWithoutUserInput, Prisma.DesignerSessionUncheckedUpdateWithoutUserInput>
+}
+
+export type DesignerSessionUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.DesignerSessionScalarWhereInput
+  data: Prisma.XOR<Prisma.DesignerSessionUpdateManyMutationInput, Prisma.DesignerSessionUncheckedUpdateManyWithoutUserInput>
+}
+
+export type DesignerSessionScalarWhereInput = {
+  AND?: Prisma.DesignerSessionScalarWhereInput | Prisma.DesignerSessionScalarWhereInput[]
+  OR?: Prisma.DesignerSessionScalarWhereInput[]
+  NOT?: Prisma.DesignerSessionScalarWhereInput | Prisma.DesignerSessionScalarWhereInput[]
+  tokenHash?: Prisma.StringFilter<"DesignerSession"> | string
+  userId?: Prisma.StringFilter<"DesignerSession"> | string
+  identity?: Prisma.JsonFilter<"DesignerSession">
+  createdAt?: Prisma.DateTimeFilter<"DesignerSession"> | Date | string
+  expiresAt?: Prisma.DateTimeFilter<"DesignerSession"> | Date | string
+  revokedAt?: Prisma.DateTimeNullableFilter<"DesignerSession"> | Date | string | null
+}
+
+export type DesignerSessionCreateManyUserInput = {
+  tokenHash: string
+  identity:PrismaJson.DesignerIdentity
+  createdAt?: Date | string
+  expiresAt: Date | string
+  revokedAt?: Date | string | null
+}
+
+export type DesignerSessionUpdateWithoutUserInput = {
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  identity?:PrismaJson.DesignerIdentity
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type DesignerSessionUncheckedUpdateWithoutUserInput = {
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  identity?:PrismaJson.DesignerIdentity
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type DesignerSessionUncheckedUpdateManyWithoutUserInput = {
+  tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  identity?:PrismaJson.DesignerIdentity
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 
 
 export type DesignerSessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -332,6 +471,7 @@ export type DesignerSessionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   createdAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["designerSession"]>
 
 export type DesignerSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -341,6 +481,7 @@ export type DesignerSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   createdAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["designerSession"]>
 
 export type DesignerSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -350,6 +491,7 @@ export type DesignerSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   createdAt?: boolean
   expiresAt?: boolean
   revokedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["designerSession"]>
 
 export type DesignerSessionSelectScalar = {
@@ -362,10 +504,21 @@ export type DesignerSessionSelectScalar = {
 }
 
 export type DesignerSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"tokenHash" | "userId" | "identity" | "createdAt" | "expiresAt" | "revokedAt", ExtArgs["result"]["designerSession"]>
+export type DesignerSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type DesignerSessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
+export type DesignerSessionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $DesignerSessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DesignerSession"
-  objects: {}
+  objects: {
+    user: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     tokenHash: string
     userId: string
@@ -770,6 +923,7 @@ readonly fields: DesignerSessionFieldRefs;
  */
 export interface Prisma__DesignerSessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -822,6 +976,10 @@ export type DesignerSessionFindUniqueArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
+  /**
    * Filter, which DesignerSession to fetch.
    */
   where: Prisma.DesignerSessionWhereUniqueInput
@@ -840,6 +998,10 @@ export type DesignerSessionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
+  /**
    * Filter, which DesignerSession to fetch.
    */
   where: Prisma.DesignerSessionWhereUniqueInput
@@ -857,6 +1019,10 @@ export type DesignerSessionFindFirstArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the DesignerSession
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
   /**
    * Filter, which DesignerSession to fetch.
    */
@@ -906,6 +1072,10 @@ export type DesignerSessionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
+  /**
    * Filter, which DesignerSession to fetch.
    */
   where?: Prisma.DesignerSessionWhereInput
@@ -954,6 +1124,10 @@ export type DesignerSessionFindManyArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
+  /**
    * Filter, which DesignerSessions to fetch.
    */
   where?: Prisma.DesignerSessionWhereInput
@@ -997,6 +1171,10 @@ export type DesignerSessionCreateArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
+  /**
    * The data needed to create a DesignerSession.
    */
   data: Prisma.XOR<Prisma.DesignerSessionCreateInput, Prisma.DesignerSessionUncheckedCreateInput>
@@ -1028,6 +1206,10 @@ export type DesignerSessionCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many DesignerSessions.
    */
   data: Prisma.DesignerSessionCreateManyInput | Prisma.DesignerSessionCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1042,6 +1224,10 @@ export type DesignerSessionUpdateArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the DesignerSession
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
   /**
    * The data needed to update a DesignerSession.
    */
@@ -1094,6 +1280,10 @@ export type DesignerSessionUpdateManyAndReturnArgs<ExtArgs extends runtime.Types
    * Limit how many DesignerSessions to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1108,6 +1298,10 @@ export type DesignerSessionUpsertArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the DesignerSession
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
   /**
    * The filter to search for the DesignerSession to update in case it exists.
    */
@@ -1134,6 +1328,10 @@ export type DesignerSessionDeleteArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the DesignerSession
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
   /**
    * Filter which DesignerSession to delete.
    */
@@ -1166,4 +1364,8 @@ export type DesignerSessionDefaultArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the DesignerSession
    */
   omit?: Prisma.DesignerSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DesignerSessionInclude<ExtArgs> | null
 }

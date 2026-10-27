@@ -59,7 +59,8 @@ The designer defaults to a trusted-local user model.
 Hosted Designer authenticates human identities with OAuth/OIDC and durable opaque browser sessions,
 then resolves user and group role grants independently in the backend and project realms.
 Hosted mode never falls back to operating-system identity, and authentication alone grants no business permissions.
-Explicit configured administrator identities are seeded once per realm; later logins do not restore revoked grants.
+Deployment-configured administrator identities receive grants during realm initialization.
+Revoking those grants permanently requires removing the deployment configuration and the persisted bindings.
 Designer streaming and panel capabilities remain bound to the browser session's expiry and revocation.
 
 Code in the backend API authentication layer, designer tRPC context, business services, and authorization

@@ -387,7 +387,6 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Artifact: 'Artifact',
   InstanceCustomStatus: 'InstanceCustomStatus',
-  DesignerAuthInitialization: 'DesignerAuthInitialization',
   Entity: 'Entity',
   EntitySnapshot: 'EntitySnapshot',
   EntitySnapshotReference: 'EntitySnapshotReference',
@@ -436,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "designerAuthInitialization" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "role" | "userRoleBinding" | "userGroupRoleBinding" | "serviceAccountRoleBinding" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "user" | "userGroup" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
+    modelProps: "apiKey" | "artifact" | "instanceCustomStatus" | "entity" | "entitySnapshot" | "entitySnapshotReference" | "entitySnapshotContent" | "instanceEvaluationState" | "instanceState" | "userProjectViewport" | "userCompositeViewport" | "instanceLock" | "instanceModel" | "hubModel" | "operation" | "instanceOperationState" | "operationLog" | "page" | "panel" | "role" | "userRoleBinding" | "userGroupRoleBinding" | "serviceAccountRoleBinding" | "secret" | "serviceAccount" | "terminal" | "terminalSession" | "terminalSessionLog" | "trigger" | "unlockMethod" | "user" | "userGroup" | "worker" | "workerVersion" | "workerUnitRegistration" | "workerVersionLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -659,80 +658,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.InstanceCustomStatusCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InstanceCustomStatusCountAggregateOutputType> | number
-        }
-      }
-    }
-    DesignerAuthInitialization: {
-      payload: Prisma.$DesignerAuthInitializationPayload<ExtArgs>
-      fields: Prisma.DesignerAuthInitializationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DesignerAuthInitializationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DesignerAuthInitializationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
-        }
-        findFirst: {
-          args: Prisma.DesignerAuthInitializationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DesignerAuthInitializationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
-        }
-        findMany: {
-          args: Prisma.DesignerAuthInitializationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>[]
-        }
-        create: {
-          args: Prisma.DesignerAuthInitializationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
-        }
-        createMany: {
-          args: Prisma.DesignerAuthInitializationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.DesignerAuthInitializationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>[]
-        }
-        delete: {
-          args: Prisma.DesignerAuthInitializationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
-        }
-        update: {
-          args: Prisma.DesignerAuthInitializationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
-        }
-        deleteMany: {
-          args: Prisma.DesignerAuthInitializationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DesignerAuthInitializationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.DesignerAuthInitializationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>[]
-        }
-        upsert: {
-          args: Prisma.DesignerAuthInitializationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DesignerAuthInitializationPayload>
-        }
-        aggregate: {
-          args: Prisma.DesignerAuthInitializationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDesignerAuthInitialization>
-        }
-        groupBy: {
-          args: Prisma.DesignerAuthInitializationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DesignerAuthInitializationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DesignerAuthInitializationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DesignerAuthInitializationCountAggregateOutputType> | number
         }
       }
     }
@@ -3257,14 +3182,6 @@ export const InstanceCustomStatusScalarFieldEnum = {
 export type InstanceCustomStatusScalarFieldEnum = (typeof InstanceCustomStatusScalarFieldEnum)[keyof typeof InstanceCustomStatusScalarFieldEnum]
 
 
-export const DesignerAuthInitializationScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt'
-} as const
-
-export type DesignerAuthInitializationScalarFieldEnum = (typeof DesignerAuthInitializationScalarFieldEnum)[keyof typeof DesignerAuthInitializationScalarFieldEnum]
-
-
 export const EntityScalarFieldEnum = {
   id: 'id',
   type: 'type',
@@ -3930,7 +3847,6 @@ export type GlobalOmitConfig = {
   apiKey?: Prisma.ApiKeyOmit
   artifact?: Prisma.ArtifactOmit
   instanceCustomStatus?: Prisma.InstanceCustomStatusOmit
-  designerAuthInitialization?: Prisma.DesignerAuthInitializationOmit
   entity?: Prisma.EntityOmit
   entitySnapshot?: Prisma.EntitySnapshotOmit
   entitySnapshotReference?: Prisma.EntitySnapshotReferenceOmit

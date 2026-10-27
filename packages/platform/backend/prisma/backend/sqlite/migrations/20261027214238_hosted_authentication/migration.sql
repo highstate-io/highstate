@@ -19,12 +19,6 @@ CREATE TABLE "DesignerLoginTransaction" (
     "expiresAt" DATETIME NOT NULL
 );
 
--- CreateTable
-CREATE TABLE "DesignerAuthInitialization" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 -- CreateIndex
 CREATE INDEX "DesignerSession_userId_idx" ON "DesignerSession"("userId");
 
