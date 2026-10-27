@@ -60,6 +60,7 @@ export class SecretSettingsService {
         serviceAccount: { select: { meta: true } },
       },
     })
+
     if (!secret) {
       return null
     }
@@ -79,6 +80,7 @@ export class SecretSettingsService {
       where: { id: secretId },
       select: { id: true, content: true, serviceAccountId: true },
     })
+
     if (!secret) {
       return null
     }

@@ -240,6 +240,7 @@ export class EntitySettingsService {
         },
       },
     })
+
     if (!entity) {
       return null
     }
@@ -300,6 +301,7 @@ export class EntitySettingsService {
         },
       },
     })
+
     if (!snapshot) {
       return null
     }
@@ -507,6 +509,7 @@ export class EntitySettingsService {
         },
       },
     })
+
     if (!snapshot) {
       return { items: [] }
     }
@@ -615,6 +618,7 @@ export class EntitySettingsService {
         },
       },
     })
+
     if (!snapshot) {
       return { items: [] }
     }
@@ -723,6 +727,7 @@ export class EntitySettingsService {
         },
       },
     })
+
     if (!entity) {
       return { items: [] }
     }
@@ -840,6 +845,7 @@ export class EntitySettingsService {
         },
       },
     })
+
     if (!entity) {
       return { items: [] }
     }

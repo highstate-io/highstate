@@ -162,6 +162,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
         where: { id: projectId },
         select: { databaseVersion: true },
       })
+
       if (!project) {
         throw new ProjectNotFoundError(projectId)
       }
@@ -188,6 +189,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
 
       return database
     })
+
     if (!database) {
       // open database if was not migrated in the transaction
       const _database = await this.projectDatabaseBackend.openProjectDatabase(

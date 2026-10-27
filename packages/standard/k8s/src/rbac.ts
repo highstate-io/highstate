@@ -292,6 +292,7 @@ async function mergeResources(
 
       return apiGroupsMatch && resourcesMatch
     })
+
     if (!matchingRule) {
       continue
     }

@@ -248,6 +248,7 @@ async function resolveProjectSpaceScopes(
     restriction =>
       restriction.type === "project-spaces" || restriction.type === "projects-in-spaces",
   )
+
   if (hierarchyRestrictions.length === 0) {
     return new Map()
   }

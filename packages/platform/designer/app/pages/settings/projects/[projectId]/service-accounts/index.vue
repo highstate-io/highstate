@@ -47,7 +47,9 @@ function confirmDelete(serviceAccount: ServiceAccountOutput): void {
 }
 
 async function remove(): Promise<void> {
-  if (!serviceAccountToDelete.value) return
+  if (!serviceAccountToDelete.value) {
+    return
+  }
 
   deleting.value = true
 

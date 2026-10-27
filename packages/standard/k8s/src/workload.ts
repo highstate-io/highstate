@@ -595,6 +595,7 @@ export function getWorkloadServiceComponents(
       const filteredEndpoints = serviceEndpoints.filter(
         endpoint => endpoint.port === resolvedServicePort,
       )
+
       if (filteredEndpoints.length === 0) {
         throw new Error(
           `No endpoints with port ${resolvedServicePort} found for workload service in route "${routeName}"`,

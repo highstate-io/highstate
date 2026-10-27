@@ -19,6 +19,93 @@ function check(name: string, code: string, fix = false) {
 }
 
 describe("style diagnostics", () => {
+  it.each(["\n", "\n\n"])("separates multiline awaited calls from guards (%j)", gap => {
+    const declaration = `async function find(database, apiKeyId) {
+  const apiKey = await database.apiKey.findUnique({
+    where: { id: apiKeyId },
+    include: ProjectApiKeySettingsService.include(),
+  })`
+
+    const guard = `  if (!apiKey) {
+    return null
+  }
+}`
+
+    const result = check("statement-spacing", declaration + gap + guard, true)
+
+    const formatted = execFileSync(
+      "./node_modules/.bin/biome",
+      ["format", "--stdin-file-path=fixture.ts"],
+      { input: result.output, encoding: "utf8" },
+    )
+
+    expect(result.messages).toEqual([])
+    expect(formatted).toBe(`${declaration}\n\n${guard}\n`)
+    expect(check("statement-spacing", formatted).messages).toEqual([])
+  })
+
+  it.each([false, true])("converts mapping guards to a switch (braces: %s)", braces => {
+    const branch = (value: string) => (braces ? `{ return "${value}" }` : `return "${value}"`)
+
+    const input = `function map(value) {
+      if (value === "update") ${branch("update")}
+      if (value === "preview") ${branch("preview")}
+      throw new Error("Unknown operation")
+    }`
+
+    const result = check("switch-mappers", input, true)
+
+    expect(result.messages).toEqual([])
+    expect(result.output).toContain("switch (value)")
+    expect(result.output).toContain('case "update":')
+    expect(result.output).toContain('case "preview":')
+
+    const original = new Function(`${input}; return map`)()
+    const converted = new Function(`${result.output}; return map`)()
+
+    for (const value of ["update", "preview"]) {
+      expect(converted(value)).toBe(original(value))
+    }
+
+    expect(() => converted("unknown")).toThrow("Unknown operation")
+
+    const formatted = execFileSync(
+      "./node_modules/.bin/biome",
+      ["format", "--stdin-file-path=fixture.ts"],
+      { input: result.output, encoding: "utf8" },
+    )
+
+    expect(check("switch-mappers", formatted).messages).toEqual([])
+  })
+
+  it.each(["\n", "\n\n"])("separates multiline declarations from their guards (%j)", gap => {
+    const declaration = `function validate(operation) {
+  const requiresValue =
+    operation.operation === InstanceArgumentPatchOperation_Operation.ADD ||
+    operation.operation === InstanceArgumentPatchOperation_Operation.REPLACE ||
+    operation.operation === InstanceArgumentPatchOperation_Operation.TEST`
+
+    const guard = `  if (requiresValue && operation.value === undefined) {
+    context.addIssue({ code: "custom", path: ["value"], message: "Value is required" })
+  }
+}`
+
+    const input = declaration + gap + guard
+    const expected = `${declaration}\n\n${guard}`
+    const result = check("statement-spacing", input, true)
+
+    expect(result.messages).toEqual([])
+
+    const formatted = execFileSync(
+      "./node_modules/.bin/biome",
+      ["format", "--stdin-file-path=fixture.ts"],
+      { input: result.output, encoding: "utf8" },
+    )
+
+    expect(formatted).toBe(`${expected}\n`)
+    expect(check("statement-spacing", formatted).messages).toEqual([])
+  })
+
   it.each([
     ["type-definitions", "interface Record { id: string }", "type Record = { id: string }"],
     ["type-definitions", "type Store = { get(): string }", "interface Store { get(): string }"],
@@ -89,6 +176,17 @@ describe("style diagnostics", () => {
 
   it.each([
     ["type-definitions", "interface Store { get(): string }"],
+    ["switch-mappers", 'function map(value) { if (value === "a") return 1; return 2 }'],
+    ["switch-mappers", 'function map(a, b) { if (a === "a") return 1; if (b === "b") return 2 }'],
+    ["switch-mappers", "function map(value) { if (value > 1) return 1; if (value > 2) return 2 }"],
+    [
+      "switch-mappers",
+      'function map(value) { if (value === "a") log(); if (value === "b") log() }',
+    ],
+    [
+      "switch-mappers",
+      'function map() { if (read() === "a") return 1; if (read() === "b") return 2 }',
+    ],
     ["no-redundant-alias", "export type PublicName = InternalName"],
     ["no-redundant-alias", "declare global { namespace PrismaJson { type Meta = Contract.Meta } }"],
     ["error-cause", 'try {} catch (error) { throw new DomainError("Failed", error) }'],
@@ -135,6 +233,10 @@ describe("style diagnostics", () => {
 
   it.each([
     ["no-type-extraction", 'type Prisma = Awaited<ReturnType<typeof createServices>>["prisma"]'],
+    [
+      "switch-mappers",
+      'function map(value) { if (value === "a") { /* preserve context */ return 1 } if (value === "b") return 2 }',
+    ],
     ["no-redundant-alias", "type Alias = Original; const value: Alias = input"],
     ["error-cause", 'try {} catch { throw new Error("Failed") }'],
     ["error-cause", 'try {} catch ({ message }) { throw new Error("Failed") }'],
@@ -167,6 +269,8 @@ describe("style diagnostics", () => {
     expect(result.messages).toEqual([])
     expect(result.output).toContain("cause: error")
 
-    if (input.includes("code: 1")) expect(result.output).toContain("code: 1")
+    if (input.includes("code: 1")) {
+      expect(result.output).toContain("code: 1")
+    }
   })
 })

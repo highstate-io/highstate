@@ -29,6 +29,7 @@ export default defineEventHandler(async event => {
       artifact.hash,
       artifact.chunkSize,
     )
+
     if (!contentIterable) {
       throw createError({
         statusCode: 404,

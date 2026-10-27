@@ -18,6 +18,7 @@ function check(paths: string[], typed: boolean): boolean {
       env: { ...process.env, HIGHSTATE_TYPED_LINT: String(typed) },
     },
   )
+
   if (result.error) {
     throw new Error("Failed to run style checks", { cause: result.error })
   }

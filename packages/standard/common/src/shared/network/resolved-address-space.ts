@@ -16,6 +16,7 @@ const defaultAsnResolver: AsnResolver = async (asn: string) => {
   const response = await fetch(
     `https://stat.ripe.net/data/announced-prefixes/data.json?resource=${asn}`,
   )
+
   if (!response.ok) {
     throw new Error(`RIPE API request failed with status ${response.status}`)
   }
@@ -118,7 +119,9 @@ async function resolveStringInput(
 }
 
 function isCidrString(value: string): boolean {
-  if (!value.includes("/")) return false
+  if (!value.includes("/")) {
+    return false
+  }
 
   try {
     parseCidr(value)
@@ -129,7 +132,9 @@ function isCidrString(value: string): boolean {
 }
 
 function isIpString(value: string): boolean {
-  if (!value) return false
+  if (!value) {
+    return false
+  }
 
   try {
     parseIp(value)
@@ -140,14 +145,20 @@ function isIpString(value: string): boolean {
 }
 
 function isRangeString(value: string): boolean {
-  if (!value.includes("-")) return false
+  if (!value.includes("-")) {
+    return false
+  }
 
   const parts = value.split("-")
-  if (parts.length !== 2) return false
+  if (parts.length !== 2) {
+    return false
+  }
 
   const left = parts[0]?.trim()
   const right = parts[1]?.trim()
-  if (!left || !right) return false
+  if (!left || !right) {
+    return false
+  }
 
   try {
     const a = parseIp(left)

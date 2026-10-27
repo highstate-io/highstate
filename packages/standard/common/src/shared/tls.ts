@@ -119,6 +119,7 @@ export class TlsCertificate extends ComponentResource {
 
         return issuerNames.every(name => issuer.zones.some(zone => isDnsNameInZone(name, zone)))
       })
+
       if (!matchedIssuer) {
         if (hasAliases) {
           throw new Error(

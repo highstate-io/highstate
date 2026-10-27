@@ -471,6 +471,7 @@ export class ProjectRoleSettingsService {
       where: { id: roleId },
       select: { systemName: true },
     })
+
     if (!role) {
       throw new ProjectRoleNotFoundError(projectId, roleId)
     }

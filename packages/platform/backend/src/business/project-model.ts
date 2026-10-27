@@ -231,6 +231,7 @@ export class ProjectModelService {
         },
       },
     })
+
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -371,6 +372,7 @@ export class ProjectModelService {
       const removed =
         Object.values(instance.inputs).reduce((sum, values) => sum + values.length, 0) -
         Object.values(nextInputs).reduce((sum, values) => sum + values.length, 0)
+
       if (removed === 0) {
         continue
       }

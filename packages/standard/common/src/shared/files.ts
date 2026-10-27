@@ -333,7 +333,9 @@ export class MaterializedFile extends LifetimeScopeContainer {
       }
       case "remote": {
         const response = await fetch(l7EndpointToString(this.entity.content.endpoint))
-        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`)
+        }
 
         const arrayBuffer = await response.arrayBuffer()
         await writeFile(this.path, Buffer.from(arrayBuffer), { mode: this.entity.meta.mode })
@@ -672,9 +674,13 @@ export class MaterializedFolder extends LifetimeScopeContainer {
       }
       case "remote": {
         const response = await fetch(l7EndpointToString(this.entity.content.endpoint))
-        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`)
+        }
 
-        if (!response.body) throw new Error("Response body is empty")
+        if (!response.body) {
+          throw new Error("Response body is empty")
+        }
 
         // try to detect archive type from URL or content type
         const url = new URL(l7EndpointToString(this.entity.content.endpoint))
@@ -683,6 +689,7 @@ export class MaterializedFolder extends LifetimeScopeContainer {
           url.pathname,
           response.headers.get("content-type") || undefined,
         )
+
         if (!archiveType) {
           throw new Error("Remote folder content must be an archive (tar, tar.gz, tgz, or zip)")
         }

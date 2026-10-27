@@ -44,7 +44,9 @@ function confirmDelete(role: ProjectRoleOutput): void {
   deleteDialogVisible.value = true
 }
 async function remove(): Promise<void> {
-  if (!roleToDelete.value) return
+  if (!roleToDelete.value) {
+    return
+  }
 
   deleting.value = true
 

@@ -21,6 +21,7 @@ export function createWorkerService(services: Services): ServiceImpl<typeof Work
         where: { id: workerVersionId, apiKeyId: requestContext.subject.apiKeyId },
         select: { id: true },
       })
+
       if (!workerVersion) {
         throw new WorkerOwnershipError(projectId, workerVersionId)
       }

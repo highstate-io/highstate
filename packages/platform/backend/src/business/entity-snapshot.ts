@@ -95,6 +95,7 @@ export class EntitySnapshotService {
           key.stateId,
           key.output,
         ))
+
       if (!resolvedOperationId) {
         result.set(`${key.stateId}:${key.output}`, [])
         continue
@@ -132,6 +133,7 @@ export class EntitySnapshotService {
       const rootSnapshotIds = snapshotsInOperation
         .filter(s => this.jsonStringArrayIncludes(s.exportedInOutputs, key.output))
         .map(s => s.id)
+
       if (rootSnapshotIds.length === 0) {
         result.set(`${key.stateId}:${key.output}`, [])
         continue
@@ -258,6 +260,7 @@ export class EntitySnapshotService {
     const operationId =
       key.operationId ??
       (await this.findLatestOperationIdForExportedOutput(projectDatabase, key.stateId, key.output))
+
     if (!operationId) {
       return {
         rootEntityIds: [],
@@ -302,6 +305,7 @@ export class EntitySnapshotService {
         referencedInOutputs: [],
         entity: snapshot.entity,
       }))
+
     if (rootSnapshots.length === 0) {
       return {
         rootEntityIds: [],
@@ -409,6 +413,7 @@ export class EntitySnapshotService {
       where: { id: stateId },
       select: { instanceId: true },
     })
+
     if (!state) {
       return []
     }
@@ -511,6 +516,7 @@ export class EntitySnapshotService {
         operationId: true,
       },
     })
+
     if (!snapshot) {
       return null
     }
@@ -942,6 +948,7 @@ export class EntitySnapshotService {
       const contentHash = sha256String(
         meta ? `${stableJsonStringify(meta)}\n${contentStable}` : contentStable,
       )
+
       if (!contentByHash.has(contentHash)) {
         contentByHash.set(contentHash, {
           meta,
@@ -1054,6 +1061,7 @@ export class EntitySnapshotService {
         orderBy: { createdAt: "desc" },
         select: { id: true },
       })
+
       if (!snapshot) {
         this.logger.error(
           {

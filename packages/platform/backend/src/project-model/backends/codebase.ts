@@ -152,7 +152,9 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
         !dryRun,
       )
     } catch (error) {
-      if (error instanceof ProjectModelError) throw error
+      if (error instanceof ProjectModelError) {
+        throw error
+      }
 
       throw new ProjectModelOperationError("patch instance arguments", project.id, error)
     }

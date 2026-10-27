@@ -258,6 +258,7 @@ export class DnsRecordSet extends ComponentResource {
       const matchedProviders = providers.filter(provider =>
         provider.zones.some(zone => name.endsWith(zone)),
       )
+
       if (matchedProviders.length === 0) {
         throw new Error(`No DNS provider matched the domain "${name}"`)
       }

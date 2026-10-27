@@ -187,6 +187,7 @@ function getPlainSchemaType(
   const unionSchemas =
     (Array.isArray(schema.anyOf) ? schema.anyOf : undefined) ??
     (Array.isArray(schema.oneOf) ? schema.oneOf : undefined)
+
   if (!unionSchemas) {
     return undefined
   }
@@ -423,6 +424,7 @@ export function createEditorArguments(
               fSchema,
               (schema.default as Record<string, unknown> | undefined)?.[fName], // use default value from the parent schema if available
             )
+
             if (plainArg) {
               fieldsList.push(plainArg)
             }
@@ -489,6 +491,7 @@ export function createEditorArguments(
             fSchema,
             (arg.schema.default as Record<string, unknown> | undefined)?.[fName], // use default value from the parent schema if available
           )
+
           if (plainArg) {
             fields.push(plainArg)
           }
@@ -535,6 +538,7 @@ export function createEditorArguments(
       arg.meta.description ?? arg.schema.description,
       arg.schema,
     )
+
     if (plainArg) {
       plainArguments.push(plainArg)
       continue

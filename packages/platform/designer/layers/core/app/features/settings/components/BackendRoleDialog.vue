@@ -56,7 +56,9 @@ const riskAssessment = computed(() => {
 watch(
   () => [visible.value, role] as const,
   () => {
-    if (!visible.value) return
+    if (!visible.value) {
+      return
+    }
 
     title.value = role?.meta.title ?? ""
     description.value = role?.meta.description ?? ""

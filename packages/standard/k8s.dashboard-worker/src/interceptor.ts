@@ -21,6 +21,7 @@ export async function resolveDashboardCluster(
   const response = await forward(
     new Request(new URL("/config", request.url), { headers: request.headers }),
   )
+
   if (!response.ok) {
     throw new Error(`Failed to load dashboard cluster configuration`)
   }

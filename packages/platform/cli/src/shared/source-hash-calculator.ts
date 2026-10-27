@@ -137,6 +137,7 @@ export class SourceHashCalculator {
       const recordConfigResult = z
         .record(z.string(), sourceHashConfigSchema)
         .safeParse(highstateConfig.sourceHash)
+
       if (recordConfigResult.success && exportKey) {
         const perOutputConfig = recordConfigResult.data[exportKey]
         if (perOutputConfig) {

@@ -40,7 +40,9 @@ const isFormValid = computed(() => {
 })
 
 const createProject = async () => {
-  if (!isFormValid.value) return
+  if (!isFormValid.value) {
+    return
+  }
 
   const projectId = createId()
 

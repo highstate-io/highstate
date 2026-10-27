@@ -9,6 +9,7 @@ export async function resolveBackendProjectPermissionTarget(
     where: { id: projectId },
     select: { spaceId: true },
   })
+
   if (!project) {
     return { projectId }
   }

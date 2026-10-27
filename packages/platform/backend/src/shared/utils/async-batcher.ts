@@ -25,7 +25,9 @@ export function createAsyncBatcher<T>(
   let firstCallTimestamp: number | null = null
 
   async function processBatch() {
-    if (batch.length === 0) return
+    if (batch.length === 0) {
+      return
+    }
 
     const currentBatch = batch
     batch = [] // reset batch before async call
@@ -42,7 +44,9 @@ export function createAsyncBatcher<T>(
   }
 
   function schedule() {
-    if (activeTimeout) clearTimeout(activeTimeout)
+    if (activeTimeout) {
+      clearTimeout(activeTimeout)
+    }
 
     activeTimeout = setTimeout(() => {
       activeTimeout = null
@@ -54,7 +58,9 @@ export function createAsyncBatcher<T>(
       firstCallTimestamp = Date.now()
 
       maxWaitTimeout = setTimeout(() => {
-        if (activeTimeout) clearTimeout(activeTimeout)
+        if (activeTimeout) {
+          clearTimeout(activeTimeout)
+        }
 
         activeTimeout = null
         void processBatch()

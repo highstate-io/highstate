@@ -22,7 +22,10 @@ export const entitySettingsRouter = router({
       ctx.requestContext,
       input.snapshotId,
     )
-    if (!details) return null
+
+    if (!details) {
+      return null
+    }
 
     const project = await ctx.projectService.getProjectOrThrowCore(input.projectId)
     const library = await ctx.libraryBackend.loadLibrary(project.libraryId)

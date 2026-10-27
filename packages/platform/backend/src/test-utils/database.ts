@@ -78,6 +78,7 @@ export class TestDatabaseManager implements DatabaseManager {
       where: { id: projectId },
       select: { id: true },
     })
+
     if (project) {
       await ensureAdminProjectBindingCreated(this.backend, client, projectId)
     }

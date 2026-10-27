@@ -27,6 +27,7 @@ export class PackageRemoveCommand extends Command {
         pkg.name === `@highstate/${this.name}` ||
         pkg.relativePath.endsWith(this.name),
     )
+
     if (!targetPackage) {
       logger.error("package not found: %s", this.name)
       process.exit(1)

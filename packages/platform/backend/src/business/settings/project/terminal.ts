@@ -77,6 +77,7 @@ export class TerminalSettingsService {
         serviceAccount: { select: { meta: true } },
       },
     })
+
     if (!terminal) {
       return null
     }
@@ -100,6 +101,7 @@ export class TerminalSettingsService {
       where: { id: terminalId },
       select: { id: true, serviceAccountId: true },
     })
+
     if (!terminal) {
       return { items: [] }
     }

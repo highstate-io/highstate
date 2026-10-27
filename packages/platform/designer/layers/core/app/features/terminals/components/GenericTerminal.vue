@@ -78,7 +78,9 @@ onMounted(() => {
     watch(
       computed(() => content),
       newContent => {
-        if (!terminal) return
+        if (!terminal) {
+          return
+        }
 
         terminal.clear()
         terminal.write(newContent.replace(/\n/g, "\r\n"))

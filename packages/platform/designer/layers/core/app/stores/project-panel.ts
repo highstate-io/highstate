@@ -179,6 +179,7 @@ export const useProjectPanelStore = defineMultiStore({
           { instance: inputInstance, hub: inputHub },
           { instance: outputInstance, hub: outputHub },
         )
+
         if (!canAddDependency) {
           logger.warn(
             {

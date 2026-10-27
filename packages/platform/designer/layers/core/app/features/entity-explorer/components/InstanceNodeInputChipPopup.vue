@@ -43,7 +43,9 @@ const outputKeys = computed<OutputKey[]>(() => {
 
   for (const key of keys) {
     const id = `${key.stateId}:${key.output}`
-    if (seen.has(id)) continue
+    if (seen.has(id)) {
+      continue
+    }
 
     seen.add(id)
     unique.push(key)

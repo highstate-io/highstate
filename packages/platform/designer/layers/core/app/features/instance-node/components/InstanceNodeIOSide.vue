@@ -90,7 +90,9 @@ const hasInputs = (name: string) => {
 
 const isRequiredAndNotConnected = (name: string) => {
   const input = component.inputs[name]
-  if (!input.required) return false
+  if (!input.required) {
+    return false
+  }
 
   return !resolvedInputs?.[name]?.length
 }

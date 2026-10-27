@@ -132,6 +132,7 @@ const entityTypes = computed<{
         input => input.input.instanceId === outputInstance.id && input.input.output === outputKey,
       )
       .map(input => input.type)
+
     if (resolvedTypes.length > 0) {
       return { all: unique(resolvedTypes) }
     }

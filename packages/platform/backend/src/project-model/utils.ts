@@ -78,7 +78,9 @@ export function patchInstanceArguments(
 }
 
 function parseJsonPointer(path: string): string[] {
-  if (path === "") return []
+  if (path === "") {
+    return []
+  }
 
   if (!path.startsWith("/")) {
     throw new PatchFailure("PATH_INVALID", "The path must be an RFC 6901 JSON Pointer")
@@ -129,7 +131,9 @@ function applyAtPath(
 
   const [token, ...remaining] = tokens
 
-  if (token === undefined) return
+  if (token === undefined) {
+    return
+  }
 
   if (remaining.length > 0) {
     const child = getExistingValue(current, token)
@@ -162,13 +166,17 @@ function applyToContainer(
   const exists = Object.hasOwn(container, token)
 
   if (operation.operation === "remove") {
-    if (!exists) throw pathNotFound()
+    if (!exists) {
+      throw pathNotFound()
+    }
 
     delete container[token]
     return
   }
 
-  if (operation.operation === "replace" && !exists) throw pathNotFound()
+  if (operation.operation === "replace" && !exists) {
+    throw pathNotFound()
+  }
 
   Object.defineProperty(container, token, {
     value: structuredClone(operation.value),
@@ -191,13 +199,17 @@ function applyToArray(
   const index = parseArrayIndex(token)
 
   if (operation.operation === "add") {
-    if (index > array.length) throw pathNotFound()
+    if (index > array.length) {
+      throw pathNotFound()
+    }
 
     array.splice(index, 0, structuredClone(operation.value))
     return
   }
 
-  if (index >= array.length) throw pathNotFound()
+  if (index >= array.length) {
+    throw pathNotFound()
+  }
 
   if (operation.operation === "remove") {
     array.splice(index, 1)
@@ -209,12 +221,16 @@ function applyToArray(
 function getExistingValue(container: JsonContainer, token: string): unknown {
   if (Array.isArray(container)) {
     const index = parseArrayIndex(token)
-    if (index >= container.length) throw pathNotFound()
+    if (index >= container.length) {
+      throw pathNotFound()
+    }
 
     return container[index]
   }
 
-  if (!Object.hasOwn(container, token)) throw pathNotFound()
+  if (!Object.hasOwn(container, token)) {
+    throw pathNotFound()
+  }
 
   return container[token]
 }

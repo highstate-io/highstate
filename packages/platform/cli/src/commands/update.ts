@@ -150,6 +150,7 @@ export class UpdateCommand extends Command {
       child.once("error", reject)
       child.once("close", resolve)
     })
+
     if (exitCode !== 0) {
       throw new Error(`Command "bun install --force" failed with exit code ${exitCode}`)
     }
@@ -196,6 +197,7 @@ async function resolveCompatibleStdlibVersion(
     const ok = semver.satisfies(validPlatform, supportedPlatformRange, {
       includePrerelease: true,
     })
+
     if (ok) {
       return stdlibVersion
     }
@@ -223,6 +225,7 @@ async function assertStdlibSupportsPlatform(args: StdlibPlatformCompatibilityArg
   const ok = semver.satisfies(args.currentPlatformVersion, supportedPlatformRange, {
     includePrerelease: true,
   })
+
   if (!ok) {
     throw new Error(
       `Current platform version "${args.currentPlatformVersion}" does not satisfy requirement "${supportedPlatformRange}"`,

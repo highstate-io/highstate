@@ -185,6 +185,7 @@ export class WorkerManager {
         this.config.HIGHSTATE_WORKER_RESTART_BACKOFF_BASE_MS,
         this.config.HIGHSTATE_WORKER_RESTART_BACKOFF_MAX_MS,
       )
+
       if (restartBackoffMs > 0) {
         this.logger.debug(
           { projectId, workerVersionId: workerVersion.id, restartBackoffMs, failedAttempts },
@@ -204,6 +205,7 @@ export class WorkerManager {
           restartBackoffMs,
           existingInfo.abortController.signal,
         )
+
         if (!canContinue) {
           return
         }
@@ -393,6 +395,7 @@ export class WorkerManager {
           where: { id: workerVersionId },
           select: { id: true },
         })
+
         if (!workerVersion) {
           return
         }
@@ -425,7 +428,9 @@ export class WorkerManager {
   ): Promise<void> {
     this.assertWorkerInstance(projectId, workerVersionId, workerInstanceId)
     const info = this.runningWorkers.get(workerVersionId)
-    if (!info) return
+    if (!info) {
+      return
+    }
 
     await this.writeWorkerLog(
       projectId,
@@ -520,6 +525,7 @@ export class WorkerManager {
         worker: true,
       },
     })
+
     if (!workerVersion) {
       this.logger.warn(
         { projectId, workerVersionId },
@@ -579,7 +585,9 @@ export class WorkerManager {
 
     // stop workers that no longer exist in database
     for (const [versionId, info] of this.runningWorkers) {
-      if (info.projectId !== projectId) continue
+      if (info.projectId !== projectId) {
+        continue
+      }
 
       if (!activeVersionIds.has(versionId)) {
         await this.stopWorkerVersion(versionId, "worker version removed from database", false)
@@ -614,7 +622,10 @@ export class WorkerManager {
         skip: 1000,
         select: { id: true },
       })
-      if (logsToDelete.length === 0) continue
+
+      if (logsToDelete.length === 0) {
+        continue
+      }
 
       await database.workerVersionLog.deleteMany({
         where: { id: { in: logsToDelete.map(l => l.id) } },

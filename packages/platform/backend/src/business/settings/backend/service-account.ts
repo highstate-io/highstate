@@ -82,6 +82,7 @@ export class BackendServiceAccountSettingsService {
     const account = await this.database.backend.backendServiceAccount.findUnique({
       where: { id: serviceAccountId },
     })
+
     if (!account) {
       return null
     }
@@ -163,6 +164,7 @@ export class BackendServiceAccountSettingsService {
       where: { id: roleId },
       select: { rules: true },
     })
+
     if (!hasBackendPermissionRulesSubset(context, role.rules)) {
       requireBackendPermission(context, "role-binding.bind")
     }
@@ -277,6 +279,7 @@ export class BackendServiceAccountSettingsService {
       where: { id: projectServiceAccountId },
       select: { id: true },
     })
+
     if (!account) {
       throw new ProjectServiceAccountNotFoundError(projectId, projectServiceAccountId)
     }
@@ -295,6 +298,7 @@ export class BackendServiceAccountSettingsService {
       where: { id: serviceAccountId },
       select: { id: true },
     })
+
     if (!account) {
       throw new BackendServiceAccountNotFoundError(serviceAccountId)
     }
@@ -305,6 +309,7 @@ export class BackendServiceAccountSettingsService {
       where: { id: serviceAccountId },
       select: { systemName: true },
     })
+
     if (!account) {
       throw new BackendServiceAccountNotFoundError(serviceAccountId)
     }

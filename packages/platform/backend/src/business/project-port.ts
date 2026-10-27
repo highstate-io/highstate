@@ -272,6 +272,7 @@ export class ProjectPortService {
           .filter(name => name.length > 0),
       ),
     )
+
     if (targetNames.length === 0) {
       await this.database.backend.projectImportPort.deleteMany({
         where: {
@@ -397,6 +398,7 @@ export class ProjectPortService {
         contentHash: true,
       },
     })
+
     if (!row) {
       return null
     }
@@ -425,6 +427,7 @@ export class ProjectPortService {
         encryptedContent: true,
       },
     })
+
     if (!row) {
       return null
     }

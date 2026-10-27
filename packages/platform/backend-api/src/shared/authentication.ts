@@ -88,6 +88,7 @@ export async function authenticateProject(
     where: { id: projectId },
     select: { id: true },
   })
+
   if (!project) {
     throw new ProjectNotFoundError(projectId)
   }

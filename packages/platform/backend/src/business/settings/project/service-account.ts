@@ -88,6 +88,7 @@ export class ProjectServiceAccountSettingsService {
       where: { id: serviceAccountId },
       select: forSchema(serviceAccountOutputSchema),
     })
+
     if (!account) {
       return null
     }
@@ -177,6 +178,7 @@ export class ProjectServiceAccountSettingsService {
       where: { id: roleId },
       select: { rules: true },
     })
+
     if (!hasProjectPermissionRulesSubset(context, role.rules)) {
       requireProjectPermission(context, "role-binding.bind")
     }
@@ -214,6 +216,7 @@ export class ProjectServiceAccountSettingsService {
       where: { id: serviceAccountId },
       select: { id: true },
     })
+
     if (!account) {
       throw new ProjectServiceAccountNotFoundError(projectId, serviceAccountId)
     }
@@ -226,6 +229,7 @@ export class ProjectServiceAccountSettingsService {
       where: { id: serviceAccountId },
       select: { systemName: true },
     })
+
     if (!account) {
       throw new ProjectServiceAccountNotFoundError(projectId, serviceAccountId)
     }

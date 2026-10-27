@@ -236,7 +236,9 @@ function splitByFamily(ranges: IpRange[]): { v4: IpRange[]; v6: IpRange[] } {
   const v6: IpRange[] = []
 
   for (const range of ranges) {
-    if (range.start >= range.endExclusive) continue
+    if (range.start >= range.endExclusive) {
+      continue
+    }
 
     if (range.family === "ipv4") {
       v4.push(range)
@@ -281,9 +283,13 @@ function mergeRanges(ranges: IpRange[]): IpRange[] {
 }
 
 function subtractMergedRanges(included: IpRange[], excluded: IpRange[]): IpRange[] {
-  if (included.length === 0) return []
+  if (included.length === 0) {
+    return []
+  }
 
-  if (excluded.length === 0) return included
+  if (excluded.length === 0) {
+    return included
+  }
 
   const result: IpRange[] = []
   let j = 0

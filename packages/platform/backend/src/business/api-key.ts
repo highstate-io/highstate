@@ -60,6 +60,7 @@ export class ApiKeyService {
       where: { id: apiKeyId },
       include: { serviceAccount: { select: { meta: true } }, worker: { select: { id: true } } },
     })
+
     if (!existing) {
       throw new ProjectApiKeyNotFoundError(context.projectId, apiKeyId)
     }
@@ -92,6 +93,7 @@ export class ApiKeyService {
       where: { id: apiKeyId },
       select: { id: true },
     })
+
     if (!existing) {
       throw new BackendApiKeyNotFoundError(apiKeyId)
     }
@@ -166,6 +168,7 @@ export class ApiKeyService {
         OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       },
     })
+
     if (!apiKey) {
       throw new InvalidCredentialError("project-api-key")
     }
@@ -208,6 +211,7 @@ export class ApiKeyService {
       },
       select: { projectServiceAccountId: true },
     })
+
     if (!binding) {
       throw new ApiKeyProjectMismatchError()
     }
@@ -241,6 +245,7 @@ export class ApiKeyService {
       },
       select: { id: true, serviceAccountId: true, restrictionRules: true },
     })
+
     if (!apiKey) {
       throw new InvalidCredentialError("backend-api-key")
     }

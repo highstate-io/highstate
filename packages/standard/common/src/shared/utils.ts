@@ -133,6 +133,7 @@ export function parseSizeString(size: string): number {
     .trim()
     .toLowerCase()
     .match(/^(\d+(?:\.\d+)?)\s*([a-z]+)?$/)
+
   if (!match) {
     throw new Error(`Invalid size string: ${size}`)
   }

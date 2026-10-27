@@ -90,7 +90,9 @@ const generatePassword = () => {
 }
 
 const passwordStrength = computed<PasswordStrengthResult | null>(() => {
-  if (!form.password) return null
+  if (!form.password) {
+    return null
+  }
 
   const result = zxcvbn(form.password)
 

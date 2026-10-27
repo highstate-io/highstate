@@ -66,6 +66,7 @@ export const useProjectInstancesStore = defineMultiStore({
           : dependency.hub
             ? `hub:${dependency.hub.id}`
             : undefined
+
         if (!nodeId || !dependencyId) {
           return true
         }
@@ -740,6 +741,7 @@ export const useProjectInstancesStore = defineMultiStore({
         const residentInstance = residentInstanceIds.has(instance.id)
           ? instances.get(instance.id)
           : undefined
+
         if (residentInstance) {
           residentInstance.resolvedInputs = instance.resolvedInputs
           residentInstance.outputs = instance.outputs

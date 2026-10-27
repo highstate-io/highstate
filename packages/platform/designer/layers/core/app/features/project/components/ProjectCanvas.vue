@@ -108,9 +108,13 @@ watch(
 const onDragOver = (event: DragEvent) => {
   event.preventDefault()
 
-  if (!event.dataTransfer) return
+  if (!event.dataTransfer) {
+    return
+  }
 
-  if (canvasStore.blueprint) return
+  if (canvasStore.blueprint) {
+    return
+  }
 
   // transform the dragged object to blueprint
   let blueprint: Blueprint | undefined

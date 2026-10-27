@@ -194,6 +194,7 @@ export class ProjectService {
       where: { id: projectId },
       select: forSchema(projectOutputSchema),
     })
+
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -245,6 +246,7 @@ export class ProjectService {
           where: { instanceId },
           select: { id: true },
         })
+
         if (!state) {
           // ignore if state doesn't exist yet
           return
@@ -372,6 +374,7 @@ export class ProjectService {
       } catch (error) {
         const cause =
           error instanceof ProjectModelError && error.cause instanceof Error ? error.cause : error
+
         if (cause instanceof ProjectModelInstanceNotFoundError) {
           const instance = await this.updateGhostInstanceModel(context.projectId, instanceId, patch)
 
@@ -520,6 +523,7 @@ export class ProjectService {
       where: { instanceId },
       select: { id: true, model: true },
     })
+
     if (!state?.model) {
       throw new ProjectModelInstanceNotFoundError(projectId, instanceId)
     }
@@ -644,6 +648,7 @@ export class ProjectService {
           }),
         )
       })
+
       if (states.length > 0) {
         await this.objectRefIndexService.track(
           context.projectId,
@@ -701,6 +706,7 @@ export class ProjectService {
         },
       },
     })
+
     if (!result) {
       throw new ProjectNotFoundError(projectId)
     }

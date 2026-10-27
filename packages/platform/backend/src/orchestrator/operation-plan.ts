@@ -40,6 +40,7 @@ export function createOperationPlan(
     options.firstDestroyGhosts,
     options.ignoreGhosts,
   ].filter(Boolean).length
+
   if (enabledGhostStrategies > 1) {
     throw new InvalidOperationPlanError(
       "Operation options are invalid: only one of onlyDestroyGhosts, firstDestroyGhosts, ignoreGhosts can be enabled.",
@@ -158,6 +159,7 @@ function processInstance(
     operationType === "destroy"
       ? context.tryGetInstanceForDestroy(instanceId)
       : context.tryGetInstance(instanceId)
+
   if (!instance) {
     throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
   }
@@ -259,6 +261,7 @@ function processUpdateInclusions(
       const shouldInclude =
         options.forceUpdateChildren ||
         (!options.allowPartialCompositeInstanceUpdate && isInstanceOutdated)
+
       if (shouldInclude && !workState.included.has(instance.id)) {
         const state = context.getState(instance.id)
         if (!isVirtualGhostInstance(state)) {
@@ -285,6 +288,7 @@ function processUpdateInclusions(
         options.forceUpdateDependencies ||
         (!options.ignoreChangedDependencies && isOutdated(depInstance, context)) ||
         isFailedOrUndeployedState(dependencyState)
+
       if (shouldInclude && !workState.included.has(depInstance.id)) {
         include(depInstance.id, "dependency", workState, {
           requiredBy: instance.id,
@@ -311,6 +315,7 @@ function processRefreshInclusions(
       const shouldInclude =
         options.forceUpdateChildren ||
         (!options.allowPartialCompositeInstanceUpdate && isInstanceOutdated)
+
       if (shouldInclude && !workState.included.has(instance.id)) {
         include(instance.id, "composite_child", workState, {
           forceFlag: options.forceUpdateChildren ? "children" : undefined,
@@ -468,11 +473,17 @@ function createOrderedPhases(
       const inclusionReason = workState.included.get(id)
 
       // always include if outdated or forced
-      if (isOutdated(instance, context)) return true
+      if (isOutdated(instance, context)) {
+        return true
+      }
 
-      if (inclusionReason === "dependency" && options.forceUpdateDependencies) return true
+      if (inclusionReason === "dependency" && options.forceUpdateDependencies) {
+        return true
+      }
 
-      if (inclusionReason === "composite_child" && options.forceUpdateChildren) return true
+      if (inclusionReason === "composite_child" && options.forceUpdateChildren) {
+        return true
+      }
 
       // include explicit requests, but composites only if they have non-ghost children
       if (inclusionReason === "explicit") {
@@ -480,7 +491,9 @@ function createOrderedPhases(
           // for composites, only include if they have non-ghost children that need updating
           const children = context.getInstanceChildren(id)
           return children.some(child => {
-            if (!workState.included.has(child.id)) return false
+            if (!workState.included.has(child.id)) {
+              return false
+            }
 
             const childState = context.getState(child.id)
             return !isVirtualGhostInstance(childState)
@@ -547,6 +560,7 @@ function createOrderedPhases(
     const destroyInstances = topologicalSort(includedIds, context, true)
       .map(id => createPhaseInstance(id, context, type, workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
+
     if (destroyInstances.length > 0) {
       phases.push({ type: "destroy", instances: destroyInstances })
     }
@@ -582,10 +596,14 @@ function createGhostDestroyPhase(
 
   for (const instanceId of includedIds) {
     const instance = context.getInstance(instanceId)
-    if (instance.kind !== "composite") continue
+    if (instance.kind !== "composite") {
+      continue
+    }
 
     const compositeType = workState.compositeTypes.get(instanceId)
-    if (compositeType !== "substantive") continue
+    if (compositeType !== "substantive") {
+      continue
+    }
 
     if (hasGhostDescendant(instanceId, context)) {
       compositesNeedingGhostCleanup.add(instanceId)
@@ -615,6 +633,7 @@ function createGhostDestroyPhase(
       return createPhaseInstance(id, context, "update", workState)
     })
     .filter((instance): instance is OperationPhaseInstance => instance !== null)
+
   if (sortedGhosts.length === 0) {
     return null
   }
@@ -653,6 +672,7 @@ function createPhaseInstance(
     operationType === "destroy"
       ? context.tryGetInstanceForDestroy(instanceId)
       : context.tryGetInstance(instanceId)
+
   if (!instance) {
     return null
   }
@@ -729,11 +749,17 @@ function generateContextualMessage(
   function getInstanceStateType(
     state?: InstanceState,
   ): "failed" | "undeployed" | "changed" | "up-to-date" {
-    if (!state) return "undeployed"
+    if (!state) {
+      return "undeployed"
+    }
 
-    if (state.status === "failed") return "failed"
+    if (state.status === "failed") {
+      return "failed"
+    }
 
-    if (state.status === "undeployed") return "undeployed"
+    if (state.status === "undeployed") {
+      return "undeployed"
+    }
 
     const instance = context.tryGetInstance(instanceId)
     if (!instance) {
@@ -748,7 +774,9 @@ function generateContextualMessage(
     // check if changed by using same logic as isOutdated (for units only)
     const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instanceId)
 
-    if (state.inputHash !== expectedHash) return "changed"
+    if (state.inputHash !== expectedHash) {
+      return "changed"
+    }
 
     return "up-to-date"
   }
@@ -854,7 +882,9 @@ function findGhostCleanup(
 
   for (const instanceId of compositesNeedingGhostCleanup) {
     const instance = context.getInstance(instanceId)
-    if (instance.kind !== "composite") continue
+    if (instance.kind !== "composite") {
+      continue
+    }
 
     requiredCompositeIds.add(instanceId)
     collectGhostsInSubtree(instanceId)

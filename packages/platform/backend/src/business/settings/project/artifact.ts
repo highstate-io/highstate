@@ -51,6 +51,7 @@ export class ArtifactSettingsService {
       where: { id: artifactId },
       select: forSchema(artifactOutputSchema),
     })
+
     if (!artifact) {
       return null
     }

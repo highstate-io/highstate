@@ -428,6 +428,7 @@ export class OperationContext {
               const matchingStateIds = unique(
                 matchingStableInputs.map(({ stableInput }) => stableInput.stateId),
               )
+
               if (matchingStateIds.length > 1) {
                 throw new Error(
                   `Multiple instance states match historical input from "${input.input.instanceId}" for "${instanceId}.${inputName}"`,

@@ -67,7 +67,9 @@ export const useProjectStateStore = defineMultiStore({
         stateIdToStateMap.set(state.id, state)
 
         const instance = instancesStore.instances.get(state.instanceId)
-        if (!instance) return
+        if (!instance) {
+          return
+        }
 
         const component = projectLibraryStore.library.components[instance.type]
 
@@ -119,6 +121,7 @@ export const useProjectStateStore = defineMultiStore({
                       event.patch,
                       instanceId ? instanceStates.get(instanceId) : undefined,
                     )
+
                     if (!newState) {
                       logger.warn({ stateId: event.stateId }, "received patch for unknown state ID")
                       return
@@ -136,6 +139,7 @@ export const useProjectStateStore = defineMultiStore({
                         item.patch,
                         instanceId ? instanceStates.get(instanceId) : undefined,
                       )
+
                       if (!newState) {
                         logger.warn(
                           { stateId: item.stateId },
@@ -166,7 +170,9 @@ export const useProjectStateStore = defineMultiStore({
                     deleteInputHashInput(instanceId)
 
                     const instance = instancesStore.instances.get(instanceId)
-                    if (!instance) return
+                    if (!instance) {
+                      return
+                    }
 
                     const component = projectLibraryStore.library.components[instance.type]
 
@@ -306,7 +312,9 @@ export const useProjectStateStore = defineMultiStore({
       instancesStore.onInstanceNameChanged(({ oldId, newId }) => {
         // update instance state map
         const state = instanceStates.get(oldId)
-        if (!state) return
+        if (!state) {
+          return
+        }
 
         instanceStates.delete(oldId)
         instanceStates.set(newId, state)
@@ -319,7 +327,9 @@ export const useProjectStateStore = defineMultiStore({
 
       const openInstanceLogs = async (instance: InstanceModel) => {
         const state = instanceStates.get(instance.id)
-        if (!state?.lastOperationState) return
+        if (!state?.lastOperationState) {
+          return
+        }
 
         await workspaceStore.openLogsPanel(
           projectId,

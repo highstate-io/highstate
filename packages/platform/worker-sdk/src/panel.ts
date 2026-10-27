@@ -157,6 +157,7 @@ export class PanelDataServer {
       upstream.addEventListener("open", () => resolve(true), { once: true })
       upstream.addEventListener("error", () => resolve(false), { once: true })
     })
+
     if (!connected) {
       return new Response("Panel WebSocket connection failed", { status: 502 })
     }

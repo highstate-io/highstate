@@ -130,7 +130,9 @@ const usedOutputs = computed(() => {
 
   for (const dependent of dependents) {
     const result = inputResolverOutputs.get(dependent)
-    if (!result) continue
+    if (!result) {
+      continue
+    }
 
     if (result.kind === "instance") {
       for (const inputs of Object.values(result.instance.inputs ?? {})) {
@@ -161,7 +163,9 @@ const usedOutputs = computed(() => {
 })
 
 watch(usedOutputs, value => {
-  if (value.size === 0) return
+  if (value.size === 0) {
+    return
+  }
 
   // TODO: call in central place
   vueFlowStore.updateNodeInternals([node.node.id])

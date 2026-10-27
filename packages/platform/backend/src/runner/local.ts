@@ -313,13 +313,18 @@ export class LocalRunnerBackend implements RunnerBackend {
             },
             async error => {
               const isUnlocked = await this.pulumiProjectHost.tryUnlockStack(stack, error)
-              if (isUnlocked) return true
+              if (isUnlocked) {
+                return true
+              }
 
               const isResolved = await this.tryInstallMissingDependencies(
                 error,
                 resolvedSource.allowedDependencies,
               )
-              if (isResolved) return true
+
+              if (isResolved) {
+                return true
+              }
 
               return false
             },

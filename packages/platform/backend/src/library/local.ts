@@ -307,6 +307,7 @@ export class LocalLibraryBackend implements LibraryBackend {
         projectPath: resolve(libraryPackage.rootPath, relativePath),
         allowedDependencies: Object.keys(packageJson.peerDependencies ?? {}),
       }
+
       if (
         resolvedSource?.sourceHash === newResolvedSource.sourceHash &&
         resolvedSource?.projectPath === newResolvedSource.projectPath
@@ -508,6 +509,7 @@ export class LocalLibraryBackend implements LibraryBackend {
             result.packageRootPath,
             result.packageName,
           )
+
           if (libraryPackage) {
             this.logger.info(`loaded library package: "%s"`, libraryPackage.name)
           }
@@ -563,6 +565,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       .filter(pkg => path === pkg.rootPath || path.startsWith(`${pkg.rootPath}/`))
       .toSorted((a, b) => b.rootPath.length - a.rootPath.length)
       .at(0)
+
     if (existingPackage) {
       return existingPackage
     }
@@ -581,6 +584,7 @@ export class LocalLibraryBackend implements LibraryBackend {
     const alreadyLoaded = Array.from(this.packages.values()).find(
       pkg => pkg.rootPath === packageRootPath,
     )
+
     if (alreadyLoaded) {
       return alreadyLoaded
     }
@@ -660,6 +664,7 @@ export class LocalLibraryBackend implements LibraryBackend {
           workspacePackage.packageJson.name,
           workspacePackage.packageJson,
         )
+
         if (registered?.isHighstateManaged) {
           managedPackageNames.add(registered.name)
         }

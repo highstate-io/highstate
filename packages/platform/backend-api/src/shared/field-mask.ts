@@ -40,7 +40,9 @@ export function validateUpdateMask<T extends Message>(
 }
 
 function normalizePath<T extends Message>(schema: GenMessage<T>, path: string): string {
-  if (!path || path === "*") return path
+  if (!path || path === "*") {
+    return path
+  }
 
   let descriptor = schema
   const normalized: string[] = []
@@ -53,13 +55,20 @@ function normalizePath<T extends Message>(schema: GenMessage<T>, path: string): 
         candidate.localName === segment ||
         candidate.jsonName === segment,
     )
-    if (!field) return path
+
+    if (!field) {
+      return path
+    }
 
     normalized.push(field.name)
 
-    if (index === segments.length - 1) break
+    if (index === segments.length - 1) {
+      break
+    }
 
-    if (field.fieldKind !== "message" || !field.message) return path
+    if (field.fieldKind !== "message" || !field.message) {
+      return path
+    }
 
     descriptor = field.message as GenMessage<T>
   }

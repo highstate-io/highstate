@@ -51,6 +51,7 @@ export class OperationSettingsService {
       where: { id: operationId },
       select: forSchema(operationOutputSchema),
     })
+
     if (!operation) {
       return null
     }
@@ -71,6 +72,7 @@ export class OperationSettingsService {
     const types = ["update", "preview", "destroy", "recreate", "refresh"].filter(type =>
       type.includes(search),
     ) as OperationType[]
+
     if (types.length > 0) {
       OR.push({ type: { in: types } })
     }

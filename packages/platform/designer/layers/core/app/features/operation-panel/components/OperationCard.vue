@@ -23,13 +23,17 @@ const canCancel = computed(() => {
 })
 
 const handleContextMenu = async (event: MouseEvent) => {
-  if (!contextMenu.value) return
+  if (!contextMenu.value) {
+    return
+  }
 
   await contextMenu.value.showContextMenu(event)
 }
 
 const cancelOperation = async () => {
-  if (!canCancel.value || cancelling.value) return
+  if (!canCancel.value || cancelling.value) {
+    return
+  }
 
   cancelling.value = true
 

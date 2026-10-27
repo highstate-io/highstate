@@ -110,6 +110,7 @@ export function toGroupsFromTextResult(
         unlockState: "unlocked",
         hit,
       }))
+
       if (items.length === 0) {
         return null
       }

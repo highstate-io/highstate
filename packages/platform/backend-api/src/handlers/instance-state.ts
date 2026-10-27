@@ -74,6 +74,7 @@ export function createInstanceStateService(
           value.name === customStatus.name &&
           value.serviceAccountId === requestContext.subject.serviceAccountId,
       )
+
       if (!status) {
         throw new Error("Updated custom status was not returned by the backend")
       }

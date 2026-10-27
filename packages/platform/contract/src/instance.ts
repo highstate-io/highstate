@@ -440,11 +440,13 @@ export function selectInput<TInput extends RuntimeInput>(
       input.provided &&
       (input.instanceId === name || parseInstanceId(input.instanceId)[1] === name),
   )
+
   if (!input?.provided) {
     const fallbackBoundary =
       groupBoundary ??
       inputs.find(input => Boolean(input[boundaryInput]))?.[boundaryInput] ??
       inputs[0]?.[boundaryInput]
+
     if (!fallbackBoundary) {
       throw new Error(
         `Cannot select input "${name}": input group has no boundary metadata to build a missing input reference`,

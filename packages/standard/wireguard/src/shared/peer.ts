@@ -134,12 +134,11 @@ export function shouldExpose(
   identity: wireguard.Identity,
   exposePolicy: wireguard.NodeExposePolicy,
 ): boolean {
-  if (exposePolicy === "always") {
-    return true
-  }
-
-  if (exposePolicy === "never") {
-    return false
+  switch (exposePolicy) {
+    case "always":
+      return true
+    case "never":
+      return false
   }
 
   return identity.peer.endpoints.length > 0

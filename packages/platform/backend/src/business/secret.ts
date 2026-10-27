@@ -44,6 +44,7 @@ export class SecretService {
       where: { id: stateId },
       select: { kind: true, instanceId: true },
     })
+
     if (!state) {
       throw new InstanceStateNotFoundError(projectId, stateId)
     }
@@ -132,6 +133,7 @@ export class SecretService {
       where: { id: stateId },
       select: { instanceId: true },
     })
+
     if (!state) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -205,6 +207,7 @@ export class SecretService {
       where: { id: stateId },
       select: { instanceId: true },
     })
+
     if (!state) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -225,6 +228,7 @@ export class SecretService {
       where: { id: stateId },
       select: { kind: true },
     })
+
     if (!state) {
       throw new InstanceStateNotFoundError(projectId, stateId)
     }
@@ -267,6 +271,7 @@ export class SecretService {
           systemName: SystemSecretNames.PulumiPassword,
         },
       })
+
       if (existingSecret) {
         return { password: existingSecret.content as string, secretId: null as string | null }
       }
@@ -291,6 +296,7 @@ export class SecretService {
       this.logger.info({ projectId }, "created new Pulumi password")
       return { password: newPassword, secretId: createdSecret.id }
     })
+
     if (result.secretId) {
       await this.objectRefIndexService.track(projectId, [result.secretId])
     }

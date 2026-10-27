@@ -10,6 +10,7 @@ export default defineEventHandler(event => {
 
   const sessionId =
     typeof ticket === "string" ? exchangePanelLaunchTicket(ticket, panelId) : undefined
+
   if (!sessionId) {
     throw createError({ statusCode: 401, statusMessage: "Invalid panel launch ticket" })
   }

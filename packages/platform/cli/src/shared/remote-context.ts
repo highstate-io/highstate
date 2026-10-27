@@ -220,6 +220,7 @@ export async function resolveRemoteTarget(
   const apiToken =
     env.HIGHSTATE_API_TOKEN ??
     (contextName ? await getContextToken(contextName, context) : undefined)
+
   if (!apiToken) {
     throw new Error("No API token available for the active Highstate backend")
   }

@@ -64,7 +64,9 @@ const tabs = computed(() => {
 
   for (const route of settingsRoutes) {
     const tabMeta = route.meta.tab
-    if (!tabMeta) continue
+    if (!tabMeta) {
+      continue
+    }
 
     if (!route.path.startsWith("/settings/")) {
       // skip non-settings routes
@@ -79,6 +81,7 @@ const tabs = computed(() => {
       isProjectTab: route.path.startsWith("/settings/projects/"),
       subpages: tabMeta.subpages ?? [],
     }
+
     if (tab.isProjectTab) {
       projectTabs.push(tab)
     } else {

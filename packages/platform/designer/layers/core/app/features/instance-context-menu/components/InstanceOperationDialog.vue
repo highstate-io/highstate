@@ -53,7 +53,9 @@ const isCompositeTargetsOnly = computed(() =>
 watch(
   [() => operation, () => instances],
   () => {
-    if (instances.length === 0) return
+    if (instances.length === 0) {
+      return
+    }
 
     // set default title based on operation and instances
     operationTitle.value = isMultipleInstances.value
@@ -87,7 +89,9 @@ watch(
 )
 
 const requestPlan = async () => {
-  if (!visible.value) return
+  if (!visible.value) {
+    return
+  }
 
   planLoading.value = true
   planError.value = null

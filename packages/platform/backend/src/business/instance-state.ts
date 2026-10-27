@@ -330,6 +330,7 @@ export class InstanceStateService {
       where: { id: stateId },
       include: includeForInstanceState(options),
     })
+
     if (!row) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -408,6 +409,7 @@ export class InstanceStateService {
       where: { id: projectId },
       select: forSchema(projectOutputSchema),
     })
+
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -431,6 +433,7 @@ export class InstanceStateService {
             lock: { select: { stateId: true } },
           },
         })
+
         if (!state) {
           throw new InstanceStateNotFoundError(projectId, instanceId)
         }
@@ -666,6 +669,7 @@ export class InstanceStateService {
       where: { id: stateId },
       select: { instanceId: true },
     })
+
     if (!target) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -734,6 +738,7 @@ export class InstanceStateService {
       where: { id: stateId },
       select: { instanceId: true },
     })
+
     if (!target) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -885,6 +890,7 @@ export class InstanceStateService {
 
       return { updatedOperationState, unitExtraData, unitExtraTrackingIds }
     })
+
     if (result.unitExtraTrackingIds.length > 0) {
       await this.objectRefIndexService.track(projectId, result.unitExtraTrackingIds)
     }

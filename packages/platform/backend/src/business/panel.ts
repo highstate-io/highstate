@@ -48,6 +48,7 @@ export class PanelService {
       where: { id: stateId },
       select: { instanceId: true },
     })
+
     if (!target) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -77,6 +78,7 @@ export class PanelService {
           worker: { select: { serviceAccountId: true } },
         },
       })
+
       if (!workerVersion) {
         throw new WorkerOwnershipError(context.projectId, workerVersionId)
       }
@@ -85,6 +87,7 @@ export class PanelService {
         where: { stateId, workerVersionId },
         select: { stateId: true },
       })
+
       if (panels.length > 0 && !registration) {
         throw new WorkerRegistrationNotFoundError(context.projectId, stateId, workerVersionId)
       }

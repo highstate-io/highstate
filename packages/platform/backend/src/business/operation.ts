@@ -121,6 +121,7 @@ export class OperationService {
     const operation = await database.operation.findUnique({
       where: { id: operationId },
     })
+
     if (!operation) {
       return undefined
     }
@@ -221,6 +222,7 @@ export class OperationService {
       where: { id: operationId },
       select: { id: true, finishedAt: true },
     })
+
     if (!operation) {
       throw new OperationNotFoundError(projectId, operationId)
     }

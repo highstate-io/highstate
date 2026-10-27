@@ -75,6 +75,7 @@ export default defineEventHandler(async event => {
     where: { id: panelId },
     select: { workerVersionId: true },
   })
+
   if (!panel) {
     return sendPanelError(event, 404, "Panel not found")
   }
@@ -85,6 +86,7 @@ export default defineEventHandler(async event => {
     panelId,
     session.workerInstanceId,
   )
+
   if (!upstream) {
     return sendPanelError(event, 502, "Panel worker instance is unavailable")
   }

@@ -300,6 +300,7 @@ export class BackendRoleSettingsService {
       where: { id: roleId },
       select: { id: true },
     })
+
     if (!role) {
       throw new BackendRoleNotFoundError(roleId)
     }
@@ -374,6 +375,7 @@ export class BackendRoleSettingsService {
       where: { id: roleId },
       select: { systemName: true },
     })
+
     if (!role) {
       throw new BackendRoleNotFoundError(roleId)
     }

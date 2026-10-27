@@ -46,6 +46,7 @@ for (const project of projects) {
     root: string
     targets?: { build?: unknown }
   }
+
   if (
     (await show.exited) !== 0 ||
     !configuration.targets?.build ||
@@ -58,6 +59,7 @@ for (const project of projects) {
     const manifest = JSON.parse(
       await readFile(resolve(trustedRoot, configuration.root, "package.json"), "utf8"),
     ) as { name?: string; private?: boolean }
+
     if (manifest.name && !manifest.private) {
       packages.push({ name: manifest.name, path: configuration.root })
     }

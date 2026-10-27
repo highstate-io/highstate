@@ -25,7 +25,9 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 const apiKey = ref(await apiKeyStore.get(params.apiKeyId))
-if (!apiKey.value) throw createError({ statusCode: 404, statusMessage: "API key not found" })
+if (!apiKey.value) {
+  throw createError({ statusCode: 404, statusMessage: "API key not found" })
+}
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useProjectRoleSettingsStore().getRestrictionOptions(),
   apiKeyStore.getServiceAccountOptions(),

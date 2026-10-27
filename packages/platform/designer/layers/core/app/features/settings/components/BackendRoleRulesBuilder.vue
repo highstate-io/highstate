@@ -28,6 +28,7 @@ const groups = computed<RoleRuleBuilderGroup[]>(() =>
       permission =>
         !allowedRules || allowedRules.some(rule => rule.permissions.includes(permission.name)),
     )
+
     if (permissions.length === 0) {
       return []
     }
@@ -105,6 +106,7 @@ const builderOptions = computed(() => {
           rule.permissions.some(permission => relevantPermissions.includes(permission)) &&
           !rule.restrictions,
       )
+
       if (unrestricted) {
         return [type, items]
       }

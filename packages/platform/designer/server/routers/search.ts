@@ -61,6 +61,7 @@ export const searchRouter = router({
           },
           null as Set<string> | null,
         )
+
       if (!projectIds || projectIds.size === 0) {
         return { text: input.text, projects: [] }
       }
@@ -83,6 +84,7 @@ export const searchRouter = router({
             const key = `${hit.kind}:${hit.id}`
             return otherHitKeySets.every(set => set.has(key))
           })
+
           if (commonHits.length === 0) {
             return null
           }

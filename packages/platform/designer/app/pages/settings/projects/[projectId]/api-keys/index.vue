@@ -68,7 +68,9 @@ function confirmRotate(apiKey: ApiKeyOutput): void {
 }
 
 async function remove(): Promise<void> {
-  if (!apiKeyToDelete.value) return
+  if (!apiKeyToDelete.value) {
+    return
+  }
 
   deleting.value = true
 
@@ -82,7 +84,9 @@ async function remove(): Promise<void> {
 }
 
 async function rotate(): Promise<void> {
-  if (!apiKeyToRotate.value) return
+  if (!apiKeyToRotate.value) {
+    return
+  }
 
   rotating.value = true
 

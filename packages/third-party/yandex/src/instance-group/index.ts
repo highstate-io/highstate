@@ -338,6 +338,7 @@ const nlbEndpoints = nlb
       nlb.listeners.apply(listeners => {
         const firstAddress = listeners?.find(listener => listener.externalAddressSpec?.address)
           ?.externalAddressSpec?.address
+
         if (!firstAddress) {
           throw new Error(`Could not determine NLB listener address`)
         }

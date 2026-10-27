@@ -162,6 +162,7 @@ export class StatusTracker {
     const progressingStatus = deployment.status.conditions.find(
       condition => condition.type === "Progressing" && condition.status === "True",
     )
+
     if (progressingStatus) {
       return {
         status: "progressing",
@@ -172,6 +173,7 @@ export class StatusTracker {
     const availableStatus = deployment.status.conditions.find(
       condition => condition.type === "Available",
     )
+
     if (availableStatus && availableStatus.status === "True") {
       return { status: "ok", message: availableStatus.message || "deployment is available" }
     }
@@ -236,6 +238,7 @@ export class StatusTracker {
         status?: { conditions?: Array<{ type: string; status: string; message?: string }> }
       }
     ).status
+
     if (!status) {
       return { status: "error", message: "gateway status not available" }
     }
@@ -264,6 +267,7 @@ export class StatusTracker {
         status?: { conditions?: Array<{ type: string; status: string; message?: string }> }
       }
     ).status
+
     if (!status) {
       return { status: "error", message: "certificate status not available" }
     }
@@ -408,7 +412,9 @@ export class StatusTracker {
 
     for (const [type, nsStatuses] of Object.entries(statusMap)) {
       for (const [namespace, resources] of Object.entries(nsStatuses)) {
-        if (Object.keys(resources).length === 0) continue
+        if (Object.keys(resources).length === 0) {
+          continue
+        }
 
         if (!namespaceGroups[namespace]) {
           namespaceGroups[namespace] = []

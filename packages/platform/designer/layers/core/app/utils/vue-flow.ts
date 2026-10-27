@@ -231,6 +231,7 @@ export const validateConnection = (
   const inputComponent: ComponentModel | undefined = inputInstance
     ? getInstanceComponent(inputInstance)
     : undefined
+
   if (outputHub && inputComponent && isForwardedSourceInput(inputComponent, inputKey)) {
     // fromInput forwarding requires direct single edge wiring for deterministic type forwarding
     logRejectedConnection("hub_to_forwarded_source_input")
@@ -350,6 +351,7 @@ export const validateConnection = (
       targetType: input.type,
       entities: libraryStore.entities,
     })
+
     if (!expressionOptions.some(option => option.path && option.assignable)) {
       logRejectedConnection("type_mismatch", {
         outputEntityType,
@@ -430,6 +432,7 @@ function resolveEffectiveOutputTypeForConnection(
 
       const producerInstance: InstanceModel | undefined =
         outputNode && "instance" in outputNode.data ? outputNode.data.instance : undefined
+
       if (!producerInstance) {
         return undefined
       }

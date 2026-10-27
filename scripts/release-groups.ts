@@ -138,6 +138,7 @@ export async function synchronizeReleaseGroups(root: string, check: boolean): Pr
     null,
     2,
   )}\n`
+
   if (changesetsSource !== updatedChangesets) {
     if (check) {
       stale.push(CHANGESETS_CONFIGURATION)

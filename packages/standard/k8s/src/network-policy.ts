@@ -1009,6 +1009,7 @@ export class NativeNetworkPolicy extends ComponentResource {
     const needFallback = args.egressRules.some(rule =>
       rule.fqdns.some(fqdn => !fqdn.endsWith(".cluster.local")),
     )
+
     if (needFallback) {
       extraRules.push({ to: [{ ipBlock: NativeNetworkPolicy.fallbackIpBlock }] })
     }
@@ -1098,6 +1099,7 @@ export class NativeNetworkPolicy extends ComponentResource {
       ...args.namespaces.map(NativeNetworkPolicy.createNamespacePeer),
       ...args.namespaceSelectors.map(NativeNetworkPolicy.createNamespaceSelectorPeer),
     ]
+
     if (namespacePeers.length === 0) {
       // if there are no namespaces, we can just return selector peers
       return selectorPeers

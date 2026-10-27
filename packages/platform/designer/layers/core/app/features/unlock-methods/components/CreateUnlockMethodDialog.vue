@@ -31,7 +31,9 @@ const handleCancel = () => {
 }
 
 const handleCreate = async () => {
-  if (!valid.value) return
+  if (!valid.value) {
+    return
+  }
 
   loading.value = true
   error.value = null

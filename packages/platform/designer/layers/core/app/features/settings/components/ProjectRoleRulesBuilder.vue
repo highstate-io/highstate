@@ -28,7 +28,10 @@ const groups = computed<RoleRuleBuilderGroup[]>(() =>
       permission =>
         !allowedRules || allowedRules.some(rule => rule.permissions.includes(permission.name)),
     )
-    if (permissions.length === 0) return []
+
+    if (permissions.length === 0) {
+      return []
+    }
 
     const unrestricted = permissions.some(permission =>
       allowedRules?.some(rule => rule.permissions.includes(permission.name) && !rule.restrictions),
@@ -71,7 +74,9 @@ const allBuilderOptions = computed(() => ({
   workers: options.workers,
 }))
 const builderOptions = computed(() => {
-  if (!allowedRules) return allBuilderOptions.value
+  if (!allowedRules) {
+    return allBuilderOptions.value
+  }
 
   return Object.fromEntries(
     Object.entries(allBuilderOptions.value).map(([type, items]) => {
@@ -94,7 +99,10 @@ const builderOptions = computed(() => {
           rule.permissions.some(permission => relevantPermissions.includes(permission)) &&
           !rule.restrictions,
       )
-      if (unrestricted) return [type, items]
+
+      if (unrestricted) {
+        return [type, items]
+      }
 
       const allowedIds = new Set(
         allowedRules.flatMap(rule =>

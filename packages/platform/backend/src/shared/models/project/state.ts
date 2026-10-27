@@ -109,9 +109,13 @@ export const instanceStateEventSchema = z.discriminatedUnion("type", [
 export function isVirtualGhostInstance(
   state: Pick<InstanceState, "status" | "source" | "evaluationState">,
 ): boolean {
-  if (state.source !== "virtual") return false
+  if (state.source !== "virtual") {
+    return false
+  }
 
-  if (state.status === "undeployed") return false
+  if (state.status === "undeployed") {
+    return false
+  }
 
   return !state.evaluationState
 }

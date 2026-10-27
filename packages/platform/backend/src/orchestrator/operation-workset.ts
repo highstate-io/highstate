@@ -131,6 +131,7 @@ export class OperationWorkset {
           ? (this.context.tryGetInstance(instanceId) ??
             this.context.tryGetInstanceForDestroy(instanceId))
           : this.context.tryGetInstance(instanceId)
+
         if (!instance) {
           throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
         }

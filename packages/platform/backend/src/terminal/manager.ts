@@ -65,6 +65,7 @@ export class TerminalManager {
         where: { id: sessionId },
         include: { terminal: true },
       })
+
       if (!session) {
         throw new Error(`Terminal session "${sessionId}" not found`)
       }
@@ -103,6 +104,7 @@ export class TerminalManager {
     const terminal = await database.terminal.findUnique({
       where: { id: terminalId },
     })
+
     if (!terminal) {
       throw new Error(`Terminal "${terminalId}" not found`)
     }
@@ -343,6 +345,7 @@ export class TerminalManager {
         finishedAt: null,
       },
     })
+
     if (activeSessions.length === 0) {
       this.logger.debug({ projectId }, "no lost terminal sessions found")
       return

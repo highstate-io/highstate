@@ -68,6 +68,7 @@ export class WorkerSettingsService {
       where: { id: workerId },
       select: WorkerSettingsService.workerSelect(),
     })
+
     if (!worker) {
       return null
     }
@@ -131,6 +132,7 @@ export class WorkerSettingsService {
       where: { id: versionId },
       select: WorkerSettingsService.versionSelect(),
     })
+
     if (!version) {
       return null
     }

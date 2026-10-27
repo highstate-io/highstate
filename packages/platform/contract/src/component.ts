@@ -716,6 +716,7 @@ export function defineComponent<
           const arrayBoundary = (value as Partial<{ [boundaryInput]: InstanceInput }>)[
             boundaryInput
           ]
+
           if (arrayBoundary) {
             group.push(arrayBoundary)
           }

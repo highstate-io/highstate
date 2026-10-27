@@ -10,7 +10,9 @@ import { pick } from "remeda"
 
 export default defineNuxtRouteMiddleware(async to => {
   // only run on client side
-  if (import.meta.server) return
+  if (import.meta.server) {
+    return
+  }
 
   const workspaceStore = useWorkspaceStore()
   const projectsStore = useProjectsStore()
@@ -22,11 +24,15 @@ export default defineNuxtRouteMiddleware(async to => {
   }
 
   // ensure dockview is initialized
-  if (!dockviewApi) return
+  if (!dockviewApi) {
+    return
+  }
 
   // check if route has panel metadata
   const panelMeta = to.meta.panel
-  if (!panelMeta) return
+  if (!panelMeta) {
+    return
+  }
 
   try {
     // resolve panel config (static object or function result)
@@ -42,6 +48,7 @@ export default defineNuxtRouteMiddleware(async to => {
       typeof to.meta.panelId === "function"
         ? to.meta.panelId(to as RouteLocationNormalized)
         : (to.meta.panelId ?? (to.name as string)?.split(".")[0])
+
     if (!panelId) {
       globalLogger.warn("no panelId for route %s", to.fullPath)
       return

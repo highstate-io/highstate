@@ -107,6 +107,7 @@ export class ImplementationMediator<
       string,
       (...args: unknown[]) => unknown,
     ][]
+
     if (funcs.length === 0) {
       throw new Error(`No implementation functions found in module "${importPath}"`)
     }

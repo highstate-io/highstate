@@ -33,12 +33,15 @@ function standardError(context, node) {
       "EvalError",
       "AggregateError",
     ].includes(node.callee.name)
-  )
+  ) {
     return false
+  }
 
   for (let scope = context.sourceCode.getScope(node); scope; scope = scope.upper) {
     const variable = scope.set.get(node.callee.name)
-    if (variable) return variable.defs.length === 0
+    if (variable) {
+      return variable.defs.length === 0
+    }
   }
 
   return true
@@ -49,7 +52,10 @@ function caughtBinding(source, node) {
     const caught = scope.variables.find(variable =>
       variable.defs.some(definition => definition.type === "CatchClause"),
     )
-    if (caught) return caught
+
+    if (caught) {
+      return caught
+    }
   }
 }
 
@@ -58,10 +64,13 @@ function refersTo(_source, node, variable) {
 }
 
 function messageParts(node) {
-  if (node?.type === "Literal" && typeof node.value === "string") return [node.value]
+  if (node?.type === "Literal" && typeof node.value === "string") {
+    return [node.value]
+  }
 
-  if (node?.type === "TemplateLiteral")
+  if (node?.type === "TemplateLiteral") {
     return node.quasis.map(part => part.value.cooked ?? part.value.raw)
+  }
 
   return []
 }
@@ -69,13 +78,17 @@ function messageParts(node) {
 function messageStyle(context, node, uppercase) {
   const source = context.sourceCode
   const parts = messageParts(node)
-  if (!parts.length) return
+  if (!parts.length) {
+    return
+  }
 
   const first = parts[0]
   const last = parts.at(-1)
   const wrongCase = uppercase ? /^[a-z]/.test(first) : /^[A-Z][a-z]/.test(first)
   const punctuation = /[.!]$/.test(last)
-  if (!wrongCase && !punctuation) return
+  if (!wrongCase && !punctuation) {
+    return
+  }
 
   report(
     context,
@@ -91,7 +104,9 @@ function messageStyle(context, node, uppercase) {
           text.slice(2)
       }
 
-      if (punctuation) text = text.slice(0, -2) + text.slice(-1)
+      if (punctuation) {
+        text = text.slice(0, -2) + text.slice(-1)
+      }
 
       return fixer.replaceText(node, text)
     },
@@ -99,6 +114,98 @@ function messageStyle(context, node, uppercase) {
 }
 
 const rules = {
+  "switch-mappers": rule(
+    "Use switch for multiple mapping cases on the same value",
+    context => {
+      const source = context.sourceCode
+
+      const stable = node =>
+        node.type === "Identifier" ||
+        node.type === "Literal" ||
+        (node.type === "MemberExpression" && !node.computed && stable(node.object))
+
+      const mapping = node => {
+        if (node.type !== "IfStatement" || node.alternate) {
+          return
+        }
+
+        const test = node.test
+
+        const body =
+          node.consequent.type === "BlockStatement" ? node.consequent.body : [node.consequent]
+
+        if (
+          test.type !== "BinaryExpression" ||
+          test.operator !== "===" ||
+          test.left.type !== "Identifier" ||
+          !stable(test.right) ||
+          body.length !== 1 ||
+          body[0].type !== "ReturnStatement"
+        ) {
+          return
+        }
+
+        return {
+          value: source.getText(test.left),
+          label: source.getText(test.right),
+          result: body[0],
+        }
+      }
+
+      return {
+        BlockStatement(node) {
+          for (let index = 0; index < node.body.length; index++) {
+            const first = mapping(node.body[index])
+            if (!first) {
+              continue
+            }
+
+            const cases = [first]
+            let end = index + 1
+
+            for (; end < node.body.length; end++) {
+              const next = mapping(node.body[end])
+              if (!next || next.value !== first.value) {
+                break
+              }
+
+              cases.push(next)
+            }
+
+            if (cases.length < 2) {
+              continue
+            }
+
+            const startNode = node.body[index]
+            const endNode = node.body[end - 1]
+            const range = [startNode.range[0], endNode.range[1]]
+
+            const hasComments = source
+              .getAllComments()
+              .some(comment => comment.range[0] >= range[0] && comment.range[1] <= range[1])
+
+            report(
+              context,
+              startNode,
+              "Use switch for multiple mapping cases on the same value",
+              hasComments
+                ? undefined
+                : fixer =>
+                    fixer.replaceTextRange(
+                      range,
+                      `switch (${first.value}) {\n${cases
+                        .map(entry => `case ${entry.label}:\n${source.getText(entry.result)}`)
+                        .join("\n")}\n}`,
+                    ),
+            )
+
+            index = end - 1
+          }
+        },
+      }
+    },
+    true,
+  ),
   "no-redundant-alias": rule(
     "Use the original type name instead of adding a local synonym",
     context => ({
@@ -109,8 +216,9 @@ const rules = {
           node.typeParameters ||
           node.typeAnnotation.type !== "TSTypeReference" ||
           node.typeAnnotation.typeArguments
-        )
+        ) {
           return
+        }
 
         const variable = context.sourceCode.getDeclaredVariables(node)[0]
         if (
@@ -118,8 +226,9 @@ const rules = {
           variable.references.some(
             reference => reference.identifier.parent.type === "ExportSpecifier",
           )
-        )
+        ) {
           return
+        }
 
         report(context, node, "Use the existing type directly instead of adding a local alias")
       },
@@ -130,19 +239,23 @@ const rules = {
     context => ({
       Program() {
         for (const comment of context.sourceCode.getAllComments()) {
-          if (comment.type !== "Line") continue
+          if (comment.type !== "Line") {
+            continue
+          }
 
           const text = comment.value.trim()
           if (
             !text ||
             text.length > 100 ||
             /(?:https?:|eslint|biome-|@ts-|TODO|FIXME|SPDX|Copyright|^#|^\/|^<)/.test(text)
-          )
+          ) {
             continue
+          }
 
           // sentences and code examples are not short explanatory fragments
-          if (/[.!?]/.test(text.slice(0, -1)) || /[{};=]/.test(text) || !/^[A-Z][a-z]/.test(text))
+          if (/[.!?]/.test(text.slice(0, -1)) || /[{};=]/.test(text) || !/^[A-Z][a-z]/.test(text)) {
             continue
+          }
 
           report(
             context,
@@ -164,16 +277,22 @@ const rules = {
     context => ({
       ThrowStatement(node) {
         const error = node.argument
-        if (error?.type !== "NewExpression" || !standardError(context, error)) return
+        if (error?.type !== "NewExpression" || !standardError(context, error)) {
+          return
+        }
 
         // a nested function's failures belong to its own boundary
         let boundary = node.parent
 
         for (; boundary && boundary.type !== "CatchClause"; boundary = boundary.parent) {
-          if (/Function/.test(boundary.type)) return
+          if (/Function/.test(boundary.type)) {
+            return
+          }
         }
 
-        if (!boundary) return
+        if (!boundary) {
+          return
+        }
 
         if (boundary.param?.type !== "Identifier") {
           report(context, error, "Bind the complete caught error and preserve it as cause")
@@ -182,7 +301,9 @@ const rules = {
 
         const source = context.sourceCode
         const caught = caughtBinding(source, node)
-        if (!caught) return
+        if (!caught) {
+          return
+        }
 
         const optionsIndex = error.callee.name === "AggregateError" ? 2 : 1
         const options = error.arguments[optionsIndex]
@@ -190,26 +311,38 @@ const rules = {
         const cause =
           options?.type === "ObjectExpression" &&
           options.properties.find(property => property.key?.name === "cause")
-        if (cause && refersTo(source, cause.value, caught)) return
+
+        if (cause && refersTo(source, cause.value, caught)) {
+          return
+        }
 
         report(context, error, "Preserve the original caught error as cause", fixer => {
-          if (cause || (options && options.type !== "ObjectExpression")) return null
+          if (cause || (options && options.type !== "ObjectExpression")) {
+            return null
+          }
 
           for (let scope = source.getScope(node); scope; scope = scope.upper) {
             const variable = scope.set.get(caught.name)
-            if (variable && variable !== caught) return null
+            if (variable && variable !== caught) {
+              return null
+            }
 
-            if (variable === caught) break
+            if (variable === caught) {
+              break
+            }
           }
 
-          if (options)
+          if (options) {
             return fixer.insertTextBefore(
               source.getLastToken(options),
               `${options.properties.length && source.getTokenBefore(source.getLastToken(options)).value !== "," ? "," : ""} cause: ${caught.name}`,
             )
+          }
 
           const last = error.arguments.at(-1)
-          if (!last) return null
+          if (!last) {
+            return null
+          }
 
           return fixer.insertTextAfter(
             last,
@@ -224,13 +357,19 @@ const rules = {
     "Use types for records and interfaces for behavioral contracts",
     context => ({
       TSInterfaceDeclaration(node) {
-        if (node.body.body.some(behavior) || !node.body.body.length) return
+        if (node.body.body.some(behavior) || !node.body.body.length) {
+          return
+        }
 
         // declaration merging is part of the contract, including module/global augmentation
-        if (node.parent.type === "TSModuleBlock") return
+        if (node.parent.type === "TSModuleBlock") {
+          return
+        }
 
         const variable = context.sourceCode.getDeclaredVariables(node)[0]
-        if (variable?.defs.length > 1) return
+        if (variable?.defs.length > 1) {
+          return
+        }
 
         report(context, node, "Use a type for a data structure", fixer => {
           const source = context.sourceCode
@@ -246,8 +385,9 @@ const rules = {
         if (
           node.typeAnnotation.type !== "TSTypeLiteral" ||
           !node.typeAnnotation.members.some(behavior)
-        )
+        ) {
           return
+        }
 
         report(context, node, "Use an interface for a behavioral contract", fixer => {
           const source = context.sourceCode
@@ -286,9 +426,13 @@ const rules = {
       TSParameterProperty(node) {
         const declaration = node.parent.parent
         const owner = declaration?.parent?.parent
-        if (declaration?.kind !== "constructor" || !/.+Service$/.test(owner?.id?.name ?? "")) return
+        if (declaration?.kind !== "constructor" || !/.+Service$/.test(owner?.id?.name ?? "")) {
+          return
+        }
 
-        if (node.accessibility === "private" && node.readonly) return
+        if (node.accessibility === "private" && node.readonly) {
+          return
+        }
 
         // A public/protected dependency can be used by callers/subclasses; do not hide it automatically.
         report(context, node, "Injected service dependencies must be private readonly")
@@ -309,19 +453,23 @@ const rules = {
             ["MethodDefinition", "TSAbstractMethodDefinition"].includes(member.type)
 
           const metadata = member => member.static && ["paths", "usage"].includes(member.key?.name)
-          if (!method(previous) && !method(current) && !metadata(previous) && !metadata(current))
+          if (!method(previous) && !method(current) && !metadata(previous) && !metadata(current)) {
             continue
+          }
 
           // overload signatures form one declaration and must stay together
           if (
             previous.value?.type === "TSEmptyBodyFunctionExpression" &&
             previous.key?.name === current.key?.name
-          )
+          ) {
             continue
+          }
 
           const comments = source.getCommentsBefore(current)
           const start = comments[0] ?? current
-          if (start.loc.start.line - previous.loc.end.line > 1) continue
+          if (start.loc.start.line - previous.loc.end.line > 1) {
+            continue
+          }
 
           report(
             context,
@@ -335,7 +483,7 @@ const rules = {
     true,
   ),
   "statement-spacing": rule(
-    "Separate guards, loops and multiline calls, keeping checked assignments adjacent",
+    "Separate guards, loops and multiline calls, keeping single-line checked assignments adjacent",
     context => {
       const source = context.sourceCode
 
@@ -343,14 +491,21 @@ const rules = {
         const names = new Set()
 
         const visit = child => {
-          if (!child || typeof child !== "object") return
+          if (!child || typeof child !== "object") {
+            return
+          }
 
-          if (child.type === "Identifier") names.add(child.name)
+          if (child.type === "Identifier") {
+            names.add(child.name)
+          }
 
           for (const key of source.visitorKeys[child.type] ?? []) {
             const value = child[key]
-            if (Array.isArray(value)) value.forEach(visit)
-            else visit(value)
+            if (Array.isArray(value)) {
+              value.forEach(visit)
+            } else {
+              visit(value)
+            }
           }
         }
 
@@ -372,6 +527,7 @@ const rules = {
 
           const checked =
             previous.type === "VariableDeclaration" &&
+            previous.loc.start.line === previous.loc.end.line &&
             previous.declarations.length === 1 &&
             previous.declarations[0].id.type === "Identifier" &&
             current.type === "IfStatement" &&
@@ -407,10 +563,14 @@ const rules = {
     "Keep wrapper errors readable and preserve the caught error separately",
     context => ({
       NewExpression(node) {
-        if (!standardError(context, node)) return
+        if (!standardError(context, node)) {
+          return
+        }
 
         const message = node.arguments[node.callee.name === "AggregateError" ? 1 : 0]
-        if (!message) return
+        if (!message) {
+          return
+        }
 
         messageStyle(context, message, true)
         const caught = caughtBinding(context.sourceCode, node)
@@ -425,8 +585,11 @@ const rules = {
           }
         }
 
-        if (message.type === "TemplateLiteral") message.expressions.forEach(check)
-        else check(message)
+        if (message.type === "TemplateLiteral") {
+          message.expressions.forEach(check)
+        } else {
+          check(message)
+        }
       },
     }),
     true,
@@ -438,15 +601,20 @@ const rules = {
         if (
           node.callee.type !== "MemberExpression" ||
           !["trace", "debug", "info", "warn", "error", "fatal"].includes(node.callee.property.name)
-        )
+        ) {
           return
+        }
 
         const source = context.sourceCode
-        if (!/(?:^|\.)[\w$]*logger$/i.test(source.getText(node.callee.object))) return
+        if (!/(?:^|\.)[\w$]*logger$/i.test(source.getText(node.callee.object))) {
+          return
+        }
 
         const [first, second] = node.arguments
         const message = first?.type === "ObjectExpression" ? second : first
-        if (message) messageStyle(context, message, false)
+        if (message) {
+          messageStyle(context, message, false)
+        }
 
         if (message?.type === "TemplateLiteral" && message.expressions.length) {
           report(
@@ -454,7 +622,9 @@ const rules = {
             message,
             "Pass log values as substitution arguments instead of interpolating the message",
             fixer => {
-              if (messageParts(message).some(part => part.includes("%"))) return null
+              if (messageParts(message).some(part => part.includes("%"))) {
+                return null
+              }
 
               const text = messageParts(message).join("%s")
               return fixer.replaceText(
@@ -481,8 +651,9 @@ const rules = {
               property.type !== "Property" ||
               !refersTo(source, property.value, caught) ||
               property.key.name === "error"
-            )
+            ) {
               continue
+            }
 
             if (first.properties.some(other => other.key?.name === "error")) {
               report(context, property, 'Put the caught error under the "error" context key')
@@ -514,16 +685,20 @@ const rules = {
             !/^(?:biome-ignore(?:-all|-start|-end)?|eslint-disable(?:-next-line|-line)?)\b/.test(
               text,
             )
-          )
+          ) {
             continue
+          }
 
-          if (/^biome-ignore-end\b/.test(text)) continue
+          if (/^biome-ignore-end\b/.test(text)) {
+            continue
+          }
 
           const reason = text.includes(" -- ")
             ? text.split(" -- ").slice(1).join(" -- ")
             : text.includes(":")
               ? text.slice(text.indexOf(":") + 1).trim()
               : ""
+
           if (
             !reason ||
             /^(?:todo|fixme|reason|explanation|ignore|legacy|because|needed|false positive)[.!]?$/i.test(

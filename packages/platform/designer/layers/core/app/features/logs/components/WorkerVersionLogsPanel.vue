@@ -30,7 +30,9 @@ const formatTimestamp = (ulidId: string): string => {
 }
 
 const writeLogEntry = (logId: string, content: string, isSystem: boolean = false) => {
-  if (!terminal) return
+  if (!terminal) {
+    return
+  }
 
   const timestamp = formatTimestamp(logId)
 

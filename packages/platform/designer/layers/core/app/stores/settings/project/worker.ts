@@ -23,7 +23,9 @@ export const useProjectWorkerSettingsStore = defineMultiStore({
         { projectId },
         {
           onData() {
-            if (reloadTimeout) return
+            if (reloadTimeout) {
+              return
+            }
 
             reloadTimeout = setTimeout(() => {
               reloadTimeout = undefined
@@ -34,7 +36,9 @@ export const useProjectWorkerSettingsStore = defineMultiStore({
       )
 
       onDeactivated(() => {
-        if (reloadTimeout) clearTimeout(reloadTimeout)
+        if (reloadTimeout) {
+          clearTimeout(reloadTimeout)
+        }
 
         unsubscribe()
       })

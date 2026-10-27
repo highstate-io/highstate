@@ -83,6 +83,7 @@ export class ProjectUnlockService {
       where: { id: projectId },
       select: { unlockSuite: true },
     })
+
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -174,6 +175,7 @@ export class ProjectUnlockService {
       where: { id: projectId },
       select: { encryptedMasterKey: true, encryptedPrivateKey: true },
     })
+
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -245,6 +247,7 @@ export class ProjectUnlockService {
     const unlockMethods = await database.unlockMethod.findMany({
       select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
     })
+
     if (unlockMethods.length === 0) {
       this.logger.warn(
         { projectId },
@@ -343,6 +346,7 @@ export class ProjectUnlockService {
         where: { id: { not: unlockMethodId } },
         select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
       })
+
       if (unlockMethods.length === 0) {
         throw new CannotDeleteLastUnlockMethodError(projectId)
       }

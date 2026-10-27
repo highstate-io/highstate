@@ -138,6 +138,7 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
                 returnArgument.start,
                 returnArgument.end,
               )
+
               if (originalReturnValue.trimStart().startsWith(`${helperFunction}(`)) {
                 return
               }
@@ -197,6 +198,7 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
 
         const functionName =
           "name" in callee && typeof callee.name === "string" ? callee.name : undefined
+
         if (
           functionName &&
           ["defineUnit", "defineEntity", "defineComponent"].includes(functionName)
@@ -218,6 +220,7 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
                   prop.key?.type === "Identifier" &&
                   prop.key?.name === "meta",
               ) as ObjectProperty | undefined
+
               if (metaProperty && "value" in metaProperty) {
                 // inject description into existing meta object
                 const originalMetaValue = content.substring(
@@ -267,19 +270,25 @@ function findJsdocForDefineFunction(
     // check for variable declaration (const x = defineUnit(...))
     if (node.type === "VariableDeclarator" && "id" in node && node.id?.type === "Identifier") {
       const jsdoc = findLeadingComment(content, node, comments)
-      if (jsdoc) return jsdoc
+      if (jsdoc) {
+        return jsdoc
+      }
     }
 
     // check for export variable declaration (export const x = defineUnit(...))
     if (node.type === "VariableDeclaration") {
       const jsdoc = findLeadingComment(content, node, comments)
-      if (jsdoc) return jsdoc
+      if (jsdoc) {
+        return jsdoc
+      }
     }
 
     // check for export declaration (export const x = ...)
     if (node.type === "ExportNamedDeclaration" && "declaration" in node && node.declaration) {
       const jsdoc = findLeadingComment(content, node, comments)
-      if (jsdoc) return jsdoc
+      if (jsdoc) {
+        return jsdoc
+      }
     }
   }
 

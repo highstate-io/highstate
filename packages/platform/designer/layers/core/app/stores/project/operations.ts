@@ -164,28 +164,42 @@ export const useProjectOperationsStore = defineMultiStore({
 
       const getLastInstanceOperation = (instanceId: string) => {
         const state = stateStore.instanceStates.get(instanceId)
-        if (!state?.lastOperationState?.operationId) return undefined
+        if (!state?.lastOperationState?.operationId) {
+          return undefined
+        }
 
         return operationsMap.get(state.lastOperationState.operationId)
       }
 
       const instancesToAutoUpdate = computed(() => {
         return Array.from(instancesStore.instances.values()).filter(instance => {
-          if (instancesStore.virtualInstanceIds.has(instance.id)) return false
+          if (instancesStore.virtualInstanceIds.has(instance.id)) {
+            return false
+          }
 
           const state = stateStore.instanceStates.get(instance.id)
-          if (!state?.lastOperationState?.operationId) return true
+          if (!state?.lastOperationState?.operationId) {
+            return true
+          }
 
           const operation = operationsMap.get(state.lastOperationState.operationId)
-          if (operation && !isFinalOperationStatus(operation.status)) return false
+          if (operation && !isFinalOperationStatus(operation.status)) {
+            return false
+          }
 
           const validationState = validationStore.validationOutputs.get(instance.id)
-          if (validationState?.status !== "ok") return false
+          if (validationState?.status !== "ok") {
+            return false
+          }
 
-          if (state.lastOperationState.status !== "updated") return true
+          if (state.lastOperationState.status !== "updated") {
+            return true
+          }
 
           const output = stateStore.inputHashOutputs.get(instance.id)
-          if (!output) return false
+          if (!output) {
+            return false
+          }
 
           return state.inputHash !== output.inputHash
         })

@@ -108,6 +108,7 @@ export class BuildCommand extends Command {
       splitting: !isWorker,
       plugins: bunPlugins,
     })
+
     if (!result.success) {
       for (const log of result.logs) {
         logger.error(log.message)

@@ -51,6 +51,7 @@ export class EncryptionArtifactBackend implements ArtifactBackend {
       artifactId,
       chunkSize + nonceSize,
     )
+
     if (encryptedContent === null) {
       return null
     }

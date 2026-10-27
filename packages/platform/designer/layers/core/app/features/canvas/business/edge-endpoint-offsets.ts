@@ -417,6 +417,7 @@ export function useCanvasEdgeEndpointOffsets(
 
       const routedTargetYChanged =
         patch.routedTargetY !== undefined && patch.routedTargetY !== current.routedTargetY
+
       if (routedSourceYChanged || routedTargetYChanged) {
         vueFlowStore.updateEdgeData(edge.id, patch)
         updatedEdgeIds.push(edge.id)

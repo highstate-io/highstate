@@ -60,6 +60,7 @@ const patchOperationSchema = z
       operation.operation === InstanceArgumentPatchOperation_Operation.ADD ||
       operation.operation === InstanceArgumentPatchOperation_Operation.REPLACE ||
       operation.operation === InstanceArgumentPatchOperation_Operation.TEST
+
     if (requiresValue && operation.value === undefined) {
       context.addIssue({ code: "custom", path: ["value"], message: "Value is required" })
     }

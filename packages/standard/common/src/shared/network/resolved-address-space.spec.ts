@@ -6,7 +6,9 @@ import { subnetToString } from "./subnet"
 describe("createResolvedAddressSpace", () => {
   it("resolves hostname strings to addresses", async () => {
     const resolver = vi.fn(async (hostname: string) => {
-      if (hostname === "example.com") return ["10.0.0.1"]
+      if (hostname === "example.com") {
+        return ["10.0.0.1"]
+      }
 
       return []
     })
@@ -19,7 +21,9 @@ describe("createResolvedAddressSpace", () => {
 
   it("resolves hostname L3 endpoints to addresses", async () => {
     const resolver = vi.fn(async (hostname: string) => {
-      if (hostname === "example.com") return ["10.0.0.7"]
+      if (hostname === "example.com") {
+        return ["10.0.0.7"]
+      }
 
       return []
     })
@@ -34,9 +38,12 @@ describe("createResolvedAddressSpace", () => {
 
   it("applies exclusions after resolving hostnames", async () => {
     const resolver = vi.fn(async (hostname: string) => {
-      if (hostname === "included.example") return ["10.0.0.1", "10.0.0.2"]
-
-      if (hostname === "excluded.example") return ["10.0.0.2"]
+      switch (hostname) {
+        case "included.example":
+          return ["10.0.0.1", "10.0.0.2"]
+        case "excluded.example":
+          return ["10.0.0.2"]
+      }
 
       return []
     })
@@ -54,7 +61,9 @@ describe("createResolvedAddressSpace", () => {
 
   it("treats dashed hostnames as hostnames, not ranges", async () => {
     const resolver = vi.fn(async (hostname: string) => {
-      if (hostname === "api-1.example.com") return ["10.0.0.9"]
+      if (hostname === "api-1.example.com") {
+        return ["10.0.0.9"]
+      }
 
       return []
     })

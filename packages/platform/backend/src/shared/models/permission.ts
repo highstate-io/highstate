@@ -61,6 +61,7 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
   const criticalPermissions = effectiveGrants
     .map(grant => grant.permission)
     .filter(permission => permission.risk === "critical")
+
   if (criticalPermissions.length > 0) {
     const consequences = criticalPermissions
       .map(
@@ -78,6 +79,7 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
   const unrestrictedHighPermissions = effectiveGrants
     .filter(grant => grant.permission.risk === "high" && !grant.restricted)
     .map(grant => grant.permission.title)
+
   if (unrestrictedHighPermissions.length > 0) {
     return {
       risk: "high",
@@ -92,6 +94,7 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
   const mediumPermissions = effectiveGrants
     .filter(grant => grant.permission.risk === "medium")
     .map(grant => grant.permission.title)
+
   if (restrictedHighPermissions.length > 0 || mediumPermissions.length > 0) {
     const sentences: string[] = []
 

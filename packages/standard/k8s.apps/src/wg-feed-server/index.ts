@@ -112,6 +112,7 @@ async function createFallbackSiteConfigMap(
     .filter(entry => entry.isFile())
     .map(entry => join(entry.parentPath, entry.name))
     .sort()
+
   if (files.length === 0) {
     throw new Error("FallbackSite must contain at least one file")
   }

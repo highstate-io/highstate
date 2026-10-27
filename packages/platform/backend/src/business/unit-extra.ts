@@ -177,6 +177,7 @@ export class UnitExtraService {
         id: true,
       },
     })
+
     if (staleArtifacts.length === 0) {
       return
     }

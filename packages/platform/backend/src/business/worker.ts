@@ -125,6 +125,7 @@ export class WorkerService {
           const remainingRegistrations = await tx.workerUnitRegistration.count({
             where: { stateId, workerVersionId: existing.workerVersionId },
           })
+
           if (remainingRegistrations === 0) {
             if (existing.workerVersion.workerId === workerVersionRecord.workerId) {
               await tx.panel.updateMany({
@@ -161,6 +162,7 @@ export class WorkerService {
         const remainingRegistrations = await tx.workerUnitRegistration.count({
           where: { stateId, workerVersionId: registration.workerVersionId },
         })
+
         if (remainingRegistrations === 0) {
           await tx.panel.deleteMany({
             where: { stateId, workerVersionId: registration.workerVersionId },
@@ -292,6 +294,7 @@ export class WorkerService {
       },
       select: { id: true, apiKeyId: true },
     })
+
     if (unused.length === 0) {
       return
     }
@@ -336,6 +339,7 @@ export class WorkerService {
       where: { id: workerVersionId },
       select: { workerId: true, worker: { select: { serviceAccountId: true } } },
     })
+
     if (!target) {
       throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
     }
@@ -402,6 +406,7 @@ export class WorkerService {
       where: { id: workerVersionId },
       select: { workerId: true, worker: { select: { serviceAccountId: true } } },
     })
+
     if (!version) {
       throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
     }

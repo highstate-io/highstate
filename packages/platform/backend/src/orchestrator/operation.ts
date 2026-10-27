@@ -490,6 +490,7 @@ export class RuntimeOperation {
             this.project.id,
             sourceStateId,
           )
+
           if (importPayload) {
             const capturedByOutput =
               this.projectPortService.buildImportCapturedOutputValues(importPayload)
@@ -871,6 +872,7 @@ export class RuntimeOperation {
     const beforeDestroyTriggers = allTriggers.filter(
       trigger => trigger.spec.type === "before-destroy",
     )
+
     if (beforeDestroyTriggers.length === 0) {
       return
     }
@@ -1272,6 +1274,7 @@ export class RuntimeOperation {
           entitySnapshotError: null,
           entitySnapshotPayload: null,
         }
+
     if (parsed.entitySnapshotError) {
       await this.operationService.appendLog(
         this.project.id,

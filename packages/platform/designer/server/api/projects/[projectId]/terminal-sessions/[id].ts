@@ -51,6 +51,7 @@ export default defineWebSocketHandler({
       where: { id: sessionId },
       include: { terminal: true },
     })
+
     if (!session) {
       throw new Error("Terminal session not found")
     }

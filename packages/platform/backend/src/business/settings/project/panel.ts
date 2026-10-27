@@ -65,6 +65,7 @@ export class PanelSettingsService {
       where: { id: panelId },
       select: PanelSettingsService.select(),
     })
+
     if (!panel) {
       return null
     }

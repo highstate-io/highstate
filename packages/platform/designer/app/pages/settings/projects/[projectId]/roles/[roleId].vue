@@ -16,7 +16,9 @@ const { params } = defineProps<{ params: { projectId: string; roleId: string } }
 const roleStore = useProjectRoleSettingsStore()
 const router = useRouter()
 const role = ref(await roleStore.get(params.roleId))
-if (!role.value) throw createError({ statusCode: 404, statusMessage: "Project role not found" })
+if (!role.value) {
+  throw createError({ statusCode: 404, statusMessage: "Project role not found" })
+}
 const editDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const saving = ref(false)

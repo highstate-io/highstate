@@ -92,6 +92,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
       const existingRecord = await projectDatabase.instanceModel.findUnique({
         where: { id: instanceId },
       })
+
       if (!existingRecord) {
         throw new ProjectModelInstanceNotFoundError(project.id, instanceId)
       }
@@ -156,7 +157,9 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
 
       return instance
     } catch (error) {
-      if (error instanceof ProjectModelError) throw error
+      if (error instanceof ProjectModelError) {
+        throw error
+      }
 
       throw new ProjectModelOperationError("patch instance arguments", project.id, error)
     }
@@ -177,6 +180,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
         const existingRecord = await tx.instanceModel.findUnique({
           where: { id: instanceId },
         })
+
         if (!existingRecord) {
           throw new ProjectModelInstanceNotFoundError(project.id, instanceId)
         }
@@ -237,6 +241,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
         const existingRecord = await tx.instanceModel.findUnique({
           where: { id: instanceId },
         })
+
         if (!existingRecord) {
           throw new ProjectModelInstanceNotFoundError(project.id, instanceId)
         }
@@ -248,6 +253,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
         const conflictRecord = await tx.instanceModel.findUnique({
           where: { id: newInstanceId },
         })
+
         if (conflictRecord) {
           throw new ProjectModelInstanceAlreadyExistsError(project.id, newInstanceId)
         }
@@ -319,6 +325,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
       const existingRecord = await projectDatabase.hubModel.findUnique({
         where: { id: hubId },
       })
+
       if (!existingRecord) {
         throw new ProjectModelHubNotFoundError(project.id, hubId)
       }
@@ -357,6 +364,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
         const existingRecord = await tx.hubModel.findUnique({
           where: { id: hubId },
         })
+
         if (!existingRecord) {
           throw new ProjectModelHubNotFoundError(project.id, hubId)
         }

@@ -383,6 +383,7 @@ class StatefulSetPatch extends StatefulSet {
               { template: podTemplate },
               omit(args, workloadServiceExtraArgs),
             ) as Unwrap<types.input.apps.v1.StatefulSetSpec>
+
             if (spec.template) {
               spec.template = filterPatchOwnedContainersInTemplate(spec.template, podTemplate)
             }

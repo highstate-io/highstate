@@ -280,6 +280,7 @@ export const operationTest = test.extend<{
   runner: async ({ runnerBackend }, use) => {
     const controller = (runnerBackend as unknown as { __testController?: RunnerTestController })
       .__testController
+
     if (!controller) {
       throw new Error("Runner test controller was not initialized")
     }

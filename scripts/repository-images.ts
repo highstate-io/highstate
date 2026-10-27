@@ -52,6 +52,7 @@ export async function synchronizeRepositoryImages(args: {
       const name = [...args.imageNames]
         .filter(name => entry.name === name || entry.name.endsWith(`/${name}`))
         .sort((first, second) => second.length - first.length)[0]
+
       if (!name) {
         continue
       }

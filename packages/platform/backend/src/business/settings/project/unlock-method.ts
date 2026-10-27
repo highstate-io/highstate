@@ -60,6 +60,7 @@ export class UnlockMethodSettingsService {
       where: { id: unlockMethodId },
       select: forSchema(unlockMethodOutputSchema),
     })
+
     if (!method) {
       return null
     }
@@ -96,6 +97,7 @@ export class UnlockMethodSettingsService {
       | "password"
       | "passkey"
     )[]
+
     if (types.length > 0) {
       OR.push({ type: { in: types } })
     }

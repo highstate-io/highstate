@@ -49,6 +49,7 @@ export default defineWebSocketHandler({
       where: { id: panelId },
       select: { workerVersionId: true },
     })
+
     if (!panel) {
       peer.close(1008, "Panel not found")
       return
@@ -61,6 +62,7 @@ export default defineWebSocketHandler({
         panelId,
         session.workerInstanceId,
       )
+
       if (!endpoint) {
         peer.close(1011, "Panel worker instance is unavailable")
         return

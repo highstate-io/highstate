@@ -316,6 +316,7 @@ class DeploymentPatch extends Deployment {
               { template: podTemplate },
               omit(args, workloadServiceExtraArgs),
             ) as Unwrap<types.input.apps.v1.DeploymentSpec>
+
             if (spec.template) {
               spec.template = filterPatchOwnedContainersInTemplate(spec.template, podTemplate)
             }

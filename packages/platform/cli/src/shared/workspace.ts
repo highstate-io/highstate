@@ -69,7 +69,9 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
     }
 
     const parentPath = resolve(currentPath, "..")
-    if (parentPath === currentPath) break
+    if (parentPath === currentPath) {
+      break
+    }
 
     currentPath = parentPath
   }
@@ -97,7 +99,9 @@ export async function scanWorkspacePackages(workspaceRoot: string): Promise<High
     const entries = await readdir(dirPath, { withFileTypes: true })
 
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue
+      if (!entry.isDirectory()) {
+        continue
+      }
 
       const entryPath = join(dirPath, entry.name)
 

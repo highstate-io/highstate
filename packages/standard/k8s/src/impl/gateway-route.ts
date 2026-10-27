@@ -667,6 +667,7 @@ async function selectBackendPort({
 
       return false
     })
+
     if (match) {
       return match
     }
@@ -689,6 +690,7 @@ async function selectBackendPort({
 
     return false
   })
+
   if (match) {
     return match
   }

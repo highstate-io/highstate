@@ -14,6 +14,7 @@ definePageMeta({
       projectId: route.params.projectId as string,
       sessionId: route.params.sessionId as string,
     })
+
     if (session) {
       return {
         title: session.meta.globalTitle ?? session.meta.title,

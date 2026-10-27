@@ -20,6 +20,7 @@ export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
       endpoint =>
         isEndpointFromCluster(endpoint, cluster) && endpoint.metadata["k8s.service"].isInternal,
     )
+
     if (clusterEndpoint) {
       return clusterEndpoint
     }
@@ -34,6 +35,7 @@ export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
         getEntityId(clusterEndpoint.network) === getEntityId(endpoint.network),
     ),
   )
+
   if (sameNetworkEndpoint) {
     return sameNetworkEndpoint
   }

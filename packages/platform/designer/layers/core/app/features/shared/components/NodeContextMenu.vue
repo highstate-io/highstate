@@ -17,7 +17,9 @@ const node = useNode()
 const contextMenu = useTemplateRef("contextMenu")
 
 const showContextMenu = async (event: MouseEvent) => {
-  if (!contextMenu.value) return
+  if (!contextMenu.value) {
+    return
+  }
 
   await contextMenu.value.showContextMenu(event)
 }

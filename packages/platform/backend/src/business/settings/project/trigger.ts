@@ -49,6 +49,7 @@ export class TriggerSettingsService {
       where: { id: triggerId },
       select: forSchema(triggerOutputSchema),
     })
+
     if (!trigger) {
       return null
     }

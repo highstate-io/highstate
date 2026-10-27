@@ -484,17 +484,23 @@ function fromInstanceReference(value: Instance["inputs"][string]["values"][numbe
 }
 
 function toComponentKind(value: string): ComponentKind {
-  if (value === "unit") return ComponentKind.UNIT
-
-  if (value === "composite") return ComponentKind.COMPOSITE
+  switch (value) {
+    case "unit":
+      return ComponentKind.UNIT
+    case "composite":
+      return ComponentKind.COMPOSITE
+  }
 
   throw new Error(`Unknown component kind "${value}"`)
 }
 
 function fromComponentKind(value: ComponentKind): "unit" | "composite" {
-  if (value === ComponentKind.UNIT) return "unit"
-
-  if (value === ComponentKind.COMPOSITE) return "composite"
+  switch (value) {
+    case ComponentKind.UNIT:
+      return "unit"
+    case ComponentKind.COMPOSITE:
+      return "composite"
+  }
 
   throw new Error("Component kind must be specified")
 }
@@ -508,25 +514,33 @@ function toInstanceStatus(value: string): InstanceStatus {
   } as const
 
   const status = statuses[value as keyof typeof statuses]
-  if (status === undefined) throw new Error(`Unknown instance status "${value}"`)
+  if (status === undefined) {
+    throw new Error(`Unknown instance status "${value}"`)
+  }
 
   return status
 }
 
 function toInstanceSource(value: string): InstanceSource {
-  if (value === "resident") return InstanceSource.RESIDENT
-
-  if (value === "virtual") return InstanceSource.VIRTUAL
+  switch (value) {
+    case "resident":
+      return InstanceSource.RESIDENT
+    case "virtual":
+      return InstanceSource.VIRTUAL
+  }
 
   throw new Error(`Unknown instance source "${value}"`)
 }
 
 function toEvaluationStatus(value: string): EvaluationStatus {
-  if (value === "evaluating") return EvaluationStatus.EVALUATING
-
-  if (value === "evaluated") return EvaluationStatus.EVALUATED
-
-  if (value === "error") return EvaluationStatus.ERROR
+  switch (value) {
+    case "evaluating":
+      return EvaluationStatus.EVALUATING
+    case "evaluated":
+      return EvaluationStatus.EVALUATED
+    case "error":
+      return EvaluationStatus.ERROR
+  }
 
   throw new Error(`Unknown evaluation status "${value}"`)
 }
@@ -550,21 +564,26 @@ function toInstanceOperationStatus(value: string): InstanceOperationStatus {
   } as const
 
   const status = statuses[value as keyof typeof statuses]
-  if (status === undefined) throw new Error(`Unknown instance operation status "${value}"`)
+  if (status === undefined) {
+    throw new Error(`Unknown instance operation status "${value}"`)
+  }
 
   return status
 }
 
 export function fromOperationType(value: OperationType) {
-  if (value === OperationType.UPDATE) return "update"
-
-  if (value === OperationType.PREVIEW) return "preview"
-
-  if (value === OperationType.DESTROY) return "destroy"
-
-  if (value === OperationType.RECREATE) return "recreate"
-
-  if (value === OperationType.REFRESH) return "refresh"
+  switch (value) {
+    case OperationType.UPDATE:
+      return "update"
+    case OperationType.PREVIEW:
+      return "preview"
+    case OperationType.DESTROY:
+      return "destroy"
+    case OperationType.RECREATE:
+      return "recreate"
+    case OperationType.REFRESH:
+      return "refresh"
+  }
 
   throw new Error("Operation type must be specified")
 }
@@ -590,7 +609,9 @@ function toOperationType(value: string): OperationType {
   } as const
 
   const type = types[value as keyof typeof types]
-  if (type === undefined) throw new Error(`Unknown operation type "${value}"`)
+  if (type === undefined) {
+    throw new Error(`Unknown operation type "${value}"`)
+  }
 
   return type
 }
@@ -607,7 +628,9 @@ function toOperationStatus(value: string): OperationStatus {
   } as const
 
   const status = statuses[value as keyof typeof statuses]
-  if (status === undefined) throw new Error(`Unknown operation status "${value}"`)
+  if (status === undefined) {
+    throw new Error(`Unknown operation status "${value}"`)
+  }
 
   return status
 }
@@ -621,7 +644,9 @@ function toOperationPhaseType(value: string): OperationPhaseType {
   } as const
 
   const type = types[value as keyof typeof types]
-  if (type === undefined) throw new Error(`Unknown operation phase type "${value}"`)
+  if (type === undefined) {
+    throw new Error(`Unknown operation phase type "${value}"`)
+  }
 
   return type
 }
@@ -635,7 +660,9 @@ function fromOperationPhaseType(value: OperationPhaseType): BackendOperationPhas
   } as const
 
   const type = types[value as keyof typeof types]
-  if (!type) throw new Error("Operation phase type must be specified")
+  if (!type) {
+    throw new Error("Operation phase type must be specified")
+  }
 
   return type
 }

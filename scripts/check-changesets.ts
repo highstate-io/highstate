@@ -45,6 +45,7 @@ export function validateChangesets(changesets: Changeset[]): void {
       .filter(release => release.type === "major")
       .map(release => `.changeset/${changeset.id}.md (${release.name})`),
   )
+
   if (majorReleases.length > 0) {
     throw new Error(`Major changesets are not allowed: ${majorReleases.join(", ")}`)
   }

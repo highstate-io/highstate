@@ -66,7 +66,9 @@ const valid = computed(
 watch(
   () => [visible.value, apiKey, serviceAccounts] as const,
   () => {
-    if (!visible.value) return
+    if (!visible.value) {
+      return
+    }
 
     title.value = apiKey?.meta.title ?? ""
     description.value = apiKey?.meta.description ?? ""
@@ -87,7 +89,9 @@ function toLocalDateTime(value: Date): string {
 }
 
 function save(): void {
-  if (!valid.value || !serviceAccountId.value) return
+  if (!valid.value || !serviceAccountId.value) {
+    return
+  }
 
   emit("save", {
     meta: { title: title.value.trim(), description: description.value.trim() || undefined },
@@ -103,17 +107,27 @@ function changeServiceAccount(value: string): void {
 }
 
 function restrictionsCover(allowedRule: ProjectRoleRule, rule: ProjectRoleRule): boolean {
-  if (!allowedRule.restrictions) return true
+  if (!allowedRule.restrictions) {
+    return true
+  }
 
-  if (!rule.restrictions) return false
+  if (!rule.restrictions) {
+    return false
+  }
 
   return allowedRule.restrictions.every(allowedRestriction => {
     const restriction = rule.restrictions?.find(item => item.type === allowedRestriction.type)
-    if (!restriction) return false
+    if (!restriction) {
+      return false
+    }
 
-    if (allowedRestriction.type === "self") return true
+    if (allowedRestriction.type === "self") {
+      return true
+    }
 
-    if (restriction.type === "self") return false
+    if (restriction.type === "self") {
+      return false
+    }
 
     const allowedIds = restrictionIds(allowedRestriction)
     const ids = restrictionIds(restriction)

@@ -48,6 +48,7 @@ async function readGroupChangelogs(root: string, packageNames: string[]): Promis
     const manifest = JSON.parse(await readFile(path, "utf8")) as {
       name?: string
     }
+
     if (manifest.name && packageNames.includes(manifest.name)) {
       changelogs.set(manifest.name, await readFile(resolve(path, "../CHANGELOG.md"), "utf8"))
     }
@@ -77,6 +78,7 @@ export async function createGithubReleases(root: string): Promise<void> {
       stdout: "ignore",
       stderr: "ignore",
     })
+
     if (existing.exitCode === 0) {
       continue
     }
@@ -88,6 +90,7 @@ export async function createGithubReleases(root: string): Promise<void> {
       ["gh", "release", "create", tag, "--target", "main", "--title", tag, "--notes", notes],
       { cwd: root, stdout: "inherit", stderr: "inherit" },
     )
+
     if (release.exitCode !== 0) {
       throw new Error(`Unable to create GitHub release ${tag}`)
     }

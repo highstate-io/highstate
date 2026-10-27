@@ -175,6 +175,7 @@ export class ComponentSchemaCommand extends RemoteCommand {
         value.schema === undefined ? [] : [[name, value.schema]],
       ),
     )
+
     if (this.argument && !(this.argument in schemas)) {
       throw new Error(`Argument "${this.argument}" not found on component "${this.type}"`)
     }

@@ -189,6 +189,7 @@ export const stateRouter = router({
         where: { id: input.panelId },
         select: { id: true, workerVersionId: true },
       })
+
       if (!panel) {
         throw new Error(`Panel "${input.panelId}" not found`)
       }
@@ -198,6 +199,7 @@ export const stateRouter = router({
         panel.workerVersionId,
         panel.id,
       )
+
       if (!endpoint) {
         throw new Error(`Panel "${input.panelId}" is offline`)
       }
@@ -224,6 +226,7 @@ export const stateRouter = router({
         where: { id: input.panelId },
         select: { workerVersionId: true },
       })
+
       if (!panel) {
         throw new Error(`Panel "${input.panelId}" not found`)
       }

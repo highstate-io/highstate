@@ -99,6 +99,7 @@ export class ProjectEvaluationSubsystem {
         instances,
         resolvedInputs,
       )
+
       if (result.success) {
         // create evaluation tree for success messages
         const treeNodes = ProjectEvaluationSubsystem.createEvaluatedInstanceTree(
@@ -392,6 +393,7 @@ export class ProjectEvaluationSubsystem {
         where: { id: projectId },
         select: { id: true, libraryId: true },
       })
+
       if (!project) {
         this.logger.warn({ projectId }, "project not found, cannot track")
         return

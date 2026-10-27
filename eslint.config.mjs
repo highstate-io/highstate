@@ -28,6 +28,7 @@ export default [
     plugins: { highstate, jsdoc },
     settings: { jsdoc: { mode: "typescript" } },
     rules: {
+      curly: ["error", "all"],
       ...Object.fromEntries(
         Object.keys(highstate.rules).map(name => [`highstate/${name}`, "error"]),
       ),

@@ -47,6 +47,7 @@ export const useCompositeStore = defineMultiStore({
               stateId,
             })
           : null
+
         if (viewport) {
           vueFlowStore.defaultViewport.value = viewport as ViewportTransform
         }

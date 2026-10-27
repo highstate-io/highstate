@@ -49,6 +49,7 @@ export async function detectDefaultSubnetId(
     },
     { provider },
   )
+
   if (!subnet.id) {
     throw new Error(`Could not find default subnet '${defaultSubnetName}' in zone ${zone}`)
   }

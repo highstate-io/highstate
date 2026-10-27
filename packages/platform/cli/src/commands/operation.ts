@@ -327,6 +327,7 @@ export class OperationWaitCommand extends RemoteCommand {
         projectId: target.projectId,
         operationId: this.id,
       })
+
       if (response.operation && finalStatuses.has(response.operation.status)) {
         this.print(
           toJson(GetOperationResponseSchema, response, { useProtoFieldName: true }),
@@ -440,6 +441,7 @@ export class OperationLogsCommand extends RemoteCommand {
         projectId: target.projectId,
         operationId: this.id,
       })
+
       if (operation.operation && finalStatuses.has(operation.operation.status)) {
         break
       }

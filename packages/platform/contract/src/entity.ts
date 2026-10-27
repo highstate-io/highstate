@@ -520,6 +520,7 @@ export function defineEntity<
   const optionalMultipleInclusions = includeRefs.filter(
     includeRef => includeRef.multiple && !includeRef.required,
   )
+
   if (optionalMultipleInclusions.length > 0) {
     finalSchema = finalSchema.overwrite(value => {
       const record = value as Record<string, unknown>

@@ -105,6 +105,7 @@ export class BackendApiKeySettingsService {
       where: { id: apiKeyId },
       include: BackendApiKeySettingsService.include(),
     })
+
     if (!apiKey) {
       return null
     }
@@ -269,6 +270,7 @@ export class BackendApiKeySettingsService {
             grant.permissions.includes(permission) &&
             permissionRestrictionsCover(grant.restrictions, rule.restrictions),
         )
+
         if (!covered) {
           throw new PermissionEscalationError(permission)
         }
@@ -283,6 +285,7 @@ export class BackendApiKeySettingsService {
       where: { id: apiKeyId },
       select: { id: true },
     })
+
     if (!apiKey) {
       throw new BackendApiKeyNotFoundError(apiKeyId)
     }
@@ -293,6 +296,7 @@ export class BackendApiKeySettingsService {
       where: { systemName: adminBackendServiceAccount.systemName },
       select: { id: true },
     })
+
     if (!account) {
       throw new RequiredSystemResourceNotFoundError("admin-backend-service-account")
     }

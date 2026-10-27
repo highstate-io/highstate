@@ -61,6 +61,7 @@ export function resolvePageRequest<TCursor>(
     const token = pageTokenSchema.parse(
       JSON.parse(Buffer.from(request.pageToken, "base64url").toString("utf8")),
     )
+
     if (token.collection !== collection) {
       throw new InvalidPageTokenError(collection, "COLLECTION_MISMATCH")
     }

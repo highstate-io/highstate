@@ -112,6 +112,7 @@ export class ProjectApiKeySettingsService {
       where: { id: apiKeyId },
       include: ProjectApiKeySettingsService.include(),
     })
+
     if (!apiKey) {
       return null
     }
@@ -151,6 +152,7 @@ export class ProjectApiKeySettingsService {
       serviceAccountId,
       data.restrictionRules,
     )
+
     if (!hasProjectPermissionRulesSubset(context, effectiveRules)) {
       requireProjectPermission(context, "api-key.escalate")
     }
@@ -201,6 +203,7 @@ export class ProjectApiKeySettingsService {
       serviceAccountId,
       data.restrictionRules,
     )
+
     if (!hasProjectPermissionRulesSubset(context, effectiveRules)) {
       requireProjectPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }
@@ -287,6 +290,7 @@ export class ProjectApiKeySettingsService {
       where: { id: apiKeyId },
       select: { worker: { select: { id: true } } },
     })
+
     if (!apiKey) {
       throw new ProjectApiKeyNotFoundError(projectId, apiKeyId)
     }
@@ -321,6 +325,7 @@ export class ProjectApiKeySettingsService {
             grant.permissions.includes(permission) &&
             permissionRestrictionsCover(grant.restrictions, rule.restrictions),
         )
+
         if (!covered) {
           throw new PermissionEscalationError(permission)
         }
@@ -337,6 +342,7 @@ export class ProjectApiKeySettingsService {
       where: { systemName: adminProjectServiceAccount.systemName },
       select: { id: true },
     })
+
     if (!account) {
       throw new RequiredSystemResourceNotFoundError("admin-project-service-account")
     }

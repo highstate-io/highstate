@@ -33,7 +33,9 @@ export function useCanvasSelection(
   const permanentSelectionSet = reactive(new Set<string>())
 
   watch([control, alt], ([control, alt]) => {
-    if (!active.value) return
+    if (!active.value) {
+      return
+    }
 
     if (isDialogOpen()) {
       selectionMode.value = undefined
@@ -70,7 +72,9 @@ export function useCanvasSelection(
   watch(
     () => [control.value, alt.value, cursorMode.value] as const,
     () => {
-      if (!active.value) return
+      if (!active.value) {
+        return
+      }
 
       if (!isDialogOpen()) {
         return
@@ -86,7 +90,9 @@ export function useCanvasSelection(
   )
 
   watch(escapeKey, pressed => {
-    if (!active.value) return
+    if (!active.value) {
+      return
+    }
 
     if (pressed) {
       // clear selection when escape is pressed
@@ -98,7 +104,9 @@ export function useCanvasSelection(
   })
 
   watch(cursorMode, mode => {
-    if (!active.value) return
+    if (!active.value) {
+      return
+    }
 
     if (mode !== "selection") {
       // reset selection mode when cursor mode changes
@@ -148,7 +156,9 @@ export function useCanvasSelection(
   const isSelecting = computed(() => startPosition.value !== undefined && control.value)
 
   const selectionArea = computed(() => {
-    if (!startPosition.value) return undefined
+    if (!startPosition.value) {
+      return undefined
+    }
 
     return {
       x: Math.min(startPosition.value.x, mousePosition.x.value),

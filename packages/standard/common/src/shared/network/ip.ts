@@ -106,7 +106,9 @@ function parseIpv6(value: string): bigint {
   }
 
   const expandIpv4Tail = (parts: string[]): string[] => {
-    if (parts.length === 0) return parts
+    if (parts.length === 0) {
+      return parts
+    }
 
     const last = parts.at(-1)!
     if (!last.includes(".")) {
@@ -141,6 +143,7 @@ function parseIpv6(value: string): bigint {
     doubleColonIndex >= 0
       ? [...leftParts, ...Array.from({ length: missing }, () => "0"), ...rightParts]
       : leftParts
+
   if (parts.length !== 8) {
     throw new Error(`Invalid IPv6 address: "${value}"`)
   }

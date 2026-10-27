@@ -17,8 +17,9 @@ const { $client } = useNuxtApp()
 const router = useRouter()
 const apiKey = ref(await apiKeyStore.get(params.apiKeyId))
 
-if (!apiKey.value)
+if (!apiKey.value) {
   throw createError({ statusCode: 404, statusMessage: "Backend API key not found" })
+}
 
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useBackendRoleSettingsStore().getRestrictionOptions(),
