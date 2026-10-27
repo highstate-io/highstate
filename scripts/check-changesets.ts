@@ -21,17 +21,20 @@ export function parseChangeset(id: string, source: string): Changeset {
     throw new Error(`Invalid changeset ".changeset/${id}.md": missing frontmatter delimiter`)
   }
 
-  const releases = lines.slice(1, frontmatterEnd).filter(Boolean).map(line => {
-    const match = line.match(/^(?:"([^"]+)"|'([^']+)'|([^:#][^:]*)):\s*(patch|minor|major)\s*$/)
-    if (!match) {
-      throw new Error(`Invalid release in changeset ".changeset/${id}.md": ${line}`)
-    }
+  const releases = lines
+    .slice(1, frontmatterEnd)
+    .filter(Boolean)
+    .map(line => {
+      const match = line.match(/^(?:"([^"]+)"|'([^']+)'|([^:#][^:]*)):\s*(patch|minor|major)\s*$/)
+      if (!match) {
+        throw new Error(`Invalid release in changeset ".changeset/${id}.md": ${line}`)
+      }
 
-    return {
-      name: (match[1] ?? match[2] ?? match[3] ?? "").trim(),
-      type: match[4] as "patch" | "minor" | "major",
-    }
-  })
+      return {
+        name: (match[1] ?? match[2] ?? match[3] ?? "").trim(),
+        type: match[4] as "patch" | "minor" | "major",
+      }
+    })
 
   return { id, releases }
 }
@@ -42,7 +45,6 @@ export function validateChangesets(changesets: Changeset[]): void {
       .filter(release => release.type === "major")
       .map(release => `.changeset/${changeset.id}.md (${release.name})`),
   )
-
   if (majorReleases.length > 0) {
     throw new Error(`Major changesets are not allowed: ${majorReleases.join(", ")}`)
   }

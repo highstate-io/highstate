@@ -1,4 +1,4 @@
-import { z, type ComponentArgument } from "@highstate/contract"
+import { type ComponentArgument, z } from "@highstate/contract"
 import { describe, expect, test } from "vitest"
 import { createEditorArguments } from "."
 
@@ -9,6 +9,7 @@ describe("createEditorArguments", () => {
       io: "input",
       unrepresentable: "any",
     })
+
     const args: Record<string, ComponentArgument> = {
       network: {
         schema: {

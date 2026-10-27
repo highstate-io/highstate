@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import type { EntityModel } from "@highstate/contract"
-
-import { ComponentIcon } from "#layers/core/app/features/shared"
-import { onHighstateActionInvoked } from "#layers/core/app/utils/monaco"
+import type { OutputReferencedEntitySnapshot } from "../business"
 import {
   getEntityOverrideMetaFromContent,
   resolveEntityDisplay,
 } from "#layers/core/app/features/entity-explorer"
-
-import type { OutputReferencedEntitySnapshot } from "../business"
+import { ComponentIcon } from "#layers/core/app/features/shared"
+import { onHighstateActionInvoked } from "#layers/core/app/utils/monaco"
 
 type LoadFn = () => Promise<OutputReferencedEntitySnapshot[]>
 
@@ -80,6 +78,7 @@ async function ensureLoaded() {
 
   loadError.value = null
   loading.value = true
+
   try {
     referencedEntities.value = await load()
 

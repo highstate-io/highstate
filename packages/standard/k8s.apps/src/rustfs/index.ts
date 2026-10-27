@@ -231,9 +231,11 @@ const chart = new Chart(
             ...transformArgs.props,
             spec: output(transformArgs.props.spec).apply(spec => {
               const initContainers = spec.template.spec?.initContainers ?? []
+
               const initContainerNames = new Set(
                 initContainers.map((container: types.input.core.v1.Container) => container.name),
               )
+
               const restoreWaitContainers = backupJobPairs
                 .map((backupJobPair, index) => ({
                   ...backupJobPair.restoreWaitContainer,

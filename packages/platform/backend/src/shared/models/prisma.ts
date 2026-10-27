@@ -2,12 +2,12 @@ import type * as contract from "@highstate/contract"
 import type * as shared from "../../shared"
 
 declare global {
-  // Common
+  // common
   namespace PrismaJson {
     type CommonObjectMeta = contract.CommonObjectMeta
   }
 
-  // Backend
+  // backend
   namespace PrismaJson {
     type LibrarySpec = shared.LibrarySpec
     type BackendUnlockMethodMeta = shared.BackendUnlockMethodMeta
@@ -19,7 +19,7 @@ declare global {
     type UserMeta = shared.UserMeta
   }
 
-  // Project
+  // project
   namespace PrismaJson {
     type InstanceId = contract.InstanceId
     type NullableInstanceId = contract.InstanceId | null

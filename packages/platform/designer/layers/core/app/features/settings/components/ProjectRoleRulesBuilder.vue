@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type {
   ProjectPermissionRestriction,
-  ProjectRoleRule,
   ProjectRoleRestrictionOptions,
+  ProjectRoleRule,
   ProjectRoleRules,
 } from "@highstate/backend/shared"
+import type { RoleRuleBuilderGroup, RoleRuleBuilderRule } from "../business/role-rules-builder"
 import { projectPermissionGroups } from "@highstate/backend/shared"
 import { instanceIdSchema } from "@highstate/contract"
-import type { RoleRuleBuilderGroup, RoleRuleBuilderRule } from "../business/role-rules-builder"
 import RoleRulesBuilder from "./RoleRulesBuilder.vue"
 
 const {
@@ -29,9 +29,11 @@ const groups = computed<RoleRuleBuilderGroup[]>(() =>
         !allowedRules || allowedRules.some(rule => rule.permissions.includes(permission.name)),
     )
     if (permissions.length === 0) return []
+
     const unrestricted = permissions.some(permission =>
       allowedRules?.some(rule => rule.permissions.includes(permission.name) && !rule.restrictions),
     )
+
     const supportedRestrictions = unrestricted
       ? [...group.supportedRestrictions]
       : group.supportedRestrictions.filter(type =>
@@ -42,6 +44,7 @@ const groups = computed<RoleRuleBuilderGroup[]>(() =>
               ) && rule.restrictions?.some(restriction => restriction.type === type),
           ),
         )
+
     return [
       {
         id: String(index),
@@ -69,25 +72,30 @@ const allBuilderOptions = computed(() => ({
 }))
 const builderOptions = computed(() => {
   if (!allowedRules) return allBuilderOptions.value
+
   return Object.fromEntries(
     Object.entries(allBuilderOptions.value).map(([type, items]) => {
       const resourceGroup = projectPermissionGroups.find(
         group => "resourceType" in group && group.resourceType === type,
       )
+
       const relevantGroups = resourceGroup
         ? [resourceGroup]
         : projectPermissionGroups.filter(group =>
             group.supportedRestrictions.includes(type as never),
           )
+
       const relevantPermissions = relevantGroups.flatMap(group =>
         group.permissions.map(permission => permission.name),
       )
+
       const unrestricted = allowedRules.some(
         rule =>
           rule.permissions.some(permission => relevantPermissions.includes(permission)) &&
           !rule.restrictions,
       )
       if (unrestricted) return [type, items]
+
       const allowedIds = new Set(
         allowedRules.flatMap(rule =>
           rule.permissions.some(permission => relevantPermissions.includes(permission))
@@ -101,6 +109,7 @@ const builderOptions = computed(() => {
             : [],
         ),
       )
+
       return [type, items.filter(item => allowedIds.has(item.id))]
     }),
   )
@@ -114,6 +123,7 @@ watch(
       skipSync = false
       return
     }
+
     builderRules.value = toBuilder(value)
   },
   { deep: true },
@@ -173,6 +183,7 @@ function createRestriction(
 function update(value: RoleRuleBuilderRule[]): void {
   builderRules.value = value
   skipSync = true
+
   rules.value = value.map(rule => ({
     permissions: rule.permissions as ProjectRoleRules[number]["permissions"],
     ...(rule.restrictions.length ? { restrictions: rule.restrictions.map(createRestriction) } : {}),

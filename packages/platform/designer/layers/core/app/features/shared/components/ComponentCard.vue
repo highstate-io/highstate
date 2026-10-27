@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ComponentModel } from "@highstate/contract"
-import ComponentIcon from "./ComponentIcon.vue"
 import type { BlueprintStatus } from "#layers/core/app/features/blueprint"
+import ComponentIcon from "./ComponentIcon.vue"
 
 const {
   component,
@@ -59,7 +59,7 @@ const cardStyle = computed(() => {
 })
 
 const cardColor = computed(() => {
-  // For blueprint states, use a more neutral color to show the semi-transparent effect
+  // for blueprint states, use a more neutral color to show the semi-transparent effect
   if (blueprintStatus !== "default") {
     return "#424242"
   }

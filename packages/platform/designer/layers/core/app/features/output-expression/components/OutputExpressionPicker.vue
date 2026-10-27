@@ -77,7 +77,6 @@ const treeItems = computed<OutputExpressionTreeItem[]>(() => {
   for (const item of items.values()) {
     const parentPath = getParentPath(item.path)
     const parent = items.get(parentPath ?? "__root__")
-
     if (item.id !== "__root__" && parent) {
       parent.children?.push(item)
       continue
@@ -99,7 +98,6 @@ const filterTreeItem = (
 
   const visibleByMode = showAll.value || item.assignable || (children?.length ?? 0) > 0
   const visibleBySearch = optionMatchesSearch(item, query) || (children?.length ?? 0) > 0
-
   if (!visibleByMode || !visibleBySearch) {
     return null
   }

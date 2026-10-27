@@ -86,6 +86,7 @@ export class EntitySettingsService {
     }
 
     const [sort] = query.sortBy
+
     if (!sort) {
       return false
     }
@@ -239,7 +240,6 @@ export class EntitySettingsService {
         },
       },
     })
-
     if (!entity) {
       return null
     }
@@ -300,7 +300,6 @@ export class EntitySettingsService {
         },
       },
     })
-
     if (!snapshot) {
       return null
     }
@@ -336,6 +335,7 @@ export class EntitySettingsService {
   ): Promise<PageResult<EntitySnapshotListItemOutput>> {
     const parsedQuery = collectionQuerySchema.parse(query)
     const db = await this.database.forProject(context.projectId)
+
     const authorization = await buildProjectAuthorizationWhere<EntitySnapshotWhereInput>({
       database: this.database,
       context,
@@ -412,6 +412,7 @@ export class EntitySettingsService {
   ): Promise<PageResult<EntitySnapshotListItemOutput>> {
     const parsedQuery = collectionQuerySchema.parse(query)
     const db = await this.database.forProject(context.projectId)
+
     const authorization = await buildProjectAuthorizationWhere<EntitySnapshotWhereInput>({
       database: this.database,
       context,
@@ -506,7 +507,6 @@ export class EntitySettingsService {
         },
       },
     })
-
     if (!snapshot) {
       return { items: [] }
     }
@@ -615,7 +615,6 @@ export class EntitySettingsService {
         },
       },
     })
-
     if (!snapshot) {
       return { items: [] }
     }
@@ -724,7 +723,6 @@ export class EntitySettingsService {
         },
       },
     })
-
     if (!entity) {
       return { items: [] }
     }
@@ -842,7 +840,6 @@ export class EntitySettingsService {
         },
       },
     })
-
     if (!entity) {
       return { items: [] }
     }

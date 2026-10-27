@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { until, useProjectStores } from "#imports"
 import {
-  DetailPageLayout,
+  ArtifactsTable,
   DetailInfoCard,
+  DetailPageLayout,
+  IdTableCell,
   ObjectCodeBlock,
   RelatedDataPanel,
   TerminalSessionsTable,
   TimeTableCell,
-  IdTableCell,
-  ArtifactsTable,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { OwnerRefChip, terminalStatusMap } from "#layers/core/app/features/shared"
@@ -28,7 +28,7 @@ definePageMeta({
   name: "settings.terminal-details",
 })
 
-// Initialize project store
+// initialize project store
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
   projectStore.addLibraryRoot()
@@ -53,7 +53,7 @@ const artifacts = artifactStore.forTerminal(params.terminalId)
 await terminalSessions.load()
 await artifacts.load()
 
-// Detail info items configuration
+// detail info items configuration
 const detailItems = [
   { key: "terminalId", label: "Terminal ID" },
   { key: "name", label: "Name" },
@@ -62,7 +62,7 @@ const detailItems = [
   { key: "updatedAt", label: "Last Updated" },
 ]
 
-// Helper functions
+// helper functions
 
 const openTerminalSession = (sessionId: string) => {
   navigateTo({ name: "terminal-session", params: { projectId: params.projectId, sessionId } })

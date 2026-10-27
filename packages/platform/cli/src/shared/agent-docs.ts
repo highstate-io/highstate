@@ -33,6 +33,7 @@ export async function readAgentDocuments(
   }
 
   const directory = await resolvePackageAsset(moduleUrl, "@highstate/cli", "assets", "agent-docs")
+
   const documents = await Promise.all(
     ids.map(async id => ({
       id,

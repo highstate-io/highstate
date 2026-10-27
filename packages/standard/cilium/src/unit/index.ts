@@ -15,7 +15,7 @@ const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   const kubeConfig = new KubeConfig()
 
   if (cluster.kubeconfig.content.type !== "embedded-secret") {
-    throw new Error("Only embedded secrets are supported for kubeconfig content in this unit.")
+    throw new Error("Only embedded secrets are supported for kubeconfig content in this unit")
   }
 
   kubeConfig.loadFromString(cluster.kubeconfig.content.value.value)
@@ -26,6 +26,7 @@ const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   await Promise.all(
     allPods.items.flatMap(pod => {
       const { name, namespace } = pod.metadata ?? {}
+
       if (!name || !namespace) {
         return []
       }

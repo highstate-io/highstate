@@ -17,7 +17,7 @@ import { armor, Decrypter, Encrypter } from "age-encryption"
 import { SYSTEM_EXPORT_COMPONENT_TYPE, stableJsonStringify } from "../shared"
 import { type ProjectImportPortData, projectImportPortDataSchema } from "../shared/models/import"
 
-type BuildExportPayloadFromSnapshotsOptions = {
+interface BuildExportPayloadFromSnapshotsOptions {
   projectName: string
   instance: InstanceModel
   resolvedInputs: Record<string, ResolvedInstanceInput[]>
@@ -136,7 +136,6 @@ export class ProjectPortService {
 
         const dependencyComponent = options.library.components[dependency.type]
         const outputSpec = dependencyComponent?.outputs?.[resolvedInput.input.output]
-
         if (outputSpec) {
           const normalizedOutputType = resolvedInput.type as VersionedName
 
@@ -169,14 +168,15 @@ export class ProjectPortService {
 
         for (const entity of graph.entities) {
           const existing = entitiesById.get(entity.entityId)
-
           if (existing) {
             for (const exportOutputName of exportOutputNames) {
               existing.referencedInOutputs.add(exportOutputName)
+
               if (exportedEntityIds.has(entity.entityId)) {
                 existing.exportedInOutputs.add(exportOutputName)
               }
             }
+
             continue
           }
 
@@ -185,6 +185,7 @@ export class ProjectPortService {
 
           for (const exportOutputName of exportOutputNames) {
             referencedInOutputs.add(exportOutputName)
+
             if (exportedEntityIds.has(entity.entityId)) {
               exportedInOutputs.add(exportOutputName)
             }
@@ -252,6 +253,7 @@ export class ProjectPortService {
    */
   async syncExportPort(options: SyncExportPortOptions): Promise<void> {
     const payload = projectImportPortDataSchema.parse(options.payload)
+
     const existingRows = await this.database.backend.projectImportPort.findMany({
       where: {
         sourceProjectId: options.projectId,
@@ -270,7 +272,6 @@ export class ProjectPortService {
           .filter(name => name.length > 0),
       ),
     )
-
     if (targetNames.length === 0) {
       await this.database.backend.projectImportPort.deleteMany({
         where: {
@@ -396,7 +397,6 @@ export class ProjectPortService {
         contentHash: true,
       },
     })
-
     if (!row) {
       return null
     }
@@ -425,7 +425,6 @@ export class ProjectPortService {
         encryptedContent: true,
       },
     })
-
     if (!row) {
       return null
     }
@@ -482,6 +481,7 @@ export class ProjectPortService {
               entityIdentity: entity.identity,
             },
           })
+
           continue
         }
 
@@ -598,6 +598,7 @@ export class ProjectPortService {
         for (const output of entity.referencedInOutputs) {
           existing.referencedInOutputs.add(output)
         }
+
         for (const output of entity.exportedInOutputs) {
           existing.exportedInOutputs.add(output)
         }

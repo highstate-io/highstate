@@ -1,5 +1,5 @@
 import { defineUnit, z } from "@highstate/contract"
-import { common, k8s, mysql } from "@highstate/library"
+import { k8s, mysql } from "@highstate/library"
 
 export const blogApp = defineUnit({
   type: "acme.blog-app.v1",

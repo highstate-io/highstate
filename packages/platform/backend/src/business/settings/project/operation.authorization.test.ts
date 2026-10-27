@@ -7,6 +7,7 @@ import { OperationSettingsService } from "./operation"
 describe("OperationSettingsService authorization", () => {
   test("authorizes get by operation resource", async ({ database, project, projectDatabase }) => {
     const service = new OperationSettingsService(database)
+
     const operation = await projectDatabase.operation.create({
       data: {
         id: createId(),
@@ -21,6 +22,7 @@ describe("OperationSettingsService authorization", () => {
     await expect(
       service.get(createProjectRequestContext(project.id), operation.id),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.get(
         createProjectRequestContext(
@@ -30,6 +32,7 @@ describe("OperationSettingsService authorization", () => {
         operation.id,
       ),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.get(
         createProjectRequestContext(
@@ -49,6 +52,7 @@ describe("OperationSettingsService authorization", () => {
     projectDatabase,
   }) => {
     const service = new OperationSettingsService(database)
+
     const first = await projectDatabase.operation.create({
       data: {
         type: "preview",
@@ -58,6 +62,7 @@ describe("OperationSettingsService authorization", () => {
         requestedInstanceIds: [],
       },
     })
+
     const second = await projectDatabase.operation.create({
       data: {
         type: "preview",

@@ -114,6 +114,7 @@ export class PkiIssuer extends ComponentResource {
     const caConnection = this.ca.connection
     const intermediatePath = this.ca.intermediatePath
     const policyName = interpolate`${this.ca.path}/${args.roleName}`
+
     const authPath = caConnection.apply(connection => {
       if (connection.credentials.type !== "approle") {
         throw new Error("Vault PKI CA connection must use AppRole credentials")
@@ -127,6 +128,7 @@ export class PkiIssuer extends ComponentResource {
       intermediatePath,
     }).apply(async ({ connection, intermediatePath }) => {
       const provider = await getProvider(connection)
+
       const allowedDomains = output([this.dnsNames, this.commonNames]).apply(values => {
         return Array.from(new Set(values.flat()))
       })

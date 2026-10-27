@@ -4,9 +4,9 @@
  * Automatically injects route information (name, params) into panel data.
  */
 
-import { pick } from "remeda"
-import type { Highstate } from "#layers/core/app/types/pages"
 import type { RouteLocationNormalized } from "vue-router"
+import type { Highstate } from "#layers/core/app/types/pages"
+import { pick } from "remeda"
 
 export default defineNuxtRouteMiddleware(async to => {
   // only run on client side
@@ -42,7 +42,6 @@ export default defineNuxtRouteMiddleware(async to => {
       typeof to.meta.panelId === "function"
         ? to.meta.panelId(to as RouteLocationNormalized)
         : (to.meta.panelId ?? (to.name as string)?.split(".")[0])
-
     if (!panelId) {
       globalLogger.warn("no panelId for route %s", to.fullPath)
       return

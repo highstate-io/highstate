@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type { Blueprint } from "#layers/core/app/features/blueprint"
+import { getInstanceId } from "@highstate/contract"
+import { createId } from "@paralleldrive/cuid2"
 import {
   EditorLoaderPopup,
   ExtraElementPanel,
-  HubNodeWrapper,
   GenericCanvas,
+  HubNodeWrapper,
 } from "#layers/core/app/features/canvas"
 import { InstanceNodeWrapper } from "#layers/core/app/features/instance-node"
-import { type Blueprint } from "#layers/core/app/features/blueprint"
-import { getInstanceId } from "@highstate/contract"
-import { createId } from "@paralleldrive/cuid2"
-import { getComponentTypeFromDragData, isHubDragData } from "#layers/core/app/features/shared"
 import { OutputExpressionPicker } from "#layers/core/app/features/output-expression"
+import { getComponentTypeFromDragData, isHubDragData } from "#layers/core/app/features/shared"
 
 const canvasStore = useCanvasStore()
 const projectPanelStore = useProjectPanelStore()
@@ -31,6 +31,7 @@ const focusInstanceInCanvas = async (instanceId: string) => {
   logger.debug({ instanceId }, "focus requested")
 
   await until(canvasStore.vueFlowStore.areNodesInitialized).toBe(true)
+
   await waitFor(
     () => {
       const nodeId = canvasStore.nodeFactory.instanceIdToNodeIdMap.get(instanceId)
@@ -108,12 +109,12 @@ const onDragOver = (event: DragEvent) => {
   event.preventDefault()
 
   if (!event.dataTransfer) return
+
   if (canvasStore.blueprint) return
 
   // transform the dragged object to blueprint
   let blueprint: Blueprint | undefined
   const componentType = getComponentTypeFromDragData(event.dataTransfer)
-
   if (componentType) {
     const name = instancesStore.getNextInstanceName(componentType)
     const id = getInstanceId(componentType, name)

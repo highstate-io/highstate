@@ -89,6 +89,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       expect(skipCall).toBeDefined()
 
       const skipOptions = skipCall?.[3]
+
       expect(skipOptions?.instanceState).toEqual({
         inputHash: expected.inputHash,
         parentId: null,
@@ -132,6 +133,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       // arrange
       const oldParent = createComposite("OldParent")
       const newParent = createComposite("NewParent")
+
       const unit = {
         ...createUnit("A"),
         parentId: newParent.id,
@@ -150,6 +152,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       const expected = await context.getUpToDateInputHashOutput(unit)
       state.selfHash = expected.selfHash
       state.dependencyOutputHash = expected.dependencyOutputHash
+
       instanceStateService.getInstanceStatesCore.mockResolvedValue([
         oldParentState,
         newParentState,
@@ -204,6 +207,7 @@ describe("RuntimeOperation - Update Short-Circuit", () => {
       )
 
       expect(skipCall).toBeDefined()
+
       expect(skipCall?.[3].instanceState).toEqual({
         inputHash: expected.inputHash,
         parentId: newParent.id,

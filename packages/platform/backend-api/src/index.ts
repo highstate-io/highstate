@@ -31,7 +31,7 @@ export type BackendApiHandlerOptions = {
   requestPathPrefix?: string
 }
 
-export type BackendApi = {
+export interface BackendApi {
   address: string
   shutdown(): Promise<void>
 }
@@ -138,6 +138,7 @@ async function close(server: Server): Promise<void> {
 
       resolve()
     })
+
     server.closeAllConnections()
   })
 }

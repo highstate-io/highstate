@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SettingsListPage, OperationsTable } from "#layers/core/app/features/settings"
+import { OperationsTable, SettingsListPage } from "#layers/core/app/features/settings"
 
 const settingsStore = useProjectOperationSettingsStore()
 const { projectStore } = useProjectStores()

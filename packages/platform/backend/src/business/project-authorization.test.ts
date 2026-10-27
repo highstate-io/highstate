@@ -44,6 +44,7 @@ describe("resolveBackendProjectPermissionTarget", () => {
   ])("$name", async ({ project, spaces, expected }) => {
     const projectFindUnique = vi.fn().mockResolvedValue(project)
     const projectSpaceFindMany = vi.fn().mockResolvedValue(spaces)
+
     const database = {
       backend: {
         project: { findUnique: projectFindUnique },

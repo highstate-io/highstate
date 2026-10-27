@@ -30,6 +30,7 @@ export class InstanceCreateCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const input = instanceInputSchema.parse(await readDocument(this.file))
     const { clients, target } = await this.remote()
+
     await clients.projectModel.createNodes({
       projectId: target.projectId,
       instances: [toInstance(input)],
@@ -116,18 +117,22 @@ export class InstanceArgumentsPatchCommand extends RemoteCommand {
     for (const patch of this.patches ?? []) {
       operations.push(...argumentPatchSchema.parse(await readDocument(patch)))
     }
+
     for (const assignment of this.sets ?? []) {
       const [path, value] = splitAssignment(assignment)
       operations.push({ op: "add", path, value: parseInlineValue(value) })
     }
+
     for (const assignment of this.setStrings ?? []) {
       const [path, value] = splitAssignment(assignment)
       operations.push({ op: "add", path, value })
     }
+
     for (const assignment of this.setFiles ?? []) {
       const [path, file] = splitAssignment(assignment)
       operations.push({ op: "add", path, value: normalizeJsonValue(await readDocument(file)) })
     }
+
     for (const path of this.unsets ?? []) {
       operations.push({ op: "remove", path })
     }
@@ -137,6 +142,7 @@ export class InstanceArgumentsPatchCommand extends RemoteCommand {
     }
 
     const { clients, target } = await this.remote()
+
     const response = await clients.projectModel.patchInstanceArguments({
       projectId: target.projectId,
       instanceId: this.id,
@@ -193,6 +199,7 @@ export class InstanceRenameCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.projectModel.renameInstance({
       projectId: target.projectId,
       instanceId: this.id,

@@ -53,7 +53,6 @@ function stringIncludesQuery(value: string | undefined, query: string): boolean 
 
 function matchesCommonObjectMeta(meta: unknown, query: string): boolean {
   const parsed = commonObjectMetaSchema.safeParse(meta)
-
   if (parsed.success) {
     return (
       stringIncludesQuery(parsed.data.title, query) ||
@@ -63,6 +62,7 @@ function matchesCommonObjectMeta(meta: unknown, query: string): boolean {
 
   if (meta && typeof meta === "object") {
     const title = "title" in meta && typeof meta.title === "string" ? meta.title : undefined
+
     const description =
       "description" in meta && typeof meta.description === "string" ? meta.description : undefined
 
@@ -80,7 +80,6 @@ function createSearchHits<TItem extends { id: string }>(
 ): GlobalSearchHit[] {
   return items.map(item => {
     const metaResult = commonObjectMetaSchema.safeParse(metaExtractor(item))
-
     if (!metaResult.success) {
       logger.warn(
         { itemId: item.id, kind, error: metaResult.error },
@@ -733,7 +732,6 @@ export class GlobalSearchService {
 
   async searchByIdsCore(ids: string[]): Promise<GlobalSearchResult[]> {
     const uniqueIds = Array.from(new Set(ids.map(id => id.trim()).filter(Boolean)))
-
     if (uniqueIds.length === 0) {
       return []
     }
@@ -762,19 +760,18 @@ export class GlobalSearchService {
 
     for (const projectId of idsByProjectId.keys()) {
       const idsInProject = Array.from(idsByProjectId.get(projectId) ?? [])
-
       if (idsInProject.length === 0) {
         continue
       }
 
       const isUnlocked = await this.projectUnlockBackend.checkProjectUnlocked(projectId)
-
       if (!isUnlocked) {
         for (const id of idsInProject) {
           const existing = projectsById.get(id) ?? []
           existing.push({ projectId, unlockState: "locked" })
           projectsById.set(id, existing)
         }
+
         continue
       }
 
@@ -826,7 +823,6 @@ export class GlobalSearchService {
 
   async searchByTextCore(text: string): Promise<GlobalSearchTextResult> {
     const normalizedText = normalizeSearchText(text)
-
     if (normalizedText.length === 0) {
       return { text, projects: [] }
     }
@@ -841,7 +837,6 @@ export class GlobalSearchService {
 
     for (const project of projects) {
       const isUnlocked = await this.projectUnlockBackend.checkProjectUnlocked(project.id)
-
       if (!isUnlocked) {
         continue
       }
@@ -849,7 +844,6 @@ export class GlobalSearchService {
       try {
         const projectDatabase = await this.database.forProject(project.id)
         const hits = await this.searchInUnlockedProjectByText(projectDatabase, normalizedText)
-
         if (hits.length === 0) {
           continue
         }

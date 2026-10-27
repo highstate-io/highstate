@@ -28,7 +28,10 @@ export function selectAffectedImageTargets(
 
   for (const path of changedFiles) {
     if (path === "docker/docker-bake.hcl" || path === "docker/project.json") {
-      allTargets.forEach(target => targets.add(target))
+      allTargets.forEach(target => {
+        targets.add(target)
+      })
+
       continue
     }
 
@@ -38,12 +41,16 @@ export function selectAffectedImageTargets(
     }
 
     const target = match[1].replaceAll(".", "-")
-    terminalDependents[target]?.forEach(dependent => targets.add(dependent))
+
+    terminalDependents[target]?.forEach(dependent => {
+      targets.add(dependent)
+    })
   }
 
   if (affectedProjects.has("@highstate/k8s.monitor-worker")) {
     targets.add("worker-k8s-monitor")
   }
+
   if (affectedProjects.has("@highstate/k8s.dashboard-worker")) {
     targets.add("worker-k8s-dashboard")
   }
@@ -57,6 +64,7 @@ export function selectAffectedImageTargets(
 async function commandOutput(command: string[], cwd: string): Promise<string> {
   const process = Bun.spawn(command, { cwd, stdout: "pipe", stderr: "inherit" })
   const output = await new Response(process.stdout).text()
+
   if ((await process.exited) !== 0) {
     throw new Error(`Command failed: ${command.join(" ")}`)
   }
@@ -80,16 +88,19 @@ if (import.meta.main) {
   const base = value("--base")
   const head = value("--head")
   const output = value("--output")
+
   const changedFiles = (await commandOutput(["git", "diff", "--name-only", base, head], root))
     .trim()
     .split("\n")
     .filter(Boolean)
+
   const projects = JSON.parse(
     await commandOutput(
       ["bun", "nx", "show", "projects", "--affected", `--base=${base}`, `--head=${head}`, "--json"],
       root,
     ),
   ) as string[]
+
   const targets = selectAffectedImageTargets(changedFiles, new Set(projects))
 
   await writeFile(output, `${JSON.stringify({ targets }, null, 2)}\n`)

@@ -307,7 +307,6 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
   function splitHostPort(input: string): { host: string; port?: number } {
     const trimmed = input.trim()
-
     if (!trimmed) {
       throw new Error("Empty endpoint")
     }
@@ -320,7 +319,6 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
       const host = trimmed.slice(1, closingIndex)
       const remainder = trimmed.slice(closingIndex + 1)
-
       if (!remainder) {
         return { host }
       }
@@ -342,7 +340,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
       return { host: trimmed }
     }
 
-    // If it looks like an IPv6 address without brackets, treat it as host-only.
+    // if it looks like an IPv6 address without brackets, treat it as host-only
     if (trimmed.includes(":")) {
       const firstColonIndex = trimmed.indexOf(":")
       if (firstColonIndex !== lastColonIndex) {
@@ -367,6 +365,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
   if (check(network.addressEntity.schema, endpoint)) {
     const address = endpoint
+
     const built = makeEndpoint({
       type: address.type,
       level: 3,
@@ -421,7 +420,6 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
         if (type === "ipv4" || type === "ipv6") {
           const addressInput = input.address as Record<string, unknown> | undefined
           const addressValue = addressInput?.value
-
           if (typeof addressValue !== "string" || !addressValue.trim()) {
             throw new Error("Invalid endpoint")
           }
@@ -435,6 +433,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
                 : 128
 
           const address = parseAddress(`${addressValue.trim()}/${prefixLength}`)
+
           const metadata = {
             ...extractMetadata(address),
             ...((input.metadata ?? {}) as network.L3Endpoint["metadata"]),
@@ -504,6 +503,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
     } else {
       const udpAppProtocols = ["dns", "dhcp"]
       const portNumber = port ?? 443
+
       const protocol: network.L4Protocol = udpAppProtocols.includes(protocolOrAppProtocol)
         ? "udp"
         : "tcp"
@@ -729,7 +729,6 @@ export function mergeEndpoints<TEndpoint extends network.L3Endpoint>(
   for (const endpoint of endpoints) {
     const key = endpointToString(endpoint)
     const existing = mergedMap.get(key)
-
     if (existing) {
       mergedMap.set(key, {
         ...existing,

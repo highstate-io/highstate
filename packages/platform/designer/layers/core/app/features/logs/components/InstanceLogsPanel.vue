@@ -14,6 +14,7 @@ let terminal: Terminal | null = null
 
 const writeLogEntry = (message: string) => {
   const lines = message.split("\n")
+
   for (const line of lines) {
     terminal!.writeln(line)
   }

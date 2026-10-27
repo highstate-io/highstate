@@ -1,19 +1,19 @@
+import { projectModelInstanceSchema } from "@highstate/backend/shared"
 import {
   componentModelSchema,
-  entityModelSchema,
-  hubModelSchema,
-  objectMetaSchema,
   type EntityModel,
+  entityModelSchema,
   type HubModel,
+  hubModelSchema,
   type InstanceModel,
+  objectMetaSchema,
   type Position,
 } from "@highstate/contract"
-import { projectModelInstanceSchema } from "@highstate/backend/shared"
 import { decode, encode } from "@msgpack/msgpack"
+import { type GraphNode, getRectOfNodes, type VueFlowStore } from "@vue-flow/core"
+import { Base64 } from "js-base64"
 import { uniqueBy } from "remeda"
 import { z } from "zod"
-import { Base64 } from "js-base64"
-import { getRectOfNodes, type GraphNode, type VueFlowStore } from "@vue-flow/core"
 
 /**
  * The visual status of a node in the blueprint placement context.
@@ -119,6 +119,7 @@ export function createBlueprint(
   const movedInstances = instances.map(instance =>
     stripTransientInstanceFields(moveCanvasNode(instance, rect)),
   )
+
   const movedHubs = hubs.map(hub => moveCanvasNode(hub, rect))
 
   if (!libraryStore) {
@@ -135,6 +136,7 @@ export function createBlueprint(
   )
 
   const entities = new Map<string, EntityModel>()
+
   for (const component of components) {
     // we assume that all components have their entities defined in the library
     // the same is true for components of instances

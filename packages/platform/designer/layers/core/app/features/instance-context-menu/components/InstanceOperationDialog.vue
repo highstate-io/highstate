@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type {
-  OperationType,
-  OperationPhase,
   OperationOptions as OperationOptionsType,
+  OperationPhase,
+  OperationType,
 } from "@highstate/backend/shared"
 import type { ComponentModel, InstanceModel } from "@highstate/contract"
-import { ComponentIcon } from "#layers/core/app/features/shared"
 import { getVisibleOperationOptions } from "#layers/core/app/features/instance-context-menu"
-import OperationPlanTree from "./OperationPlanTree.vue"
+import { ComponentIcon } from "#layers/core/app/features/shared"
 import OperationOptions from "./OperationOptions.vue"
+import OperationPlanTree from "./OperationPlanTree.vue"
 
 const visible = defineModel<boolean>("visible")
 
@@ -263,6 +263,7 @@ const operate = async () => {
         description: operationDescription.value,
       },
     })
+
     visible.value = false
   } finally {
     loading.value = false
@@ -272,11 +273,13 @@ const operate = async () => {
 const title = computed(() => {
   if (isMultipleInstances.value) {
     return `${opText.value} ${instances.length} instances`
-  } else if (component) {
-    return `${opText.value} ${component.meta.title} "${firstInstance.value.name}"`
-  } else {
-    return `${opText.value} "${firstInstance.value.name}"`
   }
+
+  if (component) {
+    return `${opText.value} ${component.meta.title} "${firstInstance.value.name}"`
+  }
+
+  return `${opText.value} "${firstInstance.value.name}"`
 })
 </script>
 

@@ -129,6 +129,7 @@ describe("evaluateProject", () => {
     )
 
     expect(result.success).toBe(true)
+
     if (!result.success) {
       return
     }
@@ -176,6 +177,7 @@ describe("evaluateProject", () => {
     )
 
     expect(result.success).toBe(true)
+
     if (!result.success) {
       return
     }
@@ -222,6 +224,7 @@ describe("evaluateProject", () => {
     )
 
     expect(result.success).toBe(false)
+
     if (result.success) {
       return
     }
@@ -270,6 +273,7 @@ describe("evaluateProject", () => {
     )
 
     expect(result.success).toBe(true)
+
     if (!result.success) {
       return
     }
@@ -338,6 +342,7 @@ describe("evaluateProject", () => {
     )
 
     expect(result.success).toBe(true)
+
     if (!result.success) {
       return
     }
@@ -350,16 +355,19 @@ describe("evaluateProject", () => {
       type: "virtual-dependency.entity.v1",
       schema: z.object({ value: z.string() }),
     })
+
     const importUnit = defineUnit({
       type: "system.import.state-1.v1",
       outputs: { out: entity },
       source: { package: "@test/unit", path: "import" },
     })
+
     const consumer = defineComponent({
       type: "virtual-dependency-consumer.v1",
       inputs: { dep: entity },
       create: () => {},
     })
+
     const importInstance = createUnitInstance(importUnit.type, "port")
     const consumerInstance = createCompositeInstance(consumer.type, "consumer")
 
@@ -381,6 +389,7 @@ describe("evaluateProject", () => {
     )
 
     expect(result.success).toBe(true)
+
     if (!result.success) {
       return
     }

@@ -21,6 +21,7 @@ function isStableInstanceInput(value: unknown): value is InstanceInput {
 
 function formatInstancePath(instance: InstanceModel): string {
   let result = instance.id
+
   while (instance.parentId) {
     const parent = runtimeInstances.get(instance.parentId)?.instance
     if (!parent) {
@@ -96,6 +97,7 @@ export function registerInstance<T>(component: Component, instance: InstanceMode
 
   try {
     const rawOutputs = fn() as Record<string, RuntimeInput | RuntimeInput[] | undefined>
+
     const outputs = mapValues(rawOutputs ?? {}, outputGroup => {
       return [outputGroup].flat(2).filter(Boolean) as RuntimeInput[]
     })
@@ -124,6 +126,7 @@ export function registerInstance<T>(component: Component, instance: InstanceMode
     instance.resolvedOutputs = mapValues(outputs ?? {}, outputGroup =>
       toStableInputs(outputGroup, false),
     )
+
     instance.outputs = mapValues(outputs ?? {}, outputGroup => toStableInputs(outputGroup, true))
 
     // mark all outputs with the boundary input of the instance

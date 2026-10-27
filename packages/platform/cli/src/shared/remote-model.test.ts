@@ -37,6 +37,7 @@ describe("remote model conversion", () => {
       type: OperationPhaseType.UPDATE,
       instances: [{ id: "common.server.v1:web", message: "outdated" }],
     })
+
     const document = planDocumentSchema.parse({
       format_version: 1,
       project_id: "project",
@@ -49,6 +50,7 @@ describe("remote model conversion", () => {
     expect(toJson(OperationPhaseSchema, phasesFromPlan(document)[0]!)).toEqual(
       toJson(OperationPhaseSchema, phase),
     )
+
     expect(operationOptions(document.options).refresh).toBe(true)
   })
 
@@ -58,6 +60,7 @@ describe("remote model conversion", () => {
       path: "/config/enabled",
       value: true,
     })
+
     const remove = toArgumentPatchOperation({ op: "remove", path: "/obsolete" })
 
     expect(replace.operation).toBe(InstanceArgumentPatchOperation_Operation.REPLACE)

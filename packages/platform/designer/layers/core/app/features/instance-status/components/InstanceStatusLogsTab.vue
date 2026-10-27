@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {
-  isTransientInstanceOperationStatus,
-  type InstanceOperationState,
-} from "@highstate/backend/shared"
 import type { Terminal } from "@xterm/xterm"
+import {
+  type InstanceOperationState,
+  isTransientInstanceOperationStatus,
+} from "@highstate/backend/shared"
 import { GenericTerminal } from "#layers/core/app/features/terminals"
 
 const { operationState } = defineProps<{
@@ -17,6 +17,7 @@ let terminal: Terminal | null = null
 
 const writeLogEntry = (message: string) => {
   const lines = message.split("\n")
+
   for (const line of lines) {
     terminal!.writeln(line)
   }

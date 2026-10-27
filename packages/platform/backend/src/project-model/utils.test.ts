@@ -119,6 +119,7 @@ describe("deleteInstanceReferences", () => {
     expect(inputs).toEqual({
       database: [{ instanceId: "database.v1:main", output: "connectionString" }],
     })
+
     expect(inputs).not.toHaveProperty("server")
   })
 })
@@ -149,6 +150,7 @@ describe("deleteHubReferences", () => {
     expect(inputs).toEqual({
       secrets: [{ hubId: "hub456" }],
     })
+
     expect(inputs).not.toHaveProperty("config")
   })
 })
@@ -221,6 +223,7 @@ describe("cleanupInstanceReferences", () => {
     expect(instances[0].inputs).toEqual({
       cache: [{ instanceId: "cache.v1:redis", output: "url" }],
     })
+
     expect(instances[1]).not.toHaveProperty("inputs")
     expect(hubs[0]).not.toHaveProperty("inputs")
   })
@@ -269,6 +272,7 @@ describe("cleanupHubReferences", () => {
     expect(instances[0].hubInputs).toEqual({
       secrets: [{ hubId: "hub456" }],
     })
+
     expect(instances[0].injectionInputs).toEqual([{ hubId: "hub789" }])
     expect(hubs[0].injectionInputs).toEqual([{ hubId: "hub456" }])
   })
@@ -322,6 +326,7 @@ describe("updateInstanceReferences", () => {
     expect(instances[0].inputs?.database).toEqual([
       { instanceId: "database.v1:new", output: "connection" },
     ])
+
     expect(hubs[0].inputs).toEqual([{ instanceId: "database.v1:new", output: "host" }])
   })
 })

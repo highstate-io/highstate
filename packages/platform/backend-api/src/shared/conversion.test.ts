@@ -35,6 +35,7 @@ describe("resource conversion", () => {
 
     expect(api.$typeName).toBe("io.highstate.v1.Instance")
     expect(api.kind).toBe(ComponentKind.UNIT)
+
     expect(fromInstance(api)).toEqual({
       ...backend,
       hubInputs: {},
@@ -63,6 +64,7 @@ describe("resource conversion", () => {
 
     expect(toInstancePatch(instance, ["position.x"])).toEqual({ position: { x: 10 } })
     expect(toInstancePatch(instance, ["position"])).toEqual({ position: { x: 10, y: 20 } })
+
     expect(toInstancePatch(create(InstanceSchema, instance), ["position"])).toEqual({
       position: { x: 10, y: 20 },
     })
@@ -120,6 +122,7 @@ describe("resource conversion", () => {
       type: "example.component.v1" as const,
       name: "resident" as const,
     }
+
     const model = toProjectModel({
       instances: [instance],
       virtualInstances: [

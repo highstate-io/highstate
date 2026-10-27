@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EditorLoaderPopup, HubNodeWrapper, GenericCanvas } from "#layers/core/app/features/canvas"
+import { EditorLoaderPopup, GenericCanvas, HubNodeWrapper } from "#layers/core/app/features/canvas"
 import { InstanceNodeWrapper } from "#layers/core/app/features/instance-node"
 import CompositeInstanceInputNode from "./CompositeInstanceInputNode.vue"
 import CompositeInstanceOutputNode from "./CompositeInstanceOutputNode.vue"

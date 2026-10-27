@@ -19,6 +19,7 @@ export default defineWebSocketHandler({
   open: peer => {
     const config = useRuntimeConfig()
     const upstream = new WebSocket(`ws://127.0.0.1:${config.public.eventsPort}`)
+
     const state: EventsBridgeState = {
       pendingMessages: [],
       upstream,

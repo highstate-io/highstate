@@ -1,4 +1,4 @@
-import { proxmox, distributions } from "@highstate/library"
+import { distributions, proxmox } from "@highstate/library"
 
 const { proxmoxCluster } = proxmox.connection({
   name: "my-proxmox",

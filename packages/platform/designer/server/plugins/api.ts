@@ -2,7 +2,7 @@ import { getSharedServices } from "@highstate/backend"
 import { startBackendApi } from "@highstate/backend-api"
 import { ensureLocalBackendUser } from "../authentication"
 
-export default defineNitroPlugin(async app => {
+export default defineNitroPlugin(async _app => {
   const services = await getSharedServices()
   await ensureLocalBackendUser(services)
 

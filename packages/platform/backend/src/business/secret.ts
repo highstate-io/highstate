@@ -44,7 +44,6 @@ export class SecretService {
       where: { id: stateId },
       select: { kind: true, instanceId: true },
     })
-
     if (!state) {
       throw new InstanceStateNotFoundError(projectId, stateId)
     }
@@ -61,7 +60,6 @@ export class SecretService {
 
     const [componentType] = parseInstanceId(state.instanceId)
     const component = library.components[componentType]
-
     if (!component) {
       throw new Error(`Component type "${componentType}" not found in project "${projectId}"`)
     }
@@ -129,11 +127,11 @@ export class SecretService {
     secretValues: Record<string, unknown>,
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
+
     const state = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
     })
-
     if (!state) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -202,11 +200,11 @@ export class SecretService {
     stateId: string,
   ): Promise<Record<string, unknown>> {
     const database = await this.database.forProject(context.projectId)
+
     const state = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
     })
-
     if (!state) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -227,7 +225,6 @@ export class SecretService {
       where: { id: stateId },
       select: { kind: true },
     })
-
     if (!state) {
       throw new InstanceStateNotFoundError(projectId, stateId)
     }
@@ -270,7 +267,6 @@ export class SecretService {
           systemName: SystemSecretNames.PulumiPassword,
         },
       })
-
       if (existingSecret) {
         return { password: existingSecret.content as string, secretId: null as string | null }
       }
@@ -295,7 +291,6 @@ export class SecretService {
       this.logger.info({ projectId }, "created new Pulumi password")
       return { password: newPassword, secretId: createdSecret.id }
     })
-
     if (result.secretId) {
       await this.objectRefIndexService.track(projectId, [result.secretId])
     }

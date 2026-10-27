@@ -20,11 +20,11 @@ let checksum: common.Checksum | undefined = args.checksum
 if (!url) {
   const file = await toPromise(inputs.file)
   if (!file) {
-    throw new Error("No file provided and no URL specified.")
+    throw new Error("No file provided and no URL specified")
   }
 
   if (file.content.type !== "remote") {
-    throw new Error(`For now only "remote" files are supported, got "${file.content.type}".`)
+    throw new Error(`For now only "remote" files are supported, got "${file.content.type}"`)
   }
 
   url = l7EndpointToString(file.content.endpoint)
@@ -59,7 +59,6 @@ const file = new DownloadFile(
 function getNameByUrl(url: string): [name: string, extension: string] {
   const fullName = url.split("/").pop()?.split("?")[0]
   const parts = fullName?.split(".")
-
   if (!parts || parts.length < 2) {
     throw new Error(`Cannot extract file name and extension from URL: ${url}`)
   }

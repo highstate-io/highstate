@@ -13,7 +13,7 @@ export type DatabasePageQuery<TCursor> = {
   take: number
 }
 
-type DatabasePageOptionsBase<TRow, TCursor> = {
+interface DatabasePageOptionsBase<TRow, TCursor> {
   collection: string
   request: PageRequest
   query: unknown
@@ -137,12 +137,14 @@ export async function queryDatabasePage<TRow, TCursor = unknown>(
   options: DatabasePageOptions<TRow, unknown, TCursor>,
 ): Promise<PageResult<unknown>> {
   const effectiveQuery = stripPageRequest(options.query)
+
   const { pageSize, cursor } = resolvePageRequest(
     options.collection,
     options.request,
     effectiveQuery,
     options.cursorSchema,
   )
+
   const rows = await options.fetch({ cursor, take: pageSize + 1 })
   const hasMore = rows.length > pageSize
   const pageRows = hasMore ? rows.slice(0, pageSize) : rows

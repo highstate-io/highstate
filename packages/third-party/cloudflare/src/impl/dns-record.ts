@@ -40,10 +40,9 @@ export const createDnsRecord = dnsRecordMediator.implement(
   ({ name, args }, data) => {
     const provider = getProvider(data)
     const zoneId = data.zoneIds[args.zone]
-
     if (!zoneId) {
       throw new Error(
-        `The DNS provider "${provider.id}" does not have ID for the zone "${args.zone}". This is not expected, please open an issue.`,
+        `The DNS provider "${provider.id}" does not have ID for the zone "${args.zone}". This is not expected, please open an issue`,
       )
     }
 

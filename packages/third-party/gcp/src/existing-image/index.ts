@@ -13,7 +13,6 @@ type ParsedImageRef = {
 
 function parseImageRef(id: string): ParsedImageRef {
   const trimmed = id.trim()
-
   if (!trimmed) {
     throw new Error("Image ID is empty")
   }
@@ -28,7 +27,6 @@ function parseImageRef(id: string): ParsedImageRef {
   normalized = normalized.replace(/^\/compute\/v1\//, "").replace(/^\//, "")
 
   const familyMatch = normalized.match(/^projects\/([^/]+)\/global\/images\/family\/([^/]+)$/)
-
   if (familyMatch) {
     return {
       project: familyMatch[1],
@@ -37,7 +35,6 @@ function parseImageRef(id: string): ParsedImageRef {
   }
 
   const imageMatch = normalized.match(/^projects\/([^/]+)\/global\/images\/([^/]+)$/)
-
   if (imageMatch) {
     return {
       project: imageMatch[1],

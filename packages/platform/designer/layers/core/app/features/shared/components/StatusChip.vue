@@ -18,6 +18,7 @@ const getStatusColor = (status: string) => {
 const getStatusIcon = (status: string) => {
   const statusInfo = statusMap[status]
   if (!statusInfo || "loading" in statusInfo) return undefined
+
   return statusInfo.icon ?? "mdi-circle"
 }
 

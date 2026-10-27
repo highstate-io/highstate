@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { camelCaseToHumanReadable } from "@highstate/contract"
+import { createId } from "@paralleldrive/cuid2"
 import {
   createUnlockMethodFromForm,
   UnlockMethodForm,
   type UnlockMethodFormData,
 } from "#layers/core/app/features/unlock-methods"
-import { camelCaseToHumanReadable } from "@highstate/contract"
-import { createId } from "@paralleldrive/cuid2"
 
 const visible = defineModel<boolean>("visible")
 
@@ -27,7 +27,7 @@ const projectIdRules = [
   (v: string) => !!v || "Name is required",
   (v: string) => (v && v.length <= 64) || "Name must be less than 64 characters",
   (v: string) =>
-    /^[a-z0-9-\.]+$/.test(v) ||
+    /^[a-z0-9-.]+$/.test(v) ||
     "Name must be alphanumeric in lowercase with dashes (-) and dots (.)",
   (v: string) => /^[a-z]/i.test(v) || "Name must start with a letter",
 ]
@@ -43,6 +43,7 @@ const createProject = async () => {
   if (!isFormValid.value) return
 
   const projectId = createId()
+
   const unlockMethod = await createUnlockMethodFromForm(unlockMethodData.value, {
     id: projectId,
     name: projectName.value,
@@ -58,12 +59,12 @@ const createProject = async () => {
   workspaceStore.openProjectPanel(project.id)
   visible.value = false
 
-  // Reset form
+  // reset form
   projectName.value = ""
   unlockMethodForm.value?.resetForm()
 }
 
-// Reset form when dialog closes
+// reset form when dialog closes
 watch(visible, newVisible => {
   if (!newVisible) {
     projectName.value = ""

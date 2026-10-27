@@ -24,7 +24,9 @@ const spec = {
     expect(result).toContain(
       "$addInputDescription(clusterEntity, `The Kubernetes cluster to deploy on.`)",
     )
+
     expect(result).toContain("$addArgumentDescription(Type.Number(), `The port number to use.`)")
+
     expect(result).toContain(
       'import { $addArgumentDescription, $addInputDescription } from "@highstate/contract"',
     )
@@ -129,6 +131,7 @@ var inputs2 = $inputs({
     expect(result).toContain("entity: keyPairEntity")
     expect(result).toContain("required: false")
     expect(result).toContain("}, `The SSH key pair to use for authentication.`)")
+
     expect(result).toContain(
       'import { $addArgumentDescription, $addInputDescription } from "@highstate/contract"',
     )
@@ -242,6 +245,7 @@ const spec = {
       // biome-ignore lint/suspicious/noTemplateCurlyInString: it is example code
       "$addArgumentDescription(Type.String(), `This is a description with \\`backticks\\` and \\${template} literals.",
     )
+
     expect(result).toContain("It also has multiple lines.`)")
   })
 
@@ -261,7 +265,7 @@ const userSchema = z.object({
 
     const result = await applySchemaTransformations(input)
 
-    // Should add import at the top
+    // should add import at the top
     expect(result).toContain(
       'import { camelCaseToHumanReadable as __camelCaseToHumanReadable } from "@highstate/contract"',
     )
@@ -270,9 +274,11 @@ const userSchema = z.object({
     expect(result).toContain(
       'id: z.string().meta({ title: __camelCaseToHumanReadable("id"), description: `The user\'s unique identifier.` })',
     )
+
     expect(result).toContain(
       'email: z.string().email().meta({ title: __camelCaseToHumanReadable("email"), description: `The user\'s email address.` })',
     )
+
     expect(result).toContain("name: z.string(), // no comment") // unchanged
   })
 
@@ -314,6 +320,7 @@ const schema = z.object({
     expect(result).toContain(
       'name: z.string().meta({ title: __camelCaseToHumanReadable("name"), description: `The user\'s name.` })',
     )
+
     expect(result).toContain(
       'age: z.number().meta({ title: __camelCaseToHumanReadable("age"), description: `The user\'s age.` })',
     )
@@ -354,16 +361,21 @@ const networkSchema = z.discriminatedUnion("type", [
     expect(result).toContain(
       'address: z.string().optional().meta({ title: __camelCaseToHumanReadable("address"), description: `The IPv4 address to assign to the virtual machine.` })',
     )
+
     expect(result).toContain(
       'prefix: z.number().default(24).meta({ title: __camelCaseToHumanReadable("prefix"), description: `The CIDR prefix for the IPv4 address.',
     )
+
     expect(result).toContain("By default, this is set to 24.` })")
+
     expect(result).toContain(
       'gateway: z.string().optional().meta({ title: __camelCaseToHumanReadable("gateway"), description: `The IPv4 gateway for the virtual machine.',
     )
+
     expect(result).toContain(
       "If not specified, will be set to the first address in the subnet.` })",
     )
+
     expect(result).toContain('type: z.literal("static"),') // unchanged, no comment
   })
 
@@ -391,9 +403,11 @@ const schema = z.discriminatedUnion("type", [
     expect(result).toContain(
       'address: z.string().optional().meta({ title: __camelCaseToHumanReadable("address"), description: `The IPv4 address to assign to the virtual machine.` })',
     )
+
     expect(result).toContain(
       'prefix: z.number().default(24).meta({ title: __camelCaseToHumanReadable("prefix"), description: `The CIDR prefix for the IPv4 address.` })',
     )
+
     expect(result).toContain('type: z.literal("dhcp"),') // unchanged, no comment
     expect(result).toContain('type: z.literal("static"),') // unchanged, no comment
   })
@@ -417,9 +431,11 @@ const schema = z.object({
     expect(result).toContain(
       'import { camelCaseToHumanReadable as __camelCaseToHumanReadable } from "@highstate/contract"',
     )
+
     expect(result).toContain(
       'return peerEntity.schema.array().optional().meta({ title: __camelCaseToHumanReadable("relayedPeers"), description: `The peers which are relayed through this peer.',
     )
+
     expect(result).toContain(
       "and will be used to setup routing for all other peers except the relayed ones.` })",
     )
@@ -519,18 +535,22 @@ var virtualMachine = defineUnit({
     expect(result).toContain(
       'address: z.string().optional().meta({ title: __camelCaseToHumanReadable("address"), description: `The IPv4 address to assign to the virtual machine.` })',
     )
+
     expect(result).toContain(
       'prefix: z.number().default(24).meta({ title: __camelCaseToHumanReadable("prefix"), description: `The CIDR prefix for the IPv4 address.',
     )
+
     expect(result).toContain("By default, this is set to 24.` })")
+
     expect(result).toContain(
       'gateway: z.string().optional().meta({ title: __camelCaseToHumanReadable("gateway"), description: `The IPv4 gateway for the virtual machine.',
     )
+
     expect(result).toContain(
       "If not specified, will be set to the first address in the subnet.` })",
     )
 
-    // Should NOT transform fields without JSDoc comments
+    // should NOT transform fields without JSDoc comments
     expect(result).toContain("nodeName: z.string().optional(),") // unchanged
     expect(result).toContain('cpuType: z.string().default("host"),') // unchanged
     expect(result).toContain("cores: z.number().default(1),") // unchanged
@@ -545,7 +565,7 @@ var virtualMachine = defineUnit({
     expect(result).toContain("}, `The cloud-init vendor data to use for the virtual machine.")
     expect(result).toContain("You can provide a cloud-config from the distribution component.`)")
 
-    // Should NOT transform other inputs without JSDoc
+    // should NOT transform other inputs without JSDoc
     expect(result).toContain("proxmoxCluster: clusterEntity,") // unchanged
     expect(result).toContain("image: imageEntity,") // unchanged
   })
@@ -656,7 +676,7 @@ var traefikGateway = defineUnit({
 
     const result = await applySchemaTransformations(input)
 
-    // Should have description at the correct level
+    // should have description at the correct level
     expect(result).toContain("meta: {")
     expect(result).toContain("description: `Traefik Gateway unit definition for Kubernetes.`")
     expect(result).toContain('title: "Traefik Gateway"')
@@ -666,7 +686,7 @@ var traefikGateway = defineUnit({
     // Should NOT have nested meta.meta structure
     expect(result).not.toContain("meta: {\\s*meta: {")
 
-    // Verify the structure more precisely - should only have one meta object
+    // verify the structure more precisely - should only have one meta object
     const metaMatches = (result.match(/meta\s*:\s*\{/g) || []).length
     expect(metaMatches).toBe(1)
   })
@@ -692,7 +712,7 @@ export const testUnit = defineUnit({
     expect(result).toContain('title: "Test Unit"')
     expect(result).toContain('category: "Test"')
 
-    // Should still only have one meta object
+    // should still only have one meta object
     const metaMatches = (result.match(/meta\s*:\s*\{/g) || []).length
     expect(metaMatches).toBe(1)
   })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import UnlockMethodForm from "./UnlockMethodForm.vue"
 import { createUnlockMethodFromForm, type UnlockMethodFormData } from "../business"
+import UnlockMethodForm from "./UnlockMethodForm.vue"
 
 const visible = defineModel<boolean>("visible")
 
@@ -56,7 +56,7 @@ const handleCreate = async () => {
   }
 }
 
-// Reset form when dialog closes
+// reset form when dialog closes
 watch(visible, newVisible => {
   if (!newVisible) {
     unlockMethodForm.value?.resetForm()

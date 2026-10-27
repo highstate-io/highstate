@@ -105,7 +105,9 @@ function getParamOrder(...templates: (string | undefined)[]): string[] {
   return names
 }
 
-function isStructuredParams(params: ArtifactParamConfig): params is Exclude<ArtifactParamConfig, ArtifactParams> {
+function isStructuredParams(
+  params: ArtifactParamConfig,
+): params is Exclude<ArtifactParamConfig, ArtifactParams> {
   return "base" in params || "groups" in params
 }
 
@@ -143,7 +145,10 @@ function expandArtifactParamSets(
       ...paramOrder,
       ...Object.keys(params).filter(name => !paramOrder.includes(name)),
     ]
-    const valuesByName = orderedNames.map(name => [name, getParamValues(params, artifactKey, name)] as const)
+
+    const valuesByName = orderedNames.map(
+      name => [name, getParamValues(params, artifactKey, name)] as const,
+    )
 
     return expandParams(valuesByName)
   })
@@ -183,10 +188,7 @@ function resolveTemplate(
 }
 
 function getShaKey(paramOrder: string[], values: Record<string, string>): string {
-  const names = [
-    ...paramOrder,
-    ...Object.keys(values).filter(name => !paramOrder.includes(name)),
-  ]
+  const names = [...paramOrder, ...Object.keys(values).filter(name => !paramOrder.includes(name))]
 
   return names.map(name => values[name]).join("-") || "default"
 }
@@ -217,7 +219,9 @@ async function fetchArtifactSha256(item: ArtifactPlanItem): Promise<string> {
 
   const response = await fetch(item.sha256Url)
   if (!response.ok) {
-    throw new Error(`Failed to download SHA256 sums for artifact "${item.key}" from "${item.sha256Url}"`)
+    throw new Error(
+      `Failed to download SHA256 sums for artifact "${item.key}" from "${item.sha256Url}"`,
+    )
   }
 
   const fileName = path.posix.basename(new URL(item.url).pathname)
@@ -247,9 +251,7 @@ async function downloadAndHashArtifact(item: ArtifactPlanItem, tempDir: string):
   const tempFile = path.join(tempDir, `${item.key}-${item.shaKey}`)
   await writeFile(tempFile, content)
 
-  return createHash("sha256")
-    .update(content)
-    .digest("hex")
+  return createHash("sha256").update(content).digest("hex")
 }
 
 await main()

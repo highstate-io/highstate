@@ -22,6 +22,7 @@ function importImplementationModule(url: string): Promise<Record<string, unknown
     implementationModules.delete(url)
     throw error
   })
+
   implementationModules.set(url, modulePromise)
 
   return modulePromise
@@ -72,7 +73,6 @@ export class ImplementationMediator<
 
       const result = await func(parsedInput.data, parsedData.data)
       const parsedResult = this.outputSchema.safeParse(result)
-
       if (!parsedResult.success) {
         throw new Error(
           `Invalid output from implementation "${this.path}": ${parsedResult.error.message}`,
@@ -93,22 +93,22 @@ export class ImplementationMediator<
     const importPath = `${resolvedImplRef.package}/impl/${this.path}`
 
     let impl: Record<string, unknown>
+
     try {
       const fullUrl = importMetaResolve(importPath, getImportBaseUrl().toString())
       impl = await importImplementationModule(fullUrl)
     } catch (error) {
       console.error(`Failed to import module "${importPath}":`, String(error))
 
-      throw new Error("Failed to import module required by implementation.")
+      throw new Error("Failed to import module required by implementation", { cause: error })
     }
 
     const funcs = Object.entries(impl).filter(value => typeof value[1] === "function") as [
       string,
       (...args: unknown[]) => unknown,
     ][]
-
     if (funcs.length === 0) {
-      throw new Error(`No implementation functions found in module "${importPath}".`)
+      throw new Error(`No implementation functions found in module "${importPath}"`)
     }
 
     if (funcs.length > 1) {
@@ -121,11 +121,12 @@ export class ImplementationMediator<
     const [funcName, implFunc] = funcs[0]
 
     let result: unknown
+
     try {
       result = await implFunc(resolvedInput, resolvedImplRef.data)
     } catch (error) {
       console.error(`Error in implementation function "${funcName}":`, error)
-      throw new Error(`Implementation function "${funcName}" failed`)
+      throw new Error(`Implementation function "${funcName}" failed`, { cause: error })
     }
 
     const parsedResult = this.outputSchema.safeParse(result)

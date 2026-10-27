@@ -46,6 +46,7 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
 
   for (const grant of grants) {
     const existing = grantsByPermission.get(grant.permission.name)
+
     grantsByPermission.set(grant.permission.name, {
       permission: grant.permission,
       restricted: (existing?.restricted ?? true) && grant.restricted,
@@ -67,6 +68,7 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
           `"${permission.title}" is critical: ${lowercaseFirst(permission.consequence)}`,
       )
       .join(" ")
+
     return {
       risk: "critical",
       message: `${consequences} Remove all critical permissions to lower the risk verdict.`,
@@ -86,17 +88,20 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
   const restrictedHighPermissions = effectiveGrants
     .filter(grant => grant.permission.risk === "high")
     .map(grant => grant.permission.title)
+
   const mediumPermissions = effectiveGrants
     .filter(grant => grant.permission.risk === "medium")
     .map(grant => grant.permission.title)
   if (restrictedHighPermissions.length > 0 || mediumPermissions.length > 0) {
     const sentences: string[] = []
+
     if (restrictedHighPermissions.length > 0) {
       sentences.push(
         `Restrictions reduce ${formatList(restrictedHighPermissions)} from high to medium risk.`,
         "Keep every restriction as narrow as possible.",
       )
     }
+
     if (mediumPermissions.length > 0) {
       sentences.push(
         `Review whether ${formatList(mediumPermissions)} are required and restrict them where supported.`,

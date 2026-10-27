@@ -48,7 +48,9 @@ export class BuildCommand extends Command {
         throw error
       }
 
-      throw new Error(`Build failed with non-error rejection: ${formatUnknownError(error)}`)
+      throw new Error(`Build failed with non-error rejection: ${formatUnknownError(error)}`, {
+        cause: error,
+      })
     }
   }
 
@@ -57,6 +59,7 @@ export class BuildCommand extends Command {
 
     const highstateConfig = highstateConfigSchema.parse(packageJson.highstate ?? {})
     const isWorker = highstateConfig.type === "worker"
+
     if (highstateConfig.type === "library") {
       this.library = true
     }
@@ -66,11 +69,10 @@ export class BuildCommand extends Command {
     }
 
     if (!packageJson.name) {
-      throw new Error("package.json must have a name field")
+      throw new Error("Package.json must have a name field")
     }
 
     const entryPoints = extractEntryPoints(packageJson)
-
     if (Object.keys(entryPoints).length === 0) {
       return
     }
@@ -79,7 +81,9 @@ export class BuildCommand extends Command {
 
     const binSourceFilePaths = Object.values(entryPoints)
       .filter(value => value.isBin)
-      .map(value => value.entryPoint.slice(2)) // remove "./"
+      .map(value => value.entryPoint.slice(2))
+
+    // remove "./"
 
     if (this.library) {
       bunPlugins.push(schemaTransformerPlugin)
@@ -104,20 +108,19 @@ export class BuildCommand extends Command {
       splitting: !isWorker,
       plugins: bunPlugins,
     })
-
     if (!result.success) {
       for (const log of result.logs) {
         logger.error(log.message)
       }
 
-      throw new Error("build failed")
+      throw new Error("Build failed")
     }
 
     const binEntryPoints = Object.values(entryPoints).filter(value => value.isBin)
+
     for (const binEntryPoint of binEntryPoints) {
       const binPath = resolve(binEntryPoint.distPath)
       const binContent = await readFile(binPath, "utf8")
-
       if (!binContent.startsWith("#!/usr/bin/env bun\n")) {
         await writeFile(binPath, `#!/usr/bin/env bun\n${binContent}`, "utf8")
       }
@@ -136,6 +139,7 @@ export class BuildCommand extends Command {
       )
 
       const distPathToExportKey = new Map<string, string>()
+
       for (const value of Object.values(entryPoints)) {
         distPathToExportKey.set(value.distPath, value.key)
       }

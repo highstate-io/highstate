@@ -6,6 +6,7 @@ function bufToBigInt(buf: Uint8Array): bigint {
   const bits = 8n
 
   let value = 0n
+
   for (const byte of buf.values()) {
     value = (value << bits) + BigInt(byte)
   }

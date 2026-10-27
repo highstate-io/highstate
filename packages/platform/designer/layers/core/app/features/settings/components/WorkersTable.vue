@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  IdTableCell,
-  baseHeaders,
-} from "#layers/core/app/features/settings"
-import { OwnerRefChip } from "#layers/core/app/features/shared"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   WorkerOutput,
 } from "@highstate/backend/shared"
+import {
+  baseHeaders,
+  IdTableCell,
+  SettingsDataTable,
+  ShowDetailsAction,
+} from "#layers/core/app/features/settings"
+import { OwnerRefChip } from "#layers/core/app/features/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

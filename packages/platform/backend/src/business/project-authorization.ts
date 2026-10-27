@@ -9,7 +9,6 @@ export async function resolveBackendProjectPermissionTarget(
     where: { id: projectId },
     select: { spaceId: true },
   })
-
   if (!project) {
     return { projectId }
   }
@@ -17,6 +16,7 @@ export async function resolveBackendProjectPermissionTarget(
   const spaces = await database.backend.projectSpace.findMany({
     select: { id: true, parentId: true },
   })
+
   const parentIds = new Map(spaces.map(space => [space.id, space.parentId]))
   const ancestorProjectSpaceIds: string[] = []
   const visitedSpaceIds = new Set<string>()

@@ -23,14 +23,17 @@ export const entitySettingsRouter = router({
       input.snapshotId,
     )
     if (!details) return null
+
     const project = await ctx.projectService.getProjectOrThrowCore(input.projectId)
     const library = await ctx.libraryBackend.loadLibrary(project.libraryId)
+
     try {
       const content = await ctx.entitySnapshotService.reconstructSnapshotContent(
         ctx.requestContext,
         input.snapshotId,
         library,
       )
+
       return { ...details, snapshot: { ...details.snapshot, content } }
     } catch {
       return details

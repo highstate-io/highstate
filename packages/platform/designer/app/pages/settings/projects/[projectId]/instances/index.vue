@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { SettingsListPage } from "#layers/core/app/features/settings"
-import { InstanceStatusBadge } from "#layers/core/app/features/instance-status"
-import { Icon } from "@iconify/vue"
 import type { InstanceId, InstanceModel, ObjectMeta } from "@highstate/contract"
+import { Icon } from "@iconify/vue"
+import { InstanceStatusBadge } from "#layers/core/app/features/instance-status"
+import { SettingsListPage } from "#layers/core/app/features/settings"
 
 const { projectStore, instancesStore, libraryStore, stateStore, validationStore, infoStore } =
   useProjectStores()

@@ -9,7 +9,7 @@ const { results: zones } = await getZones({}, { provider })
 
 if (!zones.length) {
   throw new Error(
-    "No zones found with the provided API token. Ensure the token has Zone.Zone:Read permission on the zone.",
+    "No zones found with the provided API token. Ensure the token has Zone.Zone:Read permission on the zone",
   )
 }
 

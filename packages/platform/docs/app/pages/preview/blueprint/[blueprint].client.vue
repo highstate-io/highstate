@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { Blueprint } from "#layers/core/app/features/blueprint/business/shared"
 import { BlueprintCanvas } from "#layers/core/app/features/canvas"
-import { type Blueprint } from "#layers/core/app/features/blueprint/business/shared"
 import { loadLibrary } from "~/utils/loadLibrary"
 
 const route = useRoute("preview-blueprint-blueprint")

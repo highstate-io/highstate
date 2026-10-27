@@ -2,20 +2,20 @@
 import type { ServiceAccountInput } from "@highstate/backend/shared"
 import { until, useProjectStores } from "#imports"
 import {
-  DetailPageLayout,
-  DetailInfoCard,
-  RelatedDataPanel,
-  TimeTableCell,
-  IdTableCell,
   ApiKeysTable,
-  TerminalsTable,
+  ArtifactsTable,
+  DetailInfoCard,
+  DetailPageLayout,
+  IdTableCell,
   PagesTable,
   PanelsTable,
-  SecretsTable,
-  WorkersTable,
-  ArtifactsTable,
-  ProjectServiceAccountRoleBindingsTable,
   ProjectServiceAccountDialog,
+  ProjectServiceAccountRoleBindingsTable,
+  RelatedDataPanel,
+  SecretsTable,
+  TerminalsTable,
+  TimeTableCell,
+  WorkersTable,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 
@@ -79,6 +79,7 @@ async function remove(): Promise<void> {
 
   try {
     await serviceAccountStore.delete(params.serviceAccountId)
+
     await router.push({
       name: "settings.service-accounts",
       params: { projectId: params.projectId },
@@ -95,7 +96,7 @@ const detailItems = [
   { key: "updatedAt", label: "Last Updated" },
 ]
 
-// Load related data
+// load related data
 const apiKeys = apiKeyStore.forServiceAccount(params.serviceAccountId)
 const terminals = terminalStore.forServiceAccount(params.serviceAccountId)
 const pages = pageStore.forServiceAccount(params.serviceAccountId)

@@ -85,7 +85,7 @@ let s3Secret: Secret | undefined
 
 if (args.backend === "s3") {
   if (!s3Bucket) {
-    throw new Error("s3Bucket input is required when backend is 's3'")
+    throw new Error("S3Bucket input is required when backend is 's3'")
   }
 
   s3Secret = Secret.create(`${args.appName}-s3-credentials`, {
@@ -200,7 +200,6 @@ if (args.autoInit.enabled) {
   )
 
   const initStdout = (await toPromise(initCommand.stdout)).trim()
-
   if (initStdout !== "") {
     const initOutput = parseVaultInitOutput(initStdout)
     rootToken = output(initOutput.rootToken)

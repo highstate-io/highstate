@@ -4,10 +4,7 @@ export default defineNuxtConfig({
   extends: ["./docus/layer", "../designer/layers/core"],
   ogImage: { enabled: false },
 
-  modules: [
-    "@vueuse/nuxt",
-    "@barzhsieh/nuxt-content-mermaid",
-  ],
+  modules: ["@vueuse/nuxt", "@barzhsieh/nuxt-content-mermaid"],
 
   site: {
     name: "Highstate",

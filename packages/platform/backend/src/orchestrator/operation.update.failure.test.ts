@@ -79,6 +79,7 @@ describe("Operation - Update Failure", () => {
       expect(runnerBackend.update).toHaveBeenCalledTimes(1)
 
       const updateOperationCalls = operationService.updateOperation.mock.calls
+
       const wasMarkedFailed = updateOperationCalls.some(call => {
         const patch = call[2] as unknown
         if (!patch || typeof patch !== "object") {
@@ -124,12 +125,14 @@ describe("Operation - Update Failure", () => {
     }) => {
       // arrange
       const dependency = createUnit("dependency")
+
       const dependent: InstanceModel = {
         ...createUnit("dependent"),
         inputs: {
           dependency: [{ instanceId: dependency.id, output: "value" }],
         },
       }
+
       const dependencyState = createDeployedUnitState(dependency)
       const dependentState = createDeployedUnitState(dependent)
 
@@ -137,12 +140,13 @@ describe("Operation - Update Failure", () => {
         instances: [dependency, dependent],
         states: [dependencyState, dependentState],
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [dependency, dependent] })
 
       runner.setUpdateImpl(async input => {
         if (input.instanceName === "dependency") {
-          throw new Error("real unit failure")
+          throw new Error("Real unit failure")
         }
       })
 
@@ -178,7 +182,8 @@ describe("Operation - Update Failure", () => {
         libraryService,
         projectPortService,
       )
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      const logError = vi.spyOn(logger, "error").mockImplementation(() => {})
 
       // act
       await runtimeOperation.operateSafe()
@@ -187,11 +192,11 @@ describe("Operation - Update Failure", () => {
       const unitLogCalls = operationService.appendLog.mock.calls.filter(call => call[2] !== null)
       expect(unitLogCalls).toHaveLength(1)
       expect(unitLogCalls[0]?.[2]).toBe(dependencyState.id)
-      expect(unitLogCalls[0]?.[3]).toContain("real unit failure")
-      expect(consoleError).toHaveBeenCalledTimes(1)
-      expect(consoleError.mock.calls[0]?.[0]).toMatchObject({ message: "real unit failure" })
+      expect(unitLogCalls[0]?.[3]).toContain("Real unit failure")
+      expect(logError).toHaveBeenCalledTimes(1)
+      expect(logError.mock.calls[0]?.[0]).toMatchObject({ error: { message: "Real unit failure" } })
 
-      consoleError.mockRestore()
+      logError.mockRestore()
     },
   )
 
@@ -222,12 +227,14 @@ describe("Operation - Update Failure", () => {
       expect,
     }) => {
       const dependency = createUnit("dependency")
+
       const dependent: InstanceModel = {
         ...createUnit("dependent"),
         inputs: {
           dependency: [{ instanceId: dependency.id, output: "value" }],
         },
       }
+
       const dependencyState = createDeployedUnitState(dependency)
       const dependentState = createDeployedUnitState(dependent)
 
@@ -235,11 +242,12 @@ describe("Operation - Update Failure", () => {
         instances: [dependency, dependent],
         states: [dependencyState, dependentState],
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [dependency, dependent] })
 
       unitOutputService.parseUnitOutputs.mockRejectedValue(
-        new Error("failed to process dependency outputs"),
+        new Error("Failed to process dependency outputs"),
       )
 
       const operation = createOperation({
@@ -274,17 +282,19 @@ describe("Operation - Update Failure", () => {
         libraryService,
         projectPortService,
       )
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      const logError = vi.spyOn(logger, "error").mockImplementation(() => {})
 
       await runtimeOperation.operateSafe()
 
       expect(runnerBackend.update).toHaveBeenCalledTimes(1)
       expect(runnerBackend.update.mock.calls[0]?.[0].instanceName).toBe("dependency")
-      expect(consoleError.mock.calls[0]?.[0]).toMatchObject({
-        message: "failed to process dependency outputs",
+
+      expect(logError.mock.calls[0]?.[0]).toMatchObject({
+        error: { message: "Failed to process dependency outputs" },
       })
 
-      consoleError.mockRestore()
+      logError.mockRestore()
     },
   )
 })

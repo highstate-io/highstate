@@ -57,7 +57,9 @@ export class BackendApiKeySettingsService {
           }
         : {}),
     }
+
     const sort = query.sortBy?.[0]
+
     const orderBy =
       sort && ["createdAt", "updatedAt", "systemName"].includes(sort.key)
         ? { [sort.key]: sort.order }
@@ -103,7 +105,6 @@ export class BackendApiKeySettingsService {
       where: { id: apiKeyId },
       include: BackendApiKeySettingsService.include(),
     })
-
     if (!apiKey) {
       return null
     }
@@ -141,6 +142,7 @@ export class BackendApiKeySettingsService {
       })
 
       const { token } = await rotateBackendApiKeyToken(transaction, created.id)
+
       const apiKey = await transaction.backendApiKey.findUniqueOrThrow({
         where: { id: created.id },
         include: BackendApiKeySettingsService.include(),
@@ -170,6 +172,7 @@ export class BackendApiKeySettingsService {
     if (!hasBackendPermissionRulesSubset(context, data.restrictionRules)) {
       requireBackendPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }
+
     const serviceAccountId = data.serviceAccountId ?? (await this.getAdminServiceAccountId())
     await this.serviceAccounts.assertExists(serviceAccountId)
     await this.roles.validateReferences({ rules: data.restrictionRules })
@@ -217,6 +220,7 @@ export class BackendApiKeySettingsService {
         resources: serviceAccountIds => ({ id: { in: [...serviceAccountIds] } }),
       },
     })
+
     const roleAuthorization = await buildBackendAuthorizationWhere({
       database: this.database,
       context,
@@ -225,6 +229,7 @@ export class BackendApiKeySettingsService {
         resources: roleIds => ({ id: { in: [...roleIds] } }),
       },
     })
+
     const accounts = await this.database.backend.backendServiceAccount.findMany({
       where: authorization,
       orderBy: { createdAt: "asc" },
@@ -235,6 +240,7 @@ export class BackendApiKeySettingsService {
         },
       },
     })
+
     return accounts.map(({ roleBindings, ...account }) => ({
       ...account,
       rules: roleBindings.flatMap(binding => binding.role.rules),
@@ -249,6 +255,7 @@ export class BackendApiKeySettingsService {
       where: { serviceAccountId },
       include: { role: { select: { rules: true } } },
     })
+
     const grants = bindings.flatMap(binding => binding.role.rules)
 
     if (rules.length === 0) {
@@ -276,7 +283,6 @@ export class BackendApiKeySettingsService {
       where: { id: apiKeyId },
       select: { id: true },
     })
-
     if (!apiKey) {
       throw new BackendApiKeyNotFoundError(apiKeyId)
     }
@@ -287,7 +293,6 @@ export class BackendApiKeySettingsService {
       where: { systemName: adminBackendServiceAccount.systemName },
       select: { id: true },
     })
-
     if (!account) {
       throw new RequiredSystemResourceNotFoundError("admin-backend-service-account")
     }

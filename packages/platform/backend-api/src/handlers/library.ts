@@ -21,6 +21,7 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
 
     async listComponents(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const page = await services.libraryService.getComponents(
         requestContext,
         { pageSize: request.pageSize, pageToken: request.pageToken },
@@ -52,7 +53,6 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
       const type = parseArgument(request, "type", z.string().min(1))
       const library = await services.libraryService.getLibraryModel(requestContext, context.signal)
       const component = library.components[type]
-
       if (!component) {
         throw new ComponentNotFoundError(requestContext.projectId, type)
       }

@@ -77,6 +77,7 @@ describe("Operation - Preview", () => {
       expect(runnerBackend.preview).toHaveBeenCalledTimes(1)
 
       const updateOperationStateCalls = instanceStateService.updateOperationState.mock.calls
+
       const anyPreviewWriteChangingInstanceStatus = updateOperationStateCalls.some(call => {
         const options = call[3] as unknown
         if (!options || typeof options !== "object") {
@@ -93,6 +94,7 @@ describe("Operation - Preview", () => {
       })
 
       expect(anyPreviewWriteChangingInstanceStatus).toBe(false)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,

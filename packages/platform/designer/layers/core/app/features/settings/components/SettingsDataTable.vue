@@ -1,5 +1,4 @@
 <script setup lang="ts" generic="T extends GenericEntity">
-import { Icon } from "@iconify/vue"
 import type {
   CollectionQuery,
   CollectionQueryResult,
@@ -7,6 +6,7 @@ import type {
 } from "@highstate/backend/shared"
 import type { ObservedCollectionQueryResult } from "../../../utils/collection-query"
 import type { TableHeader } from "../business/useSettingsTable"
+import { Icon } from "@iconify/vue"
 import IdTableCell from "./IdTableCell.vue"
 import TimeTableCell from "./TimeTableCell.vue"
 
@@ -24,7 +24,7 @@ const sortBy = defineModel<CollectionQuery["sortBy"]>("sortBy")
 const page = defineModel<number>("page", { default: 1 })
 const itemsPerPage = defineModel<number>("itemsPerPage")
 
-interface DataTableItemProps {
+type DataTableItemProps = {
   item: T
   index: number
   [key: string]: unknown

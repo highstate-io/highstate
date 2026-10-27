@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { TerminalSession } from "#layers/core/app/features/terminals"
 import { ProjectContainer } from "#layers/core/app/features/shared"
+import { TerminalSession } from "#layers/core/app/features/terminals"
 
 definePageMeta({
   name: "terminal-session",
@@ -14,7 +14,6 @@ definePageMeta({
       projectId: route.params.projectId as string,
       sessionId: route.params.sessionId as string,
     })
-
     if (session) {
       return {
         title: session.meta.globalTitle ?? session.meta.title,

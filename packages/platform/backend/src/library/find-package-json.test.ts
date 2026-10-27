@@ -13,6 +13,7 @@ describe("findPackageJSONPolyfill", () => {
       const projectRoot = resolve(sandbox, "project")
       const appDir = resolve(projectRoot, "apps", "api")
       const packageJsonPath = resolve(projectRoot, "package.json")
+
       const dependencyPackageJsonPath = resolve(
         projectRoot,
         "node_modules",
@@ -22,9 +23,11 @@ describe("findPackageJSONPolyfill", () => {
       )
 
       await mkdir(resolve(appDir), { recursive: true })
+
       await mkdir(resolve(projectRoot, "node_modules", "@highstate", "library"), {
         recursive: true,
       })
+
       await writeFile(packageJsonPath, '{"name":"project"}')
       await writeFile(dependencyPackageJsonPath, '{"name":"@highstate/library"}')
 

@@ -1,11 +1,10 @@
+import type { EntitySnapshotLink, FoldingRegion } from "./reconstruction"
 import * as monaco from "monaco-editor"
-
 import {
   INVOKE_HIGHSTATE_ACTION_COMMAND_ID,
   updateSnapshotCodeLenses,
   updateSnapshotRegions,
 } from "#layers/core/app/utils/monaco"
-import type { EntitySnapshotLink, FoldingRegion } from "./reconstruction"
 
 export type ReadOnlyEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions
 

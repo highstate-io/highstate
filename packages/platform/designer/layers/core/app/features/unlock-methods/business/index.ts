@@ -42,6 +42,7 @@ export async function createPasskeyUnlockMethod(
   const identity = await webauthn.createCredential({
     keyName: `[${project.id}] ${project.name} | ${meta.title}`,
   })
+
   const encrypter = new Encrypter()
   encrypter.addRecipient(new webauthn.WebAuthnRecipient({ identity }))
   const unlockMethod = await createUnlockMethod(meta, encrypter)

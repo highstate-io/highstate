@@ -9,10 +9,13 @@ definePageMeta({
     const { instancesStore, libraryStore, stateStore } = useExplicitProjectStores(
       route.params.projectId as string,
     )
+
     const state = stateStore.stateIdToStateMap.get(route.params.stateId as string)
+
     const instance = state
       ? instancesStore.instances.get(state.instanceId)
       : instancesStore.instances.get(route.params.stateId as string)
+
     const component = instance ? libraryStore.library.components[instance.type] : undefined
 
     const title =
@@ -38,7 +41,7 @@ const { params } = defineProps<{
 
 const { instancesStore, stateStore } = ensureProjectStoresCreated(params.projectId)
 
-// Resolve by state ID for resident instances, and by instance ID for ghost/virtual ones.
+// resolve by state ID for resident instances, and by instance ID for ghost/virtual ones
 const instanceState = computed(() => stateStore.stateIdToStateMap.get(params.stateId))
 const instance = computed(() => {
   const state = instanceState.value

@@ -15,6 +15,7 @@ describe("LibraryService authorization", () => {
     await expect(service.getLibraryModel(context)).rejects.toThrow(PermissionDeniedError)
 
     await expect(service.getComponents(context, {})).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.getVirtualComponents(
         createProjectRequestContext(project.id, grantProjectPermission("instance-model.get")),

@@ -1,5 +1,5 @@
-import { getSharedServices } from "@highstate/backend"
 import { PassThrough } from "node:stream"
+import { getSharedServices } from "@highstate/backend"
 
 type TerminalBridgeState = {
   abortController: AbortController
@@ -18,12 +18,14 @@ export default defineWebSocketHandler({
     const abortController = new AbortController()
 
     const stdin = new PassThrough()
+
     const stdout = createOutputStream(
       data => peer.send(data),
       () => peer.websocket.close?.(),
     )
 
     const parsedUrl = new URL(peer.request.url!)
+
     const pathRegex =
       /^\/api\/projects\/(?<projectId>[^/]+)\/terminal-sessions\/(?<sessionId>[^/]+)\/?$/
 
@@ -44,11 +46,11 @@ export default defineWebSocketHandler({
 
     // verify that the session belongs to the specified project
     const database = await services.database.forProject(projectId)
+
     const session = await database.terminalSession.findUnique({
       where: { id: sessionId },
       include: { terminal: true },
     })
-
     if (!session) {
       throw new Error("Terminal session not found")
     }
@@ -59,7 +61,8 @@ export default defineWebSocketHandler({
     }
 
     const [cols, rows] = screenSizeText.split("x").map(Number)
-    if (isNaN(cols) || isNaN(rows)) {
+
+    if (Number.isNaN(cols) || Number.isNaN(rows)) {
       throw new Error("Invalid screenSize")
     }
 

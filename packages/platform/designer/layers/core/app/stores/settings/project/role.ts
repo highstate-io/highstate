@@ -6,6 +6,7 @@ export const useProjectRoleSettingsStore = defineMultiStore({
   create: ({ storeId, id: [projectId] }) =>
     defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
       const items = useCollectionQuery(query => {
         return $client.projectRoleSettings.query.query({ projectId, query })
       })
@@ -23,6 +24,7 @@ export const useProjectRoleSettingsStore = defineMultiStore({
           roleId,
           role,
         })
+
         await items.load()
 
         return result

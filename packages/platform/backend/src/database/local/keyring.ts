@@ -43,9 +43,11 @@ export async function getOrCreateBackendIdentity(
   if (config.HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH) {
     try {
       const identity = await readFile(config.HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH, "utf-8")
+
       logger.info(
         `using backend identity from path specified in HIGHSTATE_BACKEND_DATABASE_IDENTITY_PATH`,
       )
+
       return identity.trim()
     } catch (error) {
       throw new Error(
@@ -58,7 +60,6 @@ export async function getOrCreateBackendIdentity(
   // priority 3: OS keyring (default behavior)
   const credentials = await findCredentialsAsync(serviceName)
   const entry = credentials.find(entry => entry.account === accountName)
-
   if (entry) {
     logger.info("using backend identity from OS keyring")
     return entry.password

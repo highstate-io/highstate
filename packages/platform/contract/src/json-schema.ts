@@ -87,26 +87,30 @@ export function fixJsonSchema(schema: unknown): unknown {
   }
 
   const next: Record<string, unknown> = { ...schema }
-
   if (Array.isArray(next.allOf)) {
     next.allOf = next.allOf.map(fixJsonSchema)
   }
+
   if (Array.isArray(next.anyOf)) {
     next.anyOf = next.anyOf.map(fixJsonSchema)
   }
+
   if (Array.isArray(next.oneOf)) {
     next.oneOf = next.oneOf.map(fixJsonSchema)
   }
+
   if (isRecord(next.properties)) {
     next.properties = Object.fromEntries(
       Object.entries(next.properties).map(([key, value]) => [key, fixJsonSchema(value)]),
     )
   }
+
   if (isRecord(next.items)) {
     next.items = fixJsonSchema(next.items)
   } else if (Array.isArray(next.items)) {
     next.items = next.items.map(fixJsonSchema)
   }
+
   if (isRecord(next.additionalProperties)) {
     next.additionalProperties = fixJsonSchema(next.additionalProperties)
   }

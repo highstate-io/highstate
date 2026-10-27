@@ -238,11 +238,13 @@ export abstract class GraphResolver<TNode, TOutput> {
 
         // remove all dependent nodes
         const oldDependencies = this.dependencyMap.get(nodeId) ?? []
+
         for (const depId of oldDependencies) {
           const dependantSet = this.dependentMap.get(depId)
           if (dependantSet) {
             dependantSet.delete(nodeId)
             changedDependentMaps.add(depId)
+
             if (dependantSet.size === 0) {
               this.dependentMap.delete(depId)
             }

@@ -23,10 +23,13 @@ describe("InstanceStateService authorization", () => {
       vi.mockObject({ track: vi.fn() } as never),
       pino({ level: "silent" }),
     )
+
     const state = await createInstanceState(project.id)
+
     const account = await projectDatabase.serviceAccount.create({
       data: { meta: { title: "Account" } },
     })
+
     const subject = { type: "service-account" as const, serviceAccountId: account.id }
     const status = { name: "health", meta: { title: "Health" }, value: "ok" }
 
@@ -53,6 +56,7 @@ describe("InstanceStateService authorization", () => {
         status,
       ),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.updateCustomStatus(
         createProjectRequestContext(

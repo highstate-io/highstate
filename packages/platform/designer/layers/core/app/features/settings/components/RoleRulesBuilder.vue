@@ -2,8 +2,8 @@
 import type {
   RoleRuleBuilderGroup,
   RoleRuleBuilderOption,
-  RoleRuleBuilderRule,
   RoleRuleBuilderRestrictionDescriptor,
+  RoleRuleBuilderRule,
 } from "../business/role-rules-builder"
 
 const {
@@ -113,6 +113,7 @@ function selectedRestrictionTypes(rule: RoleRuleBuilderRule): string[] {
 
 function changeRestrictionTypes(rule: RoleRuleBuilderRule, types: string[]): void {
   const existing = new Map(rule.restrictions.map(restriction => [restriction.type, restriction]))
+
   updateRule(rule, {
     restrictions: types.map(type => existing.get(type) ?? { type, ids: [] }),
   })

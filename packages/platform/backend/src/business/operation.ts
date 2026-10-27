@@ -121,7 +121,6 @@ export class OperationService {
     const operation = await database.operation.findUnique({
       where: { id: operationId },
     })
-
     if (!operation) {
       return undefined
     }
@@ -158,6 +157,7 @@ export class OperationService {
 
     const collection = "operations"
     const query = { projectId: context.projectId }
+
     const { pageSize, cursor } = resolvePageRequest(
       collection,
       page,
@@ -185,6 +185,7 @@ export class OperationService {
           ],
         }
       : {}
+
     const operations = await database.operation.findMany({
       where: { AND: [authorization, continuation] },
       orderBy: [{ startedAt: "desc" }, { id: "desc" }],
@@ -220,7 +221,6 @@ export class OperationService {
       where: { id: operationId },
       select: { id: true, finishedAt: true },
     })
-
     if (!operation) {
       throw new OperationNotFoundError(projectId, operationId)
     }
@@ -263,12 +263,14 @@ export class OperationService {
 
     const collection = "operation-logs"
     const query = { projectId: context.projectId, operationId, stateId }
+
     const { pageSize, cursor } = resolvePageRequest(
       collection,
       page,
       query,
       z.object({ id: z.string().min(1) }),
     )
+
     const logs = await database.operationLog.findMany({
       where: {
         operationId,
@@ -307,7 +309,8 @@ export class OperationService {
 
     this.logger.info(
       { projectId, operationId, status },
-      `marked operation as finished with status "${status}"`,
+      'marked operation as finished with status "%s"',
+      status,
     )
 
     return result

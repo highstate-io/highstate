@@ -10,7 +10,7 @@ import { images } from "../shared"
 const { args, inputs, outputs } = forUnit(k8s.apps.wgFeedServer)
 
 if (Boolean(args.pathPattern) !== Boolean(inputs.fallbackSite)) {
-  throw new Error("pathPattern and fallbackSite must be provided together")
+  throw new Error("PathPattern and fallbackSite must be provided together")
 }
 
 const namespace = Namespace.create(args.appName, { cluster: inputs.k8sCluster })
@@ -105,13 +105,13 @@ async function createFallbackSiteConfigMap(
   const folder = MaterializedFolder.for(site, `${name}.fallback`)
   await using _ = await folder.open()
   const entries = await readdir(folder.path, { recursive: true, withFileTypes: true })
+
   const files = entries
     .filter(entry => entry.isFile())
     .map(entry => join(entry.parentPath, entry.name))
     .sort()
-
   if (files.length === 0) {
-    throw new Error("fallbackSite must contain at least one file")
+    throw new Error("FallbackSite must contain at least one file")
   }
 
   const binaryData: Record<string, string> = {}

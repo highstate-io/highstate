@@ -9,6 +9,7 @@ describe("parseVersionedName", () => {
 
   it("should parse multi-part versioned names", () => {
     expect(parseVersionedName("proxmox.virtual-machine.v1")).toEqual(["proxmox.virtual-machine", 1])
+
     expect(parseVersionedName("k8s.apps.traefik-gateway.v1")).toEqual([
       "k8s.apps.traefik-gateway",
       1,
@@ -28,6 +29,7 @@ describe("parseVersionedName", () => {
     expect(() => parseVersionedName("component.v-1")).toThrow(
       "Invalid version in versioned name: component.v-1",
     )
+
     expect(() => parseVersionedName("component.vabc")).toThrow(
       "Invalid version in versioned name: component.vabc",
     )

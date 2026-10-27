@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import InstanceStatusFieldItem from "./InstanceStatusFieldItem.vue"
+import type { InstanceStatusField } from "@highstate/contract"
 import { Icon } from "@iconify/vue"
 import { InlineCopyButton } from "#layers/core/app/features/shared"
-import type { InstanceStatusField } from "@highstate/contract"
+import InstanceStatusFieldItem from "./InstanceStatusFieldItem.vue"
 
 const { statusField } = defineProps<{
   statusField: InstanceStatusField

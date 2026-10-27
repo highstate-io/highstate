@@ -22,6 +22,7 @@ export function validateUpdateMask<T extends Message>(
   }
 
   const paths = new Set<string>()
+
   for (const path of mask.paths) {
     const normalized = normalizePath(schema, path)
     if (!mutablePaths.has(normalized)) {
@@ -31,6 +32,7 @@ export function validateUpdateMask<T extends Message>(
         `The path "${path}" is unknown, immutable, output-only, or traverses a collection`,
       )
     }
+
     paths.add(normalized)
   }
 
@@ -54,7 +56,9 @@ function normalizePath<T extends Message>(schema: GenMessage<T>, path: string): 
     if (!field) return path
 
     normalized.push(field.name)
+
     if (index === segments.length - 1) break
+
     if (field.fieldKind !== "message" || !field.message) return path
 
     descriptor = field.message as GenMessage<T>

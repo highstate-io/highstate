@@ -34,8 +34,8 @@ registerKnownAbbreviations([
   "PostgreSQL",
   "MongoDB",
   "etcd",
-  "MAS", // Matrix Authentication Service
-  "LC", // Locale
+  "MAS", // matrix Authentication Service
+  "LC", // locale
 ])
 
 export const noop = () => {}

@@ -52,6 +52,7 @@ describe("Operation - Output Validation Failure", () => {
       })
 
       runner.setAutoCompletion(false)
+
       runner.emitCompletion(unit.id, {
         operationType: "update",
         rawOutputs: {

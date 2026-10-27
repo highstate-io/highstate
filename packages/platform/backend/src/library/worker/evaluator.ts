@@ -15,8 +15,8 @@ import { mapValues } from "remeda"
 import { errorToString } from "../../common"
 
 function toCloneSafeInstanceModel(instance: InstanceModel): InstanceModel {
-  // Runtime instances may contain Proxy-based accessors in outputs/resolvedOutputs.
-  // Serialize to plain data so worker thread postMessage can structured-clone it.
+  // runtime instances may contain Proxy-based accessors in outputs/resolvedOutputs
+  // serialize to plain data so worker thread postMessage can structured-clone it
   return JSON.parse(JSON.stringify(instance)) as InstanceModel
 }
 
@@ -70,12 +70,10 @@ export function evaluateProject(
     // do not evaluate instance if it has an error, just rethrow it
     const error = instanceErrors[instanceId]
     if (error) {
-      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw error
     }
 
     const instance = allInstancesMap.get(instanceId)
-
     if (!instance) {
       const runtimeInstance = resolveRuntimeInstance(instanceId)
       if (!runtimeInstance) {
@@ -133,6 +131,7 @@ export function evaluateProject(
       }
 
       runtimeInstance = getRuntimeInstances().find(entry => entry.instance.id === instanceId)
+
       if (runtimeInstance) {
         return runtimeInstance
       }

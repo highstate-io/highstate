@@ -1,17 +1,17 @@
-import { z } from "zod"
-import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
-import {
-  instanceModelPatchSchema,
-  hubModelSchema,
-  hubModelPatchSchema,
-  instanceIdSchema,
-  instanceModelSchema,
-} from "@highstate/contract"
 import {
   projectInputSchema,
   projectModelInstanceSchema,
   unlockMethodInputSchema,
 } from "@highstate/backend/shared"
+import {
+  hubModelPatchSchema,
+  hubModelSchema,
+  instanceIdSchema,
+  instanceModelPatchSchema,
+  instanceModelSchema,
+} from "@highstate/contract"
+import { z } from "zod"
+import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
 
 export const projectRouter = router({
   getProjects: backendProcedure
@@ -68,7 +68,7 @@ export const projectRouter = router({
         projectId: z.string(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx }) => {
       return await ctx.projectService.getProjectModel(ctx.requestContext)
     }),
 

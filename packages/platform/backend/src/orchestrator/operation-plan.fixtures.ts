@@ -190,6 +190,7 @@ export const operationPlanTest = test.extend<{
         },
         project,
       ])
+
       const unitSources: ResolvedUnitSource[] = [
         {
           unitType: "component.v1",

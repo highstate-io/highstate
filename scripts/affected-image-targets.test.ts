@@ -12,9 +12,10 @@ describe("selectAffectedImageTargets", () => {
   })
 
   test("includes targets that inherit from a changed terminal image", () => {
-    expect(
-      selectAffectedImageTargets(["docker/terminal.kubectl.dockerfile"], new Set()),
-    ).toEqual(["terminal-kubectl", "terminal-talosctl"])
+    expect(selectAffectedImageTargets(["docker/terminal.kubectl.dockerfile"], new Set())).toEqual([
+      "terminal-kubectl",
+      "terminal-talosctl",
+    ])
   })
 
   test("includes images for affected worker projects", () => {

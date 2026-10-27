@@ -17,6 +17,7 @@ describe("ProjectApiKeySettingsService authorization", () => {
     await expect(
       service.query(createProjectRequestContext(project.id), { pageSize: 1 }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.query(
         createProjectRequestContext(project.id, grantProjectPermission("api-key.list")),
@@ -30,6 +31,7 @@ describe("ProjectApiKeySettingsService authorization", () => {
     const context = createProjectRequestContext(project.id)
 
     await expect(service.get(context, "missing")).resolves.toBeNull()
+
     await expect(
       service.create(context, {
         meta: { title: "Key" },
@@ -37,6 +39,7 @@ describe("ProjectApiKeySettingsService authorization", () => {
         expiresAt: null,
       }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.update(context, "missing", {
         meta: { title: "Key" },
@@ -44,6 +47,7 @@ describe("ProjectApiKeySettingsService authorization", () => {
         expiresAt: null,
       }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(service.delete(context, "missing")).rejects.toThrow(PermissionDeniedError)
     await expect(service.getServiceAccountOptions(context)).rejects.toThrow(PermissionDeniedError)
   })
@@ -56,18 +60,22 @@ describe("ProjectApiKeySettingsService authorization", () => {
     const accounts = new ProjectServiceAccountSettingsService(database, roles)
     const service = new ProjectApiKeySettingsService(database, roles, accounts)
     const adminContext = adminProjectContext(project.id)
+
     const role = await roles.create(adminContext, {
       meta: { title: "Key role" },
       rules: [{ permissions: ["instance-model.get"] }],
     })
+
     const account = await accounts.create(adminContext, { meta: { title: "Key account" } })
     await accounts.addRoleBinding(adminContext, role.id, account.id)
+
     const input = {
       meta: { title: "Key" },
       serviceAccountId: account.id,
       restrictionRules: [],
       expiresAt: null,
     }
+
     const created = await service.create(
       createProjectRequestContext(
         project.id,

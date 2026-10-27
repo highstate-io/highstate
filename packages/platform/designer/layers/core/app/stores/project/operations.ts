@@ -1,13 +1,13 @@
+import type { InstanceId, InstanceModel } from "@highstate/contract"
 import {
   isFinalOperationStatus,
   type Operation,
   type OperationLaunchInput,
-  type OperationPlanInput,
-  type OperationPhase,
-  type OperationType,
   type OperationOptions,
+  type OperationPhase,
+  type OperationPlanInput,
+  type OperationType,
 } from "@highstate/backend/shared"
-import type { InstanceId, InstanceModel } from "@highstate/contract"
 
 export const useProjectOperationsStore = defineMultiStore({
   name: "project-operations",
@@ -42,9 +42,9 @@ export const useProjectOperationsStore = defineMultiStore({
               switch (event.type) {
                 case "updated": {
                   const operation = event.operation
-
                   if (operationsMap.has(operation.id)) {
                     operationsMap.set(operation.id, operation)
+
                     operations.value = operations.value.map(op =>
                       op.id === operation.id ? operation : op,
                     )

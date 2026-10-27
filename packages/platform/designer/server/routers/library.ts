@@ -8,7 +8,7 @@ export const libraryRouter = router({
 
   getProjectVirtualComponents: projectProcedure
     .input(z.object({ projectId: z.string() }))
-    .query(async ({ ctx, input, signal }) => {
+    .query(async ({ ctx, signal }) => {
       return await ctx.libraryService.getVirtualComponents(ctx.requestContext, signal)
     }),
 

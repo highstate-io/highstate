@@ -6,6 +6,7 @@ export const useProjectApiKeySettingsStore = defineMultiStore({
   create: ({ storeId, id: [projectId] }) =>
     defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
       const items = useCollectionQuery(query => {
         return $client.projectApiKeySettings.query.query({ projectId, query })
       })
@@ -23,6 +24,7 @@ export const useProjectApiKeySettingsStore = defineMultiStore({
           apiKeyId,
           apiKey,
         })
+
         await items.load()
 
         return result

@@ -20,7 +20,6 @@ export const searchRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const tokens = input.text.trim().split(/\s+/).filter(Boolean)
-
       if (tokens.length === 0) {
         return { text: input.text, projects: [] }
       }
@@ -35,6 +34,7 @@ export const searchRouter = router({
       }
 
       const limitedTokens = tokens.slice(0, 5)
+
       const results = await Promise.all(
         limitedTokens.map(async token => {
           return await ctx.globalSearchService.searchByText(ctx.requestContext, token)
@@ -50,6 +50,7 @@ export const searchRouter = router({
             }
 
             const intersection = new Set<string>()
+
             for (const projectId of acc) {
               if (set.has(projectId)) {
                 intersection.add(projectId)
@@ -60,7 +61,6 @@ export const searchRouter = router({
           },
           null as Set<string> | null,
         )
-
       if (!projectIds || projectIds.size === 0) {
         return { text: input.text, projects: [] }
       }
@@ -69,12 +69,12 @@ export const searchRouter = router({
         .map(projectId => {
           const projectResults = results.map(r => r.projects.find(p => p.projectId === projectId))
           const allHaveProject = projectResults.every(p => !!p)
-
           if (!allHaveProject) {
             return null
           }
 
           const firstHits = projectResults[0]!.hits
+
           const otherHitKeySets = projectResults
             .slice(1)
             .map(p => new Set(p!.hits.map(h => `${h.kind}:${h.id}`)))
@@ -83,7 +83,6 @@ export const searchRouter = router({
             const key = `${hit.kind}:${hit.id}`
             return otherHitKeySets.every(set => set.has(key))
           })
-
           if (commonHits.length === 0) {
             return null
           }

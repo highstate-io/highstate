@@ -16,7 +16,6 @@ const defaultAsnResolver: AsnResolver = async (asn: string) => {
   const response = await fetch(
     `https://stat.ripe.net/data/announced-prefixes/data.json?resource=${asn}`,
   )
-
   if (!response.ok) {
     throw new Error(`RIPE API request failed with status ${response.status}`)
   }
@@ -148,7 +147,6 @@ function isRangeString(value: string): boolean {
 
   const left = parts[0]?.trim()
   const right = parts[1]?.trim()
-
   if (!left || !right) return false
 
   try {
@@ -175,7 +173,7 @@ async function resolveHostname(
     addresses = await resolver(hostname)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to resolve hostname "${hostname}": ${message}`)
+    throw new Error(`Failed to resolve hostname "${hostname}": ${message}`, { cause: error })
   }
 
   const unique = [...new Set(addresses.map(address => address.trim()).filter(Boolean))]
@@ -183,8 +181,13 @@ async function resolveHostname(
   for (const address of unique) {
     try {
       parseIp(address)
-    } catch {
-      throw new Error(`Resolver returned a non-IP address for hostname "${hostname}": "${address}"`)
+    } catch (error) {
+      throw new Error(
+        `Resolver returned a non-IP address for hostname "${hostname}": "${address}"`,
+        {
+          cause: error,
+        },
+      )
     }
   }
 
@@ -199,7 +202,7 @@ async function resolveAsn(asn: string, resolver: AsnResolver): Promise<InputAddr
     prefixes = await resolver(normalized)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to resolve ASN "${normalized}": ${message}`)
+    throw new Error(`Failed to resolve ASN "${normalized}": ${message}`, { cause: error })
   }
 
   const unique = [...new Set(prefixes.map(prefix => prefix.trim()).filter(Boolean))]
@@ -210,8 +213,10 @@ async function resolveAsn(asn: string, resolver: AsnResolver): Promise<InputAddr
   for (const prefix of unique) {
     try {
       parseCidr(prefix)
-    } catch {
-      throw new Error(`Resolver returned a non-CIDR prefix for ASN "${normalized}": "${prefix}"`)
+    } catch (error) {
+      throw new Error(`Resolver returned a non-CIDR prefix for ASN "${normalized}": "${prefix}"`, {
+        cause: error,
+      })
     }
   }
 

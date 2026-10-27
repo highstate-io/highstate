@@ -113,6 +113,7 @@ export class BackendRoleSettingsService {
     if (!hasBackendPermissionRulesSubset(context, data.rules)) {
       requireBackendPermission(context, "role.escalate")
     }
+
     await this.validateReferences(data)
 
     return await this.database.backend.backendRole.create({ data })
@@ -137,6 +138,7 @@ export class BackendRoleSettingsService {
     if (!hasBackendPermissionRulesSubset(context, data.rules)) {
       requireBackendPermission(context, "role.escalate", { resourceId: roleId })
     }
+
     await this.validateReferences(data)
 
     return await this.database.backend.backendRole.update({ where: { id: roleId }, data })
@@ -178,6 +180,7 @@ export class BackendRoleSettingsService {
             target,
           })
         : ({ OR: [] } as TWhere)
+
     const [projects, projectSpaces, libraries, pulumiBackends, storages, accounts, keys, roles] =
       await Promise.all([
         this.database.backend.project.findMany({
@@ -230,6 +233,7 @@ export class BackendRoleSettingsService {
           select: { id: true, meta: true },
         }),
       ])
+
     return {
       projects,
       projectSpaces,
@@ -252,7 +256,6 @@ export class BackendRoleSettingsService {
   async validateReferences(input: Pick<BackendRoleInput, "rules">): Promise<void> {
     for (const rule of input.rules) {
       const group = getBackendPermissionGroup(rule.permissions[0] ?? "")
-
       if (!group) {
         throw new PermissionGroupNotFoundError("backend", rule.permissions[0] ?? "")
       }
@@ -262,6 +265,7 @@ export class BackendRoleSettingsService {
           if (!("resourceType" in group) || !group.resourceType) {
             throw new PermissionGroupResourceUnsupportedError("backend", group.title)
           }
+
           await this.assertResourcesExist(group.resourceType, restriction.resourceIds)
         } else if (restriction.type === "projects") {
           BackendRoleSettingsService.assertIdsExist(
@@ -296,7 +300,6 @@ export class BackendRoleSettingsService {
       where: { id: roleId },
       select: { id: true },
     })
-
     if (!role) {
       throw new BackendRoleNotFoundError(roleId)
     }
@@ -311,6 +314,7 @@ export class BackendRoleSettingsService {
 
   private async assertResourcesExist(type: BackendResourceType, ids: string[]): Promise<void> {
     let resources: BackendRoleRestrictionOption[]
+
     switch (type) {
       case "library":
         resources = await this.database.backend.library.findMany({
@@ -360,7 +364,6 @@ export class BackendRoleSettingsService {
   ): void {
     const ids = new Set(existing.map(item => item.id))
     const missing = requestedIds.find(id => !ids.has(id))
-
     if (missing) {
       throw new AuthorizationResourceNotFoundError("backend", type, missing)
     }
@@ -371,7 +374,6 @@ export class BackendRoleSettingsService {
       where: { id: roleId },
       select: { systemName: true },
     })
-
     if (!role) {
       throw new BackendRoleNotFoundError(roleId)
     }

@@ -23,11 +23,13 @@ export function rewritePanelLocation(
   requestUrl: URL,
 ): string {
   let location: URL
+
   try {
     location = new URL(value, `http://${upstreamAuthority}`)
   } catch {
     return value
   }
+
   if (location.host !== upstreamAuthority) {
     return value
   }
@@ -45,6 +47,7 @@ export function getPanelCorsOrigin(
   }
 
   let originUrl: URL
+
   try {
     originUrl = new URL(origin)
   } catch {
@@ -72,6 +75,7 @@ export function isPanelSessionSource(
   }
 
   let sourceUrl: URL
+
   try {
     sourceUrl = new URL(source)
   } catch {
@@ -120,6 +124,7 @@ export function sanitizePanelResponseHeader(
   ) {
     return undefined
   }
+
   if (name === "vary") {
     const value = header.value
       .split(",")
@@ -129,6 +134,7 @@ export function sanitizePanelResponseHeader(
 
     return value ? { ...header, value } : undefined
   }
+
   if (name !== "content-security-policy") {
     return header
   }

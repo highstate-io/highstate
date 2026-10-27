@@ -97,6 +97,7 @@ describe("store", () => {
         where: { id: artifact.id },
         include: { serviceAccounts: true },
       })
+
       expect(dbArtifact?.serviceAccounts).toHaveLength(1)
       expect(dbArtifact?.serviceAccounts[0].meta).toEqual({ title: "Test SA" })
     },
@@ -143,6 +144,7 @@ describe("store", () => {
         where: { id: result.id },
         include: { serviceAccounts: true },
       })
+
       expect(dbArtifact?.serviceAccounts).toHaveLength(1)
       expect(dbArtifact?.serviceAccounts[0].meta).toEqual({ title: "New reference" })
     },
@@ -173,6 +175,7 @@ describe("store", () => {
       const artifact = await projectDatabase.artifact.findUnique({
         where: { hash },
       })
+
       expect(artifact).toBeNull()
 
       // verify backend store was still called (this is current behavior - backend storage happens before transaction)
@@ -217,6 +220,7 @@ describe("store", () => {
 
       // assert
       expect(result.id).toBe(existing.id)
+
       expect(artifactBackend.store).toHaveBeenCalledWith(
         project.id,
         existing.id,
@@ -232,6 +236,7 @@ describe("store", () => {
       // arrange
       const hash = createId()
       const size = 512
+
       const meta = {
         title: "Deployment Artifact",
         description: "Production deployment v1.0.0",
@@ -262,6 +267,7 @@ describe("store", () => {
       const dbArtifact = await projectDatabase.artifact.findUnique({
         where: { id: artifact.id },
       })
+
       expect(dbArtifact?.meta).toEqual(meta)
     },
   )
@@ -273,6 +279,7 @@ describe("store", () => {
       const hash = createId()
       const size = 100
       const originalMeta = { title: "Build Artifact", description: "Initial upload" }
+
       const newMeta = {
         title: "Production Build Artifact",
         description: "Promoted to production environment",
@@ -284,7 +291,9 @@ describe("store", () => {
         data: { hash, size, chunkSize: artifactChunkSize, meta: originalMeta },
       })
 
-      artifactBackend.exists.mockResolvedValue(true) // backend file exists
+      artifactBackend.exists.mockResolvedValue(true)
+
+      // backend file exists
 
       // act
       const result = await artifactService.store(
@@ -316,6 +325,7 @@ describe("store", () => {
         where: { id: result.id },
         include: { serviceAccounts: true },
       })
+
       expect(dbArtifact?.meta).toEqual(newMeta)
       expect(dbArtifact?.serviceAccounts).toHaveLength(1)
       expect(dbArtifact?.serviceAccounts[0].meta).toEqual({ title: "Updated SA" })
@@ -365,6 +375,7 @@ describe("store", () => {
         where: { id: result.id },
         include: { serviceAccounts: true },
       })
+
       expect(dbArtifact?.serviceAccounts).toHaveLength(1)
       expect(dbArtifact?.serviceAccounts[0].meta).toEqual({ title: "Another reference" })
     },
@@ -391,6 +402,7 @@ describe("collectGarbage", () => {
       const deleted = await projectDatabase.artifact.findUnique({
         where: { id: orphan.id },
       })
+
       expect(deleted).toBeNull()
 
       // verify backend deletion called
@@ -425,6 +437,7 @@ describe("collectGarbage", () => {
       const existing = await projectDatabase.artifact.findUnique({
         where: { id: artifact.id },
       })
+
       expect(existing).not.toBeNull()
 
       // verify no backend deletion
@@ -467,6 +480,7 @@ describe("collectGarbage", () => {
       const existing = await projectDatabase.artifact.findUnique({
         where: { id: artifact.id },
       })
+
       expect(existing).not.toBeNull()
 
       // verify no backend deletion
@@ -516,6 +530,7 @@ describe("collectGarbage", () => {
       const existing = await projectDatabase.artifact.findUnique({
         where: { id: artifact.id },
       })
+
       expect(existing).not.toBeNull()
 
       // verify no backend deletion
@@ -565,6 +580,7 @@ describe("collectGarbage", () => {
       const existing = await projectDatabase.artifact.findUnique({
         where: { id: artifact.id },
       })
+
       expect(existing).not.toBeNull()
 
       // verify no backend deletion
@@ -593,6 +609,7 @@ describe("collectGarbage", () => {
       const deleted = await projectDatabase.artifact.findUnique({
         where: { id: orphan.id },
       })
+
       expect(deleted).toBeNull()
 
       // verify backend deletion was attempted
@@ -647,15 +664,18 @@ describe("collectGarbage", () => {
       const stillExists = await projectDatabase.artifact.findUnique({
         where: { id: referenced.id },
       })
+
       expect(stillExists).not.toBeNull()
 
       // orphaned artifacts should be deleted
       const deleted1 = await projectDatabase.artifact.findUnique({
         where: { id: orphan1.id },
       })
+
       const deleted2 = await projectDatabase.artifact.findUnique({
         where: { id: orphan2.id },
       })
+
       expect(deleted1).toBeNull()
       expect(deleted2).toBeNull()
 

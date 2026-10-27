@@ -19,7 +19,6 @@ export class BackendUnlockMethodDeleteCommand extends Command {
         message: `Delete backend unlock method ${this.id}?`,
         default: false,
       })
-
       if (!answer) {
         logger.info("cancelled backend unlock method deletion")
         return

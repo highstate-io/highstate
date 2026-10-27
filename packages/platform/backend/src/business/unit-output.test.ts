@@ -334,9 +334,11 @@ describe("UnitOutputService", () => {
     const parent = nodes.find(n => n.entityType === "parent.v1" && n.identity === "parent-1")
     expect(parent?.entityType).toBe("parent.v1")
     expect(parent?.identity).toBe("parent-1")
+
     expect(payload?.explicitReferences).toEqual([
       { fromEntityId: parent!.entityId, toEntityId: "external-ref", group: "deps" },
     ])
+
     expect(parent?.meta?.title).toBe("Parent Title")
     expect(parent?.content).not.toHaveProperty("$meta")
     expect(parent?.content).not.toHaveProperty("childOne")
@@ -358,6 +360,7 @@ describe("UnitOutputService", () => {
     const implicitFromParent = payload!.implicitReferences.filter(
       r => r.fromEntityId === parent!.entityId,
     )
+
     expect(implicitFromParent).toEqual(
       expect.arrayContaining([
         { fromEntityId: parent!.entityId, toEntityId: child1!.entityId, group: "childOne" },

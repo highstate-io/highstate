@@ -1,34 +1,34 @@
 <script setup lang="ts">
 import {
-  SYSTEM_EXPORT_COMPONENT_TYPE,
   getResolvedInjectionInstanceInputs,
   getResolvedInstanceInputs,
   type InputResolverOutput,
   type InstanceLockOutput,
   type InstanceState,
   type ResolvedInstanceInput,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
 } from "@highstate/backend/shared"
 import {
-  isUnitModel,
   type ComponentModel,
   type EntityModel,
   type InstanceId,
   type InstanceInput,
   type InstanceModel,
+  isUnitModel,
 } from "@highstate/contract"
 import { useNode, type ValidConnectionFunc } from "@vue-flow/core"
-import { ComponentCard, ComponentIcon } from "#layers/core/app/features/shared"
+import { type ComponentInstance, computed } from "vue"
+import { getBlueprintStatus } from "#layers/core/app/features/blueprint"
 import {
   InstanceArgumentEditor,
   InstanceSecretEditor,
 } from "#layers/core/app/features/instance-editor"
-import InstanceNodeArgumentList from "./InstanceNodeArgumentList.vue"
-import InstanceStatusFieldList from "./InstanceStatusFieldList.vue"
+import { ComponentCard, ComponentIcon } from "#layers/core/app/features/shared"
 import InstanceNodeActions from "./InstanceNodeActions.vue"
-import InstanceNodeLockBadge from "./InstanceNodeLockBadge.vue"
+import InstanceNodeArgumentList from "./InstanceNodeArgumentList.vue"
 import InstanceNodeIO from "./InstanceNodeIO.vue"
-import { computed, type ComponentInstance } from "vue"
-import { getBlueprintStatus } from "#layers/core/app/features/blueprint"
+import InstanceNodeLockBadge from "./InstanceNodeLockBadge.vue"
+import InstanceStatusFieldList from "./InstanceStatusFieldList.vue"
 
 const {
   instance,

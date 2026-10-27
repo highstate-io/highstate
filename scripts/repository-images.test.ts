@@ -1,8 +1,7 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises"
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, test } from "vitest"
-import { rm } from "node:fs/promises"
 import { applyRepositoryImages, synchronizeRepositoryImages } from "./repository-images"
 
 const roots: string[] = []
@@ -15,11 +14,20 @@ describe("synchronizeRepositoryImages", () => {
     const assets = join(root, "packages", "standard", "example", "assets")
     await mkdir(assets, { recursive: true })
     const path = join(assets, "images.json")
-    await writeFile(path, JSON.stringify({
-      "terminal-ssh": { name: "ghcr.io/highstate-io/highstate/terminal.ssh", tag: "latest", image: "old" },
-      external: { name: "alpine", tag: "latest", image: "alpine@sha256:old" },
-      phantun: { name: "ghcr.io/highstate-io/highstate/phantun", tag: "latest", image: "old" },
-    }))
+
+    await writeFile(
+      path,
+      JSON.stringify({
+        "terminal-ssh": {
+          name: "ghcr.io/highstate-io/highstate/terminal.ssh",
+          tag: "latest",
+          image: "old",
+        },
+        external: { name: "alpine", tag: "latest", image: "alpine@sha256:old" },
+        phantun: { name: "ghcr.io/highstate-io/highstate/phantun", tag: "latest", image: "old" },
+      }),
+    )
+
     const digest = `sha256:${"a".repeat(64)}`
 
     const result = await synchronizeRepositoryImages({
@@ -38,6 +46,7 @@ describe("synchronizeRepositoryImages", () => {
     })
 
     expect(result.changedFiles).toEqual([path])
+
     expect(JSON.parse(await readFile(path, "utf8"))).toEqual({
       "terminal-ssh": {
         name: "ghcr.io/highstate-io/dev/terminal.ssh",
@@ -56,9 +65,17 @@ describe("synchronizeRepositoryImages", () => {
     await mkdir(assets, { recursive: true })
     const digest = `sha256:${"b".repeat(64)}`
     const image = `ghcr.io/highstate-io/terminal.ssh:latest@${digest}`
-    await writeFile(join(assets, "images.json"), `${JSON.stringify({
-      "terminal-ssh": { name: "ghcr.io/highstate-io/terminal.ssh", tag: "latest", image },
-    }, null, 2)}\n`)
+
+    await writeFile(
+      join(assets, "images.json"),
+      `${JSON.stringify(
+        {
+          "terminal-ssh": { name: "ghcr.io/highstate-io/terminal.ssh", tag: "latest", image },
+        },
+        null,
+        2,
+      )}\n`,
+    )
 
     const result = await synchronizeRepositoryImages({
       root,
@@ -67,6 +84,7 @@ describe("synchronizeRepositoryImages", () => {
       imageNames: new Set(["terminal.ssh"]),
       resolveDigest: async () => digest,
     })
+
     expect(result.changedFiles).toEqual([])
   })
 
@@ -76,6 +94,7 @@ describe("synchronizeRepositoryImages", () => {
     const assets = join(root, "packages", "standard", "example", "assets")
     await mkdir(assets, { recursive: true })
     const path = join(assets, "images.json")
+
     await writeFile(
       path,
       JSON.stringify({
@@ -91,6 +110,7 @@ describe("synchronizeRepositoryImages", () => {
         },
       }),
     )
+
     const digest = `sha256:${"d".repeat(64)}`
 
     await synchronizeRepositoryImages({
@@ -121,11 +141,20 @@ describe("synchronizeRepositoryImages", () => {
     const assets = join(root, "packages", "standard", "example", "assets")
     await mkdir(assets, { recursive: true })
     const path = join(assets, "images.json")
-    await writeFile(path, JSON.stringify({
-      "terminal-restic": { name: "old", tag: "old", image: "old" },
-    }))
+
+    await writeFile(
+      path,
+      JSON.stringify({
+        "terminal-restic": { name: "old", tag: "old", image: "old" },
+      }),
+    )
+
     const image = `ghcr.io/highstate-io/dev/terminal.restic:pr-2@sha256:${"c".repeat(64)}`
-    expect(await applyRepositoryImages({ root, images: { "terminal-restic": image } })).toEqual([path])
+
+    expect(await applyRepositoryImages({ root, images: { "terminal-restic": image } })).toEqual([
+      path,
+    ])
+
     expect(JSON.parse(await readFile(path, "utf8"))["terminal-restic"]).toEqual({
       name: "ghcr.io/highstate-io/dev/terminal.restic",
       tag: "pr-2",

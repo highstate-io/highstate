@@ -42,6 +42,7 @@ if (args[0] !== "build") {
   const { AgentDocsGetCommand, AgentInstructionsCommand, AgentStatusCommand } = await import(
     "./commands/agent"
   )
+
   const { default: registerRemoteCommands } = await import("./register-remote-commands")
 
   cli.register(AgentStatusCommand)

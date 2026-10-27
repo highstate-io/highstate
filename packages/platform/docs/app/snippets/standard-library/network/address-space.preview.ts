@@ -1,4 +1,4 @@
-import { network } from "@highstate/library";
+import { network } from "@highstate/library"
 
 network.addressSpace({
   name: "example",
@@ -6,4 +6,4 @@ network.addressSpace({
     included: ["0.0.0.0/0", "10.0.0.10-10.0.0.20"],
     excluded: ["192.168.0.0/16"],
   },
-});
+})

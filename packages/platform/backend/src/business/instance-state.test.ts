@@ -75,6 +75,7 @@ const instanceStateTest = test.extend<{
       processUnitTriggers: vi.fn().mockResolvedValue([]),
       pruneInstanceArtifacts: vi.fn().mockResolvedValue(undefined),
     } as unknown as UnitExtraService)
+
     await use(unitExtraService)
   },
 
@@ -82,6 +83,7 @@ const instanceStateTest = test.extend<{
     const secretService = vi.mockObject({
       updateInstanceSecretsCore: vi.fn().mockResolvedValue({ secretNames: [], secretIds: [] }),
     } as unknown as SecretService)
+
     await use(secretService)
   },
 
@@ -89,6 +91,7 @@ const instanceStateTest = test.extend<{
     const objectRefIndexService = vi.mockObject({
       track: vi.fn().mockResolvedValue(undefined),
     } as unknown as ObjectRefIndexService)
+
     await use(objectRefIndexService)
   },
 
@@ -204,6 +207,7 @@ describe("forgetInstanceState", () => {
       const updatedState = await projectDatabase.instanceState.findUnique({
         where: { id: instanceState.id },
       })
+
       expect(updatedState?.status).toBe("undeployed")
       expect(updatedState?.statusFields).toBeNull()
       expect(updatedState?.selfHash).toBeNull()
@@ -214,6 +218,7 @@ describe("forgetInstanceState", () => {
       // verify side effects were called
       expect(workerService.cleanupWorkerUsageAndSync).toHaveBeenCalledWith(project.id)
       expect(artifactService.collectGarbage).toHaveBeenCalledWith(project.id)
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(
         ["instance-state", project.id],
         expect.objectContaining({
@@ -242,6 +247,7 @@ describe("forgetInstanceState", () => {
 
       // create operation with destroyed status
       const operationId = createId()
+
       await projectDatabase.operation.create({
         data: {
           id: operationId,
@@ -275,6 +281,7 @@ describe("forgetInstanceState", () => {
       const updatedState = await projectDatabase.instanceState.findUnique({
         where: { id: instanceState.id },
       })
+
       expect(updatedState?.status).toBe("undeployed")
     },
   )
@@ -294,6 +301,7 @@ describe("forgetInstanceState", () => {
 
       // create operation with pending status
       const operationId = createId()
+
       await projectDatabase.operation.create({
         data: {
           id: operationId,
@@ -327,6 +335,7 @@ describe("forgetInstanceState", () => {
       const updatedState = await projectDatabase.instanceState.findUnique({
         where: { id: instanceState.id },
       })
+
       expect(updatedState?.status).toBe("undeployed")
     },
   )
@@ -412,6 +421,7 @@ describe("forgetInstanceState", () => {
       const terminals = await projectDatabase.terminal.findMany({
         where: { stateId: instanceState.id },
       })
+
       expect(terminals).toHaveLength(0)
     },
   )
@@ -438,6 +448,7 @@ describe("forgetInstanceState", () => {
       })
 
       const terminalId = createId()
+
       await projectDatabase.terminal.create({
         data: {
           id: terminalId,
@@ -465,6 +476,7 @@ describe("forgetInstanceState", () => {
       const terminal = await projectDatabase.terminal.findUnique({
         where: { id: terminalId },
       })
+
       expect(terminal?.status).toBe("unavailable")
     },
   )
@@ -507,6 +519,7 @@ describe("forgetInstanceState", () => {
       const secrets = await projectDatabase.secret.findMany({
         where: { stateId: instanceState.id },
       })
+
       expect(secrets).toHaveLength(0)
     },
   )
@@ -525,6 +538,7 @@ describe("forgetInstanceState", () => {
       const instanceState = await createInstanceState(project.id)
 
       const secretId = createId()
+
       await projectDatabase.secret.create({
         data: {
           id: secretId,
@@ -550,6 +564,7 @@ describe("forgetInstanceState", () => {
       const secret = await projectDatabase.secret.findUnique({
         where: { id: secretId },
       })
+
       expect(secret).toBeDefined()
       expect(secret?.stateId).toBe(instanceState.id)
     },
@@ -593,6 +608,7 @@ describe("forgetInstanceState", () => {
       const updatedParent = await projectDatabase.instanceState.findUnique({
         where: { id: parentInstance.id },
       })
+
       const updatedChild = await projectDatabase.instanceState.findUnique({
         where: { id: childInstance.id },
       })
@@ -627,6 +643,7 @@ describe("forgetInstanceState", () => {
 
       // assert
       const [instanceType, instanceName] = parseInstanceId(instanceState.instanceId as InstanceId)
+
       expect(runnerBackend.deleteState).toHaveBeenCalledWith({
         projectId: project.id,
         stateId: instanceState.id,
@@ -659,6 +676,7 @@ describe("replaceCustomStatus", () => {
       // arrange
       const instanceState = await createInstanceState(project.id)
       const serviceAccountId = createId()
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId,
@@ -722,6 +740,7 @@ describe("removeCustomStatus", () => {
           meta: { title: "Test Service Account" },
         },
       })
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId: serviceAccount.id,

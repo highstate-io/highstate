@@ -12,6 +12,7 @@ afterEach(() => vi.useRealTimers())
 describe("panel host utilities", () => {
   test("gets panel IDs from base and nested panel hosts", () => {
     expect(getPanelIdFromHost("panel123.panels.highstate.localhost:7283")).toBe("panel123")
+
     expect(getPanelIdFromHost("1785193731913.panel123.panels.highstate.localhost:7283")).toBe(
       "panel123",
     )
@@ -53,14 +54,17 @@ describe("panel launch sessions", () => {
       createPanelLaunchTicket("project-a", "panel-conflict", "instance-a"),
       "panel-conflict",
     )!
+
     const otherPanelA = exchangePanelLaunchTicket(
       createPanelLaunchTicket("project-a", "panel-other", "instance-a"),
       "panel-other",
     )!
+
     const otherPanelB = exchangePanelLaunchTicket(
       createPanelLaunchTicket("project-b", "panel-b", "instance-b"),
       "panel-b",
     )!
+
     const conflictB = exchangePanelLaunchTicket(
       createPanelLaunchTicket("project-b", "panel-conflict", "instance-b"),
       "panel-conflict",
@@ -75,10 +79,12 @@ describe("panel launch sessions", () => {
   test("does not expose an expired session or its pool", () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"))
+
     const sessionId = exchangePanelLaunchTicket(
       createPanelLaunchTicket("project-expiry", "panel-expiry", "instance-expiry"),
       "panel-expiry",
     )!
+
     expect(getPanelSession(sessionId, "panel-expiry")?.workerInstanceId).toBe("instance-expiry")
 
     vi.advanceTimersByTime(8 * 60 * 60 * 1_000 + 1)

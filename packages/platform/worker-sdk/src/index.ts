@@ -104,6 +104,7 @@ export class Worker<TParamsSchema extends z.ZodType> {
     await this.panelTargets.waitUntilReady(targets)
 
     const panelClient = this.createClient(PanelService)
+
     const response = await panelClient.setUnitPanels({
       projectId: this.runOptions.projectId,
       workerVersionId: this.runOptions.workerVersionId,
@@ -119,6 +120,7 @@ export class Worker<TParamsSchema extends z.ZodType> {
 
   async start(): Promise<void> {
     const workerClient = this.createClient(WorkerService)
+
     await workerClient.updateWorkerVersionMeta({
       projectId: this.runOptions.projectId,
       workerVersionId: this.runOptions.workerVersionId,
@@ -157,6 +159,7 @@ export class Worker<TParamsSchema extends z.ZodType> {
     options: WorkerOptions<TParamsSchema>,
   ): Promise<Worker<TParamsSchema>> {
     let runOptionsJson: unknown
+
     for await (const line of createInterface({ input: process.stdin })) {
       try {
         runOptionsJson = JSON.parse(line)
@@ -172,6 +175,7 @@ export class Worker<TParamsSchema extends z.ZodType> {
     }
 
     let runOptions: WorkerRunOptions
+
     try {
       runOptions = workerRunOptionsSchema.parse(runOptionsJson)
     } catch (error) {

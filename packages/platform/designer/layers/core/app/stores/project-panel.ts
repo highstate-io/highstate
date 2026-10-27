@@ -1,12 +1,12 @@
+import type { EntityModel } from "@highstate/contract"
 import type { Connection, Edge, ViewportTransform } from "@vue-flow/core"
 import { SYSTEM_EXPORT_COMPONENT_TYPE } from "@highstate/backend/shared"
-import { useCanvasStore } from "./canvas"
-import { EXPORT_CREATE_INPUT_HANDLE } from "#layers/core/app/utils/vue-flow"
 import {
   createOutputExpressionOptions,
   type OutputExpressionOption,
 } from "#layers/core/app/features/output-expression"
-import type { EntityModel } from "@highstate/contract"
+import { EXPORT_CREATE_INPUT_HANDLE } from "#layers/core/app/utils/vue-flow"
+import { useCanvasStore } from "./canvas"
 
 const isInheritedAssignableTo = (entity: EntityModel, targetType: string) => {
   return entity.type === targetType || (entity.extensions?.includes(targetType) ?? false)
@@ -20,6 +20,7 @@ export const useProjectPanelStore = defineMultiStore({
     return defineStore(storeId, () => {
       const { instancesStore, libraryStore } = useExplicitProjectStores(projectId)
       const instanceFocusRequest = shallowRef<{ instanceId: string; requestId: number }>()
+
       const pendingOutputExpression = shallowRef<{
         connection: Connection
         targetLabel: string
@@ -29,9 +30,11 @@ export const useProjectPanelStore = defineMultiStore({
         x: number
         y: number
       }>()
+
       let nextFocusRequestId = 0
 
       const canvasStore = useCanvasStore.ensureCreated("project", projectId)
+
       const {
         vueFlowStore,
         nodeFactory,
@@ -55,7 +58,6 @@ export const useProjectPanelStore = defineMultiStore({
         globalLogger.info({ projectId }, "initializing project panel store")
 
         const viewport = await $client.workspace.getProjectViewport.query({ projectId })
-
         if (viewport) {
           vueFlowStore.defaultViewport.value = viewport as ViewportTransform
         }
@@ -111,7 +113,6 @@ export const useProjectPanelStore = defineMultiStore({
         const inputComponent = instancesStore.getInstanceComponent(inputInstance)
         const output = outputComponent?.outputs[outputKey]
         const input = inputComponent?.inputs[inputKey]
-
         if (!output || !input) {
           return false
         }
@@ -126,8 +127,8 @@ export const useProjectPanelStore = defineMultiStore({
           targetType: input.type,
           entities: libraryStore.library.entities,
         })
-        const compatibleOptions = options.filter(option => option.path && option.assignable)
 
+        const compatibleOptions = options.filter(option => option.path && option.assignable)
         if (compatibleOptions.length === 0) {
           return false
         }
@@ -178,7 +179,6 @@ export const useProjectPanelStore = defineMultiStore({
           { instance: inputInstance, hub: inputHub },
           { instance: outputInstance, hub: outputHub },
         )
-
         if (!canAddDependency) {
           logger.warn(
             {
@@ -190,6 +190,7 @@ export const useProjectPanelStore = defineMultiStore({
             },
             "connection rejected by cycle",
           )
+
           throw new Error("Circular dependency")
         }
 
@@ -204,7 +205,6 @@ export const useProjectPanelStore = defineMultiStore({
 
           const outputComponent = instancesStore.getInstanceComponent(outputInstance)
           const output = outputComponent?.outputs[outputKey]
-
           if (!output) {
             throw new Error(`Output "${outputKey}" not found in instance "${outputInstance.id}"`)
           }
@@ -271,6 +271,7 @@ export const useProjectPanelStore = defineMultiStore({
       const removeInput = (edge: Edge) => {
         const { inputInstance, outputInstance, inputHub, outputHub, outputKey, inputKey } =
           getConnectionNodes(vueFlowStore, edge)
+
         const path = (edge.data as { path?: string } | undefined)?.path
 
         if (inputInstance && outputInstance) {
@@ -432,7 +433,6 @@ export const useProjectPanelStore = defineMultiStore({
 
       instancesStore.onInstanceDeleted(instanceId => {
         const nodeId = nodeFactory.instanceIdToNodeIdMap.get(instanceId)
-
         if (nodeId) {
           vueFlowStore.removeNodes(nodeId)
           nodeFactory.instanceIdToNodeIdMap.delete(instanceId)

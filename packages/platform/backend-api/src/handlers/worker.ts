@@ -16,6 +16,7 @@ export function createWorkerService(services: Services): ServiceImpl<typeof Work
       const workerInstanceId = parseArgument(request, "workerInstanceId", z.cuid2())
       const dataEndpoint = parseArgument(request, "dataEndpoint", z.string().min(1))
       const database = await services.database.forProject(projectId)
+
       const workerVersion = await database.workerVersion.findFirst({
         where: { id: workerVersionId, apiKeyId: requestContext.subject.apiKeyId },
         select: { id: true },
@@ -25,6 +26,7 @@ export function createWorkerService(services: Services): ServiceImpl<typeof Work
       }
 
       services.workerManager.assertWorkerInstance(projectId, workerVersionId, workerInstanceId)
+
       services.panelEndpointManager.connect(
         projectId,
         workerVersionId,
@@ -34,10 +36,12 @@ export function createWorkerService(services: Services): ServiceImpl<typeof Work
 
       try {
         await services.workerManager.setWorkerRunning(projectId, workerVersionId, workerInstanceId)
+
         const existingRegistrations = await database.workerUnitRegistration.findMany({
           where: { workerVersionId },
           select: { stateId: true, params: true },
         })
+
         for (const registration of existingRegistrations) {
           yield create(ConnectResponseSchema, {
             event: {
@@ -49,11 +53,13 @@ export function createWorkerService(services: Services): ServiceImpl<typeof Work
             },
           })
         }
+
         const registrationStream = await services.pubsubManager.subscribe([
           "worker-unit-registration",
           projectId,
           workerVersionId,
         ])
+
         for await (const event of registrationStream) {
           if (event.type === "registered") {
             yield create(ConnectResponseSchema, {
@@ -81,6 +87,7 @@ export function createWorkerService(services: Services): ServiceImpl<typeof Work
 
       const workerVersionId = parseArgument(request, "workerVersionId", z.string())
       const workerMeta = parseArgument(request, "workerMeta", commonObjectMetaSchema)
+
       const serviceAccountMeta = parseArgument(
         request,
         "serviceAccountMeta",

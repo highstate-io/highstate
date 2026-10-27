@@ -151,7 +151,6 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       for (const input of node.hub.inputs ?? []) {
         const { component } = getInstanceOutput(input)
         const componentInput = component?.outputs[input.output]
-
         if (!componentInput) {
           this.logger.warn({ msg: "output not found in the component", input, component })
           continue
@@ -200,6 +199,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
               inputName,
               component: node.component,
             })
+
             return []
           }
 
@@ -227,13 +227,13 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
     const addInstanceInput = (inputName: string, input: InstanceInput) => {
       const componentInput = node.component.inputs[inputName]
       const isDynamicExportInput = node.instance.type === SYSTEM_EXPORT_COMPONENT_TYPE
-
       if (!componentInput && !isDynamicExportInput) {
         this.logger.warn({
           msg: "input not found in the component",
           input,
           component: node.component,
         })
+
         return
       }
 
@@ -245,12 +245,12 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       }
 
       const fallbackType = componentInput?.type ?? component.outputs[input.output]?.type
-
       if (!fallbackType) {
         this.logger.warn(
           { instanceId: node.instance.id, input, component },
           "cannot resolve input type for dynamic export input",
         )
+
         return
       }
 
@@ -259,6 +259,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
           input,
           type: this.resolveOutputTypeForInput(input, fallbackType),
         })
+
         return
       }
 
@@ -300,6 +301,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
 
     for (const injectionInput of node.instance.injectionInputs ?? []) {
       const { resolvedInputs } = getHubOutput(injectionInput)
+
       for (const input of resolvedInputs) {
         injectionInputs.set(inputKey(input.input), input)
       }
@@ -311,6 +313,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
 
       for (const hubInput of hubInputs) {
         const { resolvedInputs } = getHubOutput(hubInput)
+
         for (const input of resolvedInputs) {
           allInputs.set(inputKey(input.input), input)
         }

@@ -74,12 +74,14 @@ async function createPlan(
   instanceIds: string[],
 ) {
   const type = operationTypeSchema.parse(typeValue)
+
   if (!instanceIds.length) {
     throw new Error("At least one instance ID is required")
   }
 
   const { clients, target } = await command.remote()
   const options = command.optionsInput()
+
   const response = await clients.operation.planOperation({
     projectId: target.projectId,
     type: operationType(type),
@@ -141,6 +143,7 @@ async function launchPlan(
   description?: string,
 ) {
   const { clients, target } = await command.remote(false)
+
   if (target.projectId && target.projectId !== document.project_id) {
     throw new Error(
       `Plan project "${document.project_id}" does not match selected project "${target.projectId}"`,
@@ -200,12 +203,14 @@ export class OperationRunCommand extends OperationRequestCommand {
 
   async execute(): Promise<void> {
     const { document } = await createPlan(this, this.type, this.instanceIds)
+
     if (!this.yes) {
       if (!process.stdin.isTTY) {
         throw new Error("Noninteractive operation execution requires --yes")
       }
 
       process.stderr.write(`${humanPlan(document)}\n`)
+
       if (!(await confirm({ message: "Launch this operation?", default: false }))) {
         return
       }
@@ -242,17 +247,20 @@ export class OperationListCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const operations = []
     let pageToken = this.pageToken ?? ""
+
     do {
       const response = await clients.operation.listOperations({
         projectId: target.projectId,
         pageSize: Number(this.pageSize ?? 0),
         pageToken,
       })
+
       if (!this.all) {
         this.print(
           toJson(ListOperationsResponseSchema, response, { useProtoFieldName: true }),
           operationTable(response.operations),
         )
+
         return
       }
 
@@ -280,10 +288,12 @@ export class OperationGetCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.operation.getOperation({
       projectId: target.projectId,
       operationId: this.id,
     })
+
     const result = toJson(GetOperationResponseSchema, response, { useProtoFieldName: true })
 
     this.print(result, humanDetails(result))
@@ -311,6 +321,7 @@ export class OperationWaitCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const timeout = Number(this.timeout)
     const deadline = timeout > 0 ? Date.now() + timeout * 1000 : undefined
+
     while (true) {
       const response = await clients.operation.getOperation({
         projectId: target.projectId,
@@ -321,6 +332,7 @@ export class OperationWaitCommand extends RemoteCommand {
           toJson(GetOperationResponseSchema, response, { useProtoFieldName: true }),
           humanDetails(toJson(GetOperationResponseSchema, response, { useProtoFieldName: true })),
         )
+
         return response.operation.status === OperationStatus.COMPLETED ? 0 : 1
       }
 
@@ -369,6 +381,7 @@ export class OperationLogsCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const values: Array<{
       timestamp: string
       id: string
@@ -377,10 +390,13 @@ export class OperationLogsCommand extends RemoteCommand {
       is_system: boolean
       content: string
     }> = []
+
     const seen = new Set<string>()
+
     while (true) {
       let pageToken = ""
       const added = []
+
       do {
         const response = await clients.operation.listOperationLogs({
           projectId: target.projectId,
@@ -389,12 +405,14 @@ export class OperationLogsCommand extends RemoteCommand {
           pageSize: 100,
           pageToken,
         })
+
         for (const value of response.logs) {
           if (seen.has(value.id)) {
             continue
           }
 
           seen.add(value.id)
+
           added.push({
             timestamp: timestampFromUlid(value.id),
             id: value.id,
@@ -404,10 +422,12 @@ export class OperationLogsCommand extends RemoteCommand {
             content: value.content,
           })
         }
+
         pageToken = response.nextPageToken
       } while (pageToken)
 
       values.push(...added)
+
       if (this.follow && this.format() === "human" && added.length) {
         process.stdout.write(`${humanLogs(added)}\n`)
       }
@@ -486,6 +506,7 @@ export class OperationCancelCommand extends CancelCommand {
     const message = response.forceRequired
       ? `Graceful cancellation of operation "${this.id}" was already requested. Use --force to force cancellation.`
       : `Requested ${this.force ? "forced" : "graceful"} cancellation of operation "${this.id}"`
+
     this.print({ force_required: response.forceRequired }, message)
   }
 }
@@ -517,6 +538,7 @@ export class OperationCancelInstanceCommand extends CancelCommand {
     const message = response.forceRequired
       ? `Graceful cancellation of instance "${this.instanceId}" was already requested. Use --force to force cancellation.`
       : `Requested ${this.force ? "forced" : "graceful"} cancellation of instance "${this.instanceId}"`
+
     this.print({ force_required: response.forceRequired }, message)
   }
 }

@@ -1,5 +1,5 @@
-import { useProjectInfoStore } from "./info"
 import type { ComponentModel } from "@highstate/contract"
+import { useProjectInfoStore } from "./info"
 
 export const useProjectLibraryStore = defineMultiStore({
   name: "project-library",
@@ -22,6 +22,7 @@ export const useProjectLibraryStore = defineMultiStore({
         })
 
         const existingTypes = new Set(virtualComponents.keys())
+
         for (const [type, component] of Object.entries(loadedVirtualComponents)) {
           virtualComponents.set(type, component)
           existingTypes.delete(type)
@@ -74,6 +75,7 @@ export const useProjectLibraryStore = defineMultiStore({
           libraryStore.value = useLibraryStore.ensureCreated(
             projectInfoStore.projectInfo.libraryId ?? "local",
           )
+
           await libraryStore.value.initialize()
           await refreshVirtualComponents()
           initialized.value = true

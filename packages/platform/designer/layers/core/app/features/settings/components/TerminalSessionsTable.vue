@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  IdTableCell,
-  TimeTableCell,
-  baseHeaders,
-} from "#layers/core/app/features/settings"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   TerminalSessionOutput,
 } from "@highstate/backend/shared"
+import {
+  baseHeaders,
+  IdTableCell,
+  SettingsDataTable,
+  TimeTableCell,
+} from "#layers/core/app/features/settings"
 
 const { projectId, data, loading, hideHeader } = defineProps<{
   projectId: string
@@ -35,7 +35,7 @@ const headers = [
   baseHeaders.actions,
 ]
 
-// Helper functions
+// helper functions
 const formatDuration = (startedAt: string | Date, finishedAt: string | Date | null) => {
   const start = new Date(startedAt)
   const end = finishedAt ? new Date(finishedAt) : new Date()
@@ -44,14 +44,15 @@ const formatDuration = (startedAt: string | Date, finishedAt: string | Date | nu
   const seconds = Math.floor(duration / 1000)
   const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
-
   if (hours > 0) {
     return `${hours}h ${minutes % 60}m ${seconds % 60}s`
-  } else if (minutes > 0) {
-    return `${minutes}m ${seconds % 60}s`
-  } else {
-    return `${seconds}s`
   }
+
+  if (minutes > 0) {
+    return `${minutes}m ${seconds % 60}s`
+  }
+
+  return `${seconds}s`
 }
 </script>
 

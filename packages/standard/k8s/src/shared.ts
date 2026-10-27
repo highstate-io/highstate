@@ -31,6 +31,7 @@ export function getProvider(cluster: k8s.Cluster): Provider {
   const provider = new Provider(name, {
     kubeconfig: secret(cluster.kubeconfig.content.value.value),
   })
+
   providers.set(name, provider)
 
   return provider

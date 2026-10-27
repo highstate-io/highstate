@@ -8,7 +8,6 @@ const { stateId, args, inputs, secrets, outputs } = forUnit(restic.repository)
 const remoteInfo = await toPromise(
   secrets.rcloneConfig.apply(config => {
     const remoteNames = Array.from(config.matchAll(/(?<=\[).+?(?=\])/g))
-
     if (remoteNames.length === 0) {
       throw new Error("No remotes found in rclone config")
     }
@@ -22,7 +21,6 @@ const remoteInfo = await toPromise(
     // extract the type from the remote section
     const remoteSection = config.split(`[${remoteName}]`)[1]?.split(/\n\s*\[/)[0] || ""
     const typeMatch = remoteSection.match(/^\s*type\s*=\s*(.+)$/m)
-
     if (!typeMatch) {
       throw new Error(`No type found for remote '${remoteName}'`)
     }

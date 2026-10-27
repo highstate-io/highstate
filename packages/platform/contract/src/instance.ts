@@ -1,4 +1,6 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: for simplicity of the API, maybe fix later */
+/**
+ * biome-ignore-all lint/suspicious/noExplicitAny: for simplicity of the API, maybe fix later
+ */
 
 import type { Entity, EntityIncludeRef, EntityTypes } from "./entity"
 import { z } from "zod"
@@ -404,7 +406,6 @@ export function parseInstanceId(
   instanceId: string,
 ): [instanceType: VersionedName, instanceName: GenericName] {
   const parts = instanceId.split(":")
-
   if (parts.length !== 2) {
     throw new Error(`Invalid instance ID: ${instanceId}`)
   }
@@ -428,10 +429,9 @@ export function selectInput<TInput extends RuntimeInput>(
   name: string,
 ): SelectInputResult<TInput> {
   const groupBoundary = inputs[boundaryInput] ?? inputs[0]?.[boundaryInput]
-
   if (inputs.length === 0 && !groupBoundary) {
     throw new Error(
-      `Cannot select input "${name}": empty input group has no boundary metadata to build a missing input reference.`,
+      `Cannot select input "${name}": empty input group has no boundary metadata to build a missing input reference`,
     )
   }
 
@@ -440,16 +440,14 @@ export function selectInput<TInput extends RuntimeInput>(
       input.provided &&
       (input.instanceId === name || parseInstanceId(input.instanceId)[1] === name),
   )
-
   if (!input?.provided) {
     const fallbackBoundary =
       groupBoundary ??
       inputs.find(input => Boolean(input[boundaryInput]))?.[boundaryInput] ??
       inputs[0]?.[boundaryInput]
-
     if (!fallbackBoundary) {
       throw new Error(
-        `Cannot select input "${name}": input group has no boundary metadata to build a missing input reference.`,
+        `Cannot select input "${name}": input group has no boundary metadata to build a missing input reference`,
       )
     }
 

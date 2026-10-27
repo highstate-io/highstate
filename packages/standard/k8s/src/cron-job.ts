@@ -336,7 +336,6 @@ class CronJobPatch extends CronJob {
               } satisfies types.input.batch.v1.CronJobSpec,
               omit(args, cronJobExtraArgs) as types.input.batch.v1.CronJobSpec,
             ) as Unwrap<types.input.batch.v1.CronJobSpec>
-
             if (spec.jobTemplate?.spec?.template) {
               spec.jobTemplate.spec.template = filterPatchOwnedContainersInTemplate(
                 spec.jobTemplate.spec.template,

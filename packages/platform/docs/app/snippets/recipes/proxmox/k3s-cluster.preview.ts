@@ -1,11 +1,11 @@
-import { proxmox, distributions, ssh, k3s, k8s } from "@highstate/library"
+import { distributions, k3s, k8s, proxmox, ssh } from "@highstate/library"
 
 // SSH key for all VMs
 const { keyPair } = ssh.keyPair({
   name: "cluster-ssh-key",
 })
 
-// Proxmox connection
+// proxmox connection
 const { proxmoxCluster } = proxmox.connection({
   name: "proxmox",
   args: {
@@ -18,7 +18,7 @@ const { proxmoxCluster } = proxmox.connection({
   },
 })
 
-// Ubuntu for all VMs
+// ubuntu for all VMs
 const { image: ubuntuImage, cloudConfig } = distributions.ubuntu({
   name: "ubuntu",
   args: {
@@ -26,7 +26,7 @@ const { image: ubuntuImage, cloudConfig } = distributions.ubuntu({
   },
 })
 
-// Upload Ubuntu image
+// upload Ubuntu image
 const { image } = proxmox.image({
   name: "ubuntu-image",
   inputs: {
@@ -35,7 +35,7 @@ const { image } = proxmox.image({
   },
 })
 
-// Control plane VM
+// control plane VM
 const { server: controlPlane } = proxmox.virtualMachine({
   name: "k3s-control",
   args: {
@@ -58,7 +58,7 @@ const { server: controlPlane } = proxmox.virtualMachine({
   },
 })
 
-// Worker node 1
+// worker node 1
 const { server: worker1 } = proxmox.virtualMachine({
   name: "k3s-worker-1",
   args: {
@@ -81,7 +81,7 @@ const { server: worker1 } = proxmox.virtualMachine({
   },
 })
 
-// Worker node 2
+// worker node 2
 const { server: worker2 } = proxmox.virtualMachine({
   name: "k3s-worker-2",
   args: {
@@ -104,7 +104,7 @@ const { server: worker2 } = proxmox.virtualMachine({
   },
 })
 
-// Create k3s cluster on the VMs
+// create k3s cluster on the VMs
 const { k8sCluster } = k3s.cluster({
   name: "k3s-cluster",
   inputs: {
@@ -113,7 +113,7 @@ const { k8sCluster } = k3s.cluster({
   },
 })
 
-// Deploy MariaDB on the cluster
+// deploy MariaDB on the cluster
 k8s.apps.mariadb({
   name: "mariadb",
   inputs: {

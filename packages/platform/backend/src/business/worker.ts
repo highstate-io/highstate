@@ -80,6 +80,7 @@ export class WorkerService {
       objectIds.add(workerRecord.id)
       objectIds.add(workerRecord.serviceAccountId)
       objectIds.add(workerVersionRecord.id)
+
       if (workerVersionRecord.apiKeyId) {
         objectIds.add(workerVersionRecord.apiKeyId)
       }
@@ -124,7 +125,6 @@ export class WorkerService {
           const remainingRegistrations = await tx.workerUnitRegistration.count({
             where: { stateId, workerVersionId: existing.workerVersionId },
           })
-
           if (remainingRegistrations === 0) {
             if (existing.workerVersion.workerId === workerVersionRecord.workerId) {
               await tx.panel.updateMany({
@@ -161,7 +161,6 @@ export class WorkerService {
         const remainingRegistrations = await tx.workerUnitRegistration.count({
           where: { stateId, workerVersionId: registration.workerVersionId },
         })
-
         if (remainingRegistrations === 0) {
           await tx.panel.deleteMany({
             where: { stateId, workerVersionId: registration.workerVersionId },
@@ -228,6 +227,7 @@ export class WorkerService {
       where: { systemName: workerProjectRole.systemName },
       select: { id: true },
     })
+
     await tx.serviceAccountRoleBinding.upsert({
       where: {
         roleId_serviceAccountId: {
@@ -292,7 +292,6 @@ export class WorkerService {
       },
       select: { id: true, apiKeyId: true },
     })
-
     if (unused.length === 0) {
       return
     }
@@ -332,11 +331,11 @@ export class WorkerService {
     serviceAccountMeta?: ServiceAccountMeta,
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
+
     const target = await database.workerVersion.findUnique({
       where: { id: workerVersionId },
       select: { workerId: true, worker: { select: { serviceAccountId: true } } },
     })
-
     if (!target) {
       throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
     }
@@ -398,11 +397,11 @@ export class WorkerService {
     workerVersionId: string,
   ): Promise<WorkerVersionLog[]> {
     const database = await this.database.forProject(context.projectId)
+
     const version = await database.workerVersion.findUnique({
       where: { id: workerVersionId },
       select: { workerId: true, worker: { select: { serviceAccountId: true } } },
     })
-
     if (!version) {
       throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
     }

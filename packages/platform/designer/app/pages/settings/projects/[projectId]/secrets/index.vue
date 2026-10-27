@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SettingsListPage, SecretsTable } from "#layers/core/app/features/settings"
+import { SecretsTable, SettingsListPage } from "#layers/core/app/features/settings"
 
 const settingsStore = useProjectSecretSettingsStore()
 const { projectStore } = useProjectStores()

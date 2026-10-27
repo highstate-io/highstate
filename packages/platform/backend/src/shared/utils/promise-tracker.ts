@@ -38,7 +38,6 @@ export class PromiseTracker {
 export async function waitAll(promises: Iterable<Promise<unknown>>): Promise<void> {
   const results = await Promise.allSettled(promises)
   const rejected = results.filter(p => p.status === "rejected")
-
   if (!rejected.length) {
     return
   }

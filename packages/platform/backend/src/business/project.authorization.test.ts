@@ -20,6 +20,7 @@ describe("ProjectService authorization", () => {
     await expect(service.getProjects(createBackendRequestContext(), {})).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(
       service.getProjects(createBackendRequestContext(grantBackendPermission("project.list")), {}),
     ).resolves.toBeDefined()

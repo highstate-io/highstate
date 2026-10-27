@@ -1,18 +1,18 @@
-import type { Decrypter } from "age-encryption"
 import type { GraphNode } from "@vue-flow/core"
+import type { Decrypter } from "age-encryption"
 import {
   getResolvedInstanceInputs,
-  type InstanceState,
-  type ResolvedInstanceInput,
-  type ProjectUnlockState,
   type InstanceLockOutput,
+  type InstanceState,
   isInstanceDeployed,
+  type ProjectUnlockState,
+  type ResolvedInstanceInput,
 } from "@highstate/backend/shared"
 import {
-  isUnitModel,
   type ComponentModel,
   type InstanceId,
   type InstanceModel,
+  isUnitModel,
 } from "@highstate/contract"
 import { armor } from "age-encryption"
 import { useProjectInstancesStore } from "./instances"
@@ -103,6 +103,7 @@ export const useProjectStateStore = defineMultiStore({
                 switch (event.type) {
                   case "updated": {
                     updateState(event.state)
+
                     logger.debug(
                       { stateId: event.state.id, instanceId: event.state.instanceId },
                       "instance state replaced",
@@ -112,6 +113,7 @@ export const useProjectStateStore = defineMultiStore({
                   }
                   case "patched": {
                     const instanceId = stateIdToInstanceIdMap.get(event.stateId)
+
                     const newState = applyInstanceStatePatch(
                       event.stateId,
                       event.patch,
@@ -128,6 +130,7 @@ export const useProjectStateStore = defineMultiStore({
                   case "patched-batch": {
                     for (const item of event.patches) {
                       const instanceId = stateIdToInstanceIdMap.get(item.stateId)
+
                       const newState = applyInstanceStatePatch(
                         item.stateId,
                         item.patch,
@@ -138,6 +141,7 @@ export const useProjectStateStore = defineMultiStore({
                           { stateId: item.stateId },
                           "received patch for unknown state ID",
                         )
+
                         continue
                       }
 
@@ -153,6 +157,7 @@ export const useProjectStateStore = defineMultiStore({
                         { stateId: event.stateId },
                         "received delete for unknown state ID",
                       )
+
                       return
                     }
 
@@ -164,6 +169,7 @@ export const useProjectStateStore = defineMultiStore({
                     if (!instance) return
 
                     const component = projectLibraryStore.library.components[instance.type]
+
                     const resolvedInputs = getResolvedInstanceInputs(
                       instancesStore.inputResolverOutputs,
                       instanceId,
@@ -193,12 +199,14 @@ export const useProjectStateStore = defineMultiStore({
                     for (const lock of event.locks) {
                       instanceLocks.set(lock.stateId, lock)
                     }
+
                     break
                   }
                   case "unlocked": {
                     for (const lock of event.stateIds) {
                       instanceLocks.delete(lock)
                     }
+
                     break
                   }
                 }
@@ -243,6 +251,7 @@ export const useProjectStateStore = defineMultiStore({
                 instancesStore.inputResolverOutputs,
                 instance.id,
               )
+
               const component = projectLibraryStore.library.components[instance.type]
 
               setInputHashInput(instance.id, {
@@ -399,6 +408,7 @@ export const useProjectStateStore = defineMultiStore({
 
         for (const encryptedIdentity of unlockState.value.unlockSuite.encryptedIdentities) {
           let decryptedIdentity: string
+
           try {
             const decodedIdentity = armor.decode(encryptedIdentity)
             decryptedIdentity = await decrypter.decrypt(decodedIdentity, "text")

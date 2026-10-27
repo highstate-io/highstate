@@ -7,6 +7,7 @@ describe("PanelEndpointManager", () => {
     const publish = vi.fn()
     const manager = new PanelEndpointManager(vi.mockObject({ publish } as unknown as PubSubManager))
     manager.connect("project", "worker", "instance", "127.0.0.1:49152")
+
     manager.setPanels("project", "worker", "instance", "state", [
       { id: "panel", name: "dashboard" },
     ])
@@ -17,7 +18,9 @@ describe("PanelEndpointManager", () => {
       stateId: "state",
       workerInstanceId: "instance",
     })
+
     expect(manager.isPanelAvailable("project", "worker", "panel")).toBe(true)
+
     expect(publish).toHaveBeenCalledWith(["panel-availability", "project", "panel"], {
       online: true,
     })
@@ -26,6 +29,7 @@ describe("PanelEndpointManager", () => {
   test("pins endpoint resolution to a concrete instance", () => {
     const manager = new PanelEndpointManager()
     manager.connect("project", "worker", "instance", "worker.internal:7284")
+
     manager.setPanels("project", "worker", "instance", "state", [
       { id: "panel", name: "dashboard" },
     ])
@@ -38,6 +42,7 @@ describe("PanelEndpointManager", () => {
     const publish = vi.fn()
     const manager = new PanelEndpointManager(vi.mockObject({ publish } as unknown as PubSubManager))
     manager.connect("project", "worker", "instance", "127.0.0.1:49152")
+
     manager.setPanels("project", "worker", "instance", "state", [
       { id: "panel", name: "dashboard" },
     ])
@@ -45,6 +50,7 @@ describe("PanelEndpointManager", () => {
     manager.disconnect("instance")
 
     expect(manager.getPanelEndpoint("project", "worker", "panel")).toBeUndefined()
+
     expect(publish).toHaveBeenLastCalledWith(["panel-availability", "project", "panel"], {
       online: false,
     })
@@ -64,6 +70,7 @@ describe("PanelEndpointManager", () => {
     const manager = new PanelEndpointManager(vi.mockObject({ publish } as unknown as PubSubManager))
     manager.connect("project", "worker-a", "instance-a", "127.0.0.1:49152")
     manager.connect("project", "worker-b", "instance-b", "127.0.0.1:49153")
+
     manager.setPanels("project", "worker-a", "instance-a", "state", [
       { id: "panel", name: "dashboard" },
     ])
@@ -71,6 +78,7 @@ describe("PanelEndpointManager", () => {
     manager.setPanels("project", "worker-b", "instance-b", "state", [
       { id: "panel", name: "dashboard" },
     ])
+
     manager.disconnect("instance-a")
 
     expect(manager.getPanelEndpoint("project", "worker-b", "panel")).toEqual({
@@ -79,6 +87,7 @@ describe("PanelEndpointManager", () => {
       stateId: "state",
       workerInstanceId: "instance-b",
     })
+
     expect(publish).not.toHaveBeenCalledWith(["panel-availability", "project", "panel"], {
       online: false,
     })

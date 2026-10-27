@@ -1,6 +1,6 @@
+import { instanceIdSchema } from "@highstate/contract"
 import { z } from "zod"
 import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
-import { instanceIdSchema } from "@highstate/contract"
 import { createPanelLaunchTicket } from "../utils/panel-session"
 
 export const stateRouter = router({
@@ -156,7 +156,7 @@ export const stateRouter = router({
           acc[page.id] = page
           return acc
         },
-        {} as Record<string, any>,
+        {} as Record<string, (typeof pages)[number]>,
       )
     }),
 
@@ -184,6 +184,7 @@ export const stateRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const database = await ctx.database.forProject(input.projectId)
+
       const panel = await database.panel.findUnique({
         where: { id: input.panelId },
         select: { id: true, workerVersionId: true },
@@ -191,6 +192,7 @@ export const stateRouter = router({
       if (!panel) {
         throw new Error(`Panel "${input.panelId}" not found`)
       }
+
       const endpoint = ctx.panelEndpointManager.getPanelEndpoint(
         input.projectId,
         panel.workerVersionId,
@@ -217,6 +219,7 @@ export const stateRouter = router({
     )
     .subscription(async function* ({ input, ctx, signal }) {
       const database = await ctx.database.forProject(input.projectId)
+
       const panel = await database.panel.findUnique({
         where: { id: input.panelId },
         select: { workerVersionId: true },
@@ -229,6 +232,7 @@ export const stateRouter = router({
         ["panel-availability", input.projectId, input.panelId],
         signal,
       )
+
       yield {
         online: ctx.panelEndpointManager.isPanelAvailable(
           input.projectId,
@@ -261,7 +265,7 @@ export const stateRouter = router({
           acc[trigger.id] = trigger
           return acc
         },
-        {} as Record<string, any>,
+        {} as Record<string, (typeof triggers)[number]>,
       )
     }),
 

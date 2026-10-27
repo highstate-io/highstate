@@ -88,6 +88,7 @@ describe("InputResolver", () => {
 
     expect(Object.keys(resolvedInputs)).toEqual(["data"])
     expect(resolvedInputs.data).toHaveLength(1)
+
     expect(resolvedInputs.data[0]).toMatchObject({
       input: {
         instanceId: "component.v1:source",

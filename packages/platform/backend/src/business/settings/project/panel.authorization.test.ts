@@ -13,6 +13,7 @@ describe("PanelSettingsService authorization", () => {
     await expect(
       service.query(createProjectRequestContext(project.id), { pageSize: 1 }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.query(createProjectRequestContext(project.id, grantProjectPermission("panel.list")), {
         pageSize: 1,

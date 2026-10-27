@@ -30,17 +30,21 @@ export function createK3sNode(options: CreateK3sNodeOptions): Command {
   const privateEndpoint = options.server.endpoints.find(
     endpoint => endpoint.type !== "hostname" && endpoint.metadata["iana.scope"] === "private",
   )
+
   const publicEndpoint = options.server.endpoints.find(
     endpoint => endpoint.type !== "hostname" && endpoint.metadata["iana.scope"] === "global",
   )
+
   const nodeIp = privateEndpoint ? l3EndpointToString(privateEndpoint) : undefined
   const externalIp = publicEndpoint ? l3EndpointToString(publicEndpoint) : undefined
   const nodeSpecificConfig = options.nodeConfig?.[options.server.hostname] ?? {}
+
   const nodeConfig = {
     ...(nodeIp ? { "node-ip": nodeIp } : {}),
     ...(nodeIp && externalIp ? { "node-external-ip": externalIp } : {}),
     ...(options.type === "server" && nodeIp ? { "advertise-address": nodeIp } : {}),
   }
+
   const mergedConfig = mergeDeep(mergeDeep(options.config, nodeSpecificConfig), nodeConfig)
 
   const configFileCommand = Command.createTextFile(`config-${options.server.hostname}`, {

@@ -13,12 +13,14 @@ describe("EntitySettingsService authorization", () => {
     await expect(
       service.queryEntities(createProjectRequestContext(project.id), { pageSize: 1 }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.queryEntities(
         createProjectRequestContext(project.id, grantProjectPermission("entity.list")),
         { pageSize: 1 },
       ),
     ).resolves.toMatchObject({ items: [] })
+
     await expect(
       service.queryEntitySnapshotsForEntity(createProjectRequestContext(project.id), "missing", {
         pageSize: 1,

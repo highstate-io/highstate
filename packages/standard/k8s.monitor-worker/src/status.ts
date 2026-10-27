@@ -116,7 +116,6 @@ export class StatusTracker {
   ): void {
     const namespace = resource.metadata?.namespace
     const name = resource.metadata?.name
-
     if (!namespace || !name) {
       console.warn(`Missing namespace or name for ${type} resource`)
       return
@@ -146,6 +145,7 @@ export class StatusTracker {
   removeResourceStatus(type: SupportedKind, namespace: string, name: string): void {
     if (this.statusMap[type]?.[namespace]) {
       delete this.statusMap[type][namespace][name]
+
       if (Object.keys(this.statusMap[type][namespace]).length === 0) {
         delete this.statusMap[type][namespace]
       }
@@ -162,7 +162,6 @@ export class StatusTracker {
     const progressingStatus = deployment.status.conditions.find(
       condition => condition.type === "Progressing" && condition.status === "True",
     )
-
     if (progressingStatus) {
       return {
         status: "progressing",
@@ -173,7 +172,6 @@ export class StatusTracker {
     const availableStatus = deployment.status.conditions.find(
       condition => condition.type === "Available",
     )
-
     if (availableStatus && availableStatus.status === "True") {
       return { status: "ok", message: availableStatus.message || "deployment is available" }
     }
@@ -191,7 +189,6 @@ export class StatusTracker {
 
     const ready = statefulSet.status.readyReplicas ?? 0
     const replicas = statefulSet.status.replicas ?? 0
-
     if (ready === replicas && replicas > 0) {
       return { status: "ok", message: `${ready}/${replicas} replicas ready` }
     }
@@ -250,7 +247,6 @@ export class StatusTracker {
 
     const acceptedCondition = conditions.find(c => c.type === "Accepted")
     const programmedCondition = conditions.find(c => c.type === "Programmed")
-
     if (acceptedCondition?.status === "True" && programmedCondition?.status === "True") {
       return { status: "ok", message: "gateway is ready" }
     }
@@ -278,7 +274,6 @@ export class StatusTracker {
     }
 
     const readyCondition = conditions.find(c => c.type === "Ready")
-
     if (readyCondition?.status === "True") {
       return { status: "ok", message: "certificate is ready" }
     }
@@ -365,7 +360,6 @@ export class StatusTracker {
       for (const namespace of Object.keys(statusMap[type])) {
         for (const name of Object.keys(statusMap[type][namespace])) {
           const resourceStatus = statusMap[type][namespace][name]
-
           if (resourceStatus.status === "error") {
             return WellKnownInstanceCustomStatus.Error
           }
@@ -391,7 +385,6 @@ export class StatusTracker {
   private renderStatusMessage(statusMap: ResourceStatusMap): string {
     const namespaceGroups = this.groupResourcesByNamespace(statusMap)
     const namespaces = Object.keys(namespaceGroups).sort()
-
     if (namespaces.length === 0) {
       return "No resources to display"
     }

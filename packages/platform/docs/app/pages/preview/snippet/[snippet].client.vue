@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { PreviewCanvas } from "#layers/core/app/features/canvas"
 import {
+  type ComponentModel,
+  type EntityModel,
   getRuntimeInstances,
   resetEvaluation,
   setValidationEnabled,
-  type ComponentModel,
-  type EntityModel,
 } from "@highstate/contract"
+import { PreviewCanvas } from "#layers/core/app/features/canvas"
 
 const route = useRoute("preview-snippet-snippet")
 
@@ -31,6 +31,7 @@ const entities: Record<string, EntityModel> = {}
 
 for (const { instance, component } of instances) {
   components[instance.type] = component.model
+
   for (const entity of component.entities.values()) {
     entities[entity.type] = entity.model
   }

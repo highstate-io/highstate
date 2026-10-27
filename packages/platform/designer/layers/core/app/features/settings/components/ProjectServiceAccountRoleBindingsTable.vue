@@ -38,6 +38,7 @@ async function load(): Promise<void> {
       projectId,
       serviceAccountId,
     })
+
     const loadedRoles = await loadAllCollectionItems(query =>
       $client.projectRoleSettings.query.query({ projectId, query }),
     )
@@ -66,6 +67,7 @@ async function add(): Promise<void> {
       serviceAccountId,
       roleId: selectedRoleId.value,
     })
+
     selectedRoleId.value = null
     await load()
   } catch (caught) {
@@ -84,6 +86,7 @@ async function remove(roleId: string): Promise<void> {
       serviceAccountId,
       roleId,
     })
+
     await load()
   } catch (caught) {
     error.value = caught instanceof Error ? caught.message : "Failed to update role bindings"

@@ -1,8 +1,8 @@
-import { common, ssh } from "@highstate/library";
+import { common, ssh } from "@highstate/library"
 
 const { keyPair } = ssh.keyPair({
   name: "ssh-key",
-});
+})
 
 common.existingServer({
   name: "example",
@@ -12,4 +12,4 @@ common.existingServer({
   inputs: {
     sshKeyPair: keyPair,
   },
-});
+})

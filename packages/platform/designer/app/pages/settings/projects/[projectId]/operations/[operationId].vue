@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { until, useProjectStores } from "#imports"
 import {
-  DetailPageLayout,
   DetailInfoCard,
-  TimeTableCell,
+  DetailPageLayout,
   IdTableCell,
+  TimeTableCell,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
-import { StatusChip, operationStatusMap } from "#layers/core/app/features/shared"
+import { operationStatusMap, StatusChip } from "#layers/core/app/features/shared"
 
 const settingsStore = useProjectOperationSettingsStore()
 const { projectStore } = useProjectStores()

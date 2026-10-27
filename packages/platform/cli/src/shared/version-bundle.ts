@@ -28,6 +28,7 @@ export async function resolveVersionBundle(args: ResolveVersionBundleArgs): Prom
 
   const resolvedPlatformVersion =
     platformVersion ?? (await fetchLatestVersion(platformSourcePackage))
+
   const resolvedStdlibVersion = stdlibVersion ?? (await fetchLatestVersion(stdlibSourcePackage))
 
   const [platformManifest, stdlibManifest, pulumiManifest] = await Promise.all([
@@ -35,6 +36,7 @@ export async function resolveVersionBundle(args: ResolveVersionBundleArgs): Prom
     fetchManifest(stdlibSourcePackage, resolvedStdlibVersion),
     fetchManifest("@highstate/pulumi", resolvedPlatformVersion),
   ])
+
   const inferredPulumi = getDependencyRange(pulumiManifest, "@pulumi/pulumi")
   if (!inferredPulumi) {
     throw new Error(

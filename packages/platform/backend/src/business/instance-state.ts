@@ -279,12 +279,14 @@ export class InstanceStateService {
     const database = await this.database.forProject(projectId)
     const collection = "instance-states"
     const query = { projectId, ...options }
+
     const { pageSize, cursor } = resolvePageRequest(
       collection,
       page,
       query,
       z.object({ instanceId: z.string().min(1), id: z.string().min(1) }),
     )
+
     const authorization = context
       ? await buildProjectAuthorizationWhere({
           database: this.database,
@@ -302,12 +304,14 @@ export class InstanceStateService {
           ],
         }
       : {}
+
     const rows = await database.instanceState.findMany({
       where: { AND: [authorization, continuation] },
       orderBy: [{ instanceId: "asc" }, { id: "asc" }],
       take: pageSize + 1,
       include: includeForInstanceState(options),
     })
+
     const states = rows.map(mapInstanceStateResult)
 
     return toPageResult(states, pageSize, state =>
@@ -321,11 +325,11 @@ export class InstanceStateService {
     options: GetProjectInstancesOptions = {},
   ): Promise<InstanceState> {
     const database = await this.database.forProject(context.projectId)
+
     const row = await database.instanceState.findUnique({
       where: { id: stateId },
       include: includeForInstanceState(options),
     })
-
     if (!row) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -399,11 +403,11 @@ export class InstanceStateService {
     }
 
     const database = await this.database.forProject(projectId)
+
     const project = await this.database.backend.project.findUnique({
       where: { id: projectId },
       select: forSchema(projectOutputSchema),
     })
-
     if (!project) {
       throw new ProjectNotFoundError(projectId)
     }
@@ -427,7 +431,6 @@ export class InstanceStateService {
             lock: { select: { stateId: true } },
           },
         })
-
         if (!state) {
           throw new InstanceStateNotFoundError(projectId, instanceId)
         }
@@ -449,6 +452,7 @@ export class InstanceStateService {
     })
 
     const uniqueUpdatedStateIds = Array.from(new Set(updatedStateIds))
+
     const uniqueUnitInstancesToCleanup = Array.from(
       new Map(unitInstancesToCleanup.map(item => [item.id, item])).values(),
     )
@@ -657,11 +661,11 @@ export class InstanceStateService {
     status: InstanceCustomStatusInput,
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
+
     const target = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
     })
-
     if (!target) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -725,11 +729,11 @@ export class InstanceStateService {
     statusName: string,
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
+
     const target = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
     })
-
     if (!target) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -813,7 +817,7 @@ export class InstanceStateService {
    * @param stateId The ID of the instance state to update.
    * @param operationId The ID of the operation (required if operationState is provided).
    * @param options Update options containing operation state, instance state, and unit-specific data.
-   * @return The instance state patch containing the updated operation state and instance state fields.
+   * @returns The instance state patch containing the updated operation state and instance state fields.
    */
   async updateOperationState(
     projectId: string,
@@ -881,7 +885,6 @@ export class InstanceStateService {
 
       return { updatedOperationState, unitExtraData, unitExtraTrackingIds }
     })
-
     if (result.unitExtraTrackingIds.length > 0) {
       await this.objectRefIndexService.track(projectId, result.unitExtraTrackingIds)
     }

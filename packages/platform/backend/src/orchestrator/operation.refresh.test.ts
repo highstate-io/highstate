@@ -75,6 +75,7 @@ describe("Operation - Refresh", () => {
 
       // assert
       expect(runnerBackend.refresh).toHaveBeenCalledTimes(1)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,

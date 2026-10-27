@@ -31,6 +31,7 @@ export class DockerWorkerBackend implements WorkerBackend {
     signal,
   }: WorkerRunBackendOptions): Promise<void> {
     const dataPort = await getPort({ random: true })
+
     const args = [
       "run",
       "-i",
@@ -71,7 +72,7 @@ export class DockerWorkerBackend implements WorkerBackend {
     childProcess.stderr?.pipe(stdout)
 
     if (!childProcess.pid) {
-      throw new Error(`Failed to start Docker container without clear response from child process.`)
+      throw new Error(`Failed to start Docker container without clear response from child process`)
     }
 
     this.logger.info({ processId: childProcess.pid }, "process started")

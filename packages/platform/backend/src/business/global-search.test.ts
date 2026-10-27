@@ -53,6 +53,7 @@ describe("searchByText", () => {
       const lockedDb = await database.forProject(lockedProject.id)
 
       const unlockedOperationId = createId()
+
       await unlockedDb.operation.create({
         data: {
           id: unlockedOperationId,
@@ -64,6 +65,7 @@ describe("searchByText", () => {
       })
 
       const lockedOperationId = createId()
+
       await lockedDb.operation.create({
         data: {
           id: lockedOperationId,
@@ -156,6 +158,7 @@ describe("searchByIds", () => {
       projectUnlockBackend.checkProjectUnlocked.mockResolvedValue(false)
 
       const objectId = createId()
+
       await database.backend.object.create({
         data: {
           id: objectId,
@@ -191,6 +194,7 @@ describe("searchByIds", () => {
       })
 
       const objectId = createId()
+
       await database.backend.object.createMany({
         data: [
           { id: objectId, projectId: project.id },
@@ -199,6 +203,7 @@ describe("searchByIds", () => {
       })
 
       const unlockedDb = await database.forProject(project.id)
+
       await unlockedDb.operation.create({
         data: {
           id: objectId,
@@ -219,6 +224,7 @@ describe("searchByIds", () => {
       expect(projectResults).toHaveLength(2)
 
       const unlocked = projectResults.find(p => p.projectId === project.id)
+
       expect(unlocked).toEqual({
         projectId: project.id,
         unlockState: "unlocked",
@@ -243,6 +249,7 @@ describe("searchByIds", () => {
       projectUnlockBackend.checkProjectUnlocked.mockResolvedValue(true)
 
       const objectId = createId()
+
       await database.backend.object.create({
         data: {
           id: objectId,
@@ -255,6 +262,7 @@ describe("searchByIds", () => {
 
       // assert
       expect(result).toHaveLength(1)
+
       expect(result[0].projects).toEqual([
         {
           projectId: project.id,
@@ -275,6 +283,7 @@ describe("searchByIds", () => {
       projectUnlockBackend.checkProjectUnlocked.mockResolvedValue(true)
 
       const objectId = createId()
+
       await database.backend.object.createMany({
         data: [
           { id: objectId, projectId: projectA.id },
@@ -283,6 +292,7 @@ describe("searchByIds", () => {
       })
 
       const unlockedDb = await database.forProject(projectA.id)
+
       await unlockedDb.operation.create({
         data: {
           id: objectId,
@@ -299,11 +309,11 @@ describe("searchByIds", () => {
         updateBackendUnlockRecipients: async () => {},
         getProjectMasterKey: async () => undefined,
         setupDatabase: async () => {
-          throw new Error("not implemented")
+          throw new Error("Not implemented")
         },
         forProject: async (projectId: string) => {
           if (projectId === projectB.id) {
-            throw new Error("boom")
+            throw new Error("Boom")
           }
 
           return await database.forProject(projectId)
@@ -323,6 +333,7 @@ describe("searchByIds", () => {
       expect(result).toHaveLength(1)
 
       const byProjectId = new Map(result[0].projects.map(p => [p.projectId, p]))
+
       expect(byProjectId.get(projectA.id)).toEqual({
         projectId: projectA.id,
         unlockState: "unlocked",

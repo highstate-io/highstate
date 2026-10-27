@@ -375,6 +375,7 @@ describe("defineComponent", () => {
     )?.instance
 
     expect(childInstance).toBeDefined()
+
     expect(childInstance?.inputs?.k8sCluster).toEqual([
       {
         instanceId: "example.parent.v1:parent-1",
@@ -470,6 +471,7 @@ describe("defineComponent", () => {
     const originalBoundary = peerInput[boundaryInput]
 
     const selectedGroup = [peerInput] as (typeof peerInput)[] & { [boundaryInput]: InstanceInput }
+
     selectedGroup[boundaryInput] = {
       instanceId: "example.parent.v1:parent-1",
       output: "peers",
@@ -478,6 +480,7 @@ describe("defineComponent", () => {
     const selected = selectInput(selectedGroup, "peer-1")
 
     expect(peerInput[boundaryInput]).toEqual(originalBoundary)
+
     expect(selected[boundaryInput]).toEqual({
       instanceId: "example.parent.v1:parent-1",
       output: "peers",
@@ -501,6 +504,7 @@ describe("defineComponent", () => {
     const { peer: peerInput } = source({ name: "peer-1" })
 
     const selectedGroup = [peerInput] as (typeof peerInput)[] & { [boundaryInput]: InstanceInput }
+
     selectedGroup[boundaryInput] = {
       instanceId: "example.parent.v1:parent-1",
       output: "peers",
@@ -509,6 +513,7 @@ describe("defineComponent", () => {
     const missingPeer = selectInput(selectedGroup, "missing-peer")
 
     expect(missingPeer.provided).toBe(false)
+
     expect(missingPeer[boundaryInput]).toEqual({
       instanceId: "example.parent.v1:parent-1",
       output: "peers",
@@ -518,6 +523,7 @@ describe("defineComponent", () => {
       string,
       unknown
     >
+
     expect((nestedMissing.provided as boolean) ?? false).toBe(false)
   })
 
@@ -574,6 +580,7 @@ describe("defineComponent", () => {
     )?.instance
 
     expect(childInstance).toBeDefined()
+
     expect(childInstance?.inputs?.k8sCluster).toEqual([
       {
         instanceId: "example.parent.v1:parent-2",
@@ -698,7 +705,7 @@ describe("defineComponent", () => {
 
   it("should throw when selecting from empty input array without boundary", () => {
     expect(() => selectInput([], "missing")).toThrow(
-      'Cannot select input "missing": empty input group has no boundary metadata to build a missing input reference.',
+      'Cannot select input "missing": empty input group has no boundary metadata to build a missing input reference',
     )
   })
 
@@ -735,6 +742,7 @@ describe("defineComponent", () => {
 
     expect(instance).toBeDefined()
     expect(instance?.resolvedOutputs?.k8sCluster).toEqual([])
+
     expect(instance?.outputs?.k8sCluster).toEqual([
       {
         instanceId: "example.passthrough.v1:test",
@@ -852,6 +860,7 @@ describe("defineComponent", () => {
         output: "k8sCluster",
       },
     ])
+
     expect(createInputs).toEqual({
       k8sCluster: {
         provided: false,
@@ -884,6 +893,7 @@ describe("defineComponent", () => {
         receivedBoundary = (inputs.endpoints as unknown as { [boundaryInput]: InstanceInput })[
           boundaryInput
         ]
+
         return {}
       },
     })
@@ -891,6 +901,7 @@ describe("defineComponent", () => {
     const upstreamGroup = [] as unknown as EntityInput<typeof endpoint>[] & {
       [boundaryInput]: InstanceInput
     }
+
     upstreamGroup[boundaryInput] = {
       instanceId: "example.upstream.v1:source",
       output: "endpoints",
@@ -1031,6 +1042,7 @@ describe("defineComponent", () => {
     })
 
     const outputs = component({ name: "test" }) as Record<string, unknown>
+
     const endpoints = outputs.endpoints as Array<Record<string, unknown>> & {
       [boundaryInput]?: InstanceInput
       address: {
@@ -1041,6 +1053,7 @@ describe("defineComponent", () => {
     expect(Array.isArray(endpoints)).toBe(true)
     expect(endpoints.length).toBe(0)
     expect(endpoints.address.asSubnet.length).toBe(0)
+
     expect(endpoints[boundaryInput]).toEqual({
       instanceId: "example.missing-multiple-output.v1:test",
       output: "endpoints",
@@ -1066,6 +1079,7 @@ describe("defineComponent", () => {
 
     expect(output).toBeDefined()
     expect(output.provided).toBe(false)
+
     expect(output[boundaryInput]).toEqual({
       instanceId: "example.missing-single-output.v1:test",
       output: "endpoint",
@@ -1098,6 +1112,7 @@ describe("defineComponent", () => {
     const output = outputs.endpoint as Record<string | symbol, unknown>
 
     expect(output.provided).toBe(false)
+
     expect(output[boundaryInput]).toEqual({
       instanceId: "example.non-provided-single-output.v1:test",
       output: "endpoint",

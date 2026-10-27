@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import type { ProjectOperationsStore } from "#layers/core/app/stores/project"
 import { isFinalOperationStatus, type Operation } from "@highstate/backend/shared"
 import {
   ContextMenuItem,
   GenericContextMenu,
-  StatusChip,
   operationStatusMap,
   operationTypeMap,
+  StatusChip,
 } from "#layers/core/app/features/shared"
-import type { ProjectOperationsStore } from "#layers/core/app/stores/project"
 
 const { operation, operationsStore } = defineProps<{
   operation: Operation
@@ -32,6 +32,7 @@ const cancelOperation = async () => {
   if (!canCancel.value || cancelling.value) return
 
   cancelling.value = true
+
   try {
     await operationsStore.cancelOperation(operation.id)
     visible.value = false

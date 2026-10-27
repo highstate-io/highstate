@@ -139,6 +139,7 @@ export class ProjectModelCircularInputReferenceError extends ProjectModelError {
     cycle: readonly string[],
   ) {
     const boundedCycle = cycle.slice(0, 20)
+
     super(`Circular input reference detected in project "${projectId}"`, {
       reason: "CIRCULAR_INPUT_REFERENCE",
       category: BackendErrorCategory.InvalidArgument,
@@ -151,6 +152,7 @@ export class ProjectModelCircularInputReferenceError extends ProjectModelError {
         },
       ],
     })
+
     this.cycle = cycle
   }
 }

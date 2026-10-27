@@ -42,6 +42,7 @@ export async function interceptDashboardRequest(
   if (request.method === "GET" && url.pathname === "/config") {
     return await disableDashboardTokenAuthentication(await forward(request))
   }
+
   if (request.method === "GET" && url.pathname === "/" && isNavigation(request)) {
     return Response.redirect(new URL(`/c/${encodeURIComponent(cluster)}/`, url), 302)
   }

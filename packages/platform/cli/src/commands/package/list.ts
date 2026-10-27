@@ -13,7 +13,6 @@ export class PackageListCommand extends Command {
   async execute(): Promise<void> {
     const workspaceRoot = await findWorkspaceRoot()
     const packages = await scanWorkspacePackages(workspaceRoot)
-
     if (packages.length === 0) {
       logger.info("no packages found in workspace")
       return

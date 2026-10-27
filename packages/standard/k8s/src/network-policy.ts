@@ -599,20 +599,21 @@ export class NetworkPolicy extends ComponentResource {
       normalizedArgs.apply(async args => {
         const cluster = args.cluster
 
-        // Check if cluster has a custom network policy implementation
+        // check if cluster has a custom network policy implementation
         if (cluster.networkPolicyImplRef) {
-          return networkPolicyMediator.call(cluster.networkPolicyImplRef, {
+          return await networkPolicyMediator.call(cluster.networkPolicyImplRef, {
             name,
             args: args as NormalizedNetworkPolicyArgs,
           })
         }
 
-        // Fallback to native network policy
+        // fallback to native network policy
         const nativePolicy = new NativeNetworkPolicy(name, args as NormalizedNetworkPolicyArgs, {
           ...opts,
           parent: this,
           provider: await getProviderAsync(output(args.namespace).cluster),
         })
+
         return nativePolicy.networkPolicy
       }),
     )
@@ -1097,7 +1098,6 @@ export class NativeNetworkPolicy extends ComponentResource {
       ...args.namespaces.map(NativeNetworkPolicy.createNamespacePeer),
       ...args.namespaceSelectors.map(NativeNetworkPolicy.createNamespaceSelectorPeer),
     ]
-
     if (namespacePeers.length === 0) {
       // if there are no namespaces, we can just return selector peers
       return selectorPeers

@@ -110,7 +110,6 @@ export class TlsCertificate extends ComponentResource {
 
         return true
       })
-
       if (!matchedIssuer) {
         if (commonName && dnsNames && dnsNames.length > 0) {
           const dnsNameList = dnsNames.join(", ")

@@ -22,7 +22,6 @@ export function feedMetadataFromArgs(
 
 export function feedMetadataFromPeers(peers: wireguard.Peer[]): wireguard.FeedMetadata | undefined {
   const feedPeers = peers.filter(peer => peer.feedMetadata)
-
   if (feedPeers.length === 0) {
     return undefined
   }

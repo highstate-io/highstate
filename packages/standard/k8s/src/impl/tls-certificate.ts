@@ -55,6 +55,7 @@ export const createCertificate = tlsCertificateMediator.implement(
     const secret = certificate.secret
     const certificatePem = secret.apply(secret => secret.getValue("tls.crt"))
     const privateKeyPem = secret.apply(secret => secret.getValue("tls.key"))
+
     const chain = makeEntityOutput({
       entity: common.fileEntity,
       identity: `${name}:tls.crt`,
@@ -72,6 +73,7 @@ export const createCertificate = tlsCertificateMediator.implement(
         },
       },
     })
+
     const root = secret.apply(secret => {
       return secret.data.apply(data => {
         if (!data["ca.crt"]) {
@@ -97,6 +99,7 @@ export const createCertificate = tlsCertificateMediator.implement(
         })
       })
     })
+
     const privateKey = makeEntityOutput({
       entity: common.fileEntity,
       identity: `${name}:tls.key`,
@@ -114,6 +117,7 @@ export const createCertificate = tlsCertificateMediator.implement(
         },
       },
     })
+
     const certificateChain = makeEntityOutput({
       entity: tls.certificateChainEntity,
       identity: `${name}:chain`,

@@ -141,6 +141,7 @@ export class MaterializedRepository implements AsyncDisposable {
   private _materializeFolder(): { folder: MaterializedFolder; isCloneSource: boolean } {
     const parent = this.getParent()
     const folderContent = this.entity.content
+
     const isCloneSource =
       folderContent.type === "remote" &&
       this._shouldCloneAsGitRepo(l7EndpointToString(folderContent.endpoint))
@@ -200,6 +201,7 @@ export class MaterializedRepository implements AsyncDisposable {
     } catch (error) {
       throw new Error(
         `Failed to clone repository: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
       )
     }
   }
@@ -224,6 +226,7 @@ export class MaterializedRepository implements AsyncDisposable {
     } catch (error) {
       throw new Error(
         `Failed to initialize git repository: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
       )
     }
   }
@@ -272,10 +275,12 @@ export class MaterializedRepository implements AsyncDisposable {
 
     for await (const file of gitIgnoreFiles) {
       const filePath = join(this.folder.path, file)
+
       try {
         const relativePrefix = dirname(file)
 
         const content = await readFile(filePath, "utf-8")
+
         const patterns = content
           .split("\n")
           .map(line => line.trim())

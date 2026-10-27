@@ -39,6 +39,7 @@ export class PlanTestBuilder {
       resolvedInputs: {},
       resolvedOutputs: {},
     })
+
     return this
   }
 
@@ -55,6 +56,7 @@ export class PlanTestBuilder {
       resolvedInputs: {},
       resolvedOutputs: {},
     })
+
     return this
   }
 
@@ -65,8 +67,10 @@ export class PlanTestBuilder {
     childNames.forEach(childName => {
       const child = this.instances.get(childName)
       if (!child) throw new Error(`Child instance '${childName}' not found`)
+
       child.parentId = parent.id
     })
+
     return this
   }
 
@@ -121,7 +125,9 @@ export class PlanTestBuilder {
     switch (stateType) {
       case "upToDate": {
         baseState.status = "deployed"
-        baseState.inputHash = 12345 // will be updated with actual hash after workset creation
+        baseState.inputHash = 12345
+
+        // will be updated with actual hash after workset creation
         baseState.lastOperationState = {
           operationId: "test-op",
           stateId: instance.id,
@@ -133,6 +139,7 @@ export class PlanTestBuilder {
           startedAt: null,
           finishedAt: null,
         }
+
         break
       }
       case "changed":
@@ -184,6 +191,7 @@ export class PlanTestBuilder {
     Object.entries(stateMap).forEach(([name, type]) => {
       this.state(name, type)
     })
+
     return this
   }
 
@@ -197,14 +205,17 @@ export class PlanTestBuilder {
       const depTarget = this.instances.get(dependency)
 
       if (!depInstance) throw new Error(`Dependent instance '${dependent}' not found`)
+
       if (!depTarget) throw new Error(`Dependency instance '${dependency}' not found`)
 
       // accumulate dependencies instead of overwriting
       const existingDeps = depInstance.inputs?.dependency || []
+
       depInstance.inputs = {
         ...depInstance.inputs,
         dependency: [...existingDeps, { instanceId: depTarget.id, output: "default" }],
       }
+
       depInstance.resolvedInputs = depInstance.inputs
     })
 
@@ -215,6 +226,7 @@ export class PlanTestBuilder {
     const requestedInstanceIds = this.requestedInstanceNames.map(name => {
       const instance = this.instances.get(name)
       if (!instance) throw new Error(`Requested instance '${name}' not found`)
+
       return instance.id
     })
 
@@ -256,6 +268,7 @@ export class PlanTestBuilder {
           }
         }
       }
+
       return state
     })
 

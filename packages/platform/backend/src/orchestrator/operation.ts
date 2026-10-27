@@ -123,12 +123,13 @@ export class RuntimeOperation {
       }
 
       const errors = this.getNonAbortErrors(error)
+
       for (const cause of errors) {
         this.logger.error({ error: cause }, "an error occurred while running the operation")
-        console.error(cause)
       }
 
       await this.updateOperation({ status: "failed" })
+
       if (!(error instanceof AggregateError)) {
         await this.writeOperationLog(errorToString(error))
       }
@@ -141,8 +142,6 @@ export class RuntimeOperation {
         // ensure that all promises are resolved even if the operation failed
         await this.promiseTracker.waitForAll()
       } catch (error) {
-        console.error(error)
-
         this.logger.error(
           { error },
           "one of the tracked promises failed after the operation failed",
@@ -177,6 +176,7 @@ export class RuntimeOperation {
 
     // 2. create the plan for the operation (or use provided one)
     let plan: OperationPhase[]
+
     if (this.operation.phases) {
       plan = this.operation.phases
     } else {
@@ -237,6 +237,7 @@ export class RuntimeOperation {
         for (const failure of cause.unitFailures) {
           errors.add(failure.error)
         }
+
         return
       }
 
@@ -244,6 +245,7 @@ export class RuntimeOperation {
         for (const nestedCause of cause.errors) {
           collect(nestedCause)
         }
+
         return
       }
 
@@ -273,7 +275,9 @@ export class RuntimeOperation {
     const uniqueFailures = Array.from(
       new Map(unitFailures.map(failure => [failure.instanceId, failure])).values(),
     ).sort((a, b) => a.sequence - b.sequence)
+
     const firstFailure = uniqueFailures[0]!
+
     const errors = uniqueFailures
       .map(failure => `Unit "${failure.instanceId}" failed:\n${errorToString(failure.error)}`)
       .join("\n\n")
@@ -464,6 +468,7 @@ export class RuntimeOperation {
               output,
             }),
         })
+
         const targetProjectNames = this.getExportTargetProjectNames(instance)
 
         await this.projectPortService.syncExportPort({
@@ -476,6 +481,7 @@ export class RuntimeOperation {
         const sourceStateId = this.projectPortService.extractImportSourceStateId(instance.type)
         if (sourceStateId) {
           const component = this.context.library.components[instance.type]
+
           for (const outputName of Object.keys(component.outputs ?? {})) {
             this.context.setCapturedOutputValues(instance.id, outputName, [])
           }
@@ -484,7 +490,6 @@ export class RuntimeOperation {
             this.project.id,
             sourceStateId,
           )
-
           if (importPayload) {
             const capturedByOutput =
               this.projectPortService.buildImportCapturedOutputValues(importPayload)
@@ -626,6 +631,7 @@ export class RuntimeOperation {
         this.project.id,
         state.id,
       )
+
       signal.throwIfAborted()
 
       const config = this.prepareUnitConfig(instance, state.id, secrets)
@@ -729,8 +735,8 @@ export class RuntimeOperation {
         throw new AbortError("The operation is failing, aborting current branch (still not failed)")
       }
 
-      // Runtime short-circuit:
-      // If this instance's own config has not changed and none of its dependencies outputs changed,
+      // runtime short-circuit:
+      // if this instance's own config has not changed and none of its dependencies outputs changed,
       // we can skip execution even if the full inputHash changed due to upstream config-only changes.
       //
       // Do not short-circuit when the caller requested side effects that require a real engine run or the instance was explicitly requested.
@@ -749,7 +755,6 @@ export class RuntimeOperation {
         !this.operation.options.forceUpdateChildren
       ) {
         const expected = await this.context.getUpToDateInputHashOutput(instance)
-
         if (
           expected.selfHash === state.selfHash &&
           expected.dependencyOutputHash === state.dependencyOutputHash
@@ -866,7 +871,6 @@ export class RuntimeOperation {
     const beforeDestroyTriggers = allTriggers.filter(
       trigger => trigger.spec.type === "before-destroy",
     )
-
     if (beforeDestroyTriggers.length === 0) {
       return
     }
@@ -879,7 +883,7 @@ export class RuntimeOperation {
       operationState: { status: "processing_triggers" },
     })
 
-    logger.info("updating unit to process before-destroy triggers...")
+    logger.info("updating unit to process before-destroy triggers")
 
     const secrets = await this.secretService.getInstanceSecretValuesCore(this.project.id, state.id)
 
@@ -905,7 +909,7 @@ export class RuntimeOperation {
   }
 
   private async destroyUnit(instance: InstanceModel, state: InstanceState): Promise<void> {
-    return this.getInstancePromise(instance.id, async (logger, signal, forceSignal) => {
+    return await this.getInstancePromise(instance.id, async (logger, signal, forceSignal) => {
       const dependentPromises: Promise<void>[] = []
       const dependents = this.context.getDependentStates(instance.id)
 
@@ -935,7 +939,7 @@ export class RuntimeOperation {
       await this.processBeforeDestroyTriggers(instance, state, logger, signal, forceSignal)
       signal.throwIfAborted()
 
-      logger.info("destroying unit...")
+      logger.info("destroying unit")
 
       await this.workset.updateState(instance.id, {
         operationState: {
@@ -945,6 +949,7 @@ export class RuntimeOperation {
       })
 
       const [type, name] = parseInstanceId(instance.id)
+
       const secrets = await this.secretService.getInstanceSecretValuesCore(
         this.project.id,
         state.id,
@@ -976,7 +981,7 @@ export class RuntimeOperation {
   }
 
   private async refreshUnit(instance: InstanceModel, state: InstanceState): Promise<void> {
-    return this.getInstancePromise(instance.id, async (logger, signal, forceSignal) => {
+    return await this.getInstancePromise(instance.id, async (logger, signal, forceSignal) => {
       await this.workset.updateState(instance.id, {
         operationState: {
           status: "refreshing",
@@ -984,9 +989,10 @@ export class RuntimeOperation {
         },
       })
 
-      logger.info("refreshing unit...")
+      logger.info("refreshing unit")
 
       const [type, name] = parseInstanceId(instance.id)
+
       const secrets = await this.secretService.getInstanceSecretValuesCore(
         this.project.id,
         state.id,
@@ -1057,7 +1063,7 @@ export class RuntimeOperation {
     }
 
     throw new Error(
-      "The unit state stream was closed without a completion update or it was not handled properly.",
+      "The unit state stream was closed without a completion update or it was not handled properly",
     )
   }
 
@@ -1082,7 +1088,7 @@ export class RuntimeOperation {
       const values = unfoldedInputs[inputName] ?? []
       if (values.length > 1) {
         throw new Error(
-          `Input "${inputName}" of instance "${instance.id}" expects a single value, but ${values.length} values were resolved after unfolding.`,
+          `Input "${inputName}" of instance "${instance.id}" expects a single value, but ${values.length} values were resolved after unfolding`,
         )
       }
     }
@@ -1100,6 +1106,7 @@ export class RuntimeOperation {
 
   private getUnitInputValues(inputName: string, input: ResolvedInstanceInput): UnitInputValue[] {
     const dependencyInstance = this.getPhaseInstance(input.input.instanceId)
+
     const captured = this.context.getCapturedOutputValues(
       input.input.instanceId,
       input.input.output,
@@ -1121,7 +1128,6 @@ export class RuntimeOperation {
       try {
         const instance = this.getPhaseInstance(instanceId as InstanceId)
         const component = this.context.library.components[instance.type]
-
         if (!component) {
           return undefined
         }
@@ -1232,6 +1238,7 @@ export class RuntimeOperation {
           finishedAt: new Date(),
         },
       })
+
       return null
     }
 
@@ -1265,7 +1272,6 @@ export class RuntimeOperation {
           entitySnapshotError: null,
           entitySnapshotPayload: null,
         }
-
     if (parsed.entitySnapshotError) {
       await this.operationService.appendLog(
         this.project.id,
@@ -1414,6 +1420,7 @@ export class RuntimeOperation {
       .catch(error => {
         const aborted = isAbortErrorLike(error)
         const childUnitFailures = this.getUnitFailures(error)
+
         const unitFailures =
           state.kind === "unit" && !aborted && childUnitFailures.length === 0
             ? [
@@ -1424,7 +1431,9 @@ export class RuntimeOperation {
                 },
               ]
             : childUnitFailures
+
         const failed = !aborted && (state.kind === "composite" || childUnitFailures.length === 0)
+
         const propagatedError =
           failed || unitFailures.length > 0
             ? new InstanceOperationError(instanceId, unitFailures, { cause: error })

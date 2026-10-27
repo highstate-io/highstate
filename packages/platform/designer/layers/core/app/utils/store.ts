@@ -1,14 +1,14 @@
 import type { Logger } from "pino"
 import { getActivePinia, type StoreDefinition } from "pinia"
 
-export type CreateParams<TStoreId extends unknown[]> = {
+export interface CreateParams<TStoreId extends unknown[]> {
   storeId: string
   id: TStoreId
   onDeactivated: (callback: () => void) => void
   logger: Logger
 }
 
-export type MultiStoreOptions<TStoreId extends unknown[], TStoreDef extends StoreDefinition> = {
+export interface MultiStoreOptions<TStoreId extends unknown[], TStoreDef extends StoreDefinition> {
   /**
    * The unique name of the store shared across all instances.
    * Used to identify the store in parent scope.
@@ -32,7 +32,7 @@ export type MultiStoreOptions<TStoreId extends unknown[], TStoreDef extends Stor
   create: (params: CreateParams<TStoreId>) => TStoreDef
 }
 
-export type StoreAccessor<TStoreId extends unknown[], TStoreDef extends StoreDefinition> = {
+export interface StoreAccessor<TStoreId extends unknown[], TStoreDef extends StoreDefinition> {
   /**
    * Gets the store instance from the parent scope.
    * If no store injected in the parent scope, throws an error.
@@ -69,7 +69,7 @@ export function defineMultiStore<TStoreId extends unknown[], TStoreDef extends S
   getStoreId,
   create,
 }: MultiStoreOptions<TStoreId, TStoreDef>): StoreAccessor<TStoreId, TStoreDef> {
-  type StoreInstance = {
+  interface StoreInstance {
     storeDef: TStoreDef
     refCount: number
     triggerDeactivated: () => void
@@ -80,15 +80,14 @@ export function defineMultiStore<TStoreId extends unknown[], TStoreDef extends S
   const getFromContext = (): ReturnType<TStoreDef> => {
     if (!getCurrentInstance()) {
       throw new Error(
-        `Cannot access store "${name}": either provided ID or call inside a setup function.`,
+        `Cannot access store "${name}": either provided ID or call inside a setup function`,
       )
     }
 
     const store = injectLocal<StoreInstance>(`store:${name}`)
-
     if (!store) {
       throw new Error(
-        `No store named "${name}" available in the parent scope: provide an ID explicitly.`,
+        `No store named "${name}" available in the parent scope: provide an ID explicitly`,
       )
     }
 
@@ -109,15 +108,13 @@ export function defineMultiStore<TStoreId extends unknown[], TStoreDef extends S
     }
 
     throw new Error(
-      `No store with ID "${storeId}" found: ensure that the store is created via "ensureCreated".`,
+      `No store with ID "${storeId}" found: ensure that the store is created via "ensureCreated"`,
     )
   }
 
   accessor.ensureCreated = (...id: TStoreId): ReturnType<TStoreDef> => {
     if (!getCurrentInstance()) {
-      throw new Error(
-        `Cannot create store "${name}": call "ensureCreated" inside a setup function.`,
-      )
+      throw new Error(`Cannot create store "${name}": call "ensureCreated" inside a setup function`)
     }
 
     const storeId = getStoreId(...id)
@@ -136,6 +133,7 @@ export function defineMultiStore<TStoreId extends unknown[], TStoreDef extends S
         refCount: 0,
         triggerDeactivated,
       }
+
       stores.set(storeId, store)
 
       globalLogger.debug({ storeId, storeName: name }, "created new store instance")
@@ -167,15 +165,13 @@ export function defineMultiStore<TStoreId extends unknown[], TStoreDef extends S
 
       stores.delete(storeId)
 
-      // Trigger the store disposal event
+      // trigger the store disposal event
       store.triggerDeactivated()
 
-      // Unregister the store from the Pinia store registry
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const storeInstance = store.storeDef as any
-      storeInstance().$dispose()
+      // unregister the store from the Pinia store registry
+      store.storeDef().$dispose()
 
-      // Delete the store state
+      // delete the store state
       const pinia = getActivePinia()
 
       delete pinia!.state.value[storeId]

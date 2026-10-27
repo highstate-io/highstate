@@ -13,11 +13,13 @@ describe("ProjectModelService authorization", () => {
       { registerUnlockTask: vi.fn() } as never,
       {} as never,
     )
+
     vi.spyOn(service, "getProjectModelCore").mockResolvedValue([] as never)
 
     await expect(service.getProjectModel(createProjectRequestContext(project.id))).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(
       service.getProjectModel(
         createProjectRequestContext(project.id, grantProjectPermission("instance-model.get")),

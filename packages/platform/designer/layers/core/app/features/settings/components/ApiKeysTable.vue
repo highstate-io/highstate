@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import type {
+  ApiKeyOutput,
+  CollectionQuery,
+  CollectionQueryResult,
+} from "@highstate/backend/shared"
 import {
+  baseHeaders,
   SettingsDataTable,
   ShowDetailsAction,
   TableItemAction,
-  baseHeaders,
 } from "#layers/core/app/features/settings"
 import { OwnerRefChip } from "#layers/core/app/features/shared"
-import type {
-  CollectionQuery,
-  CollectionQueryResult,
-  ApiKeyOutput,
-} from "@highstate/backend/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

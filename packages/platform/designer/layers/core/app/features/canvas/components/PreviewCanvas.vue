@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ComponentModel, EntityModel, HubModel, InstanceModel } from "@highstate/contract"
-import GenericCanvas from "./GenericCanvas.vue"
 import { createId } from "@paralleldrive/cuid2"
 import { InstanceNode } from "#layers/core/app/features/instance-node"
+import GenericCanvas from "./GenericCanvas.vue"
 import HubNode from "./HubNode.vue"
 
 const emit = defineEmits<{
@@ -40,6 +40,7 @@ const init = async (canvasStore: CanvasStore) => {
 
   for (const instance of instances) {
     const component = components[instance.type]
+
     setInputResolverInput(`instance:${instance.id}`, {
       kind: "instance",
       instance,

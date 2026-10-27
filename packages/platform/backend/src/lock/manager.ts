@@ -79,9 +79,9 @@ export class LockManager {
    */
   public async acquire<T>(keys: LockKey | LockKey[], fn: () => Promise<T> | T): Promise<T> {
     if (typeof keys[0] === "string") {
-      return this.lockBackend.acquire([keys.join(":")], fn)
+      return await this.lockBackend.acquire([keys.join(":")], fn)
     }
 
-    return this.lockBackend.acquire(keys.map(join(":")), fn)
+    return await this.lockBackend.acquire(keys.map(join(":")), fn)
   }
 }

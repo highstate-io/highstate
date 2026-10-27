@@ -81,6 +81,7 @@ export class ProjectEvaluationSubsystem {
       await this.projectModelService.resolveProject(projectId)
 
     const instancesMap = new Map<string, InstanceModel>()
+
     for (const instance of instances) {
       instancesMap.set(instance.id, instance)
     }
@@ -91,13 +92,13 @@ export class ProjectEvaluationSubsystem {
 
     try {
       const virtualComponents = await this.libraryService.getVirtualComponentsCore(project.id)
+
       const result = await this.libraryBackend.evaluateCompositeInstances(
         project.libraryId,
         virtualComponents,
         instances,
         resolvedInputs,
       )
-
       if (result.success) {
         // create evaluation tree for success messages
         const treeNodes = ProjectEvaluationSubsystem.createEvaluatedInstanceTree(
@@ -246,6 +247,7 @@ export class ProjectEvaluationSubsystem {
       const existingStateById = new Map(existingStates.map(state => [state.stateId, state]))
 
       const newStates = states.filter(state => !existingStateIds.has(state.stateId))
+
       const statesToUpdate = states.filter(state => {
         const existingState = existingStateById.get(state.stateId)
         if (!existingState) {
@@ -258,6 +260,7 @@ export class ProjectEvaluationSubsystem {
           stableJsonStringify(existingState.model) !== stableJsonStringify(state.model)
         )
       })
+
       const statesToDelete = existingStates.filter(state => {
         if (actualStateIds.has(state.stateId)) {
           return false
@@ -329,6 +332,7 @@ export class ProjectEvaluationSubsystem {
       )
 
       const newGhostInstances: InstanceModel[] = []
+
       for (const [stateId, state] of currentGhostStates) {
         if (previousGhostStates.has(stateId)) {
           continue
@@ -340,6 +344,7 @@ export class ProjectEvaluationSubsystem {
       }
 
       const resolvedGhostInstanceIds: InstanceId[] = []
+
       for (const [stateId, state] of previousGhostStates) {
         if (!currentGhostStates.has(stateId)) {
           resolvedGhostInstanceIds.push(state.instanceId as InstanceId)
@@ -349,6 +354,7 @@ export class ProjectEvaluationSubsystem {
       const updatedVirtualInstances = [...newStates, ...updatedStates]
         .map(state => state.model as InstanceModel)
         .filter(isNonNullish)
+
       const deletedVirtualInstanceIds = statesToDelete.map(state => state.state.instanceId)
       const updatedGhostInstances = newGhostInstances.filter(isNonNullish)
 
@@ -386,7 +392,6 @@ export class ProjectEvaluationSubsystem {
         where: { id: projectId },
         select: { id: true, libraryId: true },
       })
-
       if (!project) {
         this.logger.warn({ projectId }, "project not found, cannot track")
         return
@@ -395,6 +400,7 @@ export class ProjectEvaluationSubsystem {
       const controller = new AbortController()
 
       this.projectWatchers.set(projectId, controller)
+
       this.logger.debug(
         { projectId, libraryId: project.libraryId },
         "tracking unlocked project for library reload evaluations",
@@ -447,7 +453,6 @@ export class ProjectEvaluationSubsystem {
       treeNodes.set(instance.id, node)
 
       const parentNode = instance.parentId ? treeNodes.get(instance.parentId) : undefined
-
       if (parentNode) {
         parentNode.children.push(node)
       }

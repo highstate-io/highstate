@@ -39,7 +39,13 @@ export function createErrorHandlingInterceptor(services: Services): Interceptor 
           throw new ConnectError("An unexpected error occurred", Code.Internal)
         }
 
-        throw new ConnectError(error.message, code, undefined, backendErrorDetails(error, request))
+        throw new ConnectError(
+          error.message,
+          code,
+          undefined,
+          backendErrorDetails(error, request),
+          error,
+        )
       }
 
       if (error instanceof ConnectError) {

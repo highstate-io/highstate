@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  getSettingsEntityDisplayFromMeta,
-} from "#layers/core/app/features/settings"
-import { ComponentIcon } from "#layers/core/app/features/shared"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   EntityReferenceOutput,
 } from "@highstate/backend/shared"
+import {
+  getSettingsEntityDisplayFromMeta,
+  SettingsDataTable,
+  ShowDetailsAction,
+} from "#layers/core/app/features/settings"
+import { ComponentIcon } from "#layers/core/app/features/shared"
 
 const { projectId, direction, data, loading, hideHeader, height } = defineProps<{
   projectId: string

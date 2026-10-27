@@ -1,7 +1,7 @@
 import type { TerminalSessionOutput } from "@highstate/backend/shared"
+import type { ILinkHandler, Terminal } from "@xterm/xterm"
 import { AttachAddon } from "@xterm/addon-attach"
-import { WebLinksAddon, type ILinkProviderOptions } from "@xterm/addon-web-links"
-import type { Terminal, ILinkHandler } from "@xterm/xterm"
+import { type ILinkProviderOptions, WebLinksAddon } from "@xterm/addon-web-links"
 
 export function useTerminalSession(projectId: string, sessionId: string) {
   const terminal = shallowRef<Terminal | null>(null)
@@ -32,7 +32,7 @@ export function useTerminalSession(projectId: string, sessionId: string) {
         workspaceStore.closeTerminalPanel(projectId, session.value!.id)
         workspaceStore.openTerminalPanel(projectId, newSession.id)
       } else if (isMacOS() ? event.metaKey : event.ctrlKey) {
-        // Open link in a new tab
+        // open link in a new tab
         window.open(uri, "_blank")
       }
     }
@@ -65,7 +65,7 @@ export function useTerminalSession(projectId: string, sessionId: string) {
           if (updatedSession.finishedAt) {
             const formattedDate = new Date(updatedSession.finishedAt).toLocaleString("en-US")
             const closedMessage = `>>> Terminal session finished at ${formattedDate} <<<`
-            const coloredMessage = `\x1b[1m\x1b[33m${closedMessage}\x1b[0m` // Bold and yellow color
+            const coloredMessage = `\x1b[1m\x1b[33m${closedMessage}\x1b[0m` // bold and yellow color
 
             const restartMessage = `>>> Click here to restart <<<`
             const linkedMessage = `\x1b]8;;restart\x1b\\${restartMessage}\x1b]8;;\x1b\\`

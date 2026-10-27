@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  IdTableCell,
-  baseHeaders,
-} from "#layers/core/app/features/settings"
-import { bytesToHumanReadable } from "@highstate/contract"
 import type {
+  ArtifactOutput,
   CollectionQuery,
   CollectionQueryResult,
-  ArtifactOutput,
 } from "@highstate/backend/shared"
+import { bytesToHumanReadable } from "@highstate/contract"
+import {
+  baseHeaders,
+  IdTableCell,
+  SettingsDataTable,
+  ShowDetailsAction,
+} from "#layers/core/app/features/settings"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

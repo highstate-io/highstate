@@ -111,6 +111,7 @@ function getArtifactParamOrder(file: ArtifactFile, params: ArtifactParams): stri
     ...getArtifactUrlParamOrder(file.url),
     ...(file.path ? getArtifactUrlParamOrder(file.path) : []),
   ]
+
   const names: string[] = []
 
   for (const name of templateNames) {
@@ -168,6 +169,7 @@ export function resolveArtifactFile(file: ArtifactFile, params: ArtifactParams =
     }
 
     constraints.set(name, [value])
+
     if (paramOrder.includes(name)) {
       url = replaceUrlParam(url, name, mapParamValue(file, name, value))
     }
@@ -298,7 +300,6 @@ async function downloadArtifactContent(url: string, sha256: string): Promise<Buf
 
   const content = Buffer.from(await response.arrayBuffer())
   const actualSha256 = createHash("sha256").update(content).digest("hex")
-
   if (actualSha256 !== sha256) {
     throw new Error(`SHA256 mismatch for artifact from "${url}"`)
   }

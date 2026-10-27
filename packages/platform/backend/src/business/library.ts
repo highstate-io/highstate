@@ -70,6 +70,7 @@ export class LibraryService {
       this.getExportTargets(projectId),
       this.getImportPorts(projectId),
     ])
+
     const privateKey = await this.projectUnlockBackend.getProjectPrivateKey(projectId)
 
     const components: Record<string, ComponentModel> = {}
@@ -124,6 +125,7 @@ export class LibraryService {
         }),
       this.getVirtualComponentsCore(projectId, signal),
     ])
+
     const virtualEntities = this.getVirtualEntities()
 
     if (!project) {
@@ -216,12 +218,14 @@ export class LibraryService {
     const library = await this.getLibraryModelCore(context.projectId, signal)
     const collection = "components"
     const query = { projectId: context.projectId }
+
     const { pageSize, cursor } = resolvePageRequest(
       collection,
       page,
       query,
       z.object({ type: z.string().min(1) }),
     )
+
     const components = Object.values(library.components)
       .filter(component => !cursor || component.type > cursor.type)
       .sort((left, right) => left.type.localeCompare(right.type))
@@ -360,6 +364,7 @@ export class LibraryService {
     if (!payloadContent) {
       return null
     }
+
     try {
       const payload = projectImportPortDataSchema.parse(JSON.parse(payloadContent))
 
@@ -398,6 +403,7 @@ export class LibraryService {
         { error },
         "failed to decrypt project import port payload for virtual model",
       )
+
       return null
     }
   }

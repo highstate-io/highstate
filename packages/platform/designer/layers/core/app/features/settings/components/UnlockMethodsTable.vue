@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  baseHeaders,
-} from "#layers/core/app/features/settings"
-import { StatusChip, unlockMethodTypeMap } from "#layers/core/app/features/shared"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   UnlockMethodOutput,
 } from "@highstate/backend/shared"
+import {
+  baseHeaders,
+  SettingsDataTable,
+  ShowDetailsAction,
+} from "#layers/core/app/features/settings"
+import { StatusChip, unlockMethodTypeMap } from "#layers/core/app/features/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

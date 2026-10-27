@@ -143,7 +143,7 @@ export type Services = {
   readonly unitOutputService: UnitOutputService
 }
 
-export interface CreateServicesOptions {
+export type CreateServicesOptions = {
   /**
    * The config to use. If not provided, it will be loaded from the environment.
    */
@@ -268,22 +268,28 @@ export async function createServices({
     database,
     logger.child({ service: "BackendUnlockService" }),
   )
+
   backendRoleSettingsService ??= new BackendRoleSettingsService(database)
+
   backendServiceAccountSettingsService ??= new BackendServiceAccountSettingsService(
     database,
     projectUnlockBackend,
     backendRoleSettingsService,
   )
+
   backendApiKeySettingsService ??= new BackendApiKeySettingsService(
     database,
     backendRoleSettingsService,
     backendServiceAccountSettingsService,
   )
+
   projectRoleSettingsService ??= new ProjectRoleSettingsService(database)
+
   projectServiceAccountSettingsService ??= new ProjectServiceAccountSettingsService(
     database,
     projectRoleSettingsService,
   )
+
   projectApiKeySettingsService ??= new ProjectApiKeySettingsService(
     database,
     projectRoleSettingsService,
@@ -310,6 +316,7 @@ export async function createServices({
     objectRefIndexService,
     logger.child({ service: "SecretService" }),
   )
+
   sessionService ??= new TerminalSessionService(database)
 
   runnerBackend ??= await createRunnerBackend(
@@ -366,6 +373,7 @@ export async function createServices({
   apiKeyService ??= new ApiKeyService(database, logger.child({ service: "ApiKeyService" }))
 
   terminalBackend ??= createTerminalBackend(config, logger)
+
   terminalManager ??= TerminalManager.create(
     terminalBackend,
     database,
@@ -376,6 +384,7 @@ export async function createServices({
   )
 
   workerBackend ??= createWorkerBackend(config, logger)
+
   workerManager ??= new WorkerManager(
     config,
     runtimeId,

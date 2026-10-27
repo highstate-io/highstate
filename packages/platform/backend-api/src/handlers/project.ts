@@ -7,6 +7,7 @@ export function createProjectService(services: Services): ServiceImpl<typeof Pro
   return {
     async getProject(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const [project, unlockState] = await Promise.all([
         services.projectService.getProjectOrThrowCore(requestContext.projectId),
         services.projectUnlockService.getProjectUnlockStateCore(requestContext.projectId),
@@ -20,10 +21,12 @@ export function createProjectService(services: Services): ServiceImpl<typeof Pro
 
     async listProjects(request, context) {
       const requestContext = await authenticateBackend(services, context)
+
       const result = await services.projectService.getProjects(requestContext, {
         pageSize: request.pageSize,
         pageToken: request.pageToken,
       })
+
       const projects = await Promise.all(
         result.items.map(async project => {
           const unlockState = await services.projectUnlockService.getProjectUnlockStateCore(

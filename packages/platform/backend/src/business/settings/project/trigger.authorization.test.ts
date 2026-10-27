@@ -10,6 +10,7 @@ describe("TriggerSettingsService authorization", () => {
     await expect(
       service.query(createProjectRequestContext(project.id), { pageSize: 1 }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.query(
         createProjectRequestContext(project.id, grantProjectPermission("trigger.list")),

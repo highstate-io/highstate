@@ -6,6 +6,7 @@ describe("agent documents", () => {
     const result = await readAgentDocuments(["infrastructure-management", "component-authoring"])
 
     expect(result).toMatch(/^<!-- highstate-agent-doc: infrastructure-management -->/)
+
     expect(result.indexOf("# Infrastructure Management")).toBeLessThan(
       result.indexOf("# Component Authoring"),
     )

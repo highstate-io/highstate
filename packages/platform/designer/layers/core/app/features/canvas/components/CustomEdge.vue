@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import type { ComponentModel, EntityModel, InstanceModel } from "@highstate/contract"
 import type { EdgeProps } from "@vue-flow/core"
+import type { RoutedEdgeData } from "../business"
 import {
-  getResolvedInjectionInstanceInputs,
-  getResolvedHubInputs,
-  getResolvedInstanceInputs,
   getMatchedInjectionInstanceInputs,
+  getResolvedHubInputs,
+  getResolvedInjectionInstanceInputs,
+  getResolvedInstanceInputs,
   type InputResolverOutput,
 } from "@highstate/backend/shared"
-import { unique } from "remeda"
 import { useVueFlow } from "@vue-flow/core"
-import type { ComponentModel, EntityModel, InstanceModel } from "@highstate/contract"
-import type { RoutedEdgeData } from "../business"
+import { unique } from "remeda"
+import { computed } from "vue"
 
 const lineWidth = 3
 
@@ -70,6 +70,7 @@ const entityTypes = computed<{
     if (!component) {
       return { all: [] }
     }
+
     const componentInput = component.outputs[inputKey!]
 
     return { all: componentInput ? [componentInput.type] : [] }
@@ -85,6 +86,7 @@ const entityTypes = computed<{
     if (!component) {
       return { all: [], visible }
     }
+
     const componentInput = component.inputs[inputKey]
 
     if (visible.length > 0) {
@@ -130,7 +132,6 @@ const entityTypes = computed<{
         input => input.input.instanceId === outputInstance.id && input.input.output === outputKey,
       )
       .map(input => input.type)
-
     if (resolvedTypes.length > 0) {
       return { all: unique(resolvedTypes) }
     }
@@ -139,6 +140,7 @@ const entityTypes = computed<{
     if (!component) {
       return { all: [] }
     }
+
     const componentOutput = component.outputs[outputKey]
 
     return { all: componentOutput ? [componentOutput.type] : [] }
@@ -199,6 +201,7 @@ const typedInputExpectedTypeForGhost = computed((): string | undefined => {
   if (!component) {
     return undefined
   }
+
   return component.inputs[inputKey!]?.type
 })
 
@@ -224,8 +227,8 @@ const shouldShowHubGhostLane = computed(() => {
     return false
   }
 
-  // Pending typed edges must always show a ghost line.
-  // This makes the edge visible even if the hub-wide reserved lane flag didn't propagate yet.
+  // pending typed edges must always show a ghost line
+  // this makes the edge visible even if the hub-wide reserved lane flag didn't propagate yet
   if (effectiveIsPendingHubTyped.value) {
     return true
   }
@@ -387,7 +390,6 @@ const allLinePoints = computed(() => {
   const endPoint = [targetX, data.routedTargetY ?? targetY]
 
   const points = [...data.points]
-
   if (!points[0] || !comparePoints(points[0], startPoint)) {
     points.unshift(startPoint)
   }
@@ -420,6 +422,7 @@ const expressionLabelPoint = computed(() => {
   ]
 
   let totalLength = 0
+
   for (let i = 1; i < points.length; i++) {
     const previous = points[i - 1]
     const current = points[i]
@@ -437,7 +440,6 @@ const expressionLabelPoint = computed(() => {
     const previous = points[i - 1]
     const current = points[i]
     const segmentLength = Math.hypot(current[0] - previous[0], current[1] - previous[1])
-
     if (traversedLength + segmentLength >= midpoint) {
       const ratio = (midpoint - traversedLength) / segmentLength
       return {

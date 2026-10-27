@@ -98,7 +98,7 @@ export class ResourceToken extends ComponentResource {
 
         return response.token
       } catch (error) {
-        throw new Error(`Failed to parse token creation output: ${error}`)
+        throw new Error(`Failed to parse token creation output: ${error}`, { cause: error })
       }
     })
   }

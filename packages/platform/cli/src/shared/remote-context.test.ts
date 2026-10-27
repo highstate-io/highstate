@@ -51,10 +51,12 @@ describe("remote context configuration", () => {
     )
 
     expect(getRemoteConfigPath(env)).toBe(path)
+
     expect(await readRemoteConfig(env)).toEqual({
       activeContext: "local",
       contexts: { local: { apiUrl: "http://localhost:7283", projectId: "project" } },
     })
+
     expect(await readFile(path, "utf8")).not.toContain("token")
   })
 
@@ -67,6 +69,7 @@ describe("remote context configuration", () => {
     expect(normalizeApiUrl("api.highstate.localhost:3000")).toBe(
       "http://api.highstate.localhost:3000",
     )
+
     expect(normalizeApiUrl("https://api.example.com/")).toBe("https://api.example.com")
     expect(normalizeApiUrl("unix:///var/run/highstate.sock")).toBe("unix:///var/run/highstate.sock")
   })
@@ -113,6 +116,7 @@ describe("remote context configuration", () => {
     await expect(
       getContextToken("main", { apiUrl: "https://example.com", apiToken: "plaintext-token" }),
     ).resolves.toBe("plaintext-token")
+
     expect(keyring.getPassword).not.toHaveBeenCalled()
   })
 
@@ -136,18 +140,21 @@ describe("remote context configuration", () => {
       apiUrl: "https://example.com",
       apiToken: "plaintext-token",
     })
+
     expect(keyring.getPassword).not.toHaveBeenCalled()
   })
 
   it("resolves flags before environment and context values", async () => {
     const path = join("/tmp", `highstate-cli-${crypto.randomUUID()}.json`)
     paths.push(path)
+
     const env = {
       HIGHSTATE_CONFIG_PATH: path,
       HIGHSTATE_API_URL: "https://environment.example.com",
       HIGHSTATE_API_TOKEN: "environment-token",
       HIGHSTATE_PROJECT_ID: "environment-project",
     }
+
     await writeRemoteConfig(
       {
         activeContext: "local",

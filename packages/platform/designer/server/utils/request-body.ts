@@ -7,6 +7,7 @@ export async function readRequestBody(
 
   const reader = stream.getReader()
   const chunks: Uint8Array[] = []
+
   try {
     while (true) {
       const chunk = await reader.read()

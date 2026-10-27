@@ -45,30 +45,37 @@ export async function createMcTunnel(args: McTunnelArgs): Promise<Service> {
     cluster: args.proxyCluster,
     existing: args.proxyNamespace,
   })
+
   const targetNamespace = await Namespace.createOrGet(`${args.name}-target`, {
     name: args.targetNamespaceName ?? args.resourceName,
     cluster: args.targetCluster,
     existing: args.targetNamespace,
   })
+
   const secretName = `netaminity-tunnel-${args.resourceName}`
+
   const proxySecret = Secret.create(`${args.name}-proxy`, {
     name: secretName,
     namespace: proxyNamespace,
     stringData: { secret: args.sharedSecret },
   })
+
   const targetSecret = Secret.create(`${args.name}-target`, {
     name: secretName,
     namespace: targetNamespace,
     stringData: { secret: args.sharedSecret },
   })
+
   const proxies: NetaminityResource[] = []
 
   for (let index = 0; index < args.replicas; index += 1) {
     const childName = `${args.resourceName}-${index}`
+
     const replicaLabels = {
       [tunnelNameLabel]: args.resourceName,
       [tunnelIndexLabel]: String(index),
     }
+
     const proxy = new apiextensions.CustomResource(
       `${args.name}-proxy-${index}`,
       {
@@ -125,6 +132,7 @@ export async function createMcTunnel(args: McTunnelArgs): Promise<Service> {
         provider: getProvider(args.targetCluster),
       },
     )
+
     proxies.push(proxy)
   }
 

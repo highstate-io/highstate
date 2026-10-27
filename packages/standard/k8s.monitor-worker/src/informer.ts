@@ -136,6 +136,7 @@ function createResourceInformer(
     }
     case "PersistentVolumeClaim": {
       const coreApi = kc.makeApiClient(CoreV1Api)
+
       const listFn = () =>
         coreApi.listNamespacedPersistentVolumeClaim({ namespace: resource.metadata.namespace })
 
@@ -156,8 +157,9 @@ function createResourceInformer(
       return informer
     }
     case "Gateway": {
-      // Note: Gateway API resources may require different API groups.
+      // note: Gateway API resources may require different API groups
       const customApi = kc.makeApiClient(CustomObjectsApi)
+
       const listFn = () =>
         customApi.listNamespacedCustomObject({
           group: "gateway.networking.k8s.io",
@@ -185,6 +187,7 @@ function createResourceInformer(
     case "Certificate": {
       // cert-manager certificates.
       const customApi = kc.makeApiClient(CustomObjectsApi)
+
       const listFn = () =>
         customApi.listNamespacedCustomObject({
           group: "cert-manager.io",
@@ -231,6 +234,7 @@ export async function updateInstanceInformers(
   const newInformers = resources.map(resource =>
     createResourceInformer(statusTracker, kc, resource),
   )
+
   const oldInformers = informeres.get(stateId) ?? []
 
   for (const newInformer of newInformers) {

@@ -10,6 +10,7 @@ describe("cursor pagination", () => {
     expect(resolvePageRequest("items", {}, {}, cursorSchema).pageSize).toBe(20)
     expect(resolvePageRequest("items", { pageSize: 0 }, {}, cursorSchema).pageSize).toBe(0)
     expect(resolvePageRequest("items", { pageSize: 101 }, {}, cursorSchema).pageSize).toBe(100)
+
     expect(() => resolvePageRequest("items", { pageSize: -1 }, {}, cursorSchema)).toThrow(
       InvalidPageSizeError,
     )
@@ -17,6 +18,7 @@ describe("cursor pagination", () => {
 
   it("round trips a query-bound cursor", () => {
     const token = encodePageToken("items", { parentId: "parent", filter: "one" }, { id: "item" })
+
     expect(
       resolvePageRequest(
         "items",
@@ -33,9 +35,11 @@ describe("cursor pagination", () => {
     expect(() => resolvePageRequest("other", { pageToken: token }, {}, cursorSchema)).toThrow(
       InvalidPageTokenError,
     )
+
     expect(() =>
       resolvePageRequest("items", { pageToken: token }, { parentId: "other" }, cursorSchema),
     ).toThrow(InvalidPageTokenError)
+
     expect(() => resolvePageRequest("items", { pageToken: "invalid" }, {}, cursorSchema)).toThrow(
       InvalidPageTokenError,
     )
@@ -46,6 +50,7 @@ describe("cursor pagination", () => {
       items: [{ id: "one" }],
       nextPageToken: undefined,
     })
+
     expect(toPageResult([{ id: "one" }, { id: "two" }], 1, item => item.id)).toEqual({
       items: [{ id: "one" }],
       nextPageToken: "one",

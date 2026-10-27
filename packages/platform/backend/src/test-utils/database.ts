@@ -78,7 +78,6 @@ export class TestDatabaseManager implements DatabaseManager {
       where: { id: projectId },
       select: { id: true },
     })
-
     if (project) {
       await ensureAdminProjectBindingCreated(this.backend, client, projectId)
     }
@@ -155,6 +154,7 @@ export class TestDatabaseManager implements DatabaseManager {
 
 async function findWritableTempDir(): Promise<string> {
   const uid = process.getuid?.()
+
   const candidates = ["/run", uid != null ? `/run/user/${uid}` : undefined, "/tmp"].filter(
     (p): p is string => !!p,
   )

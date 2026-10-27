@@ -1,28 +1,27 @@
-import {
-  type ComponentInput,
-  type ComponentModel,
-  type EntityModel,
-  type HubModel,
-  type InstanceInput,
-  type InstanceModel,
-} from "@highstate/contract"
-import {
-  SYSTEM_EXPORT_COMPONENT_TYPE,
-  type InputResolverOutput,
-  resolveEffectiveOutputType,
-} from "@highstate/backend/shared"
-import type { Connection, VueFlowStore } from "@vue-flow/core"
-
-import LayoutWorker from "#layers/core/app/workers/graph-layout?sharedworker"
 import type {
-  InputNode,
+  ComponentInput,
+  ComponentModel,
+  EntityModel,
+  HubModel,
+  InstanceInput,
+  InstanceModel,
+} from "@highstate/contract"
+import type { Connection, VueFlowStore } from "@vue-flow/core"
+import type {
   InputEdge,
+  InputNode,
   LayoutInput,
   LayoutOutput,
   OutputNode,
 } from "#layers/core/app/workers/graph-layout"
+import {
+  type InputResolverOutput,
+  resolveEffectiveOutputType,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
+} from "@highstate/backend/shared"
 import { createId } from "@paralleldrive/cuid2"
 import { createOutputExpressionOptions } from "#layers/core/app/features/output-expression"
+import LayoutWorker from "#layers/core/app/workers/graph-layout?sharedworker"
 
 export const EXPORT_CREATE_INPUT_HANDLE = "__createInput__"
 
@@ -98,7 +97,6 @@ export function waitForLayoutCompletion(vueFlowStore: VueFlowStore): Promise<voi
 export function getConnectionNodes(vueFlowStore: VueFlowStore, connection: Connection) {
   const outputNode = vueFlowStore.findNode(connection.source)
   const inputNode = vueFlowStore.findNode(connection.target)
-
   if (!outputNode || !inputNode) {
     globalLogger.error({ connection, outputNode, inputNode }, "output or input node not found")
 
@@ -160,6 +158,7 @@ export const validateConnection = (
 
     for (const outputName of outputNames) {
       const firstInput = instance.inputs?.[outputName]?.[0]
+
       const sourceOutput = firstInput
         ? inputResolverOutputs.get(`instance:${firstInput.instanceId}`)
         : undefined
@@ -170,6 +169,7 @@ export const validateConnection = (
           : undefined
 
       const instanceResolverOutput = inputResolverOutputs.get(`instance:${instance.id}`)
+
       const fallbackInputType =
         instanceResolverOutput?.kind === "instance"
           ? instanceResolverOutput.component.inputs[outputName]?.type
@@ -231,7 +231,6 @@ export const validateConnection = (
   const inputComponent: ComponentModel | undefined = inputInstance
     ? getInstanceComponent(inputInstance)
     : undefined
-
   if (outputHub && inputComponent && isForwardedSourceInput(inputComponent, inputKey)) {
     // fromInput forwarding requires direct single edge wiring for deterministic type forwarding
     logRejectedConnection("hub_to_forwarded_source_input")
@@ -297,6 +296,7 @@ export const validateConnection = (
       logRejectedConnection("missing_output_entity_for_create_input", {
         outputEntityType,
       })
+
       return false
     }
 
@@ -308,17 +308,18 @@ export const validateConnection = (
       hasOutputComponent: !!outputComponent,
       hasInputComponent: !!inputComponent,
     })
+
     return false
   }
 
   const output = outputComponent.outputs[outputKey]
   const input = inputComponent.inputs[inputKey]
-
   if (!input || !output) {
     logRejectedConnection("missing_handle", {
       hasInputHandle: !!input,
       hasOutputHandle: !!output,
     })
+
     return false
   }
 
@@ -339,6 +340,7 @@ export const validateConnection = (
     logRejectedConnection("missing_output_entity", {
       outputEntityType,
     })
+
     return false
   }
 
@@ -353,6 +355,7 @@ export const validateConnection = (
         outputEntityType,
         inputEntityType: input.type,
       })
+
       return false
     }
   }
@@ -372,6 +375,7 @@ export const validateConnection = (
     logRejectedConnection("single_input_already_connected", {
       inputMultiple: input.multiple,
     })
+
     return false
   }
 
@@ -423,9 +427,9 @@ function resolveEffectiveOutputTypeForConnection(
       }
 
       const outputNode = vueFlowStore.findNode(instanceId)
+
       const producerInstance: InstanceModel | undefined =
         outputNode && "instance" in outputNode.data ? outputNode.data.instance : undefined
-
       if (!producerInstance) {
         return undefined
       }

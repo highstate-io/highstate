@@ -11,6 +11,7 @@ export async function getProvider(connection: Input<minio.Connection>): Promise<
 
   return await getOrCreate(providers, getEntityId(resolvedConnection), async entityId => {
     const endpoint = await resolveEndpoint(resolvedConnection.endpoints)
+
     const ca = resolvedConnection.ca
       ? await MaterializedFile.open(resolvedConnection.ca)
       : undefined

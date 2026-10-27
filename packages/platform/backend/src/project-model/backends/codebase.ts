@@ -146,12 +146,14 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
             { projectId: project.id, instanceId, dryRun },
             "patched instance arguments in project model",
           )
+
           return instance
         },
         !dryRun,
       )
     } catch (error) {
       if (error instanceof ProjectModelError) throw error
+
       throw new ProjectModelOperationError("patch instance arguments", project.id, error)
     }
   }
@@ -298,6 +300,7 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
           if (projectData.instances[instance.id]) {
             throw new ProjectModelInstanceAlreadyExistsError(project.id, instance.id)
           }
+
           projectData.instances[instance.id] = instance
         }
 
@@ -305,6 +308,7 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
           if (projectData.hubs[hub.id]) {
             throw new ProjectModelHubAlreadyExistsError(project.id, hub.id)
           }
+
           projectData.hubs[hub.id] = hub
         }
 
@@ -375,6 +379,7 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
       const projectData = await this.loadProject(projectName)
 
       const result = callback(projectData)
+
       if (persist) {
         await this.writeProject(projectName, projectData)
       }

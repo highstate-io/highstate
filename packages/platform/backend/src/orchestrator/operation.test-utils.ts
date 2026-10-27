@@ -36,7 +36,7 @@ import { type MockedObject, vi } from "vitest"
 import { test } from "../test-utils"
 import { OperationContext } from "./operation-context"
 
-export type Deferred<T> = {
+export interface Deferred<T> {
   promise: Promise<T>
   resolve: (value: T) => void
   reject: (error: unknown) => void
@@ -54,7 +54,7 @@ export function createDeferred<T>(): Deferred<T> {
   return { promise, resolve, reject }
 }
 
-type AsyncQueue<T> = {
+interface AsyncQueue<T> {
   push: (value: T) => void
   shift: () => Promise<T>
 }
@@ -87,7 +87,7 @@ function createAsyncQueue<T>(): AsyncQueue<T> {
   return { push, shift }
 }
 
-export type RunnerTestController = {
+export interface RunnerTestController {
   setAutoCompletion: (enabled: boolean) => void
 
   setUpdateImpl: (impl: (options: UnitUpdateOptions) => Promise<void>) => void
@@ -206,8 +206,8 @@ export const operationTest = test.extend<{
           update.operationType ?? lastOperationTypeByStateId.get(stateId) ?? "update"
 
         const rawOutputs = update.rawOutputs ?? {
-          // Note: tests generally don't care about actual Pulumi outputs.
-          // Provide a non-empty object so business parsing can run if needed.
+          // note: tests generally don't care about actual Pulumi outputs
+          // provide a non-empty object so business parsing can run if needed
           $test: { value: true },
         }
 
@@ -280,9 +280,8 @@ export const operationTest = test.extend<{
   runner: async ({ runnerBackend }, use) => {
     const controller = (runnerBackend as unknown as { __testController?: RunnerTestController })
       .__testController
-
     if (!controller) {
-      throw new Error("runner test controller was not initialized")
+      throw new Error("Runner test controller was not initialized")
     }
 
     await use(controller)
@@ -646,6 +645,7 @@ export const operationTest = test.extend<{
       const instanceByStateId = new Map<string, InstanceModel>(
         input.instances.map(instance => [instance.id, instance]),
       )
+
       const lastStatusByStateId = new Map<string, InstanceOperationStatus>()
 
       instanceStateService.createOperationStates.mockImplementation(async (_projectId, tuples) => {
@@ -681,7 +681,7 @@ export const operationTest = test.extend<{
 
           const instance = instanceByStateId.get(stateId) ?? input.instances[0]
           if (!instance) {
-            throw new Error("no instances provided to setupPersistenceMocks")
+            throw new Error("No instances provided to setupPersistenceMocks")
           }
 
           return {

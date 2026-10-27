@@ -24,7 +24,6 @@ export function alterAndRetryLink<TRouter extends AnyRouter>(
 
             error(err) {
               const newOp = handler(operation, err)
-
               if (newOp) {
                 const retryUnsubscribe = handleSubscription(newOp)
                 unsubscribes.push(retryUnsubscribe)
@@ -38,7 +37,10 @@ export function alterAndRetryLink<TRouter extends AnyRouter>(
         const unsubscribe = handleSubscription(op)
         unsubscribes.push(unsubscribe)
 
-        return () => unsubscribes.forEach(unsub => unsub.unsubscribe())
+        return () =>
+          unsubscribes.forEach(unsub => {
+            unsub.unsubscribe()
+          })
       })
     }
   }

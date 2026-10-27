@@ -20,7 +20,6 @@ export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
       endpoint =>
         isEndpointFromCluster(endpoint, cluster) && endpoint.metadata["k8s.service"].isInternal,
     )
-
     if (clusterEndpoint) {
       return clusterEndpoint
     }
@@ -54,7 +53,6 @@ export function requireBestEndpoint<TEndpoint extends network.L3Endpoint>(
   cluster?: k8s.Cluster,
 ): TEndpoint {
   const endpoint = getBestEndpoint(endpoints, cluster)
-
   if (!endpoint) {
     if (cluster) {
       throw new Error(`No best endpoint found for cluster "${cluster.name}" (${cluster.id})`)

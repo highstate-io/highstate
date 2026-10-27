@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { ResolvedInstanceInput } from "@highstate/backend/shared"
 import type { ComponentModel, EntityModel, InstanceInput, InstanceModel } from "@highstate/contract"
 import type { ValidConnectionFunc } from "@vue-flow/core"
 import InstanceNodeIOSide from "./InstanceNodeIOSide.vue"
-import type { ResolvedInstanceInput } from "@highstate/backend/shared"
 
 const { type = "both" } = defineProps<{
   instance: InstanceModel

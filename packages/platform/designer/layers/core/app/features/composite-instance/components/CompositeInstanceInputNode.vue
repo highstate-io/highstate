@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { InstanceModel } from "@highstate/contract"
-import { InstanceNode } from "#layers/core/app/features/instance-node"
-import { InstanceContextMenu } from "#layers/core/app/features/instance-context-menu"
-import { InstanceStatusBadge } from "#layers/core/app/features/instance-status"
 import type { NodeProps } from "@vue-flow/core"
 import type { InstanceNodeData } from "#layers/core/app/features/canvas"
+import { InstanceContextMenu } from "#layers/core/app/features/instance-context-menu"
+import { InstanceNode } from "#layers/core/app/features/instance-node"
+import { InstanceStatusBadge } from "#layers/core/app/features/instance-status"
 
 const { instance } = defineProps<
   NodeProps<InstanceNodeData> & {

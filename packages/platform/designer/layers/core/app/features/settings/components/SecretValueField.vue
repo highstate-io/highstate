@@ -33,6 +33,7 @@ const toggleSecretVisibility = async () => {
       projectId: props.projectId,
       secretId: props.secretId,
     })
+
     isRevealed.value = true
   } catch (error) {
     console.error("Failed to reveal secret:", error)
@@ -50,6 +51,7 @@ const copySecretValue = async () => {
 
   try {
     let textToCopy: string
+
     if (typeof secretValue.value === "string") {
       textToCopy = secretValue.value
     } else {
@@ -69,6 +71,7 @@ const copySecretValue = async () => {
  */
 const showSecretInDialog = () => {
   if (secretValue.value === undefined || secretValue.value === null) return
+
   showJsonDialog.value = true
 }
 

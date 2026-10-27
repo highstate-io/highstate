@@ -138,6 +138,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
       () => Promise.resolve(), // project will be created later
       logger,
     )
+
     await ensureProjectWellKnownEntitiesCreated(database)
 
     this.projectDatabases.set(projectId, database)
@@ -161,7 +162,6 @@ export class DatabaseManagerImpl implements DatabaseManager {
         where: { id: projectId },
         select: { databaseVersion: true },
       })
-
       if (!project) {
         throw new ProjectNotFoundError(projectId)
       }
@@ -183,17 +183,18 @@ export class DatabaseManagerImpl implements DatabaseManager {
         },
         logger,
       )
+
       await ensureProjectWellKnownEntitiesCreated(database)
 
       return database
     })
-
     if (!database) {
       // open database if was not migrated in the transaction
       const _database = await this.projectDatabaseBackend.openProjectDatabase(
         projectId,
         hexMasterKey,
       )
+
       await ensureProjectWellKnownEntitiesCreated(_database)
 
       database = _database

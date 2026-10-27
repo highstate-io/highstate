@@ -32,7 +32,7 @@ function parseInclusionPath(path: string): ParsedPathSegment[] {
   return segments.map(segment => {
     const match = /^([^.[\]]+)$/.exec(segment)
     if (!match) {
-      throw new Error(`Invalid input path segment "${segment}". Expected format "field".`)
+      throw new Error(`Invalid input path segment "${segment}". Expected format "field"`)
     }
 
     return {
@@ -54,7 +54,7 @@ function resolveInclusionPath(options: {
     const inclusion = current.inclusions?.find(inc => inc.field === segment.field)
     if (!inclusion) {
       throw new Error(
-        `Invalid input path "${options.path}": inclusion "${segment.field}" is not defined on entity "${current.type}".`,
+        `Invalid input path "${options.path}": inclusion "${segment.field}" is not defined on entity "${current.type}"`,
       )
     }
 
@@ -63,7 +63,7 @@ function resolveInclusionPath(options: {
     const nextEntity = options.library.entities[inclusion.type]
     if (!nextEntity) {
       throw new Error(
-        `Invalid input path "${options.path}": entity type "${inclusion.type}" is not defined in the library.`,
+        `Invalid input path "${options.path}": entity type "${inclusion.type}" is not defined in the library`,
       )
     }
 
@@ -88,12 +88,11 @@ function extractByInclusionPath(options: {
     for (const value of currentValues) {
       if (typeof value !== "object" || value === null) {
         throw new Error(
-          `Cannot extract inclusion path "${options.path}" from non-object output "${options.outputName}" of instance "${options.instanceId}".`,
+          `Cannot extract inclusion path "${options.path}" from non-object output "${options.outputName}" of instance "${options.instanceId}"`,
         )
       }
 
       const extracted = (value as Record<string, unknown>)[step.field]
-
       if (extracted === undefined || extracted === null) {
         continue
       }
@@ -101,7 +100,7 @@ function extractByInclusionPath(options: {
       if (step.multiple) {
         if (!Array.isArray(extracted)) {
           throw new Error(
-            `Expected inclusion field "${step.field}" on output "${options.outputName}" to be an array while resolving path "${options.path}".`,
+            `Expected inclusion field "${step.field}" on output "${options.outputName}" to be an array while resolving path "${options.path}"`,
           )
         }
 
@@ -183,7 +182,7 @@ export function resolveUnitInputValues(options: ResolveUnitInputValuesOptions): 
     const targetType = inclusionSteps.at(-1)?.type
     if (!targetType) {
       throw new Error(
-        `Invalid input path "${explicitPath}" for output "${options.resolvedInput.input.output}": no inclusion steps resolved.`,
+        `Invalid input path "${explicitPath}" for output "${options.resolvedInput.input.output}": no inclusion steps resolved`,
       )
     }
 
@@ -194,7 +193,7 @@ export function resolveUnitInputValues(options: ResolveUnitInputValuesOptions): 
 
     if (!isEntityAssignableTo(targetEntity, options.resolvedInput.type)) {
       throw new Error(
-        `Cannot use output "${options.resolvedInput.input.output}" path "${explicitPath}" of type "${effectiveRootOutputType}" from instance "${options.resolvedInput.input.instanceId}" for input "${options.inputName}" of type "${options.resolvedInput.type}": resolved path type is "${targetEntity.type}".`,
+        `Cannot use output "${options.resolvedInput.input.output}" path "${explicitPath}" of type "${effectiveRootOutputType}" from instance "${options.resolvedInput.input.instanceId}" for input "${options.inputName}" of type "${options.resolvedInput.type}": resolved path type is "${targetEntity.type}"`,
       )
     }
 
@@ -244,12 +243,11 @@ export function resolveUnitInputValues(options: ResolveUnitInputValuesOptions): 
   for (const value of capturedValues) {
     if (typeof value !== "object" || value === null) {
       throw new Error(
-        `Cannot extract field "${inclusion.field}" from non-object output "${options.resolvedInput.input.output}" of instance "${options.resolvedInput.input.instanceId}".`,
+        `Cannot extract field "${inclusion.field}" from non-object output "${options.resolvedInput.input.output}" of instance "${options.resolvedInput.input.instanceId}"`,
       )
     }
 
     const extracted = (value as Record<string, unknown>)[inclusion.field]
-
     if (extracted === undefined || extracted === null) {
       continue
     }
@@ -257,13 +255,14 @@ export function resolveUnitInputValues(options: ResolveUnitInputValuesOptions): 
     if (inclusion.multiple) {
       if (!Array.isArray(extracted)) {
         throw new Error(
-          `Expected inclusion field "${inclusion.field}" on output "${options.resolvedInput.input.output}" to be an array.`,
+          `Expected inclusion field "${inclusion.field}" on output "${options.resolvedInput.input.output}" to be an array`,
         )
       }
 
       for (const item of extracted) {
         extractedValues.push(item)
       }
+
       continue
     }
 

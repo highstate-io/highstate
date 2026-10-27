@@ -33,6 +33,7 @@ describe("Operation - Composite", () => {
     }) => {
       // arrange
       const composite = createComposite("Parent")
+
       const child = {
         ...createUnit("Child"),
         parentId: composite.id,
@@ -45,6 +46,7 @@ describe("Operation - Composite", () => {
         instances: [composite, child],
         states: [compositeState, childState],
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [composite, child] })
 
@@ -52,6 +54,7 @@ describe("Operation - Composite", () => {
 
       const updateStarted = createDeferred<void>()
       const updateDeferred = createDeferred<void>()
+
       runner.setUpdateImpl(async () => {
         updateStarted.resolve(undefined)
         await updateDeferred.promise
@@ -94,6 +97,7 @@ describe("Operation - Composite", () => {
         return instanceStateService.updateOperationState.mock.calls.some(call => {
           const stateId = call[1]
           const options = call[3]
+
           if (stateId !== composite.id) {
             return false
           }
@@ -121,6 +125,7 @@ describe("Operation - Composite", () => {
       await operatePromise
 
       expect(compositeWasFinalized()).toBe(true)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,
@@ -158,11 +163,14 @@ describe("Operation - Composite", () => {
     }) => {
       // arrange
       const grandParent = createComposite("GrandParent")
+
       const parent = {
         ...createComposite("Parent"),
         parentId: grandParent.id,
       }
+
       const oldParent = createComposite("OldParent")
+
       const child = {
         ...createUnit("Child"),
         parentId: parent.id,
@@ -194,7 +202,7 @@ describe("Operation - Composite", () => {
           }
 
           if (!baseUpdateMock) {
-            throw new Error("updateOperationState base mock is not initialized")
+            throw new Error("UpdateOperationState base mock is not initialized")
           }
 
           return await baseUpdateMock(projectId, stateId, operationId, options)
@@ -244,6 +252,7 @@ describe("Operation - Composite", () => {
       )
 
       expect(recalculatedOldParent).toBe(false)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,
@@ -281,14 +290,17 @@ describe("Operation - Composite", () => {
     }) => {
       // arrange
       const grandParent = createComposite("GrandParent")
+
       const parent = {
         ...createComposite("Parent"),
         parentId: grandParent.id,
       }
+
       const child = {
         ...createUnit("Child"),
         parentId: parent.id,
       }
+
       const ghostChild = {
         ...createUnit("GhostChild"),
         parentId: parent.id,
@@ -303,6 +315,7 @@ describe("Operation - Composite", () => {
         instances: [grandParent, parent, child],
         states: [grandParentState, parentState, childState, ghostChildState],
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [grandParent, parent, child, ghostChild] })
 
@@ -398,10 +411,12 @@ describe("Operation - Composite", () => {
     }) => {
       // arrange
       const grandParent = createComposite("GrandParent")
+
       const parent = {
         ...createComposite("Parent"),
         parentId: grandParent.id,
       }
+
       const ghostChild = {
         ...createUnit("GhostChild"),
         parentId: parent.id,
@@ -415,6 +430,7 @@ describe("Operation - Composite", () => {
         instances: [grandParent, parent],
         states: [grandParentState, parentState, ghostChildState],
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances: [grandParent, parent, ghostChild] })
 
@@ -508,6 +524,7 @@ describe("Operation - Composite", () => {
       const grandParent = createComposite("GrandParent")
       const composite = { ...createComposite("Parent"), parentId: grandParent.id }
       const failingUnit = { ...createUnit("Failing"), parentId: composite.id }
+
       const cancelledUnit = {
         ...createUnit("Cancelled"),
         parentId: composite.id,
@@ -515,18 +532,20 @@ describe("Operation - Composite", () => {
           dependency: [{ instanceId: failingUnit.id, output: "value" }],
         },
       }
+
       const instances = [grandParent, composite, failingUnit, cancelledUnit]
 
       await createContext({
         instances,
         states: instances.map(createDeployedUnitState),
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances })
 
       runnerBackend.update.mockImplementation(async input => {
         if (input.instanceName === "Failing") {
-          throw new Error("primary failure")
+          throw new Error("Primary failure")
         }
       })
 
@@ -572,6 +591,7 @@ describe("Operation - Composite", () => {
           .filter(([, , , options]) => options.operationState?.finishedAt != null)
           .map(([, stateId, , options]) => [stateId, options.operationState?.status]),
       )
+
       expect(finalStatuses.get(failingUnit.id)).toBe("failed")
       expect(finalStatuses.get(cancelledUnit.id)).toBe("cancelled")
       expect(finalStatuses.get(composite.id)).toBe("failed")
@@ -581,11 +601,13 @@ describe("Operation - Composite", () => {
         const compositeLogs = operationService.appendLog.mock.calls.filter(
           ([, , stateId]) => stateId === compositeId,
         )
+
         expect(compositeLogs).toHaveLength(1)
         expect(compositeLogs[0]?.[3]).toContain(`Unit "${failingUnit.id}" failed first`)
-        expect(compositeLogs[0]?.[3]).toContain("primary failure")
+        expect(compositeLogs[0]?.[3]).toContain("Primary failure")
         expect(compositeLogs[0]?.[3]).not.toContain(cancelledUnit.id)
       }
+
       expect(operationService.updateOperation).toHaveBeenCalledWith(
         project.id,
         operation.id,
@@ -631,14 +653,17 @@ describe("Operation - Composite", () => {
         instances,
         states: instances.map(createDeployedUnitState),
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances })
 
       runner.setAutoCompletion(false)
       const bothUnitsStarted = createDeferred<void>()
       let startedUnitCount = 0
+
       runner.setUpdateImpl(async () => {
         startedUnitCount++
+
         if (startedUnitCount === 2) {
           bothUnitsStarted.resolve()
         }
@@ -687,6 +712,7 @@ describe("Operation - Composite", () => {
       const compositeLog = operationService.appendLog.mock.calls.find(
         ([, , stateId]) => stateId === composite.id,
       )?.[3]
+
       expect(compositeLog).toContain(`Unit "${firstUnit.id}" failed first`)
       expect(compositeLog).toContain(`Unit "${firstUnit.id}" failed`)
       expect(compositeLog).toContain("first error")

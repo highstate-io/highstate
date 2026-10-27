@@ -41,7 +41,11 @@ for (const project of projects) {
     cwd: root,
     stdout: "pipe",
   })
-  const configuration = JSON.parse(await new Response(show.stdout).text()) as { root: string; targets?: { build?: unknown } }
+
+  const configuration = JSON.parse(await new Response(show.stdout).text()) as {
+    root: string
+    targets?: { build?: unknown }
+  }
   if (
     (await show.exited) !== 0 ||
     !configuration.targets?.build ||

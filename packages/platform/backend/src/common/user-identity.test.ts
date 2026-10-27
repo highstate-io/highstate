@@ -12,6 +12,7 @@ describe("global user identities", () => {
     expect(getOidcUserGroupId("https://issuer.example", "admins")).toBe(
       getOidcUserGroupId("https://issuer.example", "admins"),
     )
+
     expect(getOidcUserGroupId("https://issuer.example", "admins")).not.toBe(
       getOidcUserId("https://issuer.example", "admins"),
     )

@@ -46,11 +46,11 @@ export class OperationSettingsService {
 
   async get(context: ProjectRequestContext, operationId: string): Promise<OperationOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const operation = await database.operation.findUnique({
       where: { id: operationId },
       select: forSchema(operationOutputSchema),
     })
-
     if (!operation) {
       return null
     }
@@ -67,10 +67,10 @@ export class OperationSettingsService {
 
     const search = query.search.toLowerCase()
     const OR: OperationWhereInput[] = [{ meta: { path: "title", string_contains: query.search } }]
+
     const types = ["update", "preview", "destroy", "recreate", "refresh"].filter(type =>
       type.includes(search),
     ) as OperationType[]
-
     if (types.length > 0) {
       OR.push({ type: { in: types } })
     }

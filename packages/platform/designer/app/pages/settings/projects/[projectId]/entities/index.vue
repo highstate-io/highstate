@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SettingsListPage, EntitiesTable } from "#layers/core/app/features/settings"
+import { EntitiesTable, SettingsListPage } from "#layers/core/app/features/settings"
 
 const { projectStore } = useProjectStores()
 const settingsStore = useProjectEntitySettingsStore()

@@ -26,9 +26,11 @@ definePageMeta({
 })
 async function save(input: ProjectRoleInput): Promise<void> {
   saving.value = true
+
   try {
     const role = await roleStore.create(input)
     dialogVisible.value = false
+
     await router.push({
       name: "settings.project-role-details",
       params: { projectId: params.projectId, roleId: role.id },
@@ -43,7 +45,9 @@ function confirmDelete(role: ProjectRoleOutput): void {
 }
 async function remove(): Promise<void> {
   if (!roleToDelete.value) return
+
   deleting.value = true
+
   try {
     await roleStore.delete(roleToDelete.value.id)
     deleteDialogVisible.value = false

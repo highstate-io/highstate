@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Terminal } from "@xterm/xterm"
-import { GenericTerminal } from "#layers/core/app/features/terminals"
 import { decodeTime } from "ulid"
+import { GenericTerminal } from "#layers/core/app/features/terminals"
 
 const { projectId, workerVersionId } = defineProps<{
   projectId: string

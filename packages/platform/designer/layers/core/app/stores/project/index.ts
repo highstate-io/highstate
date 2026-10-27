@@ -1,10 +1,3 @@
-import { useProjectStore } from "./project"
-import { useProjectInstancesStore } from "./instances"
-import { useProjectOperationsStore } from "./operations"
-import { useProjectStateStore } from "./state"
-import { useProjectInfoStore } from "./info"
-import { useProjectLibraryStore } from "./library"
-import { useProjectValidationStore } from "./validation"
 import {
   useProjectApiKeySettingsStore,
   useProjectArtifactSettingsStore,
@@ -20,6 +13,13 @@ import {
   useProjectUnlockMethodSettingsStore,
   useProjectWorkerSettingsStore,
 } from "../settings/project"
+import { useProjectInfoStore } from "./info"
+import { useProjectInstancesStore } from "./instances"
+import { useProjectLibraryStore } from "./library"
+import { useProjectOperationsStore } from "./operations"
+import { useProjectStore } from "./project"
+import { useProjectStateStore } from "./state"
+import { useProjectValidationStore } from "./validation"
 
 export function useProjectStores() {
   return {

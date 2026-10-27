@@ -1,7 +1,7 @@
-import type { ComponentModel, EntityModel, Component } from "@highstate/contract"
+import type { Component, ComponentModel, EntityModel } from "@highstate/contract"
 import { isComponent } from "@highstate/contract"
 
-interface LibraryData {
+type LibraryData = {
   components: Record<string, ComponentModel>
   entities: Record<string, EntityModel>
 }
@@ -12,7 +12,7 @@ interface LibraryData {
  */
 export async function loadLibrary(): Promise<LibraryData> {
   const library = await import("@highstate/library")
-  
+
   const components: Record<string, ComponentModel> = {}
   const entities: Record<string, EntityModel> = {}
 
@@ -22,18 +22,19 @@ export async function loadLibrary(): Promise<LibraryData> {
 }
 
 async function _traverseLibrary(
-  value: unknown, 
+  value: unknown,
   components: Record<string, ComponentModel>,
-  entities: Record<string, EntityModel>
+  entities: Record<string, EntityModel>,
 ): Promise<void> {
   if (isComponent(value)) {
     const component = value as Component
     components[component.model.type] = component.model
-    
+
     // collect entities from this component
     for (const entity of component.entities.values()) {
       entities[entity.type] = entity.model
     }
+
     return
   }
 
@@ -50,6 +51,7 @@ async function _traverseLibrary(
     for (const item of value) {
       await _traverseLibrary(item, components, entities)
     }
+
     return
   }
 

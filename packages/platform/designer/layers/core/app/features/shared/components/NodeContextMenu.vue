@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useNode, type GraphNode } from "@vue-flow/core"
-import GenericContextMenu from "./GenericContextMenu.vue"
+import { type GraphNode, useNode } from "@vue-flow/core"
 import ContextMenuItem from "./ContextMenuItem.vue"
+import GenericContextMenu from "./GenericContextMenu.vue"
 
 const { title, subtitle, isDeletable } = defineProps<{
   title: string

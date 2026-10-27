@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { DockviewVue, type DockviewReadyEvent } from "dockview-vue"
 import { themeDark } from "dockview-core"
-import { CustomTab, GenericPanel } from "#layers/core/app/features/shared"
+import { type DockviewReadyEvent, DockviewVue } from "dockview-vue"
 import { GlobalSearchCommandPalette } from "#layers/core/app/features/global-search"
 import { LayoutResetButton } from "#layers/core/app/features/main-menu"
+import { CustomTab, GenericPanel } from "#layers/core/app/features/shared"
 
 const initialized = ref(false)
 const workspaceStore = useWorkspaceStore()

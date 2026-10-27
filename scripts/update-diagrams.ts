@@ -47,7 +47,6 @@ async function main(): Promise<void> {
 
   const original = await fs.readFile(docPath, "utf8")
   const blocks = extractBlocks(original)
-
   if (blocks.length === 0) {
     console.warn("No dependency graph blocks found.")
     return
@@ -81,9 +80,9 @@ function extractBlocks(content: string): BlockMatch[] {
   const matches: BlockMatch[] = []
   let match: RegExpExecArray | null
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: each iteration must advance the shared regular expression cursor
   while ((match = BLOCK_PATTERN.exec(content)) !== null) {
     const label = match[1]?.trim()
-
     if (!label) {
       continue
     }
@@ -152,14 +151,12 @@ async function buildGraphForScopes(repoRoot: string, scopes: string[]): Promise<
   for (const pkg of packages.values()) {
     const manifest = pkg.manifest
     const targets = adjacency.get(pkg.name)
-
     if (!targets) {
       continue
     }
 
     for (const field of DEPENDENCY_FIELDS) {
       const fieldDeps = manifest[field]
-
       if (!fieldDeps) {
         continue
       }
@@ -175,6 +172,7 @@ async function buildGraphForScopes(repoRoot: string, scopes: string[]): Promise<
           }
 
           adjacency.set(depName, new Set())
+
           nodeMeta.set(depName, {
             name: depName,
             external: true,
@@ -233,7 +231,6 @@ async function collectPackages(scopePath: string): Promise<PackageInfo[]> {
     }
 
     const name = dirent.name
-
     if (name === "node_modules" || name.startsWith(".")) {
       continue
     }
@@ -280,7 +277,6 @@ async function collectPackagesFromDirectory(directory: string): Promise<PackageI
     }
 
     const childName = dirent.name
-
     if (childName === "node_modules" || childName.startsWith(".")) {
       continue
     }
@@ -348,7 +344,6 @@ function hasAlternatePath(
   const queue: string[] = []
 
   const directNeighbors = graph.get(source)
-
   if (directNeighbors) {
     for (const neighbor of directNeighbors) {
       if (neighbor === target) {
@@ -364,13 +359,11 @@ function hasAlternatePath(
 
   while (queue.length > 0) {
     const current = queue.shift()!
-
     if (current === target) {
       return true
     }
 
     const neighbors = graph.get(current)
-
     if (!neighbors) {
       continue
     }
@@ -418,7 +411,6 @@ function formatBlock(label: string, graph: Graph): string {
 
   for (const group of sortedGroups) {
     const shouldRender = group.force || group.nodes.length > 1
-
     if (!shouldRender) {
       continue
     }

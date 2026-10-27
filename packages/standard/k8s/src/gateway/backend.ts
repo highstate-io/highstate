@@ -2,7 +2,7 @@ import type { core } from "@pulumi/kubernetes"
 import { type Input, type Output, output, type Unwrap } from "@highstate/pulumi"
 import { Service } from "../service"
 
-export interface FullBackendRef {
+export type FullBackendRef = {
   /**
    * The name of the resource being referenced.
    */
@@ -20,7 +20,7 @@ export interface FullBackendRef {
   port: Input<number>
 }
 
-export interface ServiceBackendRef {
+export type ServiceBackendRef = {
   /**
    * The name of the service being referenced.
    */

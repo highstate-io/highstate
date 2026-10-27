@@ -314,7 +314,6 @@ class JobPatch extends Job {
               { template: podTemplate } satisfies types.input.batch.v1.JobSpec,
               omit(args, jobExtraArgs),
             ) as Unwrap<types.input.batch.v1.JobSpec>
-
             if (spec.template) {
               spec.template = filterPatchOwnedContainersInTemplate(spec.template, podTemplate)
             }

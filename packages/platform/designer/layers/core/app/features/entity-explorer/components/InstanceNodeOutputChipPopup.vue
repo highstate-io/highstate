@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { InstanceInput } from "@highstate/contract"
-import type { EntityModel } from "@highstate/contract"
-
+import type { EntityModel, InstanceInput } from "@highstate/contract"
+import type { OutputReferencedEntitySnapshot } from "../business"
 import EntityExplorerCodeEditor from "./EntityExplorerCodeEditor.vue"
-import { type OutputReferencedEntitySnapshot } from "../business"
 import ReferencedEntitiesPopup from "./ReferencedEntitiesPopup.vue"
 
 const { projectId, stateId, output, outputSources, entities } = defineProps<{

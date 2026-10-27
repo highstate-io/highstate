@@ -1,6 +1,6 @@
 import type { IncomingMessage } from "node:http"
-import { getSharedServices } from "@highstate/backend"
 import { request as requestHttp } from "node:http"
+import { getSharedServices } from "@highstate/backend"
 import {
   getPanelCorsOrigin,
   getPanelFrameContentSecurityPolicy,
@@ -23,6 +23,7 @@ export default defineEventHandler(async event => {
   if (!panelId) {
     return
   }
+
   if (event.path.startsWith("/api/panels/launch")) {
     return
   }
@@ -33,16 +34,19 @@ export default defineEventHandler(async event => {
     setResponseHeader(event, "Access-Control-Allow-Credentials", "true")
     appendResponseHeader(event, "Vary", "Origin")
   }
+
   if (event.method === "OPTIONS" && corsOrigin) {
     setResponseHeader(
       event,
       "Access-Control-Allow-Methods",
       getHeader(event, "access-control-request-method") ?? "GET, HEAD, POST, PUT, PATCH, DELETE",
     )
+
     const requestedHeaders = getHeader(event, "access-control-request-headers")
     if (requestedHeaders) {
       setResponseHeader(event, "Access-Control-Allow-Headers", requestedHeaders)
     }
+
     setResponseStatus(event, 204)
     return ""
   }
@@ -58,6 +62,7 @@ export default defineEventHandler(async event => {
   ) {
     session = getActivePanelSession(panelId)
   }
+
   if (!session) {
     return sendPanelError(event, 401, "Panel session required")
   }
@@ -65,6 +70,7 @@ export default defineEventHandler(async event => {
   const requestBody = readRequestBody(getRequestWebStream(event))
   const services = await getSharedServices()
   const database = await services.database.forProject(session.projectId)
+
   const panel = await database.panel.findUnique({
     where: { id: panelId },
     select: { workerVersionId: true },
@@ -82,21 +88,25 @@ export default defineEventHandler(async event => {
   if (!upstream) {
     return sendPanelError(event, 502, "Panel worker instance is unavailable")
   }
+
   const headers: Record<string, string | string[] | undefined> = {
     ...getHeaders(event),
     host: upstream.authority,
     "x-highstate-panel-name": upstream.panelName,
     "x-highstate-state-id": upstream.stateId,
   }
+
   for (const name of requestHeadersToRemove) {
     delete headers[name]
   }
+
   const upstreamCookie = removePanelSessionCookie(getHeader(event, "cookie"))
   if (upstreamCookie) {
     headers.cookie = upstreamCookie
   } else {
     delete headers.cookie
   }
+
   headers.host = upstream.authority
 
   try {
@@ -112,11 +122,14 @@ export default defineEventHandler(async event => {
         },
         response => resolve(sendProxyResponse(event, response, upstream.authority)),
       )
+
       request.once("error", reject)
       event.node.req.once("aborted", () => request.destroy())
+
       for (const chunk of bodyChunks) {
         request.write(chunk)
       }
+
       request.end()
     })
   } catch (error) {
@@ -131,12 +144,14 @@ async function sendProxyResponse(
   upstreamAuthority: string,
 ): Promise<unknown> {
   setResponseStatus(event, response.statusCode ?? 502)
+
   for (let index = 0; index < response.rawHeaders.length; index += 2) {
     const name = response.rawHeaders[index]
     const value = response.rawHeaders[index + 1]
     if (!name || value === undefined) {
       continue
     }
+
     const sanitized = sanitizePanelResponseHeader({ name, value })
     if (sanitized && !hopByHopHeaders.has(sanitized.name.toLowerCase())) {
       if (
@@ -145,6 +160,7 @@ async function sendProxyResponse(
       ) {
         continue
       }
+
       appendResponseHeader(
         event,
         sanitized.name,
@@ -154,6 +170,7 @@ async function sendProxyResponse(
       )
     }
   }
+
   setResponseHeader(
     event,
     "Content-Security-Policy",
@@ -162,6 +179,7 @@ async function sendProxyResponse(
       getRequestURL(event),
     ),
   )
+
   setResponseHeader(event, "Cache-Control", "no-store")
 
   return await sendStream(event, response)
@@ -194,11 +212,13 @@ function sendPanelError(
   message: string,
 ): string {
   removeResponseHeader(event, "X-Frame-Options")
+
   setResponseHeader(
     event,
     "Content-Security-Policy",
     getPanelFrameContentSecurityPolicy(undefined, getRequestURL(event)),
   )
+
   setResponseHeader(event, "Content-Type", "application/json")
   setResponseStatus(event, statusCode)
 

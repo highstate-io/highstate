@@ -12,6 +12,7 @@ import { BackendRoleSettingsService } from "./role"
 describe("BackendRoleSettingsService authorization", () => {
   test("requires the minimal permission for every operation", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
+
     const input: BackendRoleInput = {
       meta: { title: "Role" },
       rules: [{ permissions: ["project.get"] }],
@@ -20,17 +21,21 @@ describe("BackendRoleSettingsService authorization", () => {
     await expect(service.query(createBackendRequestContext(), { pageSize: 1 })).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(service.create(createBackendRequestContext(), input)).rejects.toThrow(
       PermissionDeniedError,
     )
 
     const role = await service.create(adminBackendContext(), input)
+
     await expect(service.get(createBackendRequestContext(), role.id)).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(service.update(createBackendRequestContext(), role.id, input)).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(service.delete(createBackendRequestContext(), role.id)).rejects.toThrow(
       PermissionDeniedError,
     )
@@ -38,10 +43,12 @@ describe("BackendRoleSettingsService authorization", () => {
 
   test("requires unrestricted access or a matching resource restriction", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
+
     const role = await service.create(adminBackendContext(), {
       meta: { title: "Role" },
       rules: [{ permissions: ["project.get"] }],
     })
+
     const input: BackendRoleInput = {
       meta: { title: "Updated" },
       rules: [{ permissions: ["project.get"] }],
@@ -55,6 +62,7 @@ describe("BackendRoleSettingsService authorization", () => {
         role.id,
       ),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.get(
         createBackendRequestContext(
@@ -77,6 +85,7 @@ describe("BackendRoleSettingsService authorization", () => {
 
   test("allows creating a role that is within the caller's permissions", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
+
     const context = createBackendRequestContext(
       new Map([
         ["role.create", [{ restrictions: [] }]],
@@ -94,6 +103,7 @@ describe("BackendRoleSettingsService authorization", () => {
 
   test("requires role escalation for a broader role", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
+
     const context = createBackendRequestContext(
       new Map([
         ["role.create", [{ restrictions: [] }]],
@@ -111,10 +121,12 @@ describe("BackendRoleSettingsService authorization", () => {
 
   test("filters role collections by resource restrictions", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
+
     const first = await service.create(adminBackendContext(), {
       meta: { title: "First" },
       rules: [{ permissions: ["project.get"] }],
     })
+
     const second = await service.create(adminBackendContext(), {
       meta: { title: "Second" },
       rules: [{ permissions: ["project.get"] }],
@@ -134,10 +146,12 @@ describe("BackendRoleSettingsService authorization", () => {
 
   test("filters restriction options by each resource permission", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
+
     const first = await service.create(adminBackendContext(), {
       meta: { title: "Visible" },
       rules: [{ permissions: ["project.get"] }],
     })
+
     const second = await service.create(adminBackendContext(), {
       meta: { title: "Hidden" },
       rules: [{ permissions: ["project.get"] }],
@@ -153,6 +167,7 @@ describe("BackendRoleSettingsService authorization", () => {
     )
 
     expect(options.resources["backend-role"]).toEqual([expect.objectContaining({ id: first.id })])
+
     expect(options.resources["backend-role"]).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ id: second.id })]),
     )

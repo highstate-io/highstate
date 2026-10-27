@@ -36,6 +36,7 @@ worker.onUnitRegistration(async (stateId, params) => {
   await writeFile(kubeconfigPath, params.kubeconfig, { mode: 0o600 })
 
   const port = await getAvailablePort()
+
   const process = Bun.spawn(
     [
       "/headlamp/headlamp-server",
@@ -61,6 +62,7 @@ worker.onUnitRegistration(async (stateId, params) => {
 
   try {
     instances.set(stateId, { process, root })
+
     await worker.setUnitPanels(stateId, [
       {
         name: "dashboard",
@@ -106,6 +108,7 @@ async function getAvailablePort(): Promise<number> {
     port: 0,
     fetch: () => new Response(null, { status: 503 }),
   })
+
   const port = server.port
   await server.stop(true)
 

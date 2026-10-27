@@ -17,6 +17,7 @@ export function useCollectionQuery<T>(
   const itemsPerPage = ref(10)
   const debouncedSearch = debouncedRef(search, 300)
   const pages = shallowRef<CollectionQueryResult<T>[]>([])
+
   const data = shallowRef<ObservedCollectionQueryResult<T>>({
     items: [],
     total: 0,
@@ -24,7 +25,9 @@ export function useCollectionQuery<T>(
     hasNextPage: false,
     error: null,
   })
+
   const { on: onReload, trigger: triggerReload } = createEventHook<[]>()
+
   const query = computed<CollectionQuery>(() => ({
     pageSize: itemsPerPage.value,
     sortBy: sortBy.value,
@@ -89,6 +92,7 @@ export function useCollectionQuery<T>(
 
   watch(query, async () => {
     pages.value = []
+
     if (page.value !== 1) {
       page.value = 1
       return
@@ -97,6 +101,7 @@ export function useCollectionQuery<T>(
     updateData()
     await load()
   })
+
   watch(page, async () => await load(false))
 
   return { search, sortBy, page, itemsPerPage, isLoading, data, reset, load, onReload }

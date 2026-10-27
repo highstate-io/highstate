@@ -1,5 +1,5 @@
-import type { RouteLocationNormalizedGeneric } from "vue-router"
 import type { AddPanelOptions } from "dockview-core"
+import type { RouteLocationNormalizedGeneric } from "vue-router"
 
 declare module "#app" {
   interface PageMeta {

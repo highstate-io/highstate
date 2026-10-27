@@ -7,14 +7,22 @@ import { highstateConfigSchema } from "./schemas"
 /**
  * Represents a Highstate package in the workspace
  */
-export interface HighstatePackage {
-  /** Absolute path to the package directory */
+export type HighstatePackage = {
+  /**
+   * Absolute path to the package directory
+   */
   path: string
-  /** Relative path from workspace root */
+  /**
+   * Relative path from workspace root
+   */
   relativePath: string
-  /** Package name from package.json */
+  /**
+   * Package name from package.json
+   */
   name: string
-  /** Package type from highstate config */
+  /**
+   * Package type from highstate config
+   */
   type?: "source" | "library" | "worker"
 }
 
@@ -48,12 +56,10 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
 
   while (currentPath !== "/") {
     const packageJsonPath = join(currentPath, "package.json")
-
     if (existsSync(packageJsonPath)) {
       try {
         const content = await readFile(packageJsonPath, "utf-8")
         const packageJson = JSON.parse(content) as { workspaces?: unknown }
-
         if (packageJson.workspaces) {
           return currentPath
         }
@@ -64,6 +70,7 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
 
     const parentPath = resolve(currentPath, "..")
     if (parentPath === currentPath) break
+
     currentPath = parentPath
   }
 
@@ -76,7 +83,6 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
 export async function scanWorkspacePackages(workspaceRoot: string): Promise<HighstatePackage[]> {
   const packages: HighstatePackage[] = []
   const packagesDir = join(workspaceRoot, "packages")
-
   if (!existsSync(packagesDir)) {
     return packages
   }
@@ -215,6 +221,7 @@ export async function createPackage(
 
   // create tsconfig.json
   const tsconfigContent = generateTsconfigContent(workspaceRoot, packagePath)
+
   await writeFile(
     join(packagePath, "tsconfig.json"),
     `${JSON.stringify(tsconfigContent, null, 2)}\n`,

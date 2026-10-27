@@ -52,6 +52,7 @@ export class SecretSettingsService {
 
   async get(context: ProjectRequestContext, secretId: string): Promise<SecretOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const secret = await database.secret.findUnique({
       where: { id: secretId },
       select: {
@@ -59,7 +60,6 @@ export class SecretSettingsService {
         serviceAccount: { select: { meta: true } },
       },
     })
-
     if (!secret) {
       return null
     }
@@ -74,11 +74,11 @@ export class SecretSettingsService {
 
   async getValue(context: ProjectRequestContext, secretId: string): Promise<unknown> {
     const database = await this.database.forProject(context.projectId)
+
     const secret = await database.secret.findUnique({
       where: { id: secretId },
       select: { id: true, content: true, serviceAccountId: true },
     })
-
     if (!secret) {
       return null
     }

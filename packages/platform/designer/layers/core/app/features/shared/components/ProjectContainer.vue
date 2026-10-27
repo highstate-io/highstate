@@ -34,11 +34,13 @@ const tryPassKeyUnlock = async () => {
 
   try {
     const passkeys = unlockSuite.value?.passkeys ?? []
+
     for (const passkey of passkeys) {
       const decrypter = new Decrypter()
       decrypter.addIdentity(new webauthn.WebAuthnIdentity({ identity: passkey.passkeyIdentity }))
 
       let decryptedIdentity: string
+
       try {
         const encryptedIdentity = armor.decode(passkey.encryptedIdentity)
         decryptedIdentity = await decrypter.decrypt(encryptedIdentity, "text")
@@ -54,6 +56,7 @@ const tryPassKeyUnlock = async () => {
     if (passkeys.length === 0 && unlockSuite.value?.hasPasskey) {
       const decrypter = new Decrypter()
       decrypter.addIdentity(new webauthn.WebAuthnIdentity())
+
       if (await stateStore.unlock(decrypter)) {
         return
       }

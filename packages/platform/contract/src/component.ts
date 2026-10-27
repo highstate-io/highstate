@@ -1,4 +1,6 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: maybe fix later */
+/**
+ * biome-ignore-all lint/suspicious/noExplicitAny: maybe fix later
+ */
 
 import type { Simplify } from "type-fest"
 import type { Entity, implementedTypes } from "./entity"
@@ -247,12 +249,12 @@ export type InputComponentParams<
   inputs: TInputs
 }>
 
-export type ComponentOptions<
+export interface ComponentOptions<
   TType extends VersionedName,
   TArgs extends Record<string, ComponentArgumentOptions>,
   TInputs extends Record<string, ComponentInputOptions>,
   TOutputs extends Record<string, ComponentOutputOptions<TInputs>>,
-> = {
+> {
   /**
    * The type of the component.
    * Must be a valid versioned name.
@@ -302,7 +304,7 @@ export type ComponentOptions<
   [kind]?: ComponentKind
 }
 
-// Models
+// models
 export const componentModelSchema = z.object({
   /**
    * The type of the component.
@@ -486,7 +488,7 @@ type ValidateCallInputs<
 
 export const originalCreate = Symbol("originalCreate")
 
-export type Component<
+export interface Component<
   TType extends VersionedName = VersionedName,
   TArgs extends Record<string, z.ZodType> = Record<string, never>,
   TInputs extends Record<string, ComponentInputSpec> = Record<string, never>,
@@ -497,7 +499,7 @@ export type Component<
     string,
     never
   >,
-> = {
+> {
   /**
    * The type of the component.
    */
@@ -589,6 +591,7 @@ export function defineComponent<
 
     const flatInputs: Record<string, RuntimeInput[]> = {}
     const tracedInputs: Record<string, InstanceInput[]> = {}
+
     const runtimeInputKey = (input: RuntimeInput): string => {
       if (input.provided) {
         return inputKey(input)
@@ -642,7 +645,6 @@ export function defineComponent<
         const markedInputs = mapValues(model.inputs, (componentInput, key) => {
           if (!componentInput.multiple) {
             const input = flatInputs[key]?.[0]
-
             if (input?.provided) {
               return createDeepOutputAccessor({
                 ...input,
@@ -687,7 +689,6 @@ export function defineComponent<
       }
 
       const runtimeInput = input as RuntimeInput
-
       if (runtimeInput.provided) {
         const inputBoundary = runtimeInput[boundaryInput] ?? {
           instanceId: runtimeInput.instanceId,
@@ -715,7 +716,6 @@ export function defineComponent<
           const arrayBoundary = (value as Partial<{ [boundaryInput]: InstanceInput }>)[
             boundaryInput
           ]
-
           if (arrayBoundary) {
             group.push(arrayBoundary)
           }
@@ -768,7 +768,6 @@ function processArgs(
   for (const [key, arg] of Object.entries(model.args)) {
     if (arg.schema) {
       const result = arg[runtimeSchema]!.safeParse(args[key])
-
       if (!result.success) {
         throw new Error(
           `Invalid argument "${key}" in instance "${instanceId}": ${result.error.message}`,
@@ -826,7 +825,6 @@ function normalizeCreateOutputGroup(
       }
 
       const runtimeOutput = output as RuntimeInput
-
       if (runtimeOutput.provided) {
         const stableBoundary = runtimeOutput[boundaryInput] ?? {
           instanceId: runtimeOutput.instanceId,
@@ -852,7 +850,6 @@ function normalizeCreateOutputs(
 
   for (const [outputName, outputSpec] of Object.entries(model.outputs)) {
     const outputGroup = outputs[outputName]
-
     if (!isNonNullish(outputGroup)) {
       if (model.kind === "unit") {
         throw new Error(`Unit output "${outputName}" in instance "${instanceId}" must be provided`)
@@ -861,11 +858,11 @@ function normalizeCreateOutputs(
       normalizedOutputs[outputName] = outputSpec.multiple
         ? []
         : [createNonProvidedInput({ instanceId, output: outputName })]
+
       continue
     }
 
     const normalizedGroup = normalizeCreateOutputGroup(outputGroup, instanceId, outputName)
-
     if (outputSpec.multiple && normalizedGroup.some(output => !output.provided)) {
       throw new Error(
         `Multiple output "${outputName}" in instance "${instanceId}" cannot contain non-provided items`,
@@ -955,7 +952,7 @@ export function mapArgument(value: ComponentArgumentOptions, key: string): Compo
 export function createInputMapper(entities: Map<string, Entity>) {
   return (value: ComponentInputOptions, key: string): ComponentInput => {
     if (!value) {
-      throw new Error(`Input/output "${key}" is undefined in the component model.`)
+      throw new Error(`Input/output "${key}" is undefined in the component model`)
     }
 
     if ("entity" in value) {
@@ -1004,9 +1001,7 @@ function createOutputMapper(
 
     const sourceInput = inputs?.[value.fromInput]
     if (!sourceInput) {
-      throw new Error(
-        `Output "${key}" references missing input "${value.fromInput}" via fromInput.`,
-      )
+      throw new Error(`Output "${key}" references missing input "${value.fromInput}" via fromInput`)
     }
 
     const mappedInput = mapInput(sourceInput, value.fromInput)

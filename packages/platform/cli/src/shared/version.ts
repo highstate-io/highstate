@@ -20,7 +20,6 @@ export async function readCurrentPackageVersion(moduleUrl: string): Promise<stri
 
     try {
       const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8")) as PackageManifest
-
       if (!packageJson.version) {
         throw new Error(`Package version is missing from "${packageJsonPath}"`)
       }

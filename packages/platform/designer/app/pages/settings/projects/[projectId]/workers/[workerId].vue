@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { until, useProjectStores } from "#imports"
 import {
-  DetailPageLayout,
   DetailInfoCard,
-  RelatedDataPanel,
-  WorkerVersionsTable,
-  TimeTableCell,
+  DetailPageLayout,
   IdTableCell,
+  RelatedDataPanel,
+  TimeTableCell,
+  WorkerVersionsTable,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { ServiceAccountRefChip } from "#layers/core/app/features/shared"
@@ -50,12 +50,12 @@ const detailItems = [
   { key: "createdAt", label: "Created" },
 ]
 
-// Load related data
+// load related data
 const versions = settingsStore.versions(params.workerId)
 
 void versions.load()
 
-// Navigate to version logs
+// navigate to version logs
 const viewVersionLogs = (versionId: string) => {
   navigateTo({
     name: "worker-version-logs",

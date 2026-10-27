@@ -5,7 +5,7 @@ import pino from "pino"
 import { describe, expect, test, vi } from "vitest"
 import { OperationContext } from "./operation-context"
 
-type TestOperationContext = {
+interface TestOperationContext {
   addInstance: (instance: InstanceModel, isGhost?: boolean) => void
   captureEntitySnapshotsAtOperationStart: (options: {
     projectId: string
@@ -104,6 +104,7 @@ describe("OperationContext.updateCapturedOutputValuesFromUnitOutputs", () => {
     expect(context.getCapturedOutputValues("component.v1:one", "single")).toEqual([
       { ok: true, value: { a: 1 } },
     ])
+
     expect(context.getCapturedOutputValues("component.v1:one", "multi")).toEqual([
       { ok: true, value: { b: 2 } },
       { ok: true, value: { b: 3 } },
@@ -192,6 +193,7 @@ describe("OperationContext entity snapshot capture", () => {
     const renamedDependencyId = "component.v1:renamed-relay-client-1"
     const currentDependencyId = "component.v1:current-dependency"
     const ghostId = "component.v1:historical-ghost"
+
     const ghost = createInstance(ghostId, {
       dependency: [
         { instanceId: oldDependencyId, output: "value", path: "renamed" },
@@ -200,6 +202,7 @@ describe("OperationContext entity snapshot capture", () => {
     })
 
     context.addInstance(ghost, true)
+
     context.setStates([
       createState("renamed-dependency-state", renamedDependencyId),
       createState("current-dependency-state", currentDependencyId),
@@ -210,6 +213,7 @@ describe("OperationContext entity snapshot capture", () => {
         ],
       }),
     ])
+
     context.resolvedInstanceInputs.set(ghostId, {
       dependency: [
         {
@@ -225,12 +229,14 @@ describe("OperationContext entity snapshot capture", () => {
 
     const renamedValues = [{ ok: true as const, value: { name: "renamed" } }]
     const currentValues = [{ ok: true as const, value: { name: "current" } }]
+
     const reconstructLatestExportedOutputValues = vi.fn().mockResolvedValue(
       new Map([
         ["renamed-dependency-state:value", renamedValues],
         ["current-dependency-state:value", currentValues],
       ]),
     )
+
     const entitySnapshotService = {
       reconstructLatestExportedOutputValues,
     } as unknown as EntitySnapshotService
@@ -241,6 +247,7 @@ describe("OperationContext entity snapshot capture", () => {
     })
 
     expect(context.isGhostInstance(ghostId)).toBe(true)
+
     expect(reconstructLatestExportedOutputValues).toHaveBeenCalledWith(
       "project",
       [
@@ -249,6 +256,7 @@ describe("OperationContext entity snapshot capture", () => {
       ],
       expect.anything(),
     )
+
     expect(context.getCapturedOutputValues(oldDependencyId, "value")).toEqual(renamedValues)
     expect(context.getCapturedOutputValues(renamedDependencyId, "value")).toEqual([])
     expect(context.getCapturedOutputValues(currentDependencyId, "value")).toEqual(currentValues)
@@ -260,6 +268,7 @@ describe("OperationContext entity snapshot capture", () => {
     const ghostId = "component.v1:historical-ghost"
 
     context.setState(createState("ghost-state", ghostId, {}))
+
     context.resolvedInstanceInputs.set(ghostId, {
       dependency: [
         {

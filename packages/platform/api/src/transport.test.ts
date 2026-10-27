@@ -19,6 +19,7 @@ afterEach(async () => {
         }),
     ),
   )
+
   await rm(socketPath, { force: true })
 })
 
@@ -41,6 +42,7 @@ describe("createApiTransport", () => {
         },
       }),
     )
+
     await new Promise<void>((resolve, reject) => {
       server.once("error", reject)
       server.listen(socketPath, resolve)
@@ -50,6 +52,7 @@ describe("createApiTransport", () => {
       const transport = createApiTransport(`unix://${socketPath}`, [
         createAuthenticationInterceptor("hcp_key_secret"),
       ])
+
       const client = createClient(ProjectService, transport)
       const response = await client.getProject({ projectId: "project" })
 
@@ -65,17 +68,21 @@ describe("createApiTransport", () => {
   it("sends unary HTTP requests with a content length", async () => {
     let contentLength: string | undefined
     let transferEncoding: string | undefined
+
     const server = createServer((request, response) => {
       contentLength = request.headers["content-length"]
       transferEncoding = request.headers["transfer-encoding"]
       response.writeHead(200, { "content-type": "application/proto" })
       response.end()
     })
+
     servers.push(server)
+
     await new Promise<void>((resolve, reject) => {
       server.once("error", reject)
       server.listen(0, "127.0.0.1", resolve)
     })
+
     const address = server.address()
     if (!address || typeof address === "string") {
       throw new Error("Failed to determine test server address")

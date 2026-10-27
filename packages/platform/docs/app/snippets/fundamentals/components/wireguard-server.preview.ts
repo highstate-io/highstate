@@ -1,10 +1,10 @@
 import { wireguard } from "@highstate/library"
 
-const { identity: client1,  } = wireguard.identity({
+const { identity: client1 } = wireguard.identity({
   name: "client-1",
 })
 
-const { identity: client2, } = wireguard.identity({
+const { identity: client2 } = wireguard.identity({
   name: "client-2",
 })
 

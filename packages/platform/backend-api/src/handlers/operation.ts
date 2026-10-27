@@ -17,11 +17,13 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
   return {
     async planOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const input = parseValue(
         { ...request, projectId: requestContext.projectId, type: fromOperationType(request.type) },
         "request",
         operationPlanInputSchema,
       )
+
       const phases = await services.operationManager.plan(input)
 
       return { phases: phases.map(toOperationPhase) }
@@ -29,6 +31,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
 
     async launchOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const input = parseValue(
         {
           ...request,
@@ -39,6 +42,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
         "request",
         operationLaunchInputSchema,
       )
+
       const operation = await services.operationManager.launch(input)
 
       return { operation: toOperation(operation) }
@@ -47,6 +51,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
     async getOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
       const operationId = parseValue(request.operationId, "operationId", z.string().min(1))
+
       const operation = await services.operationService.getOperationOrThrow(
         requestContext,
         operationId,
@@ -57,6 +62,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
 
     async listOperations(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const page = await services.operationService.getOperations(requestContext, {
         pageSize: request.pageSize,
         pageToken: request.pageToken,

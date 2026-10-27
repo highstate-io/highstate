@@ -6,10 +6,12 @@ definePageMeta({
   panelId: route => `projects/${route.params.projectId}/panels/${route.params.panelId}`,
   panel: async route => {
     const { $client } = useNuxtApp()
+
     const panels = await $client.state.getInstancePanels.query({
       projectId: route.params.projectId as string,
       panelIds: [route.params.panelId as string],
     })
+
     const panel = panels[0]
 
     return {
@@ -41,6 +43,7 @@ const launchPanel = async (requestId: number) => {
       projectId: params.projectId,
       panelId: params.panelId,
     })
+
     if (requestId === launchRequestId) {
       launchUrl.value = launch.url
     }
@@ -59,6 +62,7 @@ watch(
     unsubscribeAvailability = undefined
     launchUrl.value = undefined
     errorMessage.value = undefined
+
     if (unlockState !== "unlocked") {
       return
     }
@@ -73,6 +77,7 @@ watch(
           if (requestId !== launchRequestId) {
             return
           }
+
           if (!online) {
             launchUrl.value = undefined
             errorMessage.value = "Panel is offline"
@@ -89,6 +94,7 @@ watch(
         },
       },
     )
+
     unsubscribeAvailability = subscription.unsubscribe
   },
   { immediate: true },

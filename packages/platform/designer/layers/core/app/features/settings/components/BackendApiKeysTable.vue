@@ -5,10 +5,10 @@ import type {
   CollectionQueryResult,
 } from "@highstate/backend/shared"
 import {
+  baseHeaders,
   SettingsDataTable,
   ShowDetailsAction,
   TableItemAction,
-  baseHeaders,
 } from "#layers/core/app/features/settings"
 
 defineProps<{

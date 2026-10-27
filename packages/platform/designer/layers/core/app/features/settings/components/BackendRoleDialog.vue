@@ -2,15 +2,15 @@
 import type {
   BackendRoleInput,
   BackendRoleOutput,
-  BackendRoleRules,
   BackendRoleRestrictionOptions,
+  BackendRoleRules,
 } from "@highstate/backend/shared"
+import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import {
   assessPermissionRisk,
   backendPermissionGroups,
   backendRoleRulesSchema,
 } from "@highstate/backend/shared"
-import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import { stringify } from "yaml"
 import BackendRoleRulesBuilder from "./BackendRoleRulesBuilder.vue"
 
@@ -69,11 +69,13 @@ watch(
 function save(): void {
   try {
     const parsedRules = backendRoleRulesSchema.parse(rules.value)
+
     if (!title.value.trim()) {
       throw new Error("Title is required")
     }
 
     error.value = null
+
     emit("save", {
       meta: {
         title: title.value.trim(),

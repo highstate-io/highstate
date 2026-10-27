@@ -43,11 +43,11 @@ export class PanelService {
     this.panelEndpointManager.assertInstance(context.projectId, workerVersionId, workerInstanceId)
 
     const database = await this.database.forProject(context.projectId)
+
     const target = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
     })
-
     if (!target) {
       throw new InstanceStateNotFoundError(context.projectId, stateId)
     }
@@ -77,7 +77,6 @@ export class PanelService {
           worker: { select: { serviceAccountId: true } },
         },
       })
-
       if (!workerVersion) {
         throw new WorkerOwnershipError(context.projectId, workerVersionId)
       }
@@ -86,7 +85,6 @@ export class PanelService {
         where: { stateId, workerVersionId },
         select: { stateId: true },
       })
-
       if (panels.length > 0 && !registration) {
         throw new WorkerRegistrationNotFoundError(context.projectId, stateId, workerVersionId)
       }
@@ -116,6 +114,7 @@ export class PanelService {
           },
           select: { id: true },
         })
+
         ids.push(record.id)
       }
 
@@ -136,11 +135,13 @@ export class PanelService {
       select: { id: true },
       orderBy: { createdAt: "asc" },
     })
+
     void this.pubsubManager.publish(["instance-state", context.projectId], {
       type: "patched",
       stateId,
       patch: { panelIds: statePanels.map(panel => panel.id) },
     })
+
     this.panelEndpointManager.setPanels(
       context.projectId,
       workerVersionId,

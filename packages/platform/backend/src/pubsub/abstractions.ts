@@ -7,7 +7,7 @@ export interface PubSubBackend {
    * @param topic The topic to subscribe to.
    * @param schema The schema to validate the messages against.
    * @param signal An optional AbortSignal to cancel the subscription.
-   * @return A promise that resolves to an async iterable of messages. When promise is resolved, the subscription is active.
+   * @returns A promise that resolves to an async iterable of messages. When promise is resolved, the subscription is active.
    */
   subscribe(topic: string, schema: z.ZodType, signal?: AbortSignal): Promise<AsyncIterable<unknown>>
 

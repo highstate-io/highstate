@@ -16,7 +16,7 @@ if (firstOpenBrace === -1) {
 }
 
 if (firstOpenBrace === -1) {
-  throw new Error("The provided code does not contain a valid flake.nix structure.")
+  throw new Error("The provided code does not contain a valid flake.nix structure")
 }
 
 const codeParts = [args.code.slice(0, firstOpenBrace + 1).trim(), ""]
@@ -32,7 +32,6 @@ const hasFlake = async (folder: MaterializedFolder) => {
 
 for (const inputFolder of inputs.folders) {
   const folder = await MaterializedFolder.open(inputFolder, flakeRepo.folder)
-
   if (await hasFlake(folder)) {
     codeParts.push(`inputs.${inputFolder.meta.name}.url = "path:./${folder.entity.meta.name}";`)
   }

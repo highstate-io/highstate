@@ -18,7 +18,7 @@ function getCertificateContent(ca: mongodb.Connection["ca"]): string | undefined
   }
 
   throw new Error(
-    `MongoDB CA file content type "${ca.content.type}" is not supported. Use an embedded CA file.`,
+    `MongoDB CA file content type "${ca.content.type}" is not supported. Use an embedded CA file`,
   )
 }
 

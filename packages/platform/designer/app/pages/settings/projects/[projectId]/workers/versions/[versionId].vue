@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { until, useProjectStores } from "#imports"
 import {
-  DetailPageLayout,
   DetailInfoCard,
-  TimeTableCell,
+  DetailPageLayout,
   IdTableCell,
   PanelsTable,
   RelatedDataPanel,
+  TimeTableCell,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
-import { StatusChip, workerVersionStatusMap, ApiKeyRefChip } from "#layers/core/app/features/shared"
+import { ApiKeyRefChip, StatusChip, workerVersionStatusMap } from "#layers/core/app/features/shared"
 
 const settingsStore = useProjectWorkerSettingsStore()
 const panelStore = useProjectPanelSettingsStore()

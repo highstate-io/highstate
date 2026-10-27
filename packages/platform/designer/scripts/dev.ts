@@ -5,6 +5,7 @@ const tryPort = async (port: number): Promise<boolean> => {
     const server = createServer()
 
     server.once("error", () => resolve(false))
+
     server.listen(port, "127.0.0.1", () => {
       server.close(error => resolve(!error))
     })
@@ -83,7 +84,7 @@ console.log(`Designer frontend: http://highstate.localhost:${frontendPort}/`)
 console.log(`Designer events: ws://highstate.localhost:${eventsPort}/`)
 
 const server = Bun.spawn(["bun", "run", "dev:server"], {
-  cwd: import.meta.dirname + "/..",
+  cwd: `${import.meta.dirname}/..`,
   env: {
     ...process.env,
     NITRO_PORT: frontendPort.toString(),

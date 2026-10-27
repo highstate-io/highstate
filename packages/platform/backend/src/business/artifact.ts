@@ -104,7 +104,6 @@ export class ArtifactService {
         hash: true,
       },
     })
-
     if (unreferencedArtifacts.length === 0) {
       this.logger.debug({ projectId }, "no unreferenced artifacts found")
       return

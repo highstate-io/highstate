@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import VueQrcode from "vue-qrcode"
 import { bytesToHumanReadable, type PageBlock } from "@highstate/contract"
 import { Icon } from "@iconify/vue"
+import VueQrcode from "vue-qrcode"
 import { getFileUrl } from "../business"
 
 defineProps<{

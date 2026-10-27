@@ -18,7 +18,7 @@ const { files } = await getFiles(
 const image = files.find(file => file.id === args.id)
 if (!image) {
   throw new Error(
-    `Image with ID "${args.id}" not found in the datastore "${inputs.proxmoxCluster.defaultDatastoreId}" on node "${inputs.proxmoxCluster.defaultNodeName}".`,
+    `Image with ID "${args.id}" not found in the datastore "${inputs.proxmoxCluster.defaultDatastoreId}" on node "${inputs.proxmoxCluster.defaultNodeName}"`,
   )
 }
 

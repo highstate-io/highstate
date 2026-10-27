@@ -33,6 +33,7 @@ async function save(input: BackendServiceAccountInput): Promise<void> {
   try {
     const serviceAccount = await serviceAccountStore.create(input)
     dialogVisible.value = false
+
     await router.push({
       name: "settings.backend-service-account-details",
       params: { serviceAccountId: serviceAccount.id },

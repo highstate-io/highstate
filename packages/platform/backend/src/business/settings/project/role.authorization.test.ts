@@ -12,6 +12,7 @@ import { ProjectRoleSettingsService } from "./role"
 describe("ProjectRoleSettingsService authorization", () => {
   test("requires the minimal permission for every operation", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
+
     const input: ProjectRoleInput = {
       meta: { title: "Role" },
       rules: [{ permissions: ["instance-model.get"] }],
@@ -26,12 +27,15 @@ describe("ProjectRoleSettingsService authorization", () => {
     )
 
     const role = await service.create(adminProjectContext(project.id), input)
+
     await expect(service.get(createProjectRequestContext(project.id), role.id)).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(
       service.update(createProjectRequestContext(project.id), role.id, input),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(service.delete(createProjectRequestContext(project.id), role.id)).rejects.toThrow(
       PermissionDeniedError,
     )
@@ -39,6 +43,7 @@ describe("ProjectRoleSettingsService authorization", () => {
 
   test("enforces resource restrictions on role reads", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
+
     const role = await service.create(adminProjectContext(project.id), {
       meta: { title: "Role" },
       rules: [{ permissions: ["instance-model.get"] }],
@@ -67,6 +72,7 @@ describe("ProjectRoleSettingsService authorization", () => {
 
   test("does not mutate a role when escalation is denied", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
+
     const role = await service.create(adminProjectContext(project.id), {
       meta: { title: "Original" },
       rules: [{ permissions: ["instance-model.get"] }],
@@ -93,6 +99,7 @@ describe("ProjectRoleSettingsService authorization", () => {
     project,
   }) => {
     const service = new ProjectRoleSettingsService(database)
+
     const context = createProjectRequestContext(
       project.id,
       new Map([
@@ -111,6 +118,7 @@ describe("ProjectRoleSettingsService authorization", () => {
 
   test("requires role escalation for a broader role", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
+
     const context = createProjectRequestContext(
       project.id,
       new Map([
@@ -129,10 +137,12 @@ describe("ProjectRoleSettingsService authorization", () => {
 
   test("filters role collections by resource restrictions", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
+
     const first = await service.create(adminProjectContext(project.id), {
       meta: { title: "First" },
       rules: [{ permissions: ["instance-model.get"] }],
     })
+
     const second = await service.create(adminProjectContext(project.id), {
       meta: { title: "Second" },
       rules: [{ permissions: ["instance-model.get"] }],
@@ -162,10 +172,12 @@ describe("ProjectRoleSettingsService authorization", () => {
   test("filters restriction options by each resource permission", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
     const admin = adminProjectContext(project.id)
+
     const role = await service.create(admin, {
       meta: { title: "Visible" },
       rules: [{ permissions: ["instance-model.get"] }],
     })
+
     const account = await database
       .forProject(project.id)
       .then(db => db.serviceAccount.create({ data: { meta: { title: "Hidden account" } } }))
@@ -182,6 +194,7 @@ describe("ProjectRoleSettingsService authorization", () => {
     )
 
     expect(options.resources.role).toEqual([{ id: role.id, title: "Visible" }])
+
     expect(options.serviceAccounts).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ id: account.id })]),
     )

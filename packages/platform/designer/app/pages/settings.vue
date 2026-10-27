@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { RouteLocationNormalizedLoaded } from "vue-router"
 import { ProjectTabWrapper } from "#layers/core/app/features/shared"
 
 definePageMeta({
@@ -13,7 +14,7 @@ definePageMeta({
 const projectsStore = useProjectsStore()
 
 const router = useRouter()
-const currentRoute = shallowRef<any | null>(null)
+const currentRoute = shallowRef<RouteLocationNormalizedLoaded | null>(null)
 
 watch(
   router.currentRoute,
@@ -53,6 +54,7 @@ type Tab = {
  */
 const tabs = computed(() => {
   const allRoutes = router.getRoutes()
+
   const settingsRoutes = allRoutes.filter(
     r => r.path.startsWith("/settings/") && r.path !== "/settings" && r.meta?.tab,
   )
@@ -77,7 +79,6 @@ const tabs = computed(() => {
       isProjectTab: route.path.startsWith("/settings/projects/"),
       subpages: tabMeta.subpages ?? [],
     }
-
     if (tab.isProjectTab) {
       projectTabs.push(tab)
     } else {
@@ -102,7 +103,7 @@ const tabs = computed(() => {
 const isTabActive = (tab: Tab) => {
   return (
     currentRoute.value &&
-    (tab.name === currentRoute.value.name || tab.subpages.includes(currentRoute.value.name))
+    (tab.name === currentRoute.value.name || tab.subpages.includes(String(currentRoute.value.name)))
   )
 }
 
@@ -126,7 +127,6 @@ watch(
   () => projectsStore.focusedProjectId,
   async (newProject, oldProject) => {
     const currentRoute = router.currentRoute.value
-
     if (
       !currentRoute ||
       (newProject === oldProject && currentRoute.path.startsWith("/settings/projects/")) ||
@@ -222,10 +222,10 @@ watch(
           <VCardText class="content-card-text">
             <RouterView v-if="currentRoute" :route="currentRoute">
               <template #default="{ Component }">
-                <Suspense v-if="(currentRoute.params as any).projectId">
+                <Suspense v-if="currentRoute.params.projectId">
                   <ProjectTabWrapper
-                    :project-id="(currentRoute.params as any).projectId"
-                    :key="(currentRoute.params as any).projectId"
+                    :project-id="String(currentRoute.params.projectId)"
+                    :key="String(currentRoute.params.projectId)"
                   >
                     <component :is="Component" :params="currentRoute.params" />
                   </ProjectTabWrapper>

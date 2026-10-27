@@ -31,6 +31,6 @@ export class PackageCreateCommand extends Command {
     const packages = await scanWorkspacePackages(workspaceRoot)
     await updateTsconfigReferences(workspaceRoot, packages)
 
-    logger.info(`created package: @highstate/${this.name} (${packageType})`)
+    logger.info("created package: @highstate/%s (%s)", this.name, packageType)
   }
 }

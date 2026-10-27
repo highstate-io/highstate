@@ -60,7 +60,6 @@ const patchOperationSchema = z
       operation.operation === InstanceArgumentPatchOperation_Operation.ADD ||
       operation.operation === InstanceArgumentPatchOperation_Operation.REPLACE ||
       operation.operation === InstanceArgumentPatchOperation_Operation.TEST
-
     if (requiresValue && operation.value === undefined) {
       context.addIssue({ code: "custom", path: ["value"], message: "Value is required" })
     }
@@ -76,6 +75,7 @@ export function createProjectModelService(
   return {
     async getProjectModel(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const [model] = await services.projectModelService.getProjectModel(requestContext, {
         includeVirtualInstances: request.includeVirtualInstances,
         includeGhostInstances: request.includeGhostInstances,
@@ -86,11 +86,13 @@ export function createProjectModelService(
 
     async createNodes(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const instances = parseValue(
         request.instances.map(fromInstance),
         "instances",
         projectModelInstanceSchema.array(),
       )
+
       const hubs = parseValue(request.hubs.map(fromHub), "hubs", hubModelSchema.array())
 
       await services.projectService.createNodes(requestContext, instances, hubs)
@@ -104,6 +106,7 @@ export function createProjectModelService(
       const instanceId = parseArgument(requestInstance, "id", instanceIdSchema)
       const paths = validateUpdateMask(request.updateMask, InstanceSchema, instanceMutablePaths)
       const patch = toInstancePatch(requestInstance, paths)
+
       const instance = await services.projectService.updateInstance(
         requestContext,
         instanceId,
@@ -116,14 +119,17 @@ export function createProjectModelService(
     async patchInstanceArguments(request, context) {
       const requestContext = await authenticateProject(services, request, context)
       const instanceId = parseArgument(request, "instanceId", instanceIdSchema)
+
       const requestOperations = parseArgument(
         request,
         "operations",
         patchOperationSchema.array().min(1),
       )
+
       const operations = requestOperations.map((_, index) =>
         fromInstanceArgumentPatchOperation(request.operations[index]),
       )
+
       const instance = await services.projectService.patchInstanceArguments(
         requestContext,
         instanceId,
@@ -138,6 +144,7 @@ export function createProjectModelService(
       const requestContext = await authenticateProject(services, request, context)
       const instanceId = parseArgument(request, "instanceId", instanceIdSchema)
       const newName = parseArgument(request, "newName", z.string().min(1))
+
       const instance = await services.projectService.renameInstance(
         requestContext,
         instanceId,

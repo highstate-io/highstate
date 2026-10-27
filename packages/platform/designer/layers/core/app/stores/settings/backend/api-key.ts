@@ -2,6 +2,7 @@ import type { BackendApiKeyInput } from "@highstate/backend/shared"
 
 export const useBackendApiKeySettingsStore = defineStore("backend-api-key-settings", () => {
   const { $client } = useNuxtApp()
+
   const items = useCollectionQuery(query => {
     return $client.backendApiKeySettings.query.query(query)
   })

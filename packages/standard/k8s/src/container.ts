@@ -186,10 +186,12 @@ export function mapContainerToRaw(
     if (cluster.quirks?.tunDevicePolicy?.type === "plugin") {
       spec.resources ??= {}
       spec.resources.limits ??= {}
+
       spec.resources.limits[cluster.quirks.tunDevicePolicy.resourceName] =
         cluster.quirks.tunDevicePolicy.resourceValue
     } else {
       spec.volumeMounts ??= []
+
       spec.volumeMounts.push({
         name: "tun-device",
         mountPath: "/dev/net/tun",
@@ -226,6 +228,7 @@ export function mapContainerEnvironment(
           },
         },
       })
+
       continue
     }
 
@@ -239,6 +242,7 @@ export function mapContainerEnvironment(
           },
         },
       })
+
       continue
     }
 

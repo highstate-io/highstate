@@ -1,20 +1,20 @@
 import {
-  SYSTEM_EXPORT_COMPONENT_TYPE,
   type ResolvedInstanceInput,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
   type TerminalSessionOutput,
 } from "@highstate/backend/shared"
 import {
-  getInstanceId,
-  inputKey,
-  isUnitModel,
   type ComponentInput,
   type ComponentModel,
+  getInstanceId,
   type HubInput,
   type HubModel,
   type InstanceId,
   type InstanceInput,
   type InstanceModel,
   type InstanceModelPatch,
+  inputKey,
+  isUnitModel,
 } from "@highstate/contract"
 import { pick } from "remeda"
 import { useProjectLibraryStore } from "./library"
@@ -66,7 +66,6 @@ export const useProjectInstancesStore = defineMultiStore({
           : dependency.hub
             ? `hub:${dependency.hub.id}`
             : undefined
-
         if (!nodeId || !dependencyId) {
           return true
         }
@@ -93,6 +92,7 @@ export const useProjectInstancesStore = defineMultiStore({
           resolvedInputs: Record<string, ResolvedInstanceInput[]>
         }
       >()
+
       let pendingInstanceUpdatedFlushTimer: ReturnType<typeof setTimeout> | null = null
 
       const scheduleInstanceUpdatedFlush = () => {
@@ -104,6 +104,7 @@ export const useProjectInstancesStore = defineMultiStore({
           pendingInstanceUpdatedFlushTimer = null
 
           let processed = 0
+
           for (const [instanceId, payload] of pendingInstanceUpdatedEvents) {
             pendingInstanceUpdatedEvents.delete(instanceId)
             triggerInstanceUpdated(payload)
@@ -113,6 +114,7 @@ export const useProjectInstancesStore = defineMultiStore({
             }
 
             processed++
+
             if (processed >= 64) {
               break
             }
@@ -137,10 +139,12 @@ export const useProjectInstancesStore = defineMultiStore({
         hub: HubModel
         blueprint: boolean
       }>()
+
       const { on: onProjectNodesUpdated, trigger: triggerProjectNodesUpdated } = createEventHook<{
         instances: InstanceModel[]
         hubs: HubModel[]
       }>()
+
       const { on: onHubDeleted, trigger: triggerHubDeleted } = createEventHook<string>()
 
       const componentTypeToInstancesMap = shallowReactive(new Map()) as Map<string, InstanceModel[]>
@@ -215,8 +219,8 @@ export const useProjectInstancesStore = defineMultiStore({
           ...Object.keys(instance.inputs ?? {}),
           ...Object.keys(instance.hubInputs ?? {}),
         ])
-        const safeBaseName = isValidExportInputName(baseName) ? baseName : "input"
 
+        const safeBaseName = isValidExportInputName(baseName) ? baseName : "input"
         if (!existingInputNames.has(safeBaseName)) {
           return safeBaseName
         }
@@ -268,7 +272,7 @@ export const useProjectInstancesStore = defineMultiStore({
           return
         }
 
-        if ((instance.inputs ?? {})[trimmedName] || (instance.hubInputs ?? {})[trimmedName]) {
+        if (instance.inputs?.[trimmedName] || instance.hubInputs?.[trimmedName]) {
           throw new Error(`Export input "${trimmedName}" already exists`)
         }
 
@@ -333,6 +337,7 @@ export const useProjectInstancesStore = defineMultiStore({
 
         for (const outputName of outputNames) {
           const firstInput = instance.inputs?.[outputName]?.[0]
+
           const sourceOutput = firstInput
             ? inputResolverOutputs.get(`instance:${firstInput.instanceId}`)
             : undefined
@@ -466,6 +471,7 @@ export const useProjectInstancesStore = defineMultiStore({
           if (!residentInstanceIds.has(compositeInstance.id)) {
             virtualInstanceIds.add(compositeInstance.id)
           }
+
           ghostInstanceIds.delete(compositeInstance.id)
 
           updateVirtualInstanceState(compositeInstance)
@@ -543,6 +549,7 @@ export const useProjectInstancesStore = defineMultiStore({
                 }
 
                 const renamedInstanceIds = new Set<string>()
+
                 if (
                   event.updatedInstances?.length === 1 &&
                   event.deletedInstanceIds?.length === 1
@@ -550,7 +557,6 @@ export const useProjectInstancesStore = defineMultiStore({
                   const updatedInstance = event.updatedInstances[0]
                   const deletedInstanceId = event.deletedInstanceIds[0]
                   const deletedInstance = instances.get(deletedInstanceId)
-
                   if (deletedInstance?.type === updatedInstance.type) {
                     renameInstanceLocally(deletedInstanceId, updatedInstance)
                     renamedInstanceIds.add(deletedInstanceId)
@@ -576,6 +582,7 @@ export const useProjectInstancesStore = defineMultiStore({
                 }
 
                 const createdInstances: InstanceModel[] = []
+
                 for (const instance of event.updatedInstances ?? []) {
                   const existingInstance = instances.get(instance.id)
 
@@ -593,6 +600,7 @@ export const useProjectInstancesStore = defineMultiStore({
                 }
 
                 const createdHubs: HubModel[] = []
+
                 for (const hub of event.updatedHubs ?? []) {
                   const existingHub = hubs.get(hub.id)
                   updateHubState(hub)
@@ -618,15 +626,18 @@ export const useProjectInstancesStore = defineMultiStore({
                 }
 
                 const promotedVirtualInstanceIds = new Set<string>()
+
                 const demotedVirtualInstanceIds = new Set(
                   event.updatedGhostInstances?.map(instance => instance.id),
                 )
 
                 for (const virtualInstance of event.updatedVirtualInstances ?? []) {
                   promotedVirtualInstanceIds.add(virtualInstance.id)
+
                   if (!residentInstanceIds.has(virtualInstance.id)) {
                     virtualInstanceIds.add(virtualInstance.id)
                   }
+
                   ghostInstanceIds.delete(virtualInstance.id)
 
                   const unitTypes = new Set<string>()
@@ -692,8 +703,8 @@ export const useProjectInstancesStore = defineMultiStore({
                     continue
                   }
 
-                  // Resident instances may temporarily appear in ghost events.
-                  // Keep them in the local map and only clear ghost marker.
+                  // resident instances may temporarily appear in ghost events
+                  // keep them in the local map and only clear ghost marker
                   if (!wasGhostInstance) {
                     continue
                   }
@@ -729,7 +740,6 @@ export const useProjectInstancesStore = defineMultiStore({
         const residentInstance = residentInstanceIds.has(instance.id)
           ? instances.get(instance.id)
           : undefined
-
         if (residentInstance) {
           residentInstance.resolvedInputs = instance.resolvedInputs
           residentInstance.outputs = instance.outputs
@@ -1085,6 +1095,7 @@ export const useProjectInstancesStore = defineMultiStore({
         // try to extract the existing suffix from the name
         const match = name.match(/-(\d+)$/)
         let suffix = 1
+
         if (match) {
           suffix = parseInt(match[1], 10) + 1
           name = name.slice(0, match.index)
@@ -1092,6 +1103,7 @@ export const useProjectInstancesStore = defineMultiStore({
 
         // ensure the name is unique by appending a suffix
         let candidateName = `${name}-${suffix}`
+
         while (instanceNameSet.has(candidateName)) {
           suffix++
           candidateName = `${name}-${suffix}`
@@ -1127,6 +1139,7 @@ export const useProjectInstancesStore = defineMultiStore({
           for (const input of inputs) {
             if (input.instanceId === targetInstanceId) {
               removeInstanceInput(instance, inputName, input, false)
+
               addInstanceInput(
                 instance,
                 inputName,
@@ -1371,6 +1384,7 @@ export const useProjectInstancesStore = defineMultiStore({
 
       const getInstanceChildren = (instanceId: string): InstanceModel[] => {
         const children: InstanceModel[] = []
+
         for (const instance of instances.values()) {
           if (instance.parentId === instanceId) {
             children.push(instance)
@@ -1382,6 +1396,7 @@ export const useProjectInstancesStore = defineMultiStore({
 
       const getProjectInstances = (): InstanceModel[] => {
         const instancesArray: InstanceModel[] = []
+
         for (const instance of instances.values()) {
           if (!instance.parentId) {
             instancesArray.push(instance)

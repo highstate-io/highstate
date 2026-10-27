@@ -35,7 +35,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
       const route = panel.params?.routeName as string | undefined
       const params = panel.params?.routeParams as Record<string, string> | undefined
       const focusable = panel.params?.focusable ?? true
-
       if (!route || !params || !focusable) {
         return
       }
@@ -65,16 +64,14 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const loadLayout = async () => {
     const layout = await $client.workspace.getWorkspaceLayout.query()
     const data = layout as SerializedDockview
-
-    if (data && data.panels && Object.keys(data.panels).length > 0) {
+    if (data?.panels && Object.keys(data.panels).length > 0) {
       try {
         dockview.value!.fromJSON(data)
         serializedLayout.value = data
 
         const currentRoute = router.currentRoute.value
-
         if (currentRoute.name !== "home") {
-          // Rerun panel middleware without adding a duplicate history entry.
+          // rerun panel middleware without adding a duplicate history entry
           await navigateTo({
             name: currentRoute.name,
             params: currentRoute.params,
@@ -154,7 +151,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 
   const closeTerminalPanel = (projectId: string, sessionId: string) => {
     const panel = dockview.value!.getPanel(`projects/${projectId}/terminal-sessions/${sessionId}`)
-
     if (panel) {
       dockview.value!.removePanel(panel)
     }

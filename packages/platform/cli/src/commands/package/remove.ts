@@ -27,9 +27,8 @@ export class PackageRemoveCommand extends Command {
         pkg.name === `@highstate/${this.name}` ||
         pkg.relativePath.endsWith(this.name),
     )
-
     if (!targetPackage) {
-      logger.error(`package not found: ${this.name}`)
+      logger.error("package not found: %s", this.name)
       process.exit(1)
     }
 
@@ -40,6 +39,6 @@ export class PackageRemoveCommand extends Command {
     const remainingPackages = await scanWorkspacePackages(workspaceRoot)
     await updateTsconfigReferences(workspaceRoot, remainingPackages)
 
-    logger.info(`removed package: ${targetPackage.name}`)
+    logger.info("removed package: %s", targetPackage.name)
   }
 }

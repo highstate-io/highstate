@@ -39,13 +39,11 @@ const cuid2Regex = /^c[a-z0-9]{23}$/
 
 export function parseGlobalSearchQuery(text: string): GlobalSearchQueryPlan {
   const tokens = text.trim().split(/\s+/).filter(Boolean)
-
   if (tokens.length === 0) {
     return { type: "empty" }
   }
 
   const ids = tokens.filter(token => cuid2Regex.test(token))
-
   if (ids.length > 0 && ids.length === tokens.length) {
     return { type: "id", ids: ids.slice(0, 50) }
   }
@@ -112,7 +110,6 @@ export function toGroupsFromTextResult(
         unlockState: "unlocked",
         hit,
       }))
-
       if (items.length === 0) {
         return null
       }
@@ -183,7 +180,6 @@ export function toGroupsFromIdsResult(
 
     for (const item of items) {
       const key = getPaletteItemKey(item)
-
       if (seen.has(key)) {
         continue
       }
@@ -246,7 +242,6 @@ export function getNavigateTargetForPaletteItem(
   }
 
   const kind = item.hit.kind
-
   if (kind === "terminalSession") {
     return {
       name: "terminal-session",

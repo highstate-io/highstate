@@ -60,7 +60,7 @@ export class LocalArtifactBackend implements ArtifactBackend {
     const [, fileName] = this.getArtifactPath(projectId, artifactId)
 
     try {
-      return Promise.resolve(createReadStream(fileName, { highWaterMark: chunkSize }))
+      return await Promise.resolve(createReadStream(fileName, { highWaterMark: chunkSize }))
     } catch (error) {
       logger.debug({ hash: artifactId, error }, "artifact retrieval failed")
       return null

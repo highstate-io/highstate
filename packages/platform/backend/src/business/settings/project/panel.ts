@@ -60,11 +60,11 @@ export class PanelSettingsService {
 
   async get(context: ProjectRequestContext, panelId: string): Promise<PanelOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const panel = await database.panel.findUnique({
       where: { id: panelId },
       select: PanelSettingsService.select(),
     })
-
     if (!panel) {
       return null
     }

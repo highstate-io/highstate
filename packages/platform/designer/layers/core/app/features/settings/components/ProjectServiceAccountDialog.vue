@@ -14,6 +14,7 @@ watch(
   () => [visible.value, serviceAccount] as const,
   () => {
     if (!visible.value) return
+
     title.value = serviceAccount?.meta.title ?? ""
     description.value = serviceAccount?.meta.description ?? ""
   },
@@ -22,6 +23,7 @@ watch(
 
 function save(): void {
   if (!title.value.trim()) return
+
   emit("save", {
     meta: {
       title: title.value.trim(),

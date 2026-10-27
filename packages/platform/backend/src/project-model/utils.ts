@@ -32,7 +32,6 @@ export function patchInstanceArguments(
   for (const [operationIndex, operation] of operations.entries()) {
     try {
       const tokens = parseJsonPointer(operation.path)
-
       if (tokens.length === 0) {
         if (operation.operation === "remove") {
           throw new PatchFailure("ROOT_REMOVAL_UNSUPPORTED", "The argument map cannot be removed")
@@ -42,6 +41,7 @@ export function patchInstanceArguments(
           if (!isDeepStrictEqual(result, operation.value)) {
             throw new PatchFailure("TEST_FAILED", "The value at the path does not match")
           }
+
           continue
         }
 
@@ -63,6 +63,7 @@ export function patchInstanceArguments(
         error instanceof PatchFailure
           ? error
           : new PatchFailure("VALUE_INVALID", "The value at the path cannot be patched", error)
+
       throw new ProjectModelArgumentPatchError(
         operationIndex,
         operation.path,
@@ -78,6 +79,7 @@ export function patchInstanceArguments(
 
 function parseJsonPointer(path: string): string[] {
   if (path === "") return []
+
   if (!path.startsWith("/")) {
     throw new PatchFailure("PATH_INVALID", "The path must be an RFC 6901 JSON Pointer")
   }
@@ -102,6 +104,7 @@ function applyAtPath(
   const yamlValue = yamlValueSchema.safeParse(current)
   if (yamlValue.success) {
     let parsed: unknown
+
     try {
       parsed = parse(yamlValue.data.value) as unknown
     } catch (error) {
@@ -109,12 +112,14 @@ function applyAtPath(
     }
 
     applyAtPath(parsed, tokens, operation)
+
     Object.defineProperty(current as Record<string, unknown>, "value", {
       value: stringify(parsed),
       configurable: true,
       enumerable: true,
       writable: true,
     })
+
     return
   }
 
@@ -123,6 +128,7 @@ function applyAtPath(
   }
 
   const [token, ...remaining] = tokens
+
   if (token === undefined) return
 
   if (remaining.length > 0) {
@@ -144,6 +150,7 @@ function applyToContainer(
     if (!isDeepStrictEqual(existing, operation.value)) {
       throw new PatchFailure("TEST_FAILED", "The value at the path does not match")
     }
+
     return
   }
 
@@ -153,13 +160,16 @@ function applyToContainer(
   }
 
   const exists = Object.hasOwn(container, token)
+
   if (operation.operation === "remove") {
     if (!exists) throw pathNotFound()
+
     delete container[token]
     return
   }
 
   if (operation.operation === "replace" && !exists) throw pathNotFound()
+
   Object.defineProperty(container, token, {
     value: structuredClone(operation.value),
     configurable: true,
@@ -179,13 +189,16 @@ function applyToArray(
   }
 
   const index = parseArrayIndex(token)
+
   if (operation.operation === "add") {
     if (index > array.length) throw pathNotFound()
+
     array.splice(index, 0, structuredClone(operation.value))
     return
   }
 
   if (index >= array.length) throw pathNotFound()
+
   if (operation.operation === "remove") {
     array.splice(index, 1)
   } else {
@@ -197,10 +210,12 @@ function getExistingValue(container: JsonContainer, token: string): unknown {
   if (Array.isArray(container)) {
     const index = parseArrayIndex(token)
     if (index >= container.length) throw pathNotFound()
+
     return container[index]
   }
 
   if (!Object.hasOwn(container, token)) throw pathNotFound()
+
   return container[token]
 }
 

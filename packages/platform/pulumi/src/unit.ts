@@ -1,4 +1,6 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: здесь орать запрещено */
+/**
+ * biome-ignore-all lint/suspicious/noExplicitAny: здесь орать запрещено
+ */
 
 import type { IsEmptyObject } from "type-fest"
 import { join } from "node:path"
@@ -212,14 +214,13 @@ function getInputValue(
 ) {
   const entity = unit.entities.get(input.type)
   if (!entity) {
-    throw new Error(`Entity "${input.type}" not found in the unit "${unit.model.type}".`)
+    throw new Error(`Entity "${input.type}" not found in the unit "${unit.model.type}"`)
   }
 
   const values = entries.flatMap(entry => {
     const value = parseArgumentValue(entry.value)
     const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
     const result = schema.safeParse(value)
-
     if (!result.success) {
       throw new Error(`Invalid value for input "${inputName}": ${z.prettifyError(result.error)}`)
     }
@@ -254,14 +255,13 @@ export function forUnit<
 > {
   if (!hsConfig) {
     throw new Error(
-      `Runtime config is required. Set "${highstateRuntimeEndpointEnvVar}" and "${highstateRuntimeTokenEnvVar}".`,
+      `Runtime config is required. Set "${highstateRuntimeEndpointEnvVar}" and "${highstateRuntimeTokenEnvVar}"`,
     )
   }
 
   const args = mapValues(unit.model.args, (arg, argName) => {
     const value = parseArgumentValue(hsConfig.args[argName])
     const result = arg[runtimeSchema]!.safeParse(value)
-
     if (!result.success) {
       throw new Error(`Invalid argument "${argName}": ${z.prettifyError(result.error)}`)
     }
@@ -271,19 +271,17 @@ export function forUnit<
 
   const secrets = mapValues(unit.model.secrets, (secret, secretName) => {
     const hasValue = secretName in hsConfig.secretValues
-
     if (!hasValue && !secret.required) {
       return secret.schema.default ? pulumiSecret(secret.schema.default) : undefined
     }
 
     if (!hasValue && secret.required) {
-      throw new Error(`Secret "${secretName}" is required but not provided.`)
+      throw new Error(`Secret "${secretName}" is required but not provided`)
     }
 
     const rawValue = hsConfig.secretValues[secretName]
     const value = parseArgumentValue(rawValue)
     const result = secret[runtimeSchema]!.safeParse(value)
-
     if (!result.success) {
       throw new Error(`Invalid secret "${secretName}": ${z.prettifyError(result.error)}`)
     }
@@ -293,7 +291,6 @@ export function forUnit<
 
   const inputs = mapValues(unit.model.inputs, (input, inputName) => {
     const value = hsConfig.inputs[inputName]
-
     if (!value) {
       if (input.multiple) {
         return []
@@ -374,13 +371,13 @@ export function forUnit<
         }
 
         if (outputName.startsWith("$")) {
-          throw new Error(`Unknown extra output "${outputName}".`)
+          throw new Error(`Unknown extra output "${outputName}"`)
         }
 
         const outputModel = unit.model.outputs[outputName]
         if (!outputModel) {
           throw new Error(
-            `Output "${outputName}" not found in the unit "${unit.model.type}", but was passed to outputs(...).`,
+            `Output "${outputName}" not found in the unit "${unit.model.type}", but was passed to outputs(...)`,
           )
         }
 
@@ -391,13 +388,12 @@ export function forUnit<
         const entity = unit.entities.get(outputModel.type)
         if (!entity) {
           throw new Error(
-            `Entity "${outputModel.type}" not found in the unit "${unit.model.type}". It looks like a bug in the unit definition.`,
+            `Entity "${outputModel.type}" not found in the unit "${unit.model.type}". It looks like a bug in the unit definition`,
           )
         }
 
         const schema = outputModel.multiple ? entity.schema.array() : entity.schema
         const parseResult = schema.safeParse(outputValue)
-
         if (!parseResult.success) {
           throw new Error(
             `Invalid value for output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(
@@ -413,6 +409,7 @@ export function forUnit<
 
       // collect artifacts from all outputs
       const artifactsMap: Record<string, UnitArtifact[]> = {}
+
       for (const [outputName, outputValue] of resolvedOutputEntries) {
         const artifacts = extractObjectsFromValue(unitArtifactSchema, outputValue)
         if (artifacts.length > 0) {
@@ -575,6 +572,7 @@ function extractObjectsFromValue<TSchema extends z.ZodType>(
       for (const item of obj) {
         traverse(item)
       }
+
       return
     }
 

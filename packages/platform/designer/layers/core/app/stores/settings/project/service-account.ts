@@ -6,6 +6,7 @@ export const useProjectServiceAccountSettingsStore = defineMultiStore({
   create: ({ storeId, id: [projectId] }) =>
     defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
       const items = useCollectionQuery(query => {
         return $client.projectServiceAccountSettings.query.query({ projectId, query })
       })
@@ -15,6 +16,7 @@ export const useProjectServiceAccountSettingsStore = defineMultiStore({
           projectId,
           serviceAccount,
         })
+
         await items.load()
 
         return result
@@ -26,6 +28,7 @@ export const useProjectServiceAccountSettingsStore = defineMultiStore({
           serviceAccountId,
           serviceAccount,
         })
+
         await items.load()
 
         return result

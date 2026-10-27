@@ -24,11 +24,11 @@ export class TerminalSessionService {
     stateId: string,
   ): Promise<TerminalSessionOutput[]> {
     const database = await this.database.forProject(context.projectId)
+
     const state = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
     })
-
     if (!state) {
       return []
     }
@@ -76,7 +76,6 @@ export class TerminalSessionService {
         terminal: true,
       },
     })
-
     if (!session) {
       return null
     }
@@ -106,7 +105,6 @@ export class TerminalSessionService {
       where: { id: sessionId },
       select: { terminal: { select: { id: true, serviceAccountId: true } } },
     })
-
     if (!session) {
       return []
     }

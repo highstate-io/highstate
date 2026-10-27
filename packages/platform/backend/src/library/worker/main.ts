@@ -11,6 +11,7 @@ const logger = pino({ name: "library-worker" })
 
 try {
   const library = await loadComponents(logger, data.libraryModulePaths)
+
   const result = evaluateProject(
     logger,
     library,

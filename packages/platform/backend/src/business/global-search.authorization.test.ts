@@ -10,9 +10,11 @@ describe("GlobalSearchService authorization", () => {
     await expect(service.searchByIds(createBackendRequestContext(), [])).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(service.searchByText(createBackendRequestContext(), "query")).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(
       service.searchByIds(
         createBackendRequestContext(grantBackendPermission("backend.search")),

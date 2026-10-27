@@ -1,4 +1,4 @@
-import { proxmox, distributions } from "@highstate/library"
+import { distributions, proxmox } from "@highstate/library"
 
 const { proxmoxCluster } = proxmox.connection({
   name: "my-proxmox",
@@ -28,7 +28,7 @@ proxmox.virtualMachine({
     resources: {
       cores: 4,
       sockets: 1,
-      memory: 8192,  // 8GB RAM
+      memory: 8192, // 8GB RAM
       diskSize: 100, // 100GB disk
     },
     ipv4: {

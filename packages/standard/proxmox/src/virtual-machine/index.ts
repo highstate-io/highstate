@@ -87,10 +87,9 @@ function createCloudInit(): VirtualEnvironmentVmInitialization {
 
   if (args.vendorData || inputVendorData) {
     let vendorData: string | undefined = args.vendorData
-
     if (!vendorData) {
       if (inputVendorData!.content.type !== "embedded") {
-        throw new Error("For now, only the embedded vendor data is supported.")
+        throw new Error("For now, only the embedded vendor data is supported")
       }
 
       vendorData = inputVendorData!.content.value

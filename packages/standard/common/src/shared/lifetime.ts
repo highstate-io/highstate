@@ -10,7 +10,7 @@ export type LifetimeScopeHooks = {
   afterDelete: ResourceHook[]
 }
 
-export type LifetimeScopeRef = {
+export interface LifetimeScopeRef {
   /**
    * Disposes the reference by calling "unref" on the scope.
    * Can be safely called multiple times, but should be called at least once to ensure proper cleanup of the scope.
@@ -18,7 +18,7 @@ export type LifetimeScopeRef = {
   [Symbol.asyncDispose](): Promise<void>
 }
 
-export type LifetimeScope = {
+export interface LifetimeScope {
   /**
    * The Pulumi hooks that should be executed to manage the lifetime of units within this scope.
    */
@@ -96,7 +96,7 @@ function createLifetimeScope(
         unrefTimer = undefined
       }
 
-      return setupPromise
+      return await setupPromise
     }
 
     if (counter === 0) {
@@ -105,18 +105,18 @@ function createLifetimeScope(
 
     counter++
 
-    return setupPromise
+    return await setupPromise
   }
 
   const unref = async () => {
     if (counter - pendingUnrefs === 0) {
-      return disposePromise
+      return await disposePromise
     }
 
     pendingUnrefs++
     schedulePendingUnrefs()
 
-    return disposePromise
+    return await disposePromise
   }
 
   const before = new ResourceHook(`${name}-setup`, ref)

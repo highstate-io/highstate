@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  IdTableCell,
-  TimeTableCell,
-  baseHeaders,
-  getSettingsEntityDisplayFromMeta,
-} from "#layers/core/app/features/settings"
-import { ComponentIcon } from "#layers/core/app/features/shared"
-import type { EntityUiMeta } from "#layers/core/app/features/entity-explorer"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   EntitySnapshotListItemOutput,
 } from "@highstate/backend/shared"
+import type { EntityUiMeta } from "#layers/core/app/features/entity-explorer"
+import {
+  baseHeaders,
+  getSettingsEntityDisplayFromMeta,
+  IdTableCell,
+  SettingsDataTable,
+  ShowDetailsAction,
+  TimeTableCell,
+} from "#layers/core/app/features/settings"
+import { ComponentIcon } from "#layers/core/app/features/shared"
 
 const { projectId, data, loading, hideHeader, height, fallbackIconMeta } = defineProps<{
   projectId: string

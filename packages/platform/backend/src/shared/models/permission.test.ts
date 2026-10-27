@@ -70,6 +70,7 @@ describe("assessPermissionRisk", () => {
       risk: "critical",
       consequence: "Allows granting access beyond the caller's authority.",
     }
+
     const assessment = assessPermissionRisk([
       grant(criticalPermission, true),
       grant(secondCriticalPermission),
@@ -77,12 +78,15 @@ describe("assessPermissionRisk", () => {
     ])
 
     expect(assessment.risk).toBe("critical")
+
     expect(assessment.message).toContain(
       `"${criticalPermission.title}" is critical: allows acting with another user's authority.`,
     )
+
     expect(assessment.message).toContain(
       `"${secondCriticalPermission.title}" is critical: allows granting access beyond the caller's authority.`,
     )
+
     expect(assessment.message).toContain("Remove all critical permissions")
     expect(assessment.message).not.toContain("Add restrictions")
   })

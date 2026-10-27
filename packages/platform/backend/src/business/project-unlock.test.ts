@@ -36,6 +36,7 @@ describe("ProjectUnlockService", () => {
     const updateProject = vi.fn().mockImplementation(async () => {
       callOrder.push("backfill")
     })
+
     const findUnlockMethods = vi.fn().mockResolvedValue([
       {
         type: "identity",
@@ -100,6 +101,7 @@ describe("ProjectUnlockService", () => {
       Buffer,
       string,
     ][]
+
     const [firstCall, secondCall] = unlockCalls
 
     expect(firstCall).toBeDefined()

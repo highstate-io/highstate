@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SettingsListPage, ArtifactsTable } from "#layers/core/app/features/settings"
+import { ArtifactsTable, SettingsListPage } from "#layers/core/app/features/settings"
 
 const settingsStore = useProjectArtifactSettingsStore()
 const { projectStore } = useProjectStores()

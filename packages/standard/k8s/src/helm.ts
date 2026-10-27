@@ -305,7 +305,6 @@ export class Chart extends ComponentResource {
 
               const serviceName = args.serviceName ?? name
               const expectedName = `${name}:${namespace}/${serviceName}`
-
               if (
                 resourceArgs.type === "kubernetes:core/v1:Service" &&
                 resourceArgs.name === expectedName
@@ -366,7 +365,6 @@ export class Chart extends ComponentResource {
         routes.map(async ({ name: routeName, route }) => {
           const { serviceName: _serviceName, rules: _rules, ...baseRoute } = route
           const accessPoint = route.accessPoint ?? args.accessPoint
-
           if (!accessPoint) {
             throw new Error(
               `Access point is required for chart route "${name}-${routeName}". Set it on the route or on Chart args.accessPoint`,
@@ -402,6 +400,7 @@ export class Chart extends ComponentResource {
                   const ruleServiceName = rule.serviceName ?? defaultServiceName
                   const ruleService = await this.getService(ruleServiceName)
                   const ruleServicePort = rule.servicePort ?? route.servicePort ?? args.servicePort
+
                   const ruleServiceEndpoints = await this.resolveServiceEndpoints(
                     ruleService,
                     ruleServiceName,
@@ -571,10 +570,8 @@ export class Chart extends ComponentResource {
 
     if (servicePort != null) {
       const requestedServicePort = await toPromise(servicePort)
-
       if (typeof requestedServicePort === "string") {
         const namedPort = servicePorts?.find(port => port.name === requestedServicePort)
-
         if (!namedPort) {
           throw new Error(
             `Named port "${requestedServicePort}" not found for service "${serviceName}" in chart route "${routeName}"`,
@@ -596,7 +593,6 @@ export class Chart extends ComponentResource {
     }
 
     const filteredEndpoints = endpoints.filter(endpoint => endpoint.port === resolvedServicePort)
-
     if (filteredEndpoints.length === 0) {
       throw new Error(
         `No endpoints with port ${resolvedServicePort} found for service "${serviceName}" in chart route "${routeName}"`,
@@ -610,7 +606,6 @@ export class Chart extends ComponentResource {
     return output({ args: this.args, chart: this.chart }).apply(({ args, chart }) => {
       const resolvedName = name ?? args.serviceName ?? this.name
       const existingService = this.services.get(resolvedName)
-
       if (existingService) {
         return existingService
       }
@@ -635,7 +630,6 @@ export class Chart extends ComponentResource {
       )
 
       const item = workloadsWithNames.find(w => w.name === name)
-
       if (!item) {
         throw new Error(`Workload with name '${name}' not found in the chart workloads`)
       }
@@ -798,7 +792,6 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
 
   // find all matching files
   const files = await glob(globPattern, { cwd: chartsDir })
-
   if (files.includes(targetFileName)) {
     return resolve(chartsDir, targetFileName)
   }
@@ -823,7 +816,6 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
   // check the SHA256
   const content = await readFile(resolve(chartsDir, targetFileName))
   const actualSha256 = await sha256(content)
-
   if (actualSha256 !== manifest.sha256) {
     throw new Error(`SHA256 mismatch for chart '${manifest.name}'`)
   }
@@ -847,7 +839,6 @@ export function getChartServiceOutput(chart: helm.v4.Chart, name: string): Outpu
 
   return output(services).apply(services => {
     const service = services.find(s => s.name === name)?.service
-
     if (!service) {
       throw new Error(`Service with name '${name}' not found in the chart resources`)
     }

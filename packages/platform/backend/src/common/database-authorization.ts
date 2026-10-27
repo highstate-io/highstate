@@ -17,7 +17,7 @@ type InstanceScope = {
   stateIds: readonly string[]
 }
 
-export type ProjectAuthorizationTarget<TWhere> = {
+export interface ProjectAuthorizationTarget<TWhere> {
   resources?: (resourceIds: readonly string[]) => TWhere
   instances?: (scope: InstanceScope) => TWhere
   owners?: (serviceAccountIds: readonly string[]) => TWhere
@@ -25,7 +25,7 @@ export type ProjectAuthorizationTarget<TWhere> = {
   workers?: (workerIds: readonly string[]) => TWhere
 }
 
-export type BackendAuthorizationTarget<TWhere> = {
+export interface BackendAuthorizationTarget<TWhere> {
   resources?: (resourceIds: readonly string[]) => TWhere
   projects?: (projectIds: readonly string[]) => TWhere
   projectSpaces?: (projectSpaceIds: readonly string[]) => TWhere
@@ -69,9 +69,11 @@ export async function buildProjectAuthorizationWhere<TWhere>(
 
   const restrictions = grants.flatMap(grant => grant.restrictions)
   const needsInstances = restrictions.some(restriction => restriction.type === "instances")
+
   const instanceScopes = needsInstances
     ? await resolveInstanceScopes(database, context.projectId, restrictions)
     : new Map<ResolvedPermissionRestriction<ProjectPermissionRestriction>, InstanceScope>()
+
   const grantPredicates = grants.map(grant => {
     const predicates = grant.restrictions.map(restriction =>
       buildProjectRestrictionWhere(context, restriction, target, instanceScopes),
@@ -106,6 +108,7 @@ export async function buildBackendAuthorizationWhere<TWhere>(
 
   const restrictions = grants.flatMap(grant => grant.restrictions)
   const spaceScopes = await resolveProjectSpaceScopes(database, restrictions)
+
   const grantPredicates = grants.map(grant => {
     const predicates = grant.restrictions.map(restriction =>
       buildBackendRestrictionWhere(restriction, target, spaceScopes),
@@ -193,11 +196,14 @@ async function resolveInstanceScopes(
   ReadonlyMap<ResolvedPermissionRestriction<ProjectPermissionRestriction>, InstanceScope>
 > {
   const projectDatabase = await database.forProject(projectId)
+
   const states = await projectDatabase.instanceState.findMany({
     select: { id: true, instanceId: true, parentId: true },
   })
+
   const children = buildChildren(states)
   const byInstanceId = new Map(states.map(state => [state.instanceId, state]))
+
   const result = new Map<
     ResolvedPermissionRestriction<ProjectPermissionRestriction>,
     InstanceScope
@@ -209,6 +215,7 @@ async function resolveInstanceScopes(
     }
 
     const stateIds = new Set<string>()
+
     for (const instanceId of restriction.instanceIds) {
       const state = byInstanceId.get(instanceId)
       if (!state) {
@@ -216,6 +223,7 @@ async function resolveInstanceScopes(
       }
 
       stateIds.add(state.id)
+
       if (restriction.recursive) {
         addDescendants(state.id, children, stateIds)
       }
@@ -247,8 +255,10 @@ async function resolveProjectSpaceScopes(
   const spaces = await database.backend.projectSpace.findMany({
     select: { id: true, parentId: true },
   })
+
   const children = buildChildren(spaces)
   const existingIds = new Set(spaces.map(space => space.id))
+
   const result = new Map<
     ResolvedPermissionRestriction<BackendPermissionRestriction>,
     readonly string[]
@@ -256,6 +266,7 @@ async function resolveProjectSpaceScopes(
 
   for (const restriction of hierarchyRestrictions) {
     const spaceIds = new Set(restriction.projectSpaceIds.filter(id => existingIds.has(id)))
+
     if (restriction.recursive) {
       for (const spaceId of [...spaceIds]) {
         addDescendants(spaceId, children, spaceIds)
@@ -272,6 +283,7 @@ function buildChildren<TNode extends { id: string; parentId: string | null }>(
   nodes: readonly TNode[],
 ): ReadonlyMap<string, readonly string[]> {
   const children = new Map<string, string[]>()
+
   for (const node of nodes) {
     if (!node.parentId) {
       continue
@@ -291,6 +303,7 @@ function addDescendants(
   result: Set<string>,
 ): void {
   const pending = [...(children.get(rootId) ?? [])]
+
   while (pending.length > 0) {
     const id = pending.pop()
     if (!id || result.has(id)) {

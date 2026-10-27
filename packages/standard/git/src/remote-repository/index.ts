@@ -6,7 +6,7 @@ const { args, inputs, outputs } = forUnit(git.remoteRepository)
 
 const rawEndpoint = args.url ?? (await toPromise(inputs.endpoint))
 if (!rawEndpoint) {
-  throw new Error("Either 'url' or 'endpoint' must be provided.")
+  throw new Error("Either 'url' or 'endpoint' must be provided")
 }
 
 await using materializedRepo = await MaterializedRepository.clone(rawEndpoint)

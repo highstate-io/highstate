@@ -54,10 +54,8 @@ export type InputAddressSpace =
   | network.L3Endpoint
   | string
 
-type IpFamily = network.AddressType
-
 type IpRange = {
-  family: IpFamily
+  family: network.AddressType
   start: bigint
   endExclusive: bigint
 }
@@ -85,8 +83,10 @@ export function createAddressSpace({
 
     return ipv6
   })
+
   const subnets = rangesToCanonicalSubnets(normalized)
   const identity = getCombinedIdentity(subnets)
+
   const title =
     subnets.length === 1
       ? subnetToString(subnets[0]!)
@@ -158,13 +158,13 @@ function rangeFromString(value: string): IpRange {
 
   if (trimmed.includes("-")) {
     const [left, right, ...rest] = trimmed.split("-")
+
     if (!left || !right || rest.length > 0) {
       throw new Error(`Invalid range: "${value}"`)
     }
 
     const start = parseIp(left.trim())
     const end = parseIp(right.trim())
-
     if (start.type !== end.type) {
       throw new Error(`Range must not mix IPv4 and IPv6: "${value}"`)
     }
@@ -200,7 +200,11 @@ function rangeFromCidr(cidr: string): IpRange {
   })
 }
 
-function rangeFromParsedCidr(parsed: { family: IpFamily; base: bigint; prefix: number }): IpRange {
+function rangeFromParsedCidr(parsed: {
+  family: network.AddressType
+  base: bigint
+  prefix: number
+}): IpRange {
   const size = cidrBlockSize(parsed.family, parsed.prefix)
 
   return {
@@ -218,6 +222,7 @@ function normalizeRanges(included: IpRange[], excluded: IpRange[]): IpRange[] {
     mergeRanges(includedByFamily.v4),
     mergeRanges(excludedByFamily.v4),
   )
+
   const normalizedV6 = subtractMergedRanges(
     mergeRanges(includedByFamily.v6),
     mergeRanges(excludedByFamily.v6),
@@ -248,6 +253,7 @@ function mergeRanges(ranges: IpRange[]): IpRange[] {
     if (a.start === b.start) {
       return a.endExclusive < b.endExclusive ? -1 : a.endExclusive > b.endExclusive ? 1 : 0
     }
+
     return a.start < b.start ? -1 : 1
   })
 
@@ -264,6 +270,7 @@ function mergeRanges(ranges: IpRange[]): IpRange[] {
       if (current.endExclusive > last.endExclusive) {
         last.endExclusive = current.endExclusive
       }
+
       continue
     }
 
@@ -275,6 +282,7 @@ function mergeRanges(ranges: IpRange[]): IpRange[] {
 
 function subtractMergedRanges(included: IpRange[], excluded: IpRange[]): IpRange[] {
   if (included.length === 0) return []
+
   if (excluded.length === 0) return included
 
   const result: IpRange[] = []
@@ -289,13 +297,13 @@ function subtractMergedRanges(included: IpRange[], excluded: IpRange[]): IpRange
 
     while (j < excluded.length) {
       const exc = excluded[j]!
-
       if (exc.start >= inc.endExclusive) {
         break
       }
 
       if (exc.start <= inc.start) {
         inc.start = inc.start < exc.endExclusive ? exc.endExclusive : inc.start
+
         if (inc.start >= inc.endExclusive) {
           break
         }
@@ -303,6 +311,7 @@ function subtractMergedRanges(included: IpRange[], excluded: IpRange[]): IpRange
         if (exc.endExclusive <= inc.start) {
           j++
         }
+
         continue
       }
 
@@ -313,6 +322,7 @@ function subtractMergedRanges(included: IpRange[], excluded: IpRange[]): IpRange
       })
 
       inc.start = exc.endExclusive
+
       if (inc.start >= inc.endExclusive) {
         break
       }
@@ -363,7 +373,6 @@ function sortSubnetsCanonical(subnets: network.Subnet[]): network.Subnet[] {
 
     const aBase = parseIp(a.baseAddress).value
     const bBase = parseIp(b.baseAddress).value
-
     if (aBase !== bBase) {
       return aBase < bBase ? -1 : 1
     }
@@ -372,11 +381,14 @@ function sortSubnetsCanonical(subnets: network.Subnet[]): network.Subnet[] {
   })
 }
 
-function rangeToCidrs(range: IpRange): Array<{ family: IpFamily; base: bigint; prefix: number }> {
+function rangeToCidrs(
+  range: IpRange,
+): Array<{ family: network.AddressType; base: bigint; prefix: number }> {
   const bits = range.family === "ipv4" ? 32 : 128
-  const result: Array<{ family: IpFamily; base: bigint; prefix: number }> = []
+  const result: Array<{ family: network.AddressType; base: bigint; prefix: number }> = []
 
   let current = range.start
+
   while (current < range.endExclusive) {
     const remaining = range.endExclusive - current
     const maxAligned = current === 0n ? 1n << BigInt(bits) : current & -current

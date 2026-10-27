@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { type ComponentModel, parseVersionedName } from "@highstate/contract"
 import { groupBy, map, pipe, sortBy } from "remeda"
-import { parseVersionedName, type ComponentModel } from "@highstate/contract"
 import ComponentTemplate from "./ComponentTemplate.vue"
 
 const { projectId } = defineProps<{

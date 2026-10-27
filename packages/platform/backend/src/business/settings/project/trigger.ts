@@ -44,11 +44,11 @@ export class TriggerSettingsService {
 
   async get(context: ProjectRequestContext, triggerId: string): Promise<TriggerOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const trigger = await database.trigger.findUnique({
       where: { id: triggerId },
       select: forSchema(triggerOutputSchema),
     })
-
     if (!trigger) {
       return null
     }

@@ -69,7 +69,6 @@ export class OperationManager {
     const project = await this.database.backend.project.findUnique({
       where: { id: request.projectId },
     })
-
     if (!project) {
       throw new Error(`Project with ID "${request.projectId}" not found`)
     }
@@ -109,7 +108,6 @@ export class OperationManager {
     const project = await this.database.backend.project.findUnique({
       where: { id: request.projectId },
     })
-
     if (!project) {
       throw new Error(`Project with ID "${request.projectId}" not found`)
     }
@@ -162,6 +160,7 @@ export class OperationManager {
     )
 
     this.runtimeOperations.set(operation.id, runtimeOperation)
+
     void runtimeOperation.operateSafe().finally(async () => {
       try {
         await this.runnerBackend.finishOperation?.(project.id, operation.id)
@@ -187,7 +186,6 @@ export class OperationManager {
           },
         },
       })
-
       if (activeOperations.length > 0) {
         // mark all lost operations as failed
         for (const operation of activeOperations) {
@@ -218,9 +216,9 @@ export class OperationManager {
       const existingLocks = await tx.instanceLock.findMany({
         select: { stateId: true },
       })
-
       if (existingLocks.length > 0) {
         const stateIds = existingLocks.map(lock => lock.stateId)
+
         await tx.instanceLock.deleteMany({
           where: {
             stateId: {
@@ -254,7 +252,6 @@ export class OperationManager {
           status: true,
         },
       })
-
       if (instancesToReset.length > 0) {
         // log each instance being reset
         for (const instance of instancesToReset) {
@@ -287,7 +284,7 @@ export class OperationManager {
         )
       }
 
-      // Step 4: reset attempted instance states
+      // step 4: reset attempted instance states
       const attemptedResult = await tx.instanceState.updateMany({
         where: {
           status: "attempted",
@@ -296,7 +293,6 @@ export class OperationManager {
           status: "failed",
         },
       })
-
       if (attemptedResult.count > 0) {
         this.logger.info(
           { projectId, resetAttemptedCount: attemptedResult.count },

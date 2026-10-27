@@ -35,6 +35,7 @@ export function humanTable(headers: string[], rows: unknown[][], empty: string):
   }
 
   const values = [headers, ...rows].map(row => row.map(formatTableValue))
+
   const widths = headers.map((_, index) =>
     Math.max(...values.map(row => visibleLength(row[index] ?? ""))),
   )
@@ -165,6 +166,7 @@ export function formatRemoteError(error: unknown): { error: Record<string, unkno
   const code = Code[error.code]?.replace(/[A-Z]/g, (character, index) =>
     index === 0 ? character.toLowerCase() : `_${character.toLowerCase()}`,
   )
+
   const errorInfo = error.findDetails(ErrorInfoSchema)[0]
   const badRequest = error.findDetails(BadRequestSchema)[0]
   const precondition = error.findDetails(PreconditionFailureSchema)[0]

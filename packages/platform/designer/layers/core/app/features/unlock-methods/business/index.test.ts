@@ -50,7 +50,9 @@ describe("createPasskeyUnlockMethod", () => {
     expect(mocks.createCredential).toHaveBeenCalledWith({
       keyName: "[project-id] home-lab | YubiKey",
     })
+
     expect(mocks.recipientOptions).toHaveBeenCalledWith({ identity: "passkey identity" })
+
     expect(unlockMethod).toEqual({
       type: "passkey",
       meta: {

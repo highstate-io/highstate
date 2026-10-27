@@ -13,6 +13,7 @@ describe("ProjectUnlockService authorization", () => {
       { HIGHSTATE_ENCRYPTION_ENABLED: false, HIGHSTATE_DEV_AUTO_UNLOCK_PROJECT_IDS: [] },
       {} as never,
     )
+
     vi.spyOn(database.backend.project, "findUnique").mockResolvedValue(null)
 
     await expect(
@@ -22,12 +23,14 @@ describe("ProjectUnlockService authorization", () => {
     await expect(
       service.unlockProject(createBackendRequestContext(), "missing", {} as never),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.getProjectUnlockState(
         createBackendRequestContext(grantBackendPermission("project.get")),
         "missing",
       ),
     ).rejects.not.toThrow(PermissionDeniedError)
+
     await expect(
       service.unlockProject(
         createBackendRequestContext(grantBackendPermission("project.unlock")),

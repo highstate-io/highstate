@@ -36,6 +36,7 @@ export class Bucket extends ComponentResource {
     super("highstate:rustfs:Bucket", name, args, opts)
 
     this.connection = output(args.connection)
+
     this.bucket = this.connection.apply(async connection => {
       const provider = await getProvider(connection)
 

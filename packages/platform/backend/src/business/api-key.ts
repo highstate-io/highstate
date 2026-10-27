@@ -55,11 +55,11 @@ export class ApiKeyService {
     apiKeyId: string,
   ): Promise<ApiKeyTokenOutput> {
     const database = await this.database.forProject(context.projectId)
+
     const existing = await database.apiKey.findUnique({
       where: { id: apiKeyId },
       include: { serviceAccount: { select: { meta: true } }, worker: { select: { id: true } } },
     })
-
     if (!existing) {
       throw new ProjectApiKeyNotFoundError(context.projectId, apiKeyId)
     }
@@ -75,10 +75,12 @@ export class ApiKeyService {
     }
 
     const { token } = await rotateProjectApiKeyToken(database, apiKeyId)
+
     const apiKey = await database.apiKey.findUniqueOrThrow({
       where: { id: apiKeyId },
       include: { serviceAccount: { select: { meta: true } }, worker: { select: { id: true } } },
     })
+
     return { apiKey: this.toProjectOutput(apiKey), token }
   }
 
@@ -90,7 +92,6 @@ export class ApiKeyService {
       where: { id: apiKeyId },
       select: { id: true },
     })
-
     if (!existing) {
       throw new BackendApiKeyNotFoundError(apiKeyId)
     }
@@ -98,6 +99,7 @@ export class ApiKeyService {
     requireBackendPermission(context, "api-key.rotate", { resourceId: existing.id })
 
     const { token } = await rotateBackendApiKeyToken(this.database.backend, apiKeyId)
+
     const apiKey = await this.database.backend.backendApiKey.findUniqueOrThrow({
       where: { id: apiKeyId },
       include: { serviceAccount: { select: { meta: true } } },
@@ -156,6 +158,7 @@ export class ApiKeyService {
   async getApiKeyByToken(projectId: string, token: string): Promise<ApiKey> {
     const apiKeyId = parseApiKeyToken(token, "project")
     const database = await this.database.forProject(projectId)
+
     const apiKey = await database.apiKey.findFirst({
       where: {
         id: apiKeyId,
@@ -163,7 +166,6 @@ export class ApiKeyService {
         OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       },
     })
-
     if (!apiKey) {
       throw new InvalidCredentialError("project-api-key")
     }
@@ -196,6 +198,7 @@ export class ApiKeyService {
     }
 
     const apiKey = await this.getBackendApiKeyByToken(token)
+
     const binding = await this.database.backend.backendServiceAccountProjectBinding.findUnique({
       where: {
         backendServiceAccountId_projectId: {
@@ -205,7 +208,6 @@ export class ApiKeyService {
       },
       select: { projectServiceAccountId: true },
     })
-
     if (!binding) {
       throw new ApiKeyProjectMismatchError()
     }
@@ -230,6 +232,7 @@ export class ApiKeyService {
     restrictionRules: BackendApiKey["restrictionRules"]
   }> {
     const apiKeyId = parseApiKeyToken(token, "backend")
+
     const apiKey = await this.database.backend.backendApiKey.findFirst({
       where: {
         id: apiKeyId,
@@ -238,7 +241,6 @@ export class ApiKeyService {
       },
       select: { id: true, serviceAccountId: true, restrictionRules: true },
     })
-
     if (!apiKey) {
       throw new InvalidCredentialError("backend-api-key")
     }
@@ -256,6 +258,7 @@ export async function rotateProjectApiKeyToken(
   apiKeyId: string,
 ): Promise<{ apiKey: ApiKey; token: string }> {
   const token = `hcp_${apiKeyId}_${createId()}`
+
   const apiKey = await database.apiKey.update({
     where: { id: apiKeyId },
     data: { tokenHash: hashApiKeyToken(token) },
@@ -269,6 +272,7 @@ export async function rotateBackendApiKeyToken(
   apiKeyId: string,
 ): Promise<{ token: string }> {
   const token = `hcb_${apiKeyId}_${createId()}`
+
   await database.backendApiKey.update({
     where: { id: apiKeyId },
     data: { tokenHash: hashApiKeyToken(token) },

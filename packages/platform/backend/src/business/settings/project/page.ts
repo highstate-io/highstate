@@ -49,6 +49,7 @@ export class PageSettingsService {
 
   async get(context: ProjectRequestContext, pageId: string): Promise<PageDetailsOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const page = await database.page.findUnique({
       where: { id: pageId },
       select: {
@@ -57,7 +58,6 @@ export class PageSettingsService {
         state: { select: { instanceId: true } },
       },
     })
-
     if (!page) {
       return null
     }

@@ -51,17 +51,20 @@ describe("UnitExtraService", () => {
       await projectDatabase.$transaction(async tx => {
         await service.processUnitTerminals(tx, instance.id, unitTerminals)
       })
+
       const terminals = await projectDatabase.terminal.findMany({ where: { stateId: instance.id } })
 
       expect(terminals).toHaveLength(1)
       expect(terminals[0].name).toBe("ssh")
       expect(terminals[0].status).toBe("active")
+
       expect(terminals[0].meta).toEqual({
         title: "SSH Terminal",
         description: "Secure shell access to the server",
         icon: "mdi:terminal",
         iconColor: "#4CAF50",
       })
+
       expect(terminals[0].spec).toMatchObject({
         image: "alpine:3.18",
         command: ["ssh", "-o", "StrictHostKeyChecking=no"],
@@ -118,15 +121,18 @@ describe("UnitExtraService", () => {
       const terminals = await projectDatabase.terminal.findMany({ where: { stateId: instance.id } })
 
       expect(terminals).toHaveLength(1)
+
       expect(terminals[0].meta).toEqual({
         title: "SSH Terminal",
         description: "Updated terminal with SSH access",
         icon: "mdi:terminal",
       })
+
       expect(terminals[0].spec).toMatchObject({
         image: "alpine:3.18",
         command: ["ssh", "-i", "/root/.ssh/id_rsa"],
       })
+
       expect(terminals[0].status).toBe("active")
     })
 
@@ -139,6 +145,7 @@ describe("UnitExtraService", () => {
       const instance = await createInstanceState(project.id)
 
       const db = await database.forProject(project.id)
+
       await db.terminal.createMany({
         data: [
           {
@@ -264,13 +271,16 @@ To login, use the following token:`,
 
       expect(pages).toHaveLength(1)
       expect(pages[0].name).toBe("dashboard")
+
       expect(pages[0].meta).toEqual({
         title: "Kubernetes Dashboard",
         description: "Access to the Kubernetes dashboard with login token",
         icon: "simple-icons:kubernetes",
         iconColor: "#326CE5",
       })
+
       expect(pages[0].content).toHaveLength(2)
+
       expect(pages[0].content[0]).toMatchObject({
         type: "markdown",
         content: expect.stringContaining("Kubernetes Dashboard"),
@@ -287,6 +297,7 @@ To login, use the following token:`,
       const instance = await createInstanceState(project.id)
 
       const db = await database.forProject(project.id)
+
       await db.page.create({
         data: {
           stateId: instance.id,
@@ -328,11 +339,13 @@ To login, use the following token:`,
       const pages = await projectDatabase.page.findMany({ where: { stateId: instance.id } })
 
       expect(pages).toHaveLength(1)
+
       expect(pages[0].meta).toEqual({
         title: "Updated Dashboard",
         description: "Updated dashboard with new features",
         icon: "mdi:monitor-dashboard",
       })
+
       expect(pages[0].content).toHaveLength(1)
     })
 
@@ -346,6 +359,7 @@ To login, use the following token:`,
       const instance = await createInstanceState(project.id)
 
       const db = await database.forProject(project.id)
+
       await db.page.createMany({
         data: [
           {
@@ -421,11 +435,13 @@ To login, use the following token:`,
 
       expect(triggers).toHaveLength(1)
       expect(triggers[0].name).toBe("cleanup")
+
       expect(triggers[0].meta).toEqual({
         title: "Cleanup Before Destroy",
         description: "Runs backup and cleanup operations before instance destruction",
         icon: "mdi:backup-restore",
       })
+
       expect(triggers[0].spec).toEqual({
         type: "before-destroy",
       })
@@ -441,6 +457,7 @@ To login, use the following token:`,
       const instance = await createInstanceState(project.id)
 
       const db = await database.forProject(project.id)
+
       await db.trigger.create({
         data: {
           stateId: instance.id,
@@ -477,12 +494,14 @@ To login, use the following token:`,
       const triggers = await projectDatabase.trigger.findMany({ where: { stateId: instance.id } })
 
       expect(triggers).toHaveLength(1)
+
       expect(triggers[0].meta).toEqual({
         title: "Advanced Cleanup",
         description: "Enhanced cleanup with backup verification",
         icon: "mdi:backup-restore",
         iconColor: "#FF9800",
       })
+
       expect(triggers[0].spec).toEqual({
         type: "before-destroy",
       })
@@ -498,6 +517,7 @@ To login, use the following token:`,
       const instance = await createInstanceState(project.id)
 
       const db = await database.forProject(project.id)
+
       await db.trigger.createMany({
         data: [
           {
@@ -597,6 +617,7 @@ describe("pruneInstanceArtifacts", () => {
       where: { id: artifactToRemove.id },
       include: { instances: true },
     })
+
     expect(removed.instances).toHaveLength(0)
   })
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
-  SettingsListPage,
-  SettingsDataTable,
   baseHeaders,
+  IdTableCell,
+  SettingsDataTable,
+  SettingsListPage,
   type TableHeader,
 } from "#layers/core/app/features/settings"
-import { IdTableCell } from "#layers/core/app/features/settings"
 
 const projectsStore = useProjectsStore()
 const router = useRouter()

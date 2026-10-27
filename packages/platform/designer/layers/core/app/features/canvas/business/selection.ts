@@ -1,7 +1,7 @@
-import { getNodesInside, type GraphNode, type Rect, type VueFlowStore } from "@vue-flow/core"
-import type { CursorMode } from "./shared"
-import type { Reactive } from "vue"
 import type { HubModel, InstanceModel } from "@highstate/contract"
+import type { Reactive } from "vue"
+import type { CursorMode } from "./shared"
+import { type GraphNode, getNodesInside, type Rect, type VueFlowStore } from "@vue-flow/core"
 
 export type SelectionMode = "add" | "remove"
 
@@ -12,7 +12,7 @@ export function useCanvasSelection(
   cursorMode: Ref<CursorMode>,
   active: ComputedRef<boolean>,
 ) {
-  const { escape, control, alt } = useMagicKeys()
+  const { escape: escapeKey, control, alt } = useMagicKeys()
 
   const isDialogOpen = () => {
     if (!import.meta.client) {
@@ -85,7 +85,7 @@ export function useCanvasSelection(
     },
   )
 
-  watch(escape, pressed => {
+  watch(escapeKey, pressed => {
     if (!active.value) return
 
     if (pressed) {

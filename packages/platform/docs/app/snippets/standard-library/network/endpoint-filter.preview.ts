@@ -1,4 +1,4 @@
-import { common, network } from "@highstate/library";
+import { common, network } from "@highstate/library"
 
 const { server } = common.existingServer({
   name: "example",
@@ -13,14 +13,14 @@ const { l3Endpoints } = network.endpointFilter({
     endpointFilter: `(level == l3 or port == 443) and type != "hostname"`,
   },
   inputs: {
-    l3Endpoints: server.endpoints
-  }
+    l3Endpoints: server.endpoints,
+  },
 })
 
 common.serverPatch({
   name: "example",
-  inputs:{
+  inputs: {
     server,
     endpoints: l3Endpoints,
-  }
+  },
 })

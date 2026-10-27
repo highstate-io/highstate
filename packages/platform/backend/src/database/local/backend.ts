@@ -58,6 +58,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
         `backend meta file "%s/backend.meta.yaml" does not contain a private key; skipping re-encryption`,
         this.databasePath,
       )
+
       return
     }
 
@@ -69,6 +70,7 @@ class LocalBackendDatabaseBackend implements BackendDatabaseBackend {
     allowedRecipients.add(await identityToRecipient(identity))
     const plaintextPrivateKey = await decrypter.decrypt(armor.decode(meta.privateKey), "text")
     const privateKey = await encryptSecret(plaintextPrivateKey, allowedRecipients)
+
     const masterKey = meta.masterKey
       ? await encryptSecret(
           await decrypter.decrypt(armor.decode(meta.masterKey), "text"),
@@ -136,7 +138,7 @@ export async function readUnencryptedBackendPrivateKey(
 ): Promise<{ backendId: string; privateKey: string }> {
   if (privateKey.includes("-----BEGIN AGE ENCRYPTED FILE-----")) {
     throw new Error(
-      "Backend metadata is encrypted. Remove HIGHSTATE_ENCRYPTION_ENABLED=false or use a separate development database.",
+      "Backend metadata is encrypted. Remove HIGHSTATE_ENCRYPTION_ENABLED=false or use a separate development database",
     )
   }
 
@@ -183,13 +185,14 @@ async function ensureDatabaseInitialized(
   if (!encryptionEnabled) {
     if (meta?.masterKey) {
       throw new Error(
-        "Backend metadata is encrypted. Remove HIGHSTATE_ENCRYPTION_ENABLED=false or use a separate development database.",
+        "Backend metadata is encrypted. Remove HIGHSTATE_ENCRYPTION_ENABLED=false or use a separate development database",
       )
     }
 
     const privateKey = meta?.privateKey
       ? await readUnencryptedBackendPrivateKey(meta.privateKey)
       : await createUnencryptedBackendPrivateKey()
+
     const metaFile: DatabaseMetaFile = {
       version: meta?.version ?? 0,
       privateKey: privateKey.privateKey,
@@ -245,7 +248,7 @@ async function ensureDatabaseInitialized(
 
   if (!metaFile.masterKey) {
     throw new Error(
-      `Database meta file at "${databasePath}/backend.meta.yaml" does not contain a master key.`,
+      `Database meta file at "${databasePath}/backend.meta.yaml" does not contain a master key`,
     )
   }
 
@@ -341,6 +344,7 @@ export function getInitialBackendUnlockMethodMeta(host: string | undefined): {
 } {
   const trimmed = host?.trim() ?? ""
   const title = trimmed.length > 0 ? trimmed : "initial"
+
   const description =
     trimmed.length > 0
       ? `Identity automatically registered for ${trimmed} when this backend database was created.`

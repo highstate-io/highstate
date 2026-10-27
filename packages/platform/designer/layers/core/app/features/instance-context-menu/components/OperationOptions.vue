@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OperationType, OperationOptions } from "@highstate/backend/shared"
+import type { OperationOptions, OperationType } from "@highstate/backend/shared"
 import { getVisibleOperationOptions } from "#layers/core/app/features/instance-context-menu"
 
 const options = defineModel<OperationOptions>("options", { default: {} })
@@ -24,7 +24,6 @@ const visibleOptions = computed(() => {
 
 const updateOption = (key: keyof OperationOptions, value: boolean | null) => {
   const resolvedValue = value ?? false
-
   if (key === "forceUpdateDependencies" && resolvedValue) {
     options.value.ignoreChangedDependencies = false
     options.value.ignoreDependencies = false

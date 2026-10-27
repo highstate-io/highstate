@@ -18,6 +18,7 @@ export function createPanelLaunchTicket(
   workerInstanceId: string,
 ): string {
   const ticket = randomBytes(32).toString("base64url")
+
   launchTickets.set(ticket, {
     projectId,
     panelId,
@@ -31,6 +32,7 @@ export function createPanelLaunchTicket(
 export function exchangePanelLaunchTicket(ticket: string, panelId: string): string | undefined {
   const launch = launchTickets.get(ticket)
   launchTickets.delete(ticket)
+
   if (!launch || launch.panelId !== panelId || launch.expiresAt < Date.now()) {
     return undefined
   }
@@ -42,6 +44,7 @@ export function exchangePanelLaunchTicket(ticket: string, panelId: string): stri
   }
 
   const sessionId = randomBytes(32).toString("base64url")
+
   sessions.set(sessionId, {
     ...launch,
     expiresAt: Date.now() + sessionLifetime,
@@ -66,6 +69,7 @@ export function getActivePanelSession(panelId: string): PanelSession | undefined
       sessions.delete(sessionId)
       continue
     }
+
     if (session.panelId === panelId) {
       return session
     }
@@ -76,6 +80,7 @@ export function getActivePanelSession(panelId: string): PanelSession | undefined
 
 export function getPanelIdFromHost(host: string | undefined): string | undefined {
   const hostname = host?.split(":")[0]
+
   const match = hostname?.match(
     /^(?:[a-z0-9-]+\.)*(?<panelId>[a-z0-9]+)\.panels\.highstate\.localhost$/,
   )

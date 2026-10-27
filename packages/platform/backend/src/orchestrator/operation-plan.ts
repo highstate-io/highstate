@@ -18,7 +18,7 @@ type InclusionReason =
   | "parent_composite"
   | "ghost_cleanup"
 
-interface WorkState {
+type WorkState = {
   included: Map<InstanceId, InclusionReason>
   compositeTypes: Map<InstanceId, CompositeType>
   pendingWork: Set<InstanceId>
@@ -40,7 +40,6 @@ export function createOperationPlan(
     options.firstDestroyGhosts,
     options.ignoreGhosts,
   ].filter(Boolean).length
-
   if (enabledGhostStrategies > 1) {
     throw new InvalidOperationPlanError(
       "Operation options are invalid: only one of onlyDestroyGhosts, firstDestroyGhosts, ignoreGhosts can be enabled.",
@@ -78,7 +77,6 @@ export function createOperationPlan(
 
     const instanceId = requestedInstanceIds[0] as InstanceId
     const instance = context.getInstance(instanceId)
-
     if (instance.kind !== "unit") {
       throw new InvalidOperationPlanError(
         `Preview is not supported for composite instance "${instanceId}"`,
@@ -118,6 +116,7 @@ export function createOperationPlan(
 
   // work loop - iterate until stabilized
   let iteration = 0
+
   while (workState.changed && iteration < 100) {
     iteration++
     workState.changed = false
@@ -159,7 +158,6 @@ function processInstance(
     operationType === "destroy"
       ? context.tryGetInstanceForDestroy(instanceId)
       : context.tryGetInstance(instanceId)
-
   if (!instance) {
     throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
   }
@@ -171,9 +169,11 @@ function processInstance(
   if (operationType === "update" || operationType === "preview") {
     processUpdateInclusions(instance, workState, context, options)
   }
+
   if (operationType === "refresh") {
     processRefreshInclusions(instance, workState, context, options)
   }
+
   if (operationType === "destroy" || operationType === "recreate") {
     processDestroyInclusions(instance, workState, context, options)
   }
@@ -204,6 +204,7 @@ function updateCompositeClassification(
     // check if any children are included due to external dependencies
     const children = context.getInstanceChildren(instance.id)
     let hasExternalDependencyChildren = false
+
     for (const child of children) {
       const reason = workState.included.get(child.id)
       if (reason === "dependency" || reason === "dependent_cascade") {
@@ -235,6 +236,7 @@ function updateCompositeClassification(
 
     // re-process children when parent classification changes
     const children = context.getInstanceChildren(instance.id)
+
     for (const child of children) {
       workState.pendingWork.add(child.id)
     }
@@ -251,13 +253,12 @@ function processUpdateInclusions(
   if (instance.parentId) {
     // check if this instance is a descendant of any substantive composite
     const substantiveAncestor = findSubstantiveAncestor(instance.parentId, workState, context)
-
     if (substantiveAncestor) {
       const isInstanceOutdated = isOutdated(instance, context)
+
       const shouldInclude =
         options.forceUpdateChildren ||
         (!options.allowPartialCompositeInstanceUpdate && isInstanceOutdated)
-
       if (shouldInclude && !workState.included.has(instance.id)) {
         const state = context.getState(instance.id)
         if (!isVirtualGhostInstance(state)) {
@@ -272,6 +273,7 @@ function processUpdateInclusions(
   // process dependencies if this instance is included
   if (workState.included.has(instance.id)) {
     const dependencies = context.getDependencies(instance.id)
+
     for (const depInstance of dependencies) {
       if (options.ignoreDependencies) {
         continue
@@ -283,7 +285,6 @@ function processUpdateInclusions(
         options.forceUpdateDependencies ||
         (!options.ignoreChangedDependencies && isOutdated(depInstance, context)) ||
         isFailedOrUndeployedState(dependencyState)
-
       if (shouldInclude && !workState.included.has(depInstance.id)) {
         include(depInstance.id, "dependency", workState, {
           requiredBy: instance.id,
@@ -304,13 +305,12 @@ function processRefreshInclusions(
   if (instance.parentId) {
     // check if this instance is a descendant of any substantive composite
     const substantiveAncestor = findSubstantiveAncestor(instance.parentId, workState, context)
-
     if (substantiveAncestor) {
       const isInstanceOutdated = isOutdated(instance, context)
+
       const shouldInclude =
         options.forceUpdateChildren ||
         (!options.allowPartialCompositeInstanceUpdate && isInstanceOutdated)
-
       if (shouldInclude && !workState.included.has(instance.id)) {
         include(instance.id, "composite_child", workState, {
           forceFlag: options.forceUpdateChildren ? "children" : undefined,
@@ -323,13 +323,13 @@ function processRefreshInclusions(
   // key difference: only include dependencies if forced, not if outdated
   if (workState.included.has(instance.id)) {
     const dependencies = context.getDependencies(instance.id)
+
     for (const depInstance of dependencies) {
       if (options.ignoreDependencies || options.ignoreChangedDependencies) {
         continue
       }
 
       const shouldInclude = options.forceUpdateDependencies
-
       if (shouldInclude && !workState.included.has(depInstance.id)) {
         include(depInstance.id, "dependency", workState, {
           requiredBy: instance.id,
@@ -442,9 +442,11 @@ function include(
   if (context?.requiredBy) {
     workState.dependencyRequiredBy.set(instanceId, context.requiredBy)
   }
+
   if (context?.triggeringChild) {
     workState.childTriggeringParent.set(instanceId, context.triggeringChild)
   }
+
   if (context?.forceFlag) {
     workState.forceFlags.set(instanceId, context.forceFlag)
   }
@@ -467,7 +469,9 @@ function createOrderedPhases(
 
       // always include if outdated or forced
       if (isOutdated(instance, context)) return true
+
       if (inclusionReason === "dependency" && options.forceUpdateDependencies) return true
+
       if (inclusionReason === "composite_child" && options.forceUpdateChildren) return true
 
       // include explicit requests, but composites only if they have non-ghost children
@@ -477,10 +481,12 @@ function createOrderedPhases(
           const children = context.getInstanceChildren(id)
           return children.some(child => {
             if (!workState.included.has(child.id)) return false
+
             const childState = context.getState(child.id)
             return !isVirtualGhostInstance(childState)
           })
         }
+
         return true
       }
 
@@ -499,6 +505,7 @@ function createOrderedPhases(
       .filter(inst => inst !== null) as OperationPhaseInstance[]
 
     const phaseType = type === "refresh" ? "refresh" : "update"
+
     const updatePhase =
       updateInstances.length > 0 ? ({ type: phaseType, instances: updateInstances } as const) : null
 
@@ -540,7 +547,6 @@ function createOrderedPhases(
     const destroyInstances = topologicalSort(includedIds, context, true)
       .map(id => createPhaseInstance(id, context, type, workState))
       .filter(inst => inst !== null) as OperationPhaseInstance[]
-
     if (destroyInstances.length > 0) {
       phases.push({ type: "destroy", instances: destroyInstances })
     }
@@ -558,6 +564,7 @@ function createOrderedPhases(
     if (destroyInstances.length > 0) {
       phases.push({ type: "destroy", instances: destroyInstances })
     }
+
     if (updateInstances.length > 0) {
       phases.push({ type: "update", instances: updateInstances })
     }
@@ -601,7 +608,6 @@ function createGhostDestroyPhase(
   )
     .map(id => {
       const ghostInstance = ghostInstanceMap.get(id)
-
       if (ghostInstance?.message === "ghost cleanup") {
         return ghostInstance
       }
@@ -609,7 +615,6 @@ function createGhostDestroyPhase(
       return createPhaseInstance(id, context, "update", workState)
     })
     .filter((instance): instance is OperationPhaseInstance => instance !== null)
-
   if (sortedGhosts.length === 0) {
     return null
   }
@@ -624,7 +629,6 @@ function hasGhostDescendant(instanceId: InstanceId, context: OperationContext): 
     const childId = queue.shift()!
     const child = context.getInstance(childId)
     const childState = context.getState(child.id)
-
     if (isVirtualGhostInstance(childState)) {
       return true
     }
@@ -644,11 +648,11 @@ function createPhaseInstance(
   workState?: WorkState,
 ): OperationPhaseInstance | null {
   const state = context.getState(instanceId)
+
   const instance =
     operationType === "destroy"
       ? context.tryGetInstanceForDestroy(instanceId)
       : context.tryGetInstance(instanceId)
-
   if (!instance) {
     return null
   }
@@ -661,7 +665,9 @@ function createPhaseInstance(
     return null
   }
 
-  let message = "included in operation" // fallback
+  let message = "included in operation"
+
+  // fallback
 
   if (workState) {
     const inclusionReason = workState.included.get(instanceId)
@@ -694,10 +700,10 @@ function hasUnitDescendant(instanceId: InstanceId, context: OperationContext): b
 
   while (queue.length > 0) {
     const childId = queue.pop()!
-
     if (visited.has(childId)) {
       continue
     }
+
     visited.add(childId)
 
     const child = context.getInstance(childId)
@@ -724,7 +730,9 @@ function generateContextualMessage(
     state?: InstanceState,
   ): "failed" | "undeployed" | "changed" | "up-to-date" {
     if (!state) return "undeployed"
+
     if (state.status === "failed") return "failed"
+
     if (state.status === "undeployed") return "undeployed"
 
     const instance = context.tryGetInstance(instanceId)
@@ -739,6 +747,7 @@ function generateContextualMessage(
 
     // check if changed by using same logic as isOutdated (for units only)
     const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instanceId)
+
     if (state.inputHash !== expectedHash) return "changed"
 
     return "up-to-date"
@@ -821,9 +830,10 @@ function findGhostCleanup(
 
         ghostIds.add(child.id)
 
-        // Include the full composite chain from the ghost parent up to the cleanup root,
+        // include the full composite chain from the ghost parent up to the cleanup root,
         // otherwise destroy-phase parent state recalculation may target non-participating composites.
         let parentId = child.parentId
+
         while (parentId) {
           const parent = context.tryGetInstance(parentId)
           if (parent?.kind !== "composite") {
@@ -888,7 +898,6 @@ function isOutdated(instance: InstanceModel, context: OperationContext): boolean
   }
 
   const state = context.getState(instance.id)
-
   if (state.status === "failed" || state.status === "undeployed") {
     return true
   }
@@ -913,6 +922,7 @@ function topologicalSort(
       // circular dependency detected - skip for now
       return
     }
+
     if (visited.has(instanceId)) {
       return
     }
@@ -922,6 +932,7 @@ function topologicalSort(
     const related = reverse
       ? context.getDependentStates(instanceId).map(state => state.instanceId)
       : context.getDependencies(instanceId).map(dep => dep.id)
+
     for (const relatedId of related) {
       if (instanceIds.includes(relatedId)) {
         visit(relatedId)

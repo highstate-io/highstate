@@ -34,6 +34,7 @@ export function resolveEndpoint(
   if (!inputEndpoint) {
     throw new Error(`Netaminity ${component} requires an endpoint argument or endpoint input`)
   }
+
   if (inputEndpoint.protocol !== "tcp") {
     throw new Error(`Netaminity ${component} endpoint input must use TCP`)
   }

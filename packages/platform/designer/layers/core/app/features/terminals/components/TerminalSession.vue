@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Terminal } from "@xterm/xterm"
-import FullScreenTerminal from "./GenericTerminal.vue"
 import { useTerminalSession } from "../business"
+import FullScreenTerminal from "./GenericTerminal.vue"
 
 const { sessionId } = defineProps<{
   sessionId: string

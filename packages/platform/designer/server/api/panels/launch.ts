@@ -7,6 +7,7 @@ export default defineEventHandler(event => {
   }
 
   const ticket = getQuery(event).ticket
+
   const sessionId =
     typeof ticket === "string" ? exchangePanelLaunchTicket(ticket, panelId) : undefined
   if (!sessionId) {

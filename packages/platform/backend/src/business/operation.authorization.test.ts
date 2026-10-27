@@ -15,6 +15,7 @@ describe("OperationService authorization", () => {
     await expect(
       service.getOperationLogs(createProjectRequestContext(project.id), "missing", "missing"),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.getOperations(
         createProjectRequestContext(project.id, grantProjectPermission("operation.list")),
@@ -29,6 +30,7 @@ describe("OperationService authorization", () => {
     projectDatabase,
   }) => {
     const service = new OperationService(database, {} as never, {} as never, {} as never)
+
     const operation = await projectDatabase.operation.create({
       data: {
         id: createId(),

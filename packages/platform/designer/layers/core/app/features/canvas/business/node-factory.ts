@@ -1,12 +1,12 @@
 import type { Edge, Node, VueFlowStore } from "@vue-flow/core"
 import {
-  inputKey,
-  parseInstanceId,
   type HubInput,
   type HubModel,
   type InstanceId,
   type InstanceInput,
   type InstanceModel,
+  inputKey,
+  parseInstanceId,
 } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 
@@ -296,6 +296,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     const createdEdgeIds = createEdgesForInstance(instance)
 
     const orphanedEdges = nodeEdges.filter(edge => !createdEdgeIds.includes(edge.id))
+
     for (const edge of orphanedEdges) {
       vueFlowStore.removeEdges(edge.id)
     }

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type {
   BackendPermissionRestriction,
+  BackendRoleRestrictionOptions,
   BackendRoleRule,
   BackendRoleRules,
-  BackendRoleRestrictionOptions,
 } from "@highstate/backend/shared"
-import { backendPermissionGroups } from "@highstate/backend/shared"
 import type { RoleRuleBuilderGroup, RoleRuleBuilderRule } from "../business/role-rules-builder"
+import { backendPermissionGroups } from "@highstate/backend/shared"
 import RoleRulesBuilder from "./RoleRulesBuilder.vue"
 
 const {
@@ -35,6 +35,7 @@ const groups = computed<RoleRuleBuilderGroup[]>(() =>
     const unrestricted = permissions.some(permission =>
       allowedRules?.some(rule => rule.permissions.includes(permission.name) && !rule.restrictions),
     )
+
     const supportedRestrictions = unrestricted
       ? [...group.supportedRestrictions]
       : group.supportedRestrictions.filter(type =>
@@ -90,12 +91,15 @@ const builderOptions = computed(() => {
       const relevantGroups = backendPermissionGroups.filter(group =>
         type === "resources" ? false : group.supportedRestrictions.includes(type as never),
       )
+
       const resourceGroup = backendPermissionGroups.find(
         group => "resourceType" in group && group.resourceType === type,
       )
+
       const relevantPermissions = (resourceGroup ? [resourceGroup] : relevantGroups).flatMap(
         group => group.permissions.map(permission => permission.name),
       )
+
       const unrestricted = allowedRules.some(
         rule =>
           rule.permissions.some(permission => relevantPermissions.includes(permission)) &&
@@ -118,6 +122,7 @@ const builderOptions = computed(() => {
             : [],
         ),
       )
+
       return [type, items.filter(item => allowedIds.has(item.id))]
     }),
   )
@@ -159,6 +164,7 @@ function toBuilderRules(value: BackendRoleRules): RoleRuleBuilderRule[] {
 function updateBuilderRules(value: RoleRuleBuilderRule[]): void {
   builderRules.value = value
   skipNextRulesSync = true
+
   rules.value = value.map(rule => ({
     permissions: rule.permissions as BackendRoleRules[number]["permissions"],
     ...(rule.restrictions.length > 0

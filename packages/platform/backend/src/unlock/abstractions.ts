@@ -3,7 +3,7 @@ export interface ProjectUnlockBackend {
    * Checks if the project is unlocked.
    *
    * @param projectId The ID of the project to check.
-   * @return A promise that resolves to true if the project is unlocked, false otherwise.
+   * @returns A promise that resolves to true if the project is unlocked, false otherwise.
    */
   checkProjectUnlocked(projectId: string): Promise<boolean>
 

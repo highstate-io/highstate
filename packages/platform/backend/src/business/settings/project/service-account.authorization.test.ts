@@ -16,6 +16,7 @@ describe("ProjectServiceAccountSettingsService authorization", () => {
     await expect(
       service.query(createProjectRequestContext(project.id), { pageSize: 1 }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.query(
         createProjectRequestContext(project.id, grantProjectPermission("service-account.list")),
@@ -29,10 +30,12 @@ describe("ProjectServiceAccountSettingsService authorization", () => {
     const service = new ProjectServiceAccountSettingsService(database, roles)
     const admin = createProjectRequestContext(project.id)
     const unrestricted = adminProjectContext(project.id)
+
     const role = await roles.create(unrestricted, {
       meta: { title: "Subset" },
       rules: [{ permissions: ["instance-model.get"] }],
     })
+
     const account = await service.create(unrestricted, { meta: { title: "Automation" } })
 
     await expect(
@@ -68,11 +71,14 @@ describe("ProjectServiceAccountSettingsService authorization", () => {
     const roles = new ProjectRoleSettingsService(database)
     const service = new ProjectServiceAccountSettingsService(database, roles)
     const admin = adminProjectContext(project.id)
+
     const role = await roles.create(admin, {
       meta: { title: "Role" },
       rules: [{ permissions: ["instance-model.get"] }],
     })
+
     const account = await service.create(admin, { meta: { title: "Account" } })
+
     const context = createProjectRequestContext(
       project.id,
       grantProjectPermission("role-binding.list"),
@@ -81,6 +87,7 @@ describe("ProjectServiceAccountSettingsService authorization", () => {
     await expect(service.getRoleBindings(context, account.id)).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(service.getRoleBindingsByRole(context, role.id)).rejects.toThrow(
       PermissionDeniedError,
     )

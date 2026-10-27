@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { HubModel } from "@highstate/contract"
 import { useNode, type ValidConnectionFunc } from "@vue-flow/core"
+import { getBlueprintStatus } from "#layers/core/app/features/blueprint"
 import HubCard from "./HubCard.vue"
 import HubNodeHandle from "./HubNodeHandle.vue"
-import { getBlueprintStatus } from "#layers/core/app/features/blueprint"
-import type { HubModel } from "@highstate/contract"
 
 defineProps<{
   hub: HubModel

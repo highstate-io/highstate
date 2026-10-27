@@ -41,6 +41,7 @@ describe("agent status", () => {
 
     expect(status.backend.state).toBe("missing")
     expect(status.project.state).toBe("missing")
+
     expect(status.next_actions).toContain(
       "Ask the user to configure a Highstate context or provide HIGHSTATE_API_URL.",
     )
@@ -83,6 +84,7 @@ describe("agent status", () => {
 
   it("does not attempt project authentication while a selected project is locked", async () => {
     const mockClients = clients({ locked: true })
+
     const status = await collectAgentStatus({
       moduleUrl,
       env: env({
@@ -95,6 +97,7 @@ describe("agent status", () => {
 
     expect(status.project.state).toBe("locked")
     expect(mockClients.project.getProject).not.toHaveBeenCalled()
+
     expect(status.next_actions).toContain(
       'Ask the user to unlock project "project-1" in Highstate.',
     )

@@ -2,8 +2,8 @@
 import type { ServiceAccountInput, ServiceAccountOutput } from "@highstate/backend/shared"
 import {
   ProjectServiceAccountDialog,
-  SettingsListPage,
   ServiceAccountsTable,
+  SettingsListPage,
 } from "#layers/core/app/features/settings"
 
 const { projectStore } = useProjectStores()
@@ -31,6 +31,7 @@ async function save(input: ServiceAccountInput): Promise<void> {
   try {
     const serviceAccount = await serviceAccountStore.create(input)
     dialogVisible.value = false
+
     await router.push({
       name: "settings.service-account-details",
       params: { projectId: projectStore.projectId, serviceAccountId: serviceAccount.id },
@@ -47,6 +48,7 @@ function confirmDelete(serviceAccount: ServiceAccountOutput): void {
 
 async function remove(): Promise<void> {
   if (!serviceAccountToDelete.value) return
+
   deleting.value = true
 
   try {

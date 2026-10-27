@@ -10,7 +10,7 @@ import { v7 as uuidv7 } from "uuid"
 import { isAbortErrorLike } from "../common"
 import { type AsyncBatcher, createAsyncBatcher, toTerminalSessionOutput } from "../shared"
 
-type ManagedTerminal = {
+interface ManagedTerminal {
   readonly projectId: string
 
   readonly terminal: Terminal
@@ -60,11 +60,11 @@ export class TerminalManager {
     // if terminal session is not active, just fetch it, return and stop watching
     if (!managedTerminal) {
       const database = await this.database.forProject(projectId)
+
       const session = await database.terminalSession.findUnique({
         where: { id: sessionId },
         include: { terminal: true },
       })
-
       if (!session) {
         throw new Error(`Terminal session "${sessionId}" not found`)
       }
@@ -103,7 +103,6 @@ export class TerminalManager {
     const terminal = await database.terminal.findUnique({
       where: { id: terminalId },
     })
-
     if (!terminal) {
       throw new Error(`Terminal "${terminalId}" not found`)
     }
@@ -150,7 +149,6 @@ export class TerminalManager {
     this.logger.info({ msg: "closing terminal session", id: sessionId })
 
     const managedTerminal = this.managedTerminals.get(sessionId)
-
     if (managedTerminal) {
       managedTerminal.abortController.abort()
     }
@@ -300,7 +298,7 @@ export class TerminalManager {
 
   private closeTerminalIfNotAttached(terminal: ManagedTerminal) {
     if (!this.managedTerminals.has(terminal.session.id)) {
-      // Already closed
+      // already closed
       return
     }
 
@@ -345,7 +343,6 @@ export class TerminalManager {
         finishedAt: null,
       },
     })
-
     if (activeSessions.length === 0) {
       this.logger.debug({ projectId }, "no lost terminal sessions found")
       return

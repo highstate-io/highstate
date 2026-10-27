@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url"
 import { resolve as importMetaResolve } from "import-meta-resolve"
 import { DatabaseVersionUnsupportedError } from "../shared"
 
-export type MigrationClient = {
+export interface MigrationClient {
   $transaction<T>(callback: (tx: unknown) => Promise<T>): Promise<T>
   $executeRawUnsafe(query: string): Promise<number>
 }
@@ -105,7 +105,6 @@ function splitToStatements(sql: string): string[] {
 
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i]
-
     if ((char === "'" || char === '"') && !insideString) {
       insideString = true
       stringChar = char
@@ -118,6 +117,7 @@ function splitToStatements(sql: string): string[] {
       if (currentStatement.trim().length > 0) {
         statements.push(currentStatement.trim())
       }
+
       currentStatement = ""
     } else {
       currentStatement += char
