@@ -208,6 +208,49 @@ This is the standard way to get ACME DNS01 certificates in Highstate.
 It keeps your DNS provider credentials in one place and lets workloads request TLS without knowing provider details.
 ::
 
+### Delegating DNS challenges with CNAME
+
+You can issue a certificate for a domain managed elsewhere by delegating its ACME challenge to a zone
+your DNS01 issuer can manage.
+Create the CNAME before deploying the unit:
+
+```text
+_acme-challenge.api.example.com. CNAME _acme-challenge.api.managed.example.net.
+```
+
+Set the application's `fqdn` to `api.example.com` and `dnsChallengeAlias` to
+`_acme-challenge.api.managed.example.net`.
+The alias is the complete TXT record location, including the `_acme-challenge` prefix when present.
+Connect an access point with a `k8s.dns01-issuer.v1` issuer for `managed.example.net`.
+Redeploy an existing issuer once to enable CNAME following and advertise alias support.
+
+Highstate resolves `_acme-challenge.api.example.com` and checks that its CNAME points to the configured target
+before requesting the certificate.
+A missing or different CNAME fails deployment.
+The certificate still contains `api.example.com`; cert-manager writes its verification TXT record at the alias.
+When the access point has no DNS provider for the application domain, its address records remain externally managed.
+Point those records to your gateway separately.
+
+For `tls.certificate.v1`, use `dnsChallengeAliases`, keyed by certificate DNS name:
+
+```ts
+args: {
+  dnsNames: ["api.example.com", "*.example.com"],
+  dnsChallengeAliases: {
+    "api.example.com": "_acme-challenge.api.managed.example.net",
+    "*.example.com": "_acme-challenge.wildcard.managed.example.net",
+  },
+}
+```
+
+Wildcard validation uses the base domain's `_acme-challenge` record.
+If a certificate includes both a wildcard and its base domain, configure the same alias for both names.
+All delegated targets and any non-delegated certificate names must match one issuer.
+Vault issuers do not support DNS challenge aliases.
+
+Custom units can pass `dnsChallengeAlias` to `AccessPointRoute`, Kubernetes workload routes, or Helm routes.
+For multiple names, pass `dnsChallengeAliases` to the route or `TlsCertificate` helper.
+
 ## Apps
 
 The `k8s.apps.*` namespace provides ready-to-run workloads.
@@ -218,8 +261,33 @@ Some examples:
 - `k8s.apps.traefik.v1` (ingress / gateway)
 - `k8s.apps.mariadb.v1`, `k8s.apps.postgresql.v1`, `k8s.apps.mongodb.v1`
 - `k8s.apps.minio.v1`, `k8s.apps.vaultwarden.v1`, `k8s.apps.syncthing.v1`
+- `k8s.apps.exetrouter.v1` (ChatGPT OAuth account pool with an OpenAI-compatible API)
 
 Here is a Traefik example:
 
 ::designer-preview{title="Traefik" type="snippet" id="standard-library/kubernetes/traefik"}
 ::
+
+### ExetRouter
+
+`k8s.apps.exetrouter.v1` deploys [ExetRouter](https://github.com/mocki-toki/exetrouter) as a single-replica
+StatefulSet with an HTTPS API route and a separate restricted SSH management service.
+Connect `k8sCluster` and a TLS-enabled `accessPoint`, then set `fqdn` to the API hostname.
+You can set `dnsChallengeAlias` when the certificate challenge is delegated to another DNS zone.
+
+The API is available at `https://<fqdn>/v1`.
+The management service listens on port 2222 and is cluster-internal by default.
+Use port forwarding for local access, or set `service.external` to expose SSH through the cluster's external service type.
+The instance's setup page contains the user creation, public-key registration, OAuth login, SSH host-fingerprint,
+and native `exr` client commands.
+API tokens are created in the native desktop client.
+
+The volume retains the SQLite database, both credential keys, and SSH host keys.
+The API runs as a non-root user; the SSH gateway has a separate identity and cannot mount the database or credential keys.
+An optional `volume` input reuses existing state.
+
+Connect `resticRepo` to enable daily backups, restoration into an empty volume, and backup before destruction.
+The optional `backupKey` secret supplies the backup encryption key; otherwise Highstate generates one.
+Backups use SQLite's online backup operation and include both credential keys and the SSH host identity.
+The instance exposes terminals for browsing the repository and triggering a backup manually.
+Restoration completes before ExetRouter initializes or starts.

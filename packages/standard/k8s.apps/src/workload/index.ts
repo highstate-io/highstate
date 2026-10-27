@@ -226,6 +226,7 @@ const workload = Workload.createOrPatchGeneric(
           type: "http" as const,
           accessPoint: inputs.accessPoint,
           fqdn: args.fqdn,
+          dnsChallengeAlias: args.dnsChallengeAlias,
         },
       }),
 

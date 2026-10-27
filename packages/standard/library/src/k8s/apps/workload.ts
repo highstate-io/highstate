@@ -102,6 +102,11 @@ export const workload = defineUnit({
     fqdn: z.string().optional(),
 
     /**
+     * The target TXT record location of an existing _acme-challenge CNAME for the workload FQDN.
+     */
+    dnsChallengeAlias: z.string().min(1).optional(),
+
+    /**
      * The number of replicas for the workload.
      *
      * By default, it is set to 1.

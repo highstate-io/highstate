@@ -1,6 +1,7 @@
 export * from "./code-server"
 export * from "./envoy-gateway"
 export * from "./etcd"
+export * from "./exetrouter"
 export * from "./grafana"
 export * from "./grocy"
 export * from "./hubble"

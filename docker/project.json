@@ -3,14 +3,25 @@
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "root": "docker",
   "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{projectRoot}/apps/exetrouter/**/*",
+        "{workspaceRoot}/packages/standard/k8s.apps/src/exetrouter/backup.ts"
+      ],
+      "options": {
+        "command": "bun run --bun vitest run docker/apps/exetrouter/smoke.test.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
     "check-images": {
       "executor": "nx:run-commands",
       "cache": true,
       "inputs": [
         "{projectRoot}/docker-bake.hcl",
         "{projectRoot}/**/*.dockerfile",
-        "{workspaceRoot}/packages/standard/k8s.monitor-worker/Dockerfile",
-        "{workspaceRoot}/packages/standard/k8s.dashboard-worker/Dockerfile"
+        "{projectRoot}/apps/**/*"
       ],
       "outputs": [],
       "options": {

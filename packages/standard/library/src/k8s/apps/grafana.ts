@@ -11,7 +11,14 @@ export const grafana = defineUnit({
 
   args: {
     ...appName("grafana"),
-    ...pick(sharedArgs, ["fqdn", "values", "patches", "service", "scheduling"]),
+    ...pick(sharedArgs, [
+      "fqdn",
+      "dnsChallengeAlias",
+      "values",
+      "patches",
+      "service",
+      "scheduling",
+    ]),
 
     /**
      * The list of plugins to install on Grafana.

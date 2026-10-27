@@ -12,7 +12,7 @@ export const wgFeedServer = defineUnit({
 
   args: {
     ...appName("wg-feed-server"),
-    ...pick(sharedArgs, ["fqdn", "replicas", "scheduling"]),
+    ...pick(sharedArgs, ["fqdn", "dnsChallengeAlias", "replicas", "scheduling"]),
 
     /**
      * The regular expression matching paths served by the WG feed server.

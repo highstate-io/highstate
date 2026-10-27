@@ -53,10 +53,9 @@ new cert_manager.v1.ClusterIssuer(
         server: getAcmeServer(),
         solvers: [
           {
-            dns01: dns01SolverMediator.callOutput(inputs.dnsProvider.implRef, {
-              namespace: certManagerNs,
-            }),
-            selector: { dnsZones: inputs.dnsProvider.zones },
+            dns01: dns01SolverMediator
+              .callOutput(inputs.dnsProvider.implRef, { namespace: certManagerNs })
+              .apply(solver => ({ ...solver, cnameStrategy: "Follow" })),
           },
         ],
         privateKeySecretRef: {
@@ -86,6 +85,7 @@ export default outputs({
     },
     value: {
       zones: inputs.dnsProvider.zones,
+      supportsDnsChallengeAliases: true,
       implRef: {
         package: "@highstate/k8s",
         data: {

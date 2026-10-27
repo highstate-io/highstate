@@ -4,11 +4,6 @@ import { join } from "node:path"
 type ImageEntry = { name: string; tag: string; image: string }
 type Images = Record<string, ImageEntry>
 
-function imageName(reference: string): string {
-  const separator = reference.lastIndexOf("/")
-  return reference.slice(separator + 1)
-}
-
 export async function discoverImageFiles(root: string): Promise<string[]> {
   const packagesRoot = join(root, "packages")
   const result: string[] = []
@@ -54,8 +49,10 @@ export async function synchronizeRepositoryImages(args: {
     let changed = false
 
     for (const [key, entry] of Object.entries(document)) {
-      const name = imageName(entry.name)
-      if (!args.imageNames.has(name)) {
+      const name = [...args.imageNames]
+        .filter(name => entry.name === name || entry.name.endsWith(`/${name}`))
+        .sort((first, second) => second.length - first.length)[0]
+      if (!name) {
         continue
       }
 

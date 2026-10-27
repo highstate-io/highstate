@@ -1,4 +1,9 @@
 {
+  "exetrouter": {
+    "name": "ghcr.io/highstate-io/apps/exetrouter",
+    "tag": "latest",
+    "image": "ghcr.io/highstate-io/apps/exetrouter:latest"
+  },
   "vaultwarden": {
     "name": "vaultwarden/server",
     "tag": "1.37.0-alpine",
