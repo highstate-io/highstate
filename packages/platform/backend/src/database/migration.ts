@@ -22,7 +22,7 @@ export const migrationPacks = {
   "backend/postgresql": {
     type: "backend" as const,
     schemaPath: "backend/postgresql",
-    migrationNames: ["20261025153726_initial_migration"],
+    migrationNames: ["20261027214238_initial_migration"],
   },
   "backend/sqlite": {
     type: "backend" as const,
@@ -33,7 +33,7 @@ export const migrationPacks = {
       "20260222113554_add_object_tracking",
       "20260503160615_add_entity_sharing_system",
       "20260823193137_add_authorization",
-      "20261025160154_hosted_authentication",
+      "20261027214238_hosted_authentication",
     ],
   },
   project: {
@@ -48,7 +48,6 @@ export const migrationPacks = {
       "20260720230553_add_panels",
       "20260822154433_add_passkey_identity",
       "20260823193150_add_authorization",
-      "20261025160154_hosted_authentication",
     ],
   },
 }

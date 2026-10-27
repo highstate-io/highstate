@@ -35,9 +35,6 @@ describe("hosted direct Designer access", () => {
   function authorizedServices(permissions: string[]) {
     const findMany = vi.fn().mockResolvedValue([{ rules: [{ permissions }] }])
     const project = {
-      designerAuthInitialization: {
-        findUnique: vi.fn().mockResolvedValue({ id: "hosted-admin-v1" }),
-      },
       user: { upsert: vi.fn() },
       role: { findMany },
       terminalSession: { findUnique: vi.fn().mockResolvedValue(null) },
@@ -157,9 +154,6 @@ describe("hosted direct Designer access", () => {
 
   test("a valid login without a project grant cannot open terminals, launch operations, or subscribe to project data", async () => {
     const project = {
-      designerAuthInitialization: {
-        findUnique: vi.fn().mockResolvedValue({ id: "hosted-admin-v1" }),
-      },
       user: { upsert: vi.fn() },
       role: { findMany: vi.fn().mockResolvedValue([]) },
       $transaction: vi.fn(),

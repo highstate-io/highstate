@@ -54,7 +54,6 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   Artifact: 'Artifact',
   InstanceCustomStatus: 'InstanceCustomStatus',
-  DesignerAuthInitialization: 'DesignerAuthInitialization',
   Entity: 'Entity',
   EntitySnapshot: 'EntitySnapshot',
   EntitySnapshotReference: 'EntitySnapshotReference',
@@ -144,14 +143,6 @@ export const InstanceCustomStatusScalarFieldEnum = {
 } as const
 
 export type InstanceCustomStatusScalarFieldEnum = (typeof InstanceCustomStatusScalarFieldEnum)[keyof typeof InstanceCustomStatusScalarFieldEnum]
-
-
-export const DesignerAuthInitializationScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt'
-} as const
-
-export type DesignerAuthInitializationScalarFieldEnum = (typeof DesignerAuthInitializationScalarFieldEnum)[keyof typeof DesignerAuthInitializationScalarFieldEnum]
 
 
 export const EntityScalarFieldEnum = {

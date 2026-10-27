@@ -54,7 +54,6 @@ export const ModelName = {
   BackendApiKey: 'BackendApiKey',
   DesignerSession: 'DesignerSession',
   DesignerLoginTransaction: 'DesignerLoginTransaction',
-  DesignerAuthInitialization: 'DesignerAuthInitialization',
   ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
   Library: 'Library',
@@ -124,14 +123,6 @@ export const DesignerLoginTransactionScalarFieldEnum = {
 } as const
 
 export type DesignerLoginTransactionScalarFieldEnum = (typeof DesignerLoginTransactionScalarFieldEnum)[keyof typeof DesignerLoginTransactionScalarFieldEnum]
-
-
-export const DesignerAuthInitializationScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt'
-} as const
-
-export type DesignerAuthInitializationScalarFieldEnum = (typeof DesignerAuthInitializationScalarFieldEnum)[keyof typeof DesignerAuthInitializationScalarFieldEnum]
 
 
 export const ProjectImportPortScalarFieldEnum = {

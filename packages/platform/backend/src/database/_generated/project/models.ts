@@ -11,7 +11,6 @@
 export type * from './models/ApiKey.ts'
 export type * from './models/Artifact.ts'
 export type * from './models/InstanceCustomStatus.ts'
-export type * from './models/DesignerAuthInitialization.ts'
 export type * from './models/Entity.ts'
 export type * from './models/EntitySnapshot.ts'
 export type * from './models/EntitySnapshotReference.ts'

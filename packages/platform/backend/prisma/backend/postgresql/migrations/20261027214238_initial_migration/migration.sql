@@ -41,14 +41,6 @@ CREATE TABLE "DesignerLoginTransaction" (
 );
 
 -- CreateTable
-CREATE TABLE "DesignerAuthInitialization" (
-    "id" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "DesignerAuthInitialization_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ProjectImportPort" (
     "projectId" TEXT NOT NULL,
     "sourceProjectId" TEXT NOT NULL,
@@ -268,6 +260,9 @@ CREATE UNIQUE INDEX "BackendUnlockMethod_recipient_key" ON "BackendUnlockMethod"
 
 -- AddForeignKey
 ALTER TABLE "BackendApiKey" ADD CONSTRAINT "BackendApiKey_serviceAccountId_fkey" FOREIGN KEY ("serviceAccountId") REFERENCES "BackendServiceAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DesignerSession" ADD CONSTRAINT "DesignerSession_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProjectImportPort" ADD CONSTRAINT "ProjectImportPort_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

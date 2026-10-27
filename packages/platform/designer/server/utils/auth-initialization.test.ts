@@ -4,7 +4,7 @@ import { initializeHostedAuth, initializeHostedProjectAuth } from "./auth-initia
 
 afterEach(() => vi.unstubAllEnvs())
 
-test("seeds only explicit identities once per realm and preserves subsequent revocations", async () => {
+test("reapplies configured administrator grants in both realms on initialization", async () => {
   vi.stubEnv("HIGHSTATE_BACKEND_DATABASE_TYPE", "postgresql")
   vi.stubEnv("HIGHSTATE_AUTH_MODE", "hosted")
   vi.stubEnv("HIGHSTATE_PUBLIC_URL", "https://designer.example")
@@ -23,16 +23,9 @@ test("seeds only explicit identities once per realm and preserves subsequent rev
   vi.stubEnv("HIGHSTATE_AUTH_ADMIN_USER_IDS", '["x123456789012345678901234"]')
   vi.stubEnv("HIGHSTATE_AUTH_ADMIN_GROUP_IDS", '["y123456789012345678901234"]')
   const createRealm = () => {
-    let initialized = false
     const userBinding = { upsert: vi.fn() }
     const groupBinding = { upsert: vi.fn() }
     const realm = {
-      designerAuthInitialization: {
-        findUnique: vi.fn(async () => (initialized ? { id: "hosted-admin-v1" } : null)),
-        create: vi.fn(async () => {
-          initialized = true
-        }),
-      },
       backendRole: { findUniqueOrThrow: vi.fn().mockResolvedValue({ id: "admin-role" }) },
       role: { findUniqueOrThrow: vi.fn().mockResolvedValue({ id: "admin-role" }) },
       user: { upsert: vi.fn() },
@@ -63,11 +56,21 @@ test("seeds only explicit identities once per realm and preserves subsequent rev
       create: { roleId: "admin-role", groupId: "y123456789012345678901234" },
     }),
   )
-  // Deleting a grant does not delete the independent initialization marker.
+  // A removed configured grant is restored on the next initialization.
   backend.userBackendRoleBinding.upsert.mockClear()
   project.userGroupRoleBinding.upsert.mockClear()
   await initializeHostedAuth(services)
   await initializeHostedProjectAuth(services, "project")
-  expect(backend.userBackendRoleBinding.upsert).not.toHaveBeenCalled()
-  expect(project.userGroupRoleBinding.upsert).not.toHaveBeenCalled()
+  expect(backend.userBackendRoleBinding.upsert).toHaveBeenCalledTimes(1)
+  expect(project.userGroupRoleBinding.upsert).toHaveBeenCalledTimes(1)
+  expect(backend.userBackendRoleBinding.upsert).toHaveBeenCalledWith({
+    where: { roleId_userId: { roleId: "admin-role", userId: "x123456789012345678901234" } },
+    create: { roleId: "admin-role", userId: "x123456789012345678901234" },
+    update: {},
+  })
+  expect(project.userGroupRoleBinding.upsert).toHaveBeenCalledWith({
+    where: { roleId_groupId: { roleId: "admin-role", groupId: "y123456789012345678901234" } },
+    create: { roleId: "admin-role", groupId: "y123456789012345678901234" },
+    update: {},
+  })
 })

@@ -80,9 +80,6 @@ function servicesWithPermissions(permissions: string[]) {
     role: {
       findMany: vi.fn().mockResolvedValue(permissions.length ? [{ rules: [{ permissions }] }] : []),
     },
-    designerAuthInitialization: {
-      findUnique: vi.fn().mockResolvedValue({ id: "hosted-admin-v1" }),
-    },
     artifact: {
       findUnique: vi
         .fn()
