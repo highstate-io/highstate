@@ -1,12 +1,27 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
     "useIgnoreFile": false
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!**/.nuxt",
+      "!!**/.output",
+      "!!**/.nx",
+      "!!**/coverage",
+      "!!packages/**/generated",
+      "!!packages/**/src/**/_generated",
+      "!!packages/platform/designer/layers/core/app/workers/libavoid",
+      "!!packages/platform/docs/docus",
+      "!!packages/platform/cli/assets/template",
+      "!!packages/standard/k8s.dashboard-worker/plugin"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -26,6 +41,10 @@
       "packages/**/assets/**/*.json",
       "packages/platform/designer/**/*.ts",
       "packages/**/*.vue",
+      "packages/platform/docs/**/*.ts",
+      "packages/platform/sharing-frontend/**/*.ts",
+      "scripts/**",
+      "*.{ts,mjs,json}",
       "!packages/**/src/**/_generated/**",
       "!packages/platform/designer/layers/core/app/workers/libavoid/**",
       "!**/*.mdc",
@@ -34,19 +53,31 @@
   },
   "linter": {
     "enabled": true,
+    "domains": { "vue": "none" },
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "correctness": {
         "noEmptyPattern": "off"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noUselessElse": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
       },
       "performance": {
         "noDynamicNamespaceImportAccess": "off"
       }
     },
-    "includes": ["packages/**/src/**/*.ts", "!packages/**/src/**/_generated/**/*.ts"]
+    "includes": [
+      "packages/**/*.ts",
+      "packages/**/*.vue",
+      "scripts/**/*.ts",
+      "*.ts",
+      "*.mjs",
+      "scripts/**/*.mjs"
+    ]
   },
   "javascript": {
     "formatter": {
@@ -61,6 +92,33 @@
       "bracketSpacing": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["**/*.vue"],
+      "linter": {
+        "rules": {
+          "preset": "none",
+          "complexity": { "useOptionalChain": "error" },
+          "style": { "noUselessElse": "error" },
+          "suspicious": { "noExplicitAny": "error" }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.ts"],
+      "linter": {
+        "rules": { "suspicious": { "noTemplateCurlyInString": "off", "noConsole": "off" } }
+      }
+    },
+    {
+      "includes": [
+        "packages/platform/backend/src/**/*.ts",
+        "packages/platform/backend-api/src/**/*.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": { "rules": { "suspicious": { "noConsole": "error" } } }
+    }
+  ],
   "html": {
     "experimentalFullSupportEnabled": true,
     "formatter": {
@@ -85,6 +143,13 @@
         }
       }
     },
-    "includes": ["packages/**/src/**/*.ts", "!packages/**/src/**/_generated/**/*.ts"]
+    "includes": [
+      "packages/**/*.ts",
+      "packages/**/*.vue",
+      "scripts/**/*.ts",
+      "*.ts",
+      "*.mjs",
+      "scripts/**/*.mjs"
+    ]
   }
 }
