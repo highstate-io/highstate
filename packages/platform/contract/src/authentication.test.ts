@@ -32,6 +32,7 @@ describe("login provider configuration", () => {
     }
 
     expect(loginProviderConfigSchema.safeParse(input).success).toBe(false)
+
     expect(
       loginProviderConfigSchema.parse({
         ...input,
@@ -45,6 +46,7 @@ describe("login provider configuration", () => {
     expect(loginProviderConfigSchema.safeParse({ ...oidc, clientSecret: undefined }).success).toBe(
       false,
     )
+
     expect(
       loginProviderConfigSchema.safeParse({
         ...oidc,

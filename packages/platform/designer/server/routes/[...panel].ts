@@ -1,9 +1,9 @@
 import { getSharedServices } from "@highstate/backend"
 import WebSocket from "ws"
+import { isHostedAuth } from "../utils/auth-config"
+import { authorizePanelSession } from "../utils/panel-authentication"
 import { isPanelSessionSource } from "../utils/panel-response"
 import { getActivePanelSession, getPanelIdFromHost, getPanelSession } from "../utils/panel-session"
-import { authorizePanelSession } from "../utils/panel-authentication"
-import { isHostedAuth } from "../utils/auth-config"
 
 type PanelWebSocketState = {
   upstream: WebSocket
@@ -26,6 +26,7 @@ export default defineWebSocketHandler({
     if (!panelId || !session) {
       return new Response("Panel session required", { status: 401 })
     }
+
     try {
       await authorizePanelSession(session)
     } catch {
@@ -55,10 +56,12 @@ export default defineWebSocketHandler({
     const services = await getSharedServices()
     await authorizePanelSession(session)
     const database = await services.database.forProject(session.projectId)
+
     const panel = await database.panel.findUnique({
       where: { id: panelId },
       select: { workerVersionId: true },
     })
+
     if (!panel) {
       peer.close(1008, "Panel not found")
       return
@@ -71,12 +74,15 @@ export default defineWebSocketHandler({
         panelId,
         session.workerInstanceId,
       )
+
       if (!endpoint) {
         peer.close(1011, "Panel worker instance is unavailable")
         return
       }
+
       const url = new URL(request.url)
       const protocol = getFirstWebSocketProtocol(request.headers)
+
       const upstream = new WebSocket(
         `ws://${endpoint.authority}${url.pathname}${url.search}`,
         protocol ? [protocol] : [],
@@ -88,6 +94,7 @@ export default defineWebSocketHandler({
           },
         },
       )
+
       const timer = isHostedAuth()
         ? setInterval(() => {
             void authorizePanelSession(session).catch(() => {
@@ -96,18 +103,22 @@ export default defineWebSocketHandler({
             })
           }, 5000)
         : undefined
+
       timer?.unref?.()
       stateByPeerId.set(peer.id, { upstream, timer })
 
       upstream.binaryType = "arraybuffer"
+
       upstream.on("message", (data, binary) => {
         peer.send(binary ? new Uint8Array(data as ArrayBuffer) : data.toString())
       })
+
       upstream.once("close", (code, reason) => {
         clearInterval(timer)
         stateByPeerId.delete(peer.id)
         peer.close(code, reason.toString())
       })
+
       upstream.once("error", () => {
         clearInterval(timer)
         stateByPeerId.delete(peer.id)
@@ -161,13 +172,18 @@ function getRequestPanelSession(
       panelId,
       new URL(request.url.replace(/^ws/, "http")),
     )
-  )
+  ) {
     return undefined
+  }
+
   const session = sessionId ? getPanelSession(sessionId, panelId) : undefined
   if (session) {
     return session
   }
-  if (isHostedAuth()) return undefined
+
+  if (isHostedAuth()) {
+    return undefined
+  }
 
   return isPanelSessionSource(
     request.headers.get("origin") ?? undefined,

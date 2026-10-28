@@ -2,8 +2,8 @@ import type { Services } from "@highstate/backend"
 import { resolveHumanProjectContext } from "@highstate/backend"
 import { ensureLocalBackendUser } from "../authentication"
 import { isHostedAuth } from "./auth-config"
-import { authenticateHostedSession, sessionTokenFromHeaders } from "./hosted-session"
 import { initializeHostedProjectAuth } from "./auth-initialization"
+import { authenticateHostedSession, sessionTokenFromHeaders } from "./hosted-session"
 
 export async function authenticateProjectHeaders(
   services: Services,
@@ -15,6 +15,7 @@ export async function authenticateProjectHeaders(
     await initializeHostedProjectAuth(services, projectId)
     return await resolveHumanProjectContext(services.database, identity, projectId)
   }
+
   const local = await ensureLocalBackendUser(services)
   return await resolveHumanProjectContext(
     services.database,

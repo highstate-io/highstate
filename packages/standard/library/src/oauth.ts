@@ -56,7 +56,9 @@ export const loginProviderEntity = defineEntity({
   meta: { ...meta, title: "Login Provider" },
 })
 
-/** Imports endpoint and identity settings for an existing OAuth2 or OIDC provider. */
+/**
+ * Imports endpoint and identity settings for an existing OAuth2 or OIDC provider.
+ */
 export const providerImport = defineUnit({
   type: "oauth.provider-import.v1",
   args: providerSchema.shape,
@@ -65,7 +67,9 @@ export const providerImport = defineUnit({
   source: { package: "@highstate/oauth", path: "provider-import" },
 })
 
-/** Imports an existing client registration without creating or rotating credentials. */
+/**
+ * Imports an existing client registration without creating or rotating credentials.
+ */
 export const registrationImport = defineUnit({
   type: "oauth.registration-import.v1",
   inputs: { provider: providerEntity },
@@ -75,7 +79,9 @@ export const registrationImport = defineUnit({
   source: { package: "@highstate/oauth", path: "registration-import" },
 })
 
-/** Adapts an existing registration into a deployment-independent login capability. */
+/**
+ * Adapts an existing registration into a deployment-independent login capability.
+ */
 export const loginProvider = defineUnit({
   type: "auth.login-provider.v1",
   args: { id: config.id, title: config.title },
@@ -85,7 +91,9 @@ export const loginProvider = defineUnit({
   source: { package: "@highstate/oauth", path: "login-provider" },
 })
 
-/** Imports an existing OIDC client using issuer discovery. */
+/**
+ * Imports an existing OIDC client using issuer discovery.
+ */
 export const oidcRegistrationImport = defineUnit({
   type: "oauth.oidc-registration-import.v1",
   args: {
@@ -100,7 +108,9 @@ export const oidcRegistrationImport = defineUnit({
   source: { package: "@highstate/oauth", path: "oidc-registration-import" },
 })
 
-/** Imports a manually registered GitHub OAuth App without changing its registration. */
+/**
+ * Imports a manually registered GitHub OAuth App without changing its registration.
+ */
 export const githubRegistrationImport = defineUnit({
   type: "github.oauth-registration-import.v1",
   args: { scopes: config.scopes.default(["read:user", "user:email"]) },

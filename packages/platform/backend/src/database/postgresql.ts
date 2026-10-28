@@ -29,8 +29,8 @@ type BackendMetadata = {
   privateKey: string
 }
 
-// The bootstrap table is deliberately outside the Prisma schema: it must exist before migration 1.
-// The transaction-scoped lock serializes both first startup and later schema upgrades.
+// the bootstrap table is deliberately outside the Prisma schema: it must exist before migration 1
+// the transaction-scoped lock serializes both first startup and later schema upgrades
 const startupLock = 724167809
 
 class PostgresqlBackendDatabaseBackend implements BackendDatabaseBackend {
@@ -84,6 +84,7 @@ export async function createPostgresqlBackendDatabaseBackend(
   const identity = await getOrCreateBackendIdentity(config, logger)
   const recipient = await identityToRecipient(identity)
   const url = new URL(config.HIGHSTATE_BACKEND_DATABASE_POSTGRESQL_URL)
+
   const database = new BackendDatabase({
     adapter: new PrismaPg(
       { connectionString: url.toString() },
@@ -95,9 +96,10 @@ export async function createPostgresqlBackendDatabaseBackend(
     const keys = await database.$transaction(
       async tx => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(${startupLock})`
-        // Raw bootstrap queries and Prisma's qualified model queries must use the same schema.
+        // raw bootstrap queries and Prisma's qualified model queries must use the same schema
         const schema = url.searchParams.get("schema") ?? "public"
         await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schema.replaceAll('"', '""')}"`)
+
         await tx.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "_highstate_backend" (
         "id" INTEGER PRIMARY KEY CHECK ("id" = 1),
         "version" INTEGER NOT NULL CHECK ("version" >= 0),
@@ -107,6 +109,7 @@ export async function createPostgresqlBackendDatabaseBackend(
         const [metadata] = await tx.$queryRaw<BackendMetadata[]>`
         SELECT "version", "privateKey" FROM "_highstate_backend" WHERE "id" = 1
       `
+
         const keys = metadata
           ? await readBackendPrivateKey(metadata.privateKey, identity)
           : await createBackendPrivateKey(identity)
@@ -118,7 +121,7 @@ export async function createPostgresqlBackendDatabaseBackend(
         `
         }
 
-        // Reuse the migration runner inside this already locked transaction, without nesting transactions.
+        // reuse the migration runner inside this already locked transaction, without nesting transactions
         await migrateDatabase(
           {
             $transaction: async callback => await callback(tx),

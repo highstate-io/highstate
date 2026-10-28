@@ -9,12 +9,14 @@ test.each([
 ])("never caches rejected provider configuration: %j", identity => {
   vi.stubEnv("HIGHSTATE_AUTH_MODE", "hosted")
   vi.stubEnv("HIGHSTATE_PUBLIC_URL", "https://designer.example")
+
   vi.stubEnv(
     "HIGHSTATE_AUTH_PROVIDERS",
     JSON.stringify([
       { id: "test", title: "Test", clientId: "client", clientAuthMethod: "none", identity },
     ]),
   )
+
   expect(() => getHostedAuthConfig()).toThrow()
   expect(() => getHostedAuthConfig()).toThrow()
 })

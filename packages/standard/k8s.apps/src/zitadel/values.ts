@@ -12,7 +12,9 @@ export type ZitadelValuesConfig = {
   scheduling?: Record<string, unknown>
 }
 
-/** Values for the official zitadel/zitadel chart, validated against chart 10.4.0. */
+/**
+ * Values for the official zitadel/zitadel chart, validated against chart 10.4.0.
+ */
 export function zitadelValues(
   config: ZitadelValuesConfig,
   configSecretName: string,

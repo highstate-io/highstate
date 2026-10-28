@@ -18,9 +18,11 @@ const identity = {
 describe("human authorization", () => {
   test("cannot opt a hosted identity into trusted-local authorization", async () => {
     const database = {} as DatabaseManager
+
     await expect(resolveHumanBackendContext(database, identity, true)).rejects.toThrow(
       "Local identity required",
     )
+
     await expect(resolveHumanProjectContext(database, identity, "project", true)).rejects.toThrow(
       "Local identity required",
     )
@@ -31,10 +33,13 @@ describe("human authorization", () => {
       .fn()
       .mockResolvedValueOnce([{ rules: [{ permissions: ["backend.update"] }] }])
       .mockResolvedValueOnce([])
+
     const database = { backend: { backendRole: { findMany } } } as unknown as DatabaseManager
+
     expect(
       hasBackendPermission(await resolveHumanBackendContext(database, identity), "backend.update"),
     ).toBe(true)
+
     expect(
       hasBackendPermission(await resolveHumanBackendContext(database, identity), "backend.update"),
     ).toBe(false)
@@ -42,6 +47,7 @@ describe("human authorization", () => {
 
   test("denies stronger project group grants before copying subjects or writing bindings", async () => {
     const upsert = vi.fn()
+
     const database = {
       forProject: vi.fn().mockResolvedValue({
         role: {
@@ -52,6 +58,7 @@ describe("human authorization", () => {
         userGroupRoleBinding: { upsert },
       }),
     } as unknown as DatabaseManager
+
     await expect(
       setHumanProjectRoleBinding(
         database,
@@ -68,13 +75,16 @@ describe("human authorization", () => {
         },
       ),
     ).rejects.toThrow()
+
     expect(upsert).not.toHaveBeenCalled()
   })
+
   test("does not grant privileges to an authenticated human without bindings", async () => {
     const backendRole = { findMany: vi.fn().mockResolvedValue([]) }
     const database = { backend: { backendRole } } as unknown as DatabaseManager
     const context = await resolveHumanBackendContext(database, identity)
     expect(hasBackendPermission(context, "backend.update")).toBe(false)
+
     expect(backendRole.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
@@ -103,9 +113,11 @@ describe("human authorization", () => {
         ]),
       },
     }
+
     const database = {
       forProject: vi.fn().mockResolvedValue(project),
     } as unknown as DatabaseManager
+
     const context = await resolveHumanProjectContext(database, identity, "project")
     expect(hasProjectPermission(context, "terminal.connect", { resourceId: "allowed" })).toBe(true)
     expect(hasProjectPermission(context, "terminal.connect", { resourceId: "other" })).toBe(false)
@@ -115,6 +127,7 @@ describe("human authorization", () => {
   test("denies binding a stronger role without escalation permission", async () => {
     const upsert = vi.fn()
     const roleId = "x123456789012345678901234"
+
     const database = {
       backend: {
         backendRole: {
@@ -125,6 +138,7 @@ describe("human authorization", () => {
         userBackendRoleBinding: { upsert },
       },
     } as unknown as DatabaseManager
+
     await expect(
       setHumanBackendRoleBinding(
         database,
@@ -136,6 +150,7 @@ describe("human authorization", () => {
         { roleId, subject: { type: "user", id: "y123456789012345678901234" }, granted: true },
       ),
     ).rejects.toThrow()
+
     expect(upsert).not.toHaveBeenCalled()
   })
 })

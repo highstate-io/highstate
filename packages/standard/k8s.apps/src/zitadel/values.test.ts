@@ -21,6 +21,7 @@ test.skipIf(!Bun.which("helm"))(
       "configuration",
       "masterkey",
     )
+
     const process = Bun.spawn(
       [
         "helm",
@@ -40,45 +41,61 @@ test.skipIf(!Bun.which("helm"))(
       ],
       { stdin: new Blob([stringify(values)]), stdout: "pipe", stderr: "pipe" },
     )
+
     const [manifest, errors, exitCode] = await Promise.all([
       new Response(process.stdout).text(),
       new Response(process.stderr).text(),
       process.exited,
     ])
+
     expect(errors).toBe("")
     expect(exitCode).toBe(0)
+
     const resources = parseAllDocuments(manifest)
       .map(document => document.toJSON())
       .filter(Boolean)
+
     const api = resources.find(
       resource => resource.kind === "Service" && resource.metadata.name === "identity",
     )
+
     expect(api.spec.ports[0].appProtocol).toBe("kubernetes.io/h2c")
+
     const login = resources.find(
       resource => resource.kind === "Service" && resource.metadata.name === "identity-login",
     )
+
     expect(login.spec.ports[0].port).toBe(3000)
+
     const setup = resources.find(
       resource => resource.kind === "Job" && resource.metadata.name === "identity-setup",
     )
+
     expect(setup.metadata.annotations["helm.sh/hook-weight"]).toBe("2")
+
     const setupContainer = setup.spec.template.spec.containers.find((container: { name: string }) =>
       container.name.endsWith("-setup"),
     )
+
     expect(setupContainer.args).toContain("/zitadel-secret-config-yaml/config-yaml")
+
     expect(
       setup.spec.template.spec.containers.some((container: { command?: string[] }) =>
         container.command?.join(" ").includes("identity-management-pat"),
       ),
     ).toBe(true)
+
     const configMap = resources.find(
       resource => resource.kind === "ConfigMap" && resource.data["zitadel-config-yaml"],
     )
+
     expect(configMap.data["zitadel-config-yaml"]).toContain("admin@example.com")
     expect(configMap.data["zitadel-config-yaml"]).toContain("ExternalPort: 443")
+
     const loginConfig = resources.find(
       resource => resource.kind === "ConfigMap" && resource.data[".env"],
     )
+
     expect(loginConfig.data[".env"]).toContain('ZITADEL_API_URL="http://identity:8080"')
     expect(resources.some(resource => resource.kind === "StatefulSet")).toBe(false)
   },

@@ -81,10 +81,12 @@ const deployment = createRuntimeDeployment({
 const backupTemplateName = `${args.appName}-offline-backup`
 if (inputs.resticRepo) {
   const repo = await toPromise(inputs.resticRepo)
+
   const repoPath = repo.pathPattern
     .replaceAll("$clusterName", cluster.name)
     .replaceAll("$appName", args.appName)
     .replaceAll("$unitName", name)
+
   const credentials = Secret.create(`${args.appName}-backup`, {
     namespace,
     stringData: {
@@ -93,11 +95,13 @@ if (inputs.resticRepo) {
       repository: `rclone:${repo.remoteName}:${repoPath}`,
     },
   })
+
   const account = new core.v1.ServiceAccount(
     `${args.appName}-backup`,
     { metadata: { namespace: ns } },
     { provider },
   )
+
   const role = new rbac.v1.Role(
     `${args.appName}-backup`,
     {
@@ -120,6 +124,7 @@ if (inputs.resticRepo) {
     },
     { provider },
   )
+
   const binding = new rbac.v1.RoleBinding(
     `${args.appName}-backup`,
     {
@@ -129,6 +134,7 @@ if (inputs.resticRepo) {
     },
     { provider },
   )
+
   const backupTemplate = new batch.v1.CronJob(
     backupTemplateName,
     {

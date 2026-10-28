@@ -3,24 +3,30 @@ import { type ApplicationInputs, ApplicationProvider, applicationCallback } from
 
 const servers: ReturnType<typeof Bun.serve>[] = []
 afterEach(() => {
-  for (const server of servers.splice(0)) server.stop(true)
+  for (const server of servers.splice(0)) {
+    server.stop(true)
+  }
 })
 
 describe("Zitadel application lifecycle", () => {
   test("creates once, refreshes drift, updates without rotating credentials and deletes idempotently", async () => {
     const requests: { method: string; path: string; body: Record<string, unknown> }[] = []
     let app: { name: string; oidcConfig: Record<string, unknown> } | undefined
+
     const server = Bun.serve({
       port: 0,
       async fetch(request) {
         expect(request.headers.get("authorization")).toBe("Bearer automation-token")
         expect(request.headers.get("x-zitadel-orgid")).toBe("org")
         const path = new URL(request.url).pathname
+
         const body =
           request.method === "POST" || request.method === "PUT"
             ? ((await request.json()) as Record<string, unknown>)
             : {}
+
         requests.push({ method: request.method, path, body })
+
         if (request.method === "POST") {
           expect(path).toBe("/management/v1/projects/project/apps/oidc")
           app = { name: body.name as string, oidcConfig: { ...body, clientId: "client" } }
@@ -30,16 +36,30 @@ describe("Zitadel application lifecycle", () => {
             clientSecret: "one-time-secret",
           })
         }
-        if (!app) return Response.json({}, { status: 404 })
-        if (request.method === "GET") return Response.json({ app })
-        if (request.method === "DELETE") app = undefined
-        else if (path.endsWith("/oidc_config")) app.oidcConfig = { ...body, clientId: "client" }
-        else app.name = body.name as string
+
+        if (!app) {
+          return Response.json({}, { status: 404 })
+        }
+
+        if (request.method === "GET") {
+          return Response.json({ app })
+        }
+
+        if (request.method === "DELETE") {
+          app = undefined
+        } else if (path.endsWith("/oidc_config")) {
+          app.oidcConfig = { ...body, clientId: "client" }
+        } else {
+          app.name = body.name as string
+        }
+
         return Response.json({})
       },
     })
+
     servers.push(server)
     const provider = new ApplicationProvider()
+
     const inputs: ApplicationInputs = {
       issuer: server.url.origin,
       token: "automation-token",
@@ -48,6 +68,7 @@ describe("Zitadel application lifecycle", () => {
       name: "Highstate",
       redirectUris: [applicationCallback("highstate.example.com", "/auth/callback")],
     }
+
     const created = await provider.create(inputs)
     const state = created.outs!
     expect((await provider.diff(created.id, state, inputs)).changes).toBe(false)
@@ -71,9 +92,11 @@ describe("Zitadel application lifecycle", () => {
     const beforeRotation = requests.length
     await provider.update(created.id, state, { ...inputs, token: "rotated" })
     expect(requests).toHaveLength(beforeRotation)
+
     expect(
       (await provider.diff(created.id, state, { ...inputs, projectId: "another" })).replaces,
     ).toEqual(["projectId"])
+
     await provider.delete(created.id, state)
     await provider.delete(created.id, state)
     expect((await provider.read(created.id, state)).id).toBeUndefined()
@@ -84,7 +107,9 @@ describe("Zitadel application lifecycle", () => {
       port: 0,
       fetch: () => Response.json({ message: "sensitive-token" }, { status: 403 }),
     })
+
     servers.push(server)
+
     const state = {
       issuer: server.url.origin,
       token: "token",
@@ -96,6 +121,7 @@ describe("Zitadel application lifecycle", () => {
       clientSecret: "secret",
       configurationDrift: false,
     }
+
     await expect(new ApplicationProvider().read("app", state)).rejects.toThrow(
       "Zitadel GET request failed with HTTP 403",
     )
@@ -106,6 +132,7 @@ test("callback construction rejects origin replacement and fragments", () => {
   expect(applicationCallback("app.example.com", "/auth/callback")).toBe(
     "https://app.example.com/auth/callback",
   )
+
   expect(() => applicationCallback("app.example.com", "//other.example.com/callback")).toThrow()
   expect(() => applicationCallback("app.example.com", "/callback#fragment")).toThrow()
 })

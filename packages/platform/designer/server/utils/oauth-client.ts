@@ -12,7 +12,8 @@ export async function createLoginClient(
       : provider.clientAuthMethod === "client_secret_basic"
         ? client.ClientSecretBasic(provider.clientSecret)
         : client.ClientSecretPost(provider.clientSecret)
-  if (provider.identity.protocol === "oauth2")
+
+  if (provider.identity.protocol === "oauth2") {
     return new client.Configuration(
       {
         issuer: new URL(provider.tokenEndpoint!).origin,
@@ -23,15 +24,21 @@ export async function createLoginClient(
       undefined,
       auth,
     )
+  }
+
   const discovered = await client.discovery(
     new URL(provider.identity.issuer),
     provider.clientId,
     undefined,
     auth,
   )
-  if (discovered.serverMetadata().issuer !== provider.identity.issuer)
+
+  if (discovered.serverMetadata().issuer !== provider.identity.issuer) {
     throw new Error("OIDC issuer mismatch")
+  }
+
   const { supportsPKCE: _supportsPKCE, ...metadata } = discovered.serverMetadata()
+
   const config = new client.Configuration(
     {
       ...metadata,
@@ -43,6 +50,7 @@ export async function createLoginClient(
     undefined,
     auth,
   )
+
   client.enableNonRepudiationChecks(config)
   return config
 }
@@ -54,6 +62,7 @@ export async function getLoginClient(provider: LoginProviderConfig): Promise<cli
     clients.set(provider.id, config)
     config.catch(() => clients.delete(provider.id))
   }
+
   return await config
 }
 
@@ -63,6 +72,7 @@ export async function exchangeLoginCode(
   transaction: { codeVerifier: string; state: string; nonce: string },
 ): Promise<unknown> {
   const config = await getLoginClient(provider)
+
   const tokens = await client.authorizationCodeGrant(config, url, {
     pkceCodeVerifier: transaction.codeVerifier,
     expectedState: transaction.state,
@@ -70,21 +80,29 @@ export async function exchangeLoginCode(
       ? { expectedNonce: transaction.nonce, idTokenExpected: true }
       : {}),
   })
+
   if (provider.identity.protocol === "oidc") {
     const claims = tokens.claims()
     if (
       !claims ||
       (claims.azp !== undefined && claims.azp !== provider.clientId) ||
       (Array.isArray(claims.aud) && claims.aud.length > 1 && claims.azp !== provider.clientId)
-    )
+    ) {
       throw new Error("OIDC authorized party mismatch")
+    }
+
     return claims
   }
+
   const response = await fetch(provider.identity.userInfoUrl, {
     headers: { authorization: `Bearer ${tokens.access_token}`, accept: "application/json" },
     redirect: "error",
     signal: AbortSignal.timeout(15000),
   })
-  if (!response.ok) throw new Error("OAuth profile request failed")
+
+  if (!response.ok) {
+    throw new Error("OAuth profile request failed")
+  }
+
   return await response.json()
 }

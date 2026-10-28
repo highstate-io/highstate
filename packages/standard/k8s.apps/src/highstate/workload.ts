@@ -14,16 +14,20 @@ type RuntimeDeploymentArgs = {
   route?: DeploymentArgs["route"]
 }
 
-/** Keeps bind-mount paths and daemon lifecycle aligned with the local Docker backends. */
+/**
+ * Keeps bind-mount paths and daemon lifecycle aligned with the local Docker backends.
+ */
 export function createRuntimeDeployment(args: RuntimeDeploymentArgs) {
   const dockerHost = "unix:///run/highstate-docker/docker.sock"
+
   const sharedMounts = [
     { name: "data", mountPath: "/data" },
     { name: "worker-api", mountPath: "/run/user/0" },
     { name: "docker-socket", mountPath: "/run/highstate-docker" },
-    // DinD mounts a tmpfs over /tmp unless /tmp itself is already a mountpoint.
+    // dinD mounts a tmpfs over /tmp unless /tmp itself is already a mountpoint
     { name: "runtime-scripts", mountPath: "/tmp" },
   ]
+
   return Deployment.create(args.name, {
     namespace: args.namespace,
     replicas: args.maintenance ? 0 : 1,
@@ -69,7 +73,7 @@ export function createRuntimeDeployment(args: RuntimeDeploymentArgs) {
       spec: {
         automountServiceAccountToken: false,
         terminationGracePeriodSeconds: 120,
-        // Native sidecars terminate only after the application has stopped.
+        // native sidecars terminate only after the application has stopped
         initContainers: [
           {
             name: "docker",

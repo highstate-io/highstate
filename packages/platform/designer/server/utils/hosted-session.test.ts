@@ -15,6 +15,7 @@ afterEach(() => {
 
 describe("durable hosted sessions", () => {
   const identity = { id: "human", type: "oidc", meta: { title: "Human" }, groups: [] }
+
   test.each([
     null,
     { identity, userId: "human", expiresAt: new Date(0), revokedAt: null },
@@ -30,31 +31,37 @@ describe("durable hosted sessions", () => {
         backend: { designerSession: { findUnique: vi.fn().mockResolvedValue(session) } },
       },
     } as unknown as Services
+
     await expect(authenticateHostedSession(services, opaqueToken())).rejects.toThrow()
   })
 
   test("looks up only the token digest and closes idle connections on revocation", async () => {
     vi.useFakeTimers()
     const token = opaqueToken()
+
     const findUnique = vi.fn().mockResolvedValue({
       identity,
       userId: "human",
       expiresAt: new Date(Date.now() + 100000),
       revokedAt: null,
     })
+
     const services = {
       database: { backend: { designerSession: { findUnique } } },
     } as unknown as Services
+
     await expect(authenticateHostedSession(services, token)).resolves.toEqual(identity)
     expect(findUnique).toHaveBeenCalledWith({ where: { tokenHash: hashToken(token) } })
     const close = vi.fn()
     const timer = monitorHostedSession(services, token, close)
+
     findUnique.mockResolvedValue({
       identity,
       userId: "human",
       expiresAt: new Date(Date.now() + 100000),
       revokedAt: new Date(),
     })
+
     await vi.advanceTimersByTimeAsync(5000)
     expect(close).toHaveBeenCalledOnce()
     clearInterval(timer)
@@ -63,6 +70,7 @@ describe("durable hosted sessions", () => {
   test("refreshes older browser sessions when a new login removes group membership", async () => {
     vi.stubEnv("HIGHSTATE_AUTH_MODE", "hosted")
     vi.stubEnv("HIGHSTATE_PUBLIC_URL", "https://designer.example")
+
     vi.stubEnv(
       "HIGHSTATE_AUTH_PROVIDERS",
       JSON.stringify([
@@ -75,16 +83,20 @@ describe("durable hosted sessions", () => {
         },
       ]),
     )
+
     const previous = {
       identity: { ...identity, groups: [{ id: "admins", title: "Admins" }] },
       userId: identity.id,
       expiresAt: new Date(Date.now() + 60000),
       revokedAt: null,
     }
+
     const updateMany = vi.fn(async ({ data }) => {
       previous.identity = data.identity
     })
+
     const create = vi.fn()
+
     const services = {
       database: {
         backend: {
@@ -93,11 +105,14 @@ describe("durable hosted sessions", () => {
         },
       },
     } as unknown as Services
+
     await createHostedSession(services, { ...identity, type: "oidc" })
+
     expect(updateMany).toHaveBeenCalledWith({
       where: { userId: identity.id, revokedAt: null, expiresAt: { gt: expect.any(Date) } },
       data: { identity },
     })
+
     expect((await authenticateHostedSession(services, opaqueToken())).groups).toEqual([])
     expect(create).toHaveBeenCalledOnce()
   })

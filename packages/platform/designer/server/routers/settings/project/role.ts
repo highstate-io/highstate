@@ -1,5 +1,5 @@
-import { projectRoleInputSchema, projectRoleQuerySchema } from "@highstate/backend/shared"
 import { humanRoleBindingSchema, setHumanProjectRoleBinding } from "@highstate/backend"
+import { projectRoleInputSchema, projectRoleQuerySchema } from "@highstate/backend/shared"
 import { projectProcedure, router } from "../../../trpc"
 import { projectInput, roleInput } from "../shared"
 

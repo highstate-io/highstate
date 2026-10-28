@@ -1,4 +1,6 @@
-/** Runs outside the managed Highstate runtime, including for before-destroy triggers. */
+/**
+ * Runs outside the managed Highstate runtime, including for before-destroy triggers.
+ */
 export const coordinateBackupScript = `set -eu
 : "\${NAMESPACE:?}" "\${DEPLOYMENT:?}" "\${BACKUP_TEMPLATE:?}"
 lock=highstate-backup-lock
@@ -47,7 +49,9 @@ fi
 kubectl -n "$NAMESPACE" delete configmap "$lock"
 `
 
-/** Captures the complete stopped encrypted libSQL tree, including WAL and key envelopes. */
+/**
+ * Captures the complete stopped encrypted libSQL tree, including WAL and key envelopes.
+ */
 export const offlineBackupScript = `set -eu
 umask 077
 kubectl -n "$NAMESPACE" get configmap highstate-backup-lock >/dev/null

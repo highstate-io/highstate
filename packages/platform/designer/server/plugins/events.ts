@@ -1,6 +1,6 @@
-import { appRouter } from "../router"
 import { getSharedServices } from "@highstate/backend"
 import { createBunServeHandler } from "trpc-bun-adapter"
+import { appRouter } from "../router"
 import { isHostedAuth } from "../utils/auth-config"
 import { sessionTokenFromHeaders } from "../utils/hosted-session"
 
