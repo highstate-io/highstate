@@ -1,4 +1,4 @@
-import type { OperationType, OperationOptions } from "@highstate/backend/shared"
+import type { OperationOptions, OperationType } from "@highstate/backend/shared"
 
 export type OptionConfig = {
   key: keyof OperationOptions

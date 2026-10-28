@@ -8,7 +8,7 @@ import { join } from "node:path"
 import { pipeline } from "node:stream/promises"
 import { type UnitArtifact, unitArtifactId } from "@highstate/contract"
 
-export interface ArtifactEnvironment {
+export type ArtifactEnvironment = {
   readPath: string | null
   writePath: string
 }
@@ -46,9 +46,8 @@ export async function setupArtifactEnvironment(
       artifacts.map(async artifact => {
         const artifactPath = join(readDir!, `${artifact.hash}.tgz`)
         const stream = await artifactBackend.retrieve(projectId, artifact.id, artifact.chunkSize)
-
         if (!stream) {
-          throw new Error(`artifact not found: ${artifact.hash}`)
+          throw new Error(`Artifact not found: ${artifact.hash}`)
         }
 
         const writeStream = createWriteStream(artifactPath)
@@ -81,7 +80,6 @@ export async function collectAndStoreArtifacts(
   try {
     const files = await readdir(writePath)
     const tgzFiles = files.filter(file => file.endsWith(".tgz"))
-
     if (tgzFiles.length === 0) {
       logger.debug({ msg: "no artifacts to collect", writePath })
       return
@@ -91,13 +89,13 @@ export async function collectAndStoreArtifacts(
       .map(file => {
         const hash = file.replace(".tgz", "")
         const declaredArtifact = declaredArtifacts.find(artifact => artifact.hash === hash)
-
         if (!declaredArtifact) {
           logger.warn({
             msg: "artifact file not declared in outputs",
             file,
             declaredArtifacts,
           })
+
           return null
         }
 
@@ -111,6 +109,7 @@ export async function collectAndStoreArtifacts(
 
         try {
           const [expectedHash, fileSize] = await getFileSha256(filePath)
+
           if (expectedHash !== artifact.hash) {
             logger.warn({
               msg: "artifact hash mismatch",
@@ -118,6 +117,7 @@ export async function collectAndStoreArtifacts(
               gotHash: artifact.hash,
               file: filePath,
             })
+
             return
           }
 

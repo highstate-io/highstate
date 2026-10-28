@@ -34,7 +34,6 @@ export function parsePrPreviewComment(
   }
 
   const descriptor = JSON.parse(match[1]) as PrPreviewDescriptor
-
   if (
     descriptor.schemaVersion !== 1 ||
     descriptor.repository !== "highstate-io/highstate" ||
@@ -43,6 +42,7 @@ export function parsePrPreviewComment(
   ) {
     throw new Error("Invalid Highstate PR preview descriptor")
   }
+
   if (
     !semver.valid(descriptor.stable.platformVersion) ||
     !semver.valid(descriptor.stable.stdlibVersion) ||
@@ -72,7 +72,9 @@ export function parsePrPreviewComment(
 export async function fetchPrPreviewDescriptor(pullRequest: number): Promise<PrPreviewDescriptor> {
   const headers: Record<string, string> = { Accept: "application/vnd.github+json" }
   const token = await getGitHubToken()
-  if (token) headers.Authorization = `Bearer ${token}`
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
 
   const [response, pullResponse] = await Promise.all([
     fetch(
@@ -102,13 +104,13 @@ export async function fetchPrPreviewDescriptor(pullRequest: number): Promise<PrP
 
   for (const comment of (await response.json()) as GitHubComment[]) {
     const descriptor = parsePrPreviewComment(comment, pullRequest)
-
     if (descriptor) {
       if (descriptor.sourceSha !== pull.head?.sha) {
         throw new Error(
           `Highstate PR ${pullRequest} preview is stale; wait for its preview workflow`,
         )
       }
+
       return descriptor
     }
   }
@@ -129,6 +131,7 @@ export async function getGitHubToken(commandPath = "gh"): Promise<string | undef
       "--hostname",
       "github.com",
     ])
+
     return stdout.trim() || undefined
   } catch {
     return undefined

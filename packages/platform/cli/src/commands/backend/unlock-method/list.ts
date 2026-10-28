@@ -15,7 +15,6 @@ export class BackendUnlockMethodListCommand extends Command {
 
     try {
       const methods = await services.backendUnlockService.listUnlockMethods()
-
       if (methods.length === 0) {
         logger.warn("no backend unlock methods configured")
         return

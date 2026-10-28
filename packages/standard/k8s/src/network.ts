@@ -35,6 +35,7 @@ export function getBestEndpoint<TEndpoint extends network.L3Endpoint>(
         getEntityId(clusterEndpoint.network) === getEntityId(endpoint.network),
     ),
   )
+
   if (sameNetworkEndpoint) {
     return sameNetworkEndpoint
   }
@@ -54,7 +55,6 @@ export function requireBestEndpoint<TEndpoint extends network.L3Endpoint>(
   cluster?: k8s.Cluster,
 ): TEndpoint {
   const endpoint = getBestEndpoint(endpoints, cluster)
-
   if (!endpoint) {
     if (cluster) {
       throw new Error(`No best endpoint found for cluster "${cluster.name}" (${cluster.id})`)

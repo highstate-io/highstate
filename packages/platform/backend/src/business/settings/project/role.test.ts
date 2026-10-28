@@ -6,6 +6,7 @@ describe("ProjectRoleSettingsService", () => {
   test("creates, queries, updates, and deletes roles", async ({ database, project }) => {
     const service = new ProjectRoleSettingsService(database)
     const context = adminProjectContext(project.id)
+
     const role = await service.create(context, {
       meta: { title: "Operators" },
       rules: [{ permissions: ["instance-model.get"] }],
@@ -14,9 +15,11 @@ describe("ProjectRoleSettingsService", () => {
     await expect(service.get(context, role.id)).resolves.toMatchObject({
       meta: { title: "Operators" },
     })
+
     await expect(
       service.query(context, { search: "Operators", pageSize: 10 }),
     ).resolves.toMatchObject({ items: [{ id: role.id }] })
+
     await expect(
       service.update(context, role.id, {
         meta: { title: "Updated operators" },

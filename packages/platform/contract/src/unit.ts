@@ -1,4 +1,6 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: maybe fix later */
+/**
+ * biome-ignore-all lint/suspicious/noExplicitAny: maybe fix later
+ */
 
 import type { InstanceInput } from "./instance"
 import type { VersionedName } from "./meta"
@@ -148,6 +150,7 @@ export function defineUnit<
         string,
         InstanceInput & { provided: true; [boundaryInput]: InstanceInput }
       > = {}
+
       for (const key in options.outputs ?? {}) {
         outputs[key] = {
           provided: true,

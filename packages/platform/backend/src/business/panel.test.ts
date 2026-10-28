@@ -18,6 +18,7 @@ const panelTest = test.extend<{
       new MemoryPubSubBackend(logger),
       logger.child({ service: "PubSubManager" }),
     )
+
     const panelService = new PanelService(database, pubsubManager, panelEndpointManager)
 
     await use(panelService)
@@ -83,11 +84,13 @@ describe("setUnitPanels", () => {
       const state = await createInstanceState(project.id)
       const worker = await createWorker()
       const workerVersion = await createWorkerVersion(worker)
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId: worker.serviceAccountId,
         workerId: worker.id,
       })
+
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -108,6 +111,7 @@ describe("setUnitPanels", () => {
         ],
         createId(),
       )
+
       const secondIds = await panelService.setUnitPanels(
         context,
         state.id,
@@ -118,6 +122,7 @@ describe("setUnitPanels", () => {
       )
 
       expect(secondIds).toEqual([firstIds[0]])
+
       await expect(
         projectDatabase.panel.findMany({ where: { stateId: state.id } }),
       ).resolves.toMatchObject([
@@ -145,6 +150,7 @@ describe("setUnitPanels", () => {
       const state = await createInstanceState(project.id)
       const worker = await createWorker()
       const workerVersion = await createWorkerVersion(worker)
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId: worker.serviceAccountId,
@@ -180,11 +186,13 @@ describe("setUnitPanels", () => {
       const workerVersion = await createWorkerVersion(worker)
       const otherWorker = await createWorker()
       const otherWorkerVersion = await createWorkerVersion(otherWorker)
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId: worker.serviceAccountId,
         workerId: worker.id,
       })
+
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -221,11 +229,13 @@ describe("setUnitPanels", () => {
       const state = await createInstanceState(project.id)
       const worker = await createWorker()
       const workerVersion = await createWorkerVersion(worker)
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId: worker.serviceAccountId,
         workerId: worker.id,
       })
+
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -234,6 +244,7 @@ describe("setUnitPanels", () => {
           workerVersionId: workerVersion.id,
         },
       })
+
       await panelService.setUnitPanels(
         context,
         state.id,
@@ -242,6 +253,7 @@ describe("setUnitPanels", () => {
         [{ name: "dashboard", meta: { title: "Dashboard" } }],
         createId(),
       )
+
       await projectDatabase.workerUnitRegistration.delete({
         where: { stateId_name: { stateId: state.id, name: "panels" } },
       })
@@ -276,11 +288,13 @@ describe("setUnitPanels", () => {
       const worker = await createWorker()
       const oldVersion = await createWorkerVersion(worker)
       const newVersion = await createWorkerVersion(worker)
+
       const context = adminProjectContext(project.id, {
         type: "service-account",
         serviceAccountId: worker.serviceAccountId,
         workerId: worker.id,
       })
+
       await projectDatabase.workerUnitRegistration.create({
         data: {
           stateId: state.id,
@@ -289,6 +303,7 @@ describe("setUnitPanels", () => {
           workerVersionId: oldVersion.id,
         },
       })
+
       const [panelId] = await panelService.setUnitPanels(
         context,
         state.id,
@@ -297,6 +312,7 @@ describe("setUnitPanels", () => {
         [{ name: "dashboard", meta: { title: "Dashboard" } }],
         createId(),
       )
+
       await projectDatabase.workerUnitRegistration.update({
         where: { stateId_name: { stateId: state.id, name: "panels" } },
         data: { workerVersionId: newVersion.id },
@@ -310,6 +326,7 @@ describe("setUnitPanels", () => {
         [{ name: "dashboard", meta: { title: "New Dashboard" } }],
         createId(),
       )
+
       await panelService.setUnitPanels(
         context,
         state.id,
@@ -320,6 +337,7 @@ describe("setUnitPanels", () => {
       )
 
       expect(newPanelIds).toEqual([panelId])
+
       await expect(
         projectDatabase.panel.findUnique({ where: { id: panelId } }),
       ).resolves.toMatchObject({

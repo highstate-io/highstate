@@ -7,7 +7,7 @@ type SettingsPageQuery = {
   take: number
 }
 
-type SettingsPageOptionsBase<TRow extends { id: string }> = {
+interface SettingsPageOptionsBase<TRow extends { id: string }> {
   collection: string
   request: CollectionQuery
   query: unknown

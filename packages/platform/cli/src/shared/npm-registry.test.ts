@@ -9,6 +9,7 @@ test("fetchPackageManifest reads package.json from an npm tarball", async () => 
     name: "@highstate/contract",
     highstate: { release: { group: "platform", packages: ["@highstate/contract"] } },
   }
+
   vi.spyOn(globalThis, "fetch").mockResolvedValue(
     new Response(gzipSync(createTarEntry("package/package.json", JSON.stringify(manifest)))),
   )

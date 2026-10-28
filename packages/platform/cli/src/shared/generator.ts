@@ -23,7 +23,7 @@ export async function generateFromTemplate(
 
   const templateStats = await stat(resolvedTemplatePath)
   if (!templateStats.isDirectory()) {
-    throw new Error(`templatePath must be a directory: ${resolvedTemplatePath}`)
+    throw new Error(`TemplatePath must be a directory: ${resolvedTemplatePath}`)
   }
 
   await mkdir(resolvedDestinationPath, { recursive: true })
@@ -46,6 +46,7 @@ export async function generateFromTemplate(
       await mkdir(destinationDirPath, { recursive: true })
 
       const entries = await readdir(absoluteSourcePath, { withFileTypes: true })
+
       for (const entry of entries) {
         await visit(join(absoluteSourcePath, entry.name))
       }

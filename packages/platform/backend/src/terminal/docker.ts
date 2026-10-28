@@ -72,7 +72,7 @@ export class DockerTerminalBackend implements TerminalBackend {
     childProcess.stderr?.pipe(stdout)
 
     if (!childProcess.pid) {
-      throw new Error(`Failed to start Docker container without clear response from child process.`)
+      throw new Error(`Failed to start Docker container without clear response from child process`)
     }
 
     this.logger.info({ processId: childProcess.pid }, "process started")

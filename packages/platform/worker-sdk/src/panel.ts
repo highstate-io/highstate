@@ -90,9 +90,11 @@ export class PanelDataServer {
       websocket: {
         open(socket) {
           socket.data.upstream.addEventListener("message", event => socket.send(event.data))
+
           socket.data.upstream.addEventListener("close", event =>
             socket.close(event.code, event.reason),
           )
+
           socket.data.upstream.addEventListener("error", () =>
             socket.close(1011, "Panel WebSocket connection failed"),
           )
@@ -129,34 +131,43 @@ export class PanelDataServer {
   ): Promise<Response | undefined> {
     const url = createTargetUrl(target.target, request.url)
     url.protocol = target.target.protocol === "https:" ? "wss:" : "ws:"
+
     const protocols = request.headers
       .get("sec-websocket-protocol")
       ?.split(",")
       .map(value => value.trim())
       .filter(Boolean)
+
     const headers = Object.fromEntries(
       Array.from(request.headers)
         .filter(([name]) => !webSocketHeadersToRemove.has(name.toLowerCase()))
         .map(([name, value]) => [name, value]),
     )
+
     const WebSocketClient = WebSocket as unknown as {
       new (address: string | URL, options: Bun.WebSocketOptions): WebSocket
     }
+
     const upstream = new WebSocketClient(url, {
       headers,
       ...(protocols?.length ? { protocols } : {}),
     })
+
     const connected = await new Promise<boolean>(resolve => {
       upstream.addEventListener("open", () => resolve(true), { once: true })
       upstream.addEventListener("error", () => resolve(false), { once: true })
     })
+
     if (!connected) {
       return new Response("Panel WebSocket connection failed", { status: 502 })
     }
+
     const upgradeHeaders = new Headers()
+
     if (upstream.protocol) {
       upgradeHeaders.set("sec-websocket-protocol", upstream.protocol)
     }
+
     if (!server.upgrade(request, { data: { upstream }, headers: upgradeHeaders })) {
       upstream.close()
       return new Response("WebSocket upgrade failed", { status: 500 })
@@ -191,6 +202,7 @@ async function proxyRequest(request: Request, target: URL): Promise<Response> {
     method: request.method,
     redirect: "manual",
   })
+
   const responseHeaders = new Headers(response.headers)
   responseHeaders.delete("content-encoding")
   responseHeaders.delete("content-length")
@@ -218,11 +230,13 @@ function createTargetUrl(target: URL, requestUrl: string): URL {
 
 function rewriteLocation(value: string, target: URL, requestUrl: URL): string {
   let location: URL
+
   try {
     location = new URL(value, target)
   } catch {
     return value
   }
+
   if (location.origin !== target.origin) {
     return value
   }
@@ -232,6 +246,7 @@ function rewriteLocation(value: string, target: URL, requestUrl: URL): string {
 
 async function waitUntilReady(target: URL): Promise<void> {
   const deadline = Date.now() + 30_000
+
   while (Date.now() < deadline) {
     try {
       const response = await fetch(target)

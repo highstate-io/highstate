@@ -11,11 +11,14 @@ import {
   SettingsPageHeader,
   TimeTableCell,
 } from "#layers/core/app/features/settings"
+
 const { params } = defineProps<{ params: { projectId: string; roleId: string } }>()
 const roleStore = useProjectRoleSettingsStore()
 const router = useRouter()
 const role = ref(await roleStore.get(params.roleId))
-if (!role.value) throw createError({ statusCode: 404, statusMessage: "Project role not found" })
+if (!role.value) {
+  throw createError({ statusCode: 404, statusMessage: "Project role not found" })
+}
 const editDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const saving = ref(false)
@@ -30,6 +33,7 @@ const detailItems = [
 definePageMeta({ name: "settings.project-role-details" })
 async function save(input: ProjectRoleInput): Promise<void> {
   saving.value = true
+
   try {
     role.value = await roleStore.update(params.roleId, input)
     editDialogVisible.value = false
@@ -39,6 +43,7 @@ async function save(input: ProjectRoleInput): Promise<void> {
 }
 async function remove(): Promise<void> {
   deleting.value = true
+
   try {
     await roleStore.delete(params.roleId)
     await router.push({ name: "settings.project-roles", params: { projectId: params.projectId } })

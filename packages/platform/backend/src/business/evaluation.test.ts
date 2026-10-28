@@ -186,7 +186,9 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       libraryService.getVirtualComponentsCore.mockResolvedValue(virtualComponents)
+
       libraryBackend.evaluateCompositeInstances.mockResolvedValue({
         success: true,
         virtualInstances: [],
@@ -264,6 +266,7 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       libraryBackend.evaluateCompositeInstances.mockResolvedValue(evaluationResult)
 
       // act
@@ -290,6 +293,7 @@ describe("ProjectEvaluationSubsystem", () => {
           },
         },
       })
+
       await projectDatabase.instanceState.deleteMany({
         where: {
           instanceId: virtualInstance.id,
@@ -345,6 +349,7 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       libraryBackend.evaluateCompositeInstances.mockResolvedValue(evaluationResult)
 
       // act
@@ -396,6 +401,7 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       libraryBackend.evaluateCompositeInstances.mockResolvedValue(evaluationResult)
 
       // act
@@ -447,6 +453,7 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       libraryBackend.evaluateCompositeInstances.mockResolvedValue(evaluationResult)
 
       // act

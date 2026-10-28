@@ -23,6 +23,7 @@ export function parseIp(value: string): ParsedIp {
 
 export function parseCidr(value: string): ParsedCidr {
   const [ipPart, prefixPart, ...rest] = value.split("/")
+
   if (!ipPart || !prefixPart || rest.length > 0) {
     throw new Error(`Invalid CIDR: "${value}"`)
   }
@@ -68,6 +69,7 @@ function parseIpv4(value: string): bigint {
   }
 
   let result = 0n
+
   for (const part of parts) {
     if (!part) {
       throw new Error(`Invalid IPv4 address: "${value}"`)
@@ -104,7 +106,10 @@ function parseIpv6(value: string): bigint {
   }
 
   const expandIpv4Tail = (parts: string[]): string[] => {
-    if (parts.length === 0) return parts
+    if (parts.length === 0) {
+      return parts
+    }
+
     const last = parts.at(-1)!
     if (!last.includes(".")) {
       return parts
@@ -127,11 +132,13 @@ function parseIpv6(value: string): bigint {
   if (doubleColonIndex < 0 && totalParts !== 8) {
     throw new Error(`Invalid IPv6 address: "${value}"`)
   }
+
   if (totalParts > 8) {
     throw new Error(`Invalid IPv6 address: "${value}"`)
   }
 
   const missing = 8 - totalParts
+
   const parts =
     doubleColonIndex >= 0
       ? [...leftParts, ...Array.from({ length: missing }, () => "0"), ...rightParts]
@@ -142,6 +149,7 @@ function parseIpv6(value: string): bigint {
   }
 
   let result = 0n
+
   for (const part of parts) {
     if (!part) {
       throw new Error(`Invalid IPv6 address: "${value}"`)
@@ -171,12 +179,13 @@ function ipv4ToString(value: bigint): string {
 
 function ipv6ToString(value: bigint): string {
   const hextets: number[] = []
+
   for (let i = 0; i < 8; i++) {
     const shift = BigInt((7 - i) * 16)
     hextets.push(Number((value >> shift) & 0xffffn))
   }
 
-  // Find the longest run of zeros to compress.
+  // find the longest run of zeros to compress
   let bestStart = -1
   let bestLength = 0
   let currentStart = -1
@@ -208,11 +217,13 @@ function ipv6ToString(value: bigint): string {
   }
 
   const parts: string[] = []
+
   for (let i = 0; i < hextets.length; i++) {
     if (bestStart >= 0 && i >= bestStart && i < bestStart + bestLength) {
       if (i === bestStart) {
         parts.push("")
       }
+
       continue
     }
 
@@ -220,9 +231,11 @@ function ipv6ToString(value: bigint): string {
   }
 
   let result = parts.join(":")
+
   if (bestStart === 0) {
     result = `:${result}`
   }
+
   if (bestStart >= 0 && bestStart + bestLength === 8) {
     result = `${result}:`
   }
@@ -231,6 +244,6 @@ function ipv6ToString(value: bigint): string {
     return "::"
   }
 
-  // Normalize possible ":::" artifacts into "::".
+  // normalize possible ":::" artifacts into "::"
   return result.replace(/:{3,}/g, "::")
 }

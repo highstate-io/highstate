@@ -27,18 +27,18 @@ const {
 } = forUnit(talos.cluster)
 
 if (!masters.length) {
-  throw new Error("At least one master node is required.")
+  throw new Error("At least one master node is required")
 }
 
 const cni = args.cni ?? "cilium"
 const csi = args.csi ?? "local-path-provisioner"
 
-interface InlineManifest {
+type InlineManifest = {
   name: string
   contents: Input<string>
 }
 
-interface ExtraMount {
+type ExtraMount = {
   destination: string
   type: string
   source: string
@@ -160,7 +160,7 @@ const workerApplies = workers.map(worker => {
 
 const workerNodes = workerApplies.map(workerApply => workerApply.node)
 
-// Check the health of the cluster and export the kubeconfig
+// check the health of the cluster and export the kubeconfig
 const kubeconfig = all([
   cluster.getKubeconfigOutput({
     clientConfiguration: secrets.clientConfiguration,

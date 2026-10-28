@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useNode, type GraphNode } from "@vue-flow/core"
-import GenericContextMenu from "./GenericContextMenu.vue"
+import { type GraphNode, useNode } from "@vue-flow/core"
 import ContextMenuItem from "./ContextMenuItem.vue"
+import GenericContextMenu from "./GenericContextMenu.vue"
 
 const { title, subtitle, isDeletable } = defineProps<{
   title: string
@@ -17,7 +17,9 @@ const node = useNode()
 const contextMenu = useTemplateRef("contextMenu")
 
 const showContextMenu = async (event: MouseEvent) => {
-  if (!contextMenu.value) return
+  if (!contextMenu.value) {
+    return
+  }
 
   await contextMenu.value.showContextMenu(event)
 }

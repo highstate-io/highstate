@@ -17,7 +17,9 @@ const metadata = JSON.parse(await readFile(value("--metadata"), "utf8")) as {
   images: Record<string, string>
 }
 const rootIndex = process.argv.indexOf("--root")
-const root = resolve(rootIndex === -1 ? resolve(import.meta.dir, "..") : process.argv[rootIndex + 1])
+const root = resolve(
+  rootIndex === -1 ? resolve(import.meta.dir, "..") : process.argv[rootIndex + 1],
+)
 const changedFiles = await applyRepositoryImages({ root, images: metadata.images })
 
 console.log(JSON.stringify({ changedFiles, images: metadata.images }))

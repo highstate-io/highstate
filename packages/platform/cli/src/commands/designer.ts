@@ -22,7 +22,6 @@ export class DesignerCommand extends Command {
     const packageJsonPath = await resolvePackageJSON()
     const packageJsonUrl = pathToFileURL(packageJsonPath).toString()
     const packageJson = await readPackageJSON(packageJsonPath)
-
     if (!packageJson.devDependencies?.["@highstate/cli"]) {
       throw new UsageError(
         "This project is not a Highstate project.\n@highstate/cli must be installed as a devDependency.",
@@ -30,12 +29,12 @@ export class DesignerCommand extends Command {
     }
 
     if (!packageJson.devDependencies?.["@highstate/designer"]) {
-      logger.info("Installing @highstate/designer...")
+      logger.info("installing @highstate/designer")
 
       await addDevDependency(["@highstate/designer", "classic-level"])
     }
 
-    logger.info("starting highstate designer...")
+    logger.info("starting highstate designer")
 
     await getBackendServices()
 
@@ -105,6 +104,7 @@ export class DesignerCommand extends Command {
       if (shuttingDown) {
         return
       }
+
       shuttingDown = true
 
       process.stdout.write("\r")

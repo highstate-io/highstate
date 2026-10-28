@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  TableItemAction,
-  IdTableCell,
-  baseHeaders,
-} from "#layers/core/app/features/settings"
-import { StatusChip, workerVersionStatusMap } from "#layers/core/app/features/shared"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   WorkerVersionOutput,
 } from "@highstate/backend/shared"
+import {
+  baseHeaders,
+  IdTableCell,
+  SettingsDataTable,
+  ShowDetailsAction,
+  TableItemAction,
+} from "#layers/core/app/features/settings"
+import { StatusChip, workerVersionStatusMap } from "#layers/core/app/features/shared"
 
 const { projectId, workerId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

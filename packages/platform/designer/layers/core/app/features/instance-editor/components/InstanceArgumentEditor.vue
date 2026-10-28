@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import type { InstanceState } from "@highstate/backend/shared"
 import {
+  type ComponentModel,
   genericNameSchema,
   getInstanceId,
-  text,
-  type ComponentModel,
   type InstanceId,
   type InstanceModel,
+  text,
 } from "@highstate/contract"
-import type { InstanceState } from "@highstate/backend/shared"
 import { ComponentIcon } from "#layers/core/app/features/shared"
+import { createEditorArguments, populateDefaultValues, removeDefaultValues } from "../business"
 import ArgumentDescription from "./ArgumentDescription.vue"
 import CodeArgumentInput from "./CodeArgumentInput.vue"
 import GroupArgumentInput from "./GroupArgumentInput.vue"
 import PlainArgumentInput from "./PlainArgumentInput.vue"
-import { createEditorArguments, populateDefaultValues, removeDefaultValues } from "../business"
 
 const {
   instance,

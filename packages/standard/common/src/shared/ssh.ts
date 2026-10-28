@@ -164,7 +164,6 @@ export function generateSshPrivateKey(): Output<string> {
 export function sshPrivateKeyToKeyPair(privateKeyString: string): ssh.KeyPair {
   const privateKeyStruct = PrivateExport.decode(privateKeyString)
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const privKey = privateKeyStruct.keys[0].privKey.privKey as Uint8Array
 
   const { fingerprint, publicKey } = getKeys(privKey.slice(0, 32))
@@ -333,6 +332,7 @@ export async function createServerEntity(options: ServerOptions): Promise<common
     sshCheckInterval,
     sshCheckTimeout,
   } = await toPromise(options)
+
   const effectiveSshProxy = sshProxy ?? sshArgs.proxy
 
   if (endpoints.length === 0) {

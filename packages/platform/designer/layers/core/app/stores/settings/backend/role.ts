@@ -2,6 +2,7 @@ import type { BackendRoleInput } from "@highstate/backend/shared"
 
 export const useBackendRoleSettingsStore = defineStore("backend-role-settings", () => {
   const { $client } = useNuxtApp()
+
   const items = useCollectionQuery(query => {
     return $client.backendRoleSettings.query.query(query)
   })

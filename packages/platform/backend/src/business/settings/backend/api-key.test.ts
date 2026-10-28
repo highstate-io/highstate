@@ -8,14 +8,17 @@ import { BackendServiceAccountSettingsService } from "./service-account"
 describe("BackendApiKeySettingsService", () => {
   test("creates, queries, updates, and deletes API keys", async ({ database }) => {
     const roles = new BackendRoleSettingsService(database)
+
     const accounts = new BackendServiceAccountSettingsService(
       database,
       new MemoryProjectUnlockBackend(),
       roles,
     )
+
     const service = new BackendApiKeySettingsService(database, roles, accounts)
     const context = adminBackendContext()
     const account = await accounts.create(context, { meta: { title: "Automation" } })
+
     const created = await service.create(context, {
       meta: { title: "Deployment key" },
       serviceAccountId: account.id,
@@ -24,9 +27,11 @@ describe("BackendApiKeySettingsService", () => {
     })
 
     expect(created.token).toMatch(new RegExp(`^hcb_${created.apiKey.id}_[a-z][0-9a-z]{23}$`))
+
     await expect(
       service.query(context, { search: "Deployment", pageSize: 10 }),
     ).resolves.toMatchObject({ items: [{ id: created.apiKey.id }] })
+
     await expect(
       service.update(context, created.apiKey.id, {
         meta: { title: "Updated deployment key" },

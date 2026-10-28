@@ -94,7 +94,9 @@ export type IdentitySource = EntityWithMeta | string
 export function getCombinedIdentity(entities: IdentitySource[]): string {
   const sortedIds = entities
     .map(source => (typeof source === "string" ? source : getEntityId(source)))
-    .sort() // sort to ensure consistent identity regardless of the order of entities
+    .sort()
+
+  // sort to ensure consistent identity regardless of the order of entities
 
   return sortedIds.join(":")
 }

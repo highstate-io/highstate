@@ -87,6 +87,7 @@ describe("createOperation", () => {
       const dbOperation = await projectDatabase.operation.findUnique({
         where: { id: operation.id },
       })
+
       expect(dbOperation).toBeDefined()
       expect(dbOperation?.id).toBe(operation.id)
 
@@ -130,6 +131,7 @@ describe("updateOperation", () => {
       const dbOperation = await projectDatabase.operation.findUnique({
         where: { id: operation.id },
       })
+
       expect(dbOperation?.meta).toEqual({ title: "Updated Operation" })
 
       // verify publish was called
@@ -273,6 +275,7 @@ describe("getOperations", () => {
       const firstPage = await operationService.getOperations(createOperationContext(project.id), {
         pageSize: 1,
       })
+
       const secondPage = await operationService.getOperations(createOperationContext(project.id), {
         pageSize: 1,
         pageToken: firstPage.nextPageToken,
@@ -308,6 +311,7 @@ describe("getOperationLogs", () => {
     async ({ operationService, projectDatabase, project, createInstanceState, expect }) => {
       // arrange
       const instance = await createInstanceState(project.id)
+
       const operation = await projectDatabase.operation.create({
         data: {
           id: createId(),
@@ -354,6 +358,7 @@ describe("getOperationLogs", () => {
       // arrange
       const targetInstance = await createInstanceState(project.id)
       const otherInstance = await createInstanceState(project.id)
+
       const operation = await projectDatabase.operation.create({
         data: {
           id: createId(),
@@ -454,6 +459,7 @@ describe("completeOperation", () => {
       const dbOperation = await projectDatabase.operation.findUnique({
         where: { id: operation.id },
       })
+
       expect(dbOperation?.finishedAt).toBeInstanceOf(Date)
 
       // verify publish was called

@@ -18,9 +18,11 @@ describe("database authorization", () => {
       { id: "child-state", instanceId: "example.v1:child", parentId: "root-state" },
       { id: "other-state", instanceId: "example.v1:other", parentId: null },
     ])
+
     const database = {
       forProject: vi.fn().mockResolvedValue({ instanceState: { findMany } }),
     } as unknown as DatabaseManager
+
     const context = createProjectRequestContext(
       "project",
       grantProjectPermission("secret.list", [
@@ -40,6 +42,7 @@ describe("database authorization", () => {
     expect(where).toEqual({
       OR: [{ AND: [{ stateId: { in: ["root-state", "child-state"] } }] }],
     })
+
     expect(findMany).toHaveBeenCalledOnce()
   })
 
@@ -49,9 +52,11 @@ describe("database authorization", () => {
       { id: "child-space", parentId: "root-space" },
       { id: "other-space", parentId: null },
     ])
+
     const database = {
       backend: { projectSpace: { findMany } },
     } as unknown as DatabaseManager
+
     const context = createBackendRequestContext(
       grantBackendPermission("project.list", [
         { type: "projects-in-spaces", projectSpaceIds: ["root-space"], recursive: true },
@@ -70,6 +75,7 @@ describe("database authorization", () => {
     expect(where).toEqual({
       OR: [{ AND: [{ spaceId: { in: ["root-space", "child-space"] } }] }],
     })
+
     expect(findMany).toHaveBeenCalledOnce()
   })
 
@@ -98,6 +104,7 @@ describe("database authorization", () => {
         },
       }),
     } as unknown as DatabaseManager
+
     const context = createProjectRequestContext(
       "project",
       grantProjectPermission("secret.list", [
@@ -146,6 +153,7 @@ describe("database authorization", () => {
         },
       },
     } as unknown as DatabaseManager
+
     const context = createBackendRequestContext(
       grantBackendPermission("project.list", [
         { type: "resources", resourceIds: ["resource-1"] },
@@ -183,6 +191,7 @@ describe("database authorization", () => {
 
   test("combines grants with OR and restrictions within a grant with AND", async () => {
     const database = {} as DatabaseManager
+
     const context = createProjectRequestContext(
       "project",
       new Map([
@@ -232,6 +241,7 @@ describe("database authorization", () => {
           { type: "instances", instanceIds: ["component.v1:missing"], recursive: true },
         ]),
       )
+
       await expect(
         buildProjectAuthorizationWhere({
           database,
@@ -240,6 +250,7 @@ describe("database authorization", () => {
           target: { instances: ids => ({ stateId: { in: [...ids.stateIds] } }) },
         }),
       ).resolves.toEqual({ OR: [{ AND: [{ OR: [] }] }] })
+
       return
     }
 
@@ -248,6 +259,7 @@ describe("database authorization", () => {
         { type: "project-spaces", projectSpaceIds: ["cmissing"], recursive: true },
       ]),
     )
+
     await expect(
       buildBackendAuthorizationWhere({
         database,

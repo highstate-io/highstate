@@ -119,6 +119,7 @@ export class OperationWorkset {
       this.project.id,
       Array.from(this.allAffectedInstanceIds).map(instanceId => {
         const state = this.context.getState(instanceId)
+
         const hasDestroyPhase = this.phases.some(
           phase =>
             phase.type === "destroy" &&
@@ -172,7 +173,6 @@ export class OperationWorkset {
 
   async updateState(instanceId: InstanceId, options: UpdateOperationStateOptions): Promise<void> {
     const state = this.context.getState(instanceId)
-
     if (state.lastOperationState?.operationId !== this.operationId) {
       return
     }
@@ -187,7 +187,6 @@ export class OperationWorkset {
     Object.assign(state, patch)
 
     const parentInstanceId = this.getPhaseParentId(instanceId)
-
     if (parentInstanceId && this.currentPhase !== "preview") {
       // TODO: update all updates in single transaction
       await this.recalculateCompositeInstanceState(parentInstanceId)
@@ -217,9 +216,9 @@ export class OperationWorkset {
     let knownTotalResourceCount = 0
 
     const children = this.context.getStateChildIds(instanceId)
+
     for (const childId of children) {
       const child = this.context.getState(childId)
-
       if (child?.lastOperationState?.currentResourceCount != null) {
         currentResourceCount += child.lastOperationState.currentResourceCount
       }
@@ -363,6 +362,7 @@ export class OperationWorkset {
 
     // abort if the parent instance is cancelled
     const children = this.context.getInstanceChildren(instanceId)
+
     for (const child of children) {
       const childPair = this.setupInstanceAbortControllers(child.id)
 
@@ -386,6 +386,7 @@ export class OperationWorkset {
 
     if (!abortController.signal.aborted) {
       abortController.abort()
+
       if (!force) {
         return false
       }
@@ -405,6 +406,7 @@ export class OperationWorkset {
   cancel(force = false): boolean {
     if (!this.abortController.signal.aborted) {
       this.abortController.abort()
+
       if (!force) {
         return false
       }

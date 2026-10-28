@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { CollectionQuery, CollectionQueryResult, PageOutput } from "@highstate/backend/shared"
 import {
+  baseHeaders,
   SettingsDataTable,
   ShowDetailsAction,
-  baseHeaders,
 } from "#layers/core/app/features/settings"
 import { OwnerRefChip } from "#layers/core/app/features/shared"
-import type { CollectionQuery, CollectionQueryResult, PageOutput } from "@highstate/backend/shared"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

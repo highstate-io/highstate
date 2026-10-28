@@ -138,6 +138,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
       () => Promise.resolve(), // project will be created later
       logger,
     )
+
     await ensureProjectWellKnownEntitiesCreated(database)
 
     this.projectDatabases.set(projectId, database)
@@ -183,6 +184,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
         },
         logger,
       )
+
       await ensureProjectWellKnownEntitiesCreated(database)
 
       return database
@@ -194,6 +196,7 @@ export class DatabaseManagerImpl implements DatabaseManager {
         projectId,
         hexMasterKey,
       )
+
       await ensureProjectWellKnownEntitiesCreated(_database)
 
       database = _database

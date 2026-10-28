@@ -3,7 +3,7 @@ export type AsyncBatcherOptions = {
   maxWaitTimeMs?: number
 }
 
-export type AsyncBatcher<T> = {
+export interface AsyncBatcher<T> {
   /**
    * Add an item to the batch.
    */
@@ -25,33 +25,43 @@ export function createAsyncBatcher<T>(
   let firstCallTimestamp: number | null = null
 
   async function processBatch() {
-    if (batch.length === 0) return
+    if (batch.length === 0) {
+      return
+    }
 
     const currentBatch = batch
-    batch = [] // Reset batch before async call
+    batch = [] // reset batch before async call
 
     await fn(currentBatch)
 
-    // Clear max wait timer since batch has been processed
+    // clear max wait timer since batch has been processed
     if (maxWaitTimeout) {
       clearTimeout(maxWaitTimeout)
       maxWaitTimeout = null
     }
+
     firstCallTimestamp = null
   }
 
   function schedule() {
-    if (activeTimeout) clearTimeout(activeTimeout)
+    if (activeTimeout) {
+      clearTimeout(activeTimeout)
+    }
+
     activeTimeout = setTimeout(() => {
       activeTimeout = null
       void processBatch()
     }, waitMs)
 
-    // Ensure batch is executed within maxWaitTimeMs
+    // ensure batch is executed within maxWaitTimeMs
     if (!firstCallTimestamp) {
       firstCallTimestamp = Date.now()
+
       maxWaitTimeout = setTimeout(() => {
-        if (activeTimeout) clearTimeout(activeTimeout)
+        if (activeTimeout) {
+          clearTimeout(activeTimeout)
+        }
+
         activeTimeout = null
         void processBatch()
       }, maxWaitTimeMs)
@@ -75,10 +85,12 @@ export function createAsyncBatcher<T>(
         clearTimeout(activeTimeout)
         activeTimeout = null
       }
+
       if (maxWaitTimeout) {
         clearTimeout(maxWaitTimeout)
         maxWaitTimeout = null
       }
+
       await processBatch()
     },
   }

@@ -49,6 +49,7 @@ export class ProjectRoleSettingsService {
     query: ProjectRoleQuery,
   ): Promise<PageResult<ProjectRoleOutput>> {
     const database = await this.database.forProject(context.projectId)
+
     const where = query.search
       ? {
           OR: [
@@ -119,6 +120,7 @@ export class ProjectRoleSettingsService {
     if (!hasProjectPermissionRulesSubset(context, data.rules)) {
       requireProjectPermission(context, "role.escalate")
     }
+
     await this.validateReferences(context.projectId, data)
 
     return await database.role.create({ data })
@@ -145,6 +147,7 @@ export class ProjectRoleSettingsService {
     if (!hasProjectPermissionRulesSubset(context, data.rules)) {
       requireProjectPermission(context, "role.escalate", { resourceId: roleId })
     }
+
     await this.validateReferences(context.projectId, data)
 
     return await database.role.update({ where: { id: roleId }, data })
@@ -176,6 +179,7 @@ export class ProjectRoleSettingsService {
     requireProjectPermission(context, "role.get")
 
     const database = await this.database.forProject(context.projectId)
+
     const authorization = async <TWhere>(
       permission: ProjectPermission,
       target: ProjectAuthorizationTarget<TWhere>,
@@ -188,6 +192,7 @@ export class ProjectRoleSettingsService {
             target,
           })
         : ({ OR: [] } as TWhere)
+
     const [
       operations,
       secrets,
@@ -330,6 +335,7 @@ export class ProjectRoleSettingsService {
    */
   async getRestrictionOptionsCore(projectId: string): Promise<ProjectRoleRestrictionOptions> {
     const database = await this.database.forProject(projectId)
+
     const [
       operations,
       secrets,
@@ -395,11 +401,13 @@ export class ProjectRoleSettingsService {
     input: Pick<ProjectRoleInput, "rules">,
   ): Promise<void> {
     const options = await this.getRestrictionOptionsCore(projectId)
+
     for (const rule of input.rules) {
       const group = getProjectPermissionGroup(rule.permissions[0] ?? "")
 
       for (const restriction of rule.restrictions ?? []) {
         let existingIds: string[]
+
         switch (restriction.type) {
           case "resources":
             existingIds = options.resources[group?.resourceType ?? ""]?.map(item => item.id) ?? []
@@ -451,7 +459,6 @@ export class ProjectRoleSettingsService {
 
   private static assertIdsExist(requested: string[], existing: string[]): void {
     const missing = requested.find(id => !existing.includes(id))
-
     if (missing) {
       throw new AuthorizationResourceNotFoundError("project", "restriction", missing)
     }
@@ -459,6 +466,7 @@ export class ProjectRoleSettingsService {
 
   private async assertMutable(projectId: string, roleId: string): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     const role = await database.role.findUnique({
       where: { id: roleId },
       select: { systemName: true },

@@ -47,6 +47,7 @@ export class ProjectApiKeySettingsService {
     query: ApiKeyQuery,
   ): Promise<PageResult<ApiKeyOutput>> {
     const database = await this.database.forProject(context.projectId)
+
     const where = {
       ...(query.serviceAccountId ? { serviceAccountId: query.serviceAccountId } : {}),
       ...(query.search
@@ -59,7 +60,9 @@ export class ProjectApiKeySettingsService {
           }
         : {}),
     }
+
     const sort = query.sortBy?.[0]
+
     const orderBy =
       sort && ["createdAt", "updatedAt"].includes(sort.key)
         ? { [sort.key]: sort.order }
@@ -104,6 +107,7 @@ export class ProjectApiKeySettingsService {
    */
   async get(context: ProjectRequestContext, apiKeyId: string): Promise<ApiKeyOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const apiKey = await database.apiKey.findUnique({
       where: { id: apiKeyId },
       include: ProjectApiKeySettingsService.include(),
@@ -136,15 +140,19 @@ export class ProjectApiKeySettingsService {
     if (!hasProjectPermissionRulesSubset(context, data.restrictionRules)) {
       requireProjectPermission(context, "api-key.escalate")
     }
+
     const serviceAccountId =
       data.serviceAccountId ?? (await this.getAdminServiceAccountId(context.projectId))
+
     await this.serviceAccounts.assertExists(context.projectId, serviceAccountId)
     await this.roles.validateReferences(context.projectId, { rules: data.restrictionRules })
+
     const effectiveRules = await this.validateRestrictions(
       context.projectId,
       serviceAccountId,
       data.restrictionRules,
     )
+
     if (!hasProjectPermissionRulesSubset(context, effectiveRules)) {
       requireProjectPermission(context, "api-key.escalate")
     }
@@ -152,6 +160,7 @@ export class ProjectApiKeySettingsService {
     return await database.$transaction(async transaction => {
       const created = await transaction.apiKey.create({ data: { ...data, serviceAccountId } })
       const { token } = await rotateProjectApiKeyToken(transaction, created.id)
+
       const apiKey = await transaction.apiKey.findUniqueOrThrow({
         where: { id: created.id },
         include: ProjectApiKeySettingsService.include(),
@@ -182,15 +191,19 @@ export class ProjectApiKeySettingsService {
     if (!hasProjectPermissionRulesSubset(context, data.restrictionRules)) {
       requireProjectPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }
+
     const serviceAccountId =
       data.serviceAccountId ?? (await this.getAdminServiceAccountId(context.projectId))
+
     await this.serviceAccounts.assertExists(context.projectId, serviceAccountId)
     await this.roles.validateReferences(context.projectId, { rules: data.restrictionRules })
+
     const effectiveRules = await this.validateRestrictions(
       context.projectId,
       serviceAccountId,
       data.restrictionRules,
     )
+
     if (!hasProjectPermissionRulesSubset(context, effectiveRules)) {
       requireProjectPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }
@@ -228,6 +241,7 @@ export class ProjectApiKeySettingsService {
     context: ProjectRequestContext,
   ): Promise<ApiKeyServiceAccountOption[]> {
     const database = await this.database.forProject(context.projectId)
+
     const authorization = await buildProjectAuthorizationWhere({
       database: this.database,
       context,
@@ -245,6 +259,7 @@ export class ProjectApiKeySettingsService {
         resources: roleIds => ({ id: { in: [...roleIds] } }),
       },
     })
+
     const accounts = await database.serviceAccount.findMany({
       where: authorization,
       orderBy: { createdAt: "asc" },
@@ -255,6 +270,7 @@ export class ProjectApiKeySettingsService {
         },
       },
     })
+
     return accounts.map(({ roleBindings, ...account }) => ({
       ...account,
       rules: roleBindings.flatMap(binding => binding.role.rules),
@@ -269,6 +285,7 @@ export class ProjectApiKeySettingsService {
    */
   async assertMutable(projectId: string, apiKeyId: string): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     const apiKey = await database.apiKey.findUnique({
       where: { id: apiKeyId },
       select: { worker: { select: { id: true } } },
@@ -289,10 +306,12 @@ export class ProjectApiKeySettingsService {
     rules: ApiKeyOutput["restrictionRules"],
   ): Promise<ProjectRoleRules> {
     const database = await this.database.forProject(projectId)
+
     const bindings = await database.serviceAccountRoleBinding.findMany({
       where: { serviceAccountId },
       include: { role: { select: { rules: true } } },
     })
+
     const grants = bindings.flatMap(binding => binding.role.rules)
 
     if (rules.length === 0) {
@@ -306,6 +325,7 @@ export class ProjectApiKeySettingsService {
             grant.permissions.includes(permission) &&
             permissionRestrictionsCover(grant.restrictions, rule.restrictions),
         )
+
         if (!covered) {
           throw new PermissionEscalationError(permission)
         }
@@ -317,6 +337,7 @@ export class ProjectApiKeySettingsService {
 
   private async getAdminServiceAccountId(projectId: string): Promise<string> {
     const database = await this.database.forProject(projectId)
+
     const account = await database.serviceAccount.findUnique({
       where: { systemName: adminProjectServiceAccount.systemName },
       select: { id: true },

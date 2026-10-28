@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { InstanceModel } from "@highstate/contract"
 import type { GroupEditorArgument } from "../business"
-import PlainArgumentInput from "./PlainArgumentInput.vue"
 import ArgumentDescription from "./ArgumentDescription.vue"
+import PlainArgumentInput from "./PlainArgumentInput.vue"
 
+// biome-ignore lint/suspicious/noExplicitAny: schema-selected Vuetify controls require heterogeneous scalar and object models
 const model = defineModel<any>()
 
 const { argument, isSecret } = defineProps<{
@@ -17,7 +18,7 @@ if (model.value === undefined) {
   model.value = argument.default ?? {}
 }
 
-const handleModelChange = (key: string, value: any) => {
+const handleModelChange = (key: string, value: unknown) => {
   model.value = { ...model.value, [key]: value }
 }
 
@@ -42,6 +43,7 @@ watch(discriminatorValue, newValue => {
   }
 
   const fields = argument.fields[newValue] ?? []
+
   const newModel: Record<string, unknown> = {
     [argument.discriminator.name]: newValue,
   }

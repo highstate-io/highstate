@@ -286,6 +286,7 @@ async function mergeResources(
 
     const matchingRule = rules.find(rule => {
       const apiGroupsMatch = rule.apiGroups?.length === 1 && rule.apiGroups[0] === apiGroup
+
       const resourcesMatch =
         rule.resources?.length === 1 && rule.resources[0] === resourceCollection
 

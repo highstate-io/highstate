@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { HighstateSignature, yamlValueSchema, type InstanceModel } from "@highstate/contract"
-import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
-import { stringify } from "yaml"
 import type { CodeEditorArgument } from "../business"
+import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
+import { HighstateSignature, type InstanceModel, yamlValueSchema } from "@highstate/contract"
+import { stringify } from "yaml"
 import ArgumentDescription from "./ArgumentDescription.vue"
 
 const { argument, modelValue } = defineProps<{
@@ -20,9 +20,7 @@ if (typeof modelValue === "string") {
   currentValue.value = yamlValue ?? (modelValue == null ? "" : stringify(modelValue))
 }
 
-const emit = defineEmits<{
-  (event: "update:model-value", value: unknown): void
-}>()
+const emit = defineEmits<(event: "update:model-value", value: unknown) => void>()
 
 const handleModelChange = (value: string) => {
   if (argument.kind === "code") {

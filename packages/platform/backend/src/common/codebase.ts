@@ -21,7 +21,6 @@ async function _getCodebasePath(
 
   const packageJson = await resolvePackageJSON()
   const path = dirname(packageJson)
-
   if (path !== process.cwd()) {
     const relativePath = relative(process.cwd(), path)
     logger.info(`detected "%s" as codebase path`, relativePath)
@@ -38,7 +37,7 @@ export async function getCodebasePath(
     codebasePath = _getCodebasePath(config, logger)
   }
 
-  return codebasePath
+  return await codebasePath
 }
 
 async function _getCodebaseHighstatePath(
@@ -61,5 +60,5 @@ export async function getCodebaseHighstatePath(
     codebaseHighstatePath = _getCodebaseHighstatePath(config, logger)
   }
 
-  return codebaseHighstatePath
+  return await codebaseHighstatePath
 }

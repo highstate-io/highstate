@@ -69,6 +69,7 @@ export class TerminalSettingsService {
     terminalId: string,
   ): Promise<TerminalDetailsOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const terminal = await database.terminal.findUnique({
       where: { id: terminalId },
       select: {
@@ -95,6 +96,7 @@ export class TerminalSettingsService {
     query: CollectionQuery,
   ): Promise<PageResult<TerminalSessionOutput>> {
     const database = await this.database.forProject(context.projectId)
+
     const terminal = await database.terminal.findUnique({
       where: { id: terminalId },
       select: { id: true, serviceAccountId: true },
@@ -113,6 +115,7 @@ export class TerminalSettingsService {
       terminalId,
       ...(query.search ? { id: { contains: query.search } } : {}),
     }
+
     return await querySettingsPage({
       collection: "terminal-sessions",
       request: query,

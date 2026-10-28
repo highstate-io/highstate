@@ -42,6 +42,7 @@ export function isDesignerOrigin(
     const originUrl = new URL(origin)
     const targetUrl = new URL(requestUrl)
     const canonicalOrigin = originUrl.hostname === canonicalDesignerHost
+
     const localOrigin =
       redirectDisabled &&
       localDesignerHosts.has(originUrl.hostname) &&

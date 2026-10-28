@@ -11,6 +11,7 @@ describe("ProjectApiKeySettingsService", () => {
     const service = new ProjectApiKeySettingsService(database, roles, accounts)
     const context = adminProjectContext(project.id)
     const account = await accounts.create(context, { meta: { title: "Automation" } })
+
     const created = await service.create(context, {
       meta: { title: "Integration key" },
       serviceAccountId: account.id,
@@ -19,9 +20,11 @@ describe("ProjectApiKeySettingsService", () => {
     })
 
     expect(created.token).toMatch(new RegExp(`^hcp_${created.apiKey.id}_[a-z][0-9a-z]{23}$`))
+
     await expect(
       service.query(context, { search: "Integration", pageSize: 10 }),
     ).resolves.toMatchObject({ items: [{ id: created.apiKey.id }] })
+
     await expect(
       service.update(context, created.apiKey.id, {
         meta: { title: "Updated integration key" },

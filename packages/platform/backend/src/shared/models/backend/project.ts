@@ -73,10 +73,14 @@ export const projectUnlockSuiteSchema = z.object({
   passkeys: z
     .array(
       z.object({
-        /** The AGE identity encrypted with the passkey. */
+        /**
+         * The AGE identity encrypted with the passkey.
+         */
         encryptedIdentity: z.string(),
 
-        /** The opaque identity of the passkey used to encrypt the AGE identity. */
+        /**
+         * The opaque identity of the passkey used to encrypt the AGE identity.
+         */
         passkeyIdentity: z.string(),
       }),
     )

@@ -1,20 +1,20 @@
 <script setup lang="ts">
+import { PreviewCanvas } from "#layers/core/app/features/canvas"
 import {
-  DetailPageLayout,
+  ArtifactsTable,
   DetailInfoCard,
-  RelatedDataPanel,
+  DetailPageLayout,
+  EntitySnapshotsTable,
   IdTableCell,
   ObjectCodeBlock,
-  TerminalsTable,
-  SecretsTable,
   PagesTable,
   PanelsTable,
+  RelatedDataPanel,
+  SecretsTable,
+  TerminalsTable,
   TriggersTable,
-  ArtifactsTable,
-  EntitySnapshotsTable,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
-import { PreviewCanvas } from "#layers/core/app/features/canvas"
 
 const { instancesStore, stateStore, libraryStore } = useProjectStores()
 const { projectStore } = useProjectStores()

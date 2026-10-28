@@ -1,11 +1,11 @@
-import * as monaco from "monaco-editor"
+import type { z } from "@highstate/contract"
 import { loader } from "@guolao/vue-monaco-editor"
-import YamlWorker from "#layers/core/app/workers/yaml.worker?worker"
+import { shikiToMonaco } from "@shikijs/monaco"
+import * as monaco from "monaco-editor"
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
 import { configureMonacoYaml, type SchemasSettings } from "monaco-yaml"
-import type { z } from "@highstate/contract"
-import { shikiToMonaco } from "@shikijs/monaco"
 import { createHighlighter } from "shiki"
+import YamlWorker from "#layers/core/app/workers/yaml.worker?worker"
 
 const highlighter = await createHighlighter({
   themes: ["dark-plus"],
@@ -37,17 +37,17 @@ self.MonacoEnvironment = {
 const schemas = new Map<string, SchemasSettings>()
 const monacoYaml = configureMonacoYaml(monaco, {})
 
-type FoldingRange = monaco.languages.FoldingRange
-type CodeLens = monaco.languages.CodeLens
-
-const snapshotFoldingRegionsByUri = new Map<string, FoldingRange[]>()
-const snapshotCodeLensesByUri = new Map<string, CodeLens[]>()
+const snapshotFoldingRegionsByUri = new Map<string, monaco.languages.FoldingRange[]>()
+const snapshotCodeLensesByUri = new Map<string, monaco.languages.CodeLens[]>()
 
 const toSnapshotUri = (snapshotId: string): string => {
   return `entity://${snapshotId}`
 }
 
-export function updateSnapshotRegions(snapshotId: string, ranges: FoldingRange[]): void {
+export function updateSnapshotRegions(
+  snapshotId: string,
+  ranges: monaco.languages.FoldingRange[],
+): void {
   snapshotFoldingRegionsByUri.set(toSnapshotUri(snapshotId), ranges)
 }
 
@@ -82,7 +82,10 @@ export function unregisterHighstateAction(kind: string): void {
   highstateActions.delete(kind)
 }
 
-export function updateSnapshotCodeLenses(snapshotId: string, lenses: CodeLens[]): void {
+export function updateSnapshotCodeLenses(
+  snapshotId: string,
+  lenses: monaco.languages.CodeLens[],
+): void {
   snapshotCodeLensesByUri.set(toSnapshotUri(snapshotId), lenses)
 }
 

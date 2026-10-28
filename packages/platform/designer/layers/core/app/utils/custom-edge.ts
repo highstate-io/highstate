@@ -31,19 +31,22 @@ export function calculateAllLinePoints(
     const segmentLength = Math.sqrt(dx * dx + dy * dy)
     let perpX = -dy
     let perpY = dx
+
     if (segmentLength !== 0) {
       perpX /= segmentLength
       perpY /= segmentLength
     }
+
     segmentPerpendicularVectors.push({ x: perpX, y: perpY })
   }
 
   /**
    * Функция для нахождения точки пересечения двух отрезков прямых.
-   * @param p1 - начало первого отрезка
-   * @param p2 - конец первого отрезка
-   * @param p3 - начало второго отрезка
-   * @param p4 - конец второго отрезка
+   *
+   * @param p1 начало первого отрезка
+   * @param p2 конец первого отрезка
+   * @param p3 начало второго отрезка
+   * @param p4 конец второго отрезка
    * @returns {number[] | null} - точка пересечения или null, если отрезки параллельны
    */
   function lineIntersection(
@@ -56,6 +59,7 @@ export function calculateAllLinePoints(
       y1 = p1[1],
       x2 = p2[0],
       y2 = p2[1]
+
     const x3 = p3[0],
       y3 = p3[1],
       x4 = p4[0],
@@ -87,6 +91,7 @@ export function calculateAllLinePoints(
         // Последняя точка - используем перпендикулярный вектор последнего сегмента
         offsetX =
           segmentPerpendicularVectors[segmentPerpendicularVectors.length - 1].x * offsets[lineIndex]
+
         offsetY =
           segmentPerpendicularVectors[segmentPerpendicularVectors.length - 1].y * offsets[lineIndex]
       } else {
@@ -101,32 +106,35 @@ export function calculateAllLinePoints(
           prevPoint[0] + prevPerp.x * offsets[lineIndex],
           prevPoint[1] + prevPerp.y * offsets[lineIndex],
         ]
+
         const p2_prev = [
           p[0] + prevPerp.x * offsets[lineIndex],
           p[1] + prevPerp.y * offsets[lineIndex],
         ]
+
         const p3_next = [
           p[0] + nextPerp.x * offsets[lineIndex],
           p[1] + nextPerp.y * offsets[lineIndex],
         ]
+
         const p4_next = [
           nextPoint[0] + nextPerp.x * offsets[lineIndex],
           nextPoint[1] + nextPerp.y * offsets[lineIndex],
         ]
 
         const intersectionPoint = lineIntersection(p1_prev, p2_prev, p3_next, p4_next)
-
         if (intersectionPoint) {
           // Если есть точка пересечения, используем её для смещения
           offsetX = intersectionPoint[0] - p[0]
           offsetY = intersectionPoint[1] - p[1]
         } else {
-          // Fallback: Если нет пересечения (параллельные линии), используем средний вектор
+          // fallback: Если нет пересечения (параллельные линии), используем средний вектор
           // для предотвращения резких скачков в смещении.
           offsetX = ((prevPerp.x + nextPerp.x) / 2) * offsets[lineIndex]
           offsetY = ((prevPerp.y + nextPerp.y) / 2) * offsets[lineIndex]
         }
       }
+
       allLinePoints[lineIndex].push(`${p[0] + offsetX},${p[1] + offsetY}`)
     }
   }

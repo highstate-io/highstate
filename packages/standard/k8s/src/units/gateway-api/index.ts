@@ -23,7 +23,7 @@ export default outputs({
 
 function getDefaultVersion(channel: "stable" | "experimental"): string {
   if (channel === "experimental") {
-    throw new Error("Gateway API version must be specified when using the experimental channel.")
+    throw new Error("Gateway API version must be specified when using the experimental channel")
   }
 
   return "1.6.0"

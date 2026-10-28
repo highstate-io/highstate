@@ -160,7 +160,6 @@ export class InstanceLockService {
 
       const lockedStateIds = existingLocks.map(lock => lock.stateId)
       const missingLocks = stateIds.filter(id => !lockedStateIds.includes(id))
-
       if (missingLocks.length > 0) {
         throw new InstanceLockLostError(projectId, missingLocks)
       }
@@ -304,6 +303,7 @@ export class InstanceLockService {
           "partial lock not allowed but %s instances remain unlocked",
           remainingStateIds.length,
         )
+
         throw new Error("Failed to acquire all required locks")
       }
     }
@@ -327,6 +327,7 @@ export class InstanceLockService {
     eventWaitTime = 60000,
   ): Promise<void> {
     const waitController = new AbortController()
+
     const eventIterable = await this.pubsubManager.subscribe(
       ["instance-lock", projectId],
       waitController.signal,
@@ -352,6 +353,7 @@ export class InstanceLockService {
               "unlock wait timed out after %s ms, will retry",
               eventWaitTime,
             )
+
             resolve()
           }, eventWaitTime)
         }),
@@ -407,6 +409,7 @@ export class InstanceLockService {
           "found relevant unlock event for %s instances",
           relevantUnlocks.length,
         )
+
         return // this will resolve the promise and clean up the subscription
       }
     }

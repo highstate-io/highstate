@@ -37,11 +37,13 @@ export class UnitExtraService {
         },
         select: { id: true },
       })
+
       terminalIds.push(terminal.id)
     }
 
     // mark dangling terminals as unavailable
     const unitNames = unitTerminals.map(u => u.name)
+
     await tx.terminal.updateMany({
       where: {
         stateId,
@@ -85,11 +87,13 @@ export class UnitExtraService {
         },
         select: { id: true },
       })
+
       pageIds.push(page.id)
     }
 
     // delete dangling pages
     const unitNames = unitPages.map(u => u.name)
+
     await tx.page.deleteMany({
       where: {
         stateId,
@@ -131,11 +135,13 @@ export class UnitExtraService {
         },
         select: { id: true },
       })
+
       triggerIds.push(trigger.id)
     }
 
     // delete dangling triggers
     const unitNames = unitTriggers.map(u => u.name)
+
     await tx.trigger.deleteMany({
       where: {
         stateId,
@@ -195,6 +201,6 @@ export class UnitExtraService {
   async getInstanceTriggers(projectId: string, stateId: string) {
     const database = await this.database.forProject(projectId)
 
-    return database.trigger.findMany({ where: { stateId } })
+    return await database.trigger.findMany({ where: { stateId } })
   }
 }

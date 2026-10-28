@@ -1,4 +1,6 @@
-/** biome-ignore-all lint/style/noNonNullAssertion: to define shared inputs */
+/**
+ * biome-ignore-all lint/style/noNonNullAssertion: to define shared inputs
+ */
 
 import type { Simplify } from "type-fest"
 import {

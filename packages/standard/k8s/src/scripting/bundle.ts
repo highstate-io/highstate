@@ -249,13 +249,13 @@ function getInstallPackagesScript(distribution: ScriptDistribution, packages: st
 
       apk add --no-cache ${packages.join(" ")}
     `
-  } else {
-    return text`
+  }
+
+  return text`
       #!/bin/sh
       set -e
 
       apt-get update
       apt-get install -y ${packages.join(" ")}
     `
-  }
 }

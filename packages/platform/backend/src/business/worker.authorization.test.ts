@@ -75,6 +75,7 @@ describe("WorkerService authorization", () => {
           { title: "Updated" },
         ),
       ).rejects.toThrow(PermissionDeniedError)
+
       await expect(
         service.updateWorkerVersionMeta(
           createProjectRequestContext(
@@ -89,6 +90,7 @@ describe("WorkerService authorization", () => {
           { title: "Updated" },
         ),
       ).resolves.toBeUndefined()
+
       await expect(
         service.updateWorkerVersionMeta(
           createProjectRequestContext(
@@ -112,6 +114,7 @@ describe("WorkerService authorization", () => {
       await expect(
         service.getWorkerVersionLogs(createProjectRequestContext(project.id), version.id),
       ).rejects.toThrow(PermissionDeniedError)
+
       await expect(
         service.getWorkerVersionLogs(
           createProjectRequestContext(

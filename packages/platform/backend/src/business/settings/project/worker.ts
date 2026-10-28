@@ -63,6 +63,7 @@ export class WorkerSettingsService {
 
   async get(context: ProjectRequestContext, workerId: string): Promise<WorkerOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const worker = await database.worker.findUnique({
       where: { id: workerId },
       select: WorkerSettingsService.workerSelect(),
@@ -126,6 +127,7 @@ export class WorkerSettingsService {
     versionId: string,
   ): Promise<WorkerVersionOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const version = await database.workerVersion.findUnique({
       where: { id: versionId },
       select: WorkerSettingsService.versionSelect(),

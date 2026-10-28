@@ -200,7 +200,7 @@ export function updateResourceCount(opType: OpType, currentCount: number): numbe
 
 export function calculateTotalResources(opMap: OpMap | undefined): number {
   if (!opMap) {
-    return 0 // No operations imply no resources
+    return 0 // no operations imply no resources
   }
 
   let total = 0
@@ -221,7 +221,6 @@ export async function pulumiErrorToString(error: unknown): Promise<string> {
     // biome-ignore lint/complexity/useLiteralKeys: не ори на отца
     const stderr = error["commandResult"].stderr as string
     let diagnosticsStart = stderr.indexOf("\u001b[38;5;13m\u001b[1mDiagnostics:")
-
     if (diagnosticsStart === -1) {
       diagnosticsStart = stderr.indexOf("Diagnostics:")
     }

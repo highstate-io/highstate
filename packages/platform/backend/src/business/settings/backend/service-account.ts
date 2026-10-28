@@ -43,7 +43,9 @@ export class BackendServiceAccountSettingsService {
     const where = query.search
       ? { OR: [{ id: { contains: query.search } }, { systemName: { contains: query.search } }] }
       : undefined
+
     const sort = query.sortBy?.[0]
+
     const orderBy =
       sort && ["createdAt", "updatedAt", "systemName"].includes(sort.key)
         ? { [sort.key]: sort.order }
@@ -157,13 +159,16 @@ export class BackendServiceAccountSettingsService {
     requireBackendPermission(context, "role-binding.create")
 
     await Promise.all([this.roles.assertExists(roleId), this.assertMutable(serviceAccountId)])
+
     const role = await this.database.backend.backendRole.findUniqueOrThrow({
       where: { id: roleId },
       select: { rules: true },
     })
+
     if (!hasBackendPermissionRulesSubset(context, role.rules)) {
       requireBackendPermission(context, "role-binding.bind")
     }
+
     await this.database.backend.serviceAccountBackendRoleBinding.upsert({
       where: { roleId_serviceAccountId: { roleId, serviceAccountId } },
       create: { roleId, serviceAccountId },
@@ -179,6 +184,7 @@ export class BackendServiceAccountSettingsService {
     requireBackendPermission(context, "role-binding.delete")
 
     await Promise.all([this.roles.assertExists(roleId), this.assertMutable(serviceAccountId)])
+
     await this.database.backend.serviceAccountBackendRoleBinding.delete({
       where: { roleId_serviceAccountId: { roleId, serviceAccountId } },
     })
@@ -191,6 +197,7 @@ export class BackendServiceAccountSettingsService {
     requireBackendPermission(context, "backend-service-account-project-binding.list")
 
     await this.assertExists(serviceAccountId)
+
     const authorization = await buildBackendAuthorizationWhere<ProjectWhereInput>({
       database: this.database,
       context,
@@ -200,14 +207,17 @@ export class BackendServiceAccountSettingsService {
         projectsInSpaces: projectSpaceIds => ({ spaceId: { in: [...projectSpaceIds] } }),
       },
     })
+
     const projects = await this.database.backend.project.findMany({
       where: authorization,
       orderBy: { createdAt: "asc" },
       select: { id: true, meta: true },
     })
+
     const bindings = await this.database.backend.backendServiceAccountProjectBinding.findMany({
       where: { backendServiceAccountId: serviceAccountId },
     })
+
     const byProject = new Map(bindings.map(binding => [binding.projectId, binding]))
 
     return await Promise.all(
@@ -224,6 +234,7 @@ export class BackendServiceAccountSettingsService {
         }
 
         const database = await this.database.forProject(project.id)
+
         const serviceAccounts = await database.serviceAccount.findMany({
           orderBy: { createdAt: "asc" },
           select: { id: true, meta: true, systemName: true },
@@ -263,6 +274,7 @@ export class BackendServiceAccountSettingsService {
     }
 
     const database = await this.database.forProject(projectId)
+
     const account = await database.serviceAccount.findUnique({
       where: { id: projectServiceAccountId },
       select: { id: true },

@@ -1,7 +1,7 @@
-import { splitLink, httpBatchStreamLink, wsLink, createWSClient } from "@trpc/client"
-import { createTRPCNuxtClient } from "trpc-nuxt/client"
 import type { AppRouter } from "~~/server/router"
+import { createWSClient, httpBatchStreamLink, splitLink, wsLink } from "@trpc/client"
 import superjson from "superjson"
+import { createTRPCNuxtClient } from "trpc-nuxt/client"
 
 export default defineNuxtPlugin(() => {
   const protocol = location.protocol === "https:" ? "wss" : "ws"

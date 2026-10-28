@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { UnlockMethodType } from "@highstate/backend/shared"
 import { randomBytes } from "@noble/hashes/utils.js"
-import { PasswordField } from "#layers/core/app/features/shared"
 import { secureMask } from "micro-key-producer/password.js"
 import { zxcvbn } from "zxcvbn-typescript"
+import { PasswordField } from "#layers/core/app/features/shared"
 
-interface PasswordStrengthResult {
+type PasswordStrengthResult = {
   score: number
   level: "very-weak" | "weak" | "fair" | "strong" | "very-strong"
   estimatedCrackTime: string
@@ -13,7 +13,7 @@ interface PasswordStrengthResult {
   warning?: string
 }
 
-interface UnlockMethodFormData {
+type UnlockMethodFormData = {
   type: UnlockMethodType
   title: string
   description: string
@@ -21,7 +21,7 @@ interface UnlockMethodFormData {
   confirmPassword: string
 }
 
-interface Props {
+type Props = {
   showTypeSelector?: boolean
   showDescription?: boolean
   showDisplayName?: boolean
@@ -65,8 +65,9 @@ const form = reactive<UnlockMethodFormData>({
 
 const displayNameRules = computed(() => {
   if (!props.showDisplayName) {
-    return [] // No validation when field is hidden
+    return [] // no validation when field is hidden
   }
+
   return [
     (v: string) => !!v || "Display name is required",
     (v: string) => (v && v.length <= 100) || "Display name must be less than 100 characters",
@@ -89,7 +90,9 @@ const generatePassword = () => {
 }
 
 const passwordStrength = computed<PasswordStrengthResult | null>(() => {
-  if (!form.password) return null
+  if (!form.password) {
+    return null
+  }
 
   const result = zxcvbn(form.password)
 
@@ -151,7 +154,7 @@ const resetForm = () => {
   passwordVisible.value = false
 }
 
-// Watch for changes and emit updates
+// watch for changes and emit updates
 watch(valid, newValid => {
   emit("update:valid", newValid)
 })
@@ -164,13 +167,13 @@ watch(
   { deep: true },
 )
 
-// Initialize form with default values
+// initialize form with default values
 onMounted(() => {
   form.title = props.defaultDisplayName
   form.description = props.defaultDescription
 })
 
-// Expose methods for parent components
+// expose methods for parent components
 defineExpose({
   resetForm,
   form: readonly(form),

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IDockviewPanelProps } from "dockview-vue"
-import { RouterView, loadRouteLocation } from "vue-router"
+import { loadRouteLocation, RouterView } from "vue-router"
 
 const { params } = defineProps<{
   params: IDockviewPanelProps<{

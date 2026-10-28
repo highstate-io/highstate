@@ -7,6 +7,7 @@ definePageMeta({
   panelId: route => `projects/${route.params.projectId}/pages/${route.params.pageId}`,
   panel: async route => {
     const { $client } = useNuxtApp()
+
     const page = await $client.state.getPage.query({
       projectId: route.params.projectId as string,
       pageId: route.params.pageId as string,

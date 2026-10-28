@@ -69,13 +69,15 @@ export type RequiredKeys<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K
  * @returns The trimmed string.
  */
 export function text(strings: TemplateStringsArray, ...values: unknown[]): string {
-  // Convert all values to strings
+  // convert all values to strings
   const stringValues = values.map(String)
 
-  // Build full string with values interpolated
+  // build full string with values interpolated
   let result = ""
+
   for (let i = 0; i < strings.length; i++) {
     result += strings[i]
+
     if (i < stringValues.length) {
       const value = stringValues[i]
       const lines = value.split("\n")
@@ -97,6 +99,7 @@ export function text(strings: TemplateStringsArray, ...values: unknown[]): strin
  */
 export function trimIndentation(text: string): string {
   const lines = text.split("\n")
+
   const indent = lines
     .filter(line => line.trim() !== "")
     .map(line => line.match(/^\s*/)?.[0].length ?? 0)
@@ -116,7 +119,10 @@ export function trimIndentation(text: string): string {
  */
 export function bytesToHumanReadable(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
-  if (bytes === 0) return "0 Bytes"
+
+  if (bytes === 0) {
+    return "0 Bytes"
+  }
 
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   return `${parseFloat((bytes / 1024 ** i).toFixed(2))} ${sizes[i]}`

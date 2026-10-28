@@ -18,7 +18,9 @@ const tag = value("--tag")
 const output = value("--output")
 const bakePath = value("--bake")
 const rootIndex = process.argv.indexOf("--root")
-const root = resolve(rootIndex === -1 ? resolve(import.meta.dir, "..") : process.argv[rootIndex + 1])
+const root = resolve(
+  rootIndex === -1 ? resolve(import.meta.dir, "..") : process.argv[rootIndex + 1],
+)
 const bake = JSON.parse(await readFile(bakePath, "utf8"))
 const imageNames = new Set<string>(
   bake.group.images.targets.map((target: string) => {
@@ -38,13 +40,23 @@ const result = await synchronizeRepositoryImages({
   imageNames,
   async resolveDigest(reference) {
     const process = Bun.spawn(
-      ["docker", "buildx", "imagetools", "inspect", reference, "--format", "{{json .Manifest.Digest}}"],
+      [
+        "docker",
+        "buildx",
+        "imagetools",
+        "inspect",
+        reference,
+        "--format",
+        "{{json .Manifest.Digest}}",
+      ],
       {
         stdout: "pipe",
         stderr: "inherit",
       },
     )
+
     const digest = (await new Response(process.stdout).text()).trim().replace(/^"|"$/g, "")
+
     if ((await process.exited) !== 0) {
       throw new Error(`Unable to inspect "${reference}"`)
     }

@@ -11,19 +11,21 @@ export function renderTree(node: TreeNode): string {
   const lines: string[] = []
 
   function renderNode(node: TreeNode, prefix: string = "", isLast: boolean = true): void {
-    // Add current node
+    // add current node
     lines.push(prefix + (isLast ? "└── " : "├── ") + node.text)
 
-    // Add children
+    // add children
     const childPrefix = prefix + (isLast ? "    " : "│   ")
+
     node.children.forEach((child, index) => {
       const isLastChild = index === node.children.length - 1
       renderNode(child, childPrefix, isLastChild)
     })
   }
 
-  // Start with root node (no prefix)
+  // start with root node (no prefix)
   lines.push(node.text)
+
   node.children.forEach((child, index) => {
     const isLastChild = index === node.children.length - 1
     renderNode(child, "", isLastChild)

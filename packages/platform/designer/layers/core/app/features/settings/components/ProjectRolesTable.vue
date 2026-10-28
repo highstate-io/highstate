@@ -5,11 +5,12 @@ import type {
   ProjectRoleOutput,
 } from "@highstate/backend/shared"
 import {
+  baseHeaders,
   SettingsDataTable,
   ShowDetailsAction,
   TableItemAction,
-  baseHeaders,
 } from "#layers/core/app/features/settings"
+
 const { projectId } = defineProps<{
   projectId: string
   data: CollectionQueryResult<ProjectRoleOutput>

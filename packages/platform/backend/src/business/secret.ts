@@ -61,7 +61,6 @@ export class SecretService {
 
     const [componentType] = parseInstanceId(state.instanceId)
     const component = library.components[componentType]
-
     if (!component) {
       throw new Error(`Component type "${componentType}" not found in project "${projectId}"`)
     }
@@ -129,6 +128,7 @@ export class SecretService {
     secretValues: Record<string, unknown>,
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
+
     const state = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
@@ -202,6 +202,7 @@ export class SecretService {
     stateId: string,
   ): Promise<Record<string, unknown>> {
     const database = await this.database.forProject(context.projectId)
+
     const state = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },

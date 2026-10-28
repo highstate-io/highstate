@@ -4,12 +4,12 @@ import type {
   BackendApiKeyOutput,
   BackendApiKeyServiceAccountOption,
   BackendPermissionRestriction,
+  BackendRoleRestrictionOptions,
   BackendRoleRule,
   BackendRoleRules,
-  BackendRoleRestrictionOptions,
 } from "@highstate/backend/shared"
-import { backendRoleRulesSchema } from "@highstate/backend/shared"
 import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
+import { backendRoleRulesSchema } from "@highstate/backend/shared"
 import { stringify } from "yaml"
 import BackendRoleRulesBuilder from "./BackendRoleRulesBuilder.vue"
 
@@ -67,11 +67,16 @@ const valid = computed(() => {
 watch(
   () => [visible.value, apiKey, serviceAccounts] as const,
   () => {
-    if (!visible.value) return
+    if (!visible.value) {
+      return
+    }
+
     title.value = apiKey?.meta.title ?? ""
     description.value = apiKey?.meta.description ?? ""
+
     serviceAccountId.value =
       apiKey?.serviceAccountId ?? serviceAccounts.find(item => item.systemName === "admin")?.id
+
     expiresAt.value = apiKey?.expiresAt ? toLocalDateTime(apiKey.expiresAt) : ""
     restrictionRules.value = apiKey?.restrictionRules ?? []
   },
@@ -85,7 +90,10 @@ function toLocalDateTime(value: Date): string {
 }
 
 function save(): void {
-  if (!valid.value || !serviceAccountId.value) return
+  if (!valid.value || !serviceAccountId.value) {
+    return
+  }
+
   emit("save", {
     meta: { title: title.value.trim(), description: description.value.trim() || undefined },
     serviceAccountId: serviceAccountId.value,
@@ -100,11 +108,20 @@ function changeServiceAccount(value: string): void {
 }
 
 function restrictionsCover(allowedRule: BackendRoleRule, rule: BackendRoleRule): boolean {
-  if (!allowedRule.restrictions) return true
-  if (!rule.restrictions) return false
+  if (!allowedRule.restrictions) {
+    return true
+  }
+
+  if (!rule.restrictions) {
+    return false
+  }
+
   return allowedRule.restrictions.every(allowedRestriction => {
     const restriction = rule.restrictions?.find(item => item.type === allowedRestriction.type)
-    if (!restriction) return false
+    if (!restriction) {
+      return false
+    }
+
     const allowedIds = restrictionIds(allowedRestriction)
     const ids = restrictionIds(restriction)
     return (

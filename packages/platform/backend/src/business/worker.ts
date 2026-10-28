@@ -80,6 +80,7 @@ export class WorkerService {
       objectIds.add(workerRecord.id)
       objectIds.add(workerRecord.serviceAccountId)
       objectIds.add(workerVersionRecord.id)
+
       if (workerVersionRecord.apiKeyId) {
         objectIds.add(workerVersionRecord.apiKeyId)
       }
@@ -228,6 +229,7 @@ export class WorkerService {
       where: { systemName: workerProjectRole.systemName },
       select: { id: true },
     })
+
     await tx.serviceAccountRoleBinding.upsert({
       where: {
         roleId_serviceAccountId: {
@@ -332,6 +334,7 @@ export class WorkerService {
     serviceAccountMeta?: ServiceAccountMeta,
   ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
+
     const target = await database.workerVersion.findUnique({
       where: { id: workerVersionId },
       select: { workerId: true, worker: { select: { serviceAccountId: true } } },
@@ -398,6 +401,7 @@ export class WorkerService {
     workerVersionId: string,
   ): Promise<WorkerVersionLog[]> {
     const database = await this.database.forProject(context.projectId)
+
     const version = await database.workerVersion.findUnique({
       where: { id: workerVersionId },
       select: { workerId: true, worker: { select: { serviceAccountId: true } } },

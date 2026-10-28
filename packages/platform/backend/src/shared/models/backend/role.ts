@@ -444,6 +444,7 @@ export const backendRoleRuleSchema: z.ZodType<{
       const incompatibleGroup = groups.find(
         group => !(group.supportedRestrictions as readonly string[]).includes(restriction.type),
       )
+
       if (incompatibleGroup) {
         context.addIssue({
           code: "custom",
@@ -459,6 +460,7 @@ export const backendRoleRuleSchema: z.ZodType<{
       const resourceTypes = new Set(
         groups.map(group => ("resourceType" in group ? group.resourceType : undefined)),
       )
+
       if (resourceTypes.size > 1) {
         context.addIssue({
           code: "custom",

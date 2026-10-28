@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ProjectContainer } from "#layers/core/app/features/shared"
 import { OperationList } from "#layers/core/app/features/operation-panel"
+import { ProjectContainer } from "#layers/core/app/features/shared"
 
 defineProps<{
   params: unknown

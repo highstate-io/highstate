@@ -56,13 +56,13 @@ export function assetFromFile(file: common.File): asset.Asset {
 
   if (file.content.type === "artifact") {
     throw new Error(
-      "Artifact-based files cannot be converted to Pulumi assets directly. Use MaterializedFile instead.",
+      "Artifact-based files cannot be converted to Pulumi assets directly. Use MaterializedFile instead",
     )
   }
 
   if (file.content.isBinary) {
     throw new Error(
-      "Cannot create asset from inline binary file content. Please open an issue if you need this feature.",
+      "Cannot create asset from inline binary file content. Please open an issue if you need this feature",
     )
   }
 
@@ -88,7 +88,7 @@ export function archiveFromFolder(folder: common.Folder): asset.Archive {
 
   if (folder.content.type === "artifact") {
     throw new Error(
-      "Artifact-based folders cannot be converted to Pulumi assets directly. Use MaterializedFolder instead.",
+      "Artifact-based folders cannot be converted to Pulumi assets directly. Use MaterializedFolder instead",
     )
   }
 
@@ -130,7 +130,7 @@ async function unarchiveFromStream(
       return
     }
     case "zip": {
-      // Extract directly from stream using unzipper
+      // extract directly from stream using unzipper
       await pipeline(stream, unzipper.Extract({ path: destinationPath }))
       return
     }
@@ -146,7 +146,6 @@ async function unarchiveFromStream(
  */
 function detectArchiveType(fileName: string, contentType?: string): "tar" | "zip" | null {
   const ext = extname(fileName).toLowerCase()
-
   if (ext === ".tar" || ext === ".tgz" || ext === ".tar.gz") {
     return "tar"
   }
@@ -155,11 +154,12 @@ function detectArchiveType(fileName: string, contentType?: string): "tar" | "zip
     return "zip"
   }
 
-  // Fallback to content type
+  // fallback to content type
   if (contentType) {
     if (contentType.includes("tar") || contentType.includes("gzip")) {
       return "tar"
     }
+
     if (contentType.includes("zip")) {
       return "zip"
     }
@@ -189,7 +189,9 @@ async function runMaterializationActions(
     } catch (error) {
       console.error(`error executing materialization action for file "${entity.meta.name}":`, error)
 
-      throw new Error(`Failed to execute materialization action for file "${entity.meta.name}"`)
+      throw new Error(`Failed to execute materialization action for file "${entity.meta.name}"`, {
+        cause: error,
+      })
     }
   }
 }
@@ -284,7 +286,7 @@ export class MaterializedFile extends LifetimeScopeContainer {
    * ```
    */
   async open() {
-    return this.scope.ref()
+    return await this.scope.ref()
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
@@ -331,7 +333,9 @@ export class MaterializedFile extends LifetimeScopeContainer {
       }
       case "remote": {
         const response = await fetch(l7EndpointToString(this.entity.content.endpoint))
-        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`)
+        }
 
         const arrayBuffer = await response.arrayBuffer()
         await writeFile(this.path, Buffer.from(arrayBuffer), { mode: this.entity.meta.mode })
@@ -612,7 +616,7 @@ export class MaterializedFolder extends LifetimeScopeContainer {
    * ```
    */
   async open() {
-    return this.scope.ref()
+    return await this.scope.ref()
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
@@ -652,15 +656,14 @@ export class MaterializedFolder extends LifetimeScopeContainer {
         break
       }
       case "local": {
-        // Check if the local path is an archive file that needs extraction
+        // check if the local path is an archive file that needs extraction
         const archiveType = detectArchiveType(this.entity.content.path)
-
         if (archiveType) {
-          // Extract archive to the destination path
+          // extract archive to the destination path
           const readStream = createReadStream(this.entity.content.path)
           await unarchiveFromStream(readStream, this.path, archiveType)
         } else {
-          // Regular directory copy
+          // regular directory copy
           await cp(this.entity.content.path, this.path, {
             recursive: true,
             mode: this.entity.meta.mode,
@@ -671,11 +674,17 @@ export class MaterializedFolder extends LifetimeScopeContainer {
       }
       case "remote": {
         const response = await fetch(l7EndpointToString(this.entity.content.endpoint))
-        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`)
-        if (!response.body) throw new Error("Response body is empty")
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`)
+        }
 
-        // Try to detect archive type from URL or content type
+        if (!response.body) {
+          throw new Error("Response body is empty")
+        }
+
+        // try to detect archive type from URL or content type
         const url = new URL(l7EndpointToString(this.entity.content.endpoint))
+
         const archiveType = detectArchiveType(
           url.pathname,
           response.headers.get("content-type") || undefined,
@@ -690,10 +699,12 @@ export class MaterializedFolder extends LifetimeScopeContainer {
         }
 
         const reader = response.body.getReader()
+
         const stream = new Readable({
           async read() {
             try {
               const { done, value } = await reader.read()
+
               if (done) {
                 this.push(null)
               } else {
@@ -711,7 +722,6 @@ export class MaterializedFolder extends LifetimeScopeContainer {
       }
       case "artifact": {
         const artifactPath = process.env.HIGHSTATE_ARTIFACT_READ_PATH
-
         if (!artifactPath) {
           throw new Error(
             "HIGHSTATE_ARTIFACT_READ_PATH environment variable is not set but required for artifact content",
@@ -919,13 +929,12 @@ export class MaterializedFolder extends LifetimeScopeContainer {
 export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<number> {
   if (endpoint.appProtocol !== "http" && endpoint.appProtocol !== "https") {
     throw new Error(
-      `Unsupported protocol: ${endpoint.appProtocol}. Only HTTP and HTTPS are supported.`,
+      `Unsupported protocol: ${endpoint.appProtocol}. Only HTTP and HTTPS are supported`,
     )
   }
 
   const url = l7EndpointToString(endpoint)
   const response = await fetch(url, { method: "HEAD" })
-
   if (!response.ok) {
     throw new Error(`Failed to fetch file size: ${response.statusText}`)
   }

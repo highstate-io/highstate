@@ -54,6 +54,7 @@ async function applyZodMetaTransformations(content: string): Promise<string> {
         }
 
         const description = cleanJsdoc(jsdoc.value)
+
         const fieldName =
           "name" in node.key && typeof node.key.name === "string" ? node.key.name : "unknown"
 
@@ -82,7 +83,6 @@ async function applyZodMetaTransformations(content: string): Promise<string> {
         }
 
         const originalValue = content.substring(node.value.start, node.value.end)
-
         if (!originalValue.includes(".meta(")) {
           const newValue = `${originalValue}.meta({ title: __camelCaseToHumanReadable("${fieldName}"), description: \`${description}\` })`
           result.update(node.value.start, node.value.end, newValue)
@@ -121,12 +121,11 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
       if (node.type === "Property" && "key" in node && node.key?.type === "Identifier") {
         const propertyNode = node
         const helperFunction = getHelperFunctionForProperty(parentStack)
-
         if (helperFunction) {
           const jsdoc = findLeadingComment(content, node, comments)
-
           if (jsdoc) {
             const description = cleanJsdoc(jsdoc.value)
+
             // Getter properties (get foo() { return ... }) need special handling:
             // inject the helper call into the returned expression.
             if (isGetterProperty(propertyNode)) {
@@ -139,6 +138,7 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
                 returnArgument.start,
                 returnArgument.end,
               )
+
               if (originalReturnValue.trimStart().startsWith(`${helperFunction}(`)) {
                 return
               }
@@ -157,6 +157,7 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
               propertyNode.value.start,
               propertyNode.value.end,
             )
+
             const newValue = `${helperFunction}(${originalValue}, \`${description}\`)`
             result.update(propertyNode.value.start, propertyNode.value.end, newValue)
             hasTransformations = true
@@ -194,6 +195,7 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
       if (node.type === "CallExpression" && "callee" in node && node.callee.type === "Identifier") {
         const callNode = node
         const callee = callNode.callee
+
         const functionName =
           "name" in callee && typeof callee.name === "string" ? callee.name : undefined
 
@@ -203,7 +205,6 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
         ) {
           // look for JSDoc comment on the parent declaration/export, not the function call itself
           const jsdoc = findJsdocForDefineFunction(content, parentStack, comments)
-
           if (jsdoc && callNode.arguments && callNode.arguments.length > 0) {
             const description = cleanJsdoc(jsdoc.value)
             const firstArg = callNode.arguments[0]
@@ -211,6 +212,7 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
             // find meta property in the object expression
             if (firstArg.type === "ObjectExpression" && "properties" in firstArg) {
               const properties = firstArg.properties
+
               const metaProperty = properties?.find(
                 prop =>
                   prop.type === "Property" &&
@@ -225,6 +227,7 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
                   metaProperty.value.start,
                   metaProperty.value.end,
                 )
+
                 const newMetaValue = injectDescriptionIntoMetaObject(originalMetaValue, description)
                 result.update(metaProperty.value.start, metaProperty.value.end, newMetaValue)
               } else if (properties && properties.length > 0) {
@@ -232,11 +235,13 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
                 const lastProperty = properties[properties.length - 1] as ObjectProperty
                 if (lastProperty && "end" in lastProperty) {
                   const insertPos = lastProperty.end
+
                   const newMetaProperty = `,
 
   meta: {
     description: \`${description}\`,
   }`
+
                   result.appendLeft(insertPos, newMetaProperty)
                 }
               }
@@ -265,19 +270,25 @@ function findJsdocForDefineFunction(
     // check for variable declaration (const x = defineUnit(...))
     if (node.type === "VariableDeclarator" && "id" in node && node.id?.type === "Identifier") {
       const jsdoc = findLeadingComment(content, node, comments)
-      if (jsdoc) return jsdoc
+      if (jsdoc) {
+        return jsdoc
+      }
     }
 
     // check for export variable declaration (export const x = defineUnit(...))
     if (node.type === "VariableDeclaration") {
       const jsdoc = findLeadingComment(content, node, comments)
-      if (jsdoc) return jsdoc
+      if (jsdoc) {
+        return jsdoc
+      }
     }
 
     // check for export declaration (export const x = ...)
     if (node.type === "ExportNamedDeclaration" && "declaration" in node && node.declaration) {
       const jsdoc = findLeadingComment(content, node, comments)
-      if (jsdoc) return jsdoc
+      if (jsdoc) {
+        return jsdoc
+      }
     }
   }
 
@@ -378,25 +389,24 @@ function cleanJsdoc(str: string) {
 function injectDescriptionIntoMetaObject(objectString: string, description: string): string {
   const trimmed = objectString.trim()
 
-  // Check if description already exists
+  // check if description already exists
   const hasDescription = /description\s*:/.test(trimmed)
-
   if (hasDescription) {
-    // Replace existing description
+    // replace existing description
     return trimmed.replace(/description\s*:\s*`[^`]*`/, `description: \`${description}\``)
-  } else {
-    // Add description field at the beginning of the object
-    const openBraceIndex = trimmed.indexOf("{")
-    if (openBraceIndex === -1) {
-      return trimmed
-    }
-
-    const beforeBrace = trimmed.substring(0, openBraceIndex + 1)
-    const afterBrace = trimmed.substring(openBraceIndex + 1)
-
-    return `${beforeBrace}
-    description: \`${description}\`,${afterBrace}`
   }
+
+  // add description field at the beginning of the object
+  const openBraceIndex = trimmed.indexOf("{")
+  if (openBraceIndex === -1) {
+    return trimmed
+  }
+
+  const beforeBrace = trimmed.substring(0, openBraceIndex + 1)
+  const afterBrace = trimmed.substring(openBraceIndex + 1)
+
+  return `${beforeBrace}
+    description: \`${description}\`,${afterBrace}`
 }
 
 function isInsideZodObject(parentStack: Node[]): boolean {
@@ -412,6 +422,7 @@ function isInsideZodObject(parentStack: Node[]): boolean {
       return true
     }
   }
+
   return false
 }
 
@@ -446,6 +457,7 @@ function getHelperFunctionForProperty(
     if (keyName === "inputs" || keyName === "outputs") {
       return "$addInputDescription"
     }
+
     if (keyName === "args" || keyName === "secrets") {
       return "$addArgumentDescription"
     }
@@ -463,6 +475,7 @@ function getHelperFunctionForProperty(
     if (calleeName === "$inputs" || calleeName === "$outputs") {
       return "$addInputDescription"
     }
+
     if (calleeName === "$args" || calleeName === "$secrets") {
       return "$addArgumentDescription"
     }

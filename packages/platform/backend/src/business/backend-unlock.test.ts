@@ -91,9 +91,11 @@ describe("BackendUnlockService", () => {
       })
 
       expect(result.meta.title).toBe("Laptop")
+
       const stored = await encryptedDatabase.backend.backendUnlockMethod.findUniqueOrThrow({
         where: { id: result.id },
       })
+
       expect(stored.recipient).toBe("age1newrecipient")
       expect(encryptedDatabase.backendUnlockRecipientUpdates).toHaveLength(1)
       expect(encryptedDatabase.backendUnlockRecipientUpdates[0]).toEqual(["age1newrecipient"])

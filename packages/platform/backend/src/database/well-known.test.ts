@@ -20,6 +20,7 @@ test("maintains the Admin service account project binding", async ({
   const backendServiceAccount = await database.backend.backendServiceAccount.findUniqueOrThrow({
     where: { systemName: adminBackendServiceAccount.systemName },
   })
+
   const projectServiceAccount = await projectDatabase.serviceAccount.findUniqueOrThrow({
     where: { systemName: adminProjectServiceAccount.systemName },
   })

@@ -3,8 +3,9 @@ import { ProjectModelCircularInputReferenceError, ProjectModelOperationError } f
 
 describe("project model errors", () => {
   it("retains internal causes without putting them in descriptors", () => {
-    const cause = new Error("database password is secret")
+    const cause = new Error("Database password is secret")
     const error = new ProjectModelOperationError("update instance", "project", cause)
+
     const descriptors = JSON.stringify({
       reason: error.reason,
       metadata: error.metadata,

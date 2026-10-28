@@ -17,6 +17,7 @@ describe("CodebaseProjectModelBackend.patchInstanceArguments", () => {
     projectsDir = await mkdtemp(resolve(tmpdir(), "highstate-project-model-"))
     backend = new CodebaseProjectModelBackend(projectsDir, pino({ level: "silent" }))
     await backend.createProjectModel(project, spec)
+
     await backend.createNodes(
       project,
       spec,
@@ -78,6 +79,7 @@ describe("CodebaseProjectModelBackend.patchInstanceArguments", () => {
         false,
       ),
     ).rejects.toThrow("Failed to patch instance arguments")
+
     await expect(currentArgs()).resolves.toEqual({ count: 1 })
   })
 

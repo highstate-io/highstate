@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { SYSTEM_EXPORT_COMPONENT_TYPE, type ResolvedInstanceInput } from "@highstate/backend/shared"
+import { type ResolvedInstanceInput, SYSTEM_EXPORT_COMPONENT_TYPE } from "@highstate/backend/shared"
 import {
-  camelCaseToHumanReadable,
   type ComponentModel,
+  camelCaseToHumanReadable,
   type EntityModel,
   type InstanceInput,
   type InstanceModel,
@@ -12,9 +12,9 @@ import {
   InstanceNodeInputChipPopup,
   InstanceNodeOutputChipPopup,
 } from "#layers/core/app/features/entity-explorer"
-import InstanceNodeIOSideHandle from "./InstanceNodeIOSideHandle.vue"
-import InstanceNodeEditableInputChip from "./InstanceNodeEditableInputChip.vue"
 import { EXPORT_CREATE_INPUT_HANDLE } from "#layers/core/app/utils/vue-flow"
+import InstanceNodeEditableInputChip from "./InstanceNodeEditableInputChip.vue"
+import InstanceNodeIOSideHandle from "./InstanceNodeIOSideHandle.vue"
 
 const {
   instance,
@@ -50,7 +50,6 @@ const {
 
 const getResolvedInputType = (inputName: string): string | undefined => {
   const types = Array.from(new Set((resolvedInputs?.[inputName] ?? []).map(input => input.type)))
-
   if (types.length !== 1) {
     return undefined
   }
@@ -82,6 +81,7 @@ const getHandleTextColor = (type: "inputs" | "outputs", handleName: string) => {
 
 const hasInputs = (name: string) => {
   const hasInputs = instance.inputs && !!instance.inputs[name] && instance.inputs[name].length > 0
+
   const hasHubInputs =
     instance.hubInputs && !!instance.hubInputs[name] && instance.hubInputs[name].length > 0
 
@@ -90,7 +90,9 @@ const hasInputs = (name: string) => {
 
 const isRequiredAndNotConnected = (name: string) => {
   const input = component.inputs[name]
-  if (!input.required) return false
+  if (!input.required) {
+    return false
+  }
 
   return !resolvedInputs?.[name]?.length
 }

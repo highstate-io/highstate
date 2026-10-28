@@ -67,6 +67,7 @@ export function createFeedDaemonHookScripts({
 
   if (lockdownUpstream) {
     preStartCommands.push("ip route replace blackhole default table 100")
+
     preStartCommands.push(
       `ip rule show | grep -q ${shellQuote(`iif ${interfaceName} lookup 100`)} || ip rule add iif ${shellQuote(interfaceName)} lookup 100 priority 100`,
     )
@@ -82,6 +83,7 @@ export function createFeedDaemonHookScripts({
     postStopCommands.push(
       `ip rule del iif ${shellQuote(interfaceName)} lookup 100 priority 100 || true`,
     )
+
     postStopCommands.push("ip route del blackhole default table 100 || true")
   }
 

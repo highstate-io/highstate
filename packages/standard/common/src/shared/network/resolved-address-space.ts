@@ -119,7 +119,9 @@ async function resolveStringInput(
 }
 
 function isCidrString(value: string): boolean {
-  if (!value.includes("/")) return false
+  if (!value.includes("/")) {
+    return false
+  }
 
   try {
     parseCidr(value)
@@ -130,7 +132,9 @@ function isCidrString(value: string): boolean {
 }
 
 function isIpString(value: string): boolean {
-  if (!value) return false
+  if (!value) {
+    return false
+  }
 
   try {
     parseIp(value)
@@ -141,15 +145,20 @@ function isIpString(value: string): boolean {
 }
 
 function isRangeString(value: string): boolean {
-  if (!value.includes("-")) return false
+  if (!value.includes("-")) {
+    return false
+  }
 
   const parts = value.split("-")
-  if (parts.length !== 2) return false
+  if (parts.length !== 2) {
+    return false
+  }
 
   const left = parts[0]?.trim()
   const right = parts[1]?.trim()
-
-  if (!left || !right) return false
+  if (!left || !right) {
+    return false
+  }
 
   try {
     const a = parseIp(left)
@@ -175,7 +184,7 @@ async function resolveHostname(
     addresses = await resolver(hostname)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to resolve hostname "${hostname}": ${message}`)
+    throw new Error(`Failed to resolve hostname "${hostname}": ${message}`, { cause: error })
   }
 
   const unique = [...new Set(addresses.map(address => address.trim()).filter(Boolean))]
@@ -183,8 +192,13 @@ async function resolveHostname(
   for (const address of unique) {
     try {
       parseIp(address)
-    } catch {
-      throw new Error(`Resolver returned a non-IP address for hostname "${hostname}": "${address}"`)
+    } catch (error) {
+      throw new Error(
+        `Resolver returned a non-IP address for hostname "${hostname}": "${address}"`,
+        {
+          cause: error,
+        },
+      )
     }
   }
 
@@ -199,7 +213,7 @@ async function resolveAsn(asn: string, resolver: AsnResolver): Promise<InputAddr
     prefixes = await resolver(normalized)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to resolve ASN "${normalized}": ${message}`)
+    throw new Error(`Failed to resolve ASN "${normalized}": ${message}`, { cause: error })
   }
 
   const unique = [...new Set(prefixes.map(prefix => prefix.trim()).filter(Boolean))]
@@ -210,8 +224,10 @@ async function resolveAsn(asn: string, resolver: AsnResolver): Promise<InputAddr
   for (const prefix of unique) {
     try {
       parseCidr(prefix)
-    } catch {
-      throw new Error(`Resolver returned a non-CIDR prefix for ASN "${normalized}": "${prefix}"`)
+    } catch (error) {
+      throw new Error(`Resolver returned a non-CIDR prefix for ASN "${normalized}": "${prefix}"`, {
+        cause: error,
+      })
     }
   }
 

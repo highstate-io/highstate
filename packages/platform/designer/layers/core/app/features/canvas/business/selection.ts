@@ -1,7 +1,7 @@
-import { getNodesInside, type GraphNode, type Rect, type VueFlowStore } from "@vue-flow/core"
-import type { CursorMode } from "./shared"
-import type { Reactive } from "vue"
 import type { HubModel, InstanceModel } from "@highstate/contract"
+import type { Reactive } from "vue"
+import type { CursorMode } from "./shared"
+import { type GraphNode, getNodesInside, type Rect, type VueFlowStore } from "@vue-flow/core"
 
 export type SelectionMode = "add" | "remove"
 
@@ -12,7 +12,7 @@ export function useCanvasSelection(
   cursorMode: Ref<CursorMode>,
   active: ComputedRef<boolean>,
 ) {
-  const { escape, control, alt } = useMagicKeys()
+  const { escape: escapeKey, control, alt } = useMagicKeys()
 
   const isDialogOpen = () => {
     if (!import.meta.client) {
@@ -33,7 +33,9 @@ export function useCanvasSelection(
   const permanentSelectionSet = reactive(new Set<string>())
 
   watch([control, alt], ([control, alt]) => {
-    if (!active.value) return
+    if (!active.value) {
+      return
+    }
 
     if (isDialogOpen()) {
       selectionMode.value = undefined
@@ -70,7 +72,9 @@ export function useCanvasSelection(
   watch(
     () => [control.value, alt.value, cursorMode.value] as const,
     () => {
-      if (!active.value) return
+      if (!active.value) {
+        return
+      }
 
       if (!isDialogOpen()) {
         return
@@ -85,8 +89,10 @@ export function useCanvasSelection(
     },
   )
 
-  watch(escape, pressed => {
-    if (!active.value) return
+  watch(escapeKey, pressed => {
+    if (!active.value) {
+      return
+    }
 
     if (pressed) {
       // clear selection when escape is pressed
@@ -98,7 +104,9 @@ export function useCanvasSelection(
   })
 
   watch(cursorMode, mode => {
-    if (!active.value) return
+    if (!active.value) {
+      return
+    }
 
     if (mode !== "selection") {
       // reset selection mode when cursor mode changes
@@ -148,7 +156,9 @@ export function useCanvasSelection(
   const isSelecting = computed(() => startPosition.value !== undefined && control.value)
 
   const selectionArea = computed(() => {
-    if (!startPosition.value) return undefined
+    if (!startPosition.value) {
+      return undefined
+    }
 
     return {
       x: Math.min(startPosition.value.x, mousePosition.x.value),

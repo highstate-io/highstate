@@ -18,7 +18,7 @@ import {
 } from "../shared"
 import { resolveBackendProjectPermissionTarget } from "./project-authorization"
 
-type UnlockTask = {
+interface UnlockTask {
   name: string
   handler: (projectId: string) => Promise<void> | void
 }
@@ -124,6 +124,7 @@ export class ProjectUnlockService {
     await this.projectUnlockBackend.unlockProject(projectId, masterKey, privateKey)
 
     const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, [unlockMethodInput])
+
     const encryptedPrivateKey = await this.encryptProjectPrivateKey(projectId, privateKey, [
       unlockMethodInput,
     ])
@@ -165,6 +166,7 @@ export class ProjectUnlockService {
         `project "%s" is already unlocked, skipping unlock operation`,
         projectId,
       )
+
       return
     }
 
@@ -181,9 +183,11 @@ export class ProjectUnlockService {
     if (!this.config.HIGHSTATE_ENCRYPTION_ENABLED) {
       // no cryptography, just unlock with an empty master key
       await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0), "")
+
       await this.pubsubManager.publish(["project-unlock-state", projectId], {
         type: "unlocked",
       })
+
       await this.runUnlockTasks(projectId)
       return
     }
@@ -218,6 +222,7 @@ export class ProjectUnlockService {
 
     // unlock the project in the backend
     await this.projectUnlockBackend.unlockProject(projectId, Buffer.from(masterKey), privateKey)
+
     await this.pubsubManager.publish(["project-unlock-state", projectId], {
       type: "unlocked",
     })
@@ -238,6 +243,7 @@ export class ProjectUnlockService {
 
   private async backfillProjectPrivateKey(projectId: string, privateKey: string): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     const unlockMethods = await database.unlockMethod.findMany({
       select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
     })
@@ -248,6 +254,7 @@ export class ProjectUnlockService {
         'project "%s" has no unlock methods, skipping private key backfill',
         projectId,
       )
+
       return
     }
 
@@ -420,6 +427,7 @@ export class ProjectUnlockService {
     unlockMethods: { recipient: string }[],
   ): Promise<string> {
     const encrypter = new Encrypter()
+
     for (const unlockMethod of unlockMethods) {
       encrypter.addRecipient(unlockMethod.recipient)
     }

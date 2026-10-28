@@ -25,7 +25,9 @@ if (projectStore.initializing) {
   await projectStore.initialize2()
 }
 const apiKey = ref(await apiKeyStore.get(params.apiKeyId))
-if (!apiKey.value) throw createError({ statusCode: 404, statusMessage: "API key not found" })
+if (!apiKey.value) {
+  throw createError({ statusCode: 404, statusMessage: "API key not found" })
+}
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useProjectRoleSettingsStore().getRestrictionOptions(),
   apiKeyStore.getServiceAccountOptions(),
@@ -50,6 +52,7 @@ definePageMeta({ name: "settings.api-key-details" })
 
 async function save(input: ApiKeyInput): Promise<void> {
   saving.value = true
+
   try {
     apiKey.value = await apiKeyStore.update(params.apiKeyId, input)
     editVisible.value = false
@@ -59,11 +62,13 @@ async function save(input: ApiKeyInput): Promise<void> {
 }
 async function rotate(): Promise<void> {
   rotating.value = true
+
   try {
     const result = await $client.apiKey.rotateProject.mutate({
       projectId: params.projectId,
       apiKeyId: params.apiKeyId,
     })
+
     apiKey.value = result.apiKey
     rotateVisible.value = false
     token.value = result.token
@@ -74,6 +79,7 @@ async function rotate(): Promise<void> {
 }
 async function remove(): Promise<void> {
   deleting.value = true
+
   try {
     await apiKeyStore.delete(params.apiKeyId)
     await router.push({ name: "settings.api-keys", params: { projectId: params.projectId } })

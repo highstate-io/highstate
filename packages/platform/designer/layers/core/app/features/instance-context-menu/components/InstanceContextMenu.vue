@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import type { ComponentModel, InstanceModel } from "@highstate/contract"
 import {
   type InstanceState,
-  type OperationType,
   isInstanceDeployed,
   isTransientInstanceOperationStatus,
+  type OperationType,
 } from "@highstate/backend/shared"
-import type { ComponentModel, InstanceModel } from "@highstate/contract"
-import { NodeContextMenu, ContextMenuItem } from "#layers/core/app/features/shared"
-import InstanceOperationDialog from "./InstanceOperationDialog.vue"
+import { ContextMenuItem, NodeContextMenu } from "#layers/core/app/features/shared"
 import ForgetInstanceStateDialog from "./ForgetInstanceStateDialog.vue"
-import TerminalListSubmenu from "./TerminalListSubmenu.vue"
+import InstanceOperationDialog from "./InstanceOperationDialog.vue"
 import PageListSubmenu from "./PageListSubmenu.vue"
 import PanelListSubmenu from "./PanelListSubmenu.vue"
+import TerminalListSubmenu from "./TerminalListSubmenu.vue"
 
 const {
   instance,
@@ -49,6 +49,7 @@ const selectedInstances = computed(() => {
   const isMultiSelect =
     selection.selectedInstances.length > 1 &&
     selection.selectedInstances.some(inst => inst.id === instance.id)
+
   return isMultiSelect ? selection.selectedInstances : [instance]
 })
 
@@ -127,22 +128,23 @@ const hasDeployedInstances = computed(() => {
 
 const getOperationText = (operation: OperationType) => {
   const count = selectedInstances.value.length
-
   if (count === 1) {
     // single instance - use original logic
     if (operation === "update") {
       return hasDeployedInstances.value ? "Update" : "Create"
     }
+
     return operation.charAt(0).toUpperCase() + operation.slice(1)
-  } else {
-    // multiple instances - use "Operation selected (N)" format
-    if (operation === "update") {
-      const opText = hasDeployedInstances.value ? "Update" : "Create"
-      return `${opText} selected (${count})`
-    }
-    const opText = operation.charAt(0).toUpperCase() + operation.slice(1)
+  }
+
+  // multiple instances - use "Operation selected (N)" format
+  if (operation === "update") {
+    const opText = hasDeployedInstances.value ? "Update" : "Create"
     return `${opText} selected (${count})`
   }
+
+  const opText = operation.charAt(0).toUpperCase() + operation.slice(1)
+  return `${opText} selected (${count})`
 }
 
 const getOperationIcon = (operation: OperationType) => {

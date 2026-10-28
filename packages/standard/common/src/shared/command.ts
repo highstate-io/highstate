@@ -259,8 +259,8 @@ function wrapWithEnvironment(environment?: Input<Record<string, Input<string>>>)
 }
 
 function shellQuotePosix(value: string): string {
-  // Wrap a string so it is treated as a single argument by a POSIX shell.
-  // This is used when we need to pass a full script to `sh -lc` / `bash -lc`.
+  // wrap a string so it is treated as a single argument by a POSIX shell
+  // this is used when we need to pass a full script to `sh -lc` / `bash -lc`
   const escaped = value.replaceAll("'", `"'"'"'"`)
 
   return `'${escaped}'`
@@ -284,6 +284,7 @@ function wrapWithBinaries(binaries?: Record<string, ArtifactFile>) {
       for (const [name, file] of Object.entries(binaries)) {
         assertBinaryName(name)
         const path = await resolveArtifact(name, file)
+
         symlinks.push(
           `ln -sf ${shellQuotePosix(path)} "$highstate_bin_dir"/${shellQuotePosix(name)}`,
         )

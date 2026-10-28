@@ -162,6 +162,7 @@ export class OperationManager {
     )
 
     this.runtimeOperations.set(operation.id, runtimeOperation)
+
     void runtimeOperation.operateSafe().finally(async () => {
       try {
         await this.runnerBackend.finishOperation?.(project.id, operation.id)
@@ -221,6 +222,7 @@ export class OperationManager {
 
       if (existingLocks.length > 0) {
         const stateIds = existingLocks.map(lock => lock.stateId)
+
         await tx.instanceLock.deleteMany({
           where: {
             stateId: {
@@ -287,7 +289,7 @@ export class OperationManager {
         )
       }
 
-      // Step 4: reset attempted instance states
+      // step 4: reset attempted instance states
       const attemptedResult = await tx.instanceState.updateMany({
         where: {
           status: "attempted",

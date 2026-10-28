@@ -28,7 +28,7 @@ const curatedIdResolvers: CuratedIdResolver[] = [
 
 function chunk<T>(items: T[], size: number): T[][] {
   if (size <= 0) {
-    throw new Error("chunk size must be positive")
+    throw new Error("Chunk size must be positive")
   }
 
   const result: T[][] = []
@@ -70,7 +70,6 @@ export class ObjectRefIndexService {
    */
   async track(projectId: string, ids: string[]): Promise<void> {
     const uniqueIds = normalizeIds(ids)
-
     if (uniqueIds.length === 0) {
       return
     }
@@ -137,6 +136,7 @@ export class ObjectRefIndexService {
     const existingIds = new Set(existingRows.map(r => r.id))
 
     const toCreate: string[] = []
+
     for (const id of expectedIds) {
       if (!existingIds.has(id)) {
         toCreate.push(id)
@@ -145,6 +145,7 @@ export class ObjectRefIndexService {
 
     const expectedSet = new Set(expectedIds)
     const toDelete: string[] = []
+
     for (const id of existingIds) {
       if (!expectedSet.has(id)) {
         toDelete.push(id)

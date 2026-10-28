@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Terminal } from "@xterm/xterm"
 import { FitAddon } from "@xterm/addon-fit"
 import { WebglAddon } from "@xterm/addon-webgl"
+import { Terminal } from "@xterm/xterm"
 
 const terminalEl = useTemplateRef("terminalEl")
 
@@ -26,6 +26,7 @@ function fitTerminal() {
   }
 
   const { clientWidth, clientHeight } = terminalEl.value
+
   if (clientWidth <= 0 || clientHeight <= 0) {
     return
   }
@@ -77,7 +78,9 @@ onMounted(() => {
     watch(
       computed(() => content),
       newContent => {
-        if (!terminal) return
+        if (!terminal) {
+          return
+        }
 
         terminal.clear()
         terminal.write(newContent.replace(/\n/g, "\r\n"))

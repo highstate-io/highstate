@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useVueFlow, type Connection, type NodeProps } from "@vue-flow/core"
-import InstanceNode from "./InstanceNode.vue"
-import { InstanceStatusBadge } from "#layers/core/app/features/instance-status"
-import { InstanceContextMenu } from "#layers/core/app/features/instance-context-menu"
-import { PageDialog } from "#layers/core/app/features/page-dialog"
-import type { InstanceNodeData } from "#layers/core/app/features/canvas"
 import type { CommonObjectMeta, PageBlock } from "@highstate/contract"
+import type { InstanceNodeData } from "#layers/core/app/features/canvas"
+import { type Connection, type NodeProps, useVueFlow } from "@vue-flow/core"
+import { InstanceContextMenu } from "#layers/core/app/features/instance-context-menu"
+import { InstanceStatusBadge } from "#layers/core/app/features/instance-status"
+import { PageDialog } from "#layers/core/app/features/page-dialog"
 import { validateConnection } from "#layers/core/app/utils/vue-flow"
+import InstanceNode from "./InstanceNode.vue"
 
 const { data, id } = defineProps<NodeProps<InstanceNodeData>>()
 
@@ -19,10 +19,9 @@ const instance = computed(() => data.instance)
 
 const component = computed(() => {
   const component = instancesStore.getInstanceComponent(instance.value)
-
   if (!component) {
     throw new Error(
-      `component "${instance.value.type}" for instance "${instance.value.id}" not found in library`,
+      `Component "${instance.value.type}" for instance "${instance.value.id}" not found in library`,
     )
   }
 
@@ -74,6 +73,7 @@ const loadingPanel = ref(false)
 
 const terminalIds = computed(() => {
   const ownTerminalIds = state.value?.terminalIds ?? []
+
   if (component.value.kind !== "composite") {
     return ownTerminalIds
   }
@@ -109,6 +109,7 @@ const terminalIds = computed(() => {
   }
 
   appendTerminalIds(ownTerminalIds)
+
   for (const child of instancesStore.getInstanceChildren(instance.value.id)) {
     visitInstance(child.id)
   }

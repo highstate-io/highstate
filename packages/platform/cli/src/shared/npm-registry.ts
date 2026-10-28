@@ -86,6 +86,7 @@ export function readPackageManifestFromTarball(tarball: Uint8Array): NpmRegistry
     if (contentOffset + size > tarball.length) {
       throw new Error("Package tarball contains a truncated entry")
     }
+
     if (path === "package/package.json") {
       const content = tarball.subarray(contentOffset, contentOffset + size)
       return JSON.parse(new TextDecoder().decode(content)) as NpmRegistryManifest

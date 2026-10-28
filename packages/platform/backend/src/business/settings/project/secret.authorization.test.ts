@@ -42,6 +42,7 @@ describe("SecretSettingsService authorization", () => {
     projectDatabase,
   }) => {
     const service = new SecretSettingsService(database)
+
     const first = await projectDatabase.secret.create({
       data: {
         id: createId(),
@@ -49,6 +50,7 @@ describe("SecretSettingsService authorization", () => {
         content: "first-value",
       },
     })
+
     const second = await projectDatabase.secret.create({
       data: {
         id: createId(),

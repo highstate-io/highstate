@@ -3,12 +3,12 @@ const { snippet } = defineProps<{
   snippet: string
 }>()
 
-const modules = import.meta.glob("~/snippets/**/*.ts", { query: "?raw" })
+const modules = import.meta.glob<{ default: string }>("~/snippets/**/*.ts", { query: "?raw" })
 const snippetContent = await modules[`/snippets/${snippet}.ts`]()
 
 const mdc = `
 \`\`\`
-${(snippetContent as any).default.trim()}
+${snippetContent.default.trim()}
 \`\`\`
 `
 </script>

@@ -48,6 +48,7 @@ export class StateListCommand extends RemoteCommand {
           messageJson(ListInstanceStatesResponseSchema, response),
           stateTable(response.states),
         )
+
         return
       }
 
@@ -79,6 +80,7 @@ export class StateGetCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.instanceState.getInstanceState({
       projectId: target.projectId,
       stateId: this.id,

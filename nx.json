@@ -4,6 +4,14 @@
     "packageManager": "bun"
   },
   "namedInputs": {
+    "style": [
+      "{workspaceRoot}/biome.json",
+      "{workspaceRoot}/eslint.config.mjs",
+      "{workspaceRoot}/.oxlintrc.json",
+      "{workspaceRoot}/scripts/style/**/*",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/bun.lock"
+    ],
     "default": [
       "{projectRoot}/**/*",
       "!{projectRoot}/dist/**/*",
@@ -33,10 +41,12 @@
     },
     "biome": {
       "cache": true,
+      "inputs": ["default", "style"],
       "outputs": []
     },
     "biome:check": {
       "cache": true,
+      "inputs": ["default", "style"],
       "outputs": []
     },
     "typecheck": {

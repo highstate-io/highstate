@@ -1,5 +1,5 @@
 <script setup lang="ts">
-interface DetailInfoItem {
+type DetailInfoItem = {
   key: string
   label: string
 }

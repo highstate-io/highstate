@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { TerminalSession } from "#layers/core/app/features/terminals"
 import { ProjectContainer } from "#layers/core/app/features/shared"
+import { TerminalSession } from "#layers/core/app/features/terminals"
 
 definePageMeta({
   name: "terminal-session",

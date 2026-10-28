@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {
+  type InstanceState,
   isInstanceDeployed,
   isTransientInstanceOperationStatus,
-  type InstanceState,
 } from "@highstate/backend/shared"
-import { isUnitModel, type ComponentModel } from "@highstate/contract"
+import { type ComponentModel, isUnitModel } from "@highstate/contract"
 import { GenericIcon } from "#layers/core/app/features/shared"
 
 const {

@@ -394,7 +394,6 @@ export class BackupJobPair extends ComponentResource {
   handleTrigger(triggers: TriggerInvocation[]): UnitTrigger | undefined {
     const triggerName = `restic.backup-on-destroy.${this.name}`
     const invokedTrigger = triggers.find(trigger => trigger.name === triggerName)
-
     if (invokedTrigger) {
       void this.createBackupOnDestroyJob()
       return
@@ -477,6 +476,7 @@ export class BackupJobPair extends ComponentResource {
       namespace: this.backupJob.metadata.namespace,
     }).apply(async ({ cluster, cronJobName, namespace }) => {
       const kubeconfig = await toPromise(getClusterKubeconfigContent(cluster))
+
       const kubeconfigFile = await toPromise(
         makeFile({
           name: "kubeconfig",
@@ -484,6 +484,7 @@ export class BackupJobPair extends ComponentResource {
           isSecret: true,
         }),
       )
+
       const triggerScriptFile = await toPromise(
         makeFile({
           name: "trigger-backup.sh",

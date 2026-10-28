@@ -18,12 +18,14 @@ describe("PanelTargetRegistry", () => {
     expect(() => registry.prepare([{ name: "invalid", target: "file:///secret" }])).toThrow(
       "Panel target protocol must be HTTP or HTTPS",
     )
+
     expect(registry.get("state", "panel")?.target.host).toBe("127.0.0.1:8080")
   })
 
   test("preserves the HTTP request interceptor", () => {
     const registry = new PanelTargetRegistry()
     const interceptHttpRequest = () => new Response("intercepted")
+
     registry.apply(
       "state",
       registry.prepare([{ interceptHttpRequest, name: "panel", target: "http://127.0.0.1:8080" }]),
@@ -35,6 +37,7 @@ describe("PanelTargetRegistry", () => {
 
 test("proxies decoded bodies without stale representation headers", async () => {
   let acceptEncoding: string | null = null
+
   const upstream = Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
@@ -50,11 +53,14 @@ test("proxies decoded bodies without stale representation headers", async () => 
       })
     },
   })
+
   const registry = new PanelTargetRegistry()
+
   registry.apply(
     "state",
     registry.prepare([{ name: "panel", target: `http://127.0.0.1:${upstream.port}` }]),
   )
+
   const proxy = new PanelDataServer(registry, 0)
   proxy.start()
 
@@ -79,11 +85,13 @@ test("proxies decoded bodies without stale representation headers", async () => 
 
 test("proxies WebSocket subprotocol negotiation", async () => {
   let offeredProtocols: string | null = null
+
   const upstream = Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
     fetch(request, server) {
       offeredProtocols = request.headers.get("sec-websocket-protocol")
+
       if (server.upgrade(request, { headers: { "sec-websocket-protocol": "v4.channel.k8s.io" } })) {
         return
       }
@@ -96,17 +104,21 @@ test("proxies WebSocket subprotocol negotiation", async () => {
       },
     },
   })
+
   const registry = new PanelTargetRegistry()
+
   registry.apply(
     "state",
     registry.prepare([{ name: "panel", target: `http://127.0.0.1:${upstream.port}` }]),
   )
+
   const proxy = new PanelDataServer(registry, 0)
   proxy.start()
 
   const WebSocketClient = WebSocket as unknown as {
     new (address: string | URL, options: Bun.WebSocketOptions): WebSocket
   }
+
   const socket = new WebSocketClient(`ws://127.0.0.1:${proxy.port}/exec`, {
     headers: {
       "x-highstate-panel-name": "panel",
@@ -120,9 +132,11 @@ test("proxies WebSocket subprotocol negotiation", async () => {
       socket.addEventListener("open", () => resolve(), { once: true })
       socket.addEventListener("error", reject, { once: true })
     })
+
     const message = new Promise<string>(resolve => {
       socket.addEventListener("message", event => resolve(String(event.data)), { once: true })
     })
+
     socket.send("terminal data")
 
     expect(await message).toBe("terminal data")

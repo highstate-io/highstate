@@ -5,7 +5,7 @@ export function isComplexSchema(schema: z.core.JSONSchema.BaseSchema): boolean {
     return true
   }
 
-  if (schema.type === "array" && !!schema.items && !Array.isArray(schema.items)) {
+  if (schema.type === "array" && schema.items && !Array.isArray(schema.items)) {
     return isComplexSchema(schema.items as z.core.JSONSchema.BaseSchema)
   }
 

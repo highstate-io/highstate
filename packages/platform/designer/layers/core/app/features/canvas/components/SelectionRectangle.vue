@@ -25,12 +25,12 @@ const style = computed(() => {
       border: "2px dashed #2196F3",
       background: "rgba(33, 150, 243, 0.1)",
     }
-  } else {
-    return {
-      ...baseStyle,
-      border: "2px dashed #F44336",
-      background: "rgba(244, 67, 54, 0.1)",
-    }
+  }
+
+  return {
+    ...baseStyle,
+    border: "2px dashed #F44336",
+    background: "rgba(244, 67, 54, 0.1)",
   }
 })
 </script>

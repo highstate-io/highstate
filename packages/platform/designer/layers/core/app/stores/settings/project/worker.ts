@@ -4,22 +4,29 @@ export const useProjectWorkerSettingsStore = defineMultiStore({
   create: ({ storeId, id: [projectId], onDeactivated }) =>
     defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
       const items = useCollectionQuery(query => {
         return $client.workerSettings.query.query({ projectId, query })
       })
+
       const activeVersionQueries = shallowReactive(new Set<{ load: () => Promise<void> }>())
       let reloadTimeout: ReturnType<typeof setTimeout> | undefined
+
       const refresh = async () => {
         return await Promise.allSettled([
           items.load(),
           ...Array.from(activeVersionQueries).map(query => query.load()),
         ])
       }
+
       const { unsubscribe } = $client.worker.watchVersionStatuses.subscribe(
         { projectId },
         {
           onData() {
-            if (reloadTimeout) return
+            if (reloadTimeout) {
+              return
+            }
+
             reloadTimeout = setTimeout(() => {
               reloadTimeout = undefined
               void refresh()
@@ -27,10 +34,15 @@ export const useProjectWorkerSettingsStore = defineMultiStore({
           },
         },
       )
+
       onDeactivated(() => {
-        if (reloadTimeout) clearTimeout(reloadTimeout)
+        if (reloadTimeout) {
+          clearTimeout(reloadTimeout)
+        }
+
         unsubscribe()
       })
+
       return {
         items,
         get: async (workerId: string) => {
@@ -51,6 +63,7 @@ export const useProjectWorkerSettingsStore = defineMultiStore({
           const state = useCollectionQuery(query => {
             return $client.workerSettings.queryVersions.query({ projectId, workerId, query })
           })
+
           activeVersionQueries.add(state)
           onDeactivated(() => activeVersionQueries.delete(state))
           return state

@@ -12,7 +12,6 @@ export async function findPackageJSONCompat(
   base?: string | URL,
 ): Promise<string | undefined> {
   const parsedSpecifier = toPathSpecifier(specifier)
-
   if (parsedSpecifier.type === "bare") {
     if (!base) {
       return undefined

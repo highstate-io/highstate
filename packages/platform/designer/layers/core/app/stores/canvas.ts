@@ -1,19 +1,19 @@
-import { useVueFlow, type GraphEdge, type GraphNode } from "@vue-flow/core"
+import type { HubModel, InstanceModel } from "@highstate/contract"
+import { type GraphEdge, type GraphNode, useVueFlow } from "@vue-flow/core"
 import {
+  type Blueprint,
   useBlueprintClipboard,
   useBlueprintPlacement,
-  type Blueprint,
 } from "#layers/core/app/features/blueprint"
 import {
-  useCanvasSelection,
-  useCanvasEdgeEndpointOffsets,
-  useNodeFactory,
-  useNodeMovement,
   type CursorMode,
   type HubNodeData,
   type InstanceNodeData,
+  useCanvasEdgeEndpointOffsets,
+  useCanvasSelection,
+  useNodeFactory,
+  useNodeMovement,
 } from "#layers/core/app/features/canvas"
-import type { HubModel, InstanceModel } from "@highstate/contract"
 
 export type CanvasId =
   | [type: "project", projectId: string]
@@ -56,6 +56,7 @@ export const useCanvasStore = defineMultiStore({
 
       // prevent selection when multiple panels are open
       let selectionActive: ComputedRef<boolean>
+
       if (type === "project") {
         const router = useRouter()
 
@@ -150,6 +151,7 @@ export const useCanvasStore = defineMultiStore({
         const createdEdgeIds = nodeFactory.createEdgesForHub(hub)
 
         const orphanedEdges = nodeEdges.filter(edge => !createdEdgeIds.includes(edge.id))
+
         for (const edge of orphanedEdges) {
           vueFlowStore.removeEdges(edge.id)
         }

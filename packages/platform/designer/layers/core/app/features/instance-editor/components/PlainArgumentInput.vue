@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { InstanceModel } from "@highstate/contract"
-import ArgumentDescription from "./ArgumentDescription.vue"
 import type { PlainEditorArgument } from "../business"
+import ArgumentDescription from "./ArgumentDescription.vue"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: Vuetify inputs accept different scalar models selected by the argument schema
 const model = defineModel<any>()
 
 const { argument, isSecret } = defineProps<{

@@ -16,6 +16,7 @@ export async function readMetaFile(
   const metaFilePath = `${databasePath}/backend.meta.yaml`
 
   let content: string
+
   try {
     content = await readFile(metaFilePath, "utf-8")
   } catch (error) {

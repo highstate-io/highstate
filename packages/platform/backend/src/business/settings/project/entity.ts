@@ -86,6 +86,7 @@ export class EntitySettingsService {
     }
 
     const [sort] = query.sortBy
+
     if (!sort) {
       return false
     }
@@ -336,6 +337,7 @@ export class EntitySettingsService {
   ): Promise<PageResult<EntitySnapshotListItemOutput>> {
     const parsedQuery = collectionQuerySchema.parse(query)
     const db = await this.database.forProject(context.projectId)
+
     const authorization = await buildProjectAuthorizationWhere<EntitySnapshotWhereInput>({
       database: this.database,
       context,
@@ -412,6 +414,7 @@ export class EntitySettingsService {
   ): Promise<PageResult<EntitySnapshotListItemOutput>> {
     const parsedQuery = collectionQuerySchema.parse(query)
     const db = await this.database.forProject(context.projectId)
+
     const authorization = await buildProjectAuthorizationWhere<EntitySnapshotWhereInput>({
       database: this.database,
       context,

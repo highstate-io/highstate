@@ -55,6 +55,7 @@ export class UnlockMethodSettingsService {
     unlockMethodId: string,
   ): Promise<UnlockMethodOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const method = await database.unlockMethod.findUnique({
       where: { id: unlockMethodId },
       select: forSchema(unlockMethodOutputSchema),
@@ -87,9 +88,11 @@ export class UnlockMethodSettingsService {
     }
 
     const search = query.search.toLowerCase()
+
     const OR: UnlockMethodWhereInput[] = [
       { meta: { path: "title", string_contains: query.search } },
     ]
+
     const types = ["password", "passkey"].filter(type => type.includes(search)) as (
       | "password"
       | "passkey"

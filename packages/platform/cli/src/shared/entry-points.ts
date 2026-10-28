@@ -1,7 +1,7 @@
 import type { PackageJson } from "pkg-types"
 import { logger } from "./logger"
 
-export interface EntryPoint {
+export type EntryPoint = {
   targetName: string
   entryPoint: string
   distPath: string
@@ -15,7 +15,6 @@ export interface EntryPoint {
 export function extractEntryPoints(packageJson: PackageJson): Record<string, EntryPoint> {
   const exports = packageJson.exports
   let bin = packageJson.bin
-
   if (!exports && !bin) {
     logger.warn("no exports or bin found in package.json")
     return {}
@@ -29,6 +28,7 @@ export function extractEntryPoints(packageJson: PackageJson): Record<string, Ent
     if (!packageJson.name) {
       throw new Error("Package name is required when bin is a string")
     }
+
     bin = { [packageJson.name]: bin as string }
   }
 
@@ -57,7 +57,6 @@ export function extractEntryPoints(packageJson: PackageJson): Record<string, Ent
 
       const isJsonExport = distPath.endsWith(".json")
       const isJsExport = distPath.endsWith(".js")
-
       if (!isJsonExport && !isJsExport) {
         throw new Error(
           `The default value of export "${key}" must end with ".js" or ".json" in package.json, got "${distPath}"`,
@@ -94,7 +93,6 @@ export function extractEntryPoints(packageJson: PackageJson): Record<string, Ent
       }
 
       const distPath = value
-
       if (!distPath.startsWith("./dist/")) {
         throw new Error(
           `The value of bin entry "${key}" must start with "./dist/" in package.json, got "${distPath}"`,

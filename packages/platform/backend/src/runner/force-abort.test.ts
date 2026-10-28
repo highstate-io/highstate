@@ -16,12 +16,15 @@ describe("isolated Pulumi signal forwarding", () => {
     const config = localRunnerBackendConfig.parse({
       HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS: value,
     })
+
     vi.spyOn(PulumiCommand, "get").mockResolvedValue({ command: "pulumi" } as PulumiCommand)
+
     const spawn = vi.spyOn(Bun, "spawn").mockReturnValue({
       stdout: null,
       stderr: null,
       exited: Promise.resolve(0),
     } as unknown as ReturnType<typeof Bun.spawn>)
+
     const command = await createForceAbortableCommand({
       hostsFilePath: "/tmp/highstate-hosts",
       unshareForwardSignals: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS,

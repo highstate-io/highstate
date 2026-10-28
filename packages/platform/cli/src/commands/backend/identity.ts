@@ -23,7 +23,6 @@ export class BackendIdentityCommand extends Command {
     logger.info(`stored backend identity: "%s"`, recipient)
 
     const suggestedTitle = hostname()
-
     if (!suggestedTitle) {
       logger.info(`run "highstate backend unlock-method add %s" on a trusted device`, recipient)
       return

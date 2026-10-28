@@ -76,6 +76,7 @@ export class PanelEndpointManager {
       projectId,
       workerVersionId,
     })
+
     this.instanceIdsByVersion.set(workerVersionId, workerInstanceId)
   }
 
@@ -91,9 +92,11 @@ export class PanelEndpointManager {
     }
 
     this.instances.delete(workerInstanceId)
+
     if (this.instanceIdsByVersion.get(instance.workerVersionId) === workerInstanceId) {
       this.instanceIdsByVersion.delete(instance.workerVersionId)
     }
+
     for (const panelIds of instance.panelIdsByState.values()) {
       for (const panelId of panelIds) {
         if (this.panels.get(panelId)?.workerInstanceId !== workerInstanceId) {
@@ -127,18 +130,21 @@ export class PanelEndpointManager {
 
     const previousPanelIds = instance.panelIdsByState.get(stateId) ?? new Set()
     const nextPanelIds = new Set(panels.map(panel => panel.id))
+
     for (const panelId of previousPanelIds) {
       if (!nextPanelIds.has(panelId)) {
         this.panels.delete(panelId)
         this.publishAvailability(projectId, panelId, false)
       }
     }
+
     for (const panel of panels) {
       const existing = this.panels.get(panel.id)
       if (existing && existing.workerInstanceId !== workerInstanceId) {
         const previousInstance = this.instances.get(existing.workerInstanceId)
         const previousPanelIds = previousInstance?.panelIdsByState.get(existing.stateId)
         previousPanelIds?.delete(panel.id)
+
         if (previousPanelIds?.size === 0) {
           previousInstance?.panelIdsByState.delete(existing.stateId)
         }
@@ -157,6 +163,7 @@ export class PanelEndpointManager {
         this.publishAvailability(projectId, panel.id, true)
       }
     }
+
     instance.panelIdsByState.set(stateId, nextPanelIds)
   }
 
@@ -211,11 +218,13 @@ export class PanelEndpointManager {
 
 function parseAuthority(value: string): string {
   let endpoint: URL
+
   try {
     endpoint = new URL(`http://${value}`)
   } catch (error) {
     throw new Error(`Invalid worker data endpoint`, { cause: error })
   }
+
   if (endpoint.username || endpoint.password || endpoint.pathname !== "/" || endpoint.search) {
     throw new Error(`Worker data endpoint must contain only a host and port`)
   }

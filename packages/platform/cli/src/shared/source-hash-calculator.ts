@@ -57,6 +57,7 @@ export function parseFileDependencies(filePath: string, content: string): FileDe
       const normalizedPackageName = npmPackage.startsWith("node:")
         ? npmPackage.slice("node:".length)
         : npmPackage
+
       const builtinName = normalizedPackageName.split("/")[0]
       if (
         builtinModules.includes(normalizedPackageName) ||
@@ -101,7 +102,6 @@ export class SourceHashCalculator {
    * Gets the highstate configuration from package.json with defaults.
    */
   private getHighstateConfig(packageJson: PackageJson): HighstateConfig {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const rawConfig = packageJson.highstate
     if (!rawConfig) {
       return { type: "source" }
@@ -114,6 +114,7 @@ export class SourceHashCalculator {
         { error, packageName: packageJson.name },
         "invalid highstate configuration, using defaults",
       )
+
       return { type: "source" }
     }
   }
@@ -126,16 +127,17 @@ export class SourceHashCalculator {
     exportKey?: string,
   ): SourceHashConfig {
     if (highstateConfig.sourceHash) {
-      // Try to parse as a single config first
+      // try to parse as a single config first
       const singleConfigResult = sourceHashConfigSchema.safeParse(highstateConfig.sourceHash)
       if (singleConfigResult.success) {
         return singleConfigResult.data
       }
 
-      // Try to parse as a record of configs
+      // try to parse as a record of configs
       const recordConfigResult = z
         .record(z.string(), sourceHashConfigSchema)
         .safeParse(highstateConfig.sourceHash)
+
       if (recordConfigResult.success && exportKey) {
         const perOutputConfig = recordConfigResult.data[exportKey]
         if (perOutputConfig) {
@@ -204,6 +206,7 @@ export class SourceHashCalculator {
     }
 
     const hashes = await Promise.all(promises)
+
     for (const { distPath, hash } of hashes) {
       manifest.sourceHashes![distPath] = hash
     }
@@ -215,13 +218,13 @@ export class SourceHashCalculator {
   private async getFileHash(fullPath: string): Promise<number> {
     const existingHash = this.fileHashes.get(fullPath)
     if (existingHash) {
-      return existingHash
+      return await existingHash
     }
 
     const hash = this.calculateFileHash(fullPath)
     this.fileHashes.set(fullPath, hash)
 
-    return hash
+    return await hash
   }
 
   private async calculateFileHash(fullPath: string): Promise<number> {
@@ -255,6 +258,7 @@ export class SourceHashCalculator {
       }
       case "npm": {
         let resolvedUrl: string
+
         try {
           const baseUrl = pathToFileURL(this.packageJsonPath)
 
@@ -308,6 +312,7 @@ export class SourceHashCalculator {
         )
 
         let manifest: HighstateManifest | undefined
+
         try {
           const manifestContent = await readFile(highstateManifestPath, "utf8")
           manifest = highstateManifestSchema.parse(JSON.parse(manifestContent))
@@ -320,7 +325,6 @@ export class SourceHashCalculator {
         }
 
         const sourceHash = manifest?.sourceHashes?.[relativePath]
-
         if (sourceHash) {
           this.logger.debug(`resolved source hash for package "%s"`, packageName)
           return sourceHash
@@ -347,7 +351,7 @@ export class SourceHashCalculator {
       return null
     }
 
-    // Bun resolver may return non-file URL schemes for certain modules.
+    // bun resolver may return non-file URL schemes for certain modules
     if (resolvedUrl.includes(":")) {
       return null
     }

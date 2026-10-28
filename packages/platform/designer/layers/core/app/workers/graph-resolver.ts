@@ -1,11 +1,11 @@
 import {
-  resolverFactories,
   type DependentSetHandler,
   type GraphResolver,
   type GraphResolverType,
   type ResolverOutputHandler,
+  resolverFactories,
 } from "@highstate/backend/shared"
-import { pino, type Logger } from "pino"
+import { type Logger, pino } from "pino"
 
 export type GraphResolverInput =
   | {
@@ -137,6 +137,7 @@ const scheduleFlush = (port: MessagePort, resolverId: string, state: GraphResolv
         resolverId,
         items,
       })
+
       state.pendingDependentSets.clear()
     }
   }, 0)
@@ -195,6 +196,7 @@ const createGraphResolver = async (
   }
 
   let dependentSetHandler: DependentSetHandler | undefined
+
   if (syncDependentMap) {
     dependentSetHandler = (id, dependents) => {
       const state = resolvers.get(resolverId)
@@ -248,6 +250,7 @@ const createGraphResolver = async (
         resolverId,
         items,
       })
+
       createdState.pendingDependentSets.clear()
     }
   }
@@ -256,7 +259,7 @@ const createGraphResolver = async (
 }
 
 const invalidateInput = (state: GraphResolverState, key: string, node: unknown) => {
-  state.abortController.abort() // Abort any ongoing processing
+  state.abortController.abort() // abort any ongoing processing
   state.abortController = new AbortController()
 
   state.nodes.set(key, node)

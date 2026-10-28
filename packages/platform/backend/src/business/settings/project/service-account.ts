@@ -33,6 +33,7 @@ export class ProjectServiceAccountSettingsService {
     query: ServiceAccountQuery,
   ): Promise<PageResult<ServiceAccountOutput>> {
     const database = await this.database.forProject(context.projectId)
+
     const where = {
       ...(query.artifactId ? { artifacts: { some: { id: query.artifactId } } } : {}),
       ...(query.search
@@ -44,7 +45,9 @@ export class ProjectServiceAccountSettingsService {
           }
         : {}),
     }
+
     const sort = query.sortBy?.[0]
+
     const orderBy =
       sort && ["createdAt", "updatedAt"].includes(sort.key)
         ? { [sort.key]: sort.order }
@@ -80,10 +83,12 @@ export class ProjectServiceAccountSettingsService {
     serviceAccountId: string,
   ): Promise<ServiceAccountOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const account = await database.serviceAccount.findUnique({
       where: { id: serviceAccountId },
       select: forSchema(serviceAccountOutputSchema),
     })
+
     if (!account) {
       return null
     }
@@ -168,13 +173,16 @@ export class ProjectServiceAccountSettingsService {
     ])
 
     const database = await this.database.forProject(context.projectId)
+
     const role = await database.role.findUniqueOrThrow({
       where: { id: roleId },
       select: { rules: true },
     })
+
     if (!hasProjectPermissionRulesSubset(context, role.rules)) {
       requireProjectPermission(context, "role-binding.bind")
     }
+
     await database.serviceAccountRoleBinding.upsert({
       where: { roleId_serviceAccountId: { roleId, serviceAccountId } },
       create: { roleId, serviceAccountId },
@@ -195,6 +203,7 @@ export class ProjectServiceAccountSettingsService {
     ])
 
     const database = await this.database.forProject(context.projectId)
+
     await database.serviceAccountRoleBinding.delete({
       where: { roleId_serviceAccountId: { roleId, serviceAccountId } },
     })
@@ -202,10 +211,12 @@ export class ProjectServiceAccountSettingsService {
 
   async assertExists(projectId: string, serviceAccountId: string): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     const account = await database.serviceAccount.findUnique({
       where: { id: serviceAccountId },
       select: { id: true },
     })
+
     if (!account) {
       throw new ProjectServiceAccountNotFoundError(projectId, serviceAccountId)
     }
@@ -213,10 +224,12 @@ export class ProjectServiceAccountSettingsService {
 
   private async assertMutable(projectId: string, serviceAccountId: string): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     const account = await database.serviceAccount.findUnique({
       where: { id: serviceAccountId },
       select: { systemName: true },
     })
+
     if (!account) {
       throw new ProjectServiceAccountNotFoundError(projectId, serviceAccountId)
     }

@@ -65,7 +65,6 @@ function parseConfigSections(config: string): ConfigSection[] {
 
   for (const rawLine of config.split(/\r?\n/)) {
     const line = rawLine.trim()
-
     if (!line) {
       continue
     }
@@ -88,6 +87,7 @@ function parseConfigSections(config: string): ConfigSection[] {
         comment: pendingComment,
         values: new Map(),
       }
+
       sections.push(currentSection)
       pendingComment = undefined
       continue
@@ -117,9 +117,8 @@ function getValues(section: ConfigSection, key: string): string[] {
 
 function getRequiredValue(section: ConfigSection, key: string): string {
   const value = getValues(section, key).at(-1)
-
   if (!value) {
-    throw new Error(`WireGuard [${section.type}] section is missing required "${key}" field.`)
+    throw new Error(`WireGuard [${section.type}] section is missing required "${key}" field`)
   }
 
   return value
@@ -136,14 +135,13 @@ function getCommaSeparatedValues(section: ConfigSection, key: string): string[] 
 
 function parseOptionalNumber(section: ConfigSection, key: string, defaultValue: number): number {
   const value = getValues(section, key).at(-1)
-
   if (!value) {
     return defaultValue
   }
 
   const parsed = Number(value)
   if (!Number.isInteger(parsed)) {
-    throw new Error(`WireGuard [${section.type}] field "${key}" must be an integer.`)
+    throw new Error(`WireGuard [${section.type}] field "${key}" must be an integer`)
   }
 
   return parsed
@@ -166,7 +164,7 @@ function parseAmneziaConfig(section: ConfigSection): wireguard.AmneziaParameters
     if (isNumericAmneziaConfigKey(key)) {
       const parsed = Number(value)
       if (!Number.isInteger(parsed)) {
-        throw new Error(`AmneziaWG field "${rawKey}" must be an integer.`)
+        throw new Error(`AmneziaWG field "${rawKey}" must be an integer`)
       }
 
       result[key] = parsed
@@ -181,9 +179,8 @@ function parseAmneziaConfig(section: ConfigSection): wireguard.AmneziaParameters
 export function parseExistingConfig(config: string): ParsedExistingConfig {
   const sections = parseConfigSections(config)
   const interfaceSection = sections.find(section => section.type === "interface")
-
   if (!interfaceSection) {
-    throw new Error('WireGuard config must contain an "[Interface]" section.')
+    throw new Error('WireGuard config must contain an "[Interface]" section')
   }
 
   return {

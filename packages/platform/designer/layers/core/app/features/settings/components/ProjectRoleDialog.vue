@@ -5,12 +5,12 @@ import type {
   ProjectRoleRestrictionOptions,
   ProjectRoleRules,
 } from "@highstate/backend/shared"
+import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import {
   assessPermissionRisk,
   projectPermissionGroups,
   projectRoleRulesSchema,
 } from "@highstate/backend/shared"
-import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import { stringify } from "yaml"
 import ProjectRoleRulesBuilder from "./ProjectRoleRulesBuilder.vue"
 
@@ -33,6 +33,7 @@ const riskAssessment = computed(() => {
       group.permissions.map(permission => [permission.name, permission] as const),
     ),
   )
+
   return assessPermissionRisk(
     rules.value.flatMap(rule =>
       rule.permissions.flatMap(permission => {
@@ -45,9 +46,13 @@ const riskAssessment = computed(() => {
 watch(
   () => [visible.value, role] as const,
   () => {
-    if (!visible.value) return
+    if (!visible.value) {
+      return
+    }
+
     title.value = role?.meta.title ?? ""
     description.value = role?.meta.description ?? ""
+
     try {
       rules.value = role ? projectRoleRulesSchema.parse(role.rules) : []
       error.value = null
@@ -63,11 +68,13 @@ const valid = computed(
 function save(): void {
   try {
     const parsedRules = projectRoleRulesSchema.parse(rules.value)
+
     if (!title.value.trim()) {
       throw new Error("Title is required")
     }
 
     error.value = null
+
     emit("save", {
       meta: {
         title: title.value.trim(),

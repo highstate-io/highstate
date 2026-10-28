@@ -1,4 +1,4 @@
-import { layout, graphlib } from "@dagrejs/dagre"
+import { graphlib, layout } from "@dagrejs/dagre"
 
 export type InputNode = {
   id: string

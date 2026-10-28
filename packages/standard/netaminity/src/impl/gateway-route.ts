@@ -7,12 +7,15 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
     if (args.type !== "http") {
       throw new Error("Netaminity Gateway supports only HTTP routes with TLS termination")
     }
+
     if (!args.certificate) {
       throw new Error("Netaminity Gateway routes require a TLS certificate")
     }
+
     if (args.fqdns.length === 0) {
       throw new Error("Netaminity Gateway routes require at least one FQDN")
     }
+
     if (args.port !== undefined && args.port !== data.targetGatewayPort) {
       throw new Error("Netaminity Gateway route port must match targetGatewayPort")
     }

@@ -31,6 +31,7 @@ describe("backend federation identity", () => {
   it("restores the same private key and backend ID", async () => {
     const databaseIdentity = await generateIdentity()
     const generated = await createBackendPrivateKey(databaseIdentity)
+
     const restored = await readBackendPrivateKey(
       `\n${generated.encryptedPrivateKey.trim()}\n`,
       databaseIdentity,

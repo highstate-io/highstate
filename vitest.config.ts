@@ -10,7 +10,6 @@ export default defineConfig({
     },
     testTimeout: 60_000,
     isolate: false,
-  
   },
   resolve: {
     alias: [

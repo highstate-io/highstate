@@ -10,7 +10,7 @@ export class MemoryLockBackend implements LockBackend {
   }
 
   async acquire<T>(keys: string[], fn: () => Promise<T> | T): Promise<T> {
-    return this.lock.acquire(keys, fn)
+    return await this.lock.acquire(keys, fn)
   }
 
   static create(): LockBackend {

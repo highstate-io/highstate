@@ -4,6 +4,7 @@ export const useProjectTerminalSettingsStore = defineMultiStore({
   create: ({ storeId, id: [projectId] }) =>
     defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
       const items = useCollectionQuery(query => {
         return $client.terminalSettings.query.query({ projectId, query })
       })

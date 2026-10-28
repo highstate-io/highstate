@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {
-  SettingsDataTable,
-  ShowDetailsAction,
-  baseHeaders,
-} from "#layers/core/app/features/settings"
 import type {
   CollectionQuery,
   CollectionQueryResult,
   TriggerOutput,
 } from "@highstate/backend/shared"
+import {
+  baseHeaders,
+  SettingsDataTable,
+  ShowDetailsAction,
+} from "#layers/core/app/features/settings"
 
 const { projectId, data, loading, hideHeader, height } = defineProps<{
   projectId: string

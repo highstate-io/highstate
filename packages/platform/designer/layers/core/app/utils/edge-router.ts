@@ -1,14 +1,14 @@
-import type { VueFlowStore, GraphNode, GraphEdge } from "@vue-flow/core"
-import EdgeRouterWorker from "#layers/core/app/workers/edge-router?sharedworker"
+import type { GraphEdge, GraphNode, VueFlowStore } from "@vue-flow/core"
+import type { EventHookOn } from "@vueuse/core"
+import type { RoutedEdgeData } from "#layers/core/app/features/canvas"
 import type {
   EdgeRouterEdge,
   EdgeRouterInputMessage,
   EdgeRouterOutputMessage,
   EdgeRouterShape,
 } from "#layers/core/app/workers/edge-router"
-import type { RoutedEdgeData } from "#layers/core/app/features/canvas"
 import { createId } from "@paralleldrive/cuid2"
-import type { EventHookOn } from "@vueuse/core"
+import EdgeRouterWorker from "#layers/core/app/workers/edge-router?sharedworker"
 
 const {
   //
@@ -119,7 +119,7 @@ export function setupEdgeRouter(
     scheduleFlushQueuedMessages()
   }
 
-  const getShapeFromGraphNode = (node: GraphNode<any, any, string>): EdgeRouterShape | null => {
+  const getShapeFromGraphNode = (node: GraphNode): EdgeRouterShape | null => {
     const {
       computedPosition: { x, y },
       dimensions: { width, height },
@@ -132,7 +132,7 @@ export function setupEdgeRouter(
     return { id: node.id, x, y, width, height }
   }
 
-  const getEdgeFromGraphEdge = (edge: GraphEdge<any, any, string>): EdgeRouterEdge => {
+  const getEdgeFromGraphEdge = (edge: GraphEdge): EdgeRouterEdge => {
     const data = (edge.data ?? {}) as RoutedEdgeData
 
     return {
@@ -146,9 +146,8 @@ export function setupEdgeRouter(
     }
   }
 
-  const updateGraphNodeShape = (node: GraphNode<any, any, string>) => {
+  const updateGraphNodeShape = (node: GraphNode) => {
     const shape = getShapeFromGraphNode(node)
-
     if (shape) {
       queueRouterMessage({ type: "update-shape", routerId, shape })
     }
@@ -158,11 +157,11 @@ export function setupEdgeRouter(
     queueRouterMessage({ type: "remove-shape", routerId, shapeId: nodeId })
   }
 
-  const createGraphEdge = (edge: GraphEdge<any, any, string>) => {
+  const createGraphEdge = (edge: GraphEdge) => {
     queueRouterMessage({ type: "add-edge", routerId, edge: getEdgeFromGraphEdge(edge) })
   }
 
-  const updateGraphEdge = (edge: GraphEdge<any, any, string>) => {
+  const updateGraphEdge = (edge: GraphEdge) => {
     queueRouterMessage({ type: "update-edge", routerId, edge: getEdgeFromGraphEdge(edge) })
   }
 
@@ -193,6 +192,7 @@ export function setupEdgeRouter(
         updateGraphNodeShape(item!)
 
         const edges = vueFlowStore.getConnectedEdges(change.id)
+
         for (const edge of edges) {
           updateGraphEdge(edge)
         }

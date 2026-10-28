@@ -1,4 +1,6 @@
-/** biome-ignore-all assist/source/organizeImports: will break groups */
+/**
+ * biome-ignore-all assist/source/organizeImports: will break groups
+ */
 
 export {
   type Entity,

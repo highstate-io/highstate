@@ -22,12 +22,14 @@ test("stops a deleted worker without persisting logs or restarting it", async ({
       },
     },
   })
+
   const apiKey = await projectDatabase.apiKey.create({
     data: {
       meta: { title: "Test Worker API Key" },
       serviceAccountId: worker.serviceAccountId,
     },
   })
+
   const workerVersion = await projectDatabase.workerVersion.create({
     data: {
       workerId: worker.id,
@@ -38,12 +40,14 @@ test("stops a deleted worker without persisting logs or restarting it", async ({
   })
 
   let runOptions: WorkerRunOptions | undefined
+
   const workerBackend: WorkerBackend = {
     run: vi.fn(async options => {
       runOptions = options
       await new Promise<void>(resolve => options.signal?.addEventListener("abort", () => resolve()))
     }),
   }
+
   const workerManager = new WorkerManager(
     workerManagerConfig.parse({}),
     createId(),
@@ -66,6 +70,7 @@ test("stops a deleted worker without persisting logs or restarting it", async ({
 
   await expect(workerManager.syncWorkers(project.id)).resolves.toBeUndefined()
   await vi.waitFor(() => expect(workerBackend.run).toHaveBeenCalledTimes(1))
+
   await expect(
     projectDatabase.workerVersionLog.findMany({ where: { workerVersionId: workerVersion.id } }),
   ).resolves.toEqual([])
@@ -86,12 +91,14 @@ test("contains an aborted worker rejection during restart", async ({
       },
     },
   })
+
   const apiKey = await projectDatabase.apiKey.create({
     data: {
       meta: { title: "Test Worker API Key" },
       serviceAccountId: worker.serviceAccountId,
     },
   })
+
   const workerVersion = await projectDatabase.workerVersion.create({
     data: {
       workerId: worker.id,
@@ -114,6 +121,7 @@ test("contains an aborted worker rejection during restart", async ({
         }),
     ),
   }
+
   const workerManager = new WorkerManager(
     workerManagerConfig.parse({}),
     "runtime",
@@ -133,5 +141,6 @@ test("contains an aborted worker rejection during restart", async ({
   await expect(
     workerManager.restartWorkerVersion(project.id, workerVersion.id),
   ).resolves.toBeUndefined()
+
   await vi.waitFor(() => expect(workerBackend.run).toHaveBeenCalledTimes(2))
 })

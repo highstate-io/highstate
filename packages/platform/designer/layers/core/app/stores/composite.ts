@@ -1,4 +1,4 @@
-import { type ViewportTransform } from "@vue-flow/core"
+import type { ViewportTransform } from "@vue-flow/core"
 
 export const useCompositeStore = defineMultiStore({
   name: "instance",
@@ -19,6 +19,7 @@ export const useCompositeStore = defineMultiStore({
       const { instancesStore, stateStore } = useExplicitProjectStores(projectId)
 
       const instanceState = computed(() => stateStore.stateIdToStateMap.get(stateId))
+
       const resolvedInstanceId = computed(() => {
         const mappedInstanceId = instanceState.value?.instanceId
         if (mappedInstanceId) {
@@ -31,6 +32,7 @@ export const useCompositeStore = defineMultiStore({
 
         return undefined
       })
+
       const instance = computed(() => {
         const instanceId = resolvedInstanceId.value
         return instanceId ? instancesStore.instances.get(instanceId) : undefined
@@ -85,6 +87,7 @@ export const useCompositeStore = defineMultiStore({
               }
 
               const projection = instance.parentId === currentInstance.id
+
               logger.debug(
                 {
                   currentInstanceId: currentInstance.id,

@@ -1,6 +1,6 @@
 import type { Services } from "@highstate/backend"
-import { getLocalUserId } from "@highstate/backend"
 import { userInfo } from "node:os"
+import { getLocalUserId } from "@highstate/backend"
 
 export type LocalUser = {
   id: string
@@ -15,6 +15,7 @@ export function getLocalUser(): LocalUser {
 
 export async function ensureLocalBackendUser(services: Services): Promise<LocalUser> {
   const user = getLocalUser()
+
   await services.database.backend.user.upsert({
     where: { id: user.id },
     create: {

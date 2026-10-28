@@ -1,8 +1,8 @@
 import type { HubModel, InstanceModel } from "@highstate/contract"
 import type { VueFlowStore } from "@vue-flow/core"
 import type { CanvasSelection, CursorMode } from "#layers/core/app/features/canvas"
-import { createBlueprint, parseBlueprint, serializeBlueprint, type Blueprint } from "./shared"
 import { clone } from "remeda"
+import { type Blueprint, createBlueprint, parseBlueprint, serializeBlueprint } from "./shared"
 
 export function useBlueprintClipboard(
   vueFlowStore: VueFlowStore,

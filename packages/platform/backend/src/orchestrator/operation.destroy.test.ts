@@ -75,6 +75,7 @@ describe("Operation - Destroy", () => {
 
       // assert
       expect(runnerBackend.destroy).toHaveBeenCalledTimes(1)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,
@@ -112,6 +113,7 @@ describe("Operation - Destroy", () => {
     }) => {
       // arrange
       const dependency = createUnit("Dependency")
+
       const ghost = {
         ...createUnit("Ghost"),
         inputs: {
@@ -130,6 +132,7 @@ describe("Operation - Destroy", () => {
       const library = createMockLibrary()
 
       libraryService.getLibraryModelCore.mockResolvedValue(library)
+
       libraryService.getResolvedUnitSources.mockResolvedValue([
         {
           unitType: "component.v1",
@@ -197,6 +200,7 @@ describe("Operation - Destroy", () => {
 
       // assert
       expect(runnerBackend.destroy).toHaveBeenCalledTimes(1)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,
@@ -235,6 +239,7 @@ describe("Operation - Destroy", () => {
     }) => {
       const composite = createComposite("Parent")
       const server = { ...createUnit("Server"), parentId: composite.id }
+
       const script = {
         ...createUnit("Script"),
         parentId: composite.id,
@@ -242,6 +247,7 @@ describe("Operation - Destroy", () => {
           dependency: [{ instanceId: server.id, output: "value" }],
         },
       }
+
       const cluster = {
         ...createUnit("Cluster"),
         parentId: composite.id,
@@ -249,29 +255,35 @@ describe("Operation - Destroy", () => {
           dependency: [{ instanceId: script.id, output: "value" }],
         },
       }
+
       const instances = [composite, server, script, cluster]
 
       const compositeState = createDeployedUnitState(composite)
       const serverState = createDeployedUnitState(server)
       const scriptState = createDeployedUnitState(script)
+
       scriptState.resolvedInputs = {
         dependency: [{ stateId: serverState.id, output: "value" }],
       }
+
       const clusterState = createDeployedUnitState(cluster)
+
       clusterState.resolvedInputs = {
         dependency: [{ stateId: scriptState.id, output: "value" }],
       }
 
-      // Database ordering is unspecified, so dependents may be loaded before their dependencies.
+      // database ordering is unspecified, so dependents may be loaded before their dependencies
       await createContext({
         instances,
         states: [clusterState, scriptState, serverState, compositeState],
       })
+
       setupImmediateLocking()
       setupPersistenceMocks({ instances })
 
       const clusterDone = createDeferred<void>()
       const scriptDone = createDeferred<void>()
+
       runner.setDestroyImpl(async input => {
         if (input.instanceName === "Cluster") {
           await clusterDone.promise
@@ -334,6 +346,7 @@ describe("Operation - Destroy", () => {
         "Script",
         "Server",
       ])
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,

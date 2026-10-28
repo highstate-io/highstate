@@ -100,6 +100,7 @@ export async function collectAgentStatus(options: {
   const context = contextName ? config.contexts[contextName] : undefined
   const apiUrlValue = options.apiUrl ?? env.HIGHSTATE_API_URL ?? context?.apiUrl
   const projectId = options.projectId ?? env.HIGHSTATE_PROJECT_ID ?? context?.projectId
+
   const status: AgentStatus = {
     cli_version: version,
     context: contextName,
@@ -120,10 +121,12 @@ export async function collectAgentStatus(options: {
     status.next_actions.push(
       "Ask the user to configure a Highstate context or provide HIGHSTATE_API_URL.",
     )
+
     return status
   }
 
   let apiUrl: string
+
   try {
     apiUrl = normalizeApiUrl(apiUrlValue)
     status.api_url = apiUrl
@@ -134,6 +137,7 @@ export async function collectAgentStatus(options: {
   }
 
   let apiToken: string | undefined
+
   try {
     apiToken =
       env.HIGHSTATE_API_TOKEN ??
@@ -155,10 +159,12 @@ export async function collectAgentStatus(options: {
 
   try {
     const response = await clients.project.listProjects({ pageSize: 100 })
+
     status.backend = {
       state: "ready",
       detail: "The backend is reachable and the API token can list visible projects.",
     }
+
     if (projectId) {
       selectedProjectLocked = response.projects.find(
         entry => entry.project?.id === projectId,
@@ -167,6 +173,7 @@ export async function collectAgentStatus(options: {
   } catch (error) {
     const failure = classifyRemoteFailure(error)
     status.backend = failure
+
     if (failure.state === "unavailable") {
       status.next_actions.push("Ask the user to start or expose the configured Highstate backend.")
       return status
@@ -177,6 +184,7 @@ export async function collectAgentStatus(options: {
     status.next_actions.push(
       "Ask the user which project to use, then pass --project <project-id> explicitly to highstate agent instructions and every project-scoped command. Do not run highstate project use because it mutates the user's configuration.",
     )
+
     return status
   }
 
@@ -185,12 +193,14 @@ export async function collectAgentStatus(options: {
       state: "locked",
       detail: `Project "${projectId}" is locked; project authorization cannot be verified until it is unlocked.`,
     }
+
     status.next_actions.push(`Ask the user to unlock project "${projectId}" in Highstate.`)
     return status
   }
 
   try {
     const response = await clients.project.getProject({ projectId })
+
     status.project = {
       state: "ready",
       detail: `Project "${response.project?.id ?? projectId}" is unlocked and authorized.`,
@@ -202,12 +212,14 @@ export async function collectAgentStatus(options: {
         state: "locked",
         detail: `Project "${projectId}" is locked; project authorization cannot be verified until it is unlocked.`,
       }
+
       status.next_actions.push(`Ask the user to unlock project "${projectId}" in Highstate.`)
       return status
     }
 
     const failure = classifyRemoteFailure(error)
     status.project = failure
+
     if (failure.state === "denied") {
       status.next_actions.push(
         `Ask the user to authorize the configured API key for project "${projectId}" with the permissions required by the task.`,

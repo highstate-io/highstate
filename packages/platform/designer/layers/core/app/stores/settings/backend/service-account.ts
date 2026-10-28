@@ -4,6 +4,7 @@ export const useBackendServiceAccountSettingsStore = defineStore(
   "backend-service-account-settings",
   () => {
     const { $client } = useNuxtApp()
+
     const items = useCollectionQuery(query => {
       return $client.backendServiceAccountSettings.query.query(query)
     })
@@ -20,6 +21,7 @@ export const useBackendServiceAccountSettingsStore = defineStore(
         serviceAccountId,
         serviceAccount,
       })
+
       await items.load()
 
       return result

@@ -39,7 +39,6 @@ process.stdout.write(renderedDocuments.join("---\n"))
 function parseFeatures(features: string[]): Set<HelmResourceProcessorFeature> {
   const knownFeatures = new Set<string>(helmResourceProcessorFeatures)
   const unknownFeature = features.find(feature => !knownFeatures.has(feature))
-
   if (unknownFeature) {
     throw new Error(`Unknown Helm resource processor feature: ${unknownFeature}`)
   }

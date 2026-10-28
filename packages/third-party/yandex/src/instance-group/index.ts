@@ -73,7 +73,6 @@ const getInstanceSubnetId = (index: number): string => subnetIdsByZone[getInstan
 
 function parseNlbListener(listener: string) {
   const match = /^(tcp|udp):(\d+)(?:=>(\d+))?$/.exec(listener)
-
   if (!match) {
     throw new Error(
       `Invalid NLB listener "${listener}", expected "protocol:source=>target" or "protocol:port" format`,
@@ -326,7 +325,6 @@ const nlbSshProxyEndpoint = nlb
   ? nlb.listeners.apply(listeners => {
       const sshListener = listeners?.find(listener => listener.name === "ssh")
       const address = sshListener?.externalAddressSpec?.address
-
       if (!address) {
         throw new Error(`Could not determine NLB SSH listener address`)
       }

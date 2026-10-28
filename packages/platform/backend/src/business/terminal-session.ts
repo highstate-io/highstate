@@ -24,6 +24,7 @@ export class TerminalSessionService {
     stateId: string,
   ): Promise<TerminalSessionOutput[]> {
     const database = await this.database.forProject(context.projectId)
+
     const state = await database.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },

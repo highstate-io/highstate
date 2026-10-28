@@ -10,7 +10,7 @@ const { server: master } = common.existingServer({
 const { k8sCluster } = k3s.cluster({
   name: "my-cluster",
   args: {
-    // We'll install Cilium, so disable the default Flannel.
+    // we'll install Cilium, so disable the default Flannel
     cni: "none",
   },
   inputs: {

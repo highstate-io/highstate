@@ -29,11 +29,13 @@ describe("project request authorization", () => {
         { type: "resources", resourceIds: ["secret-1"] },
       ]),
     ).toBe(true)
+
     expect(
       hasProjectPermissionSubset(context, "secret.list", [
         { type: "resources", resourceIds: ["secret-3"] },
       ]),
     ).toBe(false)
+
     expect(hasProjectPermission(context, "secret.list", { resourceId: "secret-1" })).toBe(true)
   })
 
@@ -201,6 +203,7 @@ describe("project request authorization", () => {
         ownerServiceAccountId: "account-1",
       }),
     ).toBe(true)
+
     expect(
       hasProjectPermission(context, "page.get", {
         resourceId: "page-2",
@@ -229,6 +232,7 @@ describe("backend request authorization", () => {
         { type: "projects", projectIds: ["project-1"] },
       ]),
     ).toBe(true)
+
     expect(
       hasBackendPermissionSubset(context, "project.get", [
         { type: "projects", projectIds: ["project-3"] },
@@ -341,6 +345,7 @@ describe("backend request authorization", () => {
         ancestorProjectSpaceIds: ["space-1"],
       }),
     ).toBe(true)
+
     expect(
       hasBackendPermission(context, "project.get", {
         projectId: "project-2",

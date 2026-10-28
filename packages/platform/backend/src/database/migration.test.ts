@@ -11,6 +11,7 @@ describe("migrationPacks", () => {
     test(`lists every ${name} migration`, async () => {
       const migrationsPath = resolve(prismaPath, migrationPack.schemaPath, "migrations")
       const entries = await readdir(migrationsPath, { withFileTypes: true })
+
       const migrationNames = entries
         .filter(entry => entry.isDirectory())
         .map(entry => entry.name)

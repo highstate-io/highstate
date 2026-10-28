@@ -33,6 +33,7 @@ const toggleSecretVisibility = async () => {
       projectId: props.projectId,
       secretId: props.secretId,
     })
+
     isRevealed.value = true
   } catch (error) {
     console.error("Failed to reveal secret:", error)
@@ -46,10 +47,13 @@ const toggleSecretVisibility = async () => {
  * copy secret value to clipboard
  */
 const copySecretValue = async () => {
-  if (secretValue.value === undefined || secretValue.value === null) return
+  if (secretValue.value === undefined || secretValue.value === null) {
+    return
+  }
 
   try {
     let textToCopy: string
+
     if (typeof secretValue.value === "string") {
       textToCopy = secretValue.value
     } else {
@@ -68,7 +72,10 @@ const copySecretValue = async () => {
  * show secret value in a dialog for complex data structures
  */
 const showSecretInDialog = () => {
-  if (secretValue.value === undefined || secretValue.value === null) return
+  if (secretValue.value === undefined || secretValue.value === null) {
+    return
+  }
+
   showJsonDialog.value = true
 }
 
@@ -76,7 +83,9 @@ const showSecretInDialog = () => {
  * format secret value for display
  */
 const formatSecretValue = () => {
-  if (secretValue.value === undefined || secretValue.value === null) return ""
+  if (secretValue.value === undefined || secretValue.value === null) {
+    return ""
+  }
 
   if (typeof secretValue.value === "string") {
     return secretValue.value

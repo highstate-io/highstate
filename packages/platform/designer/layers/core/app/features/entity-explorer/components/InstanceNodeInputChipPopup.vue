@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { ResolvedInstanceInput } from "@highstate/backend/shared"
 import type { EntityModel } from "@highstate/contract"
-
+import type { OutputReferencedEntitySnapshot } from "../business"
 import EntityExplorerCodeEditor from "./EntityExplorerCodeEditor.vue"
 import ReferencedEntitiesPopup from "./ReferencedEntitiesPopup.vue"
-import type { OutputReferencedEntitySnapshot } from "../business"
 
 type OutputKey = {
   stateId: string
@@ -41,9 +40,12 @@ const outputKeys = computed<OutputKey[]>(() => {
 
   const seen = new Set<string>()
   const unique: OutputKey[] = []
+
   for (const key of keys) {
     const id = `${key.stateId}:${key.output}`
-    if (seen.has(id)) continue
+    if (seen.has(id)) {
+      continue
+    }
 
     seen.add(id)
     unique.push(key)
@@ -63,6 +65,7 @@ const cacheKey = computed(() => {
     .map(key => `${key.stateId}:${key.output}`)
     .sort()
     .join("|")
+
   const typesKey = Array.from(allowedEntityTypes.value).sort().join(",")
   return `${outputsKey}#${typesKey}`
 })

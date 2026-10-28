@@ -1,4 +1,6 @@
-/** biome-ignore-all lint/complexity/useLiteralKeys: не ори на меня */
+/**
+ * biome-ignore-all lint/complexity/useLiteralKeys: не ори на меня
+ */
 
 import type { Logger } from "pino"
 import type { ArtifactBackend, ArtifactService } from "../artifact"
@@ -187,6 +189,7 @@ export class LocalRunnerBackend implements RunnerBackend {
         unitTempPath,
         childLogger,
       )
+
       options.signal?.throwIfAborted()
 
       const resolvedSource = await this.getResolvedUnitSource(options)
@@ -211,6 +214,7 @@ export class LocalRunnerBackend implements RunnerBackend {
       if (artifactEnv.readPath) {
         envVars.HIGHSTATE_ARTIFACT_READ_PATH = artifactEnv.readPath
       }
+
       envVars.HIGHSTATE_ARTIFACT_WRITE_PATH = artifactEnv.writePath
 
       await this.pulumiProjectHost.runLocal(
@@ -269,12 +273,14 @@ export class LocalRunnerBackend implements RunnerBackend {
                   this.emitStateUpdate({ type: "message", unitId, message })
 
                   if (this.printOutput) {
+                    // biome-ignore lint/suspicious/noConsole: printOutput explicitly mirrors Pulumi output to the terminal
                     console.log(message)
                   }
                 },
               })
 
               const outputs = this.runtimeServer.getSubmittedOutputs(runtimeToken)
+
               const completionUpdate: TypedUnitStateUpdate<"completion"> = {
                 unitId,
                 type: "completion",
@@ -307,13 +313,18 @@ export class LocalRunnerBackend implements RunnerBackend {
             },
             async error => {
               const isUnlocked = await this.pulumiProjectHost.tryUnlockStack(stack, error)
-              if (isUnlocked) return true
+              if (isUnlocked) {
+                return true
+              }
 
               const isResolved = await this.tryInstallMissingDependencies(
                 error,
                 resolvedSource.allowedDependencies,
               )
-              if (isResolved) return true
+
+              if (isResolved) {
+                return true
+              }
 
               return false
             },
@@ -358,9 +369,11 @@ export class LocalRunnerBackend implements RunnerBackend {
   private async destroyWorker(options: UnitDestroyOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
     const operationId = LocalRunnerBackend.getOperationId(options)
+
     const hostsFilePath = options.config
       ? await this.sidecarTracker.registerExecution(operationId, false)
       : undefined
+
     const runtimeToken = options.config
       ? this.runtimeServer.setConfig(operationId, unitId, options.config)
       : undefined
@@ -450,6 +463,7 @@ export class LocalRunnerBackend implements RunnerBackend {
                     this.emitStateUpdate({ type: "message", unitId, message })
 
                     if (this.printOutput) {
+                      // biome-ignore lint/suspicious/noConsole: printOutput explicitly mirrors Pulumi output to the terminal
                       console.log(message)
                     }
                   },
@@ -483,6 +497,7 @@ export class LocalRunnerBackend implements RunnerBackend {
           outputHash: null,
           message: null,
         })
+
         return
       }
 
@@ -495,9 +510,11 @@ export class LocalRunnerBackend implements RunnerBackend {
       if (runtimeToken) {
         this.runtimeServer.deleteConfig(runtimeToken)
       }
+
       if (hostsFilePath) {
         await this.sidecarTracker.releaseExecution(operationId, unitId)
       }
+
       await this.cleanupTempPath(unitTempPath, unitId, "destroy", this.logger)
     }
   }
@@ -505,9 +522,11 @@ export class LocalRunnerBackend implements RunnerBackend {
   private async refreshWorker(options: UnitOptions): Promise<void> {
     const unitId = LocalRunnerBackend.getInstanceId(options)
     const operationId = LocalRunnerBackend.getOperationId(options)
+
     const hostsFilePath = options.config
       ? await this.sidecarTracker.registerExecution(operationId, false)
       : undefined
+
     const runtimeToken = options.config
       ? this.runtimeServer.setConfig(operationId, unitId, options.config)
       : undefined
@@ -559,6 +578,7 @@ export class LocalRunnerBackend implements RunnerBackend {
                     if (totalResourceCount > currentResourceCount) {
                       this.emitStateUpdate({ type: "progress", unitId, totalResourceCount })
                     }
+
                     return
                   }
 
@@ -576,6 +596,7 @@ export class LocalRunnerBackend implements RunnerBackend {
                   this.emitStateUpdate({ type: "message", unitId, message })
 
                   if (this.printOutput) {
+                    // biome-ignore lint/suspicious/noConsole: printOutput explicitly mirrors Pulumi output to the terminal
                     console.log(message)
                   }
                 },
@@ -605,6 +626,7 @@ export class LocalRunnerBackend implements RunnerBackend {
       if (runtimeToken) {
         this.runtimeServer.deleteConfig(runtimeToken)
       }
+
       if (hostsFilePath) {
         await this.sidecarTracker.releaseExecution(operationId, unitId)
       }
@@ -644,6 +666,7 @@ export class LocalRunnerBackend implements RunnerBackend {
 
     try {
       await rm(tempPath, { recursive: true, force: true })
+
       logger.debug({
         msg: `cleaned up unit temp directory for ${operation}`,
         tempPath,
@@ -681,16 +704,14 @@ export class LocalRunnerBackend implements RunnerBackend {
 
     const pattern = /Cannot find module '(.*)'/
     const match = error.message.match(pattern)
-
     if (!match) {
       return false
     }
 
     const packageName = match[1]
-
     if (!allowedDependencies.includes(packageName)) {
       throw new Error(
-        `Dependency '${packageName}' was requested to be auto-installed, but it is not allowed. Please add it to the 'peerDependencies' in the package.json of the unit.`,
+        `Dependency '${packageName}' was requested to be auto-installed, but it is not allowed. Please add it to the 'peerDependencies' in the package.json of the unit`,
       )
     }
 
@@ -702,8 +723,8 @@ export class LocalRunnerBackend implements RunnerBackend {
     const sources = await this.libraryBackend.getResolvedUnitSources(options.libraryId, [
       options.instanceType,
     ])
-    const source = sources.find(source => source.unitType === options.instanceType)
 
+    const source = sources.find(source => source.unitType === options.instanceType)
     if (!source) {
       throw new Error(`Resolved unit source not found for ${options.instanceType}`)
     }
@@ -724,6 +745,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     logger: Logger,
   ): Promise<RunnerBackend> {
     const { PulumiCommand } = await import("@pulumi/pulumi/automation/index.js")
+
     await PulumiCommand.install({
       root: resolve(homedir(), ".pulumi"),
     })
@@ -741,6 +763,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     }
 
     let runner: LocalRunnerBackend | undefined
+
     const sidecarTracker = new SidecarTracker({
       dockerBinary: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_BINARY,
       dockerUseSudo: config.HIGHSTATE_RUNNER_BACKEND_LOCAL_SIDECAR_DOCKER_USE_SUDO,
@@ -750,6 +773,7 @@ export class LocalRunnerBackend implements RunnerBackend {
         runner?.emitStateUpdate({ type: "message", unitId, message })
       },
     })
+
     const runtimeServer = await LocalRuntimeServer.create(sidecarTracker)
 
     runner = new LocalRunnerBackend(

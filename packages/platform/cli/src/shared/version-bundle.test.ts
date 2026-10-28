@@ -14,6 +14,7 @@ test("resolvePreviewVersionBundle reads groups from preview and stable anchor pa
       },
     },
   }
+
   const stdlibManifest = {
     name: "@highstate/library",
     version: "0.29.0",
@@ -24,15 +25,17 @@ test("resolvePreviewVersionBundle reads groups from preview and stable anchor pa
       },
     },
   }
+
   const previewUrl = "https://pkg.pr.new/highstate-io/highstate/@highstate/contract@abc"
+
   vi.spyOn(globalThis, "fetch").mockImplementation(async url => {
-    if (url === previewUrl) {
-      return new Response(
-        gzipSync(createTarEntry("package/package.json", JSON.stringify(platformManifest))),
-      )
-    }
-    if (url === "https://registry.npmjs.org/%40highstate%2Flibrary") {
-      return Response.json({ versions: { "0.29.0": stdlibManifest } })
+    switch (url) {
+      case previewUrl:
+        return new Response(
+          gzipSync(createTarEntry("package/package.json", JSON.stringify(platformManifest))),
+        )
+      case "https://registry.npmjs.org/%40highstate%2Flibrary":
+        return Response.json({ versions: { "0.29.0": stdlibManifest } })
     }
 
     return new Response(null, { status: 404 })

@@ -69,8 +69,10 @@ export function makeFile({
 }: Unwrap<FileOptions>): BaseFile {
   const stringContent = typeof content === "string" ? content : content.toString("base64")
   const isBinary = typeof content !== "string"
+
   const inferredContentType =
     contentType ?? (typeof content === "string" ? "text/plain" : "application/octet-stream")
+
   const size =
     typeof content === "string" ? Buffer.byteLength(content, "utf-8") : content.byteLength
 

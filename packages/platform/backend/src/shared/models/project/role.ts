@@ -572,6 +572,7 @@ export const projectRoleRuleSchema: z.ZodType<{
       const incompatibleGroup = groups.find(
         group => !(group.supportedRestrictions as readonly string[]).includes(restriction.type),
       )
+
       if (incompatibleGroup) {
         context.addIssue({
           code: "custom",
@@ -580,11 +581,14 @@ export const projectRoleRuleSchema: z.ZodType<{
         })
       }
 
-      if (restriction.type !== "resources") continue
+      if (restriction.type !== "resources") {
+        continue
+      }
 
       const resourceTypes = new Set(
         groups.map(group => ("resourceType" in group ? group.resourceType : undefined)),
       )
+
       if (resourceTypes.size > 1) {
         context.addIssue({
           code: "custom",

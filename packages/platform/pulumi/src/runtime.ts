@@ -41,7 +41,7 @@ export function getHighstateRuntime(): HighstateRuntime {
 
   if (!highstateRuntimeEndpoint || !highstateRuntimeToken) {
     throw new Error(
-      `Highstate runtime requires "${highstateRuntimeEndpointEnvVar}" and "${highstateRuntimeTokenEnvVar}".`,
+      `Highstate runtime requires "${highstateRuntimeEndpointEnvVar}" and "${highstateRuntimeTokenEnvVar}"`,
     )
   }
 

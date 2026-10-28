@@ -7,6 +7,7 @@ import { ArtifactSettingsService } from "./artifact"
 describe("ArtifactSettingsService authorization", () => {
   test("authorizes get by artifact resource", async ({ database, project, projectDatabase }) => {
     const service = new ArtifactSettingsService(database)
+
     const artifact = await projectDatabase.artifact.create({
       data: {
         id: createId(),
@@ -20,6 +21,7 @@ describe("ArtifactSettingsService authorization", () => {
     await expect(service.get(createProjectRequestContext(project.id), artifact.id)).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(
       service.get(
         createProjectRequestContext(
@@ -39,9 +41,11 @@ describe("ArtifactSettingsService authorization", () => {
     projectDatabase,
   }) => {
     const service = new ArtifactSettingsService(database)
+
     const first = await projectDatabase.artifact.create({
       data: { id: createId(), hash: createId(), size: 1, chunkSize: 1, meta: { title: "First" } },
     })
+
     const second = await projectDatabase.artifact.create({
       data: { id: createId(), hash: createId(), size: 1, chunkSize: 1, meta: { title: "Second" } },
     })

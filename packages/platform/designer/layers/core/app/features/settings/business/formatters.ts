@@ -2,7 +2,9 @@
  * Formats timestamp to readable date string
  */
 export const formatDate = (timestamp?: Date) => {
-  if (!timestamp) return "Unknown"
+  if (!timestamp) {
+    return "Unknown"
+  }
 
   return timestamp.toLocaleDateString(undefined, {
     year: "numeric",
@@ -17,7 +19,9 @@ export const formatDate = (timestamp?: Date) => {
  * Gets relative time from timestamp
  */
 export const getRelativeTime = (timestamp?: Date) => {
-  if (!timestamp) return "Unknown"
+  if (!timestamp) {
+    return "Unknown"
+  }
 
   const now = Date.now()
   const diff = now - timestamp.getTime()
@@ -27,13 +31,17 @@ export const getRelativeTime = (timestamp?: Date) => {
 
   if (days > 0) {
     return `${days} day${days === 1 ? "" : "s"} ago`
-  } else if (hours > 0) {
-    return `${hours} hour${hours === 1 ? "" : "s"} ago`
-  } else if (minutes > 0) {
-    return `${minutes} minute${minutes === 1 ? "" : "s"} ago`
-  } else {
-    return "Just now"
   }
+
+  if (hours > 0) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`
+  }
+
+  if (minutes > 0) {
+    return `${minutes} minute${minutes === 1 ? "" : "s"} ago`
+  }
+
+  return "Just now"
 }
 
 /**

@@ -144,11 +144,13 @@ describe("updateInstanceSecrets", () => {
       const secrets = await projectDatabase.secret.findMany({
         where: { stateId: instance.id },
       })
+
       expect(secrets).toHaveLength(2)
 
       const apiKeySecret = secrets.find(s => s.name === "api-key")
       expect(apiKeySecret).toBeDefined()
       expect(apiKeySecret?.content).toBe("secret-api-key")
+
       expect(apiKeySecret?.meta).toEqual({
         title: "API Key",
         description: "Authentication key for external service access",
@@ -158,6 +160,7 @@ describe("updateInstanceSecrets", () => {
       const passwordSecret = secrets.find(s => s.name === "password")
       expect(passwordSecret).toBeDefined()
       expect(passwordSecret?.content).toBe("secret-password")
+
       expect(passwordSecret?.meta).toEqual({
         title: "Database Password",
         description: "Secure password for database connections",
@@ -194,8 +197,10 @@ describe("updateInstanceSecrets", () => {
       const secrets = await projectDatabase.secret.findMany({
         where: { stateId: instance.id },
       })
+
       expect(secrets).toHaveLength(1)
       expect(secrets[0].content).toBe("new-secret-value")
+
       expect(secrets[0].meta).toEqual({
         title: "API Key",
         description: "Authentication key for external service access",
@@ -237,6 +242,7 @@ describe("updateInstanceSecrets", () => {
       const secrets = await projectDatabase.secret.findMany({
         where: { stateId: instance.id },
       })
+
       expect(secrets).toHaveLength(2)
     },
   )
@@ -296,10 +302,12 @@ describe("updateInstanceSecrets", () => {
         where: { stateId: instance.id },
         orderBy: { name: "asc" },
       })
+
       expect(secrets).toHaveLength(3)
 
       expect(secrets[0].name).toBe("existing-key")
       expect(secrets[0].content).toBe("updated-value")
+
       expect(secrets[0].meta).toEqual({
         title: "Existing Configuration Key",
         description: "Legacy configuration key maintained for compatibility",
@@ -308,6 +316,7 @@ describe("updateInstanceSecrets", () => {
 
       expect(secrets[1].name).toBe("new-key")
       expect(secrets[1].content).toBe("new-value")
+
       expect(secrets[1].meta).toEqual({
         title: "New Access Token",
         description: "Newly generated access token for service authentication",
@@ -360,6 +369,7 @@ describe("updateInstanceSecrets", () => {
       const secrets = await projectDatabase.secret.findMany({
         where: { stateId: instance.id },
       })
+
       expect(secrets).toHaveLength(1)
 
       const secret = secrets[0]
@@ -496,6 +506,7 @@ describe("getPulumiPassword", () => {
       expect(password).toBeTypeOf("string")
 
       const otherProjectDatabase = await database.forProject(otherProject.id)
+
       const secret = await otherProjectDatabase.secret.findUnique({
         where: { systemName: SystemSecretNames.PulumiPassword },
         select: { id: true },
@@ -511,6 +522,7 @@ describe("getPulumiPassword", () => {
     async ({ secretService, projectDatabase, project, expect }) => {
       // arrange
       const existingPassword = "existing-password"
+
       await projectDatabase.secret.create({
         data: {
           id: createId(),
@@ -547,8 +559,10 @@ describe("getPulumiPassword", () => {
       const savedSecret = await projectDatabase.secret.findUnique({
         where: { systemName: SystemSecretNames.PulumiPassword },
       })
+
       expect(savedSecret).toBeDefined()
       expect(savedSecret?.content).toBe(password)
+
       expect(savedSecret?.meta).toEqual({
         title: "Pulumi Password",
         description: "The password used to encrypt the Pulumi state.",

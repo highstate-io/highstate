@@ -20,6 +20,7 @@ describe("getCanonicalDesignerUrl", () => {
 
   test("preserves canonical and panel hosts", () => {
     expect(getCanonicalDesignerUrl(new URL("http://highstate.localhost:3000/"))).toBeUndefined()
+
     expect(
       getCanonicalDesignerUrl(new URL("http://panel.panels.highstate.localhost:3000/")),
     ).toBeUndefined()
@@ -40,6 +41,7 @@ describe("isDesignerOrigin", () => {
     expect(isDesignerOrigin("http://localhost:3000", "ws://localhost:7283/api/events", true)).toBe(
       true,
     )
+
     expect(isDesignerOrigin("http://127.0.0.1:3000", "ws://127.0.0.1:7283/api/events", true)).toBe(
       true,
     )
@@ -53,12 +55,15 @@ describe("isDesignerOrigin", () => {
     expect(
       isDesignerOrigin("http://example.com:7283", "ws://localhost:7283/api/events", true),
     ).toBe(false)
+
     expect(isDesignerOrigin("https://localhost:7283", "ws://localhost:7283/api/events", true)).toBe(
       false,
     )
+
     expect(isDesignerOrigin("http://localhost:3000", "ws://127.0.0.1:7283/api/events", true)).toBe(
       false,
     )
+
     expect(
       isDesignerOrigin(
         "http://highstate.localhost:3000",

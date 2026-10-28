@@ -375,6 +375,7 @@ export function getWorkloadComponents(
   const labels = isForPatch ? undefined : { "app.kubernetes.io/name": name }
 
   const containers = output(args).apply(args => normalize(args.container, args.containers))
+
   const initContainers = output(args).apply(args =>
     normalize(args.initContainer, args.initContainers),
   )
@@ -463,7 +464,6 @@ export function getWorkloadComponents(
     }
 
     const allowedEndpoints = containers.flatMap(container => container.allowedEndpoints ?? [])
-
     if (allowedEndpoints.length === 0 && !args.networkPolicy) {
       return output(undefined)
     }
@@ -509,7 +509,6 @@ export function getWorkloadServiceComponents(
     containers,
   }).apply(({ existing, serviceArgs, serviceOverrides, external, containers }) => {
     const hasServiceArgs = Object.keys(serviceArgs ?? {}).length > 0 || external === true
-
     if (!hasServiceArgs && !args.service && !args.route && !args.routes) {
       return undefined
     }
@@ -523,6 +522,7 @@ export function getWorkloadServiceComponents(
     }
 
     const ports = containers.flatMap(container => normalize(container.port, container.ports))
+
     const resolvedServiceArgs = deepmerge(
       serviceArgs ?? {},
       serviceOverrides ?? {},
@@ -570,10 +570,8 @@ export function getWorkloadServiceComponents(
 
       if (servicePort != null) {
         const requestedServicePort = await toPromise(servicePort)
-
         if (typeof requestedServicePort === "string") {
           const namedPort = servicePorts?.find(port => port.name === requestedServicePort)
-
           if (!namedPort) {
             throw new Error(
               `Named port "${requestedServicePort}" not found for workload service in route "${routeName}"`,
@@ -610,10 +608,13 @@ export function getWorkloadServiceComponents(
     return await Promise.all(
       routesArgs.map(async (routeArgs, index) => {
         const routeName = `${name}.${index}`
+
         const routeRules = (await toPromise(routeArgs.rules)) as
           | Record<string, WorkloadGatewayRuleArgs>
           | undefined
+
         const routeRuleValues = Object.values(routeRules ?? {})
+
         const needsDefaultBackend =
           routeRuleValues.length === 0 || routeRuleValues.some(rule => rule.servicePort == null)
 
@@ -740,7 +741,7 @@ export abstract class Workload extends NamespacedResource {
   get service(): Output<Service> {
     return this._service.apply(service => {
       if (!service) {
-        throw new Error(`The service of the workload "${this.name}" is not available.`)
+        throw new Error(`The service of the workload "${this.name}" is not available`)
       }
 
       return service
@@ -1020,30 +1021,36 @@ export abstract class Workload extends NamespacedResource {
   ): Output<Workload> {
     return output(args).apply(async args => {
       const baseArgs = omit(args, genericWorkloadExtraArgs)
+
       const template = deepmerge(
         {
           spec: args.args?.scheduling ?? {},
         },
         args.template ?? {},
       )
+
       const deploymentArgs = {
         replicas: args.replicas,
         strategy: args.strategy as Partial<types.input.apps.v1.DeploymentStrategy> | undefined,
         template,
       }
+
       const daemonSetArgs = {
         updateStrategy: args.strategy as
           | Partial<types.input.apps.v1.DaemonSetUpdateStrategy>
           | undefined,
         template,
       }
+
       const statefulSetArgs = {
         replicas: args.replicas,
         template,
       }
+
       const jobArgs = {
         template,
       }
+
       const cronJobArgs = {
         jobTemplate: {
           spec: {

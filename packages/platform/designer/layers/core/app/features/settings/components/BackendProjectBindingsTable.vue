@@ -17,6 +17,7 @@ async function load(): Promise<void> {
     projects.value = await $client.backendServiceAccountSettings.getProjectBindingOptions.query({
       serviceAccountId,
     })
+
     count.value = projects.value.filter(project => project.binding).length
     error.value = null
   } catch (caught) {
@@ -50,6 +51,7 @@ async function setBinding(
       projectId,
       projectServiceAccountId,
     })
+
     await load()
   } finally {
     loadingProjectIds.delete(projectId)

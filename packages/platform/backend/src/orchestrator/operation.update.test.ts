@@ -33,6 +33,7 @@ describe("Operation - Update", () => {
     }) => {
       // arrange
       const unitA = createUnit("A")
+
       const unitB: InstanceModel = {
         ...createUnit("B"),
         inputs: {
@@ -65,7 +66,7 @@ describe("Operation - Update", () => {
           return
         }
 
-        throw new Error(`unexpected unit: ${input.instanceName}`)
+        throw new Error(`Unexpected unit: ${input.instanceName}`)
       })
 
       const operation = createOperation({
@@ -115,6 +116,7 @@ describe("Operation - Update", () => {
 
       // assert
       expect(runnerBackend.update).toHaveBeenCalledTimes(2)
+
       expect(operationService.markOperationFinished).toHaveBeenCalledWith(
         project.id,
         operation.id,

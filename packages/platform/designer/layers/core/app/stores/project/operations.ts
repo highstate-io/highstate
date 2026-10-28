@@ -1,13 +1,13 @@
+import type { InstanceId, InstanceModel } from "@highstate/contract"
 import {
   isFinalOperationStatus,
   type Operation,
   type OperationLaunchInput,
-  type OperationPlanInput,
-  type OperationPhase,
-  type OperationType,
   type OperationOptions,
+  type OperationPhase,
+  type OperationPlanInput,
+  type OperationType,
 } from "@highstate/backend/shared"
-import type { InstanceId, InstanceModel } from "@highstate/contract"
 
 export const useProjectOperationsStore = defineMultiStore({
   name: "project-operations",
@@ -42,9 +42,9 @@ export const useProjectOperationsStore = defineMultiStore({
               switch (event.type) {
                 case "updated": {
                   const operation = event.operation
-
                   if (operationsMap.has(operation.id)) {
                     operationsMap.set(operation.id, operation)
+
                     operations.value = operations.value.map(op =>
                       op.id === operation.id ? operation : op,
                     )
@@ -164,28 +164,42 @@ export const useProjectOperationsStore = defineMultiStore({
 
       const getLastInstanceOperation = (instanceId: string) => {
         const state = stateStore.instanceStates.get(instanceId)
-        if (!state?.lastOperationState?.operationId) return undefined
+        if (!state?.lastOperationState?.operationId) {
+          return undefined
+        }
 
         return operationsMap.get(state.lastOperationState.operationId)
       }
 
       const instancesToAutoUpdate = computed(() => {
         return Array.from(instancesStore.instances.values()).filter(instance => {
-          if (instancesStore.virtualInstanceIds.has(instance.id)) return false
+          if (instancesStore.virtualInstanceIds.has(instance.id)) {
+            return false
+          }
 
           const state = stateStore.instanceStates.get(instance.id)
-          if (!state?.lastOperationState?.operationId) return true
+          if (!state?.lastOperationState?.operationId) {
+            return true
+          }
 
           const operation = operationsMap.get(state.lastOperationState.operationId)
-          if (operation && !isFinalOperationStatus(operation.status)) return false
+          if (operation && !isFinalOperationStatus(operation.status)) {
+            return false
+          }
 
           const validationState = validationStore.validationOutputs.get(instance.id)
-          if (validationState?.status !== "ok") return false
+          if (validationState?.status !== "ok") {
+            return false
+          }
 
-          if (state.lastOperationState.status !== "updated") return true
+          if (state.lastOperationState.status !== "updated") {
+            return true
+          }
 
           const output = stateStore.inputHashOutputs.get(instance.id)
-          if (!output) return false
+          if (!output) {
+            return false
+          }
 
           return state.inputHash !== output.inputHash
         })

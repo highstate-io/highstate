@@ -17,6 +17,7 @@ watch(visible, async isVisible => {
   }
 
   loading.value = true
+
   try {
     panels.value = await stateStore.getPanels(panelIds)
   } finally {

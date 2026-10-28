@@ -41,6 +41,7 @@ export async function detectDefaultSubnetId(
   provider: Provider,
 ): Promise<string> {
   const defaultSubnetName = await toPromise(interpolate`default-${zone}`)
+
   const subnet = await getVpcSubnet(
     {
       folderId: await toPromise(connection.defaultFolderId),
@@ -64,6 +65,7 @@ export async function fetchNetworkContext(
   const networkId = await toPromise(subnet.networkId)
 
   const vpcNetwork = await getVpcNetwork({ networkId }, { provider })
+
   const allVpcSubnets = await Promise.all(
     vpcNetwork.subnetIds.map(subnetId => getVpcSubnet({ subnetId }, { provider })),
   )

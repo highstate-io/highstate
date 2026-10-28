@@ -60,6 +60,7 @@ describe("ProjectPortService", () => {
     expect(projectPortService.extractImportSourceStateId("system.import.state-1.v1")).toBe(
       "state-1",
     )
+
     expect(projectPortService.extractImportSourceStateId(SYSTEM_EXPORT_COMPONENT_TYPE)).toBeNull()
   })
 
@@ -177,6 +178,7 @@ describe("ProjectPortService", () => {
       expect(rootEntity?.referencedInOutputs).toEqual(["server"])
       expect(childEntity?.exportedInOutputs).toEqual([])
       expect(childEntity?.referencedInOutputs).toEqual(["server"])
+
       expect(payload.references).toEqual([
         {
           fromId: rootId,
@@ -329,14 +331,18 @@ describe("ProjectPortService", () => {
       })
 
       expect(rowsAfterInitialSync).toHaveLength(2)
+
       expect(rowsAfterInitialSync.map(row => row.projectId).sort()).toEqual(
         [targetA.id, targetB.id].sort(),
       )
+
       expect(rowsAfterInitialSync.every(row => row.contentHash.length === 64)).toBe(true)
       expect(rowsAfterInitialSync.every(row => row.encryptedContent.length > 0)).toBe(true)
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetA.id], {
         virtualComponentsUpdated: true,
       })
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetB.id], {
         virtualComponentsUpdated: true,
       })
@@ -364,9 +370,11 @@ describe("ProjectPortService", () => {
       expect(rowsAfterResync).toHaveLength(1)
       expect(rowsAfterResync[0]?.projectId).toBe(targetB.id)
       expect(rowsAfterResync[0]?.contentHash).not.toBe(previousHashForB)
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetA.id], {
         virtualComponentsUpdated: true,
       })
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetB.id], {
         virtualComponentsUpdated: true,
       })
@@ -389,6 +397,7 @@ describe("ProjectPortService", () => {
 
       expect(rowsAfterEmptyTargets).toHaveLength(0)
       expect(pubsubManager.publish).toHaveBeenCalledOnce()
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", targetB.id], {
         virtualComponentsUpdated: true,
       })
@@ -433,6 +442,7 @@ describe("ProjectPortService", () => {
       expect(remaining).toHaveLength(1)
       expect(remaining[0]?.sourceStateId).toBe("state-clear-2")
       expect(pubsubManager.publish).toHaveBeenCalledOnce()
+
       expect(pubsubManager.publish).toHaveBeenCalledWith(["project-model", target.id], {
         virtualComponentsUpdated: true,
       })
@@ -476,12 +486,14 @@ describe("ProjectPortService", () => {
         target.id,
         "state-hash-1",
       )
+
       expect(numericHash).toBe(crc32(syncedRow!.contentHash))
 
       const missingHash = await projectPortService.getImportPortContentHash(
         target.id,
         "state-missing",
       )
+
       expect(missingHash).toBeNull()
     },
   )
@@ -517,6 +529,7 @@ describe("ProjectPortService", () => {
       expect(row).not.toBeNull()
       expect(row!.encryptedContent.trim().startsWith("{")).toBe(true)
       expect(JSON.parse(row!.encryptedContent)).toEqual(makePayload("plain-1"))
+
       expect(row!.contentHash).toBe(
         Buffer.from(sha256(Buffer.from(row!.encryptedContent))).toString("hex"),
       )
@@ -568,6 +581,7 @@ describe("ProjectPortService", () => {
 
       const capturedByOutput = projectPortService.buildImportCapturedOutputValues(parsed!)
       expect(capturedByOutput.users).toHaveLength(1)
+
       expect(capturedByOutput.users?.[0]).toEqual({
         ok: true,
         value: {
@@ -582,6 +596,7 @@ describe("ProjectPortService", () => {
 
       const snapshotPayload = projectPortService.buildImportEntitySnapshotPayload(parsed!)
       expect(snapshotPayload.nodes).toHaveLength(1)
+
       expect(snapshotPayload.nodes[0]?.entityId).toBe(
         getEntityId({
           $meta: {
@@ -590,6 +605,7 @@ describe("ProjectPortService", () => {
           },
         }),
       )
+
       expect(snapshotPayload.nodes[0]?.entityType).toBe("test.entity.v1")
       expect(snapshotPayload.nodes[0]?.identity).toBe("user-1")
       expect(snapshotPayload.nodes[0]?.exportedOutputs).toEqual(["users"])

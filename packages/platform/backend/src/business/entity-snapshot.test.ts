@@ -92,6 +92,7 @@ describe("persistUnitEntitySnapshots", () => {
       const deterministicEntity = await projectDatabase.entity.findUnique({
         where: { id: deterministicEntityId },
       })
+
       expect(deterministicEntity?.id).toBe(deterministicEntityId)
       expect(deterministicEntity?.identity).toBe("id-1")
 
@@ -99,6 +100,7 @@ describe("persistUnitEntitySnapshots", () => {
         where: { operationId: operation.id, stateId: state.id },
         orderBy: { createdAt: "asc" },
       })
+
       expect(snapshots).toHaveLength(2)
 
       const deterministicSnapshot = snapshots.find(s => s.entityId === deterministicEntityId)
@@ -315,6 +317,7 @@ describe("listReferencedEntitySnapshotsForOutput", () => {
       )
 
       expect(snapshots).toHaveLength(1)
+
       expect(snapshots[0]).toEqual(
         expect.objectContaining({
           entityId,
@@ -364,6 +367,7 @@ describe("listReferencedEntitySnapshotsForOutput", () => {
       )
 
       expect(snapshots).toHaveLength(1)
+
       expect(snapshots[0]).toEqual(
         expect.objectContaining({
           entityId,
@@ -453,6 +457,7 @@ describe("listReferencedEntitySnapshotsForOutput", () => {
       expect(snapshots).toHaveLength(2)
 
       const parent = snapshots.find(s => s.entityId === parentEntityId)
+
       expect(parent?.content).toMatchObject({
         $meta: { type: "parent.v1", identity: "p1", title: "Parent" },
         value: "p",
@@ -567,6 +572,7 @@ describe("reconstructLatestExportedOutputValues", () => {
         where: { operationId: op1.id },
         select: { id: true },
       })
+
       const op2Snapshots = await projectDatabase.entitySnapshot.findMany({
         where: { operationId: op2.id },
         select: { id: true },
@@ -610,6 +616,7 @@ describe("reconstructLatestExportedOutputValues", () => {
       const newerValues = captured.get(`${stateA.id}:outA`) ?? []
       expect(newerValues).toHaveLength(1)
       expect(newerValues[0]).toMatchObject({ ok: true })
+
       if (newerValues[0]?.ok) {
         expect(newerValues[0].value).toMatchObject({
           $meta: { type: "a.v1", identity: "a3" },
@@ -622,6 +629,7 @@ describe("reconstructLatestExportedOutputValues", () => {
       const bOutB = captured.get(`${stateB.id}:outB`) ?? []
       expect(bOutB).toHaveLength(1)
       expect(bOutB[0]).toMatchObject({ ok: true })
+
       if (bOutB[0]?.ok) {
         expect(bOutB[0].value).toMatchObject({
           $meta: { type: "b.v1", identity: "b2" },
@@ -680,6 +688,7 @@ describe("reconstructLatestExportedOutputValues", () => {
       const values = captured.get(`${state.id}:out`) ?? []
       expect(values).toHaveLength(1)
       expect(values[0]).toMatchObject({ ok: false })
+
       if (values[0] && !values[0].ok) {
         expect(values[0].error.message).toMatch(/missing required inclusion/i)
       }
@@ -746,9 +755,11 @@ describe("getLatestExportedOutputGraph", () => {
       const rootId = getEntityId({
         $meta: { type: "root.v1", identity: "root-1" },
       })
+
       const childId = getEntityId({
         $meta: { type: "child.v1", identity: "child-1" },
       })
+
       const dependencyId = getEntityId({
         $meta: { type: "dep.v1", identity: "dep-1" },
       })
@@ -820,6 +831,7 @@ describe("getLatestExportedOutputGraph", () => {
         where: { operationId: oldOperation.id },
         select: { id: true },
       })
+
       const newSnapshots = await projectDatabase.entitySnapshot.findMany({
         where: { operationId: newOperation.id },
         select: { id: true },
@@ -845,6 +857,7 @@ describe("getLatestExportedOutputGraph", () => {
       })
 
       expect(graph.rootEntityIds).toEqual([rootId])
+
       expect(graph.entities).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -865,6 +878,7 @@ describe("getLatestExportedOutputGraph", () => {
       )
 
       expect(graph.entities.some(entity => entity.entityId === oldRootId)).toBe(false)
+
       expect(graph.references).toEqual([
         {
           fromEntityId: rootId,

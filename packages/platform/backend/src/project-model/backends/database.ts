@@ -128,6 +128,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
 
     try {
       const projectDatabase = await this.database.forProject(project.id)
+
       const instance = await projectDatabase.$transaction(async tx => {
         const existingRecord = await tx.instanceModel.findUnique({ where: { id: instanceId } })
         if (!existingRecord) {
@@ -153,9 +154,13 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
         { projectId: project.id, instanceId, dryRun },
         "patched instance arguments in project model",
       )
+
       return instance
     } catch (error) {
-      if (error instanceof ProjectModelError) throw error
+      if (error instanceof ProjectModelError) {
+        throw error
+      }
+
       throw new ProjectModelOperationError("patch instance arguments", project.id, error)
     }
   }
@@ -259,6 +264,7 @@ export class DatabaseProjectModelBackend implements ProjectModelBackend {
 
         // delete old record and create new one
         await tx.instanceModel.delete({ where: { id: instanceId } })
+
         await tx.instanceModel.create({
           data: { id: newInstanceId, model: instance },
         })

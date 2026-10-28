@@ -1,16 +1,16 @@
 import type {
-  InstanceOperationStatus,
-  InstanceEvaluationStatus,
   InstanceCustomStatus,
   InstanceEvaluationState,
+  InstanceEvaluationStatus,
+  InstanceOperationStatus,
   InstanceStatus,
   Operation,
 } from "@highstate/backend"
 import {
-  SYSTEM_EXPORT_COMPONENT_TYPE,
+  type InstanceState,
   isTransientInstanceOperationStatus,
   isTransientOperationStatus,
-  type InstanceState,
+  SYSTEM_EXPORT_COMPONENT_TYPE,
   type ValidationOutput,
 } from "@highstate/backend/shared"
 import { WellKnownInstanceCustomStatus } from "@highstate/contract"

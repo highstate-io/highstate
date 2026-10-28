@@ -17,8 +17,9 @@ const { $client } = useNuxtApp()
 const router = useRouter()
 const apiKey = ref(await apiKeyStore.get(params.apiKeyId))
 
-if (!apiKey.value)
+if (!apiKey.value) {
   throw createError({ statusCode: 404, statusMessage: "Backend API key not found" })
+}
 
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useBackendRoleSettingsStore().getRestrictionOptions(),
@@ -46,6 +47,7 @@ definePageMeta({ name: "settings.backend-api-key-details" })
 
 async function save(input: BackendApiKeyInput): Promise<void> {
   saving.value = true
+
   try {
     apiKey.value = await apiKeyStore.update(params.apiKeyId, input)
     editVisible.value = false
@@ -56,6 +58,7 @@ async function save(input: BackendApiKeyInput): Promise<void> {
 
 async function rotate(): Promise<void> {
   rotating.value = true
+
   try {
     const result = await $client.apiKey.rotateBackend.mutate({ apiKeyId: params.apiKeyId })
     apiKey.value = result.apiKey
@@ -69,6 +72,7 @@ async function rotate(): Promise<void> {
 
 async function remove(): Promise<void> {
   deleting.value = true
+
   try {
     await apiKeyStore.delete(params.apiKeyId)
     await router.push({ name: "settings.backend-api-keys" })

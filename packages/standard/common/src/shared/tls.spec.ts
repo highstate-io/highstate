@@ -23,14 +23,17 @@ it("validates delegation before selecting an alias-capable issuer and preserves 
       identity: name,
       value: { zones, supportsDnsChallengeAliases, implRef: { package: name, data: {} } },
     })
+
   const original = makeIssuer("original", ["external.example"], true)
   const unsupported = makeIssuer("unsupported", ["managed.example"])
   const delegated = makeIssuer("delegated", ["managed.example"], true)
   const resource = new ComponentResource("test:tls:Certificate", "issued")
+
   const call = vi.spyOn(tlsCertificateMediator, "call").mockResolvedValue({
     resource,
     certificate: output({} as tls.Certificate),
   })
+
   vi.mocked(resolveCname).mockResolvedValue(["validation.managed.example."])
 
   const certificate = new TlsCertificate("delegated-certificate", {
@@ -41,12 +44,14 @@ it("validates delegation before selecting an alias-capable issuer and preserves 
 
   expect(await toPromise(certificate.resource)).toBe(resource)
   expect(resolveCname).toHaveBeenCalledWith("_acme-challenge.api.external.example")
+
   expect(call).toHaveBeenCalledWith(
     delegated.implRef,
     expect.objectContaining({
       spec: expect.objectContaining({ dnsNames: ["api.external.example"] }),
     }),
   )
+
   expect(vi.mocked(resolveCname).mock.invocationCallOrder[0]).toBeLessThan(
     call.mock.invocationCallOrder[0],
   )

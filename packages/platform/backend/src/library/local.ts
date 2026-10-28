@@ -40,7 +40,7 @@ export const localLibraryBackendConfig = z.object({
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_BUILD_ON_CHANGES: z.stringbool().default(true),
 })
 
-interface Events {
+type Events = {
   library: [LibraryUpdate[]]
   resolvedUnitSource: [ResolvedUnitSource]
 }
@@ -95,6 +95,7 @@ export class LocalLibraryBackend implements LibraryBackend {
     this.buildQueue = new PQueue({ concurrency: buildConcurrency })
     this.configBuildOnStartup = buildOnStartup
     this.configBuildOnChanges = buildOnChanges
+
     this.watcher = new Watcher([workspacePath], {
       recursive: true,
       ignoreInitial: true,
@@ -154,7 +155,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       await this.ensureLibraryPackagesLoaded(packageNames, true)
 
       const unresolvedUnits = units.filter(unit => !this.resolvedUnitSources.has(unit.type))
-
       if (unresolvedUnits.length > 0) {
         const unresolvedPackageNames = Object.keys(
           groupBy(unresolvedUnits, unit => unit.source.package),
@@ -162,7 +162,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
         for (const packageName of unresolvedPackageNames) {
           const libraryPackage = this.packages.get(packageName)
-
           if (!libraryPackage) {
             this.logger.warn(`resolved unit package not found: "%s"`, packageName)
             continue
@@ -176,7 +175,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
       for (const unitType of unitTypes) {
         const resolvedUnitSource = this.resolvedUnitSources.get(unitType)
-
         if (resolvedUnitSource) {
           result.push(resolvedUnitSource)
         } else {
@@ -277,6 +275,7 @@ export class LocalLibraryBackend implements LibraryBackend {
         `library not loaded, cannot reload unit manifest for package: "%s"`,
         libraryPackage.name,
       )
+
       return
     }
 
@@ -295,7 +294,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       // TODO: resolve the path
       const relativePath = unit.source.path ? `./dist/${unit.source.path}` : `./dist`
       const sourceHash = manifest?.sourceHashes?.[`${relativePath}/index.js`]
-
       if (!sourceHash) {
         this.logger.warn(`source hash not found for unit: "%s"`, unit.type)
         continue
@@ -328,7 +326,6 @@ export class LocalLibraryBackend implements LibraryBackend {
     installIfNotFound = false,
   ): Promise<void> {
     const packagesToLoad = names.filter(name => !this.packages.has(name))
-
     if (packagesToLoad.length > 0) {
       await this.loadLibraryPackages(packagesToLoad, installIfNotFound)
     }
@@ -351,7 +348,6 @@ export class LocalLibraryBackend implements LibraryBackend {
     }
 
     const buildScript = packageJson.scripts?.build ?? ""
-
     if (!buildScript.includes("highstate build")) {
       this.logIgnoredPackage(
         packageName,
@@ -372,7 +368,6 @@ export class LocalLibraryBackend implements LibraryBackend {
     existingPackageJson?: PackageJson,
   ): Promise<LibraryPackage | null> {
     let packageJson = existingPackageJson
-
     if (!packageJson) {
       try {
         packageJson = await readPackageJSON(packageRootPath)
@@ -403,7 +398,6 @@ export class LocalLibraryBackend implements LibraryBackend {
     const isHighstateManaged = this.isHighstateManagedPackage(packageJson.name, packageJson)
 
     let libraryPackage = this.packages.get(packageJson.name)
-
     if (libraryPackage) {
       libraryPackage.rootPath = packageRootPath
       libraryPackage.isHighstateManaged = isHighstateManaged
@@ -505,7 +499,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     for await (const [event] of on(worker, "message")) {
       const eventData = event as PackageResolutionResponse
-
       if (eventData.type !== "result") {
         continue
       }
@@ -544,7 +537,6 @@ export class LocalLibraryBackend implements LibraryBackend {
   private async handleFileEvent(path: string): Promise<void> {
     try {
       const libraryPackage = await this.resolveLibraryPackageForPath(path)
-
       if (!libraryPackage) {
         return
       }
@@ -644,7 +636,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   private async executePackageRebuild(packageName: string): Promise<void> {
     const libraryPackage = this.packages.get(packageName)
-
     if (!libraryPackage) {
       this.logger.warn(`package not found for rebuild: "%s"`, packageName)
       return
@@ -660,7 +651,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   private async initialize(): Promise<void> {
     const workspacePackages = await this.collectWorkspacePackages()
-
     if (workspacePackages.length === 0) {
       return
     }
@@ -710,6 +700,7 @@ export class LocalLibraryBackend implements LibraryBackend {
     patterns: string[],
   ): Promise<Array<{ rootPath: string; packageJson: PackageJson }>> {
     const includePatterns = patterns.filter(pattern => !pattern.startsWith("!"))
+
     const excludePatterns = patterns
       .filter(pattern => pattern.startsWith("!"))
       .map(pattern => pattern.slice(1))
@@ -737,13 +728,11 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     for (const match of matches) {
       const packageDir = match.endsWith("package.json") ? dirname(match) : match
-
       if (seen.has(packageDir)) {
         continue
       }
 
       const packageJson = await this.tryReadPackageJson(packageDir)
-
       if (!packageJson) {
         continue
       }
@@ -770,7 +759,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   private static extractWorkspacePatterns(packageJson: PackageJson): string[] {
     const workspaces = packageJson.workspaces
-
     if (!workspaces) {
       return []
     }
@@ -800,7 +788,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       try {
         const packageJson = await readPackageJSON(workspaceRoot)
         const patterns = LocalLibraryBackend.extractWorkspacePatterns(packageJson)
-
         if (patterns.length === 0) {
           logger.warn(
             { workspaceRoot },
@@ -820,7 +807,6 @@ export class LocalLibraryBackend implements LibraryBackend {
     }
 
     const detected = await LocalLibraryBackend.findWorkspaceRootForPath(projectRoot)
-
     if (detected) {
       return detected
     }
@@ -845,7 +831,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       try {
         const packageJson = await readPackageJSON(current)
         const patterns = LocalLibraryBackend.extractWorkspacePatterns(packageJson)
-
         if (patterns.length > 0) {
           return { root: current, patterns }
         }
@@ -854,7 +839,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       }
 
       const parent = dirname(current)
-
       if (parent === current) {
         break
       }
@@ -877,6 +861,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       `@highstate/backend/package-resolution-worker`,
       import.meta.url,
     )
+
     const workerPath = fileURLToPath(workerPathUrl)
 
     return new Worker(workerPath, { workerData })

@@ -21,6 +21,7 @@ export async function resolveDashboardCluster(
   const response = await forward(
     new Request(new URL("/config", request.url), { headers: request.headers }),
   )
+
   if (!response.ok) {
     throw new Error(`Failed to load dashboard cluster configuration`)
   }
@@ -42,6 +43,7 @@ export async function interceptDashboardRequest(
   if (request.method === "GET" && url.pathname === "/config") {
     return await disableDashboardTokenAuthentication(await forward(request))
   }
+
   if (request.method === "GET" && url.pathname === "/" && isNavigation(request)) {
     return Response.redirect(new URL(`/c/${encodeURIComponent(cluster)}/`, url), 302)
   }

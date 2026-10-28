@@ -20,7 +20,7 @@ const config = useRuntimeConfig()
 
 const dialogVisible = ref(false)
 
-// Hira's catchphrases
+// hira's catchphrases
 const catchphrases = [
   "Let's orchestrate this beautifully!",
   "State is everything!",
@@ -43,7 +43,7 @@ const catchphrases = [
   "Highstate слабее ArgoCD и FluxCD, но в цирке не выступает!",
 ]
 
-// Select a random catchphrase that changes every 10 seconds
+// select a random catchphrase that changes every 10 seconds
 const currentCatchphrase = ref("")
 
 const getRandomCatchphrase = () => {
@@ -51,10 +51,10 @@ const getRandomCatchphrase = () => {
   return catchphrases[randomIndex]
 }
 
-// Initialize with a random catchphrase
+// initialize with a random catchphrase
 currentCatchphrase.value = getRandomCatchphrase()
 
-// Change catchphrase every 10 seconds
+// change catchphrase every 10 seconds
 let catchphraseInterval: ReturnType<typeof setInterval>
 
 onMounted(() => {

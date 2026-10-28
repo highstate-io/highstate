@@ -56,7 +56,6 @@ function generatePeerConfig(
   }
 
   const bestEndpoint = getBestEndpoint(endpoints, cluster)
-
   if (bestEndpoint) {
     lines.push(`Endpoint = ${l4EndpointToString(bestEndpoint)}`)
   }
@@ -116,13 +115,12 @@ export function resolveNodeInputs({
   peers?: wireguard.Peer[]
 }): ResolvedNodeInputs {
   if (!!identity === !!config) {
-    throw new Error('Exactly one of "identity" or "config" input must be provided.')
+    throw new Error('Exactly one of "identity" or "config" input must be provided')
   }
 
   const resolvedIdentity = config?.identity ?? identity
-
   if (!resolvedIdentity) {
-    throw new Error('Failed to resolve identity from "identity" or "config" input.')
+    throw new Error('Failed to resolve identity from "identity" or "config" input')
   }
 
   return {
@@ -141,7 +139,7 @@ export function getNodeConfigContent(config: wireguard.Config): string {
     }
     default: {
       throw new Error(
-        `Unsupported config file content type "${config.file.content.type}" for wireguard.node inputs.config. Expected embedded or embedded-secret content.`,
+        `Unsupported config file content type "${config.file.content.type}" for wireguard.node inputs.config. Expected embedded or embedded-secret content`,
       )
     }
   }
@@ -210,6 +208,7 @@ export function generateIdentityConfig({
 
   if (preUp.length > 0) {
     lines.push()
+
     for (const command of preUp) {
       lines.push(`PreUp = ${command}`)
     }
@@ -217,6 +216,7 @@ export function generateIdentityConfig({
 
   if (postUp.length > 0) {
     lines.push()
+
     for (const command of postUp) {
       lines.push(`PostUp = ${command}`)
     }
@@ -224,6 +224,7 @@ export function generateIdentityConfig({
 
   if (preDown.length > 0) {
     lines.push()
+
     for (const command of preDown) {
       lines.push(`PreDown = ${command}`)
     }
@@ -231,6 +232,7 @@ export function generateIdentityConfig({
 
   if (postDown.length > 0) {
     lines.push()
+
     for (const command of postDown) {
       lines.push(`PostDown = ${command}`)
     }

@@ -30,12 +30,11 @@ export function generateKey<TFormat extends keyof KeyFormatMap = "hex">(
 ): KeyFormatMap[TFormat] {
   const bytes = randomBytes(32)
 
-  if (format === "raw") {
-    return bytes as KeyFormatMap[TFormat]
-  }
-
-  if (format === "base64") {
-    return Buffer.from(bytes).toString("base64") as KeyFormatMap[TFormat]
+  switch (format) {
+    case "raw":
+      return bytes as KeyFormatMap[TFormat]
+    case "base64":
+      return Buffer.from(bytes).toString("base64") as KeyFormatMap[TFormat]
   }
 
   return bytesToHex(bytes) as KeyFormatMap[TFormat]

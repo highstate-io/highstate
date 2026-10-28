@@ -44,10 +44,12 @@ export default defineWebSocketHandler({
 
     const services = await getSharedServices()
     const database = await services.database.forProject(session.projectId)
+
     const panel = await database.panel.findUnique({
       where: { id: panelId },
       select: { workerVersionId: true },
     })
+
     if (!panel) {
       peer.close(1008, "Panel not found")
       return
@@ -60,12 +62,15 @@ export default defineWebSocketHandler({
         panelId,
         session.workerInstanceId,
       )
+
       if (!endpoint) {
         peer.close(1011, "Panel worker instance is unavailable")
         return
       }
+
       const url = new URL(request.url)
       const protocol = getFirstWebSocketProtocol(request.headers)
+
       const upstream = new WebSocket(
         `ws://${endpoint.authority}${url.pathname}${url.search}`,
         protocol ? [protocol] : [],
@@ -77,16 +82,20 @@ export default defineWebSocketHandler({
           },
         },
       )
+
       stateByPeerId.set(peer.id, { upstream })
 
       upstream.binaryType = "arraybuffer"
+
       upstream.on("message", (data, binary) => {
         peer.send(binary ? new Uint8Array(data as ArrayBuffer) : data.toString())
       })
+
       upstream.once("close", (code, reason) => {
         stateByPeerId.delete(peer.id)
         peer.close(code, reason.toString())
       })
+
       upstream.once("error", () => {
         stateByPeerId.delete(peer.id)
         peer.close(1011, "Panel WebSocket connection failed")

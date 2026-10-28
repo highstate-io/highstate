@@ -73,6 +73,7 @@ async function authenticateProjectRequest(
 ): Promise<UserProjectRequestContext> {
   const user = await ensureLocalBackendUser(services)
   const database = await services.database.forProject(projectId)
+
   await database.user.upsert({
     where: { id: user.id },
     create: {

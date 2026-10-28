@@ -1,5 +1,5 @@
-import { getResolvedInstanceInputs } from "@highstate/backend/shared"
 import type { InstanceModel } from "@highstate/contract"
+import { getResolvedInstanceInputs } from "@highstate/backend/shared"
 
 export const useProjectValidationStore = defineMultiStore({
   name: "project-validation",
@@ -24,6 +24,7 @@ export const useProjectValidationStore = defineMultiStore({
 
       const initialize = async () => {
         await until(() => instancesStore.initializationPhase).toBe("ready")
+
         await until(() => stateStore.initializationPhase).toMatch(
           phase => phase === "ready" || phase === "calculating",
         )
@@ -31,6 +32,7 @@ export const useProjectValidationStore = defineMultiStore({
         const setInstanceInput = (instance: InstanceModel) => {
           const component = libraryStore.library.components[instance.type]
           const state = stateStore.instanceStates.get(instance.id)
+
           const resolvedInputs = getResolvedInstanceInputs(
             instancesStore.inputResolverOutputs,
             instance.id,
@@ -42,6 +44,7 @@ export const useProjectValidationStore = defineMultiStore({
               instance.type,
               instance.id,
             )
+
             return
           }
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { InstanceModel } from "@highstate/contract"
-import { ComponentCard } from "#layers/core/app/features/shared"
-import { InstanceNodeIO } from "#layers/core/app/features/instance-node"
 import type { NodeProps } from "@vue-flow/core"
 import type { InstanceNodeData } from "#layers/core/app/features/canvas"
+import { InstanceNodeIO } from "#layers/core/app/features/instance-node"
+import { ComponentCard } from "#layers/core/app/features/shared"
 
 const { instance } = defineProps<
   NodeProps<InstanceNodeData> & {

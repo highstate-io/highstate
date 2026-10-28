@@ -100,6 +100,7 @@ export class InputHashResolver extends GraphResolver<InputHashNode, InputHashOut
             { instanceId, dependentInstanceId: instance.id },
             "missing dependency when calculating input hash, this may lead to incorrect input hash",
           )
+
           continue
         }
 
@@ -122,6 +123,7 @@ export class InputHashResolver extends GraphResolver<InputHashNode, InputHashOut
           { instanceId: dependencyInstanceId, dependentInstanceId: instance.id },
           "missing dependency when calculating dependency output hash, this may lead to incorrect input hash",
         )
+
         continue
       }
 

@@ -1,7 +1,7 @@
-import { shallowReactive, shallowRef } from "vue"
-import { describe, expect, test, vi } from "vitest"
-import type { Edge, Node, VueFlowStore } from "@vue-flow/core"
 import type { InstanceModel } from "@highstate/contract"
+import type { Edge, Node, VueFlowStore } from "@vue-flow/core"
+import { describe, expect, test, vi } from "vitest"
+import { shallowReactive, shallowRef } from "vue"
 import { useNodeFactory } from "./node-factory"
 
 vi.stubGlobal("globalLogger", {
@@ -48,6 +48,7 @@ describe("useNodeFactory", () => {
     const nodeFactory = useNodeFactory(vueFlowStore)
     const initialInstance = createInstance("target")
     const node = nodeFactory.createNodeFromInstance(initialInstance)
+
     const updatedInstance = {
       ...initialInstance,
       args: { refreshed: true },
@@ -64,6 +65,7 @@ describe("useNodeFactory", () => {
     const vueFlowStore = createVueFlowStore()
     const nodeFactory = useNodeFactory(vueFlowStore)
     const source = createInstance("source")
+
     const target = createInstance("target", {
       input: [{ instanceId: source.id, output: "result" }],
     })

@@ -1,8 +1,8 @@
 import type { HubModel, InstanceModel } from "@highstate/contract"
-import { getConnectedEdges, type GraphNode, type VueFlowStore } from "@vue-flow/core"
-import type { CursorMode } from "./shared"
 import type { HubNodeData, InstanceNodeData } from "./node-factory"
 import type { CanvasSelection } from "./selection"
+import type { CursorMode } from "./shared"
+import { type GraphNode, getConnectedEdges, type VueFlowStore } from "@vue-flow/core"
 
 export function useNodeMovement(
   vueFlowStore: VueFlowStore,

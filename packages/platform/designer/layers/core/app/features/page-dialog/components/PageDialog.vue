@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ComponentPageContent from "./PageContent.vue"
 import type { CommonObjectMeta, PageBlock } from "@highstate/contract"
+import ComponentPageContent from "./PageContent.vue"
 
 const visible = defineModel<boolean>("visible")
 

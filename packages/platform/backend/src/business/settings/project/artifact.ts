@@ -46,6 +46,7 @@ export class ArtifactSettingsService {
 
   async get(context: ProjectRequestContext, artifactId: string): Promise<ArtifactOutput | null> {
     const database = await this.database.forProject(context.projectId)
+
     const artifact = await database.artifact.findUnique({
       where: { id: artifactId },
       select: forSchema(artifactOutputSchema),

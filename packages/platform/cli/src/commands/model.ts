@@ -1,3 +1,4 @@
+import type { HighstateClients } from "../shared/remote"
 import { toJson } from "@bufbuild/protobuf"
 import { ValueSchema } from "@bufbuild/protobuf/wkt"
 import {
@@ -31,11 +32,13 @@ export class ModelGetCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.projectModel.getProjectModel({
       projectId: target.projectId,
       includeVirtualInstances: this.includeVirtual,
       includeGhostInstances: this.includeGhost,
     })
+
     this.print(
       messageJson(GetProjectModelResponseSchema, response),
       humanDetails(messageJson(GetProjectModelResponseSchema, response)),
@@ -56,6 +59,7 @@ export class ModelCreateCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const input = nodesInputSchema.parse(await readDocument(this.file))
     const { clients, target } = await this.remote()
+
     await clients.projectModel.createNodes({
       projectId: target.projectId,
       instances: input.instances.map(toInstance),
@@ -95,6 +99,7 @@ export class InstanceListCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const [resident, full, states] = await Promise.all([
       clients.projectModel.getProjectModel({ projectId: target.projectId }),
       clients.projectModel.getProjectModel({
@@ -104,8 +109,10 @@ export class InstanceListCommand extends RemoteCommand {
       }),
       this.withState ? allStates(clients, target.projectId) : Promise.resolve([]),
     ])
+
     const residentIds = new Set(resident.model?.instances.map(value => value.id))
     const statesById = new Map(states.map(value => [value.instanceId, value]))
+
     const instances = (full.model?.instances ?? []).map(value => ({
       instance_id: value.id,
       kind: value.kind,
@@ -145,12 +152,10 @@ export class InstanceListCommand extends RemoteCommand {
   }
 }
 
-async function allStates(
-  clients: Awaited<ReturnType<RemoteCommand["remote"]>>["clients"],
-  projectId: string,
-) {
+async function allStates(clients: HighstateClients, projectId: string) {
   const states = []
   let pageToken = ""
+
   do {
     const response = await clients.instanceState.listInstanceStates({
       projectId,
@@ -162,6 +167,7 @@ async function allStates(
       pageSize: 100,
       pageToken,
     })
+
     states.push(...response.states)
     pageToken = response.nextPageToken
   } while (pageToken)
@@ -183,6 +189,7 @@ export class InstanceGetCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const [response, states] = await Promise.all([
       clients.projectModel.getProjectModel({
         projectId: target.projectId,
@@ -191,12 +198,14 @@ export class InstanceGetCommand extends RemoteCommand {
       }),
       this.withState ? allStates(clients, target.projectId) : Promise.resolve([]),
     ])
+
     const instance = response.model?.instances.find(value => value.id === this.id)
     if (!instance) {
       throw new Error(`Instance "${this.id}" not found`)
     }
 
     const childrenByParent = new Map<string, Instance[]>()
+
     if (this.recursive) {
       for (const value of response.model?.instances ?? []) {
         if (!value.parentId) {
@@ -211,6 +220,7 @@ export class InstanceGetCommand extends RemoteCommand {
     }
 
     const statesById = new Map(states.map(value => [value.instanceId, value]))
+
     const item = (value: typeof instance): Record<string, unknown> => {
       const children = childrenByParent.get(value.id)?.map(item)
 
@@ -272,6 +282,7 @@ export class HubListCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
     const response = await clients.projectModel.getProjectModel({ projectId: target.projectId })
+
     const hubs =
       response.model?.hubs.map(value => toJson(HubSchema, value, { useProtoFieldName: true })) ?? []
 

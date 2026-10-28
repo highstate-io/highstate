@@ -82,12 +82,14 @@ export class ProjectService {
   ): Promise<PageResult<ProjectOutput>> {
     const collection = "projects"
     const query = {}
+
     const { pageSize, cursor } = resolvePageRequest(
       collection,
       page,
       query,
       z.object({ name: z.string(), id: z.string().min(1) }),
     )
+
     const authorization = await buildBackendAuthorizationWhere<ProjectWhereInput>({
       database: this.database,
       context,
@@ -103,6 +105,7 @@ export class ProjectService {
           OR: [{ name: { gt: cursor.name } }, { name: cursor.name, id: { gt: cursor.id } }],
         }
       : {}
+
     const projects = await this.database.backend.project.findMany({
       where: { AND: [authorization, continuation] },
       orderBy: [{ name: "asc" }, { id: "asc" }],
@@ -275,6 +278,7 @@ export class ProjectService {
         })
 
         const stateMap = new Map<string, { parentId: string | null }>()
+
         for (const s of allStates) {
           stateMap.set(s.instanceId, s)
         }
@@ -327,6 +331,7 @@ export class ProjectService {
         { error, projectId: context.projectId, instanceId, newName },
         "failed to rename instance",
       )
+
       throw error
     }
   }
@@ -347,6 +352,7 @@ export class ProjectService {
 
     try {
       const { project, backend, spec } = await this.getProjectWithBackend(context.projectId)
+
       try {
         const instance = await backend.updateInstance(project, spec, instanceId, patch)
         const library = await this.libraryService.getLibraryModelCore(context.projectId)
@@ -386,6 +392,7 @@ export class ProjectService {
         { error, projectId: context.projectId, instanceId },
         "failed to update instance",
       )
+
       throw error
     }
   }
@@ -403,6 +410,7 @@ export class ProjectService {
         this.getProjectWithBackend(context.projectId),
         this.libraryService.getLibraryModelCore(context.projectId),
       ])
+
       const componentType = parseInstanceId(instanceId)[0]
       const component = library.components[componentType]
       if (!component) {
@@ -433,8 +441,10 @@ export class ProjectService {
                 if (argument.required) {
                   violations.push({ argument: name, description: "The argument is required" })
                 }
+
                 continue
               }
+
               if (!ajv.validate(argument.schema, value)) {
                 violations.push({ argument: name, description: ajv.errorsText() })
               }
@@ -469,6 +479,7 @@ export class ProjectService {
         { error, projectId: context.projectId, instanceId, dryRun },
         "failed to patch instance arguments",
       )
+
       throw error
     }
   }
@@ -496,6 +507,7 @@ export class ProjectService {
         { error, projectId: context.projectId, instanceId },
         "failed to delete instance",
       )
+
       throw error
     }
   }
@@ -667,6 +679,7 @@ export class ProjectService {
         },
         "failed to create many nodes",
       )
+
       throw error
     }
   }
@@ -716,6 +729,7 @@ export class ProjectService {
     if (!backend) {
       throw new Error(`Project model backend not found for type: ${type}`)
     }
+
     return backend
   }
 }

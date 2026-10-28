@@ -38,6 +38,7 @@ export async function authenticateBackend(
 ): Promise<BackendAuthorizationContext> {
   const token = getBearerToken(context)
   const apiKey = await services.apiKeyService.getBackendApiKeyByToken(token)
+
   const roleBindings = await services.database.backend.serviceAccountBackendRoleBinding.findMany({
     where: { serviceAccountId: apiKey.serviceAccountId },
     include: { role: { select: { rules: true } } },
@@ -99,6 +100,7 @@ export async function authenticateProject(
   const token = getBearerToken(context)
   const apiKey = await services.apiKeyService.getProjectCredentialByToken(projectId, token)
   const projectDatabase = await services.database.forProject(projectId)
+
   const roleBindings = await projectDatabase.serviceAccountRoleBinding.findMany({
     where: { serviceAccountId: apiKey.serviceAccountId },
     include: { role: { select: { rules: true } } },
@@ -163,7 +165,9 @@ function resolvePermissions<TPermission extends string, TRestriction>(
       rule.permissions.map(permission => [permission, rule.restrictions ?? []] as const),
     ),
   )
+
   const permissions = new Map<TPermission, ResolvedPermissionGrant<TRestriction>[]>()
+
   for (const grant of grants) {
     for (const permission of grant.permissions) {
       const keyRestrictions = restrictionByPermission.get(permission)

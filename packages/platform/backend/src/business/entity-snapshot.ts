@@ -78,6 +78,7 @@ export class EntitySnapshotService {
     }
 
     const uniqueKeys = new Map<string, { stateId: string; output: string; operationId?: string }>()
+
     for (const key of keys) {
       uniqueKeys.set(`${key.stateId}:${key.output}`, key)
     }
@@ -148,6 +149,7 @@ export class EntitySnapshotService {
           entity: { type: string; identity: string }
         }
       >
+
       let referencesByFromId: Map<string, Map<string, string[]>>
 
       try {
@@ -336,6 +338,7 @@ export class EntitySnapshotService {
       }
 
       entityIds.add(snapshot.entityId)
+
       entities.push({
         entityId: snapshot.entityId,
         type: snapshot.entity.type,
@@ -367,6 +370,7 @@ export class EntitySnapshotService {
           }
 
           uniqueReferenceKeys.add(keyValue)
+
           references.push({
             fromEntityId: fromSnapshot.entityId,
             toEntityId: toSnapshot.entityId,
@@ -404,6 +408,7 @@ export class EntitySnapshotService {
     library?: LibraryModel,
   ): Promise<OutputReferencedEntitySnapshot[]> {
     const projectDatabase = await this.database.forProject(context.projectId)
+
     const state = await projectDatabase.instanceState.findUnique({
       where: { id: stateId },
       select: { instanceId: true },
@@ -416,7 +421,6 @@ export class EntitySnapshotService {
     requireProjectPermission(context, "entity-snapshot.get", { instanceId: state.instanceId })
 
     const operationId = await this.findLatestOperationIdForOutput(projectDatabase, stateId, output)
-
     if (!operationId) {
       return []
     }
@@ -717,6 +721,7 @@ export class EntitySnapshotService {
             meta: snapshot.content.meta,
             entity: snapshot.entity,
           })
+
           seen.add(snapshot.id)
         }
 
@@ -787,6 +792,7 @@ export class EntitySnapshotService {
 
     const refsByGroup = options.referencesByFromId.get(snapshot.id) ?? new Map<string, string[]>()
     const availableInclusionGroups = Array.from(refsByGroup.keys()).sort()
+
     const availableInclusionGroupsText =
       availableInclusionGroups.length > 0 ? availableInclusionGroups.join(", ") : "none"
 
@@ -815,6 +821,7 @@ export class EntitySnapshotService {
             stack: [...options.stack, options.snapshotId],
           }),
         )
+
         continue
       }
 
@@ -921,6 +928,7 @@ export class EntitySnapshotService {
         content: unknown
       }
     >()
+
     const preparedNodes: Array<{
       snapshotId: string
       contentHash: string
@@ -936,9 +944,11 @@ export class EntitySnapshotService {
 
       const meta = this.normalizeSnapshotMeta(node.meta)
       const contentStable = stableJsonStringify(node.content)
+
       const contentHash = sha256String(
         meta ? `${stableJsonStringify(meta)}\n${contentStable}` : contentStable,
       )
+
       if (!contentByHash.has(contentHash)) {
         contentByHash.set(contentHash, {
           meta,
@@ -1042,6 +1052,7 @@ export class EntitySnapshotService {
             group: ref.group,
           })
         }
+
         continue
       }
 
@@ -1060,6 +1071,7 @@ export class EntitySnapshotService {
           },
           "referenced entity not found",
         )
+
         throw new Error(`Referenced entity "${ref.toEntityId}" does not exist`)
       }
 

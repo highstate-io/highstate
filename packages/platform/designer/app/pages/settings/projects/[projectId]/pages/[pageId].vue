@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { until, useProjectStores } from "#imports"
+import { PageContent } from "#layers/core/app/features/page-dialog"
 import {
-  DetailPageLayout,
+  ArtifactsTable,
   DetailInfoCard,
-  TimeTableCell,
+  DetailPageLayout,
   IdTableCell,
   RelatedDataPanel,
-  ArtifactsTable,
+  TimeTableCell,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { OwnerRefChip } from "#layers/core/app/features/shared"
-import { PageContent } from "#layers/core/app/features/page-dialog"
 
 const settingsStore = useProjectPageSettingsStore()
 const artifactStore = useProjectArtifactSettingsStore()

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import type * as monaco from "monaco-editor"
-
+import { VueMonacoEditor } from "@guolao/vue-monaco-editor"
 import {
   createReadOnlyEditorOptions,
+  ensureEntitySnapshotCodeLensNavigation,
   foldEntityYamlByDefault,
   foldNestedBlocksByDefault,
   formatReconstructedEntityValueYaml,
-  ensureEntitySnapshotCodeLensNavigation,
   type OutputReferencedEntitySnapshot,
   updateEntitySnapshotCodeLenses,
   updateEntitySnapshotFoldingRegions,
@@ -62,11 +61,13 @@ async function applyDefaultFolding() {
 
   if (language === "yaml") {
     updateEntitySnapshotFoldingRegions(entity.snapshotId, formatted.value.regions)
+
     updateEntitySnapshotCodeLenses({
       snapshotId: entity.snapshotId,
       projectId,
       links: formatted.value.links,
     })
+
     await foldEntityYamlByDefault(editorRef.value)
     return
   }

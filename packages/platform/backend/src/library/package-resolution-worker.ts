@@ -43,6 +43,7 @@ for (const packageName of packageNames) {
         type: "not-found",
         packageName,
       })
+
       continue
     }
 

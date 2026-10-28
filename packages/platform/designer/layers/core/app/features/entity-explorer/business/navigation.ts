@@ -1,6 +1,6 @@
 import { registerHighstateAction } from "#layers/core/app/utils/monaco"
 
-type NavigationRouter = {
+interface NavigationRouter {
   push: (location: { name: string; params: Record<string, string> }) => unknown
 }
 
@@ -20,6 +20,7 @@ export function ensureEntitySnapshotCodeLensNavigation(router: NavigationRouter)
     if (typeof record.projectId !== "string" || record.projectId.length === 0) {
       return
     }
+
     if (typeof record.snapshotId !== "string" || record.snapshotId.length === 0) {
       return
     }

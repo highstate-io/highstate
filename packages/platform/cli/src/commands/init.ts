@@ -68,12 +68,13 @@ export class InitCommand extends Command {
     })
 
     const overrides = buildOverrides(versionBundle)
+
     await applyOverrides({
       projectRoot: destinationPath,
       overrides,
     })
 
-    logger.info("installing dependencies using bun...")
+    logger.info("installing dependencies using bun")
 
     await installDependencies({
       cwd: destinationPath,
@@ -130,8 +131,10 @@ async function isExecutableInPath(command: string): Promise<boolean> {
   }
 
   const parts = pathValue.split(":").filter(Boolean)
+
   for (const part of parts) {
     const candidate = resolve(part, command)
+
     try {
       await access(candidate)
       return true

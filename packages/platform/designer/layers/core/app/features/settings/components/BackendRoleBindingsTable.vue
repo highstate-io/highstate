@@ -43,6 +43,7 @@ async function load(): Promise<void> {
     const loadedBindings = await $client.backendServiceAccountSettings.getRoleBindingsByRole.query({
       roleId,
     })
+
     const loadedServiceAccounts = await loadAllCollectionItems(query =>
       $client.backendServiceAccountSettings.query.query(query),
     )
@@ -70,6 +71,7 @@ async function add(): Promise<void> {
       roleId,
       serviceAccountId: selectedServiceAccountId.value,
     })
+
     selectedServiceAccountId.value = null
     await load()
   } catch (caught) {
@@ -87,6 +89,7 @@ async function remove(serviceAccountId: string): Promise<void> {
       roleId,
       serviceAccountId,
     })
+
     await load()
   } catch (caught) {
     error.value = caught instanceof Error ? caught.message : "Failed to update role bindings"

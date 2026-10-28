@@ -16,6 +16,7 @@ describe("isPanelSessionSource", () => {
     expect(
       isPanelSessionSource("http://highstate.localhost:7283/project", "panel123", requestUrl),
     ).toBe(true)
+
     expect(
       isPanelSessionSource(
         "http://panel123.panels.highstate.localhost:7283/app",
@@ -29,6 +30,7 @@ describe("isPanelSessionSource", () => {
     expect(
       isPanelSessionSource("http://other.panels.highstate.localhost:7283", "panel123", requestUrl),
     ).toBe(false)
+
     expect(isPanelSessionSource("http://highstate.localhost:3000", "panel123", requestUrl)).toBe(
       false,
     )
@@ -60,10 +62,13 @@ describe("sanitizePanelResponseHeader", () => {
     expect(
       sanitizePanelResponseHeader({ name: "Access-Control-Allow-Origin", value: "*" }),
     ).toBeUndefined()
+
     expect(
       sanitizePanelResponseHeader({ name: "Access-Control-Allow-Credentials", value: "true" }),
     ).toBeUndefined()
+
     expect(sanitizePanelResponseHeader({ name: "Vary", value: "Origin" })).toBeUndefined()
+
     expect(sanitizePanelResponseHeader({ name: "Vary", value: "Accept-Encoding, Origin" })).toEqual(
       {
         name: "Vary",
@@ -106,6 +111,7 @@ describe("getPanelCorsOrigin", () => {
     expect(
       getPanelCorsOrigin("http://other.panels.highstate.localhost:7283", "panel123", requestUrl),
     ).toBeUndefined()
+
     expect(
       getPanelCorsOrigin("http://panel123.panels.highstate.localhost:3000", "panel123", requestUrl),
     ).toBeUndefined()
@@ -115,6 +121,7 @@ describe("getPanelCorsOrigin", () => {
 describe("panel cookie policy", () => {
   test("removes only the reserved session cookie from requests", () => {
     expect(removePanelSessionCookie("highstate-panel-session=secret")).toBeUndefined()
+
     expect(
       removePanelSessionCookie("app_session=value; Highstate-Panel-Session=secret; csrf=value"),
     ).toBe("app_session=value; csrf=value")
@@ -159,6 +166,7 @@ describe("successful response frame policy", () => {
     const sanitized = policy
       ? sanitizePanelResponseHeader({ name: "Content-Security-Policy", value: policy })?.value
       : undefined
+
     const finalPolicy = getPanelFrameContentSecurityPolicy(sanitized, requestUrl)
     expect(finalPolicy).toContain("frame-ancestors http://highstate.localhost:7283")
     expect(finalPolicy).not.toContain("frame-ancestors 'none'")

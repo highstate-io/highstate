@@ -6,6 +6,7 @@ export async function loadComponents(
   modulePaths: string[],
 ): Promise<Readonly<Record<string, Component>>> {
   const modules: Record<string, unknown> = {}
+
   for (const modulePath of modulePaths) {
     try {
       logger.debug({ modulePath }, "loading module")
@@ -13,7 +14,7 @@ export async function loadComponents(
 
       logger.debug({ modulePath }, "module loaded")
     } catch (err) {
-      logger.error({ modulePath, err }, "module load failed")
+      logger.error({ modulePath, error: err }, "module load failed")
     }
   }
 

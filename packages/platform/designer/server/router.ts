@@ -1,12 +1,9 @@
-import { router } from "./trpc"
 import { apiKeyRouter } from "./routers/api-key"
-import { stateRouter } from "./routers/state"
-import { projectRouter } from "./routers/project"
 import { libraryRouter } from "./routers/library"
-import { workspaceRouter } from "./routers/workspace"
-import { terminalRouter } from "./routers/terminal"
-import { operationRouter } from "./routers/operation"
 import { logsRouter } from "./routers/logs"
+import { operationRouter } from "./routers/operation"
+import { projectRouter } from "./routers/project"
+import { searchRouter } from "./routers/search"
 import {
   artifactSettingsRouter,
   backendApiKeySettingsRouter,
@@ -25,8 +22,11 @@ import {
   unlockMethodSettingsRouter,
   workerSettingsRouter,
 } from "./routers/settings"
+import { stateRouter } from "./routers/state"
+import { terminalRouter } from "./routers/terminal"
 import { workerRouter } from "./routers/worker"
-import { searchRouter } from "./routers/search"
+import { workspaceRouter } from "./routers/workspace"
+import { router } from "./trpc"
 
 export const appRouter = router({
   apiKey: apiKeyRouter,

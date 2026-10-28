@@ -25,7 +25,6 @@ export function validateContextName(name: string): string {
 
 export function normalizeApiUrl(value: string): string {
   const input = value.trim()
-
   if (input.startsWith("unix://")) {
     if (input === "unix://") {
       throw new Error("Highstate API URL must include a Unix socket path")
@@ -131,7 +130,7 @@ export async function assertKeyringAvailable(): Promise<void> {
       try {
         await entry.deleteCredential()
       } catch {
-        // Preserve the failure that made the keyring unavailable.
+        // preserve the failure that made the keyring unavailable
       }
     }
 
@@ -209,13 +208,11 @@ export async function resolveRemoteTarget(
   const config = await readRemoteConfig(env)
   const contextName = overrides.context ?? env.HIGHSTATE_CONTEXT ?? config.activeContext
   const context = contextName ? config.contexts[contextName] : undefined
-
   if (contextName && !context) {
     throw new Error(`Highstate context "${contextName}" not found`)
   }
 
   const apiUrl = overrides.apiUrl ?? env.HIGHSTATE_API_URL ?? context?.apiUrl
-
   if (!apiUrl) {
     throw new Error("No active Highstate backend; use a context or provide --api-url")
   }
@@ -229,7 +226,6 @@ export async function resolveRemoteTarget(
   }
 
   const projectId = overrides.projectId ?? env.HIGHSTATE_PROJECT_ID ?? context?.projectId
-
   if (options.requireProject && !projectId) {
     throw new Error("No active Highstate project; run highstate project use or provide --project")
   }

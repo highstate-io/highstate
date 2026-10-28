@@ -6,6 +6,7 @@ describe("dashboard interceptor", () => {
     const forward = vi.fn(async (_request: Request) =>
       Response.json({ clusters: [{ auth_type: "", name: "cluster name" }] }),
     )
+
     const cluster = await resolveDashboardCluster(new Request("http://panel.local/"), forward)
 
     expect(cluster).toBe("cluster name")
@@ -22,6 +23,7 @@ describe("dashboard interceptor", () => {
 
   test("redirects landing navigations to the cluster dashboard", async () => {
     const forward = vi.fn()
+
     const response = await interceptDashboardRequest(
       new Request("http://panel.local/", {
         headers: { "sec-fetch-dest": "iframe", "sec-fetch-mode": "navigate" },
@@ -39,6 +41,7 @@ describe("dashboard interceptor", () => {
     const request = new Request("http://panel.local/config", {
       headers: { authorization: "Bearer browser-token", cookie: "browser=value" },
     })
+
     const forward = vi.fn(async (forwardedRequest: Request) => {
       expect(forwardedRequest).toBe(request)
 
@@ -47,6 +50,7 @@ describe("dashboard interceptor", () => {
         clusters: [{ auth_type: "", name: "cluster", server: "https://cluster.example" }],
       })
     })
+
     const response = await interceptDashboardRequest(request, forward, "cluster")
 
     expect(await response.json()).toEqual({
@@ -60,6 +64,7 @@ describe("dashboard interceptor", () => {
         },
       ],
     })
+
     expect(forward).toHaveBeenCalledOnce()
   })
 
@@ -67,6 +72,7 @@ describe("dashboard interceptor", () => {
     const upstream = new Response("event data", {
       headers: { "content-type": "text/event-stream" },
     })
+
     const response = await interceptDashboardRequest(
       new Request("http://panel.local/clusters/cluster/api/v1/pods"),
       async () => upstream,

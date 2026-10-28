@@ -1,6 +1,6 @@
 import type { EventHookOn } from "@vueuse/core"
 
-export type WebWorker<TInput, TOutput> = {
+export interface WebWorker<TInput, TOutput> {
   onMessage: EventHookOn<[TOutput]>
   onError: EventHookOn<[Error]>
   postMessage: (message: TInput) => void

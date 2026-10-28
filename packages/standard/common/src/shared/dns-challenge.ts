@@ -42,6 +42,7 @@ export async function validateDnsChallengeAliases(
   }
 
   const verifiedRecords = new Map<string, string>()
+
   for (const [name, target] of normalizedAliases) {
     const record = `_acme-challenge.${name.replace(/^\*\./, "")}`
     if (record === target) {
@@ -58,6 +59,7 @@ export async function validateDnsChallengeAliases(
     }
 
     let actual: string[]
+
     try {
       actual = await lookup(record)
     } catch (error) {

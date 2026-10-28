@@ -83,10 +83,18 @@ const preDown: string[] = []
 const postDown: string[] = []
 
 // reference script files if they exist
-if (args.preUpScript) preUp.push(`${configDirectory}/${interfaceName}.pre-up.sh`)
-if (args.postUpScript) postUp.push(`${configDirectory}/${interfaceName}.post-up.sh`)
-if (args.preDownScript) preDown.push(`${configDirectory}/${interfaceName}.pre-down.sh`)
-if (args.postDownScript) postDown.push(`${configDirectory}/${interfaceName}.post-down.sh`)
+if (args.preUpScript) {
+  preUp.push(`${configDirectory}/${interfaceName}.pre-up.sh`)
+}
+if (args.postUpScript) {
+  postUp.push(`${configDirectory}/${interfaceName}.post-up.sh`)
+}
+if (args.preDownScript) {
+  preDown.push(`${configDirectory}/${interfaceName}.pre-down.sh`)
+}
+if (args.postDownScript) {
+  postDown.push(`${configDirectory}/${interfaceName}.post-down.sh`)
+}
 
 // add IP masquerading if enabled
 if (args.enableMasquerade) {

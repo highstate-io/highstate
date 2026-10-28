@@ -22,14 +22,12 @@ export async function resolveEndpoint<TEndpoint extends network.L3Endpoint>(
 ): Promise<TEndpoint> {
   const resolved = await toPromise(endpoint)
   const endpoints = Array.isArray(resolved) ? resolved : [resolved]
-
   if (endpoints.length === 0) {
     throw new Error("No endpoints provided")
   }
 
   // find first endpoint with implRef defined
   const implRefEndpoint = endpoints.find(endpoint => !!endpoint.implRef)
-
   if (!implRefEndpoint) {
     // or just use the first endpoint as is if no implRef provided
     return endpoints[0] as TEndpoint

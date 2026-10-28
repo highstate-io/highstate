@@ -161,13 +161,13 @@ export class OperationContext {
 
     for (const [outputName, outputSpec] of Object.entries(component.outputs ?? {})) {
       const raw = options.outputs[outputName]?.value
-
       if (raw === undefined || raw === null) {
         this.capturedOutputValueMap.set(`${options.instanceId}:${outputName}`, [])
         continue
       }
 
       const items = outputSpec.multiple ? raw : [raw]
+
       if (outputSpec.multiple && !Array.isArray(raw)) {
         throw new Error(
           `Output "${outputName}" for instance "${options.instanceId}" must be an array`,
@@ -219,8 +219,10 @@ export class OperationContext {
           const instanceId = this.stateIdMap.get(input.stateId)
           if (!instanceId) {
             this.logger.warn(
-              `cannot add dependent state for unknown input state ID: ${input.stateId}`,
+              "cannot add dependent state for unknown input state ID: %s",
+              input.stateId,
             )
+
             continue
           }
 
@@ -248,7 +250,6 @@ export class OperationContext {
 
   private addDependentState(instanceId: InstanceId, dependencyId: InstanceId): void {
     let dependentStates = this.dependentStateIdMap.get(dependencyId)
-
     if (!dependentStates) {
       dependentStates = new Set<InstanceId>()
       this.dependentStateIdMap.set(dependencyId, dependentStates)
@@ -303,8 +304,11 @@ export class OperationContext {
 
     if (!(instance.type in this.library.components)) {
       this.logger.warn(
-        `ignoring instance "${instance.id}" because its type "${instance.type}" is not in the library`,
+        'ignoring instance "%s" because its type "%s" is not in the library',
+        instance.id,
+        instance.type,
       )
+
       return
     }
 
@@ -397,6 +401,7 @@ export class OperationContext {
               stableInput.output === input.input.output &&
               stableInput.path === input.input.path,
           )
+
           unusedStableInputs.delete(stableInputIndex)
         }
 
@@ -419,6 +424,7 @@ export class OperationContext {
                     stableInput.output === input.input.output &&
                     stableInput.path === input.input.path,
                 )
+
               const matchingStateIds = unique(
                 matchingStableInputs.map(({ stableInput }) => stableInput.stateId),
               )
@@ -474,6 +480,7 @@ export class OperationContext {
 
   getUnfinishedOperationStates(): InstanceState[] {
     const unfinishedStates: InstanceState[] = []
+
     for (const state of this.stateMap.values()) {
       if (isTransientInstanceOperationStatus(state.lastOperationState?.status)) {
         unfinishedStates.push(state)
@@ -522,7 +529,6 @@ export class OperationContext {
 
     for (const instance of virtualInstances) {
       const contextInstance = context.instanceMap.get(instance.id)
-
       if (contextInstance) {
         // use evaluated inputs and outputs for real instances from their virtual counterparts
         contextInstance.inputs = instance.resolvedInputs
@@ -534,12 +540,14 @@ export class OperationContext {
         context.addInstance(instance)
       } else {
         context.logger.warn(
-          `ignoring virtual instance "${instance.id}" because it is not in the project or is not a part of known composite instance`,
+          'ignoring virtual instance "%s" because it is not in the project or is not a part of known composite instance',
+          instance.id,
         )
       }
     }
 
     const unitSourceTypes = unique(Array.from(context.instanceMap.values()).map(i => i.type))
+
     const unitSources = await librarySource.getResolvedUnitSources(
       project.libraryId,
       unitSourceTypes,

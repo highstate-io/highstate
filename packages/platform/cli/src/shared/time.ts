@@ -4,7 +4,6 @@ export function timestampFromUlid(id: string): string {
 
   for (const character of id.slice(0, 10).toUpperCase()) {
     const value = alphabet.indexOf(character)
-
     if (value === -1) {
       return id
     }

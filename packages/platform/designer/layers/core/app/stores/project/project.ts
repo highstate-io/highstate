@@ -1,8 +1,8 @@
+import { useProjectInfoStore } from "./info"
 import { useProjectInstancesStore } from "./instances"
+import { useProjectLibraryStore } from "./library"
 import { useProjectOperationsStore } from "./operations"
 import { useProjectStateStore } from "./state"
-import { useProjectLibraryStore } from "./library"
-import { useProjectInfoStore } from "./info"
 import { useProjectValidationStore } from "./validation"
 
 export const useProjectStore = defineMultiStore({

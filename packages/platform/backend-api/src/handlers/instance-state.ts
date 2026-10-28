@@ -16,6 +16,7 @@ export function createInstanceStateService(
   return {
     async listInstanceStates(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+
       const page = await services.instanceStateService.getInstanceStates(
         requestContext,
         {
@@ -34,6 +35,7 @@ export function createInstanceStateService(
     async getInstanceState(request, context) {
       const requestContext = await authenticateProject(services, request, context)
       const stateId = parseArgument(request, "stateId", z.cuid2())
+
       const state = await services.instanceStateService.getInstanceStateOrThrow(
         requestContext,
         stateId,
@@ -66,11 +68,13 @@ export function createInstanceStateService(
         stateId,
         { loadCustomStatuses: true },
       )
+
       const status = state.customStatuses?.find(
         value =>
           value.name === customStatus.name &&
           value.serviceAccountId === requestContext.subject.serviceAccountId,
       )
+
       if (!status) {
         throw new Error("Updated custom status was not returned by the backend")
       }

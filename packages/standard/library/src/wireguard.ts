@@ -474,7 +474,7 @@ const sharedFeedArgs = $args({
           "warningMessage",
         ]),
 
-        // Highstate does not support nested objects in UI
+        // highstate does not support nested objects in UI
         ...feedDisplayInfoSchema.shape,
       }),
       z.object({

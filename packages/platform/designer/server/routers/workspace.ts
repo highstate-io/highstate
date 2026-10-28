@@ -4,6 +4,7 @@ import { backendProcedure, projectProcedure, router } from "../trpc"
 export const workspaceRouter = router({
   getWorkspaceLayout: backendProcedure.query(async ({ ctx }) => {
     const userId = ctx.requestContext.subject.userId
+
     const workspaceLayout = await ctx.database.backend.userWorkspaceLayout.findUnique({
       where: { userId },
     })
@@ -19,6 +20,7 @@ export const workspaceRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.requestContext.subject.userId
+
       await ctx.database.backend.userWorkspaceLayout.upsert({
         where: { userId },
         create: { userId, layout: input.layout },

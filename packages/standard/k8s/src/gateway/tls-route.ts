@@ -55,6 +55,7 @@ export class TlsRoute extends ComponentResource {
     super("highstate:k8s:TlsRoute", name, args, opts)
 
     const gatewayOutput = output(args.gateway)
+
     const parentRefs = output({
       gateway: gatewayOutput,
       listenerName: args.listenerName,

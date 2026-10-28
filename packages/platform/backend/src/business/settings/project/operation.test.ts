@@ -8,6 +8,7 @@ describe("OperationSettingsService", () => {
     const service = new OperationSettingsService(database)
     const context = adminProjectContext(project.id)
     await projectDatabase.operation.deleteMany()
+
     const operation = await projectDatabase.operation.create({
       data: {
         id: createId(),
@@ -24,6 +25,7 @@ describe("OperationSettingsService", () => {
     await expect(service.query(context, { search: "Update" })).resolves.toMatchObject({
       items: [{ id: operation.id }],
     })
+
     await expect(service.get(context, operation.id)).resolves.toMatchObject({ id: operation.id })
   })
 })

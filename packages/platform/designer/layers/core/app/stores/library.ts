@@ -1,6 +1,6 @@
 import type { ComponentModel, EntityModel } from "@highstate/contract"
-import { Index } from "flexsearch"
 import { applyLibraryUpdate, type LibraryUpdate } from "@highstate/backend/shared"
+import { Index } from "flexsearch"
 
 export const useLibraryStore = defineMultiStore({
   name: "library",
@@ -21,6 +21,7 @@ export const useLibraryStore = defineMultiStore({
 
       const { on: onComponentUpdated, trigger: triggerComponentUpdated } =
         createEventHook<ComponentModel>()
+
       const { on: onComponentRemoved, trigger: triggerComponentRemoved } = createEventHook<string>()
       const { on: onEntityUpdated, trigger: triggerEntityUpdated } = createEventHook<EntityModel>()
       const { on: onEntityRemoved, trigger: triggerEntityRemoved } = createEventHook<string>()

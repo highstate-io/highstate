@@ -140,6 +140,7 @@ describe("updateUnitRegistrations", () => {
           },
         },
       })
+
       expect(worker.worker.serviceAccount.roleBindings).toContainEqual({
         role: { systemName: workerProjectRole.systemName },
       })
@@ -163,10 +164,12 @@ describe("updateUnitRegistrations", () => {
 
       // create initial worker and version
       const worker = await createWorker()
+
       const unitWorker = createMockUnitWorker({
         image: `${worker.identity}@sha256:${randomBytes(32).toString("hex")}`,
         params: { key: "newValue" },
       })
+
       const workerVersion = await createWorkerVersion(worker, {
         digest: extractDigestFromImage(unitWorker.image),
       })
@@ -180,6 +183,7 @@ describe("updateUnitRegistrations", () => {
           workerVersionId: workerVersion.id,
         },
       })
+
       // act
       await projectDatabase.$transaction(async tx => {
         await workerService.updateUnitRegistrations(tx, project.id, instance.id, [unitWorker])
@@ -200,6 +204,7 @@ describe("updateUnitRegistrations", () => {
           role: { systemName: workerProjectRole.systemName },
         },
       })
+
       expect(binding).not.toBeNull()
     },
   )
@@ -279,6 +284,7 @@ describe("updateUnitRegistrations", () => {
       const allVersions = await projectDatabase.workerVersion.findMany({
         where: { workerId: worker.id },
       })
+
       expect(allVersions).toHaveLength(2)
       expect(allVersions.map(v => v.digest).sort()).toEqual([oldDigest, newDigest].sort())
     },
@@ -314,6 +320,7 @@ describe("updateUnitRegistrations", () => {
           workerVersionId: oldWorkerVersion.id,
         },
       })
+
       const panel = await projectDatabase.panel.create({
         data: {
           stateId: instance.id,
@@ -348,13 +355,16 @@ describe("updateUnitRegistrations", () => {
       const oldVersion = await projectDatabase.workerVersion.findFirst({
         where: { digest: oldDigest, workerId: worker.id },
       })
+
       expect(oldVersion).toBeNull()
 
       // verify new version exists
       const newVersion = await projectDatabase.workerVersion.findFirst({
         where: { digest: newDigest, workerId: worker.id },
       })
+
       expect(newVersion).toBeDefined()
+
       await expect(
         projectDatabase.panel.findUnique({ where: { id: panel.id } }),
       ).resolves.toMatchObject({ workerVersionId: newVersion?.id })
@@ -413,6 +423,7 @@ describe("updateUnitRegistrations", () => {
       const remainingRegistrations = await projectDatabase.workerUnitRegistration.findMany({
         where: { stateId: instance.id },
       })
+
       expect(remainingRegistrations).toHaveLength(0)
 
       // verify unused worker versions were cleaned up
@@ -424,6 +435,7 @@ describe("updateUnitRegistrations", () => {
           ],
         },
       })
+
       expect(remainingVersions).toHaveLength(0)
     },
   )
@@ -443,6 +455,7 @@ describe("updateUnitRegistrations", () => {
       const version = await createWorkerVersion(worker)
       const instance = await createInstanceState(project.id)
       const otherInstance = await createInstanceState(project.id)
+
       await projectDatabase.workerUnitRegistration.createMany({
         data: [
           {
@@ -459,6 +472,7 @@ describe("updateUnitRegistrations", () => {
           },
         ],
       })
+
       const panel = await projectDatabase.panel.create({
         data: {
           stateId: instance.id,
@@ -476,6 +490,7 @@ describe("updateUnitRegistrations", () => {
       await expect(
         projectDatabase.panel.findUnique({ where: { id: panel.id } }),
       ).resolves.toBeNull()
+
       await expect(
         projectDatabase.workerVersion.findUnique({ where: { id: version.id } }),
       ).resolves.not.toBeNull()

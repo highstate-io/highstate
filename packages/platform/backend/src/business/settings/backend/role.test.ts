@@ -6,6 +6,7 @@ describe("BackendRoleSettingsService", () => {
   test("creates, queries, updates, and deletes roles", async ({ database }) => {
     const service = new BackendRoleSettingsService(database)
     const context = adminBackendContext()
+
     const role = await service.create(context, {
       meta: { title: "Operators" },
       rules: [{ permissions: ["project.get"] }],
@@ -15,6 +16,7 @@ describe("BackendRoleSettingsService", () => {
       id: role.id,
       meta: { title: "Operators" },
     })
+
     await expect(service.query(context, { search: role.id, pageSize: 10 })).resolves.toMatchObject({
       items: [{ id: role.id }],
     })
@@ -37,6 +39,7 @@ describe("BackendRoleSettingsService", () => {
     await expect(
       service.create(context, { meta: { title: "Invalid" }, rules: [] }),
     ).rejects.toThrow()
+
     await expect(
       service.create(context, {
         meta: { title: "Invalid" },

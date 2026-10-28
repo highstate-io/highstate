@@ -1,4 +1,4 @@
-import { isSecret, type File } from "@highstate/contract"
+import { type File, isSecret } from "@highstate/contract"
 
 /**
  * Generates a URL for downloading or accessing a file.
@@ -19,6 +19,7 @@ export function getFileUrl(file: File, projectId: string): string {
     const value = isSecret<string>(file.content.value)
       ? file.content.value.value
       : file.content.value
+
     return `data:${mimeType};base64,${value}`
   }
 

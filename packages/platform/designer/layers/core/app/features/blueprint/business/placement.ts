@@ -1,7 +1,7 @@
-import type { CursorMode, NodeFactory } from "#layers/core/app/features/canvas"
-import type { Blueprint } from "./shared"
 import type { GraphEdge, GraphNode, VueFlowStore, XYPosition } from "@vue-flow/core"
 import type { EventHookTrigger } from "@vueuse/core"
+import type { CursorMode, NodeFactory } from "#layers/core/app/features/canvas"
+import type { Blueprint } from "./shared"
 import { getInstanceId, type InstanceId } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 
@@ -49,7 +49,7 @@ export function useBlueprintPlacement(
   deleteNode: (node: GraphNode) => void,
 ) {
   const blueprintCenter = useMouse()
-  const { escape } = useMagicKeys()
+  const { escape: escapeKey } = useMagicKeys()
   const { pressed: mouseButton } = useMousePressed()
 
   const blueprintNodes: GraphNode[] = []
@@ -67,6 +67,7 @@ export function useBlueprintPlacement(
     const prevDiffX = previousHandledPosition.value
       ? centerPosition.x - previousHandledPosition.value.x
       : 0
+
     const prevDiffY = previousHandledPosition.value
       ? centerPosition.y - previousHandledPosition.value.y
       : 0
@@ -74,7 +75,6 @@ export function useBlueprintPlacement(
     // calculate the new paths for edges based the diff between the previous and current position
     for (const edge of blueprintEdges) {
       const points = (edge.data.points as number[][]) ?? []
-
       if (edge.data.points) {
         const newPoints = points.map(point => [point[0] + prevDiffX, point[1] + prevDiffY])
 
@@ -263,7 +263,7 @@ export function useBlueprintPlacement(
     }
   })
 
-  watch(escape, pressed => {
+  watch(escapeKey, pressed => {
     if (pressed && blueprint.value && active.value) {
       // clear the current blueprint when escape is pressed
       clearBlueprint()

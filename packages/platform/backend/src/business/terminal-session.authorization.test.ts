@@ -28,12 +28,15 @@ describe("TerminalSessionService authorization", () => {
   }) => {
     const service = new TerminalSessionService(database)
     const state = await createInstanceState(project.id)
+
     const terminal = await projectDatabase.terminal.create({
       data: { id: createId(), meta: { title: "Terminal" }, spec: {}, stateId: state.id },
     })
+
     await projectDatabase.terminalSession.create({
       data: { id: createId(), terminalId: terminal.id },
     })
+
     const otherState = await createInstanceState(project.id)
 
     await expect(

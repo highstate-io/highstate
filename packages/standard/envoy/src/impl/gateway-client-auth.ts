@@ -8,7 +8,7 @@ export const createGatewayClientAuth = gatewayClientAuthMediator.implement(
   z.object({}),
   async ({ name, args, gateway, opts }) => {
     if (!(gateway instanceof Gateway)) {
-      throw new Error("Envoy Gateway client authentication requires a Kubernetes Gateway resource.")
+      throw new Error("Envoy Gateway client authentication requires a Kubernetes Gateway resource")
     }
 
     const provider = await getProviderAsync(gateway.cluster)

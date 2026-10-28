@@ -263,7 +263,7 @@ export class ProjectModelService {
    *
    * @param projectId The project ID to get ghost instances for.
    * @param residentInstanceIds The IDs of the instances present in the model.
-   * @return The list of ghost instances.
+   * @returns The list of ghost instances.
    */
   private async getGhostInstances(
     projectId: string,
@@ -303,7 +303,6 @@ export class ProjectModelService {
       const existingStates = await tx.instanceState.findMany({ select: { instanceId: true } })
       const existingStateIds = new Set(existingStates.map(state => state.instanceId))
       const missingInstances = instances.filter(instance => !existingStateIds.has(instance.id))
-
       if (missingInstances.length === 0) {
         return
       }
@@ -362,6 +361,7 @@ export class ProjectModelService {
       }
 
       const componentInputNames = new Set(Object.keys(component.inputs ?? {}))
+
       const nextInputs: Record<string, InstanceInput[]> = Object.fromEntries(
         Object.entries(instance.inputs)
           .filter(([inputName]) => componentInputNames.has(inputName))

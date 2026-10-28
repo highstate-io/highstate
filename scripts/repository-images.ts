@@ -52,6 +52,7 @@ export async function synchronizeRepositoryImages(args: {
       const name = [...args.imageNames]
         .filter(name => entry.name === name || entry.name.endsWith(`/${name}`))
         .sort((first, second) => second.length - first.length)[0]
+
       if (!name) {
         continue
       }
@@ -59,9 +60,9 @@ export async function synchronizeRepositoryImages(args: {
       const repository = `${args.prefix}/${name}`
       const reference = `${repository}:${args.tag}`
       let digest = resolved.get(reference)
-
       if (!digest) {
         digest = await args.resolveDigest(reference)
+
         if (!/^sha256:[a-f0-9]{64}$/.test(digest)) {
           throw new Error(`Invalid digest for "${reference}": ${digest}`)
         }
@@ -110,7 +111,11 @@ export async function applyRepositoryImages(args: {
 
       const [, name, tag] = match
 
-      if (document[key].name !== name || document[key].tag !== tag || document[key].image !== image) {
+      if (
+        document[key].name !== name ||
+        document[key].tag !== tag ||
+        document[key].image !== image
+      ) {
         document[key] = { ...document[key], name, tag, image }
         changed = true
       }

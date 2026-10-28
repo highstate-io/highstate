@@ -71,6 +71,7 @@ export class ContextAddCommand extends ContextCommand {
         }
 
         process.stderr.write(`${error.message}\n`)
+
         if (error.details) {
           process.stderr.write(`Keyring details: ${error.details}\n`)
         }
@@ -88,11 +89,13 @@ export class ContextAddCommand extends ContextCommand {
     }
 
     let token = process.env.HIGHSTATE_API_TOKEN
+
     if (this.tokenStdin) {
       token = (await Bun.stdin.text()).trim()
     } else if (!token && process.stdin.isTTY) {
       token = await password({ message: "API token" })
     }
+
     if (!token) {
       throw new Error("Provide an API token through --api-token-stdin or HIGHSTATE_API_TOKEN")
     }
@@ -106,6 +109,7 @@ export class ContextAddCommand extends ContextCommand {
       projectId: this.projectId,
       apiToken: storeInConfig ? token.trim() : undefined,
     }
+
     config.activeContext ??= name
     await writeRemoteConfig(config)
 
@@ -175,6 +179,7 @@ export class ContextListCommand extends ContextCommand {
 
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
+
     const contexts = await Promise.all(
       Object.entries(config.contexts).map(async ([name, value]) => ({
         name,
@@ -221,6 +226,7 @@ export class ContextShowCommand extends ContextCommand {
     }
 
     const context = config.contexts[name]
+
     const value = {
       name,
       api_url: context.apiUrl,
@@ -280,6 +286,7 @@ export class ContextDeleteCommand extends ContextCommand {
 
     const context = config.contexts[this.name]
     delete config.contexts[this.name]
+
     if (config.activeContext === this.name) {
       config.activeContext = undefined
     }
@@ -315,12 +322,15 @@ export class ContextTestCommand extends ContextCommand {
     }
 
     const clients = createHighstateClients(context.apiUrl, token)
+
     if (context.projectId) {
       await clients.project.getProject({ projectId: context.projectId })
+
       this.print(
         { context: name, reachable: true, project_id: context.projectId },
         `Context "${name}" can access project "${context.projectId}"`,
       )
+
       return
     }
 

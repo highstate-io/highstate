@@ -151,6 +151,7 @@ describe("endpoints", () => {
 
       expect(merged).toHaveLength(1)
       expect(endpointToString(merged[0]!)).toBe("example.com")
+
       expect(merged[0]!.metadata).toMatchObject({
         "test.one": "a",
         "test.two": 123,

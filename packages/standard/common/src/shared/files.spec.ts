@@ -31,6 +31,7 @@ describe("MaterializedFolder", () => {
         },
       },
     })
+
     const folder = makeEntity({
       entity: common.folderEntity,
       identity: "embedded-folder",

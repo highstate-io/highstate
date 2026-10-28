@@ -8,6 +8,7 @@ export function buildOverrides(bundle: VersionBundle): Overrides {
   const platform = Object.fromEntries(
     bundle.platformPackages.map(name => [name, bundle.platformVersion]),
   )
+
   const stdlib = Object.fromEntries(bundle.stdlibPackages.map(name => [name, bundle.stdlibVersion]))
 
   const merged: Overrides = {

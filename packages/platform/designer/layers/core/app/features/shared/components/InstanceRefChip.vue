@@ -12,21 +12,27 @@ const { item } = defineProps<{
 const instance = computed(() => {
   // get the state first to get the instanceId
   const state = stateStore.stateIdToStateMap.get(item.stateId)
-  if (!state) return null
+  if (!state) {
+    return null
+  }
 
   // get the instance using the instanceId
   return instancesStore.instances.get(state.instanceId)
 })
 
 const componentMeta = computed(() => {
-  if (!instance.value) return null
+  if (!instance.value) {
+    return null
+  }
 
   const component = libraryStore.library.components[instance.value.type]
   return component?.meta ?? null
 })
 
 const entityMeta = computed(() => {
-  if (!instance.value) return null
+  if (!instance.value) {
+    return null
+  }
 
   return {
     title: instance.value.name,

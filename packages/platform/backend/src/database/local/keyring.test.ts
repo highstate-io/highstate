@@ -27,6 +27,7 @@ describe("getOrCreateBackendIdentity", () => {
 
   it("returns identity from HIGHSTATE_BACKEND_DATABASE_IDENTITY", async () => {
     const testIdentity = await generateIdentity()
+
     const config: BackendIdentityConfig = {
       HIGHSTATE_BACKEND_DATABASE_IDENTITY: testIdentity,
     }

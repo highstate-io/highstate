@@ -246,6 +246,7 @@ export class InstanceLockLostError extends BackendError {
         description: "The instance lock must still be owned by the operation",
       })),
     })
+
     this.instanceIds = instanceIds
   }
 }
@@ -577,6 +578,7 @@ export class DuplicatePanelNameError extends BackendError {
     readonly panelIndex?: number,
   ) {
     const field = panelIndex === undefined ? "panels" : `panels.${panelIndex}.name`
+
     super(`Panel name "${panelName}" is duplicated`, {
       reason: "PANEL_NAME_DUPLICATE",
       category: BackendErrorCategory.AlreadyExists,

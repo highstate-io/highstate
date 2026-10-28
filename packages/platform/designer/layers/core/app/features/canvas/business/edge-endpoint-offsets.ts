@@ -1,8 +1,8 @@
 import type { InputResolverOutput } from "@highstate/backend/shared"
-import { getResolvedHubInputs, getResolvedInstanceInputs } from "@highstate/backend/shared"
 import type { HubModel, InstanceModel } from "@highstate/contract"
 import type { EdgeChange, GraphEdge, GraphNode, VueFlowStore } from "@vue-flow/core"
 import type { EventHookOn } from "@vueuse/core"
+import { getResolvedHubInputs, getResolvedInstanceInputs } from "@highstate/backend/shared"
 
 export type RoutedEdgeEndpoints = {
   routedSourceY?: number
@@ -43,7 +43,7 @@ type IndexedEdge = {
 
 const BASE_LANE_PITCH_PX = 6
 
-// Must match the visual height of the connection point (handle dot).
+// must match the visual height of the connection point (handle dot)
 // When there are too many lanes, we shrink the pitch so lanes overlap instead of exceeding this height.
 const CONNECTION_POINT_HEIGHT_PX = 20
 
@@ -123,7 +123,6 @@ export function useCanvasEdgeEndpointOffsets(
 
   const addOutgoingHubEdge = (hubId: string, edgeId: string) => {
     const existing = hubOutgoingEdgeIds.get(hubId)
-
     if (existing) {
       existing.add(edgeId)
       return
@@ -139,6 +138,7 @@ export function useCanvasEdgeEndpointOffsets(
     }
 
     existing.delete(edgeId)
+
     if (existing.size === 0) {
       hubOutgoingEdgeIds.delete(hubId)
     }
@@ -146,7 +146,6 @@ export function useCanvasEdgeEndpointOffsets(
 
   const addToGroup = (groupKey: GroupKey, edgeId: string) => {
     const existing = groups.get(groupKey)
-
     if (existing) {
       existing.add(edgeId)
       return
@@ -264,7 +263,6 @@ export function useCanvasEdgeEndpointOffsets(
         indexed.targetKind === "instance" && indexed.targetHandle.length > 0
 
       const desiredWeight = isHubTypedToComponentInput ? 1 : totalSlots
-
       if (indexed.weight !== desiredWeight) {
         indexed.weight = desiredWeight
         markEdgeDirty(edgeId)
@@ -290,7 +288,6 @@ export function useCanvasEdgeEndpointOffsets(
   const indexEdge = (edge: GraphEdge) => {
     const sourceNode = vueFlowStore.findNode(edge.source)
     const targetNode = vueFlowStore.findNode(edge.target)
-
     if (!sourceNode || !targetNode) {
       return
     }
@@ -355,6 +352,7 @@ export function useCanvasEdgeEndpointOffsets(
 
   const markNodeDirty = (nodeId: string) => {
     const edges = vueFlowStore.getConnectedEdges(nodeId)
+
     for (const edge of edges) {
       markEdgeDirty(edge.id)
     }
@@ -367,6 +365,7 @@ export function useCanvasEdgeEndpointOffsets(
     }
 
     const indexedEdges: IndexedEdge[] = []
+
     for (const edgeId of edgeIds) {
       const indexed = edgeIndex.get(edgeId)
       if (indexed) {
@@ -412,8 +411,10 @@ export function useCanvasEdgeEndpointOffsets(
       }
 
       const current = (edge.data ?? {}) as RoutedEdgeData
+
       const routedSourceYChanged =
         patch.routedSourceY !== undefined && patch.routedSourceY !== current.routedSourceY
+
       const routedTargetYChanged =
         patch.routedTargetY !== undefined && patch.routedTargetY !== current.routedTargetY
 

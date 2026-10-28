@@ -1,10 +1,10 @@
+import type { GraphResolverMap, GraphResolverType } from "@highstate/backend/shared"
+import type { EventHookOn } from "@vueuse/core"
 import type { Logger } from "pino"
 import type {
   GraphResolverInput,
   GraphResolverOutput,
 } from "#layers/core/app/workers/graph-resolver"
-import type { GraphResolverMap, GraphResolverType } from "@highstate/backend/shared"
-import type { EventHookOn } from "@vueuse/core"
 import { createId } from "@paralleldrive/cuid2"
 import GraphResolverWorker from "#layers/core/app/workers/graph-resolver?sharedworker"
 
@@ -13,7 +13,7 @@ export const mainResolverWorker = useHSWebWorker<GraphResolverInput, GraphResolv
   { name: "graph-resolver" },
 )
 
-export type GraphResolverState<TInput, TOutput> = {
+export interface GraphResolverState<TInput, TOutput> {
   inputs: ReadonlyMap<string, TInput>
   outputs: ReadonlyMap<string, TOutput>
   dependentMap: ReadonlyMap<string, string[]>
@@ -115,6 +115,7 @@ export function useGraphResolverState<
       if (initialNodesDispatchRequested.value) {
         createResolver()
       }
+
       return
     }
 
@@ -155,6 +156,7 @@ export function useGraphResolverState<
           outputs.set(item.nodeId, item.output as TOutput)
           triggerOutput({ nodeId: item.nodeId, output: item.output as TOutput })
         }
+
         break
       }
       case "can-add-dependency-result": {

@@ -61,6 +61,7 @@ export class UpdateCommand extends Command {
       if (this.platformOnly || this.stdlibOnly || this.platformVersion || this.stdlibVersion) {
         throw new Error('Flag "--pr" cannot be combined with version or package group flags')
       }
+
       const pullRequest = Number(this.pullRequest)
       if (!Number.isSafeInteger(pullRequest) || pullRequest <= 0) {
         throw new Error('Flag "--pr" must be a positive pull request number')
@@ -68,6 +69,7 @@ export class UpdateCommand extends Command {
 
       const preview = await fetchPrPreviewDescriptor(pullRequest)
       const bundle = await resolvePreviewVersionBundle(preview)
+
       const overrides = {
         ...buildOverrides(bundle),
         ...preview.packages,
@@ -96,6 +98,7 @@ export class UpdateCommand extends Command {
       }
 
       currentPlatformVersion = projectPlatformVersion
+
       resolvedStdlibVersion = await resolveCompatibleStdlibVersion({
         currentPlatformVersion: projectPlatformVersion,
         stdlibVersion: this.stdlibVersion,
@@ -108,10 +111,12 @@ export class UpdateCommand extends Command {
     })
 
     const overrides = buildOverrides(bundle)
+
     await applyOverrides({
       projectRoot,
       overrides,
     })
+
     await syncRootPulumiDependency({
       projectRoot,
       pulumiVersion: bundle.pulumiVersion,
@@ -134,12 +139,13 @@ export class UpdateCommand extends Command {
       return
     }
 
-    logger.info("installing dependencies using bun...")
+    logger.info("installing dependencies using bun")
 
     const child = spawn("bun", ["install", "--force"], {
       cwd: projectRoot,
       stdio: "inherit",
     })
+
     const exitCode = await new Promise<number | null>((resolve, reject) => {
       child.once("error", reject)
       child.once("close", resolve)
@@ -177,6 +183,7 @@ async function resolveCompatibleStdlibVersion(
   }
 
   const packument = await fetchNpmPackument("@highstate/library")
+
   const sortedVersions = Object.entries(packument.versions ?? {})
     .filter(([version]) => semver.valid(version))
     .sort(([a], [b]) => semver.rcompare(a, b))
@@ -218,6 +225,7 @@ async function assertStdlibSupportsPlatform(args: StdlibPlatformCompatibilityArg
   const ok = semver.satisfies(args.currentPlatformVersion, supportedPlatformRange, {
     includePrerelease: true,
   })
+
   if (!ok) {
     throw new Error(
       `Current platform version "${args.currentPlatformVersion}" does not satisfy requirement "${supportedPlatformRange}"`,
@@ -228,8 +236,8 @@ async function assertStdlibSupportsPlatform(args: StdlibPlatformCompatibilityArg
 async function assertPackageJsonExists(projectRoot: string): Promise<void> {
   try {
     await readFile(`${projectRoot}/package.json`, "utf8")
-  } catch {
-    throw new Error(`File "package.json" not found in "${projectRoot}"`)
+  } catch (error) {
+    throw new Error(`File "package.json" not found in "${projectRoot}"`, { cause: error })
   }
 }
 

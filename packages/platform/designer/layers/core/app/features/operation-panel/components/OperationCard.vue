@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import type { ProjectOperationsStore } from "#layers/core/app/stores/project"
 import { isFinalOperationStatus, type Operation } from "@highstate/backend/shared"
 import {
   ContextMenuItem,
   GenericContextMenu,
-  StatusChip,
   operationStatusMap,
   operationTypeMap,
+  StatusChip,
 } from "#layers/core/app/features/shared"
-import type { ProjectOperationsStore } from "#layers/core/app/stores/project"
 
 const { operation, operationsStore } = defineProps<{
   operation: Operation
@@ -23,15 +23,20 @@ const canCancel = computed(() => {
 })
 
 const handleContextMenu = async (event: MouseEvent) => {
-  if (!contextMenu.value) return
+  if (!contextMenu.value) {
+    return
+  }
 
   await contextMenu.value.showContextMenu(event)
 }
 
 const cancelOperation = async () => {
-  if (!canCancel.value || cancelling.value) return
+  if (!canCancel.value || cancelling.value) {
+    return
+  }
 
   cancelling.value = true
+
   try {
     await operationsStore.cancelOperation(operation.id)
     visible.value = false

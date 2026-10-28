@@ -13,7 +13,6 @@ export function toDnsNameMatcher(pattern: string): DnsNameMatcher {
 
   const labels = pattern.split(".")
   const suffixLabels = labels.slice(1)
-
   if (
     labels[0] === "**" &&
     suffixLabels.length > 0 &&
@@ -33,12 +32,11 @@ export function toDnsNameMatcher(pattern: string): DnsNameMatcher {
 
 function patternToRegularExpression(pattern: string): string {
   const parts = pattern.split(".").map(label => {
-    if (label === "*") {
-      return "[^.]+"
-    }
-
-    if (label === "**") {
-      return "(?:[^.]+\\.)*[^.]+"
+    switch (label) {
+      case "*":
+        return "[^.]+"
+      case "**":
+        return "(?:[^.]+\\.)*[^.]+"
     }
 
     return escapeRegularExpression(label).replaceAll("\\*", "[^.]*")

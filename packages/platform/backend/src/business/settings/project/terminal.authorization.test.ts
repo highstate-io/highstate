@@ -11,6 +11,7 @@ describe("TerminalSettingsService authorization", () => {
     await expect(
       service.query(createProjectRequestContext(project.id), { pageSize: 1 }),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.query(
         createProjectRequestContext(project.id, grantProjectPermission("terminal.list")),
@@ -25,6 +26,7 @@ describe("TerminalSettingsService authorization", () => {
     projectDatabase,
   }) => {
     const service = new TerminalSettingsService(database)
+
     const first = await projectDatabase.terminal.create({
       data: {
         id: createId(),
@@ -32,6 +34,7 @@ describe("TerminalSettingsService authorization", () => {
         spec: {},
       },
     })
+
     const second = await projectDatabase.terminal.create({
       data: {
         id: createId(),
@@ -39,6 +42,7 @@ describe("TerminalSettingsService authorization", () => {
         spec: {},
       },
     })
+
     const context = createProjectRequestContext(
       project.id,
       grantProjectPermission("terminal.list", [{ type: "resources", resourceIds: [first.id] }]),
@@ -47,6 +51,7 @@ describe("TerminalSettingsService authorization", () => {
     await expect(service.query(context, { pageSize: 10 })).resolves.toMatchObject({
       items: [{ id: first.id }],
     })
+
     await expect(
       service.get(
         createProjectRequestContext(

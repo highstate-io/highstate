@@ -1,6 +1,6 @@
+import { getSharedServices } from "@highstate/backend"
 import { createTRPCNuxtHandler } from "trpc-nuxt/server"
 import { appRouter } from "../router"
-import { getSharedServices } from "@highstate/backend"
 
 export default createTRPCNuxtHandler({
   endpoint: "/api",

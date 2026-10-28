@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import {
-  type InstanceState,
-  type Operation,
-  type ValidationOutput,
-} from "@highstate/backend/shared"
-import { createStatusPanelTabs } from "../business"
+import type { InstanceState, Operation, ValidationOutput } from "@highstate/backend/shared"
 import { GenericIcon } from "#layers/core/app/features/shared"
 import { GenericTerminal } from "#layers/core/app/features/terminals"
+import { createStatusPanelTabs } from "../business"
 import InstanceStatusLogsTab from "./InstanceStatusLogsTab.vue"
 
 const { state, operation, expectedInputHash, validationOutput } = defineProps<{

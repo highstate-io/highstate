@@ -39,6 +39,7 @@ export class PlanTestBuilder {
       resolvedInputs: {},
       resolvedOutputs: {},
     })
+
     return this
   }
 
@@ -55,18 +56,25 @@ export class PlanTestBuilder {
       resolvedInputs: {},
       resolvedOutputs: {},
     })
+
     return this
   }
 
   children(parentName: string, ...childNames: string[]) {
     const parent = this.instances.get(parentName)
-    if (!parent) throw new Error(`Parent instance '${parentName}' not found`)
+    if (!parent) {
+      throw new Error(`Parent instance '${parentName}' not found`)
+    }
 
     childNames.forEach(childName => {
       const child = this.instances.get(childName)
-      if (!child) throw new Error(`Child instance '${childName}' not found`)
+      if (!child) {
+        throw new Error(`Child instance '${childName}' not found`)
+      }
+
       child.parentId = parent.id
     })
+
     return this
   }
 
@@ -93,7 +101,9 @@ export class PlanTestBuilder {
 
   state(instanceName: string, stateType: StateType) {
     const instance = this.instances.get(instanceName)
-    if (!instance) throw new Error(`Instance '${instanceName}' not found`)
+    if (!instance) {
+      throw new Error(`Instance '${instanceName}' not found`)
+    }
 
     const baseState: InstanceState = {
       id: instance.id,
@@ -121,7 +131,9 @@ export class PlanTestBuilder {
     switch (stateType) {
       case "upToDate": {
         baseState.status = "deployed"
-        baseState.inputHash = 12345 // will be updated with actual hash after workset creation
+        baseState.inputHash = 12345
+
+        // will be updated with actual hash after workset creation
         baseState.lastOperationState = {
           operationId: "test-op",
           stateId: instance.id,
@@ -133,6 +145,7 @@ export class PlanTestBuilder {
           startedAt: null,
           finishedAt: null,
         }
+
         break
       }
       case "changed":
@@ -184,6 +197,7 @@ export class PlanTestBuilder {
     Object.entries(stateMap).forEach(([name, type]) => {
       this.state(name, type)
     })
+
     return this
   }
 
@@ -196,15 +210,22 @@ export class PlanTestBuilder {
       const depInstance = this.instances.get(dependent)
       const depTarget = this.instances.get(dependency)
 
-      if (!depInstance) throw new Error(`Dependent instance '${dependent}' not found`)
-      if (!depTarget) throw new Error(`Dependency instance '${dependency}' not found`)
+      if (!depInstance) {
+        throw new Error(`Dependent instance '${dependent}' not found`)
+      }
+
+      if (!depTarget) {
+        throw new Error(`Dependency instance '${dependency}' not found`)
+      }
 
       // accumulate dependencies instead of overwriting
       const existingDeps = depInstance.inputs?.dependency || []
+
       depInstance.inputs = {
         ...depInstance.inputs,
         dependency: [...existingDeps, { instanceId: depTarget.id, output: "default" }],
       }
+
       depInstance.resolvedInputs = depInstance.inputs
     })
 
@@ -214,7 +235,10 @@ export class PlanTestBuilder {
     // get requested instance IDs
     const requestedInstanceIds = this.requestedInstanceNames.map(name => {
       const instance = this.instances.get(name)
-      if (!instance) throw new Error(`Requested instance '${name}' not found`)
+      if (!instance) {
+        throw new Error(`Requested instance '${name}' not found`)
+      }
+
       return instance.id
     })
 
@@ -241,6 +265,7 @@ export class PlanTestBuilder {
       const stateEntry = Array.from(this.stateMap.entries()).find(
         ([, s]) => s.instanceId === state.instanceId,
       )
+
       if (stateEntry && stateEntry[1] === state) {
         const [instanceName] = stateEntry
         const instance = this.instances.get(instanceName)!
@@ -256,6 +281,7 @@ export class PlanTestBuilder {
           }
         }
       }
+
       return state
     })
 

@@ -88,7 +88,6 @@ export function createInput(
 
   if (!input.provided) {
     const boundary = options.boundary ?? input[boundaryInput]
-
     if (!boundary) {
       throw new Error("Cannot create non-provided input without boundary metadata")
     }
@@ -97,7 +96,6 @@ export function createInput(
   }
 
   const boundary = options.boundary ?? input[boundaryInput]
-
   if (!boundary) {
     throw new Error("Cannot create provided input without boundary metadata")
   }
@@ -150,7 +148,6 @@ export function createMultipleInputAccessor(
         }
 
         const selected = (input as Record<string, unknown>)[property]
-
         if (selected === undefined || selected === null) {
           return []
         }
@@ -169,7 +166,6 @@ export function createMultipleInputAccessor(
 
 export function createDeepOutputAccessor(output: RuntimeInput): RuntimeInput {
   const normalizedOutput = createInput(output)
-
   if (!normalizedOutput.provided) {
     return normalizedOutput
   }

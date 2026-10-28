@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { CollectionQuery, CollectionQueryResult, PanelOutput } from "@highstate/backend/shared"
 import {
+  baseHeaders,
   SettingsDataTable,
   ShowDetailsAction,
   TableItemAction,
-  baseHeaders,
 } from "#layers/core/app/features/settings"
 import {
   InstanceRefChip,

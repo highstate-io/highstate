@@ -1,4 +1,4 @@
-import { cloudflare, common, dns } from "@highstate/library";
+import { cloudflare, common, dns } from "@highstate/library"
 
 const { server } = common.existingServer({
   name: "example",
@@ -19,13 +19,13 @@ const { l3Endpoints } = dns.recordSet({
   inputs: {
     dnsProviders: [dnsProvider],
     l3Endpoints: [server],
-  }
+  },
 })
 
 common.serverPatch({
   name: "with-all-endpoints",
-  inputs:{
+  inputs: {
     server,
     endpoints: [server, ...l3Endpoints],
-  }
+  },
 })

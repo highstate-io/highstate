@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { InstanceState } from "@highstate/backend"
 import type { InstanceModel, UnitModel } from "@highstate/contract"
 import { ComponentIcon } from "#layers/core/app/features/shared"
+import { createEditorArguments, populateDefaultValues, removeDefaultValues } from "../business"
 import CodeArgumentInput from "./CodeArgumentInput.vue"
 import GroupArgumentInput from "./GroupArgumentInput.vue"
 import PlainArgumentInput from "./PlainArgumentInput.vue"
-import { createEditorArguments, populateDefaultValues, removeDefaultValues } from "../business"
-import type { InstanceState } from "@highstate/backend"
 
 const { component, state, initialSecrets } = defineProps<{
   instance: InstanceModel

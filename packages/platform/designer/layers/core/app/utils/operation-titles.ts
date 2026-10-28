@@ -1,5 +1,5 @@
-import type { InstanceModel } from "@highstate/contract"
 import type { OperationType } from "@highstate/backend/shared"
+import type { InstanceModel } from "@highstate/contract"
 
 /**
  * Generates an operation title for a single instance

@@ -16,7 +16,6 @@ const role = new Role(roleName, {
   permissions: await Promise.all(
     args.permissions.map(async permission => {
       let rangeEnd: string | undefined = permission.rangeEnd
-
       if (!rangeEnd) {
         const prefixRangeEndResult = await getPrefixRangeEnd({ key: permission.prefix })
         rangeEnd = prefixRangeEndResult.rangeEnd

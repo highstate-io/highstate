@@ -1,8 +1,8 @@
 import {
+  type ComponentArgument,
   camelCaseToHumanReadable,
   yamlValueSchema,
   z,
-  type ComponentArgument,
 } from "@highstate/contract"
 import { clone } from "remeda"
 
@@ -37,7 +37,6 @@ function removeObjectDefaultValues(value: unknown, schema: z.core.JSONSchema.Bas
   for (const key in value) {
     const propSchema = schema.properties[key] as z.core.JSONSchema.BaseSchema
     const fieldValue = (value as Record<string, unknown>)[key]
-
     if (!shouldBeRemoved(fieldValue, propSchema)) {
       result[key] = removeObjectDefaultValues(fieldValue, propSchema)
     }
@@ -61,7 +60,6 @@ function shouldBeRemoved(value: unknown, schema: z.core.JSONSchema.BaseSchema) {
 
     const stringifiedDefault = JSON.stringify(schema.default)
     const stringifiedValue = JSON.stringify(removeObjectDefaultValues(value, schema))
-
     if (stringifiedDefault === stringifiedValue) {
       return true
     }
@@ -85,7 +83,7 @@ function shouldBeRemoved(value: unknown, schema: z.core.JSONSchema.BaseSchema) {
   }
 
   if (typeof value === "number") {
-    return isNaN(value) || value === 0
+    return Number.isNaN(value) || value === 0
   }
 
   if (typeof value === "undefined") {
@@ -189,6 +187,7 @@ function getPlainSchemaType(
   const unionSchemas =
     (Array.isArray(schema.anyOf) ? schema.anyOf : undefined) ??
     (Array.isArray(schema.oneOf) ? schema.oneOf : undefined)
+
   if (!unionSchemas) {
     return undefined
   }
@@ -200,6 +199,7 @@ function getPlainSchemaType(
 
     return getPlainSchemaType(unionSchema)
   })
+
   const type = types[0]
 
   return type && types.every(unionType => unionType === type) ? type : undefined
@@ -406,6 +406,7 @@ export function createEditorArguments(
           }
 
           const fieldsList: PlainEditorArgument[] = []
+
           for (const [fName, fSchema] of Object.entries(schema.properties)) {
             if (typeof fSchema !== "object") {
               continue
@@ -421,7 +422,7 @@ export function createEditorArguments(
               fSchema.title ?? camelCaseToHumanReadable(fName),
               fSchema.description,
               fSchema,
-              (schema.default as any)?.[fName], // use default value from the parent schema if available
+              (schema.default as Record<string, unknown> | undefined)?.[fName], // use default value from the parent schema if available
             )
 
             if (plainArg) {
@@ -443,6 +444,7 @@ export function createEditorArguments(
             default: clone(arg.schema.default),
           })
         }
+
         continue
       }
     }
@@ -487,7 +489,7 @@ export function createEditorArguments(
             fSchema.title ?? camelCaseToHumanReadable(fName),
             fSchema.description,
             fSchema,
-            (arg.schema.default as any)?.[fName], // use default value from the parent schema if available
+            (arg.schema.default as Record<string, unknown> | undefined)?.[fName], // use default value from the parent schema if available
           )
 
           if (plainArg) {

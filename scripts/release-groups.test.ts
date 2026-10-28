@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest"
-import { collectReleaseGroupPackages, withFixedReleaseGroups, withReleaseGroup } from "./release-groups"
+import {
+  collectReleaseGroupPackages,
+  withFixedReleaseGroups,
+  withReleaseGroup,
+} from "./release-groups"
 
 const configuration = {
   release: {
@@ -42,13 +46,10 @@ const graph = {
 
 describe("collectReleaseGroupPackages", () => {
   test("collects sorted public packages selected by the Nx group", () => {
-    expect(
-      collectReleaseGroupPackages(
-        configuration,
-        graph,
-        "platform",
-      ),
-    ).toEqual(["@highstate/contract", "create-highstate"])
+    expect(collectReleaseGroupPackages(configuration, graph, "platform")).toEqual([
+      "@highstate/contract",
+      "create-highstate",
+    ])
   })
 
   test("rejects selectors the generator cannot resolve", () => {
@@ -77,7 +78,9 @@ test("withReleaseGroup preserves other Highstate metadata", () => {
 })
 
 test("withFixedReleaseGroups preserves other Changesets configuration", () => {
-  expect(withFixedReleaseGroups({ baseBranch: "main", fixed: [] }, [["@highstate/contract"]])).toEqual({
+  expect(
+    withFixedReleaseGroups({ baseBranch: "main", fixed: [] }, [["@highstate/contract"]]),
+  ).toEqual({
     baseBranch: "main",
     fixed: [["@highstate/contract"]],
   })

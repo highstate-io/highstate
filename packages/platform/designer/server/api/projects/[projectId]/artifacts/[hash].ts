@@ -3,7 +3,6 @@ import { getSharedServices } from "@highstate/backend"
 export default defineEventHandler(async event => {
   const projectId = getRouterParam(event, "projectId")
   const hash = getRouterParam(event, "hash")
-
   if (!projectId || !hash) {
     throw createError({
       statusCode: 400,
@@ -17,7 +16,6 @@ export default defineEventHandler(async event => {
     // get artifact metadata from database
     const database = await services.database.forProject(projectId)
     const artifact = await database.artifact.findUnique({ where: { hash } })
-
     if (!artifact) {
       throw createError({
         statusCode: 404,
@@ -43,10 +41,11 @@ export default defineEventHandler(async event => {
     setResponseStatus(event, 200)
 
     // extract content type and filename from metadata if available
-    const meta = artifact.meta as any
+    const meta = artifact.meta as { contentType?: string; name?: string; filename?: string }
     if (meta.contentType) {
       setHeader(event, "Content-Type", meta.contentType)
     }
+
     // use name from meta, fallback to filename
     const filename = meta.name || meta.filename || "download"
     setHeader(event, "Content-Disposition", `attachment; filename="${filename}"`)

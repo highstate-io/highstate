@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { parseVersionedName, type ComponentModel } from "@highstate/contract"
+import { type ComponentModel, parseVersionedName } from "@highstate/contract"
 import { ComponentCard, setComponentDragData } from "#layers/core/app/features/shared"
 
 const { components } = defineProps<{

@@ -36,6 +36,7 @@ definePageMeta({
 
 async function save(input: BackendApiKeyInput): Promise<void> {
   saving.value = true
+
   try {
     const result = await apiKeyStore.create(input)
     dialogVisible.value = false
@@ -57,8 +58,12 @@ function confirmRotate(apiKey: BackendApiKeyOutput): void {
 }
 
 async function remove(): Promise<void> {
-  if (!apiKeyToDelete.value) return
+  if (!apiKeyToDelete.value) {
+    return
+  }
+
   deleting.value = true
+
   try {
     await apiKeyStore.delete(apiKeyToDelete.value.id)
     deleteDialogVisible.value = false
@@ -69,8 +74,12 @@ async function remove(): Promise<void> {
 }
 
 async function rotate(): Promise<void> {
-  if (!apiKeyToRotate.value) return
+  if (!apiKeyToRotate.value) {
+    return
+  }
+
   rotating.value = true
+
   try {
     const result = await $client.apiKey.rotateBackend.mutate({ apiKeyId: apiKeyToRotate.value.id })
     await apiKeyStore.items.load()

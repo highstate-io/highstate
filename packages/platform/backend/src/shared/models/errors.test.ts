@@ -22,6 +22,7 @@ describe("domain errors", () => {
     const error = new InvalidPageTokenError("operations", "QUERY_MISMATCH")
 
     expect(error.metadata).toEqual({ collection: "operations" })
+
     expect(error.fieldViolations).toEqual([
       {
         field: "pageToken",

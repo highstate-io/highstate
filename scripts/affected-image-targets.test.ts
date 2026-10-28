@@ -40,10 +40,14 @@ describe("selectAffectedImageTargets", () => {
   })
 
   test("rebuilds exetrouter when its runtime scripts change", () => {
-    expect(selectAffectedImageTargets(["docker/apps/exetrouter/entrypoint.sh"], new Set())).toEqual(["apps-exetrouter"])
+    expect(selectAffectedImageTargets(["docker/apps/exetrouter/entrypoint.sh"], new Set())).toEqual(
+      ["apps-exetrouter"],
+    )
   })
 
   test("rebuilds a worker when its core dockerfile changes", () => {
-    expect(selectAffectedImageTargets(["docker/core/worker.k8s-monitor.dockerfile"], new Set())).toEqual(["core-worker-k8s-monitor"])
+    expect(
+      selectAffectedImageTargets(["docker/core/worker.k8s-monitor.dockerfile"], new Set()),
+    ).toEqual(["core-worker-k8s-monitor"])
   })
 })

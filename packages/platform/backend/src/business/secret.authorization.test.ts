@@ -19,6 +19,7 @@ describe("SecretService authorization", () => {
     await expect(
       service.updateInstanceSecrets(createProjectRequestContext(project.id), state.id, {}),
     ).rejects.toThrow(PermissionDeniedError)
+
     await expect(
       service.getInstanceSecretValues(
         createProjectRequestContext(project.id, grantProjectPermission("secret.value.get")),

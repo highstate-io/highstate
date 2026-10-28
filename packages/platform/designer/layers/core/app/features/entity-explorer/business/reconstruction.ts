@@ -1,5 +1,5 @@
-import { stringify } from "yaml"
 import { HighstateSignature } from "@highstate/contract"
+import { stringify } from "yaml"
 
 export type OutputReferencedEntitySnapshot = {
   snapshotId: string
@@ -90,6 +90,7 @@ const indentYaml = (yaml: string, indent: number): string[] => {
 const getEntityHeader = (node: EntityNode): string => {
   const meta = node.$meta
   const title = typeof meta.title === "string" && meta.title.length > 0 ? meta.title : meta.type
+
   const entityId =
     typeof meta.entityId === "string" && meta.entityId.length > 0 ? meta.entityId : "unknown"
 
@@ -98,7 +99,6 @@ const getEntityHeader = (node: EntityNode): string => {
 
 const getEntityDescription = (node: EntityNode): string | undefined => {
   const description = node.$meta.description
-
   if (typeof description !== "string" || description.length === 0) {
     return undefined
   }
@@ -277,8 +277,10 @@ const formatEntityInto = (options: {
   }
 
   const plainBuffer: Record<string, unknown> = {}
+
   const flushPlainBuffer = () => {
     pushYamlObjectWithNestedSecrets(options.lines, options.regions, bodyIndent, plainBuffer)
+
     for (const key of Object.keys(plainBuffer)) {
       delete plainBuffer[key]
     }
@@ -326,6 +328,7 @@ const formatEntityInto = (options: {
             createRegion: true,
           })
         }
+
         continue
       }
 

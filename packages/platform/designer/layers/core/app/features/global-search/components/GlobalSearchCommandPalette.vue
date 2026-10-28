@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue"
 import {
+  type GlobalSearchPaletteGroup,
+  type GlobalSearchPaletteItem,
   getNavigateTargetForPaletteItem,
   getPaletteItemKey,
   getSearchHitFallbackIcon,
   parseGlobalSearchQuery,
   toGroupsFromIdsResult,
   toGroupsFromTextResult,
-  type GlobalSearchPaletteGroup,
-  type GlobalSearchPaletteItem,
 } from "../business"
 
 const visible = ref(false)
@@ -41,7 +41,6 @@ const runSearch = async () => {
   const text = query.value
 
   const plan = parseGlobalSearchQuery(text)
-
   if (plan.type === "empty") {
     clearResults()
     return
@@ -112,7 +111,6 @@ const openItem = async (item: GlobalSearchPaletteItem) => {
 
 useEventListener(window, "keydown", event => {
   const key = event.key.toLowerCase()
-
   if ((event.ctrlKey || event.metaKey) && key === "k") {
     event.preventDefault()
     visible.value = true

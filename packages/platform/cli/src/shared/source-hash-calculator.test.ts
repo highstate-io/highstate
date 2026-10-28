@@ -58,11 +58,11 @@ describe("parseFileDependencies", () => {
 
   test("does not match identifiers like importBasePath or template strings containing from", () => {
     const filePath = "/repo/src/main.ts"
+
     const content = [
       "const x = {",
       "  importBasePath: '/some/path',",
       "}",
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: false positive
       'throw new Error(`Cannot use output "foo" from "${input.input.instanceId}"`)\n',
     ].join("\n")
 

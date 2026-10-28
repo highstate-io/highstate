@@ -32,13 +32,12 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       : undefined
 
     const routeProtocol = resolveRouteProtocol(spec)
-
     if (spec.clientAuth && routeProtocol !== "http") {
-      throw new Error("Gateway client authentication is only supported for HTTP routes.")
+      throw new Error("Gateway client authentication is only supported for HTTP routes")
     }
 
     if (spec.clientAuth && !certificateRef) {
-      throw new Error("Gateway client authentication requires a TLS certificate.")
+      throw new Error("Gateway client authentication requires a TLS certificate")
     }
 
     if (routeProtocol === "tls" && certificateRef) {
@@ -78,7 +77,6 @@ type GatewayRouteRuleSpec = {
 
 function resolveRouteNamespace(spec: GatewayRouteSpec, data: k8s.GatewayData): Namespace {
   const metadataNamespace = spec.metadata["k8s.namespace"]
-
   if (metadataNamespace instanceof Namespace) {
     return metadataNamespace
   }
@@ -220,9 +218,8 @@ async function createL4GatewayRoute({
   protocol,
 }: CreateL4GatewayRouteArgs) {
   const backends = Object.values(spec.rules).flatMap(rule => rule.backends)
-
   if (backends.length === 0) {
-    throw new Error(`Gateway route "${name}" has no backends to expose.`)
+    throw new Error(`Gateway route "${name}" has no backends to expose`)
   }
 
   const firstBackend = backends[0]
@@ -369,11 +366,11 @@ async function configureGatewayClientAuth({
   }
 
   if (spec.clientAuth.ca.length === 0) {
-    throw new Error("Gateway client authentication requires at least one CA certificate.")
+    throw new Error("Gateway client authentication requires at least one CA certificate")
   }
 
   if (!data.controllerImplRef) {
-    throw new Error("Gateway implementation does not support client authentication.")
+    throw new Error("Gateway implementation does not support client authentication")
   }
 
   await gatewayClientAuthMediator.call(data.controllerImplRef, {
@@ -395,14 +392,12 @@ async function getCertificateSecret(
   }
 
   const resource = await toPromise(resolvedCertificate.resource)
-
   if (resource instanceof Certificate) {
     const certNamespace = await toPromise(resource.namespace.metadata.name)
     const certClusterId = await toPromise(resource.namespace.cluster.id)
 
     const targetNamespace = await toPromise(namespace.metadata.name)
     const targetClusterId = await toPromise(namespace.cluster.id)
-
     if (certNamespace === targetNamespace && certClusterId === targetClusterId) {
       return await toPromise(resource.secret)
     }
@@ -415,13 +410,11 @@ async function getCertificateSecret(
 
 function resolveRouteProtocol(spec: GatewayRouteSpec): GatewayRouteRuleSpec["type"] {
   const rules = Object.values(spec.rules)
-
   if (rules.length === 0) {
     throw new Error("Gateway route must contain at least one rule")
   }
 
   const type = rules[0].type
-
   if (rules.some(rule => rule.type !== type)) {
     throw new Error("Gateway route rules must use the same protocol type")
   }
@@ -450,7 +443,6 @@ async function resolveBackendFromEndpoints({
   preferredTargetPort?: number | string
 }> {
   const serviceMeta = getServiceMetadataFromEndpoints(endpoints, cluster)
-
   if (serviceMeta) {
     const metadataPorts: ServicePortInfo[] = endpoints.map(endpoint => ({
       name: typeof serviceMeta.targetPort === "string" ? serviceMeta.targetPort : undefined,
@@ -477,10 +469,9 @@ async function resolveBackendFromEndpoints({
 
   const syntheticServiceName = await toPromise(syntheticService.service.metadata.name)
   const syntheticServiceNamespace = await toPromise(syntheticService.service.metadata.namespace)
-
   if (!syntheticServiceNamespace) {
     throw new Error(
-      `Synthetic backend service "${syntheticServiceName}" for gateway route "${routeName}" has no namespace.`,
+      `Synthetic backend service "${syntheticServiceName}" for gateway route "${routeName}" has no namespace`,
     )
   }
 
@@ -502,13 +493,11 @@ function getServiceMetadataFromEndpoints(
     }
   | undefined {
   const serviceEndpoints = endpoints.filter(endpoint => isEndpointFromCluster(endpoint, cluster))
-
   if (serviceEndpoints.length === 0 || serviceEndpoints.length !== endpoints.length) {
     return undefined
   }
 
   const first = serviceEndpoints[0].metadata["k8s.service"]
-
   if (
     serviceEndpoints.some(
       endpoint =>
@@ -541,9 +530,8 @@ async function createServiceFromEndpoints(
   opts: ComponentResourceOptions | undefined,
 ): Promise<{ service: Service; ports: ServicePortInfo[] }> {
   const endpoints = await toPromise(endpointsInput)
-
   if (!endpoints.length) {
-    throw new Error(`Gateway route "${name}" has no endpoints to expose.`)
+    throw new Error(`Gateway route "${name}" has no endpoints to expose`)
   }
 
   const hostnameEndpoints = endpoints.filter(endpoint => endpoint.type === "hostname")
@@ -551,6 +539,7 @@ async function createServiceFromEndpoints(
 
   if (hostnameEndpoints.length > 0) {
     const hostnamePortInfos: ServicePortInfo[] = []
+
     for (const endpoint of hostnameEndpoints) {
       hostnamePortInfos.push(toServicePortInfoFromEndpoint(endpoint))
     }
@@ -569,10 +558,11 @@ async function createServiceFromEndpoints(
   }
 
   if (ipEndpoints.length === 0) {
-    throw new Error(`Gateway route "${name}" requires at least one IP endpoint.`)
+    throw new Error(`Gateway route "${name}" requires at least one IP endpoint`)
   }
 
   const ipPortInfos: ServicePortInfo[] = []
+
   for (const endpoint of ipEndpoints) {
     ipPortInfos.push(toServicePortInfoFromEndpoint(endpoint))
   }
@@ -612,7 +602,6 @@ async function _getServicePorts(service: Service): Promise<ServicePortInfo[]> {
   for (const port of ports) {
     const value = port.port
     const protocol = (port.protocol ?? "TCP").toUpperCase()
-
     if (value === undefined || (protocol !== "TCP" && protocol !== "UDP")) {
       continue
     }
@@ -651,10 +640,9 @@ async function selectBackendPort({
   routeName: string
 }): Promise<ServicePortInfo> {
   const candidates = ports.filter(port => port.protocol === protocol)
-
   if (candidates.length === 0) {
     throw new Error(
-      `Service "${serviceName}" does not expose any ${protocol} ports required by gateway route "${routeName}".`,
+      `Service "${serviceName}" does not expose any ${protocol} ports required by gateway route "${routeName}"`,
     )
   }
 
@@ -663,7 +651,6 @@ async function selectBackendPort({
   }
 
   const resolvedTarget = await toPromise(targetPort)
-
   if (resolvedTarget === undefined || resolvedTarget === null) {
     return candidates[0]
   }
@@ -686,7 +673,7 @@ async function selectBackendPort({
     }
 
     throw new Error(
-      `Gateway route "${routeName}" requested target port ${resolvedTarget}, but service "${serviceName}" does not expose it for ${protocol} backends.`,
+      `Gateway route "${routeName}" requested target port ${resolvedTarget}, but service "${serviceName}" does not expose it for ${protocol} backends`,
     )
   }
 
@@ -709,7 +696,7 @@ async function selectBackendPort({
   }
 
   throw new Error(
-    `Gateway route "${routeName}" requested target port "${targetString}", but service "${serviceName}" does not expose it for ${protocol} backends.`,
+    `Gateway route "${routeName}" requested target port "${targetString}", but service "${serviceName}" does not expose it for ${protocol} backends`,
   )
 }
 
@@ -729,22 +716,20 @@ async function resolveListenerPort({
   }
 
   const resolved = await toPromise(requestedPort)
-
   if (resolved === undefined || resolved === null) {
     return backendPort.port
   }
 
   if (!Number.isInteger(resolved)) {
     throw new Error(
-      `Gateway route "${routeName}" must use integer listener ports for ${protocol.toLowerCase()} traffic.`,
+      `Gateway route "${routeName}" must use integer listener ports for ${protocol.toLowerCase()} traffic`,
     )
   }
 
   const port = Number(resolved)
-
   if (port < 1 || port > 65535) {
     throw new Error(
-      `Gateway route "${routeName}" specified listener port ${port}, which is outside the valid range 1-65535.`,
+      `Gateway route "${routeName}" specified listener port ${port}, which is outside the valid range 1-65535`,
     )
   }
 

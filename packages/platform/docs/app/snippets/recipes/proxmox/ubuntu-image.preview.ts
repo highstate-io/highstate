@@ -1,4 +1,4 @@
-import { proxmox, distributions } from "@highstate/library"
+import { distributions, proxmox } from "@highstate/library"
 
 // connection to Proxmox
 const { proxmoxCluster } = proxmox.connection({
@@ -10,7 +10,7 @@ const { proxmoxCluster } = proxmox.connection({
   },
 })
 
-// Ubuntu distribution provides the image URL
+// ubuntu distribution provides the image URL
 const { image: ubuntuImage } = distributions.ubuntu({
   name: "ubuntu-22-04",
 })

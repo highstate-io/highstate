@@ -441,7 +441,7 @@ export function defineEntity<
     throw new Error("Entity schema is required")
   }
 
-  type IncludeRef = {
+  interface IncludeRef {
     field: string
     required: boolean
     multiple: boolean
@@ -520,6 +520,7 @@ export function defineEntity<
   const optionalMultipleInclusions = includeRefs.filter(
     includeRef => includeRef.multiple && !includeRef.required,
   )
+
   if (optionalMultipleInclusions.length > 0) {
     finalSchema = finalSchema.overwrite(value => {
       const record = value as Record<string, unknown>
@@ -539,6 +540,7 @@ export function defineEntity<
       multiple: includeRef.multiple,
       field: includeRef.field,
     }))
+
   const directExtensions = uniqueExtensions.map(entity => entity.type)
 
   const getInclusions = () => {
@@ -689,7 +691,6 @@ export function getEntityId(entity: EntityWithMeta): string {
   }
 
   const existingId = entityIdCache.get(entity)
-
   if (existingId) {
     return existingId
   }

@@ -76,7 +76,7 @@ export type ParsedUnitOutputs = {
 export class UnitOutputService {
   constructor(
     private readonly libraryBackend: LibraryBackend,
-    readonly _logger: Logger,
+    _logger: Logger,
   ) {}
 
   /**
@@ -202,8 +202,8 @@ export class UnitOutputService {
     const library =
       options.libraryModel ??
       (await this.libraryBackend.loadLibrary(options.libraryId, options.signal))
-    const component = library.components[options.instanceType]
 
+    const component = library.components[options.instanceType]
     if (!component) {
       throw new Error(`Component "${options.instanceType}" is not defined in the library`)
     }
@@ -281,6 +281,7 @@ export class UnitOutputService {
       }
 
       const { $meta: _ignoredMeta, ...content } = record
+
       for (const inclusion of entityModel.inclusions ?? []) {
         delete (content as Record<string, unknown>)[inclusion.field]
       }
@@ -347,6 +348,7 @@ export class UnitOutputService {
       }
 
       const current = nodeByEntityId.get(entityId)!
+
       if (options.relation === "exported") {
         current.node.exportedOutputs.add(options.output)
       } else {

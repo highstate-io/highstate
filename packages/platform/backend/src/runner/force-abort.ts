@@ -1,5 +1,9 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: аничо */
-/** biome-ignore-all lint/complexity/useLiteralKeys: не ори на мать */
+/**
+ * biome-ignore-all lint/suspicious/noExplicitAny: аничо
+ */
+/**
+ * biome-ignore-all lint/complexity/useLiteralKeys: не ори на мать
+ */
 
 import type { PulumiCommand } from "@pulumi/pulumi/automation/index.js"
 import * as os from "node:os"
@@ -10,7 +14,7 @@ import path, { resolve } from "node:path"
  * The extended AbortSignal interface that includes an additional signal
  * to forcefully abort the command.
  */
-export interface DualAbortSignal extends AbortSignal {
+export type DualAbortSignal = AbortSignal & {
   forceSignal?: AbortSignal
 }
 
@@ -49,7 +53,7 @@ export async function createForceAbortableCommand(
       args.push("--non-interactive")
     }
 
-    // Prepend the folder where the CLI is installed to the path to ensure
+    // prepend the folder where the CLI is installed to the path to ensure
     // we pickup the matching bundled plugins.
     if (path.isAbsolute(this.command)) {
       const pulumiBin = path.dirname(this.command)
@@ -123,6 +127,7 @@ export async function createForceAbortableCommand(
         try {
           while (true) {
             const { done, value } = await reader.read()
+
             if (done) {
               break
             }
@@ -182,6 +187,7 @@ export async function createForceAbortableCommand(
       ])
 
       const commandResult = new CommandResult(stdout, stderr, exitCode)
+
       if (exitCode !== 0) {
         throw createCommandError(commandResult)
       }

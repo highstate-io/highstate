@@ -20,9 +20,11 @@ const instanceLockTest = test.extend<{
 
     // create a mock that preserves both subscribe and publish functionality for real event flow
     const mockPubsubManager = vi.mockObject(realPubsubManager)
+
     mockPubsubManager.subscribe.mockImplementation(
       realPubsubManager.subscribe.bind(realPubsubManager),
     )
+
     mockPubsubManager.publish.mockImplementation(realPubsubManager.publish.bind(realPubsubManager))
 
     await use(mockPubsubManager)
@@ -71,6 +73,7 @@ describe("tryLockInstances", () => {
       const locks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(locks).toHaveLength(2)
       expect(locks[0].meta).toEqual(lockMeta)
       expect(locks[0].token).toBe(token)
@@ -137,6 +140,7 @@ describe("tryLockInstances", () => {
       const locks = await projectDatabase.instanceLock.findMany({
         where: { stateId: instance2.id },
       })
+
       expect(locks).toHaveLength(0)
     },
   )
@@ -185,6 +189,7 @@ describe("tryLockInstances", () => {
       const newLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: [instance2.id, instance3.id] } },
       })
+
       expect(newLocks).toHaveLength(2)
 
       // verify publish was called with available instances
@@ -333,6 +338,7 @@ describe("unlockInstancesUnconditionally", () => {
       const locksBefore = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(locksBefore).toHaveLength(2)
 
       // act
@@ -343,6 +349,7 @@ describe("unlockInstancesUnconditionally", () => {
       const locksAfter = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(locksAfter).toHaveLength(0)
 
       // verify publish was called
@@ -416,6 +423,7 @@ describe("unlockInstancesUnconditionally", () => {
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: [instance1.id, instance2.id, instance3.id] } },
       })
+
       expect(remainingLocks).toHaveLength(0)
 
       // verify event was published for all requested instances
@@ -461,6 +469,7 @@ describe("unlockInstances", () => {
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(remainingLocks).toHaveLength(0)
 
       const publishCall = pubsubManager.publish.mock.calls[0]
@@ -497,9 +506,11 @@ describe("unlockInstances", () => {
 
       // assert
       expect(actionExecuted).toBe(true)
+
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: instance.id },
       })
+
       expect(remainingLocks).toHaveLength(0)
     },
   )
@@ -529,6 +540,7 @@ describe("unlockInstances", () => {
       const locks = await projectDatabase.instanceLock.findMany({
         where: { stateId: instance.id },
       })
+
       expect(locks).toHaveLength(1)
     },
   )
@@ -561,6 +573,7 @@ describe("unlockInstances", () => {
       const locks = await projectDatabase.instanceLock.findMany({
         where: { stateId: instance1.id },
       })
+
       expect(locks).toHaveLength(1)
     },
   )
@@ -618,6 +631,7 @@ describe("lockInstances", () => {
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(remainingLocks).toHaveLength(2)
 
       // clean up by unlocking
@@ -718,6 +732,7 @@ describe("lockInstances", () => {
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(remainingLocks).toHaveLength(2)
 
       // clean up by unlocking
@@ -799,6 +814,7 @@ describe("lockInstances", () => {
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(remainingLocks).toHaveLength(3)
 
       // clean up by unlocking
@@ -854,6 +870,7 @@ describe("lockInstances", () => {
       const locks = await projectDatabase.instanceLock.findMany({
         where: { stateId: instance.id },
       })
+
       expect(locks).toHaveLength(1)
       expect(locks[0].token).toBe("permanent-token")
     },
@@ -984,6 +1001,7 @@ describe("lockInstances", () => {
       const remainingLocks = await projectDatabase.instanceLock.findMany({
         where: { stateId: { in: stateIds } },
       })
+
       expect(remainingLocks).toHaveLength(2)
 
       // clean up by unlocking
@@ -1021,7 +1039,9 @@ describe("lockInstances", () => {
           where: { stateId: instance.id },
         })
         // note: no event is published here, so lockInstances must rely on timeout to retry
-      }, 600) // delete after 600ms (allowing first attempt + first timeout cycle)
+      }, 600)
+
+      // delete after 600ms (allowing first attempt + first timeout cycle)
 
       const startTime = Date.now()
 
@@ -1049,6 +1069,7 @@ describe("lockInstances", () => {
       const locks = await projectDatabase.instanceLock.findMany({
         where: { stateId: instance.id },
       })
+
       expect(locks).toHaveLength(1)
 
       // clean up by unlocking

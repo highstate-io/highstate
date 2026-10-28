@@ -1,116 +1,54 @@
 # TypeScript
 
 Write TypeScript that makes domain intent, control flow, and failures explicit.
-Use the owning package's formatter and linter as the authority for mechanical formatting.
+The workspace's Biome, ESLint, and Oxlint configurations own mechanical style.
+Run `bun run lint:fix` from the workspace root to apply fixes, then `bun run lint` to check the result.
+The fix command reports requirements that need an intentional code change.
+Generated code, vendored code, and project templates are excluded from these checks.
 
-## Types
+## Domain Design
 
-Use `type` for data structures and `interface` for behavioral contracts.
-Prefer explicit domain types over utility-composed expressions such as
-`Awaited<ReturnType<typeof createServices>>["prisma"]`.
-Import or declare a named domain type instead.
-Do not add aliases that merely rename an existing type.
+Prefer named domain types over expressions that extract implementation details from factories.
+Use meaningful generic constraints when an implementation depends on properties of its type parameters.
+Do not add vacuous constraints just to constrain a generic.
 
-Constrain generic parameters and avoid `any`.
-When an exceptional integration requires `any`, add the configured lint suppression with a specific
-explanation.
+Import public APIs through the owning package or module barrel.
+Add missing public exports to that barrel rather than coupling consumers to implementation or generated modules.
+Internal imports within the owning module can reference its implementation files.
+Keep intentional public type aliases and declaration augmentations when they define an integration contract.
 
-## Imports
+Inject service dependencies through constructors.
+Use a domain-scoped logger instead of repeatedly attaching the same identifier.
 
-Import public APIs from package or directory barrels rather than implementation or generated modules.
-Add a missing export to the appropriate barrel instead of bypassing it at the call site.
-Merge imports from the same module path.
+## Control Flow And Failures
 
-## Dependencies
+Use nullish defaults when valid values may be falsy.
+Prefer async functions and `await` to promise chains, while preserving intentional concurrency and cleanup.
+Use guard clauses to keep the main path at the base indentation level.
+Separate distinct logical blocks when doing so clarifies their relationship.
+Let the formatter choose line breaks instead of adding formatter-forcing syntax.
 
-Inject class dependencies through the constructor and mark them `private readonly`:
+Wrap failures at meaningful operation boundaries with operation-specific context.
+Preserve the original failure as the cause, including when using a domain error constructor.
+Surround identifiers in error messages with double quotes.
+Log relevant structured context before the message and keep caught errors under the `error` key.
+Use the owning package's logger; terminal output remains appropriate for CLI results and explicit output forwarding.
 
-```typescript
-class ArtifactService {
-  constructor(
-    private readonly artifactBackend: ArtifactBackend,
-    private readonly logger: Logger,
-  ) {}
-}
-```
+## Documentation
 
-## Values And Control Flow
-
-Use `??` for defaults when valid values may be falsy, and use optional chaining for optional access.
-Prefer `async` and `await` over promise chains.
-Await a promise even when returning it directly so errors remain in the current function's control flow.
-
-Use guard clauses and early returns to keep the main path at the base indentation level:
-
-```typescript
-const artifact = artifacts[artifactId]
-if (!artifact) {
-  logger.warn({ artifactId }, `artifact "%s" not found`, artifactId)
-  return
-}
-
-await updateArtifact(artifact)
-```
-
-## Documentation And Comments
-
-Document public methods with multiline JSDoc when their contract is not already defined by a framework
-or interface.
-Write complete sentences, put one sentence on each line, and separate the description from tags with a
-blank line.
-Write complete `@param` descriptions without a separating hyphen.
-Do not add JSDoc to gRPC handlers or service implementations.
+Document public method contracts when they are not already defined by an interface or framework.
+Describe behavior, inputs, and failure conditions rather than restating the method name.
+Do not add redundant JSDoc to gRPC handlers or service implementations.
 Private methods usually do not need JSDoc.
 
-Use inline comments only to explain non-obvious reasoning.
-Use lowercase fragments without punctuation for short comments.
-Use complete sentences when a complex algorithm needs a longer explanation.
+Write complete sentences in JSDoc, with one sentence per line.
+Use inline comments to explain non-obvious reasoning.
+Longer algorithm explanations can use complete sentences rather than short fragments.
 
-## Formatting
+## Exceptions
 
-Break long fluent chains after each call.
-When the configured formatter keeps a long call on one line, use its supported formatter-forcing pattern
-to preserve a readable break.
-
-Separate guards, loops, multiline calls, and distinct logical blocks with blank lines.
-Separate every class method from fields and neighboring methods with a blank line.
-In CLI command classes, isolate the static `paths` and `usage` declarations from each other and from
-option fields with blank lines.
-Keep a single assignment directly beside the `if` guard that checks it:
-
-```typescript
-const state = stateMap.get(instanceKey)
-if (!state) {
-  return
-}
-```
-
-Do not add blank lines inside compact object literals or other tightly related structures.
-
-## Errors
-
-Catch and rethrow errors with operation-specific context while preserving the original error as `cause`:
-
-```typescript
-try {
-  return await processOperation()
-} catch (error) {
-  throw new Error(`Failed to process operation "${operationId}"`, { cause: error })
-}
-```
-
-Capitalize error messages, omit terminal punctuation, and surround identifiers with double quotes.
-Do not interpolate an original error's message into the wrapper message.
-
-## Logging
-
-Use the owning package's structured logger rather than console output.
-Write lowercase log messages without terminal punctuation.
-Pass relevant structured context first, and pass values as substitution parameters instead of
-interpolating them into messages.
-Put caught errors under the `error` key.
-Use a domain-scoped logger, such as a project logger, instead of repeatedly attaching the same identifier.
-
-```typescript
-logger.error({ error, operationId }, `failed to process operation "%s"`, operationId)
-```
+Suppress an individual rule only when an integration or contract requires an exception.
+Include the specific constraint in the suppression reason.
+Use `biome-ignore`, `eslint-disable-next-line`, or `oxlint-disable-next-line` for the tool reporting the violation.
+Include a `--` explanation on ESLint and Oxlint suppressions.
+Keep suppressions local to the code requiring them.

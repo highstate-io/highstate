@@ -20,6 +20,7 @@ export class LibraryListCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
     const response = await clients.library.getLibrary({ projectId: target.projectId })
+
     const result = {
       components: Object.values(response.library?.components ?? {}).map(value => ({
         type: value.type,
@@ -61,17 +62,20 @@ export class ComponentListCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const components = []
     let pageToken = this.pageToken ?? ""
+
     do {
       const response = await clients.library.listComponents({
         projectId: target.projectId,
         pageSize: Number(this.pageSize ?? 0),
         pageToken,
       })
+
       if (!this.all) {
         this.print(
           messageJson(ListComponentsResponseSchema, response),
           componentTable(response.components),
         )
+
         return
       }
 
@@ -105,15 +109,18 @@ export class ComponentGetCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.library.getComponent({
       projectId: target.projectId,
       type: this.type,
     })
+
     if (this.includeSchemas) {
       this.print(
         messageJson(GetComponentResponseSchema, response),
         humanDetails(messageJson(GetComponentResponseSchema, response)),
       )
+
       return
     }
 
@@ -123,6 +130,7 @@ export class ComponentGetCommand extends RemoteCommand {
           unknown
         >)
       : undefined
+
     const args = component?.arguments as Record<string, Record<string, unknown>> | undefined
     if (component && args) {
       component.arguments = Object.fromEntries(
@@ -150,20 +158,24 @@ export class ComponentSchemaCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.library.getComponent({
       projectId: target.projectId,
       type: this.type,
     })
+
     const json = response.component
       ? (toJson(ComponentSchema, response.component, { useProtoFieldName: true }) as {
           arguments?: Record<string, { schema?: unknown }>
         })
       : undefined
+
     const schemas = Object.fromEntries(
       Object.entries(json?.arguments ?? {}).flatMap(([name, value]) =>
         value.schema === undefined ? [] : [[name, value.schema]],
       ),
     )
+
     if (this.argument && !(this.argument in schemas)) {
       throw new Error(`Argument "${this.argument}" not found on component "${this.type}"`)
     }
@@ -187,6 +199,7 @@ export class EntityListCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
     const response = await clients.library.getLibrary({ projectId: target.projectId })
+
     const entities = Object.values(response.library?.entities ?? {}).map(value => ({
       type: value.type,
       title: value.meta?.title ?? value.type,

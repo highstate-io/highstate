@@ -18,6 +18,7 @@ describe("BackendApiKeySettingsService authorization", () => {
     await expect(service.query(createBackendRequestContext(), { pageSize: 1 })).rejects.toThrow(
       PermissionDeniedError,
     )
+
     await expect(
       service.query(createBackendRequestContext(grantBackendPermission("api-key.list")), {
         pageSize: 1,
@@ -30,6 +31,7 @@ describe("BackendApiKeySettingsService authorization", () => {
     const context = createBackendRequestContext()
 
     await expect(service.get(context, "missing")).resolves.toBeNull()
+
     await expect(
       service.create(context, {
         meta: { title: "Key" },
@@ -52,25 +54,31 @@ describe("BackendApiKeySettingsService authorization", () => {
 
   test("does not require escalation for a permission-rule subset", async ({ database }) => {
     const roles = new BackendRoleSettingsService(database)
+
     const accounts = new BackendServiceAccountSettingsService(
       database,
       new MemoryProjectUnlockBackend(),
       roles,
     )
+
     const service = new BackendApiKeySettingsService(database, roles, accounts)
     const adminContext = adminBackendContext()
+
     const role = await roles.create(adminContext, {
       meta: { title: "Key role" },
       rules: [{ permissions: ["project.get"] }],
     })
+
     const account = await accounts.create(adminContext, { meta: { title: "Key account" } })
     await accounts.addRoleBinding(adminContext, role.id, account.id)
+
     const input = {
       meta: { title: "Key" },
       serviceAccountId: account.id,
       restrictionRules: [],
       expiresAt: null,
     }
+
     const createContext = createBackendRequestContext(
       new Map([
         ["api-key.create", [{ restrictions: [] }]],
@@ -79,6 +87,7 @@ describe("BackendApiKeySettingsService authorization", () => {
     )
 
     const created = await service.create(createContext, input)
+
     await expect(
       service.update(
         createBackendRequestContext(

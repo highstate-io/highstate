@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import { bytesToHumanReadable } from "@highstate/contract"
 import { until, useProjectStores } from "#imports"
 import {
-  DetailPageLayout,
   DetailInfoCard,
-  TimeTableCell,
+  DetailPageLayout,
   IdTableCell,
+  PagesTable,
   RelatedDataPanel,
   ServiceAccountsTable,
   TerminalsTable,
-  PagesTable,
+  TimeTableCell,
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
-import { bytesToHumanReadable } from "@highstate/contract"
 
 const settingsStore = useProjectArtifactSettingsStore()
 const pageStore = useProjectPageSettingsStore()
@@ -47,7 +47,7 @@ if (!artifact) {
   })
 }
 
-// Load related data
+// load related data
 const serviceAccounts = serviceAccountStore.forArtifact(params.artifactId)
 const terminals = terminalStore.forArtifact(params.artifactId)
 const pages = pageStore.forArtifact(params.artifactId)

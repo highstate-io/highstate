@@ -6,6 +6,7 @@ export const useProjectUnlockMethodSettingsStore = defineMultiStore({
   create: ({ storeId, id: [projectId] }) =>
     defineStore(storeId, () => {
       const { $client } = useNuxtApp()
+
       const items = useCollectionQuery(query => {
         return $client.unlockMethodSettings.query.query({ projectId, query })
       })

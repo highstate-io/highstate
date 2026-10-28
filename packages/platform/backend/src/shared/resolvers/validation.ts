@@ -52,7 +52,6 @@ export class ValidationResolver extends GraphResolver<ValidationNode, Validation
     for (const [name, argument] of Object.entries(component.args)) {
       try {
         const value = parseArgumentValue(instance.args?.[name])
-
         if (!argument.required && value === undefined) {
           continue
         }
@@ -124,7 +123,9 @@ export class ValidationResolver extends GraphResolver<ValidationNode, Validation
       return { status: "ok" }
     }
 
-    const numberPrefixLength = (validationErrors.length + 1).toString().length + 2 // +2 for the ". " prefix
+    const numberPrefixLength = (validationErrors.length + 1).toString().length + 2
+
+    // +2 for the ". " prefix
 
     const formattedError = validationErrors
       .map((error, index) => {

@@ -112,6 +112,7 @@ export class WorkerManager {
     }
 
     this.startingWorkers.add(workerVersion.id)
+
     try {
       await this.startWorkerVersionOnce(projectId, workerVersion, restart)
     } finally {
@@ -133,6 +134,7 @@ export class WorkerManager {
         `worker version "%s" is already running, skipping start`,
         workerVersion.id,
       )
+
       return
     }
 
@@ -157,6 +159,7 @@ export class WorkerManager {
 
       // update status to error in database
       const database = await this.database.forProject(projectId)
+
       await database.workerVersion.update({
         where: { id: workerVersion.id },
         data: {
@@ -208,7 +211,6 @@ export class WorkerManager {
         }
 
         const currentInfo = this.runningWorkers.get(workerVersion.id)
-
         if (currentInfo !== existingInfo || currentInfo.abortController.signal.aborted) {
           return
         }
@@ -319,7 +321,6 @@ export class WorkerManager {
       // regardless the exit reason, we want to restart the worker if it has remaining attempts
       .finally(async () => {
         const currentInfo = this.runningWorkers.get(workerVersion.id)
-
         if (currentInfo === info) {
           // flush any remaining line buffer
           if (info.lineBuffer?.trim()) {
@@ -394,6 +395,7 @@ export class WorkerManager {
           where: { id: workerVersionId },
           select: { id: true },
         })
+
         if (!workerVersion) {
           return
         }
@@ -426,7 +428,9 @@ export class WorkerManager {
   ): Promise<void> {
     this.assertWorkerInstance(projectId, workerVersionId, workerInstanceId)
     const info = this.runningWorkers.get(workerVersionId)
-    if (!info) return
+    if (!info) {
+      return
+    }
 
     await this.writeWorkerLog(
       projectId,
@@ -439,6 +443,7 @@ export class WorkerManager {
 
     // update worker version status in database
     const database = await this.database.forProject(projectId)
+
     await database.workerVersion.update({
       where: { id: workerVersionId },
       data: {
@@ -469,6 +474,7 @@ export class WorkerManager {
         `worker version "%s" is not running, cannot stop`,
         workerVersionId,
       )
+
       return
     }
 
@@ -487,6 +493,7 @@ export class WorkerManager {
     if (workerVersionExists) {
       // update worker version status in database
       const database = await this.database.forProject(info.projectId)
+
       await database.workerVersion.update({
         where: { id: workerVersionId },
         data: {
@@ -525,6 +532,7 @@ export class WorkerManager {
         `cannot restart worker version "%s" - not found or not owned by this runtime`,
         workerVersionId,
       )
+
       return
     }
 
@@ -577,7 +585,9 @@ export class WorkerManager {
 
     // stop workers that no longer exist in database
     for (const [versionId, info] of this.runningWorkers) {
-      if (info.projectId !== projectId) continue
+      if (info.projectId !== projectId) {
+        continue
+      }
 
       if (!activeVersionIds.has(versionId)) {
         await this.stopWorkerVersion(versionId, "worker version removed from database", false)
@@ -613,7 +623,9 @@ export class WorkerManager {
         select: { id: true },
       })
 
-      if (logsToDelete.length === 0) continue
+      if (logsToDelete.length === 0) {
+        continue
+      }
 
       await database.workerVersionLog.deleteMany({
         where: { id: { in: logsToDelete.map(l => l.id) } },

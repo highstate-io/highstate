@@ -96,6 +96,7 @@ if (import.meta.main) {
   if (previewVersionIndex === -1 || !previewVersion) {
     throw new Error("Missing --preview-version")
   }
+
   if (!/^0\.0\.0-preview-[a-f0-9]{40}$/.test(previewVersion)) {
     throw new Error(`Invalid preview version "${previewVersion}"`)
   }

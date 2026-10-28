@@ -12,7 +12,7 @@ import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import spawn, { type Subprocess, SubprocessError } from "nano-spawn"
 
-export type SidecarTrackerOptions = {
+export interface SidecarTrackerOptions {
   dockerBinary: string
   dockerUseSudo: boolean
   dockerHost?: string
@@ -80,6 +80,7 @@ export class SidecarTracker {
     }
 
     operation.refCount--
+
     if (operation.refCount > 0 || !operation.cleanupOnRelease) {
       return
     }
@@ -155,6 +156,7 @@ export class SidecarTracker {
       return await sidecar.output
     } catch (error) {
       this.emitSidecarLog(sidecar, `failed to start sidecar: ${this.errorToString(error)}`)
+
       this.options.logger.warn(
         { error, operationId: operation.operationId, identity: input.identity },
         "failed to start sidecar",
@@ -166,7 +168,9 @@ export class SidecarTracker {
       await this.writeHostsFile(operation)
       await this.stopContainer(containerName)
 
-      throw new Error(`Failed to start sidecar "${input.identity}". See unit sidecar logs.`)
+      throw new Error(`Failed to start sidecar "${input.identity}". See unit sidecar logs`, {
+        cause: error,
+      })
     }
   }
 
@@ -201,6 +205,7 @@ export class SidecarTracker {
     sidecar: SidecarState,
   ): Promise<RuntimeSidecarStartOutput> {
     const args = ["run", "-d", "--rm", "--network", "host", "--name", sidecar.containerName]
+
     const env = {
       ...input.env,
       HIGHSTATE_SIDECAR_ID: sidecar.id,
@@ -213,6 +218,7 @@ export class SidecarTracker {
     }
 
     const filesPath = join(operation.tempPath, input.identity, "files")
+
     for (const file of input.files) {
       const filePath = join(filesPath, file.path.replace(/^\/+/, ""))
       await mkdir(dirname(filePath), { recursive: true })
@@ -222,9 +228,11 @@ export class SidecarTracker {
     }
 
     args.push(input.image)
+
     if (input.command) {
       args.push(...input.command)
     }
+
     args.push(...input.args)
 
     const result = await this.runDocker(args)
@@ -293,6 +301,7 @@ export class SidecarTracker {
           { operationId: operation.operationId, identity: input.identity },
           "sidecar log stream stopped",
         )
+
         return
       }
 
@@ -404,11 +413,14 @@ export class SidecarTracker {
   private async isTcpReady(host: string, port: number): Promise<boolean> {
     return await new Promise(resolve => {
       const socket = connect({ host, port })
+
       socket.once("connect", () => {
         socket.destroy()
         resolve(true)
       })
+
       socket.once("error", () => resolve(false))
+
       socket.setTimeout(500, () => {
         socket.destroy()
         resolve(false)
@@ -435,7 +447,6 @@ export class SidecarTracker {
       const offset = this.nextIpOffset
       this.nextIpOffset = this.nextIpOffset === 65_534 ? 1 : this.nextIpOffset + 1
       const ip = `127.72.${Math.floor(offset / 256)}.${offset % 256}`
-
       if (!this.allocatedIps.has(ip)) {
         this.allocatedIps.add(ip)
         return ip
@@ -448,6 +459,7 @@ export class SidecarTracker {
   private async writeHostsFile(operation: OperationSidecars): Promise<void> {
     const baseHosts = await readFile("/etc/hosts", "utf-8").catch(() => "127.0.0.1 localhost\n")
     const sidecarHosts = Array.from(operation.hosts, ([host, ip]) => `${ip} ${host}`).join("\n")
+
     const content =
       sidecarHosts.length > 0 ? `${baseHosts.trimEnd()}\n${sidecarHosts}\n` : baseHosts
 
@@ -475,6 +487,7 @@ export class SidecarTracker {
     )
 
     await this.stopContainer(sidecar.containerName)
+
     sidecar.logProcess?.nodeChildProcess
       .then(process => process.kill())
       .catch(error => {

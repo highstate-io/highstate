@@ -20,6 +20,7 @@ export type Library = Readonly<{
 
 export async function loadLibrary(logger: Logger, modulePaths: string[]): Promise<Library> {
   const modules: Record<string, unknown> = {}
+
   for (const modulePath of modulePaths) {
     try {
       logger.debug({ modulePath }, "loading module")
@@ -58,6 +59,7 @@ async function _loadLibrary(
 ): Promise<void> {
   if (isComponent(value)) {
     const entityHashes: number[] = []
+
     for (const entity of value.entities.values()) {
       entity.model.definitionHash ??= calculateEntityDefinitionHash(entity)
       entityHashes.push(entity.model.definitionHash)

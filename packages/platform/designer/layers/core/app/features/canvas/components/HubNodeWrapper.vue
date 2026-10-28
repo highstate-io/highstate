@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { type NodeProps } from "@vue-flow/core"
-import HubNode from "./HubNode.vue"
+import type { NodeProps } from "@vue-flow/core"
 import type { HubNodeData } from "../business"
 import { NodeContextMenu } from "#layers/core/app/features/shared"
+import HubNode from "./HubNode.vue"
 
 const { data } = defineProps<NodeProps<HubNodeData>>()
 const { stateStore } = useProjectStores()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Position, Handle, type ValidConnectionFunc } from "@vue-flow/core"
+import { Handle, Position, type ValidConnectionFunc } from "@vue-flow/core"
 
 defineProps<{
   name: string

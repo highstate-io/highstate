@@ -11,6 +11,7 @@ definePageMeta({
     const { instancesStore, stateStore } = useExplicitProjectStores(
       route.params.projectId as string,
     )
+
     const state = stateStore.stateIdToStateMap.get(route.params.stateId as string)
     const instance = state ? instancesStore.instances.get(state.instanceId) : undefined
 

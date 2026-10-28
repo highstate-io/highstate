@@ -17,6 +17,7 @@ watch(visible, async isVisible => {
   }
 
   loading.value = true
+
   try {
     pages.value = await stateStore.getPages(pageIds)
   } finally {

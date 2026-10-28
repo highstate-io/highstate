@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { until, useProjectStores } from "#imports"
+import EntityExplorerCodeEditor from "#layers/core/app/features/entity-explorer/components/EntityExplorerCodeEditor.vue"
 import {
-  DetailPageLayout,
   DetailInfoCard,
+  DetailPageLayout,
   EntityReferencesTable,
   EntitySnapshotsTable,
   getSettingsEntityDisplayFromContent,
@@ -13,7 +14,6 @@ import {
 } from "#layers/core/app/features/settings"
 import SettingsPageHeader from "#layers/core/app/features/settings/components/SettingsPageHeader.vue"
 import { EntityRefChip, InstanceRefChip } from "#layers/core/app/features/shared"
-import EntityExplorerCodeEditor from "#layers/core/app/features/entity-explorer/components/EntityExplorerCodeEditor.vue"
 
 const { libraryStore } = useProjectStores()
 const { projectStore } = useProjectStores()
@@ -63,6 +63,7 @@ const loadSnapshotState = async (snapshotId: string) => {
         statusMessage: "Entity snapshot not found",
       }),
     )
+
     return
   }
 
@@ -126,7 +127,6 @@ const snapshotDisplay = computed(() => {
 
 const headerMeta = computed(() => {
   const meta = snapshotDisplay.value.metaForIcon
-
   if (!meta?.title) {
     return undefined
   }
