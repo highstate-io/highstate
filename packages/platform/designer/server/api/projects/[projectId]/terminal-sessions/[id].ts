@@ -1,14 +1,39 @@
 import { PassThrough } from "node:stream"
 import { getSharedServices } from "@highstate/backend"
+import { isHostedAuth } from "../../../../utils/auth-config"
+import {
+  authenticateHostedSession,
+  monitorHostedSession,
+  requireHostedOrigin,
+  sessionTokenFromHeaders,
+} from "../../../../utils/hosted-session"
+import { authenticateProjectHeaders } from "../../../../utils/request-authentication"
 
 type TerminalBridgeState = {
   abortController: AbortController
   stdin: PassThrough
+  timer?: ReturnType<typeof setInterval>
 }
 
 const terminalBridgeStateByPeerId = new Map<string, TerminalBridgeState>()
 
 export default defineWebSocketHandler({
+  upgrade: async request => {
+    if (!isHostedAuth()) {
+      return
+    }
+
+    try {
+      requireHostedOrigin(request.headers)
+
+      await authenticateHostedSession(
+        await getSharedServices(),
+        sessionTokenFromHeaders(request.headers),
+      )
+    } catch {
+      return new Response("Unauthorized", { status: 401 })
+    }
+  },
   open: async peer => {
     if (!peer.request) {
       throw new Error("Upgrade request not available")
@@ -56,6 +81,9 @@ export default defineWebSocketHandler({
       throw new Error("Terminal session not found")
     }
 
+    const context = await authenticateProjectHeaders(services, peer.request.headers, projectId)
+    await services.terminalSessionService.authorizeConnection(context, session.terminalId)
+
     const screenSizeText = parsedUrl.searchParams.get("screenSize")
     if (!screenSizeText) {
       throw new Error("Missing screenSize in query")
@@ -70,6 +98,26 @@ export default defineWebSocketHandler({
     terminalBridgeStateByPeerId.set(peer.id, {
       abortController,
       stdin,
+      timer: isHostedAuth()
+        ? monitorHostedSession(
+            services,
+            sessionTokenFromHeaders(peer.request.headers),
+            () => {
+              abortController.abort()
+              stdin.end()
+              peer.close(1008, "Session expired or revoked")
+            },
+            async () => {
+              const current = await authenticateProjectHeaders(
+                services,
+                peer.request!.headers,
+                projectId,
+              )
+
+              await services.terminalSessionService.authorizeConnection(current, session.terminalId)
+            },
+          )
+        : undefined,
     })
 
     services.terminalManager.attach(
@@ -97,6 +145,7 @@ export default defineWebSocketHandler({
     }
 
     state.abortController.abort()
+    clearInterval(state.timer)
     state.stdin.end()
     terminalBridgeStateByPeerId.delete(peer.id)
   },

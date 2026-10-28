@@ -9,6 +9,7 @@ declare global {
 
   // backend
   namespace PrismaJson {
+    type DesignerIdentity = import("../../authentication").DesignerIdentity
     type LibrarySpec = shared.LibrarySpec
     type BackendUnlockMethodMeta = shared.BackendUnlockMethodMeta
 

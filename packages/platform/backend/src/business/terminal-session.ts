@@ -1,6 +1,7 @@
 import type { ProjectRequestContext } from "../common"
-import type { DatabaseManager, TerminalSessionLog } from "../database"
-import { requireProjectPermission } from "../common"
+import type { DatabaseManager, TerminalSessionLog, TerminalWhereInput } from "../database"
+import { buildProjectAuthorizationWhere } from "../common"
+import { PermissionDeniedError } from "../shared"
 import {
   type TerminalSessionOutput,
   toTerminalSessionOutput,
@@ -11,6 +12,52 @@ import {
  */
 export class TerminalSessionService {
   constructor(private readonly database: DatabaseManager) {}
+
+  /**
+   * Returns only terminals visible to the caller, including recursive instance scopes.
+   */
+  async getTerminals(context: ProjectRequestContext, terminalIds: string[]) {
+    const database = await this.database.forProject(context.projectId)
+    const authorization = await this.terminalAuthorization(context, "terminal.get")
+
+    return await database.terminal.findMany({
+      where: { AND: [{ id: { in: terminalIds } }, authorization] },
+    })
+  }
+
+  /**
+   * Authorizes a terminal connection before the runtime manager creates a session.
+   */
+  async authorizeConnection(context: ProjectRequestContext, terminalId: string): Promise<void> {
+    const database = await this.database.forProject(context.projectId)
+    const authorization = await this.terminalAuthorization(context, "terminal.connect")
+
+    const terminal = await database.terminal.findFirst({
+      where: { AND: [{ id: terminalId }, authorization] },
+      select: { id: true },
+    })
+
+    if (!terminal) {
+      throw new PermissionDeniedError("terminal.connect")
+    }
+  }
+
+  private async terminalAuthorization(
+    context: ProjectRequestContext,
+    permission: "terminal.get" | "terminal.connect",
+  ): Promise<TerminalWhereInput> {
+    return await buildProjectAuthorizationWhere<TerminalWhereInput>({
+      database: this.database,
+      context,
+      permission,
+      target: {
+        resources: ids => ({ id: { in: [...ids] } }),
+        instances: scope => ({ stateId: { in: [...scope.stateIds] } }),
+        owners: ids => ({ serviceAccountId: { in: [...ids] } }),
+        self: id => ({ serviceAccountId: id }),
+      },
+    })
+  }
 
   /**
    * Get terminal sessions for a specific instance
@@ -34,7 +81,7 @@ export class TerminalSessionService {
       return []
     }
 
-    requireProjectPermission(context, "terminal.get", { instanceId: state.instanceId })
+    const authorization = await this.terminalAuthorization(context, "terminal.get")
 
     const sessions = await database.terminalSession.findMany({
       include: {
@@ -44,7 +91,7 @@ export class TerminalSessionService {
       },
       where: {
         terminal: {
-          stateId,
+          AND: [{ stateId }, authorization],
         },
       },
       orderBy: { startedAt: "desc" },
@@ -82,10 +129,10 @@ export class TerminalSessionService {
       return null
     }
 
-    requireProjectPermission(context, "terminal.get", {
-      resourceId: session.terminal.id,
-      ownerServiceAccountId: session.terminal.serviceAccountId ?? undefined,
-    })
+    const terminals = await this.getTerminals(context, [session.terminal.id])
+    if (terminals.length === 0) {
+      throw new PermissionDeniedError("terminal.get")
+    }
 
     return toTerminalSessionOutput(session.terminal, session)
   }
@@ -112,10 +159,10 @@ export class TerminalSessionService {
       return []
     }
 
-    requireProjectPermission(context, "terminal.get", {
-      resourceId: session.terminal.id,
-      ownerServiceAccountId: session.terminal.serviceAccountId ?? undefined,
-    })
+    const terminals = await this.getTerminals(context, [session.terminal.id])
+    if (terminals.length === 0) {
+      throw new PermissionDeniedError("terminal.get")
+    }
 
     return await database.terminalSessionLog.findMany({
       where: { sessionId },

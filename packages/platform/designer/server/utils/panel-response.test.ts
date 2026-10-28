@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest"
+import { afterEach, describe, expect, test, vi } from "vitest"
 import {
   getPanelCorsOrigin,
   getPanelFrameContentSecurityPolicy,
@@ -8,6 +8,38 @@ import {
   rewritePanelLocation,
   sanitizePanelResponseHeader,
 } from "./panel-response"
+
+afterEach(() => vi.unstubAllEnvs())
+
+test("hosted nested panel origins stay within their owning panel boundary", () => {
+  vi.stubEnv("HIGHSTATE_AUTH_MODE", "hosted")
+  vi.stubEnv("HIGHSTATE_PUBLIC_URL", "https://designer.example")
+
+  vi.stubEnv(
+    "HIGHSTATE_AUTH_PROVIDERS",
+    JSON.stringify([
+      {
+        id: "test",
+        title: "Test",
+        clientId: "client",
+        clientAuthMethod: "none",
+        identity: { protocol: "oidc", issuer: "https://issuer.example" },
+      },
+    ]),
+  )
+
+  const request = new URL("https://nested.panel123.panels.designer.example/api")
+  expect(isPanelSessionSource(request.origin, "panel123", request)).toBe(true)
+
+  for (const origin of [
+    "https://nested.other.panels.designer.example",
+    "https://nested.panel123.panels.designer.example.attacker.example",
+    "http://nested.panel123.panels.designer.example",
+    "https://nested.panel123.panels.designer.example:8443",
+  ]) {
+    expect(isPanelSessionSource(origin, "panel123", request)).toBe(false)
+  }
+})
 
 describe("isPanelSessionSource", () => {
   const requestUrl = new URL("http://panel123.panels.highstate.localhost:7283/")

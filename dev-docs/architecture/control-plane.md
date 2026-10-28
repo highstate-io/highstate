@@ -13,15 +13,15 @@ The exact service inventory and configuration remain source-owned.
 The adapter interfaces separate domain behavior from persistence, execution, coordination, workers, and
 terminals.
 Those interfaces are extension seams, not claims that multiple supported implementations exist.
-Current factories expose local databases and artifacts, a local library and runner, Docker workers and
-terminals, and process-local unlock, pubsub, and lock implementations.
+Current factories expose local or PostgreSQL backend storage, local project databases and artifacts, a local library
+and runner, Docker workers and terminals, and process-local unlock, pubsub, and lock implementations.
 
 ## Embedding And Transports
 
 The designer's Nitro process is the integrated local host.
 It creates the backend services and mounts two different access paths:
 
-- Designer tRPC is a trusted local UI facade over the in-process service graph.
+- Designer tRPC supports a trusted local UI and a hosted human-authenticated facade over the in-process service graph.
 - ConnectRPC exposes public and worker APIs around the same domain services.
 
 The CLI manages active backends as a ConnectRPC client.

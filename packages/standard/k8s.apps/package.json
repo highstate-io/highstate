@@ -12,6 +12,7 @@
     "./exetrouter": "./dist/exetrouter/index.js",
     "./grafana": "./dist/grafana/index.js",
     "./grocy": "./dist/grocy/index.js",
+    "./highstate": "./dist/highstate/index.js",
     "./hubble": "./dist/hubble/index.js",
     "./mariadb": "./dist/mariadb/index.js",
     "./matrix-stack": "./dist/matrix-stack/index.js",
@@ -29,7 +30,10 @@
     "./traefik": "./dist/traefik/index.js",
     "./vaultwarden": "./dist/vaultwarden/index.js",
     "./wg-feed-server": "./dist/wg-feed-server/index.js",
-    "./workload": "./dist/workload/index.js"
+    "./workload": "./dist/workload/index.js",
+    "./zitadel": "./dist/zitadel/index.js",
+    "./zitadel/registration": "./dist/zitadel/registration/index.js",
+    "./zitadel/management-import": "./dist/zitadel/management-import/index.js"
   },
   "publishConfig": {
     "access": "public"
@@ -40,6 +44,7 @@
     ]
   },
   "scripts": {
+    "test": "bun test",
     "build": "highstate build",
     "typecheck": "tsgo --noEmit --skipLibCheck",
     "biome": "biome check --write --unsafe --error-on-warnings",
@@ -62,6 +67,7 @@
     "@pulumi/kubernetes": "^4.18.0",
     "@pulumi/pulumi": "3.232.0",
     "@sinclair/typebox": "^0.34.33",
+    "age-encryption": "^0.2.3",
     "remeda": "^2.21.0",
     "yaml": "^2.8.1"
   },

@@ -7,11 +7,16 @@ import type {
   Worker,
   WorkerVersion,
   WorkerVersionLog,
+  WorkerVersionWhereInput,
 } from "../database"
 import type { PubSubManager } from "../pubsub"
 import type { WorkerManager } from "../worker"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client"
-import { createProjectLogger, requireProjectPermission } from "../common"
+import {
+  buildProjectAuthorizationWhere,
+  createProjectLogger,
+  requireProjectPermission,
+} from "../common"
 import {
   type ApiKeyMeta,
   extractDigestFromImage,
@@ -400,6 +405,23 @@ export class WorkerService {
     context: ProjectRequestContext,
     workerVersionId: string,
   ): Promise<WorkerVersionLog[]> {
+    await this.authorizeVersion(context, workerVersionId, "worker-version.get")
+    const database = await this.database.forProject(context.projectId)
+
+    return await database.workerVersionLog.findMany({
+      where: { workerVersionId },
+      orderBy: { id: "asc" },
+    })
+  }
+
+  /**
+   * Establishes project ownership and authorizes access to one worker version.
+   */
+  async authorizeVersion(
+    context: ProjectRequestContext,
+    workerVersionId: string,
+    permission: "worker-version.get" | "worker-version.restart",
+  ): Promise<void> {
     const database = await this.database.forProject(context.projectId)
 
     const version = await database.workerVersion.findUnique({
@@ -411,19 +433,36 @@ export class WorkerService {
       throw new WorkerVersionNotFoundError(context.projectId, workerVersionId)
     }
 
-    requireProjectPermission(context, "worker-version.get", {
+    requireProjectPermission(context, permission, {
       resourceId: workerVersionId,
       ownerServiceAccountId: version.worker.serviceAccountId,
       workerId: version.workerId,
     })
+  }
 
-    return await database.workerVersionLog.findMany({
-      where: {
-        workerVersionId,
-      },
-      orderBy: {
-        id: "asc",
+  /**
+   * Returns worker versions visible under resource, owner, self, and worker grants.
+   */
+  async getVisibleVersionIds(context: ProjectRequestContext): Promise<Set<string>> {
+    const database = await this.database.forProject(context.projectId)
+
+    const authorization = await buildProjectAuthorizationWhere<WorkerVersionWhereInput>({
+      database: this.database,
+      context,
+      permission: "worker-version.list",
+      target: {
+        resources: ids => ({ id: { in: [...ids] } }),
+        owners: ids => ({ worker: { serviceAccountId: { in: [...ids] } } }),
+        self: id => ({ worker: { serviceAccountId: id } }),
+        workers: ids => ({ workerId: { in: [...ids] } }),
       },
     })
+
+    const versions = await database.workerVersion.findMany({
+      where: authorization,
+      select: { id: true },
+    })
+
+    return new Set(versions.map(version => version.id))
   }
 }

@@ -39,6 +39,8 @@
     "migration:reset:project": "DATABASE_URL=file:/tmp/highstate-project-migrations.db prisma migrate reset --config prisma/project/prisma.config.ts --force",
     "migration:create:backend": "DATABASE_URL=file:/tmp/highstate-backend-migrations.db prisma migrate dev --config prisma/backend/sqlite/prisma.config.ts --create-only",
     "migration:reset:backend": "DATABASE_URL=file:/tmp/highstate-backend-migrations.db prisma migrate reset --config prisma/backend/sqlite/prisma.config.ts --force",
+    "migration:create:backend:postgresql": "prisma migrate dev --config prisma/backend/postgresql/prisma.config.ts --create-only",
+    "migration:reset:backend:postgresql": "prisma migrate reset --config prisma/backend/postgresql/prisma.config.ts --force",
     "migrate": "prisma migrate deploy --config dist/database/local/prisma.config.js"
   },
   "dependencies": {
@@ -50,6 +52,7 @@
     "@noble/hashes": "^1.8.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/adapter-libsql": "7.4.1",
+    "@prisma/adapter-pg": "7.4.1",
     "@prisma/client": "7.4.1",
     "@prisma/driver-adapter-utils": "7.4.1",
     "@pulumi/pulumi": "3.232.0",
@@ -72,6 +75,7 @@
     "nano-spawn": "^0.2.0",
     "nypm": "^0.6.1",
     "p-queue": "^8.0.0",
+    "pg": "^8.16.3",
     "pino": "^9.6.0",
     "pkg-types": "^1.2.1",
     "prisma": "7.4.1",

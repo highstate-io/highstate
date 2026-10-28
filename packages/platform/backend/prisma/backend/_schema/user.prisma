@@ -1,6 +1,7 @@
 enum UserType {
   local
   oidc
+  oauth
 }
 
 /// A user represents a globally identified human actor.
@@ -27,6 +28,9 @@ model User {
 
   /// The workspace layout belonging to this user.
   workspaceLayout UserWorkspaceLayout?
+
+  /// Durable Designer browser sessions, invalidated when this user is deleted.
+  designerSessions DesignerSession[]
 }
 
 /// An OIDC user group with a globally deterministic identity.

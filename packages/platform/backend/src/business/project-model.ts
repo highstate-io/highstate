@@ -1,4 +1,4 @@
-import type { InstanceInput, InstanceModel } from "@highstate/contract"
+import type { InstanceId, InstanceInput, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager } from "../database"
@@ -7,12 +7,13 @@ import type { InstanceStateService } from "./instance-state"
 import type { LibraryService } from "./library"
 import type { ProjectUnlockService } from "./project-unlock"
 import { isNonNullish } from "remeda"
-import { requireProjectPermission } from "../common"
+import { hasProjectPermission } from "../common"
 import {
   type FullProjectModel,
   forSchema,
   InputResolver,
   type InputResolverNode,
+  PermissionDeniedError,
   ProjectNotFoundError,
   type ProjectOutput,
   projectOutputSchema,
@@ -68,12 +69,48 @@ export class ProjectModelService {
     context: ProjectRequestContext,
     { includeVirtualInstances = false, includeGhostInstances = false }: GetProjectModelOptions = {},
   ): Promise<[projectModel: FullProjectModel, project: ProjectOutput]> {
-    requireProjectPermission(context, "instance-model.get")
+    if (!context.permissions.has("instance-model.get")) {
+      throw new PermissionDeniedError("instance-model.get")
+    }
 
-    return await this.getProjectModelCore(context.projectId, {
+    const [model, project] = await this.getProjectModelCore(context.projectId, {
       includeVirtualInstances,
       includeGhostInstances,
     })
+
+    return [this.filterAuthorizedModel(context, model), project]
+  }
+
+  /**
+   * Filters a model using its authoritative parent hierarchy, including unevaluated instances.
+   */
+  filterAuthorizedModel(context: ProjectRequestContext, model: FullProjectModel): FullProjectModel {
+    const instances = [...model.instances, ...model.virtualInstances, ...model.ghostInstances]
+    const byId = new Map(instances.map(instance => [instance.id, instance]))
+
+    const visible = (instance: InstanceModel) => {
+      const ancestors: InstanceId[] = []
+      let parentId = instance.parentId
+      const seen = new Set<string>([instance.id])
+
+      while (parentId && !seen.has(parentId)) {
+        seen.add(parentId)
+        ancestors.push(parentId as InstanceId)
+        parentId = byId.get(parentId as InstanceId)?.parentId
+      }
+
+      return hasProjectPermission(context, "instance-model.get", {
+        instanceId: instance.id,
+        ancestorInstanceIds: ancestors,
+      })
+    }
+
+    return {
+      instances: model.instances.filter(visible),
+      virtualInstances: model.virtualInstances.filter(visible),
+      ghostInstances: model.ghostInstances.filter(visible),
+      hubs: hasProjectPermission(context, "instance-model.get") ? model.hubs : [],
+    }
   }
 
   async getProjectModelCore(
