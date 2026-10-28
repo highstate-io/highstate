@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest"
 import { loginProviderConfigSchema } from "@highstate/contract"
+import { describe, expect, test } from "vitest"
 import { mapLoginProfile, readLoginField } from "./login-profile"
 
 const provider = loginProviderConfigSchema.parse({
@@ -23,9 +23,11 @@ describe("login profile mapping", () => {
       user: { id: 42, name: "Before" },
       groups: ["operators"],
     })
+
     const second = mapLoginProfile(provider, { user: { id: "42", name: "After" }, groups: [] })
     expect(first.id).toBe(second.id)
     expect(first.groups).toHaveLength(1)
+
     expect(first.id).not.toBe(
       mapLoginProfile(
         {

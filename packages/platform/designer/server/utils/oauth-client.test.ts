@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, test, vi } from "vitest"
 import { loginProviderConfigSchema } from "@highstate/contract"
-import { createLoginClient, exchangeLoginCode } from "./oauth-client"
 import * as client from "openid-client"
+import { afterEach, describe, expect, test, vi } from "vitest"
+import { createLoginClient, exchangeLoginCode } from "./oauth-client"
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -13,6 +13,7 @@ describe("maintained OAuth/OIDC validation", () => {
     clientAuthMethod: "none",
     identity: { protocol: "oidc", issuer: "https://issuer.example" },
   })
+
   test("rejects discovery issuer substitution", async () => {
     vi.stubGlobal(
       "fetch",
@@ -24,6 +25,7 @@ describe("maintained OAuth/OIDC validation", () => {
         }),
       ),
     )
+
     await expect(createLoginClient(provider)).rejects.toThrow()
   })
 
@@ -36,8 +38,10 @@ describe("maintained OAuth/OIDC validation", () => {
         jwks_uri: "https://issuer.example/jwks",
       }),
     )
+
     vi.stubGlobal("fetch", fetch)
     const config = await createLoginClient(provider)
+
     await expect(
       client.authorizationCodeGrant(
         config,
@@ -50,6 +54,7 @@ describe("maintained OAuth/OIDC validation", () => {
         },
       ),
     ).rejects.toThrow()
+
     expect(fetch).toHaveBeenCalledTimes(1)
   })
 
@@ -71,14 +76,18 @@ describe("maintained OAuth/OIDC validation", () => {
       publicExponent: new Uint8Array([1, 0, 1]),
       hash: "SHA-256",
     }
+
     const keys = await crypto.subtle.generateKey(algorithm, true, ["sign", "verify"])
+
     const advertised =
       failure === "signature"
         ? await crypto.subtle.generateKey(algorithm, true, ["sign", "verify"])
         : keys
+
     const jwk = await crypto.subtle.exportKey("jwk", advertised.publicKey)
     const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url")
     const now = Math.floor(Date.now() / 1000)
+
     const claims = {
       iss: failure === "issuer" ? "https://other.example" : "https://issuer.example",
       aud: failure.includes("multiple-audiences")
@@ -98,14 +107,18 @@ describe("maintained OAuth/OIDC validation", () => {
       iat: now,
       exp: failure === "expired" ? now - 120 : now + 60,
     }
+
     const data = `${encode({ alg: "RS256", kid: "key" })}.${encode(claims)}`
+
     const signature = await crypto.subtle.sign(
       "RSASSA-PKCS1-v1_5",
       keys.privateKey,
       new TextEncoder().encode(data),
     )
+
     const idToken = `${data}.${Buffer.from(signature).toString("base64url")}`
     const verifier = client.randomPKCECodeVerifier()
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: URL | string, init?: RequestInit) => {
@@ -113,8 +126,11 @@ describe("maintained OAuth/OIDC validation", () => {
           expect(new URLSearchParams(String(init?.body)).get("code_verifier")).toBe(verifier)
           return Response.json({ access_token: "access", token_type: "Bearer", id_token: idToken })
         }
-        if (String(url).endsWith("/jwks"))
+
+        if (String(url).endsWith("/jwks")) {
           return Response.json({ keys: [{ ...jwk, kid: "key", alg: "RS256", use: "sig" }] })
+        }
+
         return Response.json({
           issuer: "https://issuer.example",
           authorization_endpoint: "https://issuer.example/auth",
@@ -124,6 +140,7 @@ describe("maintained OAuth/OIDC validation", () => {
         })
       }),
     )
+
     const result = exchangeLoginCode(
       { ...provider, id: `signed-${failure}` },
       new URL("https://designer.example/api/auth/callback?code=code&state=state"),
@@ -133,7 +150,11 @@ describe("maintained OAuth/OIDC validation", () => {
         codeVerifier: verifier,
       },
     )
-    if (failure.startsWith("valid")) expect(await result).toMatchObject({ sub: "subject" })
-    else await expect(result).rejects.toThrow()
+
+    if (failure.startsWith("valid")) {
+      expect(await result).toMatchObject({ sub: "subject" })
+    } else {
+      await expect(result).rejects.toThrow()
+    }
   })
 })

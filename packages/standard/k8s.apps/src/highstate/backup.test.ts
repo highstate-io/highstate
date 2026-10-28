@@ -15,6 +15,7 @@ async function fixture() {
   directories.push(path)
   const log = join(path, "calls")
   const kubectl = join(path, "kubectl")
+
   await writeFile(
     kubectl,
     `#!/bin/sh
@@ -38,6 +39,7 @@ case "$*" in
 esac
 `,
   )
+
   await chmod(kubectl, 0o755)
   await writeFile(join(path, "sleep"), '#!/bin/sh\nprintf "%s\\n" sleep >> "$CALL_LOG"\n')
   await chmod(join(path, "sleep"), 0o755)
@@ -61,6 +63,7 @@ describe("coordinated offline backup", () => {
     const result = spawnSync("sh", ["-c", coordinateBackupScript], { env, encoding: "utf8" })
     expect(result.status).toBe(0)
     const calls = (await readFile(log, "utf8")).trim().split("\n")
+
     expect(calls.map(call => call.replace(/highstate-backup-\d+/g, "JOB"))).toEqual([
       "-n test create configmap highstate-backup-lock --from-literal=job=JOB",
       "-n test get deployment highstate -o jsonpath={.spec.replicas}",
@@ -81,22 +84,29 @@ describe("coordinated offline backup", () => {
   for (const failure of ["lock", "shutdown", "pods", "backup"]) {
     it(`does not resume or remove the maintenance lock after ${failure} failure`, async () => {
       const { env, log } = await fixture()
+
       const result = spawnSync("sh", ["-c", coordinateBackupScript], {
         env: { ...env, FAIL_AT: failure },
       })
+
       expect(result.status).not.toBe(0)
       const calls = await readFile(log, "utf8")
       expect(calls).not.toContain("--replicas=1")
       expect(calls).not.toContain("delete configmap")
-      if (failure !== "backup") expect(calls).not.toContain("create job")
+
+      if (failure !== "backup") {
+        expect(calls).not.toContain("create job")
+      }
     })
   }
 
   it("releases its own lock after a preflight failure without changing replicas", async () => {
     const { env, log } = await fixture()
+
     const result = spawnSync("sh", ["-c", coordinateBackupScript], {
       env: { ...env, FAIL_AT: "preflight" },
     })
+
     expect(result.status).not.toBe(0)
     const calls = await readFile(log, "utf8")
     expect(calls).toContain("delete configmap highstate-backup-lock")
@@ -106,9 +116,11 @@ describe("coordinated offline backup", () => {
 
   it("waits through terminating runtime and backup pods before handing off the exclusive PVC", async () => {
     const { env, log } = await fixture()
+
     const result = spawnSync("sh", ["-c", coordinateBackupScript], {
       env: { ...env, DELAY_PODS: "true" },
     })
+
     expect(result.status).toBe(0)
     const calls = (await readFile(log, "utf8")).trim().split("\n")
     const creation = calls.findIndex(call => call.includes("create job"))
@@ -120,28 +132,34 @@ describe("coordinated offline backup", () => {
 
   it("keeps the runtime stopped for before-destroy backup", async () => {
     const { env, log } = await fixture()
+
     const result = spawnSync("sh", ["-c", coordinateBackupScript], {
       env: { ...env, RESUME: "false" },
     })
+
     expect(result.status).toBe(0)
     expect(await readFile(log, "utf8")).not.toContain("--replicas=1")
   })
 
   it("refuses a filesystem capture while a runtime pod still exists", async () => {
     const { env, log } = await fixture()
+
     const result = spawnSync("sh", ["-c", offlineBackupScript], {
       env: { ...env, REPLICAS: "0", ACTIVE_PODS: "pod/stopping" },
     })
+
     expect(result.status).not.toBe(0)
     expect((await readFile(log, "utf8")).trim().split("\n")).toHaveLength(3)
   })
 
   it("fails closed if pod listing fails during the offline safety check", async () => {
     const { env } = await fixture()
+
     const result = spawnSync("sh", ["-c", offlineBackupScript], {
       env: { ...env, REPLICAS: "0", FAIL_AT: "pods" },
       encoding: "utf8",
     })
+
     expect(result.status).not.toBe(0)
     expect(result.stderr).not.toContain("restic")
   })
@@ -157,6 +175,7 @@ describe("coordinated offline backup", () => {
     const recovery = join(path, "recovery")
     await mkdir(data)
     await mkdir(recovery)
+
     for (const file of [
       "project.db",
       "project.db-wal",
@@ -167,7 +186,9 @@ describe("coordinated offline backup", () => {
     ]) {
       await writeFile(join(data, file), file)
     }
+
     await writeFile(join(recovery, "backend-identity"), "recovery-key")
+
     await writeFile(
       join(path, "pg_dump"),
       `#!/bin/sh
@@ -176,6 +197,7 @@ printf '%s\\n' pg_dump >> "$CALL_LOG"
 for arg do case "$arg" in --file=*) printf '%s' 'database-dump' > "\${arg#--file=}" ;; esac; done
 `,
     )
+
     await writeFile(
       join(path, "restic"),
       `#!/bin/sh
@@ -191,12 +213,15 @@ if [ "$1" = backup ]; then
 fi
 `,
     )
+
     await chmod(join(path, "pg_dump"), 0o755)
     await chmod(join(path, "restic"), 0o755)
+
     const script = offlineBackupScript.replace(
       /(^|[\s"=])\/(backup|recovery|data)/g,
       (_, prefix: string, directory: string) => `${prefix}${join(path, directory)}`,
     )
+
     const result = spawnSync("sh", ["-c", script], {
       env: {
         ...env,
@@ -208,20 +233,25 @@ fi
       },
       encoding: "utf8",
     })
+
     expect(result.status).toBe(failure ? 1 : 0)
     const calls = await readFile(env.CALL_LOG, "utf8")
+
     if (failure === "repository") {
       expect(calls).not.toContain("pg_dump")
       expect(calls).not.toContain("restic backup")
       return
     }
+
     if (failure === "dump") {
       expect(calls).not.toContain("restic backup")
       return
     }
+
     expect(await readFile(join(path, "backup/recovery/backend-identity"), "utf8")).toBe(
       "recovery-key",
     )
+
     expect(await readFile(join(data, "project.db-wal"), "utf8")).toBe("project.db-wal")
   })
 })

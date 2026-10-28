@@ -32,7 +32,9 @@ type OidcConfig = {
   idTokenUserinfoAssertion?: boolean
 }
 
-/** Builds an HTTPS callback without allowing the path to change its origin. */
+/**
+ * Builds an HTTPS callback without allowing the path to change its origin.
+ */
 export function applicationCallback(fqdn: string, path: string): string {
   const origin = new URL(`https://${fqdn}`)
   const callback = new URL(path, origin)
@@ -44,10 +46,11 @@ export function applicationCallback(fqdn: string, path: string): string {
   ) {
     throw new Error("Callback must be a same-origin path without a fragment")
   }
+
   return callback.href
 }
 
-// Management v1 remains supported by the pinned ZITADEL v4 release.
+// management v1 remains supported by the pinned ZITADEL v4 release
 // https://github.com/zitadel/zitadel/blob/v4.19.2/proto/zitadel/management.proto
 export class ApplicationProvider implements ResourceProvider<ApplicationInputs, ApplicationState> {
   private config(inputs: ApplicationInputs) {
@@ -84,13 +87,16 @@ export class ApplicationProvider implements ResourceProvider<ApplicationInputs, 
       signal: AbortSignal.timeout(30_000),
       redirect: "error",
     })
+
     if (response.status === 404 && (method === "GET" || method === "DELETE")) {
       return undefined
     }
+
     if (!response.ok) {
       // API bodies may contain credentials; never put them into Pulumi diagnostics
       throw new Error(`Zitadel ${method} request failed with HTTP ${response.status}`)
     }
+
     return (await response.json()) as T
   }
 
@@ -101,9 +107,11 @@ export class ApplicationProvider implements ResourceProvider<ApplicationInputs, 
       `${this.path(inputs)}/oidc`,
       { name: inputs.name, ...this.config(inputs) },
     )
+
     if (!result?.appId || !result.clientId || !result.clientSecret) {
       throw new Error("Zitadel did not return application credentials")
     }
+
     return {
       id: result.appId,
       outs: {
@@ -119,6 +127,7 @@ export class ApplicationProvider implements ResourceProvider<ApplicationInputs, 
     const replaces = (["issuer", "organizationId", "projectId"] as const).filter(
       key => olds[key] !== news[key],
     )
+
     return {
       changes:
         replaces.length > 0 ||
@@ -136,19 +145,24 @@ export class ApplicationProvider implements ResourceProvider<ApplicationInputs, 
         "Reading a Zitadel application requires its management credentials and existing client secret",
       )
     }
+
     const result = await this.request<{ app: { name: string; oidcConfig: OidcConfig } }>(
       props,
       "GET",
       this.path(props, id),
     )
+
     if (!result) {
       return { id: undefined }
     }
+
     const config = result.app.oidcConfig
     if (!config || config.clientId !== props.clientId) {
       throw new Error("Zitadel application no longer matches the managed OIDC client")
     }
+
     const expected = this.config(props)
+
     const configurationDrift =
       config.authMethodType !== expected.authMethodType ||
       config.appType !== expected.appType ||
@@ -156,12 +170,14 @@ export class ApplicationProvider implements ResourceProvider<ApplicationInputs, 
       config.idTokenUserinfoAssertion !== expected.idTokenUserinfoAssertion ||
       JSON.stringify(config.responseTypes) !== JSON.stringify(expected.responseTypes) ||
       JSON.stringify(config.grantTypes) !== JSON.stringify(expected.grantTypes)
+
     const observed = {
       ...props,
       name: result.app.name,
       redirectUris: config.redirectUris ?? [],
       configurationDrift,
     }
+
     return { id, inputs: observed, props: observed }
   }
 
@@ -173,12 +189,14 @@ export class ApplicationProvider implements ResourceProvider<ApplicationInputs, 
     if (olds.name !== news.name) {
       await this.request(news, "PUT", this.path(news, id), { name: news.name })
     }
+
     if (
       olds.configurationDrift ||
       JSON.stringify(olds.redirectUris) !== JSON.stringify(news.redirectUris)
     ) {
       await this.request(news, "PUT", `${this.path(news, id)}/oidc_config`, this.config(news))
     }
+
     return {
       outs: {
         ...news,

@@ -1,6 +1,5 @@
-import { getSharedServices, requireProjectPermission } from "@highstate/backend"
 import { PassThrough } from "node:stream"
-import { authenticateProjectHeaders } from "../../../../utils/request-authentication"
+import { getSharedServices, requireProjectPermission } from "@highstate/backend"
 import { isHostedAuth } from "../../../../utils/auth-config"
 import {
   authenticateHostedSession,
@@ -8,6 +7,7 @@ import {
   requireHostedOrigin,
   sessionTokenFromHeaders,
 } from "../../../../utils/hosted-session"
+import { authenticateProjectHeaders } from "../../../../utils/request-authentication"
 
 type TerminalBridgeState = {
   abortController: AbortController
@@ -19,9 +19,13 @@ const terminalBridgeStateByPeerId = new Map<string, TerminalBridgeState>()
 
 export default defineWebSocketHandler({
   upgrade: async request => {
-    if (!isHostedAuth()) return
+    if (!isHostedAuth()) {
+      return
+    }
+
     try {
       requireHostedOrigin(request.headers)
+
       await authenticateHostedSession(
         await getSharedServices(),
         sessionTokenFromHeaders(request.headers),
@@ -39,12 +43,14 @@ export default defineWebSocketHandler({
     const abortController = new AbortController()
 
     const stdin = new PassThrough()
+
     const stdout = createOutputStream(
       data => peer.send(data),
       () => peer.websocket.close?.(),
     )
 
     const parsedUrl = new URL(peer.request.url!)
+
     const pathRegex =
       /^\/api\/projects\/(?<projectId>[^/]+)\/terminal-sessions\/(?<sessionId>[^/]+)\/?$/
 
@@ -65,6 +71,7 @@ export default defineWebSocketHandler({
 
     // verify that the session belongs to the specified project
     const database = await services.database.forProject(projectId)
+
     const session = await database.terminalSession.findUnique({
       where: { id: sessionId },
       include: { terminal: true },
@@ -73,6 +80,7 @@ export default defineWebSocketHandler({
     if (!session) {
       throw new Error("Terminal session not found")
     }
+
     const context = await authenticateProjectHeaders(services, peer.request.headers, projectId)
     requireProjectPermission(context, "terminal.connect", { resourceId: session.terminalId })
 
@@ -82,7 +90,8 @@ export default defineWebSocketHandler({
     }
 
     const [cols, rows] = screenSizeText.split("x").map(Number)
-    if (isNaN(cols) || isNaN(rows)) {
+
+    if (Number.isNaN(cols) || Number.isNaN(rows)) {
       throw new Error("Invalid screenSize")
     }
 
@@ -104,6 +113,7 @@ export default defineWebSocketHandler({
                 peer.request!.headers,
                 projectId,
               )
+
               requireProjectPermission(current, "terminal.connect", {
                 resourceId: session.terminalId,
               })

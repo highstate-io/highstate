@@ -1,10 +1,10 @@
+import { getHostedAuthConfig, isHostedAuth } from "../../utils/auth-config"
+import { authorizePanelSession } from "../../utils/panel-authentication"
 import {
   exchangePanelLaunchTicket,
   getPanelIdFromHost,
   getPanelSession,
 } from "../../utils/panel-session"
-import { authorizePanelSession } from "../../utils/panel-authentication"
-import { getHostedAuthConfig, isHostedAuth } from "../../utils/auth-config"
 
 export default defineEventHandler(async event => {
   setHeader(event, "Cache-Control", "no-store")
@@ -22,8 +22,12 @@ export default defineEventHandler(async event => {
   if (!sessionId) {
     throw createError({ statusCode: 401, statusMessage: "Invalid panel launch ticket" })
   }
+
   const session = getPanelSession(sessionId, panelId)
-  if (!session) throw createError({ statusCode: 401 })
+  if (!session) {
+    throw createError({ statusCode: 401 })
+  }
+
   await authorizePanelSession(session)
 
   setCookie(event, "highstate-panel-session", sessionId, {

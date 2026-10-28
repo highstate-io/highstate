@@ -1,13 +1,13 @@
-import { isDesignerOrigin } from "../utils/designer-host"
 import { getSharedServices } from "@highstate/backend"
+import WebSocket from "ws"
 import { isHostedAuth } from "../utils/auth-config"
+import { isDesignerOrigin } from "../utils/designer-host"
 import {
   authenticateHostedSession,
   monitorHostedSession,
   requireHostedOrigin,
   sessionTokenFromHeaders,
 } from "../utils/hosted-session"
-import WebSocket from "ws"
 
 type EventsBridgeState = {
   pendingMessages: string[]
@@ -22,6 +22,7 @@ export default defineWebSocketHandler({
     if (isHostedAuth()) {
       try {
         requireHostedOrigin(request.headers)
+
         await authenticateHostedSession(
           await getSharedServices(),
           sessionTokenFromHeaders(request.headers),
@@ -29,8 +30,10 @@ export default defineWebSocketHandler({
       } catch {
         return new Response("Unauthorized", { status: 401 })
       }
+
       return
     }
+
     const origin = request.headers.get("origin")
     const redirectDisabled = process.env.HIGHSTATE_DESIGNER_NO_REDIRECT !== undefined
     if (!origin || !isDesignerOrigin(origin, request.url, redirectDisabled)) {
@@ -40,16 +43,19 @@ export default defineWebSocketHandler({
 
   open: async peer => {
     const config = useRuntimeConfig()
+
     const upstream = new WebSocket(`ws://127.0.0.1:${config.public.eventsPort}`, {
       headers: isHostedAuth() ? { cookie: peer.request?.headers.get("cookie") ?? "" } : {},
     })
+
     const state: EventsBridgeState = {
       pendingMessages: [],
       upstream,
     }
 
     stateByPeerId.set(peer.id, state)
-    if (isHostedAuth())
+
+    if (isHostedAuth()) {
       state.timer = monitorHostedSession(
         await getSharedServices(),
         peer.request ? sessionTokenFromHeaders(peer.request.headers) : undefined,
@@ -58,6 +64,7 @@ export default defineWebSocketHandler({
           peer.close(1008, "Session expired or revoked")
         },
       )
+    }
 
     upstream.addEventListener("open", () => {
       for (const message of state.pendingMessages) {

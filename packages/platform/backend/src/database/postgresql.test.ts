@@ -40,6 +40,7 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     const [row] = await admin.$queryRawUnsafe<{ version: number; privateKey: string }[]>(
       `SELECT "version", "privateKey" FROM "${schema}"."_highstate_backend"`,
     )
+
     return row
   }
 
@@ -52,6 +53,7 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     await writeFile(identityPath, `${identity}\n`, { mode: 0o600 })
     const url = new URL(postgresUrl!)
     url.searchParams.set("schema", schema)
+
     config = databaseConfig.parse({
       HIGHSTATE_BACKEND_DATABASE_TYPE: "postgresql",
       HIGHSTATE_BACKEND_DATABASE_POSTGRESQL_URL: url.toString(),
@@ -79,10 +81,12 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     const recoveryIdentity = await generateIdentity()
     await first.reencryptSecrets([await identityToRecipient(recoveryIdentity)])
     const rotated = await metadata()
+
     expect(await readBackendPrivateKey(rotated.privateKey, recoveryIdentity)).toEqual({
       backendId: first.backendId,
       privateKey: first.privateKey,
     })
+
     expect((await open()).backendId).toBe(first.backendId)
 
     await first.reencryptSecrets([])
@@ -109,12 +113,14 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     await open()
     await admin.$executeRawUnsafe(`UPDATE "${schema}"."_highstate_backend" SET "version" = 999`)
     const initial = await metadata()
+
     await expect(open()).rejects.toMatchObject({
       cause: {
         currentVersion: 999,
         supportedVersion: migrationPacks["backend/postgresql"].migrationNames.length,
       },
     })
+
     expect(await metadata()).toEqual(initial)
   })
 
@@ -122,19 +128,21 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     // A preexisting conflicting table forces failure after the initial migration has created other objects.
     await admin.$executeRawUnsafe(`CREATE TABLE "${schema}"."BackendRole" ("id" TEXT)`)
     await expect(open()).rejects.toThrow("Failed to initialize PostgreSQL backend storage")
+
     const [row] = await admin.$queryRawUnsafe<
       { metadata: string | null; project: string | null }[]
     >(
       `SELECT to_regclass('"${schema}"."_highstate_backend"')::text AS metadata,
        to_regclass('"${schema}"."Project"')::text AS project`,
     )
+
     expect(row).toEqual({ metadata: null, project: null })
     await admin.$executeRawUnsafe(`DROP TABLE "${schema}"."BackendRole"`)
     expect((await open()).backendId).toBeTruthy()
   })
 
   it("rolls back migration DDL when writing the version fails", async () => {
-    // Apply a real registered migration with a failing transactional version writer.
+    // apply a real registered migration with a failing transactional version writer
     await expect(
       migrateDatabase(
         {
@@ -153,9 +161,11 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
         logger,
       ),
     ).rejects.toThrow()
+
     const [row] = await admin.$queryRawUnsafe<{ table: string | null }[]>(
       `SELECT to_regclass('"${schema}"."Project"')::text AS "table"`,
     )
+
     expect(row.table).toBeNull()
   })
 
@@ -171,12 +181,15 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     expect(await manager.getProjectMasterKey(projectId)).toEqual(key)
 
     const project = await manager.setupDatabase(projectId)
+
     try {
       await project.$executeRawUnsafe('CREATE TABLE "EncryptionProbe" ("secret" TEXT)')
       await project.$executeRaw`INSERT INTO "EncryptionProbe" ("secret") VALUES ('project-secret-probe')`
+
       const databaseFile = await readFile(
         join(directory, ".highstate", "projects", projectId, "project.db"),
       )
+
       expect(databaseFile.subarray(0, 16).toString()).not.toBe("SQLite format 3\0")
       expect(databaseFile.includes(Buffer.from("project-secret-probe"))).toBe(false)
     } finally {
@@ -184,6 +197,7 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     }
 
     const reopened = await projects.openProjectDatabase(projectId, key.toString("hex"))
+
     try {
       expect(await reopened.$queryRawUnsafe('SELECT "secret" FROM "EncryptionProbe"')).toEqual([
         { secret: "project-secret-probe" },
@@ -193,6 +207,7 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
     }
 
     const wrongKey = await projects.openProjectDatabase(projectId, randomBytes(32).toString("hex"))
+
     try {
       await expect(
         wrongKey.$queryRawUnsafe('SELECT "secret" FROM "EncryptionProbe"'),
@@ -208,7 +223,9 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
       manager,
       logger,
     )
+
     const plaintext = Buffer.from("artifact-secret-probe")
+
     await artifacts.store(
       projectId,
       "probe",
@@ -217,14 +234,17 @@ describe.skipIf(!postgresUrl)("PostgreSQL backend storage", () => {
         yield plaintext
       })(),
     )
+
     const path = join(directory, ".highstate", "projects", projectId, "artifacts", "probe.tgz.enc")
     await expect.poll(async () => (await readFile(path)).length).toBeGreaterThan(plaintext.length)
     expect((await readFile(path)).includes(plaintext)).toBe(false)
     const stream = await artifacts.retrieve(projectId, "probe", 65536)
     const chunks: Uint8Array[] = []
+
     for await (const chunk of stream!) {
       chunks.push(chunk)
     }
+
     expect(Buffer.concat(chunks)).toEqual(plaintext)
   })
 })

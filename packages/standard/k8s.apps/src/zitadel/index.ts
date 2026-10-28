@@ -98,6 +98,7 @@ const token =
         "Zitadel bootstrap PAT is missing; supply the managementToken secret for an existing instance",
       )
     }
+
     return Buffer.from(data.pat, "base64").toString("utf8").trim()
   })
 

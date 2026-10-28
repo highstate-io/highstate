@@ -21,6 +21,7 @@ export function createPanelLaunchTicket(
   designerSessionToken?: string,
 ): string {
   const ticket = randomBytes(32).toString("base64url")
+
   launchTickets.set(ticket, {
     projectId,
     panelId,
@@ -35,6 +36,7 @@ export function createPanelLaunchTicket(
 export function exchangePanelLaunchTicket(ticket: string, panelId: string): string | undefined {
   const launch = launchTickets.get(ticket)
   launchTickets.delete(ticket)
+
   if (!launch || launch.panelId !== panelId || launch.expiresAt < Date.now()) {
     return undefined
   }
@@ -46,6 +48,7 @@ export function exchangePanelLaunchTicket(ticket: string, panelId: string): stri
   }
 
   const sessionId = randomBytes(32).toString("base64url")
+
   sessions.set(sessionId, {
     ...launch,
     expiresAt: Date.now() + sessionLifetime,
@@ -70,6 +73,7 @@ export function getActivePanelSession(panelId: string): PanelSession | undefined
       sessions.delete(sessionId)
       continue
     }
+
     if (session.panelId === panelId) {
       return session
     }
@@ -80,15 +84,20 @@ export function getActivePanelSession(panelId: string): PanelSession | undefined
 
 export function getPanelIdFromHost(host: string | undefined): string | undefined {
   const hostname = host?.split(":")[0]
+
   if (isHostedAuth()) {
     const suffix = `.panels.${new URL(getHostedAuthConfig().publicUrl).hostname}`
-    if (!hostname?.endsWith(suffix)) return undefined
+    if (!hostname?.endsWith(suffix)) {
+      return undefined
+    }
+
     const labels = hostname.slice(0, -suffix.length).split(".")
     return labels.every(label => /^[a-z0-9-]+$/.test(label)) &&
       /^[a-z0-9]+$/.test(labels.at(-1) ?? "")
       ? labels.at(-1)
       : undefined
   }
+
   const match = hostname?.match(
     /^(?:[a-z0-9-]+\.)*(?<panelId>[a-z0-9]+)\.panels\.highstate\.localhost$/,
   )
@@ -98,12 +107,14 @@ export function getPanelIdFromHost(host: string | undefined): string | undefined
 
 export function isNestedPanelHost(host: string | undefined, panelId: string): boolean {
   const hostname = host?.split(":")[0]
-  if (isHostedAuth())
+
+  if (isHostedAuth()) {
     return (
       hostname?.endsWith(
         `.${panelId}.panels.${new URL(getHostedAuthConfig().publicUrl).hostname}`,
       ) ?? false
     )
+  }
 
   return hostname?.endsWith(`.${panelId}.panels.highstate.localhost`) ?? false
 }

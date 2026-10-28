@@ -1,6 +1,8 @@
 import type { IncomingMessage } from "node:http"
 import { request as requestHttp } from "node:http"
 import { getSharedServices } from "@highstate/backend"
+import { isHostedAuth } from "../utils/auth-config"
+import { authorizePanelSession } from "../utils/panel-authentication"
 import {
   getPanelCorsOrigin,
   getPanelFrameContentSecurityPolicy,
@@ -17,8 +19,6 @@ import {
   isNestedPanelHost,
 } from "../utils/panel-session"
 import { readRequestBody } from "../utils/request-body"
-import { isHostedAuth } from "../utils/auth-config"
-import { authorizePanelSession } from "../utils/panel-authentication"
 
 export default defineEventHandler(async event => {
   const panelId = getPanelIdFromHost(getHeader(event, "host"))
@@ -69,13 +69,16 @@ export default defineEventHandler(async event => {
   if (!session) {
     return sendPanelError(event, 401, "Panel session required")
   }
+
   try {
     await authorizePanelSession(session)
   } catch {
     return sendPanelError(event, 401, "Panel authorization expired")
   }
-  if (isHostedAuth() && !["GET", "HEAD", "OPTIONS"].includes(event.method) && !hasSessionSource)
+
+  if (isHostedAuth() && !["GET", "HEAD", "OPTIONS"].includes(event.method) && !hasSessionSource) {
     return sendPanelError(event, 403, "Invalid panel request origin")
+  }
 
   const requestBody = readRequestBody(getRequestWebStream(event))
   const services = await getSharedServices()
@@ -138,6 +141,7 @@ export default defineEventHandler(async event => {
                 void authorizePanelSession(session).catch(() => response.destroy())
               }, 5000)
             : undefined
+
           timer?.unref?.()
           response.once("close", () => clearInterval(timer))
           response.once("end", () => clearInterval(timer))

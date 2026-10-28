@@ -36,30 +36,40 @@ export function resolveHumanPermissions<P extends string, R>(
   rules: readonly { permissions: readonly P[]; restrictions?: readonly R[] }[],
 ): ResolvedPermissions<P, R> {
   const result = new Map<P, ResolvedPermissionGrant<R>[]>()
+
   for (const rule of rules) {
     for (const permission of rule.permissions) {
       const grants = result.get(permission) ?? []
+
       grants.push({
         restrictions: (rule.restrictions ?? []) as ResolvedPermissionGrant<R>["restrictions"],
       })
+
       result.set(permission, grants)
     }
   }
+
   return result
 }
 
-/** Resolves human role grants in the backend realm; local trust is explicit. */
+/**
+ * Resolves human role grants in the backend realm; local trust is explicit.
+ */
 export async function resolveHumanBackendContext(
   database: DatabaseManager,
   identity: DesignerIdentity,
   trustedLocal = false,
 ): Promise<UserBackendRequestContext> {
-  if (trustedLocal && identity.type !== "local") throw new Error("Local identity required")
+  if (trustedLocal && identity.type !== "local") {
+    throw new Error("Local identity required")
+  }
+
   const subject = {
     type: "user" as const,
     userId: identity.id,
     groupIds: identity.groups.map(group => group.id),
   }
+
   const roles = trustedLocal
     ? []
     : await database.backend.backendRole.findMany({
@@ -71,6 +81,7 @@ export async function resolveHumanBackendContext(
         },
         select: { rules: true },
       })
+
   const rules = trustedLocal
     ? [
         {
@@ -80,28 +91,37 @@ export async function resolveHumanBackendContext(
         },
       ]
     : roles.flatMap(role => backendRoleRulesSchema.parse(role.rules))
+
   return { realm: "backend", subject, permissions: resolveHumanPermissions(rules) }
 }
 
-/** Project grants are independent of backend administration grants. */
+/**
+ * Project grants are independent of backend administration grants.
+ */
 export async function resolveHumanProjectContext(
   database: DatabaseManager,
   identity: DesignerIdentity,
   projectId: string,
   trustedLocal = false,
 ): Promise<UserProjectRequestContext> {
-  if (trustedLocal && identity.type !== "local") throw new Error("Local identity required")
+  if (trustedLocal && identity.type !== "local") {
+    throw new Error("Local identity required")
+  }
+
   const project = await database.forProject(projectId)
+
   await project.user.upsert({
     where: { id: identity.id },
     create: { id: identity.id, type: identity.type, meta: identity.meta },
     update: { type: identity.type, meta: identity.meta },
   })
+
   const subject = {
     type: "user" as const,
     userId: identity.id,
     groupIds: identity.groups.map(group => group.id),
   }
+
   const roles = trustedLocal
     ? []
     : await project.role.findMany({
@@ -113,6 +133,7 @@ export async function resolveHumanProjectContext(
         },
         select: { rules: true },
       })
+
   const rules = trustedLocal
     ? [
         {
@@ -122,6 +143,7 @@ export async function resolveHumanProjectContext(
         },
       ]
     : roles.flatMap(role => projectRoleRulesSchema.parse(role.rules))
+
   return { realm: "project", projectId, subject, permissions: resolveHumanPermissions(rules) }
 }
 
@@ -135,7 +157,9 @@ export const humanRoleBindingSchema = z.object({
 })
 export type HumanRoleBinding = z.infer<typeof humanRoleBindingSchema>
 
-/** Changes a human grant with the same subset/escalation boundary as role editing. */
+/**
+ * Changes a human grant with the same subset/escalation boundary as role editing.
+ */
 export async function setHumanBackendRoleBinding(
   database: DatabaseManager,
   context: BackendRequestContext,
@@ -144,34 +168,40 @@ export async function setHumanBackendRoleBinding(
   const { roleId, subject, granted } = humanRoleBindingSchema.parse(input)
   requireBackendPermission(context, "role.update", { resourceId: roleId })
   const role = await database.backend.backendRole.findUniqueOrThrow({ where: { id: roleId } })
-  if (!hasBackendPermissionRulesSubset(context, backendRoleRulesSchema.parse(role.rules)))
+  if (!hasBackendPermissionRulesSubset(context, backendRoleRulesSchema.parse(role.rules))) {
     requireBackendPermission(context, "role.escalate", { resourceId: roleId })
+  }
+
   if (subject.type === "user") {
-    if (granted)
+    if (granted) {
       await database.backend.userBackendRoleBinding.upsert({
         where: { roleId_userId: { roleId, userId: subject.id } },
         create: { roleId, userId: subject.id },
         update: {},
       })
-    else
+    } else {
       await database.backend.userBackendRoleBinding.deleteMany({
         where: { roleId, userId: subject.id },
       })
+    }
   } else {
-    if (granted)
+    if (granted) {
       await database.backend.userGroupBackendRoleBinding.upsert({
         where: { roleId_groupId: { roleId, groupId: subject.id } },
         create: { roleId, groupId: subject.id },
         update: {},
       })
-    else
+    } else {
       await database.backend.userGroupBackendRoleBinding.deleteMany({
         where: { roleId, groupId: subject.id },
       })
+    }
   }
 }
 
-/** Binds a known global human or group to a project role without merging realms. */
+/**
+ * Binds a known global human or group to a project role without merging realms.
+ */
 export async function setHumanProjectRoleBinding(
   database: DatabaseManager,
   context: ProjectRequestContext,
@@ -181,35 +211,45 @@ export async function setHumanProjectRoleBinding(
   requireProjectPermission(context, "role.update", { resourceId: roleId })
   const project = await database.forProject(context.projectId)
   const role = await project.role.findUniqueOrThrow({ where: { id: roleId } })
-  if (!hasProjectPermissionRulesSubset(context, projectRoleRulesSchema.parse(role.rules)))
+  if (!hasProjectPermissionRulesSubset(context, projectRoleRulesSchema.parse(role.rules))) {
     requireProjectPermission(context, "role.escalate", { resourceId: roleId })
+  }
+
   if (subject.type === "user") {
     const user = await database.backend.user.findUniqueOrThrow({ where: { id: subject.id } })
+
     await project.user.upsert({
       where: { id: user.id },
       create: { id: user.id, type: user.type, meta: user.meta },
       update: {},
     })
-    if (granted)
+
+    if (granted) {
       await project.userRoleBinding.upsert({
         where: { roleId_userId: { roleId, userId: subject.id } },
         create: { roleId, userId: subject.id },
         update: {},
       })
-    else await project.userRoleBinding.deleteMany({ where: { roleId, userId: subject.id } })
+    } else {
+      await project.userRoleBinding.deleteMany({ where: { roleId, userId: subject.id } })
+    }
   } else {
     const group = await database.backend.userGroup.findUniqueOrThrow({ where: { id: subject.id } })
+
     await project.userGroup.upsert({
       where: { id: group.id },
       create: { id: group.id, meta: group.meta },
       update: {},
     })
-    if (granted)
+
+    if (granted) {
       await project.userGroupRoleBinding.upsert({
         where: { roleId_groupId: { roleId, groupId: subject.id } },
         create: { roleId, groupId: subject.id },
         update: {},
       })
-    else await project.userGroupRoleBinding.deleteMany({ where: { roleId, groupId: subject.id } })
+    } else {
+      await project.userGroupRoleBinding.deleteMany({ where: { roleId, groupId: subject.id } })
+    }
   }
 }

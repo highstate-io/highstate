@@ -1,7 +1,7 @@
 import { getSharedServices, requireProjectPermission } from "@highstate/backend"
 import { PermissionDeniedError } from "@highstate/backend/shared"
-import { authenticateProjectHeaders } from "../../../../utils/request-authentication"
 import { isHostedAuth } from "../../../../utils/auth-config"
+import { authenticateProjectHeaders } from "../../../../utils/request-authentication"
 
 export default defineEventHandler(async event => {
   setHeader(event, "Cache-Control", "private, no-store")
@@ -28,6 +28,7 @@ export default defineEventHandler(async event => {
         statusMessage: "Artifact not found",
       })
     }
+
     requireProjectPermission(context, "artifact.get", { resourceId: artifact.id })
 
     // retrieve artifact content from backend
@@ -66,13 +67,16 @@ export default defineEventHandler(async event => {
         const current = await authenticateProjectHeaders(services, headers, projectId)
         requireProjectPermission(current, "artifact.get", { resourceId: artifact.id })
       }
+
       event.node.res.write(chunk)
     }
 
     event.node.res.end()
   } catch (error) {
-    if (error instanceof PermissionDeniedError)
+    if (error instanceof PermissionDeniedError) {
       throw createError({ statusCode: 403, statusMessage: "Permission denied" })
+    }
+
     // if it's already a createError, re-throw it
     if (error && typeof error === "object" && "statusCode" in error) {
       throw error

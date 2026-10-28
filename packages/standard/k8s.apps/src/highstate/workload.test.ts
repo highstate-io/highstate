@@ -38,10 +38,12 @@ describe("Highstate runtime topology", () => {
       connectionId: "mock",
       kubeconfig: makeFile({ name: "kubeconfig", content: "mock", isSecret: true }),
     } as k8s.Cluster
+
     const namespace = Namespace.wrap("test", {
       cluster,
       namespace: new core.v1.Namespace("test", { metadata: { name: "test" } }),
     })
+
     const credentials = Secret.create("runtime-test", {
       namespace,
       stringData: {
@@ -49,6 +51,7 @@ describe("Highstate runtime topology", () => {
         "postgresql-url": secret("postgresql://user:password@db/highstate"),
       },
     })
+
     const deployment = createRuntimeDeployment({
       name: "runtime-test",
       namespace,
@@ -59,6 +62,7 @@ describe("Highstate runtime topology", () => {
       publicUrl: "https://highstate.example",
       maintenance: false,
     })
+
     const spec = await toPromise(deployment.spec)
     const pod = spec.template.spec
     expect(spec.replicas).toBe(1)
@@ -69,36 +73,45 @@ describe("Highstate runtime topology", () => {
     const docker = pod.initContainers[0]
     expect(docker.restartPolicy).toBe("Always")
     expect(docker.securityContext.privileged).toBe(true)
+
     expect(docker.startupProbe.exec.command).toEqual([
       "docker",
       "-H",
       "unix:///run/highstate-docker/docker.sock",
       "info",
     ])
+
     for (const path of ["/data", "/tmp", "/run/user/0", "/run/highstate-docker"]) {
       const mount = application.volumeMounts.find(mount => mount.mountPath === path)
       expect(mount).toBeDefined()
+
       expect(
         docker.volumeMounts.some(
           candidate => candidate.name === mount?.name && candidate.mountPath === path,
         ),
       ).toBe(true)
     }
+
     expect(
       pod.volumes.find(volume => volume.name === "data")?.persistentVolumeClaim.claimName,
     ).toBe("exclusive-data")
+
     expect(
       JSON.stringify(pod.volumes.find(volume => volume.name === "docker-data")?.emptyDir),
     ).toBe("{}")
+
     expect(
       application.env.find(env => env.name === "HIGHSTATE_BACKEND_DATABASE_POSTGRESQL_URL")
         ?.valueFrom.secretKeyRef,
     ).toMatchObject({ name: "runtime-test", key: "postgresql-url" })
+
     expect(JSON.stringify(application)).not.toContain("password@")
     expect(JSON.stringify(application)).not.toContain("client-secret")
+
     expect(application.env.find(env => env.name === "HIGHSTATE_AUTH_PROVIDERS_FILE")?.value).toBe(
       "/recovery/providers.json",
     )
+
     expect(await isSecret(credentials.stringData)).toBe(true)
     const config = JSON.parse((await toPromise(credentials.stringData))["providers.json"])
     expect(config[0].clientId).toBe("client-id")
@@ -129,6 +142,7 @@ describe("Highstate runtime topology", () => {
       database: "highstate",
       insecure: false,
     }
+
     const cluster = { name: "test", id: "test" } as k8s.Cluster
     const config = await createPostgresqlConfig(connection, cluster)
     const url = new URL(config.url)
@@ -138,6 +152,7 @@ describe("Highstate runtime topology", () => {
     expect(url.searchParams.get("sslrootcert")).toBe("/etc/ssl/certs/ca-certificates.crt")
     const insecure = await createPostgresqlConfig({ ...connection, insecure: true }, cluster)
     expect(new URL(insecure.url).searchParams.get("sslmode")).toBe("disable")
+
     await expect(
       createPostgresqlConfig(
         { ...connection, insecure: true, ca: makeFile({ name: "ca.crt", content: "CA" }) },

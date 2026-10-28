@@ -1,8 +1,8 @@
 import { instanceIdSchema } from "@highstate/contract"
 import { z } from "zod"
 import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
-import { createPanelLaunchTicket } from "../utils/panel-session"
 import { getHostedAuthConfig, isHostedAuth } from "../utils/auth-config"
+import { createPanelLaunchTicket } from "../utils/panel-session"
 
 export const stateRouter = router({
   getInstanceStates: projectProcedure
@@ -211,6 +211,7 @@ export const stateRouter = router({
         endpoint.workerInstanceId,
         ctx.designerSessionToken,
       )
+
       const port = process.env.HIGHSTATE_DESIGNER_PORT ?? process.env.NITRO_PORT ?? "7283"
 
       return {

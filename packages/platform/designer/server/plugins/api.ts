@@ -6,8 +6,12 @@ import { initializeHostedAuth } from "../utils/auth-initialization"
 
 export default defineNitroPlugin(async _app => {
   const services = await getSharedServices()
-  if (isHostedAuth()) await initializeHostedAuth(services)
-  else await ensureLocalBackendUser(services)
+
+  if (isHostedAuth()) {
+    await initializeHostedAuth(services)
+  } else {
+    await ensureLocalBackendUser(services)
+  }
 
   services.logger.debug("starting backend api")
   await startBackendApi(services)

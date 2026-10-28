@@ -7,7 +7,9 @@ const pinnedImage = z
   .string()
   .regex(/^\S+@sha256:[a-f0-9]{64}$/, "Supply an immutable image digest")
 
-/** A single-owner Highstate control plane with an isolated Docker execution daemon. */
+/**
+ * A single-owner Highstate control plane with an isolated Docker execution daemon.
+ */
 export const highstate = defineUnit({
   type: "k8s.apps.highstate.v1",
   args: {
@@ -19,7 +21,9 @@ export const highstate = defineUnit({
     storageClassName: z.string().optional(),
     initialAdminUserIds: z.array(z.string().min(1)).default([]),
     initialAdminGroupIds: z.array(z.string().min(1)).default([]),
-    /** Start stopped when restoring a backup. */
+    /**
+     * Start stopped when restoring a backup.
+     */
     maintenance: z.boolean().default(false),
   },
   secrets: {

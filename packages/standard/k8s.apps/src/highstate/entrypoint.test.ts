@@ -17,6 +17,7 @@ async function setup() {
   const log = join(path, "calls")
   const admins = join(path, "admins.json")
   await writeFile(admins, JSON.stringify({ userIds: ["user-1"], groupIds: ["group-1"] }))
+
   const scripts = {
     docker: `#!/bin/sh
 printf '%s\\n' "docker $*" >> "$CALL_LOG"
@@ -31,20 +32,24 @@ if [ "$1" = -e ]; then exec "${process.execPath}" "$@"; fi
 printf '%s\\n' "$PWD" "$HOME" "$PULUMI_HOME" "$HIGHSTATE_AUTH_PROVIDERS_FILE" "$HIGHSTATE_AUTH_ADMIN_USER_IDS" "$HIGHSTATE_AUTH_ADMIN_GROUP_IDS" "$*" >> "$CALL_LOG"
 `,
   }
+
   for (const [name, content] of Object.entries(scripts)) {
     const file = join(bin, name)
     await writeFile(file, content)
     await chmod(file, 0o755)
   }
+
   const source = await readFile(
     new URL("../../../../../docker/highstate-entrypoint.sh", import.meta.url),
     "utf8",
   )
+
   const script = source
     .replaceAll("/data", `${path}/data`)
     .replaceAll("/run/user/0", `${path}/run`)
     .replaceAll("/opt/highstate", `${path}/image`)
     .replaceAll("/opt/pulumi", `${path}/pulumi`)
+
   const env = {
     ...process.env,
     PATH: `${bin}:${process.env.PATH}`,
@@ -52,6 +57,7 @@ printf '%s\\n' "$PWD" "$HOME" "$PULUMI_HOME" "$HIGHSTATE_AUTH_PROVIDERS_FILE" "$
     HIGHSTATE_AUTH_PROVIDERS_FILE: join(path, "providers.json"),
     HIGHSTATE_AUTH_INITIAL_ADMINS_PATH: admins,
   }
+
   return { path, log, admins, script, env }
 }
 
@@ -60,6 +66,7 @@ describe("production entrypoint", () => {
     const { path, log, script, env } = await setup()
     const result = spawnSync("sh", ["-c", script], { env, encoding: "utf8" })
     expect(result.status).toBe(0)
+
     expect((await readFile(log, "utf8")).trim().split("\n")).toEqual([
       "docker info",
       "docker ps --all --quiet",
@@ -75,12 +82,15 @@ describe("production entrypoint", () => {
 
   it("fails without starting Nitro when Docker never becomes ready", async () => {
     const { log, script, env } = await setup()
+
     const result = spawnSync("sh", ["-c", script], {
       env: { ...env, DOCKER_FAIL: "true", HIGHSTATE_DOCKER_START_ATTEMPTS: "2" },
       encoding: "utf8",
     })
+
     expect(result.status).toBe(1)
     expect(result.stderr).toContain("Docker did not become ready")
+
     expect((await readFile(log, "utf8")).trim().split("\n")).toEqual([
       "docker info",
       "sleep",
@@ -90,12 +100,15 @@ describe("production entrypoint", () => {
 
   it("removes surviving containers from the dedicated daemon before starting Nitro", async () => {
     const { path, log, script, env } = await setup()
+
     const result = spawnSync("sh", ["-c", script], {
       env: { ...env, STALE_CONTAINERS: "worker-1\nterminal-1" },
       encoding: "utf8",
     })
+
     expect(result.status).toBe(0)
     const calls = (await readFile(log, "utf8")).trim().split("\n")
+
     expect(calls.slice(0, 4)).toEqual([
       "docker info",
       "docker ps --all --quiet",
@@ -109,6 +122,7 @@ describe("production entrypoint", () => {
     const workspace = join(path, "data/workspace")
     const run = () => spawnSync("sh", ["-c", script], { env, encoding: "utf8" })
     expect(run().status).toBe(0)
+
     expect(JSON.parse(await readFile(join(workspace, "bun.lock"), "utf8")).workspaces[""]).toEqual({
       name: "highstate-workspace",
     })
