@@ -9,6 +9,29 @@ import { buildSettingsOrderBy } from "./shared"
 export class PageSettingsService {
   constructor(private readonly database: DatabaseManager) {}
 
+  /**
+   * Loads page content only for IDs allowed by the caller's resource and instance grants.
+   */
+  async getPages(context: ProjectRequestContext, pageIds: string[]) {
+    const database = await this.database.forProject(context.projectId)
+
+    const authorization = await buildProjectAuthorizationWhere<PageWhereInput>({
+      database: this.database,
+      context,
+      permission: "page.get",
+      target: {
+        resources: ids => ({ id: { in: [...ids] } }),
+        instances: scope => ({ stateId: { in: [...scope.stateIds] } }),
+        owners: ids => ({ serviceAccountId: { in: [...ids] } }),
+        self: id => ({ serviceAccountId: id }),
+      },
+    })
+
+    return await database.page.findMany({
+      where: { AND: [{ id: { in: pageIds } }, authorization] },
+    })
+  }
+
   async query(context: ProjectRequestContext, query: PageQuery): Promise<PageResult<PageOutput>> {
     const database = await this.database.forProject(context.projectId)
     const where = PageSettingsService.buildWhere(query)

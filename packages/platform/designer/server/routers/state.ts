@@ -1,6 +1,6 @@
 import { instanceIdSchema } from "@highstate/contract"
 import { z } from "zod"
-import { backendProcedure, projectProcedure, publicProcedure, router } from "../trpc"
+import { backendProcedure, projectProcedure, router } from "../trpc"
 import { getHostedAuthConfig, isHostedAuth } from "../utils/auth-config"
 import { createPanelLaunchTicket } from "../utils/panel-session"
 
@@ -26,14 +26,41 @@ export const stateRouter = router({
       )
     }),
 
-  watchInstanceStates: publicProcedure
+  watchInstanceStates: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
     .subscription(async ({ input, ctx, signal }) => {
-      return await ctx.pubsubManager.subscribe(["instance-state", input.projectId], signal)
+      const visible = await ctx.instanceStateService.getVisibleStateIds(ctx.requestContext)
+      const events = await ctx.pubsubManager.subscribe(["instance-state", input.projectId], signal)
+      return (async function* () {
+        for await (const event of events) {
+          if (event.type === "deleted") {
+            if (visible.delete(event.stateId)) {
+              yield event
+            }
+
+            continue
+          }
+
+          const current = await ctx.instanceStateService.getVisibleStateIds(ctx.requestContext)
+
+          for (const id of current) {
+            visible.add(id)
+          }
+
+          if (event.type === "patched-batch") {
+            const patches = event.patches.filter(patch => current.has(patch.stateId))
+            if (patches.length > 0) {
+              yield { ...event, patches }
+            }
+          } else if (current.has(event.type === "updated" ? event.state.id : event.stateId)) {
+            yield event
+          }
+        }
+      })()
     }),
 
   forgetInstanceStates: projectProcedure
@@ -72,7 +99,7 @@ export const stateRouter = router({
       )
     }),
 
-  getInstanceLocks: publicProcedure
+  getInstanceLocks: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -80,18 +107,39 @@ export const stateRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const database = await ctx.database.forProject(input.projectId)
-
-      return await database.instanceLock.findMany()
+      const visible = await ctx.instanceStateService.getVisibleStateIds(ctx.requestContext)
+      return await database.instanceLock.findMany({
+        where: { stateId: { in: [...visible] } },
+        select: { stateId: true, meta: true, acquiredAt: true },
+      })
     }),
 
-  watchInstanceLocks: publicProcedure
+  watchInstanceLocks: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
-    .subscription(({ input, ctx, signal }) => {
-      return ctx.pubsubManager.subscribe(["instance-lock", input.projectId], signal)
+    .subscription(async ({ input, ctx, signal }) => {
+      await ctx.instanceStateService.getVisibleStateIds(ctx.requestContext)
+      const events = await ctx.pubsubManager.subscribe(["instance-lock", input.projectId], signal)
+      return (async function* () {
+        for await (const event of events) {
+          const visible = await ctx.instanceStateService.getVisibleStateIds(ctx.requestContext)
+
+          if (event.type === "locked") {
+            const locks = event.locks.filter(lock => visible.has(lock.stateId))
+            if (locks.length > 0) {
+              yield { ...event, locks }
+            }
+          } else {
+            const stateIds = event.stateIds.filter(id => visible.has(id))
+            if (stateIds.length > 0) {
+              yield { ...event, stateIds }
+            }
+          }
+        }
+      })()
     }),
 
   getInstanceSecrets: projectProcedure
@@ -121,7 +169,7 @@ export const stateRouter = router({
       )
     }),
 
-  getPage: publicProcedure
+  getPage: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -129,16 +177,11 @@ export const stateRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const database = await ctx.database.forProject(input.projectId)
-
-      const page = await database.page.findUnique({
-        where: { id: input.pageId },
-      })
-
-      return page
+      const pages = await ctx.pageSettingsService.getPages(ctx.requestContext, [input.pageId])
+      return pages[0] ?? null
     }),
 
-  getInstancePages: publicProcedure
+  getInstancePages: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -146,11 +189,7 @@ export const stateRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const database = await ctx.database.forProject(input.projectId)
-
-      const pages = await database.page.findMany({
-        where: { id: { in: input.pageIds } },
-      })
+      const pages = await ctx.pageSettingsService.getPages(ctx.requestContext, input.pageIds)
 
       return pages.reduce(
         (acc, page) => {
@@ -176,7 +215,7 @@ export const stateRouter = router({
       return panels.filter(panel => panel !== null)
     }),
 
-  createPanelLaunch: publicProcedure
+  createPanelLaunch: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -184,13 +223,7 @@ export const stateRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const database = await ctx.database.forProject(input.projectId)
-
-      const panel = await database.panel.findUnique({
-        where: { id: input.panelId },
-        select: { id: true, workerVersionId: true },
-      })
-
+      const panel = await ctx.panelSettingsService.get(ctx.requestContext, input.panelId)
       if (!panel) {
         throw new Error(`Panel "${input.panelId}" not found`)
       }
@@ -221,7 +254,7 @@ export const stateRouter = router({
       }
     }),
 
-  watchPanelAvailability: publicProcedure
+  watchPanelAvailability: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -229,11 +262,15 @@ export const stateRouter = router({
       }),
     )
     .subscription(async function* ({ input, ctx, signal }) {
-      const database = await ctx.database.forProject(input.projectId)
+      const authorize = async () =>
+        await ctx.panelSettingsService.get(ctx.requestContext, input.panelId)
 
-      const panel = await database.panel.findUnique({
-        where: { id: input.panelId },
-        select: { workerVersionId: true },
+      const panel = await authorize()
+
+      ctx.revalidate.push(async () => {
+        if (!(await authorize())) {
+          throw new Error(`Panel "${input.panelId}" not found`)
+        }
       })
 
       if (!panel) {
@@ -258,7 +295,7 @@ export const stateRouter = router({
       }
     }),
 
-  getInstanceTriggers: publicProcedure
+  getInstanceTriggers: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -266,11 +303,10 @@ export const stateRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const database = await ctx.database.forProject(input.projectId)
-
-      const triggers = await database.trigger.findMany({
-        where: { id: { in: input.triggerIds } },
-      })
+      const triggers = await ctx.triggerSettingsService.getTriggers(
+        ctx.requestContext,
+        input.triggerIds,
+      )
 
       return triggers.reduce(
         (acc, trigger) => {

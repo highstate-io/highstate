@@ -9,6 +9,27 @@ import { buildSettingsOrderBy } from "./shared"
 export class TriggerSettingsService {
   constructor(private readonly database: DatabaseManager) {}
 
+  /**
+   * Loads only triggers covered by resource or recursive instance grants.
+   */
+  async getTriggers(context: ProjectRequestContext, triggerIds: string[]) {
+    const database = await this.database.forProject(context.projectId)
+
+    const authorization = await buildProjectAuthorizationWhere<TriggerWhereInput>({
+      database: this.database,
+      context,
+      permission: "trigger.get",
+      target: {
+        resources: ids => ({ id: { in: [...ids] } }),
+        instances: scope => ({ stateId: { in: [...scope.stateIds] } }),
+      },
+    })
+
+    return await database.trigger.findMany({
+      where: { AND: [{ id: { in: triggerIds } }, authorization] },
+    })
+  }
+
   async query(
     context: ProjectRequestContext,
     query: TriggerQuery,

@@ -1,54 +1,69 @@
 import { operationLaunchInputSchema, operationPlanInputSchema } from "@highstate/backend/shared"
 import { instanceIdSchema } from "@highstate/contract"
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { projectProcedure, router } from "../trpc"
 
 export const operationRouter = router({
-  getLastOperations: publicProcedure
+  getLastOperations: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      const database = await ctx.database.forProject(input.projectId)
-
-      return await database.operation.findMany({
-        orderBy: { startedAt: "desc" },
-        take: 20,
-      })
+    .query(async ({ ctx }) => {
+      const page = await ctx.operationService.getOperations(ctx.requestContext, { pageSize: 20 })
+      return page.items
     }),
 
-  launch: publicProcedure.input(operationLaunchInputSchema).mutation(async ({ input, ctx }) => {
-    return await ctx.operationManager.launch(input)
+  launch: projectProcedure.input(operationLaunchInputSchema).mutation(async ({ input, ctx }) => {
+    return await ctx.operationManager.launchAuthorized(ctx.requestContext, input)
   }),
 
-  plan: publicProcedure.input(operationPlanInputSchema).mutation(async ({ input, ctx }) => {
-    return await ctx.operationManager.plan(input)
+  plan: projectProcedure.input(operationPlanInputSchema).mutation(async ({ input, ctx }) => {
+    return await ctx.operationManager.planAuthorized(ctx.requestContext, input)
   }),
 
-  watch: publicProcedure
+  watch: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
       }),
     )
-    .subscription(({ input, ctx, signal }) => {
-      return ctx.pubsubManager.subscribe(["operation", input.projectId], signal)
+    .subscription(async ({ input, ctx, signal }) => {
+      const visible = await ctx.operationService.getVisibleOperationIds(ctx.requestContext)
+      const events = await ctx.pubsubManager.subscribe(["operation", input.projectId], signal)
+      return (async function* () {
+        for await (const event of events) {
+          if (event.type === "deleted") {
+            if (visible.delete(event.operationId)) {
+              yield event
+            }
+
+            continue
+          }
+
+          const current = await ctx.operationService.getVisibleOperationIds(ctx.requestContext)
+          if (current.has(event.operation.id)) {
+            visible.add(event.operation.id)
+            yield event
+          }
+        }
+      })()
     }),
 
-  cancel: publicProcedure
+  cancel: projectProcedure
     .input(
       z.object({
         operationId: z.string(),
         projectId: z.string(),
       }),
     )
-    .mutation(({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
+      await ctx.operationService.authorizeCancellation(ctx.requestContext, input.operationId)
       ctx.operationManager.cancel(input.operationId)
     }),
 
-  cancelInstance: publicProcedure
+  cancelInstance: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -57,6 +72,12 @@ export const operationRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      await ctx.operationService.authorizeCancellation(
+        ctx.requestContext,
+        input.operationId,
+        input.instanceId,
+      )
+
       ctx.operationManager.cancelInstance(input.operationId, input.instanceId)
     }),
 })

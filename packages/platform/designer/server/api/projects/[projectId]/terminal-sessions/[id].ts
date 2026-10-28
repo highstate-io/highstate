@@ -1,5 +1,5 @@
 import { PassThrough } from "node:stream"
-import { getSharedServices, requireProjectPermission } from "@highstate/backend"
+import { getSharedServices } from "@highstate/backend"
 import { isHostedAuth } from "../../../../utils/auth-config"
 import {
   authenticateHostedSession,
@@ -82,7 +82,7 @@ export default defineWebSocketHandler({
     }
 
     const context = await authenticateProjectHeaders(services, peer.request.headers, projectId)
-    requireProjectPermission(context, "terminal.connect", { resourceId: session.terminalId })
+    await services.terminalSessionService.authorizeConnection(context, session.terminalId)
 
     const screenSizeText = parsedUrl.searchParams.get("screenSize")
     if (!screenSizeText) {
@@ -114,9 +114,7 @@ export default defineWebSocketHandler({
                 projectId,
               )
 
-              requireProjectPermission(current, "terminal.connect", {
-                resourceId: session.terminalId,
-              })
+              await services.terminalSessionService.authorizeConnection(current, session.terminalId)
             },
           )
         : undefined,

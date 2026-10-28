@@ -1,8 +1,9 @@
+import { TRPCError } from "@trpc/server"
 import { z } from "zod"
-import { projectProcedure, publicProcedure, router } from "../trpc"
+import { projectProcedure, router } from "../trpc"
 
 export const terminalRouter = router({
-  getOrCreateTerminalSession: publicProcedure
+  getOrCreateTerminalSession: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -11,6 +12,8 @@ export const terminalRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      await ctx.terminalSessionService.authorizeConnection(ctx.requestContext, input.terminalId)
+
       const session = await ctx.terminalManager.getOrCreateSession(
         input.projectId,
         input.terminalId,
@@ -20,7 +23,7 @@ export const terminalRouter = router({
       return session
     }),
 
-  getTerminals: publicProcedure
+  getTerminals: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -28,11 +31,7 @@ export const terminalRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const database = await ctx.database.forProject(input.projectId)
-
-      return await database.terminal.findMany({
-        where: { id: { in: input.terminalIds } },
-      })
+      return await ctx.terminalSessionService.getTerminals(ctx.requestContext, input.terminalIds)
     }),
 
   getTerminalSession: projectProcedure
@@ -63,14 +62,27 @@ export const terminalRouter = router({
       )
     }),
 
-  watchSession: publicProcedure
+  watchSession: projectProcedure
     .input(
       z.object({
         projectId: z.string(),
         sessionId: z.string(),
       }),
     )
-    .subscription(({ input, ctx, signal }) => {
+    .subscription(async ({ input, ctx, signal }) => {
+      const authorize = async () => {
+        const session = await ctx.terminalSessionService.getTerminalSession(
+          ctx.requestContext,
+          input.sessionId,
+        )
+
+        if (!session) {
+          throw new TRPCError({ code: "NOT_FOUND" })
+        }
+      }
+
+      await authorize()
+      ctx.revalidate.push(authorize)
       return ctx.terminalManager.watchSession(input.projectId, input.sessionId, signal)
     }),
 
