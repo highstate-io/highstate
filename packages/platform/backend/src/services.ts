@@ -425,7 +425,7 @@ export async function createServices({
     }),
     snapshotImages,
     new RuntimeProjectLibraryCatalogProvider(database, libraryBackend, libraryService),
-    [{ packageName: "@highstate/library", version: "0.30.2" }],
+    config.HIGHSTATE_INITIAL_LIBRARY_PACKAGES,
     async projectId => {
       if (projectEvaluationSubsystem) await projectEvaluationSubsystem.evaluateProject(projectId)
     },

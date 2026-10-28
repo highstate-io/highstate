@@ -145,7 +145,7 @@ Selecting another state backend is a configuration change, not a state migration
 
 ## Managing Project Libraries
 
-Each project selects exact npm package versions, initially including `@highstate/library`.
+Each project selects exact npm package versions, initially including `@highstate/library@0.30.2` by default.
 Highstate resolves the complete dependency graph into an immutable **library snapshot** and builds an execution
 image on the project's runtime.
 The project database keeps the snapshot and lockfile; the container image is a rebuildable cache.
@@ -158,6 +158,18 @@ Removing an image cache record does not delete its image from a Docker engine or
 The Designer's project library controls show selected packages, available versions, package sources, image
 build progress, diagnostics, and local-overlay status.
 The component list can filter by package and shows package-version provenance.
+
+Backend hosts can override the initial selection before starting the Designer or creating the service graph:
+
+```bash
+export HIGHSTATE_INITIAL_LIBRARY_PACKAGES='[{"packageName":"@acme/library","version":"1.2.3"}]'
+```
+
+The value is a JSON array of unique package names and exact versions.
+Use `[]` to start with no packaged library.
+This setting initializes new projects and projects without a saved library selection; it does not replace an
+existing selection on restart or unlock.
+Packages must be available from the npm registries configured for the project's runtime.
 
 ```bash
 highstate library package list
@@ -199,6 +211,30 @@ and reports the conflicts.
 For development on a packaged type, remove the conflicting package selection or use distinct component types.
 Local units retain local execution and do not gain portable packaged provenance.
 Local edits invalidate reviewed plans independently of package updates.
+
+## Creating and Unlocking Projects Through the API
+
+The public Connect `io.highstate.v1.ProjectService` exposes `CreateProject` and `UnlockProject` for backend API keys.
+Send the key as `Authorization: Bearer <token>`.
+Creation requires `project.create` and access to the selected container runtime and Pulumi state backend.
+Unlock requires `project.unlock` for the project and works while its project database is locked.
+
+`CreateProject` accepts a `project` with `name`, `meta.title`, and optional `spaceId`, `modelStorageId`,
+`containerRuntimeId`, and `pulumiStateBackendId`.
+Omitted placement IDs use the same defaults as Designer creation.
+An optional top-level `projectId` reserves a CUID2 ID; otherwise the backend generates one.
+The required `unlockMethod` contains `type` (`password` or `passkey`), `meta.title`, `recipient`, and
+`encryptedIdentity`; passkeys also require `passkeyIdentity`.
+The client generates an AGE identity and recipient and encrypts the identity with the password or passkey
+before sending the request.
+The response contains the canonical `project`, which is initially unlocked.
+
+After a backend restart, call `UnlockProject` with `projectId` and the client-decrypted AGE identity in
+`decryptedIdentity`.
+When the backend runs with encryption disabled, `decryptedIdentity` may be empty.
+Unlocking an already unlocked project succeeds without repeating unlock tasks.
+Library resolution and image status remain available through the project library API even if initial
+bootstrap fails.
 
 ## Upgrading Existing Projects
 

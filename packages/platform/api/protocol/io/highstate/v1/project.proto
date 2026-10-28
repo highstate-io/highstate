@@ -118,8 +118,62 @@ message UpdateProjectPlacementResponse {
   Project project = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// ProjectUnlockMethod contains client-prepared credentials for a new project.
+message ProjectUnlockMethod {
+  // The unlock method type: password or passkey.
+  string type = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Display metadata for the unlock method. The title is required.
+  ProjectMeta meta = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The AGE recipient used to encrypt the project keys.
+  string recipient = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The AGE identity encrypted by the client with the password or passkey.
+  string encrypted_identity = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The opaque passkey identity, required for passkey methods.
+  optional string passkey_identity = 5;
+}
+
+// CreateProjectRequest creates a project using backend API key authorization.
+message CreateProjectRequest {
+  // The project definition. Omitted placement IDs use backend defaults.
+  Project project = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The initial client-prepared unlock method.
+  ProjectUnlockMethod unlock_method = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // An optional client-reserved CUID2 project ID. Otherwise the backend generates it.
+  optional string project_id = 3;
+}
+
+// CreateProjectResponse returns the created, initially unlocked project.
+message CreateProjectResponse {
+  // The canonical project.
+  Project project = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UnlockProjectRequest unlocks a project using backend API key authorization.
+message UnlockProjectRequest {
+  // The project ID.
+  string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The AGE identity decrypted by the client. May be empty when encryption is disabled.
+  string decrypted_identity = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UnlockProjectResponse confirms that the project is unlocked.
+message UnlockProjectResponse {}
+
 // ProjectService provides access to projects.
 service ProjectService {
+  // Creates an initially unlocked project and bootstraps its library selection.
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+
+  // Unlocks a project, including after a backend restart.
+  rpc UnlockProject(UnlockProjectRequest) returns (UnlockProjectResponse);
+
   // Gets one project and whether it is currently locked.
   rpc GetProject(GetProjectRequest) returns (GetProjectResponse);
 

@@ -1,12 +1,55 @@
 import type { ServiceImpl } from "@connectrpc/connect"
 import type { ProjectService } from "@highstate/api/v1"
 import type { Services } from "@highstate/backend"
-import { projectPlacementInputSchema } from "@highstate/backend/shared"
+import {
+  projectInputSchema,
+  projectPlacementInputSchema,
+  unlockMethodInputSchema,
+} from "@highstate/backend/shared"
 import { z } from "@highstate/contract"
 import { authenticateBackend, authenticateProject, parseValue, toProject } from "../shared"
 
 export function createProjectService(services: Services): ServiceImpl<typeof ProjectService> {
   return {
+    async createProject(request, context) {
+      const requestContext = await authenticateBackend(services, context)
+      const project = request.project
+      const input = parseValue(
+        project && {
+          name: project.name,
+          meta: project.meta,
+          spaceId: project.spaceId || undefined,
+          modelStorageId: project.modelStorageId || undefined,
+          containerRuntimeId: project.containerRuntimeId || undefined,
+          pulumiStateBackendId: project.pulumiStateBackendId || undefined,
+        },
+        "project",
+        projectInputSchema,
+      )
+      const unlockMethod = parseValue(request.unlockMethod, "unlockMethod", unlockMethodInputSchema)
+      const projectId = parseValue(request.projectId, "projectId", z.cuid2().optional())
+      const created = await services.projectService.createProject(
+        requestContext,
+        input,
+        unlockMethod,
+        projectId,
+      )
+
+      return { project: toProject(created) }
+    },
+
+    async unlockProject(request, context) {
+      const requestContext = await authenticateBackend(services, context)
+      const projectId = parseValue(request.projectId, "projectId", z.string().min(1))
+      await services.projectUnlockService.unlockProject(
+        requestContext,
+        projectId,
+        request.decryptedIdentity,
+      )
+
+      return {}
+    },
+
     async updateProjectPlacement(request, context) {
       const requestContext = await authenticateBackend(services, context)
       const projectId = parseValue(request.projectId, "projectId", z.string().min(1))
