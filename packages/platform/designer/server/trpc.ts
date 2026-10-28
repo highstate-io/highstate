@@ -1,14 +1,11 @@
 import type { DesignerIdentity, Services } from "@highstate/backend"
-import type { ProjectPermission } from "@highstate/backend/shared"
 import {
   hasBackendPermissionSubset,
   hasProjectPermissionSubset,
-  requireBackendPermission,
-  requireProjectPermission,
   resolveHumanBackendContext,
   resolveHumanProjectContext,
 } from "@highstate/backend"
-import { PermissionDeniedError } from "@highstate/backend/shared"
+import { OperationNotFoundError, PermissionDeniedError } from "@highstate/backend/shared"
 import { initTRPC, TRPCError } from "@trpc/server"
 import superjson from "superjson"
 import { z } from "zod"
@@ -55,6 +52,10 @@ const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
     throw new TRPCError({ code: "FORBIDDEN", cause: result.error.cause })
   }
 
+  if (!result.ok && result.error.cause instanceof OperationNotFoundError) {
+    throw new TRPCError({ code: "NOT_FOUND", cause: result.error.cause })
+  }
+
   if (
     isHostedAuth() &&
     result.ok &&
@@ -76,118 +77,6 @@ const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
 
   return result
 })
-
-// legacy direct-manager and raw-table paths need explicit domain permissions
-// Collection/event paths intentionally require an unrestricted grant because their payloads are not filtered.
-const legacyPermissions: Record<string, ProjectPermission> = {
-  "state.watchInstanceStates": "instance-state.list",
-  "state.getInstanceLocks": "instance-state.list",
-  "state.watchInstanceLocks": "instance-state.list",
-  "state.getPage": "page.get",
-  "state.getInstancePages": "page.get",
-  "state.createPanelLaunch": "panel.get",
-  "state.watchPanelAvailability": "panel.get",
-  "state.getInstanceTriggers": "trigger.get",
-  "project.watchProjectNodes": "instance-model.get",
-  "terminal.getOrCreateTerminalSession": "terminal.connect",
-  "terminal.getTerminals": "terminal.get",
-  "terminal.watchSession": "terminal.get",
-  "operation.getLastOperations": "operation.list",
-  "operation.launch": "operation.create",
-  "operation.plan": "operation.create",
-  "operation.watch": "operation.list",
-  "operation.cancel": "operation.cancel",
-  "operation.cancelInstance": "operation.cancel",
-  "logs.watchInstanceLogs": "operation.logs.get",
-  "logs.watchWorkerVersionLogs": "worker-version.get",
-  "worker.restartVersion": "worker-version.restart",
-  "worker.watchVersionStatuses": "worker-version.list",
-}
-
-export const publicProcedure = authenticatedProcedure.use(
-  async ({ ctx, path, getRawInput, next }) => {
-    if (!isHostedAuth()) {
-      return next()
-    }
-
-    const input = z.record(z.string(), z.unknown()).parse(await getRawInput())
-
-    if (path.startsWith("library.")) {
-      const context = await resolveHumanBackendContext(ctx.database, ctx.identity)
-
-      requireBackendPermission(context, "library.get", {
-        resourceId: z.string().parse(input.libraryId),
-      })
-
-      ctx.revalidate.push(async () => {
-        const identity = await authenticate(ctx)
-        const current = await resolveHumanBackendContext(ctx.database, identity)
-
-        requireBackendPermission(current, "library.get", {
-          resourceId: z.string().parse(input.libraryId),
-        })
-      })
-
-      return next()
-    }
-
-    const permission = legacyPermissions[path]
-    if (!permission) {
-      throw new TRPCError({ code: "FORBIDDEN" })
-    }
-
-    const projectId = z.string().min(1).parse(input.projectId)
-    await initializeHostedProjectAuth(ctx, projectId)
-    const context = await resolveHumanProjectContext(ctx.database, ctx.identity, projectId)
-    requireProjectPermission(context, permission)
-
-    ctx.revalidate.push(async () => {
-      const identity = await authenticate(ctx)
-      const current = await resolveHumanProjectContext(ctx.database, identity, projectId)
-      requireProjectPermission(current, permission)
-    })
-
-    // active terminal sessions are indexed globally by the manager
-    if (path === "terminal.watchSession") {
-      const database = await ctx.database.forProject(projectId)
-      if (
-        !(await database.terminalSession.findUnique({
-          where: { id: z.string().parse(input.sessionId) },
-        }))
-      ) {
-        throw new TRPCError({ code: "NOT_FOUND" })
-      }
-    }
-
-    if (path === "logs.watchInstanceLogs") {
-      const database = await ctx.database.forProject(projectId)
-      if (
-        !(await database.operation.findUnique({
-          where: { id: z.string().parse(input.operationId) },
-        })) ||
-        !(await database.instanceState.findUnique({
-          where: { id: z.string().parse(input.stateId) },
-        }))
-      ) {
-        throw new TRPCError({ code: "NOT_FOUND" })
-      }
-    }
-
-    // Manager cancellation is global; establish project ownership before calling it.
-    if (path === "operation.cancel" || path === "operation.cancelInstance") {
-      const database = await ctx.database.forProject(projectId)
-      if (
-        !(await database.operation.findUnique({
-          where: { id: z.string().parse(input.operationId) },
-        }))
-      ) {
-        throw new TRPCError({ code: "NOT_FOUND" })
-      }
-    }
-
-    return next()
-  },
-)
 
 export const backendProcedure = authenticatedProcedure.use(async ({ ctx, next }) => {
   const requestContext = await resolveHumanBackendContext(
@@ -212,8 +101,8 @@ export const backendProcedure = authenticatedProcedure.use(async ({ ctx, next })
 })
 
 export const projectProcedure = authenticatedProcedure
-  .input(z.object({ projectId: z.cuid2() }))
-  .use(async ({ ctx, input, path, next }) => {
+  .input(z.object({ projectId: z.string().min(1) }))
+  .use(async ({ ctx, input, next }) => {
     if (isHostedAuth()) {
       await initializeHostedProjectAuth(ctx, input.projectId)
     }
@@ -240,10 +129,6 @@ export const projectProcedure = authenticatedProcedure
         }
       }
     })
-
-    if (path.startsWith("workspace.")) {
-      requireProjectPermission(requestContext, "instance-model.get")
-    }
 
     return next({ ctx: { ...ctx, requestContext } })
   })

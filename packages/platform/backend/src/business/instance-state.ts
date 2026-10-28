@@ -242,6 +242,27 @@ export class InstanceStateService {
   ) {}
 
   /**
+   * Returns state IDs visible to the caller for snapshots and incremental events.
+   */
+  async getVisibleStateIds(context: ProjectRequestContext): Promise<Set<string>> {
+    const database = await this.database.forProject(context.projectId)
+
+    const authorization = await buildProjectAuthorizationWhere({
+      database: this.database,
+      context,
+      permission: "instance-state.list",
+      target: { instances: scope => ({ id: { in: [...scope.stateIds] } }) },
+    })
+
+    const states = await database.instanceState.findMany({
+      where: authorization,
+      select: { id: true },
+    })
+
+    return new Set(states.map(state => state.id))
+  }
+
+  /**
    * Gets the aggregates of all instances in the project.
    *
    * @param projectId The ID of the project for which to retrieve instances.

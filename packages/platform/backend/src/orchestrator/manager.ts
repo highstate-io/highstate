@@ -14,15 +14,18 @@ import type {
   UnitOutputService,
 } from "../business"
 import type { ArtifactService } from "../business/artifact"
+import type { ProjectRequestContext } from "../common"
 import type { DatabaseManager, Operation, Project } from "../database"
 import type { LibraryBackend } from "../library"
 import type { RunnerBackend } from "../runner"
+import { requireProjectPermission } from "../common"
 import {
   finalOperationStatuses,
   type OperationLaunchInput,
   type OperationPhase,
   type OperationPlanInput,
   operationOptionsSchema,
+  PermissionDeniedError,
 } from "../shared"
 import { finalInstanceOperationStatuses } from "../shared/models/project/state"
 import { RuntimeOperation } from "./operation"
@@ -56,6 +59,82 @@ export class OperationManager {
   }
 
   private readonly runtimeOperations = new Map<string, RuntimeOperation>()
+
+  /**
+   * Plans an operation and authorizes every requested and dependency-expanded instance.
+   */
+  async planAuthorized(
+    context: ProjectRequestContext,
+    request: OperationPlanInput,
+  ): Promise<OperationPhase[]> {
+    if (context.projectId !== request.projectId) {
+      throw new Error("Operation project does not match the authorization realm")
+    }
+
+    if (!context.permissions.get("operation.create")?.length) {
+      throw new PermissionDeniedError("operation.create")
+    }
+
+    const operationContext = await OperationContext.load(
+      context.projectId,
+      this.libraryService,
+      this.instanceStateService,
+      this.projectModelService,
+      undefined,
+      this.logger,
+    )
+
+    this.authorizeInstances(context, operationContext, request.instanceIds)
+
+    const plan = createOperationPlan(
+      operationContext,
+      request.type,
+      request.instanceIds,
+      operationOptionsSchema.parse(request.options ?? {}),
+    )
+
+    this.authorizeInstances(
+      context,
+      operationContext,
+      plan.flatMap(phase => phase.instances.map(instance => instance.id)),
+    )
+
+    return plan
+  }
+
+  /**
+   * Authorizes before persistence and rechecks the actual runtime plan before execution.
+   */
+  async launchAuthorized(
+    context: ProjectRequestContext,
+    request: OperationLaunchInput,
+  ): Promise<Operation> {
+    await this.planAuthorized(context, request)
+    return await this.launch(request, context)
+  }
+
+  private authorizeInstances(
+    context: ProjectRequestContext,
+    operationContext: OperationContext,
+    instanceIds: InstanceId[],
+  ): void {
+    for (const instanceId of instanceIds) {
+      const ancestors: InstanceId[] = []
+      let parentId = operationContext.tryGetInstanceForDestroy(instanceId)?.parentId
+      const seen = new Set<string>([instanceId])
+
+      while (parentId && !seen.has(parentId)) {
+        seen.add(parentId)
+        ancestors.push(parentId as InstanceId)
+        parentId = operationContext.tryGetInstanceForDestroy(parentId as InstanceId)?.parentId
+      }
+
+      requireProjectPermission(context, "operation.create", {
+        instanceId,
+        ancestorInstanceIds: ancestors,
+      })
+    }
+  }
 
   /**
    * Plans the project operation without executing it.
@@ -93,7 +172,10 @@ export class OperationManager {
    *
    * @param request The operation request to launch.
    */
-  async launch(request: OperationLaunchInput): Promise<Operation> {
+  async launch(
+    request: OperationLaunchInput,
+    authorization?: ProjectRequestContext,
+  ): Promise<Operation> {
     const options = operationOptionsSchema.parse(request.options ?? {})
 
     const operation = await this.operationService.createOperation(
@@ -114,7 +196,7 @@ export class OperationManager {
       throw new Error(`Project with ID "${request.projectId}" not found`)
     }
 
-    this.startOperation(project, operation)
+    this.startOperation(project, operation, authorization)
 
     return operation
   }
@@ -141,7 +223,11 @@ export class OperationManager {
     return false
   }
 
-  private startOperation(project: Project, operation: Operation): void {
+  private startOperation(
+    project: Project,
+    operation: Operation,
+    authorization?: ProjectRequestContext,
+  ): void {
     const runtimeOperation = new RuntimeOperation(
       project,
       operation,
@@ -159,6 +245,14 @@ export class OperationManager {
       this.logger.child({ operationId: operation.id }),
       this.libraryService,
       this.projectPortService,
+      authorization
+        ? (context, plan) =>
+            this.authorizeInstances(
+              authorization,
+              context,
+              plan.flatMap(phase => phase.instances.map(instance => instance.id)),
+            )
+        : undefined,
     )
 
     this.runtimeOperations.set(operation.id, runtimeOperation)

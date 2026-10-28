@@ -1,4 +1,5 @@
 import type { Services } from "@highstate/backend"
+import { InstanceStateService, OperationService, TerminalSessionService } from "@highstate/backend"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { getLocalUser } from "./authentication"
 import { appRouter } from "./router"
@@ -41,14 +42,15 @@ describe("hosted direct Designer access", () => {
       role: { findMany },
       terminalSession: { findUnique: vi.fn().mockResolvedValue(null) },
       operation: { findUnique: vi.fn().mockResolvedValue(null) },
+      instanceState: { findMany: vi.fn().mockResolvedValue([{ id: "visible" }]) },
       $transaction: vi.fn(),
     }
 
     project.$transaction.mockImplementation(async callback => await callback(project))
 
     const subscribe = vi.fn(async function* () {
-      yield "first"
-      yield "second"
+      yield { type: "patched", stateId: "visible", patch: { status: "undeployed" } }
+      yield { type: "patched", stateId: "visible", patch: { status: "deployed" } }
     })
 
     const watchSession = vi.fn()
@@ -74,7 +76,26 @@ describe("hosted direct Designer access", () => {
       designerSessionToken: opaqueToken(),
     }
 
-    return { services, project, subscribe, watchSession, cancel }
+    const database = services.database as unknown as Services["database"]
+
+    const domainServices = {
+      ...services,
+      terminalSessionService: new TerminalSessionService(database),
+      operationService: new OperationService(database, {} as never, {} as never, {} as never),
+      instanceStateService: new InstanceStateService(
+        database,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+        {} as never,
+      ),
+    }
+
+    return { services: domainServices, project, subscribe, watchSession, cancel }
   }
 
   test("denies cross-project active terminal and operation IDs before calling global managers", async () => {
@@ -102,9 +123,58 @@ describe("hosted direct Designer access", () => {
     const caller = appRouter.createCaller(services as unknown as Services)
     const stream = await caller.state.watchInstanceStates({ projectId: "project" })
     const iterator = stream[Symbol.asyncIterator]()
-    expect(await iterator.next()).toEqual({ done: false, value: "first" })
+    expect(await iterator.next()).toMatchObject({ done: false, value: { stateId: "visible" } })
     project.role.findMany.mockResolvedValue([])
     await expect(iterator.next()).rejects.toThrow()
+  })
+
+  test("filters mixed state batches and never forwards deletions of unseen states", async () => {
+    const { services, project, subscribe } = authorizedServices(["instance-state.list"])
+
+    project.role.findMany.mockResolvedValue([
+      {
+        rules: [
+          {
+            permissions: ["instance-state.list"],
+            restrictions: [
+              { type: "instances", instanceIds: ["component.v1:allowed"], recursive: true },
+            ],
+          },
+        ],
+      },
+    ] as never)
+
+    vi.spyOn(services.instanceStateService, "getVisibleStateIds").mockResolvedValue(
+      new Set(["visible"]),
+    )
+
+    subscribe.mockImplementation(async function* () {
+      yield {
+        type: "patched-batch",
+        patches: [
+          { stateId: "hidden", patch: { status: "deployed" } },
+          { stateId: "visible", patch: { status: "undeployed" } },
+        ],
+      } as never
+
+      yield { type: "deleted", stateId: "hidden" } as never
+      yield { type: "deleted", stateId: "visible" } as never
+    })
+
+    const stream = await appRouter
+      .createCaller(services as unknown as Services)
+      .state.watchInstanceStates({ projectId: "project" })
+
+    const events = []
+
+    for await (const event of stream) {
+      events.push(event)
+    }
+
+    expect(events).toEqual([
+      { type: "patched-batch", patches: [{ stateId: "visible", patch: { status: "undeployed" } }] },
+      { type: "deleted", stateId: "visible" },
+    ])
   })
 
   test("closes context-aware subscriptions when a resource grant is narrowed", async () => {

@@ -93,9 +93,14 @@ These require permission to update the role and, when granting permissions beyon
 Subjects must already be known to the backend; project binding copies their display records into the project.
 Existing role editing and service-account/API-key authorization retain their own contracts.
 
-Raw collection and event paths require an unrestricted grant for the relevant permission because their payloads
-are not resource-filtered.
-Context-aware business services continue to enforce their resource restrictions.
+Domain handlers and business services authorize the resources being accessed.
+Collection reads and project event streams filter their results using the caller's grants, including recursive
+instance scopes.
+Terminal, operation, and log access establish project ownership before using globally indexed runtime resources.
+Planning and launching operations require access to every requested and dependency-expanded instance;
+the runtime checks the actual execution plan again before creating operation states or acquiring locks.
+Cancelling a whole operation requires access to every affected instance, while cancelling one instance checks that
+instance's scope.
 
 ## Browser and panel access
 

@@ -3,7 +3,9 @@ import type { Logger } from "pino"
 import type { ProjectRequestContext } from "../common"
 import type {
   DatabaseManager,
+  InstanceStateWhereInput,
   Operation,
+  OperationLogWhereInput,
   OperationStatus,
   OperationUpdateInput,
   OperationWhereInput,
@@ -26,6 +28,7 @@ import {
   type OperationType,
   type PageRequest,
   type PageResult,
+  PermissionDeniedError,
 } from "../shared"
 
 export class OperationService {
@@ -144,6 +147,97 @@ export class OperationService {
   }
 
   /**
+   * Establishes project ownership and authorizes cancellation of every affected instance.
+   */
+  async authorizeCancellation(
+    context: ProjectRequestContext,
+    operationId: string,
+    instanceId?: InstanceId,
+  ): Promise<void> {
+    const database = await this.database.forProject(context.projectId)
+    const operation = await database.operation.findUnique({ where: { id: operationId } })
+    if (!operation) {
+      throw new OperationNotFoundError(context.projectId, operationId)
+    }
+
+    if (!instanceId && !operation.phases) {
+      requireProjectPermission(context, "operation.cancel", { resourceId: operationId })
+      return
+    }
+
+    const states = await database.instanceState.findMany({
+      select: { id: true, instanceId: true, parentId: true },
+    })
+
+    const byId = new Map(states.map(state => [state.id, state]))
+    const byInstance = new Map(states.map(state => [state.instanceId, state]))
+
+    const instanceIds = instanceId
+      ? [instanceId]
+      : [
+          ...new Set([
+            ...operation.requestedInstanceIds,
+            ...(operation.phases ?? []).flatMap(phase =>
+              phase.instances.map(instance => instance.id),
+            ),
+          ]),
+        ]
+
+    if (instanceIds.length === 0) {
+      requireProjectPermission(context, "operation.cancel", { resourceId: operationId })
+    }
+
+    for (const id of instanceIds) {
+      const ancestors: InstanceId[] = []
+      let parentId = byInstance.get(id)?.parentId
+      const seen = new Set<string>()
+
+      while (parentId && !seen.has(parentId)) {
+        seen.add(parentId)
+        const parent = byId.get(parentId)
+        if (!parent) {
+          break
+        }
+
+        ancestors.push(parent.instanceId)
+        parentId = parent.parentId
+      }
+
+      requireProjectPermission(context, "operation.cancel", {
+        resourceId: operationId,
+        instanceId: id,
+        ancestorInstanceIds: ancestors,
+      })
+    }
+  }
+
+  /**
+   * Returns operation IDs visible under collection restrictions.
+   */
+  async getVisibleOperationIds(context: ProjectRequestContext): Promise<Set<string>> {
+    const database = await this.database.forProject(context.projectId)
+
+    const authorization = await buildProjectAuthorizationWhere<OperationWhereInput>({
+      database: this.database,
+      context,
+      permission: "operation.list",
+      target: {
+        resources: ids => ({ id: { in: [...ids] } }),
+        instances: scope => ({
+          operationStates: { some: { stateId: { in: [...scope.stateIds] } } },
+        }),
+      },
+    })
+
+    const operations = await database.operation.findMany({
+      where: authorization,
+      select: { id: true },
+    })
+
+    return new Set(operations.map(operation => operation.id))
+  }
+
+  /**
    * Gets all operations for a project.
    *
    * @param projectId The project ID.
@@ -259,9 +353,10 @@ export class OperationService {
   ): Promise<
     PageResult<{ id: string; stateId: string | null; isSystem: boolean; content: string }>
   > {
-    requireProjectPermission(context, "operation.logs.get", { resourceId: operationId })
+    await this.authorizeLogAccess(context, operationId, stateId)
 
     const database = await this.database.forProject(context.projectId)
+    const authorization = await this.logAuthorization(context)
 
     const collection = "operation-logs"
     const query = { projectId: context.projectId, operationId, stateId }
@@ -275,6 +370,7 @@ export class OperationService {
 
     const logs = await database.operationLog.findMany({
       where: {
+        AND: [authorization],
         operationId,
         ...(stateId ? { stateId } : {}),
         ...(cursor ? { id: { gt: cursor.id } } : {}),
@@ -290,6 +386,62 @@ export class OperationService {
     })
 
     return toPageResult(logs, pageSize, log => encodePageToken(collection, query, { id: log.id }))
+  }
+
+  /**
+   * Checks project ownership and the exact instance scope before opening a log stream.
+   */
+  async authorizeLogAccess(
+    context: ProjectRequestContext,
+    operationId: string,
+    stateId?: string,
+  ): Promise<void> {
+    await this.logAuthorization(context)
+    const database = await this.database.forProject(context.projectId)
+
+    const operation = await database.operation.findUnique({
+      where: { id: operationId },
+      select: { id: true },
+    })
+
+    if (!operation) {
+      throw new OperationNotFoundError(context.projectId, operationId)
+    }
+
+    if (!stateId) {
+      return
+    }
+
+    const authorization = await buildProjectAuthorizationWhere<InstanceStateWhereInput>({
+      database: this.database,
+      context,
+      permission: "operation.logs.get",
+      target: {
+        resources: ids => (ids.includes(operationId) ? {} : { OR: [] }),
+        instances: scope => ({ id: { in: [...scope.stateIds] } }),
+      },
+    })
+
+    const state = await database.instanceState.findFirst({
+      where: { AND: [{ id: stateId }, authorization] },
+      select: { id: true },
+    })
+
+    if (!state) {
+      throw new PermissionDeniedError("operation.logs.get")
+    }
+  }
+
+  private async logAuthorization(context: ProjectRequestContext): Promise<OperationLogWhereInput> {
+    return await buildProjectAuthorizationWhere<OperationLogWhereInput>({
+      database: this.database,
+      context,
+      permission: "operation.logs.get",
+      target: {
+        resources: ids => ({ operationId: { in: [...ids] } }),
+        instances: scope => ({ stateId: { in: [...scope.stateIds] } }),
+      },
+    })
   }
 
   /**

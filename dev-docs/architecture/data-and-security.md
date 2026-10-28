@@ -62,6 +62,8 @@ Hosted mode never falls back to operating-system identity, and authentication al
 Deployment-configured administrator identities receive grants during realm initialization.
 Revoking those grants permanently requires removing the deployment configuration and the persisted bindings.
 Designer streaming and panel capabilities remain bound to the browser session's expiry and revocation.
+Project-scoped authorization also applies when a runtime manager indexes resources globally.
+Stream delivery remains subject to the caller's grants for the lifetime of the subscription.
 
 Code in the backend API authentication layer, designer tRPC context, business services, and authorization
 schemas owns the exact permission checks.

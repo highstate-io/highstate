@@ -87,6 +87,7 @@ export class RuntimeOperation {
     private readonly logger: Logger,
     private readonly libraryService: LibraryService,
     private readonly projectPortService: ProjectPortService,
+    private readonly authorizePlan?: (context: OperationContext, plan: OperationPhase[]) => void,
   ) {}
 
   cancel(force = false): boolean {
@@ -190,6 +191,8 @@ export class RuntimeOperation {
       // persist the generated plan
       await this.updateOperation({ phases: plan })
     }
+
+    this.authorizePlan?.(this.context, plan)
 
     // 3. create the workset to track the state of the operation
     this.workset = new OperationWorkset(

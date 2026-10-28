@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { projectProcedure, publicProcedure, router } from "../trpc"
+import { projectProcedure, router } from "../trpc"
 
 export const logsRouter = router({
   getInstanceLogs: projectProcedure
@@ -21,7 +21,7 @@ export const logsRouter = router({
       )
     }),
 
-  watchInstanceLogs: publicProcedure
+  watchInstanceLogs: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -30,6 +30,15 @@ export const logsRouter = router({
       }),
     )
     .subscription(async ({ input, ctx, signal }) => {
+      const authorize = async () =>
+        await ctx.operationService.authorizeLogAccess(
+          ctx.requestContext,
+          input.operationId,
+          input.stateId,
+        )
+
+      await authorize()
+      ctx.revalidate.push(authorize)
       return await ctx.pubsubManager.subscribe(
         ["operation-instance-log", input.operationId, input.stateId],
         signal,
@@ -47,7 +56,7 @@ export const logsRouter = router({
       return await ctx.workerService.getWorkerVersionLogs(ctx.requestContext, input.workerVersionId)
     }),
 
-  watchWorkerVersionLogs: publicProcedure
+  watchWorkerVersionLogs: projectProcedure
     .input(
       z.object({
         projectId: z.cuid2(),
@@ -55,6 +64,15 @@ export const logsRouter = router({
       }),
     )
     .subscription(async ({ input, ctx, signal }) => {
+      const authorize = async () =>
+        await ctx.workerService.authorizeVersion(
+          ctx.requestContext,
+          input.workerVersionId,
+          "worker-version.get",
+        )
+
+      await authorize()
+      ctx.revalidate.push(authorize)
       return await ctx.pubsubManager.subscribe(
         ["worker-version-log", input.projectId, input.workerVersionId],
         signal,
