@@ -13,6 +13,7 @@ import {
   unitArtifactSchema,
 } from "@highstate/contract"
 import {
+  ConcurrentUpdateError,
   LocalWorkspace,
   type ProjectRuntime,
   StackNotFoundError,
@@ -107,9 +108,9 @@ async function run(message: RuntimeMessage): Promise<void> {
       ).map(instance => [
         instance.instanceId,
         Object.fromEntries(
-          instance.inputs.map(input => [
+          (instance.inputs ?? []).map(input => [
             input.name,
-            input.values.map(value => ({ input: value.reference, type: value.entityType })),
+            (input.values ?? []).map(value => ({ input: value.reference, type: value.entityType })),
           ]),
         ),
       ]),
@@ -265,17 +266,32 @@ async function run(message: RuntimeMessage): Promise<void> {
       refresh: options.refresh,
       debug: Boolean(input.debug),
     }
-    if (phase === "delete-state") await stack.workspace.removeStack(stack.name, { force: true })
-    else if (phase === "preview") await stack.preview(args)
-    else if (phase === "destroy") {
-      try {
-        await stack.destroy({ ...args, runProgram: options.hasResourceHooks ?? true, remove: true })
-      } catch (error) {
-        if (!options.forceDeleteState) throw error
-        await stack.workspace.removeStack(stack.name, { force: true })
-      }
-    } else if (phase === "refresh") await stack.refresh(args)
-    else await stack.up(args)
+    const execute = async () => {
+      if (phase === "delete-state") await stack.workspace.removeStack(stack.name, { force: true })
+      else if (phase === "preview") await stack.preview(args)
+      else if (phase === "destroy") {
+        try {
+          await stack.destroy({
+            ...args,
+            runProgram: options.hasResourceHooks ?? true,
+            remove: true,
+          })
+        } catch (error) {
+          if (!options.forceDeleteState) throw error
+          await stack.workspace.removeStack(stack.name, { force: true })
+        }
+      } else if (phase === "refresh") await stack.refresh(args)
+      else await stack.up(args)
+    }
+    try {
+      await execute()
+    } catch (error) {
+      controller.signal.throwIfAborted()
+      if (!(error instanceof ConcurrentUpdateError)) throw error
+      // the orchestrator holds the instance lock; a prior killed action can leave a Pulumi lock
+      await stack.cancel()
+      await execute()
+    }
     if (phase !== "preview" && outputs.$artifacts) {
       const declared = z.record(z.string(), unitArtifactSchema.array()).parse(outputs.$artifacts)
       for (const artifact of Object.values(declared).flat()) {

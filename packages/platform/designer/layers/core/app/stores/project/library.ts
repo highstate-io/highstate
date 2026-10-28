@@ -14,7 +14,7 @@ export const useProjectLibraryStore = defineMultiStore({
         if (initialized.value) return
         loading.value = true
         try {
-          libraryStore.value ??= useLibraryStore(projectId)
+          libraryStore.value ??= useLibraryStore.ensureCreated(projectId)
           await libraryStore.value!.initialize()
           initialized.value = true
         } finally {

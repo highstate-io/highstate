@@ -372,6 +372,7 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
         frozenLockfile ??
         JSON.stringify({
           lockfileVersion: 1,
+          configVersion: 1,
           workspaces: { "": { name: "highstate-snapshot" } },
           packages: {},
         })

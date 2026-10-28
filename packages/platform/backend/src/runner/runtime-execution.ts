@@ -54,7 +54,9 @@ export class RuntimeExecutionService {
         where: { id: workload.runtimeId },
       })
       const permissions: RuntimePermission[] =
-        kind === "pulumi" ? ["heartbeat", "pulumi", "unit", "sidecar"] : ["heartbeat", "evaluation"]
+        kind === "pulumi"
+          ? ["connect", "heartbeat", "pulumi", "unit", "sidecar"]
+          : ["connect", "heartbeat", "evaluation"]
       const authorization = await this.coordinator.authorize(workload.id, permissions)
       const current = { ...workload, leaseGeneration: authorization.scope.generation }
       const adapter = await this.adapters.get(workload.runtimeId)

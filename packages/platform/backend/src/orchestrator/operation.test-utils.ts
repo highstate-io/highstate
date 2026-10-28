@@ -136,6 +136,7 @@ export const operationTest = test.extend<{
   }) => Operation
   createContext: (input: {
     instances: InstanceModel[]
+    ghostInstances?: InstanceModel[]
     states: InstanceState[]
     library?: LibraryModel
     pinned?: PinnedOperationLibrary
@@ -604,6 +605,7 @@ export const operationTest = test.extend<{
   ) => {
     const createContext = async (input: {
       instances: InstanceModel[]
+      ghostInstances?: InstanceModel[]
       states: InstanceState[]
       library?: LibraryModel
       pinned?: PinnedOperationLibrary
@@ -633,7 +635,7 @@ export const operationTest = test.extend<{
           instances: input.instances,
           virtualInstances: [],
           hubs: [],
-          ghostInstances: [],
+          ghostInstances: input.ghostInstances ?? [],
         },
         project,
       ])

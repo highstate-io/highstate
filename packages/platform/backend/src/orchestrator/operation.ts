@@ -1131,6 +1131,12 @@ export class RuntimeOperation {
     let update: UnitStateUpdate | undefined
 
     for await (update of stream) {
+      // remote process termination reports an error after acknowledging cancellation
+      if (update.type === "error") {
+        this.workset.instanceAbortControllers
+          .get(state.instanceId)
+          ?.abortController.signal.throwIfAborted()
+      }
       let handlerError: Error | null = null
 
       try {

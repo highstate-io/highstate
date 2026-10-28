@@ -5,91 +5,14 @@ import { RuntimeOperation } from "./operation"
 import { createDeferred, operationTest } from "./operation.test-utils"
 
 describe("Operation - Cancel", () => {
-  operationTest(
-    "cancels an in-flight unit and marks operation cancelled",
-    async ({
-      project,
-      logger,
-      runnerBackend,
-      runner,
-      libraryBackend,
-      artifactService,
-      instanceLockService,
-      operationService,
-      secretService,
-      instanceStateService,
-      projectModelService,
-      unitExtraService,
-      entitySnapshotService,
-      unitOutputService,
-      libraryService,
-      projectPortService,
-      createUnit,
-      createDeployedUnitState,
-      createOperation,
-      createContext,
-      setupPersistenceMocks,
-      setupImmediateLocking,
-      expect,
-    }) => {
-      // arrange
-      const unit = createUnit("A")
-      const state = createDeployedUnitState(unit)
-
-      await createContext({ instances: [unit], states: [state] })
-      setupImmediateLocking()
-      setupPersistenceMocks({ instances: [unit] })
-
-      const cancelled = createDeferred<void>()
-
-      operationService.updateOperation.mockImplementation(
-        async (_projectId, _operationId, patch) => {
-          if (patch.status === "cancelled") {
-            cancelled.resolve(undefined)
-          }
-
-          return {} as unknown as Operation
-        },
-      )
-
-      const started = createDeferred<void>()
-      let forceAborted = false
-
-      runner.setUpdateImpl(async input => {
-        started.resolve(undefined)
-
-        const signal = input.signal
-        const forceSignal = input.forceSignal
-        if (!signal || !forceSignal) {
-          throw new Error("Expected runner update to receive abort signals")
-        }
-
-        forceSignal.addEventListener("abort", () => {
-          forceAborted = true
-        })
-
-        await new Promise<void>((_resolve, reject) => {
-          signal.addEventListener("abort", () => reject(new AbortError("Operation aborted")), {
-            once: true,
-          })
-        })
-      })
-
-      const operation = createOperation({
-        type: "update",
-        requestedInstanceIds: [unit.id],
-        phases: [
-          {
-            type: "update",
-            instances: [{ id: unit.id, message: "requested", parentId: undefined }],
-          },
-        ],
-      })
-
-      const runtimeOperation = new RuntimeOperation(
+  for (const termination of ["runner rejection", "stream error"] as const) {
+    operationTest(
+      `cancels an in-flight unit and marks operation cancelled after ${termination}`,
+      async ({
         project,
-        operation,
+        logger,
         runnerBackend,
+        runner,
         libraryBackend,
         artifactService,
         instanceLockService,
@@ -100,33 +23,123 @@ describe("Operation - Cancel", () => {
         unitExtraService,
         entitySnapshotService,
         unitOutputService,
-        logger,
         libraryService,
         projectPortService,
-      )
+        createUnit,
+        createDeployedUnitState,
+        createOperation,
+        createContext,
+        setupPersistenceMocks,
+        setupImmediateLocking,
+        expect,
+      }) => {
+        // arrange
+        const unit = createUnit("A")
+        const state = createDeployedUnitState(unit)
 
-      // act
-      const operationPromise = runtimeOperation.operateSafe()
-      await started.promise
+        await createContext({ instances: [unit], states: [state] })
+        setupImmediateLocking()
+        setupPersistenceMocks({ instances: [unit] })
 
-      expect(runtimeOperation.cancel()).toBe(false)
-      expect(runtimeOperation.cancel()).toBe(true)
-      expect(forceAborted).toBe(false)
-      expect(runtimeOperation.cancel(true)).toBe(false)
-      expect(forceAborted).toBe(true)
+        const cancelled = createDeferred<void>()
+        operationService.updateOperation.mockImplementation(
+          async (_projectId, _operationId, patch) => {
+            if (patch.status === "cancelled") {
+              cancelled.resolve(undefined)
+            }
 
-      // assert
-      await cancelled.promise
+            return {} as unknown as Operation
+          },
+        )
 
-      // act
-      await operationPromise
+        const started = createDeferred<void>()
+        let forceAborted = false
+        runner.setUpdateImpl(async input => {
+          started.resolve(undefined)
 
-      // assert
-      expect(operationService.updateOperation).toHaveBeenCalledWith(
-        project.id,
-        operation.id,
-        expect.objectContaining({ status: "cancelled" }),
-      )
-    },
-  )
+          const signal = input.signal
+          const forceSignal = input.forceSignal
+          if (!signal || !forceSignal) {
+            throw new Error("expected runner update to receive abort signals")
+          }
+          forceSignal.addEventListener("abort", () => {
+            forceAborted = true
+          })
+
+          if (termination === "stream error") {
+            signal.addEventListener(
+              "abort",
+              () => {
+                setTimeout(
+                  () => runner.emitError(input.stateId, "Action process exited (SIGINT)"),
+                  0,
+                )
+              },
+              { once: true },
+            )
+            return
+          }
+
+          await new Promise<void>((_resolve, reject) => {
+            signal.addEventListener("abort", () => reject(new AbortError("Operation aborted")), {
+              once: true,
+            })
+          })
+        })
+
+        const operation = createOperation({
+          type: "update",
+          requestedInstanceIds: [unit.id],
+          phases: [
+            {
+              type: "update",
+              instances: [{ id: unit.id, message: "requested", parentId: undefined }],
+            },
+          ],
+        })
+
+        const runtimeOperation = new RuntimeOperation(
+          project,
+          operation,
+          runnerBackend,
+          libraryBackend,
+          artifactService,
+          instanceLockService,
+          operationService,
+          secretService,
+          instanceStateService,
+          projectModelService,
+          unitExtraService,
+          entitySnapshotService,
+          unitOutputService,
+          logger,
+          libraryService,
+          projectPortService,
+        )
+
+        // act
+        const operationPromise = runtimeOperation.operateSafe()
+        await started.promise
+
+        expect(runtimeOperation.cancel()).toBe(false)
+        expect(runtimeOperation.cancel()).toBe(true)
+        expect(forceAborted).toBe(false)
+        expect(runtimeOperation.cancel(true)).toBe(false)
+        expect(forceAborted).toBe(true)
+
+        // assert
+        await cancelled.promise
+
+        // act
+        await operationPromise
+
+        // assert
+        expect(operationService.updateOperation).toHaveBeenCalledWith(
+          project.id,
+          operation.id,
+          expect.objectContaining({ status: "cancelled" }),
+        )
+      },
+    )
+  }
 })

@@ -2,7 +2,8 @@ import type { RuntimeOwnership } from "./contracts"
 import { createServer } from "node:http"
 import * as k8s from "@kubernetes/client-node"
 import { describe, expect, it, vi } from "vitest"
-import { KubernetesRuntimeAdapter, nativeName } from "./kubernetes"
+import { workloadFingerprint } from "./intent"
+import { KubernetesRuntimeAdapter, type KubernetesRuntimeConfig, nativeName } from "./kubernetes"
 
 type Resource = {
   metadata: {
@@ -18,6 +19,7 @@ type Resource = {
 
 async function withCluster(
   run: (adapter: KubernetesRuntimeAdapter, resources: Map<string, Resource>) => Promise<void>,
+  options: Partial<KubernetesRuntimeConfig> = {},
 ) {
   const resources = new Map<string, Resource>()
   let sequence = 10
@@ -106,6 +108,7 @@ async function withCluster(
       serviceAccount: "runtime",
       buildkitImage: "moby/buildkit:rootless",
       clusterDns: "10.96.0.10",
+      ...options,
     },
     config,
   )
@@ -126,6 +129,22 @@ const owner: RuntimeOwnership = {
 }
 
 describe("Kubernetes API placement", () => {
+  it("places intents whose fingerprints have non-alphanumeric label boundaries", async () => {
+    await withCluster(async (adapter, resources) => {
+      let intent = { owner, image: "runner", env: { VALUE: "0" } }
+      for (let value = 0; ; value++) {
+        intent = { ...intent, env: { VALUE: String(value) } }
+        if (/^[-_]|[-_]$/.test(workloadFingerprint(intent))) break
+      }
+      const root = await adapter.place(intent)
+      const pod = resources.get(`/api/v1/namespaces/test/pods/${root.id.split("/")[1]}`)!
+      expect(pod.metadata.labels!["highstate.io/intent"]).toMatch(
+        /^[A-Za-z0-9][-A-Za-z0-9_.]{0,61}[A-Za-z0-9]$/,
+      )
+      expect((await adapter.place(intent)).id).toBe(root.id)
+      await expect(adapter.place({ ...intent, image: "changed" })).rejects.toThrow(/declaration/)
+    })
+  })
   it("transfers large build-context files through bounded secret chunks and an init volume", async () => {
     await withCluster(async (adapter, resources) => {
       const data = Buffer.alloc(1200 * 1024, 73)
@@ -155,6 +174,13 @@ describe("Kubernetes API placement", () => {
   it("isolates unchanged dotted DNS aliases, and rejects conflicting declarations", async () => {
     await withCluster(async (adapter, resources) => {
       const first = await adapter.createEnvironment(owner)
+      const initialConfig = resources.get(`/api/v1/namespaces/test/configmaps/${first.id}`)!
+      // CoreDNS rejects intervals below two seconds and jitter above half the interval
+      const reload = initialConfig.data!.Corefile!.match(/reload (\d+)s (\d+)s/)
+      expect(reload).not.toBeNull()
+      expect(Number(reload![1])).toBeGreaterThanOrEqual(2)
+      expect(Number(reload![2])).toBeGreaterThanOrEqual(1)
+      expect(Number(reload![2])).toBeLessThanOrEqual(Number(reload![1]) / 2)
       const secondOwner = { ...owner, workloadId: "operation-b" }
       const second = await adapter.createEnvironment(secondOwner)
       const alias = "stable.caller.resource"
@@ -178,6 +204,7 @@ describe("Kubernetes API placement", () => {
       expect(firstMapping[alias]).not.toBe(secondMapping[alias])
       expect(firstConfig.data!.Corefile).toContain(`${alias}:53`)
       expect(firstConfig.data!.Corefile).toContain("forward . 10.96.0.10")
+      expect(firstConfig.data!.Corefile!.match(/reload (\d+)s (\d+)s/)?.[0]).toBe(reload![0])
       const pod = resources.get(
         `/api/v1/namespaces/test/pods/${nativeName("sidecar-a/1")}`,
       ) as unknown as k8s.V1Pod
@@ -239,49 +266,58 @@ describe("Kubernetes API placement", () => {
     })
   })
 
-  it("builds with a rootless Job and mounted secrets, not privileged DIND or mutable resolution", async () => {
-    await withCluster(async (adapter, resources) => {
-      const buildOwner = { ...owner, kind: "library_build" as const, workloadId: "build" }
-      const digest = `sha256:${"b".repeat(64)}`
-      const ensure = vi.spyOn(adapter, "ensureImage").mockResolvedValue({
-        reference: `registry.example/image@${digest}`,
-        digest,
-        imageHash: "snapshot-hash",
-      })
-      const result = await adapter.buildImage(
-        {
-          owner: buildOwner,
-          baseImage: `runner@sha256:${"a".repeat(64)}`,
-          repository: "registry.example/image",
-          snapshotId: "snapshot",
-          snapshotHash: "snapshot-hash",
-          files: [
-            { path: "package.json", data: Buffer.from("{}") },
-            { path: "bun.lock", data: Buffer.from("frozen-lockfile") },
-          ],
-          secrets: [{ path: "npmrc", data: Buffer.from("npm-secret"), secret: true }],
-        },
-        async () => {},
-      )
-      expect(result.digest).toBe(digest)
-      expect(ensure).toHaveBeenCalled()
-      const job = [...resources.entries()].find(([path]) =>
-        path.includes("/jobs/"),
-      )![1] as unknown as k8s.V1Job
-      const container = job.spec!.template.spec!.containers[0]!
-      expect(container.command).toEqual(["rootlesskit", "sh", "-ec"])
-      expect(container.args![0]).toContain("buildctl-daemonless.sh")
-      expect(container.securityContext!.runAsUser).toBe(1000)
-      expect(container.securityContext!.privileged).toBeUndefined()
-      expect(JSON.stringify(job)).not.toContain("npm-secret")
-      const dockerfile = [...resources.values()]
-        .flatMap(item => Object.values(item.data ?? {}))
-        .map(value => Buffer.from(value, "base64").toString())
-        .find(value => value.startsWith("# syntax="))!
-      expect(dockerfile).toContain("--frozen-lockfile")
-      expect(dockerfile).toContain("--mount=type=secret")
-      expect(dockerfile).not.toContain("npm-secret")
-      expect(job.spec!.backoffLimit).toBe(0)
-    })
+  it.each([
+    false,
+    true,
+  ])("builds with a rootless Job and mounted secrets (HTTP registry: %s)", async allowHttpRegistry => {
+    await withCluster(
+      async (adapter, resources) => {
+        const buildOwner = { ...owner, kind: "library_build" as const, workloadId: "build" }
+        const digest = `sha256:${"b".repeat(64)}`
+        const ensure = vi.spyOn(adapter, "ensureImage").mockResolvedValue({
+          reference: `registry.example/image@${digest}`,
+          digest,
+          imageHash: "snapshot-hash",
+        })
+        const result = await adapter.buildImage(
+          {
+            owner: buildOwner,
+            baseImage: `runner@sha256:${"a".repeat(64)}`,
+            repository: "registry.example/image",
+            snapshotId: "snapshot",
+            snapshotHash: "snapshot-hash",
+            files: [
+              { path: "package.json", data: Buffer.from('{"dependencies":{"example":"1.0.0"}}') },
+              { path: "bun.lock", data: Buffer.from("frozen-lockfile") },
+            ],
+            secrets: [{ path: "npmrc", data: Buffer.from("npm-secret"), secret: true }],
+          },
+          async () => {},
+        )
+        expect(result.digest).toBe(digest)
+        expect(ensure).toHaveBeenCalled()
+        const job = [...resources.entries()].find(([path]) =>
+          path.includes("/jobs/"),
+        )![1] as unknown as k8s.V1Job
+        const container = job.spec!.template.spec!.containers[0]!
+        expect(container.command).toEqual(["rootlesskit", "--copy-up=/run", "sh", "-ec"])
+        expect(container.args![0]).toContain("buildctl-daemonless.sh")
+        expect(container.securityContext!.runAsUser).toBe(1000)
+        expect(container.securityContext!.privileged).toBeUndefined()
+        expect(container.env!.find(item => item.name === "TARGET_OUTPUT")!.value).toMatch(
+          allowHttpRegistry ? /,registry\.insecure=true$/ : /,push=true$/,
+        )
+        expect(JSON.stringify(job)).not.toContain("npm-secret")
+        const dockerfile = [...resources.values()]
+          .flatMap(item => Object.values(item.data ?? {}))
+          .map(value => Buffer.from(value, "base64").toString())
+          .find(value => value.startsWith("# syntax="))!
+        expect(dockerfile).toContain("--frozen-lockfile")
+        expect(dockerfile).toContain("--mount=type=secret")
+        expect(dockerfile).not.toContain("npm-secret")
+        expect(job.spec!.backoffLimit).toBe(0)
+      },
+      { allowHttpRegistry },
+    )
   })
 })

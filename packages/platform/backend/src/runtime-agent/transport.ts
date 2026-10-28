@@ -87,7 +87,7 @@ export async function connectRuntimeAgent(options: {
   return stream
 }
 
-function valueToWire(value: unknown): object {
+export function valueToWire(value: unknown): object {
   if (value === null) return { nullValue: 0 }
   if (Array.isArray(value)) return { listValue: { values: value.map(valueToWire) } }
   if (typeof value === "object")
@@ -98,9 +98,10 @@ function valueToWire(value: unknown): object {
         ),
       },
     }
+  if (typeof value === "boolean") return { boolValue: value }
   return { [`${typeof value}Value`]: value }
 }
-function valueFromWire(value: Record<string, unknown>): unknown {
+export function valueFromWire(value: Record<string, unknown>): unknown {
   if ("nullValue" in value) return null
   if ("structValue" in value)
     return Object.fromEntries(

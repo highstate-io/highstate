@@ -1,7 +1,8 @@
 import type { Logger } from "pino"
 import type { ProjectUnlockBackend } from "../unlock"
 import type { BackendDatabaseBackend, ProjectDatabaseBackend } from "./abstractions"
-import type { BackendDatabase, ProjectDatabase } from "./prisma"
+import type { BackendDatabase, ProjectDatabase, ProjectTransaction } from "./prisma"
+import { AsyncLocalStorage } from "node:async_hooks"
 import { LRUCache } from "lru-cache"
 import z from "zod"
 import { createProjectLogger } from "../common"
@@ -15,6 +16,20 @@ import {
 export const databaseManagerConfig = z.object({
   HIGHSTATE_ENCRYPTION_ENABLED: z.stringbool().default(true),
 })
+
+const projectReadTransaction = new AsyncLocalStorage<{
+  projectId: string
+  transaction: ProjectTransaction
+}>()
+
+/** Reuses a transaction for service reads made while validating its commit fence. */
+export function withProjectReadTransaction<T>(
+  projectId: string,
+  transaction: ProjectTransaction,
+  read: () => Promise<T>,
+): Promise<T> {
+  return projectReadTransaction.run({ projectId, transaction }, read)
+}
 
 export interface DatabaseManager {
   /**
@@ -147,6 +162,8 @@ export class DatabaseManagerImpl implements DatabaseManager {
   }
 
   async forProject(projectId: string): Promise<ProjectDatabase> {
+    const scope = projectReadTransaction.getStore()
+    if (scope?.projectId === projectId) return scope.transaction as ProjectDatabase
     const cachedDatabase = this.projectDatabases.get(projectId)
     if (cachedDatabase) {
       return cachedDatabase

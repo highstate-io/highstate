@@ -390,7 +390,10 @@ export class OperationContext {
       throw new Error(`Found multiple instances with the same ID: ${instance.id}`)
     }
 
-    if (!(instance.type in this.library.components)) {
+    if (
+      !(instance.type in this.library.components) &&
+      !(isGhost && this.getExecutionLibrary(instance.id, "destroy").components[instance.type])
+    ) {
       this.logger.warn(
         'ignoring instance "%s" because its type "%s" is not in the library',
         instance.id,
@@ -739,7 +742,10 @@ export class OperationContext {
     const unitSourceTypes = unique(Array.from(context.instanceMap.values()).map(i => i.type))
     const packagedTypes = pinned
       ? unitSourceTypes.filter(
-          type => isUnitModel(library.components[type]) && context.desiredProvenance.has(type),
+          type =>
+            library.components[type] &&
+            isUnitModel(library.components[type]) &&
+            context.desiredProvenance.has(type),
         )
       : []
     const unitSources: { unitType: string; sourceHash: number }[] = pinned?.snapshotId
@@ -752,7 +758,10 @@ export class OperationContext {
 
     if (pinned?.snapshotId) {
       const localTypes = unitSourceTypes.filter(
-        type => isUnitModel(library.components[type]) && !context.desiredProvenance.has(type),
+        type =>
+          library.components[type] &&
+          isUnitModel(library.components[type]) &&
+          !context.desiredProvenance.has(type),
       )
       if (localTypes.length)
         unitSources.push(...(await librarySource.getResolvedUnitSources(project.id, localTypes)))
@@ -766,11 +775,14 @@ export class OperationContext {
 
     // prepare input resolver
     for (const instance of context.instanceMap.values()) {
+      const instanceLibrary = context.isGhostInstance(instance.id)
+        ? context.getExecutionLibrary(instance.id, "destroy")
+        : library
       context.inputResolverNodes.set(`instance:${instance.id}`, {
         kind: "instance",
         instance,
-        component: library.components[instance.type],
-        entities: library.entities,
+        component: instanceLibrary.components[instance.type],
+        entities: instanceLibrary.entities,
       })
     }
 
@@ -797,7 +809,10 @@ export class OperationContext {
       context.resolvedInstanceInputs.set(instance.id, output.resolvedInputs)
 
       if (instance.kind === "unit") {
-        const component = context.library.components[instance.type]
+        const instanceLibrary = context.isGhostInstance(instance.id)
+          ? context.getExecutionLibrary(instance.id, "destroy")
+          : library
+        const component = instanceLibrary.components[instance.type]
 
         context.inputHashNodes.set(instance.id, {
           instance,

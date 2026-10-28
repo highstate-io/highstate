@@ -103,6 +103,8 @@ export async function openDockerBuildSession(
     signal?.removeEventListener("abort", close)
   }
   signal?.addEventListener("abort", close, { once: true })
+  // a peer reset can arrive while the injected grpc connection is shutting down
+  socket.on("error", close)
   try {
     await abortable(
       new Promise<void>((resolve, reject) => {

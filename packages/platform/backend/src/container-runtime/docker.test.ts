@@ -111,7 +111,7 @@ describe("Docker API adapter", () => {
       snapshotHash: "hash",
       baseImage: `runner@sha256:${"a".repeat(64)}`,
       files: [
-        { path: "package.json", data: Buffer.from("{}") },
+        { path: "package.json", data: Buffer.from('{"dependencies":{"example":"1.0.0"}}') },
         { path: "bun.lock", data: Buffer.from("lock") },
       ],
       secrets: [{ path: "npmrc", data: Buffer.from("token=secret"), secret: true }],

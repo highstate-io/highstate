@@ -86,12 +86,18 @@ export async function startRuntimeServer(
   )
   const sessions = new Set<ServerHttp2Session>()
   const sockets = new Set<Socket>()
+  server.on("tlsClientError", (_error, socket) => socket.destroy())
+  server.on("secureConnection", socket => {
+    socket.on("error", () => socket.destroy())
+  })
   server.on("connection", socket => {
     sockets.add(socket)
+    socket.on("error", () => socket.destroy())
     socket.once("close", () => sockets.delete(socket))
   })
   server.on("session", session => {
     sessions.add(session)
+    session.on("error", () => session.destroy())
     session.once("close", () => sessions.delete(session))
   })
   await new Promise<void>((resolve, reject) => {

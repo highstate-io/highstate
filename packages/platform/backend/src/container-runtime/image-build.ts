@@ -25,7 +25,14 @@ export function snapshotBuildFiles(request: ImageBuildRequest): RuntimeFile[] {
   const compatibilityCheck = files.some(file => file.path === "highstate-compatibility.json")
     ? `RUN bun -e 'const c=await Bun.file("highstate-compatibility.json").json(); if(c.bunVersion!==Bun.version)throw new Error("Snapshot Bun version mismatch"); const p=Bun.spawnSync(["pulumi","version"]); if(p.exitCode!==0||p.stdout.toString().trim().replace(/^v/,"")!==c.pulumiVersion)throw new Error("Snapshot Pulumi version mismatch")'\n`
     : ""
-  const dockerfile = `# syntax=docker/dockerfile:1.7\nFROM ${request.baseImage}\nUSER root\nWORKDIR /opt/highstate/library\nCOPY . .\n${compatibilityCheck}RUN ${secretMount}bun install --frozen-lockfile --ignore-scripts\nLABEL highstate.io/snapshot-hash=${JSON.stringify(request.snapshotHash)}\n`
+  const manifest = JSON.parse(
+    Buffer.from(files.find(file => file.path === "package.json")!.data).toString(),
+  ) as { dependencies?: Record<string, string> }
+  // bun deletes an empty lockfile and rejects it under --frozen-lockfile; an empty graph needs no install
+  const install = Object.keys(manifest.dependencies ?? {}).length
+    ? `RUN ${secretMount}bun install --frozen-lockfile --ignore-scripts\n`
+    : ""
+  const dockerfile = `# syntax=docker/dockerfile:1.7\nFROM ${request.baseImage}\nUSER root\nWORKDIR /opt/highstate/library\nCOPY . .\n${compatibilityCheck}${install}LABEL highstate.io/snapshot-hash=${JSON.stringify(request.snapshotHash)}\n`
   return [...files, { path: "Dockerfile", data: Buffer.from(dockerfile), mode: 0o644 }]
 }
 

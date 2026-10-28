@@ -381,7 +381,7 @@ export class ProjectService {
         deletedInstanceIds: [instanceId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
 
       return instance
     } catch (error) {
@@ -422,10 +422,10 @@ export class ProjectService {
 
         if (component && !isUnitModel(component) && patch.args) {
           // evaluate the project if arguments changed for composite instancer
-          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+          this.scheduleEvaluation(context.projectId)
         } else if (patch.hubInputs || patch.injectionInputs || patch.inputs) {
           // TODO: only evaluate if inputs changed for composite instances
-          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+          this.scheduleEvaluation(context.projectId)
         }
 
         return instance
@@ -527,7 +527,7 @@ export class ProjectService {
         })
 
         if (!isUnitModel(component)) {
-          void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+          this.scheduleEvaluation(context.projectId)
         }
       }
 
@@ -559,7 +559,7 @@ export class ProjectService {
         deletedInstanceIds: [instanceId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
     } catch (error) {
       this.logger.error(
         { error, projectId: context.projectId, instanceId },
@@ -623,7 +623,7 @@ export class ProjectService {
       })
 
       if (patch.inputs || patch.injectionInputs) {
-        void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+        this.scheduleEvaluation(context.projectId)
       }
 
       return hub
@@ -650,7 +650,7 @@ export class ProjectService {
         deletedHubIds: [hubId],
       })
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
     } catch (error) {
       this.logger.error({ error, projectId: context.projectId, hubId }, "failed to delete hub")
       throw error
@@ -726,7 +726,7 @@ export class ProjectService {
         })
       }
 
-      void this.projectEvaluationSubsystem.evaluateProject(context.projectId)
+      this.scheduleEvaluation(context.projectId)
     } catch (error) {
       this.logger.error(
         {
@@ -740,6 +740,12 @@ export class ProjectService {
 
       throw error
     }
+  }
+
+  private scheduleEvaluation(projectId: string): void {
+    void this.projectEvaluationSubsystem.evaluateProject(projectId).catch(error => {
+      this.logger.error({ error, projectId }, "failed to evaluate project after model mutation")
+    })
   }
 
   /**

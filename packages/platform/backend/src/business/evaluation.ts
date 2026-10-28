@@ -17,6 +17,7 @@ import {
   type InstanceEvaluationStateUncheckedCreateInput,
   type InstanceEvaluationStateUpdateInput,
   type InstanceStatus,
+  withProjectReadTransaction,
 } from "../database"
 import { modelRevision } from "../orchestrator/revisions"
 import { stableJsonStringify } from "../shared"
@@ -294,7 +295,8 @@ export class ProjectEvaluationSubsystem {
     if (!(await options.isCurrent())) throw new StaleEvaluationError()
 
     const outcome = await database.$transaction(async tx => {
-      if (!(await options.isCurrent())) throw new StaleEvaluationError()
+      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent)))
+        throw new StaleEvaluationError()
       const previousVirtualStates = await tx.instanceState.findMany({
         where: { source: "virtual" },
         select: {
@@ -471,7 +473,8 @@ export class ProjectEvaluationSubsystem {
         .map(state => state.state.instanceId)
       const updatedGhostInstances = newGhostInstances.filter(isNonNullish)
 
-      if (!(await options.isCurrent())) throw new StaleEvaluationError()
+      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent)))
+        throw new StaleEvaluationError()
       return {
         stateIds: Array.from(instanceIdToStateMap.values()).map(state => state.id),
         updatedStates,

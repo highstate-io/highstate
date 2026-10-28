@@ -226,7 +226,8 @@ export class DockerRuntimeAdapter implements ContainerRuntimeAdapter {
     if (request.repository) {
       await progress("pushing")
       const stream = await this.client.getImage(tag).push({
-        authconfig: authFor(tag, request.registryCredentials ?? this.config.registryCredentials),
+        authconfig:
+          authFor(tag, request.registryCredentials ?? this.config.registryCredentials) ?? {},
       })
       await this.consume(stream, signal)
     }
@@ -341,6 +342,7 @@ export class DockerRuntimeAdapter implements ContainerRuntimeAdapter {
       Labels: labels,
       User: intent.rootlessBuilder ? "1000:1000" : undefined,
       HostConfig: {
+        ExtraHosts: this.config.local ? ["host.docker.internal:host-gateway"] : undefined,
         SecurityOpt: intent.rootlessBuilder
           ? ["seccomp=unconfined", "apparmor=unconfined"]
           : undefined,

@@ -1,8 +1,70 @@
 import type { ProjectLibraryService } from "../business"
-import { describe } from "vitest"
+import type { ProjectLibrarySnapshot } from "../library"
+import { describe, vi } from "vitest"
 import { operationTest } from "./operation.test-utils"
+import { createOperationPlan } from "./operation-plan"
 
 describe("operation context evaluation provenance", () => {
+  operationTest(
+    "includes a deployed ghost child in destroy after its package is removed",
+    async ({
+      createComposite,
+      createUnit,
+      createDeployedUnitState,
+      createContext,
+      createMockLibrary,
+      expect,
+    }) => {
+      const parent = createComposite("removed")
+      const child = createUnit("historical-child")
+      child.parentId = parent.id
+      const states = [parent, child].map(instance => {
+        const state = createDeployedUnitState(instance)
+        state.model = instance
+        state.librarySnapshotId = "deployed-snapshot"
+        state.libraryPackageVersionId = "deployed-package"
+        return state
+      })
+      const historicalLibrary = createMockLibrary()
+      const library = { components: {}, entities: {} }
+      const projectLibrary = {
+        historicalSnapshot: vi.fn(
+          async (_projectId: string, snapshotId: string) =>
+            (snapshotId === "empty-snapshot"
+              ? { model: library, packages: [], sourceManifest: { owners: {} } }
+              : {
+                  model: historicalLibrary,
+                  packages: [
+                    { id: "deployed-package", packageName: "@test/library", version: "1.0.0" },
+                  ],
+                  sourceManifest: {
+                    owners: {
+                      [`components:${parent.type}`]: "@test/library",
+                      [`components:${child.type}`]: "@test/library",
+                    },
+                  },
+                }) as unknown as ProjectLibrarySnapshot,
+        ),
+        getSnapshotUnitSources: vi.fn(async () => []),
+      } as unknown as ProjectLibraryService
+      const context = await createContext({
+        instances: [parent],
+        ghostInstances: [child],
+        states,
+        library,
+        pinned: { library, snapshotId: "empty-snapshot", projectLibrary },
+      })
+      const plan = createOperationPlan(context, "destroy", [parent.id], {})
+      expect(plan.flatMap(phase => phase.instances.map(instance => instance.id))).toEqual(
+        expect.arrayContaining([parent.id, child.id]),
+      )
+      expect(context.getExecutionLibrary(child.id, "destroy")).toEqual(historicalLibrary)
+      expect(context.getExecutionProvenance(child.id, "destroy")?.librarySnapshotId).toBe(
+        "deployed-snapshot",
+      )
+    },
+  )
+
   operationTest(
     "rejects missing resident composite completion markers even without a desired snapshot",
     async ({ createComposite, createContext, createMockLibrary, expect }) => {

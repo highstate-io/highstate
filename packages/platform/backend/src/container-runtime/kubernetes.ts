@@ -57,7 +57,7 @@ export function operationAliasConfig(aliases: Record<string, string>, clusterDns
     })
     .join("")
   if (!/^[a-fA-F0-9:.]+$/.test(clusterDns)) throw new Error("Invalid cluster DNS address")
-  return `${zones}.:53 {\n forward . ${clusterDns}\n cache 5\n reload 1s\n}\n`
+  return `${zones}.:53 {\n forward . ${clusterDns}\n cache 5\n reload 2s 1s\n}\n`
 }
 
 export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
@@ -278,7 +278,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     const name = nativeName(`${intent.owner.workloadId}/${intent.owner.generation}`)
     const labels = {
       ...ownershipLabels(intent.owner),
-      "highstate.io/intent": workloadFingerprint(intent),
+      "highstate.io/intent": `h${workloadFingerprint(intent)}h`,
     }
     const existing = await this.discover(ownershipLabels(intent.owner), signal)
     if (existing[0]) {
@@ -903,14 +903,14 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         mode: "job",
         image: this.config.buildkitImage,
         rootlessBuilder: true,
-        command: ["rootlesskit", "sh", "-ec"],
+        command: ["rootlesskit", "--copy-up=/run", "sh", "-ec"],
         args: [
-          'if [ -n "$NPM_SECRET" ]; then set -- --secret id=npmrc,src=/secrets/npmrc; else set --; fi; exec buildctl-daemonless.sh build --frontend dockerfile.v0 --local context=/context --local dockerfile=/context --opt platform="$TARGET_PLATFORMS" "$@" --output type=image,name="$TARGET_IMAGE",push=true',
+          'if [ -n "$NPM_SECRET" ]; then set -- --secret id=npmrc,src=/secrets/npmrc; else set --; fi; exec buildctl-daemonless.sh build --frontend dockerfile.v0 --local context=/context --local dockerfile=/context --opt platform="$TARGET_PLATFORMS" "$@" --output "$TARGET_OUTPUT"',
         ],
         env: {
           BUILDKITD_FLAGS: "--oci-worker-no-process-sandbox",
           DOCKER_CONFIG: "/registry",
-          TARGET_IMAGE: tag,
+          TARGET_OUTPUT: `type=image,name=${tag},push=true${this.config.allowHttpRegistry ? ",registry.insecure=true" : ""}`,
           TARGET_PLATFORMS: request.platforms?.join(",") ?? "linux/amd64",
           NPM_SECRET: request.secrets?.length ? "yes" : "",
         },
