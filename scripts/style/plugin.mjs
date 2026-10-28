@@ -247,7 +247,7 @@ const rules = {
           if (
             !text ||
             text.length > 100 ||
-            /(?:https?:|eslint|biome-|@ts-|TODO|FIXME|SPDX|Copyright|^#|^\/|^<)/.test(text)
+            /(?:https?:|eslint|oxlint|biome-|@ts-|TODO|FIXME|SPDX|Copyright|^#|^\/|^<)/.test(text)
           ) {
             continue
           }
@@ -682,7 +682,7 @@ const rules = {
         for (const comment of context.sourceCode.getAllComments()) {
           const text = comment.value.trim()
           if (
-            !/^(?:biome-ignore(?:-all|-start|-end)?|eslint-disable(?:-next-line|-line)?)\b/.test(
+            !/^(?:biome-ignore(?:-all|-start|-end)?|(?:eslint|oxlint)-disable(?:-next-line|-line)?)\b/.test(
               text,
             )
           ) {

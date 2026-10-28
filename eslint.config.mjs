@@ -58,16 +58,4 @@ export default [
       parserOptions: { parser: tseslint.parser, extraFileExtensions: [".vue"] },
     },
   },
-  ...(process.env.HIGHSTATE_TYPED_LINT === "true"
-    ? [
-        {
-          files: ["packages/*/*/src/**/*.ts"],
-          languageOptions: {
-            parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
-          },
-          plugins: { "@typescript-eslint": tseslint.plugin },
-          rules: { "@typescript-eslint/return-await": ["error", "always"] },
-        },
-      ]
-    : []),
 ]

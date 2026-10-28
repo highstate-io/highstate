@@ -1,0 +1,6 @@
+{
+  "plugins": ["typescript"],
+  "categories": { "correctness": "off" },
+  "rules": { "typescript/return-await": ["error", "always"] },
+  "ignorePatterns": ["**/_generated/**", "**/generated/**"]
+}

@@ -50,6 +50,8 @@
     "eslint": "9.39.4",
     "eslint-plugin-jsdoc": "61.7.1",
     "nx": "^22.7.5",
+    "oxlint": "1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
     "pkg-pr-new": "^0.0.88",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",

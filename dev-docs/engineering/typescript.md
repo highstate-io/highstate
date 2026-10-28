@@ -1,7 +1,7 @@
 # TypeScript
 
 Write TypeScript that makes domain intent, control flow, and failures explicit.
-The workspace's Biome configuration and local ESLint rules own mechanical style.
+The workspace's Biome, ESLint, and Oxlint configurations own mechanical style.
 Run `bun run lint:fix` from the workspace root to apply fixes, then `bun run lint` to check the result.
 The fix command reports requirements that need an intentional code change.
 Generated code, vendored code, and project templates are excluded from these checks.
@@ -49,5 +49,6 @@ Longer algorithm explanations can use complete sentences rather than short fragm
 
 Suppress an individual rule only when an integration or contract requires an exception.
 Include the specific constraint in the suppression reason.
-Biome suppressions use `biome-ignore`; supplemental rules use `eslint-disable-next-line` with a `--` explanation.
+Use `biome-ignore`, `eslint-disable-next-line`, or `oxlint-disable-next-line` for the tool reporting the violation.
+Include a `--` explanation on ESLint and Oxlint suppressions.
 Keep suppressions local to the code requiring them.
