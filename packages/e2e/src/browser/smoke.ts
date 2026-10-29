@@ -1,6 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { join } from "node:path"
-import { expect as baseExpect, chromium, type Locator, type Page } from "@playwright/test"
+import {
+  expect as baseExpect,
+  chromium,
+  type Locator,
+  type Page,
+  type Request,
+} from "@playwright/test"
 import { root, startDesigner } from "./designer"
 
 const expect = baseExpect.configure({ timeout: 15_000 })
@@ -42,12 +48,20 @@ const step = async (name: string, action: () => Promise<void>, required = true) 
 let designer: Awaited<ReturnType<typeof startDesigner>> | undefined
 let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
 const faults: string[] = []
+const pendingRequests = new Set<Request>()
+const navigationEvents: string[] = []
+let failedRequests: { type: string; path: string }[] = []
 try {
   designer = await startDesigner()
   browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
   const page = await context.newPage()
   page.setDefaultTimeout(15_000)
+  page.on("request", request => pendingRequests.add(request))
+  page.on("requestfinished", request => pendingRequests.delete(request))
+  page.on("requestfailed", request => pendingRequests.delete(request))
+  page.on("domcontentloaded", () => navigationEvents.push("domcontentloaded"))
+  page.on("load", () => navigationEvents.push("load"))
   let operationQueries = 0
   let libraryQueries = 0
   let eventFrames = 0
@@ -256,6 +270,13 @@ try {
     false,
   )
 } catch (error) {
+  failedRequests = [...pendingRequests].map(request => ({
+    type: request.resourceType(),
+    path: new URL(request.url()).pathname,
+  }))
+
+  console.error("Browser navigation diagnostics", { navigationEvents, pending: failedRequests })
+
   if (steps.at(-1)?.name !== activeStep) {
     steps.push({ name: activeStep, status: "failed", durationMs: Date.now() - started })
   }
@@ -281,6 +302,10 @@ try {
   }
 
   // publish only metadata; Playwright errors can include form values or response bodies
-  await writeFile(join(evidence, "result.json"), JSON.stringify({ status, steps, faults }, null, 2))
+  await writeFile(
+    join(evidence, "result.json"),
+    JSON.stringify({ status, steps, faults, navigationEvents, failedRequests }, null, 2),
+  )
+
   console.log(`Evidence: ${evidence}`)
 }
