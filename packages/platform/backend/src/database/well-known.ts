@@ -2,11 +2,11 @@ import type { BackendDatabase, ProjectDatabase } from "./prisma"
 import {
   adminBackendRole,
   adminBackendServiceAccount,
-  codebaseLibrary,
   codebaseProjectModelStorage,
   databaseProjectModelStorage,
   globalProjectSpace,
-  hostPulumiBackend,
+  localContainerRuntime,
+  localPulumiStateBackend,
 } from "../shared/models/backend/well-known"
 import {
   adminProjectRole,
@@ -21,15 +21,15 @@ export async function ensureWellKnownEntitiesCreated(database: BackendDatabase):
       create: globalProjectSpace,
       update: globalProjectSpace,
     }),
-    database.library.upsert({
-      where: { id: codebaseLibrary.id },
-      create: codebaseLibrary,
-      update: codebaseLibrary,
+    database.containerRuntime.upsert({
+      where: { id: localContainerRuntime.id },
+      create: localContainerRuntime,
+      update: {},
     }),
-    database.pulumiBackend.upsert({
-      where: { id: hostPulumiBackend.id },
-      create: hostPulumiBackend,
-      update: hostPulumiBackend,
+    database.pulumiStateBackend.upsert({
+      where: { id: localPulumiStateBackend.id },
+      create: localPulumiStateBackend,
+      update: {},
     }),
     database.projectModelStorage.upsert({
       where: { id: codebaseProjectModelStorage.id },
@@ -100,6 +100,12 @@ export async function ensureProjectWellKnownEntitiesCreated(
       roleId: adminRole.id,
       serviceAccountId: adminServiceAccount.id,
     },
+    update: {},
+  })
+
+  await database.projectLibraryState.upsert({
+    where: { id: "default" },
+    create: { id: "default", selectedPackages: [] },
     update: {},
   })
 }

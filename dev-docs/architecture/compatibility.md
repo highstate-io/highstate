@@ -64,3 +64,12 @@ Backups and upgrade procedures remain public operational documentation rather th
 
 A persistence compatibility change covers migration code, the public compatibility promise, and this
 constraint together.
+
+Runtime and project-library upgrades preserve existing deployment and operation history without inventing
+historical package provenance.
+An installed or newly resolved package version does not prove which code created an existing deployment.
+Unknown-provenance execution therefore retains the legacy executable environment rather than substituting a
+new snapshot for historical refresh or destroy.
+Legacy host Pulumi settings are preserved as migration markers, not silently converted into relocated state.
+Public [runtime upgrade guidance](../../packages/platform/docs/content/4.advanced/3.runtime-and-libraries.mdc)
+owns the operator workflow and limitations.

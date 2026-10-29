@@ -1,4 +1,4 @@
-import type { Stream } from "node:stream"
+import type { Readable } from "node:stream"
 import type { TerminalSpec } from "@highstate/contract"
 
 export type ScreenSize = {
@@ -14,6 +14,8 @@ export type ScreenSize = {
 }
 
 export type TerminalRunOptions = {
+  projectId: string
+  sessionId: string
   /**
    * The terminal spec to use.
    */
@@ -22,7 +24,7 @@ export type TerminalRunOptions = {
   /**
    * The input stream.
    */
-  stdin: Stream
+  stdin: Readable
 
   /**
    * The output stream.
@@ -41,6 +43,7 @@ export type TerminalRunOptions = {
 }
 
 export interface TerminalBackend {
+  resize?(sessionId: string, screenSize: ScreenSize): Promise<void>
   /**
    * Creates a new terminal and runs it.
    *

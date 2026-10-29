@@ -69,6 +69,9 @@ model Operation {
     /// [OperationPhase[]]
     phases Json?
 
+    /// The ID of the desired project library snapshot captured for planning this operation.
+    librarySnapshotId String?
+
     /// The time when the operation started.
     startedAt DateTime @default(now())
 
@@ -86,6 +89,9 @@ model Operation {
 
     /// The entity snapshots created by this operation.
     entitySnapshots EntitySnapshot[]
+
+    /// The desired project library snapshot captured for planning this operation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
 }
 
 model InstanceOperationState {
@@ -114,6 +120,21 @@ model InstanceOperationState {
     /// [InstanceResolvedInputs]
     resolvedInputs Json
 
+    /// The ID of the library snapshot used to execute this instance operation.
+    librarySnapshotId String?
+
+    /// The ID of the package version supplying the targeted component implementation.
+    libraryPackageVersionId String?
+
+    /// The previously deployed package version when this operation performs an upgrade.
+    previousLibraryPackageVersionId String?
+
+    /// Whether this instance operation used the local development library overlay.
+    localOverlayActive Boolean @default(false)
+
+    /// The local development overlay revision used by this instance operation.
+    localOverlayRevision String?
+
     /// The time when the operation on this instance started.
     /// Not populated on create, even if the instance is ready to start immediately.
     startedAt DateTime?
@@ -126,6 +147,12 @@ model InstanceOperationState {
 
     /// The instance this state belongs to.
     state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The exact snapshot membership used to execute this instance operation.
+    librarySnapshotVersion LibrarySnapshotVersion? @relation(fields: [librarySnapshotId, libraryPackageVersionId], references: [snapshotId, libraryPackageVersionId])
+
+    /// The previously deployed package version when this operation performs an upgrade.
+    previousLibraryPackageVersion LibraryPackageVersion? @relation("PreviousOperationPackageVersion", fields: [previousLibraryPackageVersionId], references: [id])
 
     @@id([operationId, stateId])
 }

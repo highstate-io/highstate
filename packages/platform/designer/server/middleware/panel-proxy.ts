@@ -1,5 +1,4 @@
-import type { IncomingMessage } from "node:http"
-import { request as requestHttp } from "node:http"
+import { Readable } from "node:stream"
 import { getSharedServices } from "@highstate/backend"
 import {
   getPanelCorsOrigin,
@@ -16,7 +15,6 @@ import {
   getPanelSession,
   isNestedPanelHost,
 } from "../utils/panel-session"
-import { readRequestBody } from "../utils/request-body"
 
 export default defineEventHandler(async event => {
   const panelId = getPanelIdFromHost(getHeader(event, "host"))
@@ -67,7 +65,6 @@ export default defineEventHandler(async event => {
     return sendPanelError(event, 401, "Panel session required")
   }
 
-  const requestBody = readRequestBody(getRequestWebStream(event))
   const services = await getSharedServices()
   const database = await services.database.forProject(session.projectId)
 
@@ -93,9 +90,6 @@ export default defineEventHandler(async event => {
 
   const headers: Record<string, string | string[] | undefined> = {
     ...getHeaders(event),
-    host: upstream.authority,
-    "x-highstate-panel-name": upstream.panelName,
-    "x-highstate-state-id": upstream.stateId,
   }
 
   for (const name of requestHeadersToRemove) {
@@ -109,51 +103,78 @@ export default defineEventHandler(async event => {
     delete headers.cookie
   }
 
-  headers.host = upstream.authority
+  delete headers["x-highstate-panel-name"]
+  delete headers["x-highstate-state-id"]
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  event.node.req.once("aborted", abort)
+  event.node.res.once("close", abort)
 
   try {
-    const bodyChunks = await requestBody
-    return await new Promise((resolve, reject) => {
-      const request = requestHttp(
-        {
-          headers,
-          hostname: getAuthorityHostname(upstream.authority),
-          method: event.method,
-          path: event.path,
-          port: getAuthorityPort(upstream.authority),
-        },
-        response => resolve(sendProxyResponse(event, response, upstream.authority)),
-      )
+    const body = getRequestWebStream(event)
 
-      request.once("error", reject)
-      event.node.req.once("aborted", () => request.destroy())
+    const response = await services.panelEndpointManager.proxy(
+      session.projectId,
+      panel.workerVersionId,
+      panelId,
+      session.workerInstanceId,
+      {
+        method: event.method,
+        path: event.path,
+        headers: Object.entries(headers).flatMap(([name, values]) =>
+          values === undefined
+            ? []
+            : (Array.isArray(values) ? values : [values]).map(value => ({ name, value })),
+        ),
+        body: (async function* () {
+          if (!body) {
+            return
+          }
 
-      for (const chunk of bodyChunks) {
-        request.write(chunk)
-      }
+          const reader = body.getReader()
 
-      request.end()
-    })
+          try {
+            for (;;) {
+              const { done, value } = await reader.read()
+
+              if (done) {
+                break
+              }
+
+              for (let offset = 0; offset < value.byteLength; offset += 65536) {
+                yield value.subarray(offset, offset + 65536)
+              }
+            }
+          } finally {
+            await reader.cancel()
+            reader.releaseLock()
+          }
+        })(),
+      },
+      controller.signal,
+    )
+
+    return await sendProxyResponse(event, response)
   } catch (error) {
     console.error("Panel proxy request failed:", error)
     return sendPanelError(event, 502, "Panel upstream request failed")
+  } finally {
+    event.node.req.off("aborted", abort)
+    event.node.res.off("close", abort)
   }
 })
 
 async function sendProxyResponse(
   event: Parameters<typeof getHeaders>[0],
-  response: IncomingMessage,
-  upstreamAuthority: string,
+  response: {
+    status: number
+    headers: { name: string; value: string }[]
+    body: AsyncIterable<Uint8Array>
+  },
 ): Promise<unknown> {
-  setResponseStatus(event, response.statusCode ?? 502)
+  setResponseStatus(event, response.status)
 
-  for (let index = 0; index < response.rawHeaders.length; index += 2) {
-    const name = response.rawHeaders[index]
-    const value = response.rawHeaders[index + 1]
-    if (!name || value === undefined) {
-      continue
-    }
-
+  for (const { name, value } of response.headers) {
     const sanitized = sanitizePanelResponseHeader({ name, value })
     if (sanitized && !hopByHopHeaders.has(sanitized.name.toLowerCase())) {
       if (
@@ -167,7 +188,7 @@ async function sendProxyResponse(
         event,
         sanitized.name,
         sanitized.name.toLowerCase() === "location"
-          ? rewritePanelLocation(sanitized.value, upstreamAuthority, getRequestURL(event))
+          ? rewritePanelLocation(sanitized.value, "panel.invalid", getRequestURL(event))
           : sanitized.value,
       )
     }
@@ -184,7 +205,7 @@ async function sendProxyResponse(
 
   setResponseHeader(event, "Cache-Control", "no-store")
 
-  return await sendStream(event, response)
+  return await sendStream(event, Readable.from(response.body, { objectMode: false }))
 }
 
 const hopByHopHeaders = new Set([
@@ -199,14 +220,6 @@ const hopByHopHeaders = new Set([
 ])
 
 const requestHeadersToRemove = new Set([...hopByHopHeaders, "cookie", "host"])
-
-function getAuthorityHostname(authority: string): string {
-  return new URL(`http://${authority}`).hostname
-}
-
-function getAuthorityPort(authority: string): number {
-  return Number(new URL(`http://${authority}`).port)
-}
 
 function sendPanelError(
   event: Parameters<typeof getHeaders>[0],

@@ -220,6 +220,10 @@ highstate operation launch \
 
 The plan document records its format version, project, operation type, requested instances, options, and phases.
 The CLI rejects a plan when its project differs from the selected project.
+Plans also carry a backend-issued review token bound to the library snapshot, model and local-overlay revisions,
+operation options, and phases.
+Launch rejects stale or modified plans; generate and review a new plan after those inputs change.
+Saved plans from before review tokens were introduced must be regenerated.
 
 For interactive use, `operation run` combines planning, review, confirmation, and launch:
 
@@ -252,3 +256,9 @@ Run the same command with `--force` to request hard cancellation.
 Hard cancellation can interrupt cleanup and leave partial infrastructure changes.
 
 `--timeout` is measured in seconds.
+
+## Runtime and Library Settings
+
+The CLI also manages project package selections, snapshot image retries, runtime settings, registry credentials,
+and project placement.
+See [Runtimes and Project Libraries](/advanced/runtime-and-libraries) for setup, commands, and upgrade behavior.

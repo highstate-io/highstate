@@ -10,7 +10,8 @@ Choosing the wrong surface turns a local change into an accidental wire or runti
 | `@highstate/contract` | TypeScript domain and extension contracts | `packages/platform/contract/src/` |
 | Protobuf and ConnectRPC | Remote client and worker compatibility | `packages/platform/api/protocol/` |
 | Designer tRPC | Trusted local designer access | `packages/platform/designer/server/` |
-| Unit runtime tRPC | Operation-scoped Pulumi communication | Backend runner and `packages/platform/pulumi/src/` |
+| Runtime gRPC | Authenticated workload-agent control and worker reverse proxy | `packages/platform/api/protocol/io/highstate/runtime/` |
+| Local unit runtime tRPC | Retained local-runner Pulumi communication | Backend runner and `packages/platform/pulumi/src/` |
 
 The Protobuf files, not generated TypeScript descriptors, own remote compatibility.
 Their owning source also remains authoritative for schema fields, RPC inventories, permissions, and generated
@@ -51,15 +52,13 @@ do not gain compatibility from this architectural description.
 
 ## Worker Connectivity
 
-Workers are backend-supervised container runtimes with bidirectional connectivity.
-The backend resolves an immutable image identity, supplies launch options through standard input, and mounts
-the backend Unix socket into the container.
-The worker authenticates as a ConnectRPC client and receives registrations through a long-lived server stream.
+Workers are backend-supervised workloads on the project's selected runtime.
+Runtime-aware workers connect outward through the authenticated runtime stream for registration and control.
+Panel and proxy requests travel over dedicated reverse streaming RPCs with bounded buffering and backpressure.
+They do not require backend-host socket mounts or inbound loopback data ports.
+The worker's ordinary project API client remains separate from runtime workload authentication.
 
-The worker also exposes a data endpoint that the backend maps to loopback for panel and proxy traffic.
-The required network path includes outbound control traffic to the mounted socket and inbound data traffic
-through the backend-managed endpoint.
-Worker credentials and container ownership belong to the supervising backend runtime.
-
-The worker Protobuf service, worker SDK, backend worker manager, and worker Docker backend own exact messages,
-ports, and launch mechanics.
+The worker SDK retains its legacy connection mode when runtime launch options are absent.
+That SDK compatibility does not make an old worker image compatible with runtime-aware launch options.
+The worker SDK, runtime Protobuf service, backend worker manager, and proxy implementation own exact messages
+and launch mechanics.

@@ -16,7 +16,6 @@ import {
   operationType,
   operationTypeSchema,
   type PlanDocument,
-  phasesFromPlan,
   phasesToJson,
   planDocumentSchema,
   readDocument,
@@ -89,16 +88,24 @@ async function createPlan(
     options: operationOptions(options),
   })
 
+  if (!response.plan?.token || !response.plan.modelRevision) {
+    throw new Error("Backend did not return a revision-bound operation plan")
+  }
+
   const document: PlanDocument = {
     format_version: 1,
     project_id: target.projectId,
     type,
     instance_ids: instanceIds,
     options,
-    phases: phasesToJson(response.phases),
+    plan_token: response.plan.token,
+    model_revision: response.plan.modelRevision,
+    library_snapshot_id: response.plan.librarySnapshotId,
+    local_overlay_revision: response.plan.localOverlayRevision,
+    phases: phasesToJson(response.plan.phases),
   }
 
-  return { clients, target, document, phases: response.phases }
+  return { clients, target, document }
 }
 
 function humanPlan(document: PlanDocument): string {
@@ -156,7 +163,7 @@ async function launchPlan(
     instanceIds: document.instance_ids,
     options: operationOptions(document.options),
     meta: { title, description },
-    plan: phasesFromPlan(document),
+    planToken: document.plan_token,
   })
 }
 

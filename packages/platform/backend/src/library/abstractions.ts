@@ -8,6 +8,8 @@ export type ResolvedUnitSource = {
   allowedDependencies: string[]
 }
 
+export type LocalLibraryOverlaySnapshot = { model: LibraryModel; revision: string }
+
 export type ProjectEvaluationResult =
   | {
       success: true
@@ -33,6 +35,21 @@ export interface LibraryBackend {
    * Loads the library.
    */
   loadLibrary(libraryId: string | undefined, signal?: AbortSignal): Promise<LibraryModel>
+
+  /**
+   * Loads the optional host overlay without installing missing npm packages.
+   */
+  loadLocalOverlay?(signal?: AbortSignal): Promise<LibraryModel>
+
+  /**
+   * Revision includes both local definition and implementation source hashes.
+   */
+  getLocalOverlayRevision?(): Promise<string>
+
+  /**
+   * Captures definitions and implementation hashes under the same local-library lock.
+   */
+  getLocalOverlaySnapshot?(signal?: AbortSignal): Promise<LocalLibraryOverlaySnapshot>
 
   /**
    * Watches the library for changes.

@@ -91,6 +91,7 @@ export const operationPlanTest = test.extend<{
       options: Partial<OperationOptions> = {},
     ): Operation => ({
       id: createId(),
+      librarySnapshotId: null,
       meta: {
         title: "Test Operation",
         description: "Test operation for workset tests",

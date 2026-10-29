@@ -339,11 +339,9 @@ virtual machines, containers, databases, even custom interactive CLIs if you pro
 
 ::tip
 
-The terminals are almost fully functional, they support colors, interactive prompts, and even mouse events.
+The terminals support colors, interactive prompts, mouse events, and window resizing.
 Commands like `htop`, `vim` work just fine.
-The only limitation now is that resizing the terminal window is not supported.
-The size of the browser window is captured only once when the terminal session starts and cannot be changed later.
-We are working on fixing this.
+They run on the project's selected container runtime and do not require Highstate software in the terminal image.
 
 ::
 

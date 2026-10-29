@@ -1,0 +1,104 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+import "io/highstate/worker/v1/worker.proto";
+
+// WorkerRegistration announces the concrete identity of the authenticated worker workload.
+message WorkerRegistration {
+  // The worker version ID.
+  string worker_version_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The concrete worker instance ID.
+  string worker_instance_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// WorkerControl streams current registrations followed by live changes, matching the worker API.
+message WorkerControl {
+  // The typed registration or lifecycle change.
+  oneof event {
+    // Add or replace a unit registration.
+    io.highstate.worker.v1.UnitRegistration unit_registration = 1;
+
+    // Remove a unit registration.
+    io.highstate.worker.v1.UnitDeregistration unit_deregistration = 2;
+
+    // Stop the worker gracefully.
+    StopWorker stop = 3;
+  }
+}
+
+// StopWorker requests graceful worker termination.
+message StopWorker {}
+
+// WorkerProxyReady binds a dedicated proxy channel to the current workload lease.
+message WorkerProxyReady {
+  // The authenticated workload ID.
+  string workload_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The current authorized lease generation.
+  uint64 lease_generation = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ProxyHeader preserves repeated HTTP headers, including Set-Cookie.
+message ProxyHeader {
+  // The HTTP header name.
+  string name = 1;
+
+  // One unmodified header value.
+  string value = 2;
+}
+
+// WorkerProxyRequestHead identifies the panel route and HTTP request.
+message WorkerProxyRequestHead {
+  // The registered unit state ID, supplied as x-highstate-state-id to the worker handler.
+  string state_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The panel name, supplied as x-highstate-panel-name to the worker handler.
+  string panel_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The HTTP method.
+  string method = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The origin-form path including the query string.
+  string path = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // End-to-end request headers after gateway session and hop-by-hop filtering.
+  repeated ProxyHeader headers = 5;
+}
+
+// ProxyWorkerResponse carries the backend's HTTP request on the worker-originated RPC.
+message ProxyWorkerResponse {
+  // Headers first, followed by bounded body chunks and an empty body frame marking request EOF.
+  oneof event {
+    // The request routing and HTTP headers.
+    WorkerProxyRequestHead head = 1;
+
+    // Unmodified HTTP body bytes; an empty chunk ends the request body without completing the RPC.
+    bytes body = 2;
+  }
+}
+
+// WorkerProxyResponseHead contains the upstream HTTP status and headers.
+message WorkerProxyResponseHead {
+  // The HTTP response status code.
+  uint32 status_code = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // End-to-end response headers, subject to the gateway's existing panel response policy.
+  repeated ProxyHeader headers = 2;
+}
+
+// ProxyWorkerRequest carries readiness then the worker's HTTP response on the worker-originated RPC.
+message ProxyWorkerRequest {
+  // Readiness first, then response headers and bounded body chunks until client half-close.
+  oneof event {
+    // Announces channel availability before the backend dispatches a request.
+    WorkerProxyReady ready = 1;
+
+    // The response status and headers.
+    WorkerProxyResponseHead head = 2;
+
+    // Unmodified HTTP body bytes.
+    bytes body = 3;
+  }
+}

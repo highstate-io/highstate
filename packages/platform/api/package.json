@@ -15,6 +15,10 @@
       "types": "./src/api/v1.ts",
       "default": "./dist/api/v1.js"
     },
+    "./runtime.v1": {
+      "types": "./src/api/runtime.v1.ts",
+      "default": "./dist/api/runtime.v1.js"
+    },
     "./worker.v1": {
       "types": "./src/api/worker.v1.ts",
       "default": "./dist/api/worker.v1.js"

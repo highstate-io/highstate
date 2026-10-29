@@ -54,16 +54,21 @@ export const ModelName = {
   BackendApiKey: 'BackendApiKey',
   ProjectImportPort: 'ProjectImportPort',
   UserWorkspaceLayout: 'UserWorkspaceLayout',
-  Library: 'Library',
+  LibrarySnapshotImage: 'LibrarySnapshotImage',
   Object: 'Object',
   Project: 'Project',
   ProjectSpace: 'ProjectSpace',
   ProjectModelStorage: 'ProjectModelStorage',
-  PulumiBackend: 'PulumiBackend',
+  PulumiStateBackend: 'PulumiStateBackend',
+  NpmRegistryCredential: 'NpmRegistryCredential',
+  ContainerRegistryCredential: 'ContainerRegistryCredential',
   BackendRole: 'BackendRole',
   UserBackendRoleBinding: 'UserBackendRoleBinding',
   UserGroupBackendRoleBinding: 'UserGroupBackendRoleBinding',
   ServiceAccountBackendRoleBinding: 'ServiceAccountBackendRoleBinding',
+  ContainerRuntime: 'ContainerRuntime',
+  RuntimeWorkload: 'RuntimeWorkload',
+  RuntimeAction: 'RuntimeAction',
   BackendServiceAccount: 'BackendServiceAccount',
   BackendServiceAccountProjectBinding: 'BackendServiceAccountProjectBinding',
   BackendUnlockMethod: 'BackendUnlockMethod',
@@ -121,13 +126,26 @@ export const UserWorkspaceLayoutScalarFieldEnum = {
 export type UserWorkspaceLayoutScalarFieldEnum = (typeof UserWorkspaceLayoutScalarFieldEnum)[keyof typeof UserWorkspaceLayoutScalarFieldEnum]
 
 
-export const LibraryScalarFieldEnum = {
+export const LibrarySnapshotImageScalarFieldEnum = {
   id: 'id',
-  meta: 'meta',
-  spec: 'spec'
+  projectId: 'projectId',
+  snapshotId: 'snapshotId',
+  snapshotHash: 'snapshotHash',
+  runtimeId: 'runtimeId',
+  status: 'status',
+  generation: 'generation',
+  progress: 'progress',
+  workloadId: 'workloadId',
+  imageRef: 'imageRef',
+  imageDigest: 'imageDigest',
+  imageHash: 'imageHash',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
 } as const
 
-export type LibraryScalarFieldEnum = (typeof LibraryScalarFieldEnum)[keyof typeof LibraryScalarFieldEnum]
+export type LibrarySnapshotImageScalarFieldEnum = (typeof LibrarySnapshotImageScalarFieldEnum)[keyof typeof LibrarySnapshotImageScalarFieldEnum]
 
 
 export const ObjectScalarFieldEnum = {
@@ -144,8 +162,9 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   spaceId: 'spaceId',
   modelStorageId: 'modelStorageId',
-  libraryId: 'libraryId',
-  pulumiBackendId: 'pulumiBackendId',
+  containerRuntimeId: 'containerRuntimeId',
+  pulumiStateBackendId: 'pulumiStateBackendId',
+  legacyExecutionConfig: 'legacyExecutionConfig',
   encryptedMasterKey: 'encryptedMasterKey',
   encryptedPrivateKey: 'encryptedPrivateKey',
   publicKey: 'publicKey',
@@ -177,13 +196,43 @@ export const ProjectModelStorageScalarFieldEnum = {
 export type ProjectModelStorageScalarFieldEnum = (typeof ProjectModelStorageScalarFieldEnum)[keyof typeof ProjectModelStorageScalarFieldEnum]
 
 
-export const PulumiBackendScalarFieldEnum = {
+export const PulumiStateBackendScalarFieldEnum = {
   id: 'id',
   meta: 'meta',
-  spec: 'spec'
+  spec: 'spec',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type PulumiBackendScalarFieldEnum = (typeof PulumiBackendScalarFieldEnum)[keyof typeof PulumiBackendScalarFieldEnum]
+export type PulumiStateBackendScalarFieldEnum = (typeof PulumiStateBackendScalarFieldEnum)[keyof typeof PulumiStateBackendScalarFieldEnum]
+
+
+export const NpmRegistryCredentialScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  scope: 'scope',
+  registryUrl: 'registryUrl',
+  encryptedCredentials: 'encryptedCredentials',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NpmRegistryCredentialScalarFieldEnum = (typeof NpmRegistryCredentialScalarFieldEnum)[keyof typeof NpmRegistryCredentialScalarFieldEnum]
+
+
+export const ContainerRegistryCredentialScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  registryUrl: 'registryUrl',
+  encryptedCredentials: 'encryptedCredentials',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContainerRegistryCredentialScalarFieldEnum = (typeof ContainerRegistryCredentialScalarFieldEnum)[keyof typeof ContainerRegistryCredentialScalarFieldEnum]
 
 
 export const BackendRoleScalarFieldEnum = {
@@ -223,6 +272,61 @@ export const ServiceAccountBackendRoleBindingScalarFieldEnum = {
 } as const
 
 export type ServiceAccountBackendRoleBindingScalarFieldEnum = (typeof ServiceAccountBackendRoleBindingScalarFieldEnum)[keyof typeof ServiceAccountBackendRoleBindingScalarFieldEnum]
+
+
+export const ContainerRuntimeScalarFieldEnum = {
+  id: 'id',
+  meta: 'meta',
+  spec: 'spec',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  revision: 'revision'
+} as const
+
+export type ContainerRuntimeScalarFieldEnum = (typeof ContainerRuntimeScalarFieldEnum)[keyof typeof ContainerRuntimeScalarFieldEnum]
+
+
+export const RuntimeWorkloadScalarFieldEnum = {
+  id: 'id',
+  runtimeId: 'runtimeId',
+  projectId: 'projectId',
+  kind: 'kind',
+  ownerId: 'ownerId',
+  nativeResourceId: 'nativeResourceId',
+  desiredState: 'desiredState',
+  status: 'status',
+  leaseGeneration: 'leaseGeneration',
+  leaseExpiresAt: 'leaseExpiresAt',
+  connectedAt: 'connectedAt',
+  finishedAt: 'finishedAt',
+  cleanupStartedAt: 'cleanupStartedAt',
+  cleanedUpAt: 'cleanedUpAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RuntimeWorkloadScalarFieldEnum = (typeof RuntimeWorkloadScalarFieldEnum)[keyof typeof RuntimeWorkloadScalarFieldEnum]
+
+
+export const RuntimeActionScalarFieldEnum = {
+  id: 'id',
+  workloadId: 'workloadId',
+  kind: 'kind',
+  ownerId: 'ownerId',
+  snapshotId: 'snapshotId',
+  imageDigest: 'imageDigest',
+  status: 'status',
+  cancellationRequestedAt: 'cancellationRequestedAt',
+  forceCancellationRequestedAt: 'forceCancellationRequestedAt',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RuntimeActionScalarFieldEnum = (typeof RuntimeActionScalarFieldEnum)[keyof typeof RuntimeActionScalarFieldEnum]
 
 
 export const BackendServiceAccountScalarFieldEnum = {
@@ -291,6 +395,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
