@@ -103,6 +103,7 @@ export class RuntimeOperation {
       this.tryMarkOperationCancelling()
       return false
     }
+
     const forceRequired = this.workset.cancel(force)
     this.tryMarkOperationCancelling()
     return forceRequired
@@ -189,13 +190,16 @@ export class RuntimeOperation {
             )
           : await this.projectLibrary.catalog(this.project.id)
         : undefined
+
     const resolved = catalog
       ? await this.projectModelService.resolveProject(this.project.id)
       : undefined
+
     const localOverlayRevision =
       catalog && this.projectLibrary
         ? ((await this.projectLibrary.catalog(this.project.id)).overlay.revision ?? null)
         : undefined
+
     this.context =
       this.preloadedContext ??
       (await OperationContext.load(
@@ -220,16 +224,21 @@ export class RuntimeOperation {
             }
           : undefined,
       ))
+
     signal.throwIfAborted()
+
     if (this.preloadedContext) {
       await this.context.captureEntitySnapshotsAtOperationStart({
         projectId: this.project.id,
         entitySnapshotService: this.entitySnapshotService,
       })
+
       signal.throwIfAborted()
     }
+
     if (!this.operation.librarySnapshotId && this.context.desiredSnapshotId) {
       this.operation.librarySnapshotId = this.context.desiredSnapshotId
+
       await this.updateOperation({
         librarySnapshot: { connect: { id: this.context.desiredSnapshotId } },
       })
@@ -253,19 +262,27 @@ export class RuntimeOperation {
     }
 
     const snapshotIds = new Set<string>()
-    if (this.context.desiredSnapshotId) snapshotIds.add(this.context.desiredSnapshotId)
+
+    if (this.context.desiredSnapshotId) {
+      snapshotIds.add(this.context.desiredSnapshotId)
+    }
+
     for (const phase of plan) {
       for (const instance of phase.instances) {
         const provenance = this.context.getExecutionProvenance(instance.id, phase.type)
-        if (provenance) snapshotIds.add(provenance.librarySnapshotId)
+        if (provenance) {
+          snapshotIds.add(provenance.librarySnapshotId)
+        }
       }
     }
+
     await this.runnerBackend.prepareOperation?.(
       this.project.id,
       this.operation.id,
       [...snapshotIds],
       signal,
     )
+
     signal.throwIfAborted()
 
     // 3. create the workset to track the state of the operation
@@ -283,7 +300,10 @@ export class RuntimeOperation {
 
     // 5. setup abort controllers for all affected instances in all phases
     this.workset.setupAbortControllersForAllInstances()
-    if (this.pendingCancellation) this.workset.cancel(this.pendingForceCancellation)
+
+    if (this.pendingCancellation) {
+      this.workset.cancel(this.pendingForceCancellation)
+    }
 
     // 6. progressively lock instances and launch them as they get locked
     this.launchLockAcquisitionSequence()
@@ -792,6 +812,7 @@ export class RuntimeOperation {
           instance.id,
           this.workset.currentPhase,
         )
+
         await this.workset.updateState(instance.id, {
           operationState: {
             status: this.workset.getStableStatusByOperationPhase(),
@@ -1137,6 +1158,7 @@ export class RuntimeOperation {
           .get(state.instanceId)
           ?.abortController.signal.throwIfAborted()
       }
+
       let handlerError: Error | null = null
 
       try {
@@ -1174,6 +1196,7 @@ export class RuntimeOperation {
     invokedTriggers: TriggerInvocation[] = [],
   ): UnitConfig {
     const resolvedInputs = this.context.getExecutionInputs(instance.id, this.workset.currentPhase)
+
     const component = this.context.getExecutionLibrary(instance.id, this.workset.currentPhase)
       .components[instance.type]!
 
@@ -1239,7 +1262,6 @@ export class RuntimeOperation {
       try {
         const instance = this.getPhaseInstance(instanceId as InstanceId)
         const component = library.components[instance.type]
-
         if (!component) {
           return undefined
         }
@@ -1346,6 +1368,7 @@ export class RuntimeOperation {
     this.workset.instanceAbortControllers
       .get(update.unitId)
       ?.abortController.signal.throwIfAborted()
+
     if (this.operation.type === "preview") {
       await this.workset.updateState(update.unitId, {
         operationState: {
@@ -1358,10 +1381,12 @@ export class RuntimeOperation {
     }
 
     const instance = this.getPhaseInstance(update.unitId)
+
     const executionLibrary = this.context.getExecutionLibrary(
       instance.id,
       this.workset.currentPhase,
     )
+
     const provenance = this.context.getExecutionProvenance(instance.id, this.workset.currentPhase)
     if (
       provenance &&
@@ -1429,10 +1454,12 @@ export class RuntimeOperation {
       status: this.workset.getNextStableInstanceStatus(instance.id),
       statusFields: parsed.statusFields,
     }
+
     if (this.workset.currentPhase === "update" && update.operationType === "update") {
       data.librarySnapshotId = provenance?.librarySnapshotId ?? null
       data.libraryPackageVersionId = provenance?.libraryPackageVersionId ?? null
       data.model = instance
+
       data.resolvedInputs = this.context.serializeResolvedInputs(
         mapValues(this.context.getResolvedInputs(instance.id) ?? {}, inputs =>
           inputs.map(input => input.input),
@@ -1453,10 +1480,12 @@ export class RuntimeOperation {
       if (this.workset.currentPhase === "update") {
         const { selfHash, inputHash, dependencyOutputHash } =
           await this.context.getUpToDateInputHashOutput(instance)
+
         data.selfHash = selfHash
         data.inputHash = inputHash
         data.dependencyOutputHash = dependencyOutputHash
       }
+
       data.outputHash = parsed.outputHash
 
       data.exportedArtifactIds = parsed.exportedArtifactIds
@@ -1492,6 +1521,7 @@ export class RuntimeOperation {
         payload: parsed.entitySnapshotPayload,
       })
     }
+
     this.workset.instanceAbortControllers
       .get(update.unitId)
       ?.abortController.signal.throwIfAborted()
@@ -1653,7 +1683,10 @@ export class RuntimeOperation {
   }
 
   private async ensureInstancesUnlocked(): Promise<void> {
-    if (!this.workset) return
+    if (!this.workset) {
+      return
+    }
+
     const lockedStateIds = Array.from(this.workset.getLockedStateIds())
     if (lockedStateIds.length === 0) {
       return
@@ -1669,7 +1702,10 @@ export class RuntimeOperation {
   }
 
   private async ensureOperationStatesFinalized(): Promise<void> {
-    if (!this.context || !this.workset) return
+    if (!this.context || !this.workset) {
+      return
+    }
+
     const unfinishedStates = this.context.getUnfinishedOperationStates()
     if (unfinishedStates.length === 0) {
       return

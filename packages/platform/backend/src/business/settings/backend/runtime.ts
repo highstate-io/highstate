@@ -65,6 +65,7 @@ export class RuntimeSettingsService {
       permission: `${kind}.list`,
       target: { resources: ids => ({ id: { in: [...ids] } }) },
     })
+
     const db = this.database.backend
 
     switch (kind) {
@@ -118,6 +119,7 @@ export class RuntimeSettingsService {
   ): Promise<Output> {
     runtimeSettingsKindSchema.parse(kind)
     requireBackendPermission(context, `${kind}.manage`, { resourceId: id })
+
     if (!id) {
       throw new Error("Settings ID must not be empty")
     }
@@ -127,6 +129,7 @@ export class RuntimeSettingsService {
         switch (kind) {
           case "container-runtime": {
             const data = containerRuntimeInputSchema.parse(input)
+
             for (const credentialId of data.npmRegistryCredentialIds) {
               requireBackendPermission(context, "npm-registry-credential.get", {
                 resourceId: credentialId,
@@ -143,11 +146,13 @@ export class RuntimeSettingsService {
             assertRevision(kind, id, data.revision, current)
             const spec = await this.runtimeSpec(data.spec, current?.spec)
             const values = { meta: data.meta, spec }
+
             if (current) {
               const result = await tx.containerRuntime.updateMany({
                 where: { id, revision: data.revision },
                 data: { ...values, revision: { increment: 1 } },
               })
+
               assertChanged(kind, id, result.count)
             } else {
               await tx.containerRuntime.create({ data: { id, ...values } })
@@ -163,16 +168,19 @@ export class RuntimeSettingsService {
               },
               include: runtimeInclude,
             })
+
             return runtimeOutput(row)
           }
           case "pulumi-state-backend": {
             const data = pulumiStateBackendInputSchema.parse(input)
             const current = await tx.pulumiStateBackend.findUnique({ where: { id } })
             assertRevision(kind, id, data.revision, current)
+
             const encryptedCredentials = await this.secret(
               data.spec.credentials,
               current?.spec.encryptedCredentials,
             )
+
             const values = {
               meta: data.meta,
               spec: {
@@ -180,11 +188,13 @@ export class RuntimeSettingsService {
                 ...(encryptedCredentials ? { encryptedCredentials } : {}),
               },
             }
+
             if (current) {
               const result = await tx.pulumiStateBackend.updateMany({
                 where: { id, revision: data.revision },
                 data: { ...values, revision: { increment: 1 } },
               })
+
               assertChanged(kind, id, result.count)
             } else {
               await tx.pulumiStateBackend.create({ data: { id, ...values } })
@@ -196,10 +206,12 @@ export class RuntimeSettingsService {
             const data = npmRegistryCredentialInputSchema.parse(input)
             const current = await tx.npmRegistryCredential.findUnique({ where: { id } })
             assertRevision(kind, id, data.revision, current)
+
             const encryptedCredentials = await this.secret(
               data.credentials && JSON.stringify(data.credentials),
               current?.encryptedCredentials,
             )
+
             if (!encryptedCredentials) {
               throw new Error("Npm registry credentials are required")
             }
@@ -210,11 +222,13 @@ export class RuntimeSettingsService {
               registryUrl: data.registryUrl,
               encryptedCredentials,
             }
+
             if (current) {
               const result = await tx.npmRegistryCredential.updateMany({
                 where: { id, revision: data.revision },
                 data: { ...values, revision: { increment: 1 } },
               })
+
               assertChanged(kind, id, result.count)
             } else {
               await tx.npmRegistryCredential.create({ data: { id, ...values } })
@@ -229,20 +243,24 @@ export class RuntimeSettingsService {
             const data = containerRegistryCredentialInputSchema.parse(input)
             const current = await tx.containerRegistryCredential.findUnique({ where: { id } })
             assertRevision(kind, id, data.revision, current)
+
             const encryptedCredentials = await this.secret(
               data.credentials && JSON.stringify(data.credentials),
               current?.encryptedCredentials,
             )
+
             if (!encryptedCredentials) {
               throw new Error("Container registry credentials are required")
             }
 
             const values = { meta: data.meta, registryUrl: data.registryUrl, encryptedCredentials }
+
             if (current) {
               const result = await tx.containerRegistryCredential.updateMany({
                 where: { id, revision: data.revision },
                 data: { ...values, revision: { increment: 1 } },
               })
+
               assertChanged(kind, id, result.count)
             } else {
               await tx.containerRegistryCredential.create({ data: { id, ...values } })
@@ -276,6 +294,7 @@ export class RuntimeSettingsService {
   ): Promise<void> {
     runtimeSettingsKindSchema.parse(kind)
     requireBackendPermission(context, `${kind}.manage`, { resourceId: id })
+
     if (!Number.isSafeInteger(revision) || revision < 1) {
       throw new Error("A positive revision is required")
     }
@@ -284,6 +303,7 @@ export class RuntimeSettingsService {
       await this.database.backend.$transaction(async tx => {
         const where = { id, revision }
         let count: number
+
         switch (kind) {
           case "container-runtime": {
             assertRevision(
@@ -292,6 +312,7 @@ export class RuntimeSettingsService {
               revision,
               await tx.containerRuntime.findUnique({ where: { id } }),
             )
+
             if (
               (await tx.project.count({ where: { containerRuntimeId: id } })) ||
               (await tx.runtimeWorkload.count({ where: { runtimeId: id } })) ||
@@ -337,10 +358,14 @@ export class RuntimeSettingsService {
             count = (await tx.containerRegistryCredential.deleteMany({ where })).count
             break
         }
+
         assertChanged(kind, id, count)
       })
     } catch (error) {
-      if (isDatabaseError(error, "P2003")) throw new RuntimeSettingsInUseError(kind, id)
+      if (isDatabaseError(error, "P2003")) {
+        throw new RuntimeSettingsInUseError(kind, id)
+      }
+
       throw error
     }
   }
@@ -355,10 +380,12 @@ export class RuntimeSettingsService {
     signal?: AbortSignal,
   ): Promise<RuntimePreflightCheck[]> {
     requireBackendPermission(context, "container-runtime.manage", { resourceId: runtimeId })
+
     await this.database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: runtimeId },
       select: { id: true },
     })
+
     if (!this.preflightProvider) {
       throw new Error("Runtime preflight provider is not configured")
     }
@@ -371,12 +398,11 @@ export class RuntimeSettingsService {
     value: string | null | undefined,
     previous?: string,
   ): Promise<string | undefined> {
-    if (value === undefined) {
-      return previous
-    }
-
-    if (value === null) {
-      return undefined
+    switch (value) {
+      case undefined:
+        return previous
+      case null:
+        return undefined
     }
 
     const encrypter = new Encrypter()
@@ -393,11 +419,13 @@ export class RuntimeSettingsService {
       ...(input.runtimeApiCaBundle ? { runtimeApiCaBundle: input.runtimeApiCaBundle } : {}),
       ...(input.imageRepository ? { imageRepository: input.imageRepository } : {}),
     }
+
     if (input.type === "kubernetes") {
       const encryptedKubeconfig = await this.secret(
         input.kubeconfig,
         previous?.type === "kubernetes" ? previous.encryptedKubeconfig : undefined,
       )
+
       return {
         ...common,
         type: input.type,
@@ -408,12 +436,15 @@ export class RuntimeSettingsService {
         ...(encryptedKubeconfig ? { encryptedKubeconfig } : {}),
       }
     }
+
     const oldTls = previous?.type === "docker" ? previous.tls : undefined
     const encryptedCaBundle = await this.secret(input.tls?.caBundle, oldTls?.encryptedCaBundle)
+
     const encryptedClientCertificate = await this.secret(
       input.tls?.clientCertificate,
       oldTls?.encryptedClientCertificate,
     )
+
     const encryptedClientKey = await this.secret(input.tls?.clientKey, oldTls?.encryptedClientKey)
     return {
       ...common,
@@ -473,7 +504,9 @@ function assertRevision(
 }
 
 function assertChanged(kind: RuntimeSettingsKind, id: string, count: number) {
-  if (count !== 1) throw new RuntimeSettingsConflictError(kind, id)
+  if (count !== 1) {
+    throw new RuntimeSettingsConflictError(kind, id)
+  }
 }
 
 function isDatabaseError(error: unknown, code: string) {
@@ -491,5 +524,8 @@ async function assertCredentialUnused(
         ? { npmRegistryCredentials: { some: { id } } }
         : { containerRegistryCredentials: { some: { id } } },
   })
-  if (count) throw new RuntimeSettingsInUseError(kind, id)
+
+  if (count) {
+    throw new RuntimeSettingsInUseError(kind, id)
+  }
 }

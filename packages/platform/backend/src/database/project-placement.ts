@@ -22,11 +22,14 @@ export async function updateProjectPlacement(
     const runtime = await tx.containerRuntime.findUniqueOrThrow({
       where: { id: input.containerRuntimeId },
     })
+
     await tx.pulumiStateBackend.findUniqueOrThrow({ where: { id: input.pulumiStateBackendId } })
+
     const local =
       runtime.id === localContainerRuntime.id &&
       runtime.spec.type === "docker" &&
       runtime.spec.local
+
     if (input.localOverlayEnabled && !local) {
       throw new Error("Local library overlays require the well-known local Docker runtime")
     }
@@ -41,6 +44,7 @@ export async function updateProjectPlacement(
       },
       select: { id: true },
     })
+
     if (workload) {
       throw new Error(`Project "${projectId}" still has active or uncleaned runtime workloads`)
     }
@@ -58,6 +62,7 @@ export async function updateProjectPlacement(
           select: { id: true },
         }),
       ])
+
       if (operation || terminal || worker) {
         throw new Error(`Project "${projectId}" still has active operations, terminals, or workers`)
       }
@@ -65,15 +70,18 @@ export async function updateProjectPlacement(
       const state = await projectTx.projectLibraryState.findUniqueOrThrow({
         where: { id: "default" },
       })
+
       const overlayEnabled = local
         ? (input.localOverlayEnabled ?? state.localOverlayEnabled)
         : false
+
       if (
         overlayEnabled !== state.localOverlayEnabled ||
         project.containerRuntimeId !== input.containerRuntimeId
       ) {
         await projectTx.instanceEvaluationState.deleteMany()
       }
+
       await projectTx.projectLibraryState.update({
         where: { id: "default" },
         data: { localOverlayEnabled: overlayEnabled },

@@ -55,8 +55,10 @@ export class PanelEndpointManager {
     signal?: AbortSignal,
   ): Promise<WorkerProxyResponse> {
     const endpoint = this.getPanelEndpoint(projectId, workerVersionId, panelId, workerInstanceId)
-    if (!endpoint?.workloadId || !this.proxies)
+    if (!endpoint?.workloadId || !this.proxies) {
       throw new Error("Panel reverse channel is unavailable")
+    }
+
     return await this.proxies.request(
       endpoint.workloadId,
       { ...request, stateId: endpoint.stateId, panelName: endpoint.panelName },

@@ -29,8 +29,10 @@ export async function loadComponents(
 async function _loadLibrary(value: unknown, components: Record<string, Component>): Promise<void> {
   if (isComponent(value)) {
     const previous = components[value.model.type]
-    if (previous && previous !== value)
+    if (previous && previous !== value) {
       throw new Error(`Duplicate component type "${value.model.type}"`)
+    }
+
     components[value.model.type] = value
     return
   }

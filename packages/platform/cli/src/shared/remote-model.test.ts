@@ -51,6 +51,7 @@ describe("remote model conversion", () => {
     expect(document.phases).toEqual([
       toJson(OperationPhaseSchema, phase, { useProtoFieldName: true }),
     ])
+
     expect(document.plan_token).toBe("backend-token")
     expect(operationOptions(document.options).refresh).toBe(true)
   })

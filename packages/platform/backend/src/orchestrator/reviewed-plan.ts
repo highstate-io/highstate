@@ -11,7 +11,9 @@ export const reviewedPlanSchema = operationPlanInputSchema.extend({
 })
 export type ReviewedPlan = z.infer<typeof reviewedPlanSchema>
 
-/** A backend restart intentionally invalidates outstanding reviews unless a durable key is supplied. */
+/**
+ * A backend restart intentionally invalidates outstanding reviews unless a durable key is supplied.
+ */
 export class ReviewedPlanSigner {
   constructor(private readonly key: Uint8Array = randomBytes(32)) {}
 
@@ -19,18 +21,28 @@ export class ReviewedPlanSigner {
     const payload = Buffer.from(stableJsonStringify(reviewedPlanSchema.parse(plan))).toString(
       "base64url",
     )
+
     return `${payload}.${this.mac(payload).toString("base64url")}`
   }
 
   verify(token: string): ReviewedPlan {
     const [payload, signature, extra] = token.split(".")
-    if (!payload || !signature || extra) throw new Error("Invalid reviewed plan token")
+
+    if (!payload || !signature || extra) {
+      throw new Error("Invalid reviewed plan token")
+    }
+
     const actual = Buffer.from(signature, "base64url")
     const expected = this.mac(payload)
-    if (actual.length !== expected.length || !timingSafeEqual(actual, expected))
+    if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
       throw new Error("Invalid reviewed plan signature")
+    }
+
     const plan = reviewedPlanSchema.parse(JSON.parse(Buffer.from(payload, "base64url").toString()))
-    if (plan.expiresAt <= Date.now()) throw new Error("Reviewed plan expired")
+    if (plan.expiresAt <= Date.now()) {
+      throw new Error("Reviewed plan expired")
+    }
+
     return plan
   }
 

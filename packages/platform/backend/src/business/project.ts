@@ -91,12 +91,15 @@ export class ProjectService {
   ): Promise<ProjectOutput> {
     const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
     requireBackendPermission(context, "project.migrate", target)
+
     requireBackendPermission(context, "container-runtime.get", {
       resourceId: input.containerRuntimeId,
     })
+
     requireBackendPermission(context, "pulumi-state-backend.get", {
       resourceId: input.pulumiStateBackendId,
     })
+
     await updateProjectPlacement(this.database, projectId, projectPlacementInputSchema.parse(input))
     return await this.getProjectOrThrowCore(projectId)
   }
@@ -164,15 +167,19 @@ export class ProjectService {
     requireBackendPermission(context, "project.create")
 
     projectInput = projectInputSchema.parse(projectInput)
+
     requireBackendPermission(context, "container-runtime.get", {
       resourceId: projectInput.containerRuntimeId,
     })
+
     requireBackendPermission(context, "pulumi-state-backend.get", {
       resourceId: projectInput.pulumiStateBackendId,
     })
+
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: projectInput.containerRuntimeId },
     })
+
     await this.database.backend.pulumiStateBackend.findUniqueOrThrow({
       where: { id: projectInput.pulumiStateBackendId },
     })
@@ -206,6 +213,7 @@ export class ProjectService {
     })
 
     const projectDatabase = await this.database.forProject(projectId)
+
     if (
       runtime.id !== localContainerRuntime.id ||
       runtime.spec.type !== "docker" ||
@@ -216,6 +224,7 @@ export class ProjectService {
         data: { localOverlayEnabled: false },
       })
     }
+
     await ensureAdminProjectBindingCreated(this.database.backend, projectDatabase, projectId)
 
     try {

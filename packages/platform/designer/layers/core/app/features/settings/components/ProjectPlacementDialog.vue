@@ -26,7 +26,10 @@ const supportsOverlay = computed(
 watch(
   () => [visible.value, props.project] as const,
   async () => {
-    if (!visible.value || !props.project) return
+    if (!visible.value || !props.project) {
+      return
+    }
+
     containerRuntimeId.value = props.project.containerRuntimeId
     pulumiStateBackendId.value = props.project.pulumiStateBackendId
     overlay.value = "preserve"
@@ -39,6 +42,7 @@ async function load() {
   error.value = ""
   loaded.value = false
   busy.value = true
+
   try {
     await settings.load()
     loaded.value = true
@@ -50,10 +54,14 @@ async function load() {
 }
 
 async function save() {
-  if (!props.project || !loaded.value || busy.value) return
+  if (!props.project || !loaded.value || busy.value) {
+    return
+  }
+
   busy.value = true
   error.value = ""
   saved.value = false
+
   try {
     await projects.updatePlacement(props.project.id, {
       containerRuntimeId: containerRuntimeId.value,
@@ -64,6 +72,7 @@ async function save() {
           ? undefined
           : overlay.value === "enable",
     })
+
     saved.value = true
   } catch (caught) {
     error.value = caught instanceof Error ? caught.message : "Failed to update project placement"

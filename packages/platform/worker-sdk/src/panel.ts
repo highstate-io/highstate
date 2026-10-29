@@ -196,11 +196,17 @@ export async function proxyPanelRequest(
   request: Request,
 ): Promise<Response> {
   const target = targets.get(stateId, panelName)
-  if (!target) return new Response("Panel not found", { status: 404 })
-  if (request.headers.get("upgrade"))
+  if (!target) {
+    return new Response("Panel not found", { status: 404 })
+  }
+
+  if (request.headers.get("upgrade")) {
     return new Response("Panel protocol upgrade is unavailable", { status: 501 })
+  }
+
   const forward = async (forwardedRequest: Request) =>
     await proxyRequest(forwardedRequest, target.target)
+
   return target.interceptHttpRequest
     ? await target.interceptHttpRequest(request, forward)
     : await forward(request)

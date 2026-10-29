@@ -31,12 +31,15 @@ function fixture() {
     createdAt: new Date(0),
     updatedAt: new Date(0),
   }))
+
   const unlockProject = vi.fn()
+
   const authenticate = vi.fn(async () => ({
     id: "key",
     serviceAccountId: "admin",
     restrictionRules: [],
   }))
+
   const handler = createProjectService({
     projectService: { createProject },
     projectUnlockService: { unlockProject },
@@ -45,17 +48,21 @@ function fixture() {
       backend: { serviceAccountBackendRoleBinding: { findMany: async () => [] } },
     },
   } as never)
+
   return { handler, createProject, unlockProject, authenticate }
 }
 
 describe("project lifecycle transport", () => {
   it("creates through the domain service with defaults and backend authorization", async () => {
     const { handler, createProject, authenticate } = fixture()
+
     const response = await handler.createProject(
       create(CreateProjectRequestSchema, { project: definition, unlockMethod }),
       context as never,
     )
+
     expect(authenticate).toHaveBeenCalledWith("backend-key")
+
     expect(createProject).toHaveBeenCalledWith(
       expect.objectContaining({
         realm: "backend",
@@ -71,12 +78,14 @@ describe("project lifecycle transport", () => {
       unlockMethod,
       undefined,
     )
+
     expect(response.project).toMatchObject({ id: projectId, ...definition })
   })
 
   it("preserves reserved IDs, explicit placement, and client-prepared passkey credentials", async () => {
     const { handler, createProject } = fixture()
     const passkey = { ...unlockMethod, type: "passkey", passkeyIdentity: "opaque-passkey" }
+
     await handler.createProject(
       create(CreateProjectRequestSchema, {
         projectId,
@@ -85,6 +94,7 @@ describe("project lifecycle transport", () => {
       }),
       context as never,
     )
+
     expect(createProject).toHaveBeenCalledWith(
       expect.objectContaining({ realm: "backend" }),
       expect.objectContaining({ containerRuntimeId: "remote", pulumiStateBackendId: "state" }),
@@ -101,9 +111,11 @@ describe("project lifecycle transport", () => {
     { project: definition, unlockMethod, projectId: "invalid-project-id" },
   ])("rejects invalid create input before mutation: %j", async input => {
     const { handler, createProject } = fixture()
+
     await expect(
       handler.createProject(create(CreateProjectRequestSchema, input), context as never),
     ).rejects.toMatchObject({ code: Code.InvalidArgument })
+
     expect(createProject).not.toHaveBeenCalled()
   })
 
@@ -112,10 +124,12 @@ describe("project lifecycle transport", () => {
     "",
   ])("unlocks using backend credentials without requiring an unlocked project: %j", async decryptedIdentity => {
     const { handler, unlockProject } = fixture()
+
     await handler.unlockProject(
       create(UnlockProjectRequestSchema, { projectId, decryptedIdentity }),
       context as never,
     )
+
     expect(unlockProject).toHaveBeenCalledWith(
       expect.objectContaining({ realm: "backend" }),
       projectId,
@@ -126,24 +140,29 @@ describe("project lifecycle transport", () => {
   it("requires authentication for both lifecycle mutations", async () => {
     const { handler, createProject, unlockProject } = fixture()
     const anonymous = { requestHeader: new Headers() }
+
     await expect(
       handler.createProject(
         create(CreateProjectRequestSchema, { project: definition, unlockMethod }),
         anonymous as never,
       ),
     ).rejects.toMatchObject({ code: Code.Unauthenticated })
+
     await expect(
       handler.unlockProject(create(UnlockProjectRequestSchema, { projectId }), anonymous as never),
     ).rejects.toMatchObject({ code: Code.Unauthenticated })
+
     expect(createProject).not.toHaveBeenCalled()
     expect(unlockProject).not.toHaveBeenCalled()
   })
 
   it("rejects an empty unlock project ID before mutation", async () => {
     const { handler, unlockProject } = fixture()
+
     await expect(
       handler.unlockProject(create(UnlockProjectRequestSchema), context as never),
     ).rejects.toMatchObject({ code: Code.InvalidArgument })
+
     expect(unlockProject).not.toHaveBeenCalled()
   })
 })

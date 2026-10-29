@@ -23,7 +23,9 @@ export type SnapshotImage = ImageIdentity & {
   generation: number
 }
 export type SnapshotImageBuildConfig = {
-  /** The release-aligned runner base, pinned by digest. */
+  /**
+   * The release-aligned runner base, pinned by digest.
+   */
   baseImage: string
   repository?: string
   platforms?: string[]
@@ -66,7 +68,9 @@ export class DatabaseSnapshotImageSource implements SnapshotImageSource {
   }
 }
 
-/** Rebuilds disposable backend image caches from durable project snapshots. */
+/**
+ * Rebuilds disposable backend image caches from durable project snapshots.
+ */
 export class SnapshotImageManager implements SnapshotImageService {
   private readonly builds = new Map<string, Promise<SnapshotImage>>()
 
@@ -83,13 +87,18 @@ export class SnapshotImageManager implements SnapshotImageService {
     snapshot: ProjectLibrarySnapshot,
     retry = false,
   ): Promise<SnapshotImage> {
-    if ((await this.source.desiredSnapshotId(projectId)) !== snapshot.id)
+    if ((await this.source.desiredSnapshotId(projectId)) !== snapshot.id) {
       throw new Error("Desired library snapshot changed")
+    }
+
     const image = retry
       ? await this.retryDesiredImage(projectId)
       : await this.ensureImage(projectId, snapshot.id)
-    if ((await this.source.desiredSnapshotId(projectId)) !== snapshot.id)
+
+    if ((await this.source.desiredSnapshotId(projectId)) !== snapshot.id) {
       throw new Error("Desired library snapshot changed")
+    }
+
     return image
   }
 
@@ -107,6 +116,7 @@ export class SnapshotImageManager implements SnapshotImageService {
     const project = await this.database.backend.project.findUniqueOrThrow({
       where: { id: projectId },
     })
+
     return await this.database.backend.librarySnapshotImage.findUnique({
       where: {
         projectId_snapshotId_runtimeId: {
@@ -124,59 +134,82 @@ export class SnapshotImageManager implements SnapshotImageService {
     signal?: AbortSignal,
   ): Promise<SnapshotImage> {
     signal?.throwIfAborted()
+
     const project = await this.database.backend.project.findUniqueOrThrow({
       where: { id: projectId },
     })
+
     const key = `${projectId}/${snapshotId}/${project.containerRuntimeId}`
     let pending = this.builds.get(key)
     if (!pending) {
       pending = this.materialize(projectId, snapshotId, project.containerRuntimeId, false)
       this.builds.set(key, pending)
+
       void pending
         .finally(() => {
-          if (this.builds.get(key) === pending) this.builds.delete(key)
+          if (this.builds.get(key) === pending) {
+            this.builds.delete(key)
+          }
         })
         .catch(() => {})
     }
+
     // cancelling one operation's barrier must not cancel a shared snapshot build
     const image = await abortable(pending, signal)
     if (
       (await this.database.backend.project.findUniqueOrThrow({ where: { id: projectId } }))
         .containerRuntimeId !== image.runtimeId
-    )
+    ) {
       throw new Error("Project runtime changed while waiting for its image")
+    }
+
     return image
   }
 
   async retryDesiredImage(projectId: string, signal?: AbortSignal): Promise<SnapshotImage> {
     signal?.throwIfAborted()
     const snapshotId = await this.source.desiredSnapshotId(projectId)
-    if (!snapshotId) throw new Error("Project has no desired library snapshot")
+    if (!snapshotId) {
+      throw new Error("Project has no desired library snapshot")
+    }
+
     const project = await this.database.backend.project.findUniqueOrThrow({
       where: { id: projectId },
     })
+
     const key = `${projectId}/${snapshotId}/${project.containerRuntimeId}`
     const build = this.materialize(projectId, snapshotId, project.containerRuntimeId, true)
     this.builds.set(key, build)
+
     void build
       .finally(() => {
-        if (this.builds.get(key) === build) this.builds.delete(key)
+        if (this.builds.get(key) === build) {
+          this.builds.delete(key)
+        }
       })
       .catch(() => {})
+
     const image = await abortable(build, signal)
-    if ((await this.source.desiredSnapshotId(projectId)) !== snapshotId)
+
+    if ((await this.source.desiredSnapshotId(projectId)) !== snapshotId) {
       throw new Error("Desired library snapshot changed")
+    }
+
     if (
       (await this.database.backend.project.findUniqueOrThrow({ where: { id: projectId } }))
         .containerRuntimeId !== image.runtimeId
-    )
+    ) {
       throw new Error("Project runtime changed while waiting for its image")
+    }
+
     return image
   }
 
   private dto(image: LibrarySnapshotImage): SnapshotImage {
-    if (!image.imageRef || !image.imageDigest || !image.imageHash)
+    if (!image.imageRef || !image.imageDigest || !image.imageHash) {
       throw new Error("Image cache has incomplete immutable identity")
+    }
+
     return {
       projectId: image.projectId,
       snapshotId: image.snapshotId,
@@ -198,29 +231,46 @@ export class SnapshotImageManager implements SnapshotImageService {
   ): Promise<SnapshotImage> {
     const snapshot = await this.source.snapshot(projectId, snapshotId)
     const { id: _id, hash, ...content } = snapshot
-    if (snapshotHash(content) !== hash) throw new Error("Library snapshot hash mismatch")
+
+    if (snapshotHash(content) !== hash) {
+      throw new Error("Library snapshot hash mismatch")
+    }
+
     if (
       snapshot.compatibility.runtimeProtocolVersion !== 1 ||
       snapshot.compatibility.packageFormatVersion !== 1
-    )
+    ) {
       throw new Error("Unsupported snapshot runtime or package format version")
+    }
+
     const adapter = await this.adapters.get(runtimeId)
-    if (!adapter.capabilities.build)
+    if (!adapter.capabilities.build) {
       throw new Error("Selected runtime cannot build snapshot images")
+    }
+
     const unique = { projectId, snapshotId, runtimeId }
+
     let cached = await this.database.backend.librarySnapshotImage.findUnique({
       where: { projectId_snapshotId_runtimeId: unique },
     })
-    if (cached && cached.snapshotHash !== snapshot.hash)
+
+    if (cached && cached.snapshotHash !== snapshot.hash) {
       throw new Error("Image cache snapshot hash mismatch")
-    if (cached?.status === "ready" && !retry && (await adapter.verifyImage(this.dto(cached))))
+    }
+
+    if (cached?.status === "ready" && !retry && (await adapter.verifyImage(this.dto(cached)))) {
       return this.dto(cached)
-    if (cached?.status === "failed" && !retry)
+    }
+
+    if (cached?.status === "failed" && !retry) {
       throw new Error(cached.error ?? "Snapshot image build failed")
+    }
+
     if (cached?.workloadId && !retry && !["ready", "failed"].includes(cached.status)) {
       const workload = await this.database.backend.runtimeWorkload.findUnique({
         where: { id: cached.workloadId },
       })
+
       if (
         workload &&
         !["failed", "lost", "completed", "cancelled"].includes(workload.status) &&
@@ -230,40 +280,59 @@ export class SnapshotImageManager implements SnapshotImageService {
         // another caller owns the current build; observe it rather than silently starting a duplicate
         for (;;) {
           await delay(200)
+
           const current = await this.database.backend.librarySnapshotImage.findUniqueOrThrow({
             where: { id: cached.id },
           })
-          if (current.generation !== cached.generation)
+
+          if (current.generation !== cached.generation) {
             throw new Error("Snapshot image build superseded")
-          if (current.status === "ready") return this.dto(current)
-          if (current.status === "failed")
+          }
+
+          if (current.status === "ready") {
+            return this.dto(current)
+          }
+
+          if (current.status === "failed") {
             throw new Error(current.error ?? "Snapshot image build failed")
+          }
+
           const owner = await this.database.backend.runtimeWorkload.findUniqueOrThrow({
             where: { id: current.workloadId! },
           })
-          if (!owner.leaseExpiresAt || owner.leaseExpiresAt.getTime() <= Date.now()) break
+
+          if (!owner.leaseExpiresAt || owner.leaseExpiresAt.getTime() <= Date.now()) {
+            break
+          }
         }
       }
     }
+
     const config = await this.configuration.get(projectId, runtimeId)
+
     const workload = await this.coordinator.createWorkload({
       projectId,
       kind: "library_build",
       ownerId: snapshotId,
     })
+
     if (workload.runtimeId !== runtimeId) {
       await this.coordinator.requestCleanup(workload.id)
       throw new Error("Project runtime changed before image build")
     }
+
     try {
       cached = await this.database.backend.$transaction(async tx => {
         const existing = await tx.librarySnapshotImage.findUnique({
           where: { projectId_snapshotId_runtimeId: unique },
         })
-        if (!existing)
+
+        if (!existing) {
           return await tx.librarySnapshotImage.create({
             data: { ...unique, snapshotHash: snapshot.hash, workloadId: workload.id },
           })
+        }
+
         const updated = await tx.librarySnapshotImage.updateMany({
           where: { id: existing.id, generation: cached?.generation ?? existing.generation },
           data: {
@@ -277,14 +346,20 @@ export class SnapshotImageManager implements SnapshotImageService {
             imageHash: null,
           },
         })
-        if (!updated.count) throw new Error("Snapshot image build generation changed concurrently")
+
+        if (!updated.count) {
+          throw new Error("Snapshot image build generation changed concurrently")
+        }
+
         return await tx.librarySnapshotImage.findUniqueOrThrow({ where: { id: existing.id } })
       })
     } catch (error) {
       await this.coordinator.requestCleanup(workload.id)
       throw error
     }
+
     const fence = { id: cached.id, workloadId: workload.id, generation: cached.generation }
+
     // build workload leases are renewed by the backend adapter, never by an agent action
     const renew = setInterval(() => {
       void this.database.backend.runtimeWorkload
@@ -294,11 +369,13 @@ export class SnapshotImageManager implements SnapshotImageService {
         })
         .catch(() => {})
     }, 10_000)
+
     try {
       await this.database.backend.runtimeWorkload.update({
         where: { id: workload.id },
         data: { status: "starting" },
       })
+
       const files: RuntimeFile[] = [
         {
           path: "package.json",
@@ -315,6 +392,7 @@ export class SnapshotImageManager implements SnapshotImageService {
           data: Buffer.from(JSON.stringify(snapshot.compatibility)),
         },
       ]
+
       const image = await adapter.buildImage(
         {
           owner: this.coordinator.ownership(workload),
@@ -333,11 +411,17 @@ export class SnapshotImageManager implements SnapshotImageService {
             where: fence,
             data: { status: phase, progress: { message: phase } },
           })
-          if (!update.count) throw new Error("Snapshot image build superseded")
+
+          if (!update.count) {
+            throw new Error("Snapshot image build superseded")
+          }
         },
       )
-      if (image.imageHash !== snapshot.hash || !(await adapter.verifyImage(image)))
+
+      if (image.imageHash !== snapshot.hash || !(await adapter.verifyImage(image))) {
         throw new Error("Snapshot image verification failed")
+      }
+
       const updated = await this.database.backend.librarySnapshotImage.updateMany({
         where: fence,
         data: {
@@ -348,11 +432,16 @@ export class SnapshotImageManager implements SnapshotImageService {
           completedAt: new Date(),
         },
       })
-      if (!updated.count) throw new Error("Snapshot image build superseded")
+
+      if (!updated.count) {
+        throw new Error("Snapshot image build superseded")
+      }
+
       await this.database.backend.runtimeWorkload.update({
         where: { id: workload.id },
         data: { status: "completed", finishedAt: new Date() },
       })
+
       return this.dto(
         await this.database.backend.librarySnapshotImage.findUniqueOrThrow({
           where: { id: cached.id },
@@ -363,10 +452,12 @@ export class SnapshotImageManager implements SnapshotImageService {
         where: fence,
         data: { status: "failed", error: String(error), completedAt: new Date() },
       })
+
       await this.database.backend.runtimeWorkload.update({
         where: { id: workload.id },
         data: { status: "failed", lastError: String(error), finishedAt: new Date() },
       })
+
       throw error
     } finally {
       clearInterval(renew)

@@ -4,7 +4,9 @@ import { createHash } from "node:crypto"
 import { z } from "zod"
 import { exactPackageVersionSchema, npmPackageNameSchema } from "./project-types"
 
-/** Includes omitted implementation roots; selectedPackages alone is not the frozen install manifest. */
+/**
+ * Includes omitted implementation roots; selectedPackages alone is not the frozen install manifest.
+ */
 export function getFrozenSnapshotPackageJson(snapshot: Pick<LibrarySnapshotContent, "lockfile">): {
   name: string
   private: true
@@ -20,13 +22,21 @@ export function getFrozenSnapshotPackageJson(snapshot: Pick<LibrarySnapshotConte
       ),
     })
     .parse(JSON.parse(snapshot.lockfile.replace(/,\s*([}\]])/g, "$1")))
+
   const dependencies = lockfile.workspaces[""]?.dependencies
-  if (!lockfile.workspaces[""]) throw new Error("Frozen lockfile has no root workspace")
+
+  if (!lockfile.workspaces[""]) {
+    throw new Error("Frozen lockfile has no root workspace")
+  }
+
   return { name: "highstate-snapshot", private: true, dependencies: dependencies ?? {} }
 }
 
 export function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`
+  if (Array.isArray(value)) {
+    return `[${value.map(canonicalJson).join(",")}]`
+  }
+
   if (value !== null && typeof value === "object") {
     return `{${Object.entries(value)
       .filter(([, item]) => item !== undefined)
@@ -34,6 +44,7 @@ export function canonicalJson(value: unknown): string {
       .map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`)
       .join(",")}}`
   }
+
   return JSON.stringify(value)
 }
 
@@ -68,24 +79,31 @@ export function mergeLibraryPackages(
   const model: LibraryModel = { components: {}, entities: {} }
   const owners: Record<string, string> = {}
   const manifests: LibrarySnapshotContent["sourceManifest"]["packages"] = {}
+
   for (const pkg of packages) {
     manifests[pkg.packageName] = pkg.sourceManifest
+
     for (const collection of ["components", "entities"] as const) {
       for (const [type, definition] of Object.entries(pkg.model[collection])) {
         const key = `${collection}:${type}`
-        if (Object.hasOwn(model[collection], type))
+
+        if (Object.hasOwn(model[collection], type)) {
           throw new Error(
             `Duplicate ${collection} type "${type}" from "${owners[key]}" and "${pkg.packageName}"`,
           )
+        }
+
         Object.defineProperty(model[collection], type, {
           value: definition,
           enumerable: true,
           configurable: true,
           writable: true,
         })
+
         owners[key] = pkg.packageName
       }
     }
   }
+
   return { model, sourceManifest: { packages: manifests, owners } }
 }

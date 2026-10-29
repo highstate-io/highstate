@@ -68,6 +68,7 @@ export class OperationContext {
     if (phase === "destroy" || phase === "refresh") {
       return this.historicalProvenance.get(instanceId)
     }
+
     return this.desiredProvenance.get(this.getInstance(instanceId).type)
   }
 
@@ -99,7 +100,11 @@ export class OperationContext {
   public hasExecutionUpgrade(instanceId: InstanceId): boolean {
     const desired = this.desiredProvenance.get(this.getInstance(instanceId).type)
     const state = this.getState(instanceId)
-    if (!desired) return state.librarySnapshotId != null
+
+    if (!desired) {
+      return state.librarySnapshotId != null
+    }
+
     return (
       state.librarySnapshotId !== desired.librarySnapshotId ||
       state.libraryPackageVersionId !== desired.libraryPackageVersionId
@@ -110,7 +115,10 @@ export class OperationContext {
     instanceId: InstanceId,
   ): OperationPhaseInstance["libraryPackageUpgrade"] {
     const desired = this.desiredProvenance.get(this.getInstance(instanceId).type)
-    if (!desired || !this.hasExecutionUpgrade(instanceId)) return undefined
+    if (!desired || !this.hasExecutionUpgrade(instanceId)) {
+      return undefined
+    }
+
     const previous = this.historicalProvenance.get(instanceId)
     return {
       packageName: desired.packageName,
@@ -555,8 +563,12 @@ export class OperationContext {
 
     for (const [instanceId, groups] of this.historicalInputs) {
       for (const input of Object.values(groups).flat()) {
-        if (input.input.instanceId === instanceId) continue
+        if (input.input.instanceId === instanceId) {
+          continue
+        }
+
         const state = this.getState(input.input.instanceId)
+
         keys.push({
           instanceId: state.instanceId,
           stateId: state.id,
@@ -648,33 +660,48 @@ export class OperationContext {
     if (pinned) {
       context.desiredSnapshotId = pinned.snapshotId
       context.localOverlayRevision = pinned.localOverlayRevision ?? null
+
       const snapshotIds = unique([
         ...(pinned.snapshotId ? [pinned.snapshotId] : []),
         ...states.flatMap(state => (state.librarySnapshotId ? [state.librarySnapshotId] : [])),
       ])
+
       for (const snapshotId of snapshotIds) {
         const snapshot = await pinned.projectLibrary.historicalSnapshot(projectId, snapshotId)
         context.historicalLibraries.set(snapshotId, snapshot.model)
+
         for (const [key, packageName] of Object.entries(snapshot.sourceManifest.owners)) {
-          if (!key.startsWith("components:")) continue
+          if (!key.startsWith("components:")) {
+            continue
+          }
+
           const type = key.slice("components:".length)
           const pkg = snapshot.packages.find(pkg => pkg.packageName === packageName)
-          if (!pkg?.id) throw new Error(`Missing snapshot membership for "${type}"`)
+          if (!pkg?.id) {
+            throw new Error(`Missing snapshot membership for "${type}"`)
+          }
+
           const provenance = {
             librarySnapshotId: snapshotId,
             libraryPackageVersionId: pkg.id,
             packageName,
             version: pkg.version,
           }
-          if (snapshotId === pinned.snapshotId) context.desiredProvenance.set(type, provenance)
+
+          if (snapshotId === pinned.snapshotId) {
+            context.desiredProvenance.set(type, provenance)
+          }
+
           for (const state of states) {
             const stateModel = state.model ?? state.lastOperationState?.model
             if (
               state.librarySnapshotId === snapshotId &&
               (stateModel?.type ?? parseInstanceId(state.instanceId)[0]) === type
             ) {
-              if (state.libraryPackageVersionId !== pkg.id)
+              if (state.libraryPackageVersionId !== pkg.id) {
                 throw new Error(`Invalid deployed snapshot membership for "${state.instanceId}"`)
+              }
+
               context.historicalProvenance.set(state.instanceId, provenance)
             }
           }
@@ -692,16 +719,23 @@ export class OperationContext {
           parentId: state.parentInstanceId ?? undefined,
         })
       }
-      if (!state.resolvedInputs) continue
+
+      if (!state.resolvedInputs) {
+        continue
+      }
+
       const library = context.getExecutionLibrary(state.instanceId, "destroy")
       const component = model && library.components[model.type]
+
       context.historicalInputs.set(
         state.instanceId,
         mapValues(state.resolvedInputs, (inputs, name) =>
           inputs.map(input => {
             const dependency = states.find(state => state.id === input.stateId)
-            if (!dependency)
+            if (!dependency) {
               throw new Error(`Historical dependency state "${input.stateId}" not found`)
+            }
+
             return {
               input: { instanceId: dependency.instanceId, output: input.output, path: input.path },
               type: component?.inputs[name]?.type ?? "object",
@@ -740,6 +774,7 @@ export class OperationContext {
     }
 
     const unitSourceTypes = unique(Array.from(context.instanceMap.values()).map(i => i.type))
+
     const packagedTypes = pinned
       ? unitSourceTypes.filter(
           type =>
@@ -748,6 +783,7 @@ export class OperationContext {
             context.desiredProvenance.has(type),
         )
       : []
+
     const unitSources: { unitType: string; sourceHash: number }[] = pinned?.snapshotId
       ? await pinned.projectLibrary.getSnapshotUnitSources(
           projectId,
@@ -763,8 +799,10 @@ export class OperationContext {
           isUnitModel(library.components[type]) &&
           !context.desiredProvenance.has(type),
       )
-      if (localTypes.length)
+
+      if (localTypes.length) {
         unitSources.push(...(await librarySource.getResolvedUnitSources(project.id, localTypes)))
+      }
     }
 
     for (const unitSource of unitSources) {
@@ -778,6 +816,7 @@ export class OperationContext {
       const instanceLibrary = context.isGhostInstance(instance.id)
         ? context.getExecutionLibrary(instance.id, "destroy")
         : library
+
       context.inputResolverNodes.set(`instance:${instance.id}`, {
         kind: "instance",
         instance,
@@ -812,6 +851,7 @@ export class OperationContext {
         const instanceLibrary = context.isGhostInstance(instance.id)
           ? context.getExecutionLibrary(instance.id, "destroy")
           : library
+
         const component = instanceLibrary.components[instance.type]
 
         context.inputHashNodes.set(instance.id, {

@@ -18,6 +18,7 @@ describe("operation context evaluation provenance", () => {
       const parent = createComposite("removed")
       const child = createUnit("historical-child")
       child.parentId = parent.id
+
       const states = [parent, child].map(instance => {
         const state = createDeployedUnitState(instance)
         state.model = instance
@@ -25,8 +26,10 @@ describe("operation context evaluation provenance", () => {
         state.libraryPackageVersionId = "deployed-package"
         return state
       })
+
       const historicalLibrary = createMockLibrary()
       const library = { components: {}, entities: {} }
+
       const projectLibrary = {
         historicalSnapshot: vi.fn(
           async (_projectId: string, snapshotId: string) =>
@@ -47,6 +50,7 @@ describe("operation context evaluation provenance", () => {
         ),
         getSnapshotUnitSources: vi.fn(async () => []),
       } as unknown as ProjectLibraryService
+
       const context = await createContext({
         instances: [parent],
         ghostInstances: [child],
@@ -54,11 +58,15 @@ describe("operation context evaluation provenance", () => {
         library,
         pinned: { library, snapshotId: "empty-snapshot", projectLibrary },
       })
+
       const plan = createOperationPlan(context, "destroy", [parent.id], {})
+
       expect(plan.flatMap(phase => phase.instances.map(instance => instance.id))).toEqual(
         expect.arrayContaining([parent.id, child.id]),
       )
+
       expect(context.getExecutionLibrary(child.id, "destroy")).toEqual(historicalLibrary)
+
       expect(context.getExecutionProvenance(child.id, "destroy")?.librarySnapshotId).toBe(
         "deployed-snapshot",
       )
@@ -70,6 +78,7 @@ describe("operation context evaluation provenance", () => {
     async ({ createComposite, createContext, createMockLibrary, expect }) => {
       const composite = createComposite("empty")
       const library = createMockLibrary()
+
       await expect(
         createContext({
           instances: [composite],
@@ -91,6 +100,7 @@ describe("operation context evaluation provenance", () => {
     "accepts an empty graph without execution outputs",
     async ({ createContext, createMockLibrary, expect }) => {
       const library = createMockLibrary()
+
       const context = await createContext({
         instances: [],
         states: [],
@@ -103,6 +113,7 @@ describe("operation context evaluation provenance", () => {
           projectLibrary: {} as ProjectLibraryService,
         },
       })
+
       expect([...context.getInstanceIds()]).toEqual([])
     },
   )
@@ -118,13 +129,16 @@ describe("operation context evaluation provenance", () => {
     }) => {
       const composite = createComposite("empty")
       const state = createDeployedUnitState(composite)
+
       state.evaluationState = {
         librarySnapshotId: null,
         modelRevision: "revision",
         localOverlayRevision: "previous-overlay",
         evaluationActionId: "action",
       } as typeof state.evaluationState
+
       const library = createMockLibrary()
+
       await expect(
         createContext({
           instances: [composite],

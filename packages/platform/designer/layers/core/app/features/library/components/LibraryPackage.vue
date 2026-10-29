@@ -19,6 +19,7 @@ watch(
 const loadVersions = async () => {
   loading.value = true
   error.value = undefined
+
   try {
     versions.value = await store.listPackageVersions(packageName)
   } catch (cause) {

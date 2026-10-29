@@ -2,7 +2,9 @@ import type { Logger } from "pino"
 import type { DatabaseManager } from "../database"
 import type { RuntimeCoordinator } from "./coordinator"
 
-/** Reconciles durable runtime ownership even when no client is connected. */
+/**
+ * Reconciles durable runtime ownership even when no client is connected.
+ */
 export class RuntimeMaintenance implements AsyncDisposable {
   private readonly controller = new AbortController()
   private readonly timer: ReturnType<typeof setInterval>
@@ -16,15 +18,23 @@ export class RuntimeMaintenance implements AsyncDisposable {
     this.timer = setInterval(() => {
       void this.reconcile()
     }, 10_000)
+
     this.timer.unref()
   }
 
   async reconcile(): Promise<void> {
-    if (this.controller.signal.aborted) return
-    if (this.pending) return await this.pending
+    if (this.controller.signal.aborted) {
+      return
+    }
+
+    if (this.pending) {
+      return await this.pending
+    }
+
     this.pending = this.run().finally(() => {
       this.pending = undefined
     })
+
     await this.pending
   }
 
@@ -36,13 +46,15 @@ export class RuntimeMaintenance implements AsyncDisposable {
         try {
           await this.coordinator.reconcile(runtime.id, this.controller.signal)
         } catch (error) {
-          if (!this.controller.signal.aborted)
+          if (!this.controller.signal.aborted) {
             this.logger.error({ error, runtimeId: runtime.id }, "runtime reconciliation failed")
+          }
         }
       }
     } catch (error) {
-      if (!this.controller.signal.aborted)
+      if (!this.controller.signal.aborted) {
         this.logger.error({ error }, "runtime reconciliation failed")
+      }
     }
   }
 

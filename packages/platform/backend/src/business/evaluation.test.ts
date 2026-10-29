@@ -200,11 +200,14 @@ describe("ProjectEvaluationSubsystem", () => {
           }),
         ),
       )
+
       const ids = snapshots.map(snapshot => snapshot.id)
       await use(ids)
+
       await projectDatabase.instanceEvaluationState.deleteMany({
         where: { librarySnapshotId: { in: ids } },
       })
+
       await projectDatabase.librarySnapshot.deleteMany({ where: { id: { in: ids } } })
     },
     runtimeEvaluation: async ({}, use) => {
@@ -212,12 +215,14 @@ describe("ProjectEvaluationSubsystem", () => {
     },
     projectLibrary: async ({ snapshotIds }, use) => {
       const service = vi.mockObject({ catalog: vi.fn() } as unknown as ProjectLibraryService)
+
       service.catalog.mockResolvedValue({
         model: clone(libraryModel),
         sources: {},
         snapshotId: snapshotIds[0]!,
         overlay: { enabled: true, active: true, revision: "overlay-1", conflicts: [] },
       })
+
       await use(service)
     },
     runtimeSubsystem: async (
@@ -273,6 +278,7 @@ describe("ProjectEvaluationSubsystem", () => {
       expect,
     }) => {
       const root = createCompositeInstance("empty-root")
+
       const resolved = {
         project,
         library: clone(libraryModel),
@@ -280,11 +286,14 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       }
+
       projectModelService.resolveProject.mockResolvedValue(resolved)
+
       runtimeEvaluation.evaluate.mockResolvedValueOnce({
         actionId: "action-first",
         result: { success: true, virtualInstances: [], topLevelErrors: {} },
       })
+
       const restarted = new ProjectEvaluationSubsystem(
         database,
         libraryBackend,
@@ -299,15 +308,18 @@ describe("ProjectEvaluationSubsystem", () => {
         runtimeEvaluation,
         projectLibrary,
       )
+
       await runtimeSubsystem.evaluateProject(project.id)
 
       const state = await projectDatabase.instanceState.findUniqueOrThrow({
         where: { instanceId: root.id },
         include: { evaluationState: true },
       })
+
       expect(state.source).toBe("resident")
       expect(state.kind).toBe("composite")
       expect(publishEvents.filter(event => event.key[0] === "project-model")).toHaveLength(0)
+
       expect(state.evaluationState).toMatchObject({
         status: "evaluated",
         model: null,
@@ -316,6 +328,7 @@ describe("ProjectEvaluationSubsystem", () => {
         localOverlayRevision: "overlay-1",
         evaluationActionId: "action-first",
       })
+
       expect(runtimeEvaluation.evaluate).toHaveBeenCalledWith(
         expect.objectContaining({
           projectId: project.id,
@@ -330,14 +343,18 @@ describe("ProjectEvaluationSubsystem", () => {
       // the persisted marker, rather than process memory, identifies the completed empty expansion
       const catalog = await projectLibrary.catalog(project.id)
       expect(state.evaluationState?.librarySnapshotId).toBe(catalog.snapshotId)
+
       runtimeEvaluation.evaluate.mockResolvedValueOnce({
         actionId: "action-second",
         result: { success: true, virtualInstances: [], topLevelErrors: {} },
       })
+
       await restarted.evaluateProject(project.id)
+
       const repeated = await projectDatabase.instanceEvaluationState.findUniqueOrThrow({
         where: { stateId: state.id },
       })
+
       expect(repeated.evaluationActionId).toBe("action-second")
     },
   )
@@ -359,6 +376,7 @@ describe("ProjectEvaluationSubsystem", () => {
         const root = createCompositeInstance("changing-root")
         const obsolete = createVirtualInstance("obsolete")
         const current = createVirtualInstance("current")
+
         const resolved = {
           project,
           library: clone(libraryModel),
@@ -366,15 +384,18 @@ describe("ProjectEvaluationSubsystem", () => {
           stateMap: new Map(),
           resolvedInputs: {},
         }
+
         projectModelService.resolveProject.mockResolvedValue(resolved)
+
         runtimeEvaluation.evaluate.mockImplementationOnce(async () => {
-          if (changed === "model")
+          if (changed === "model") {
             projectModelService.resolveProject.mockResolvedValue({
               ...resolved,
               instances: [{ ...root, args: { changed: true } }],
             })
-          else {
+          } else {
             const catalog = await projectLibrary.catalog(project.id)
+
             projectLibrary.catalog.mockResolvedValue({
               ...catalog,
               snapshotId: changed === "snapshot" ? snapshotIds[1]! : catalog.snapshotId,
@@ -384,21 +405,26 @@ describe("ProjectEvaluationSubsystem", () => {
               },
             })
           }
+
           return {
             actionId: "obsolete-action",
             result: { success: true, virtualInstances: [obsolete], topLevelErrors: {} },
           }
         })
+
         runtimeEvaluation.evaluate.mockResolvedValueOnce({
           actionId: "current-action",
           result: { success: true, virtualInstances: [current], topLevelErrors: {} },
         })
+
         await runtimeSubsystem.evaluateProject(project.id)
 
         expect(runtimeEvaluation.evaluate).toHaveBeenCalledTimes(2)
+
         expect(
           await projectDatabase.instanceState.findUnique({ where: { instanceId: obsolete.id } }),
         ).toBeNull()
+
         const persisted = await projectDatabase.instanceEvaluationState.findMany()
         expect(persisted).toHaveLength(2)
         expect(persisted.every(state => state.evaluationActionId === "current-action")).toBe(true)
@@ -423,6 +449,7 @@ describe("ProjectEvaluationSubsystem", () => {
         const root = createCompositeInstance("transaction-root")
         const obsolete = createVirtualInstance("transaction-obsolete")
         const current = createVirtualInstance("transaction-current")
+
         projectModelService.resolveProject.mockResolvedValue({
           project,
           library: clone(libraryModel),
@@ -430,30 +457,37 @@ describe("ProjectEvaluationSubsystem", () => {
           stateMap: new Map(),
           resolvedInputs: {},
         })
+
         const catalog = await projectLibrary.catalog(project.id)
         // the sixth read fences transaction completion; the seventh fences publication
         let catalogReads = 0
+
         projectLibrary.catalog.mockImplementation(async () => {
           catalogReads += 1
           return catalogReads < (fence === "transaction" ? 6 : 7)
             ? catalog
             : { ...catalog, overlay: { ...catalog.overlay, revision: "overlay-2" } }
         })
+
         runtimeEvaluation.evaluate.mockResolvedValueOnce({
           actionId: "obsolete-action",
           result: { success: true, virtualInstances: [obsolete], topLevelErrors: {} },
         })
+
         runtimeEvaluation.evaluate.mockResolvedValueOnce({
           actionId: "current-action",
           result: { success: true, virtualInstances: [current], topLevelErrors: {} },
         })
+
         await runtimeSubsystem.evaluateProject(project.id)
         expect(runtimeEvaluation.evaluate).toHaveBeenCalledTimes(2)
+
         expect(
           await projectDatabase.instanceEvaluationState.findFirst({
             where: { state: { instanceId: obsolete.id } },
           }),
         ).toBeNull()
+
         const updates = publishEvents
           .filter(event => event.key[0] === "project-model")
           .flatMap(
@@ -461,6 +495,7 @@ describe("ProjectEvaluationSubsystem", () => {
               (event.payload as { updatedVirtualInstances?: InstanceModel[] })
                 .updatedVirtualInstances ?? [],
           )
+
         expect(updates.map(instance => instance.id)).not.toContain(obsolete.id)
       },
     )
@@ -484,10 +519,13 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       runtimeEvaluation.evaluate.mockRejectedValue(new Error("Image unavailable"))
+
       await expect(runtimeSubsystem.evaluateProject(project.id)).rejects.toThrow(
         "Image unavailable",
       )
+
       expect(libraryBackend.evaluateCompositeInstances).not.toHaveBeenCalled()
       expect(await projectDatabase.instanceEvaluationState.count()).toBe(0)
     },
@@ -504,6 +542,7 @@ describe("ProjectEvaluationSubsystem", () => {
       expect,
     }) => {
       const root = createCompositeInstance("failed-action")
+
       projectModelService.resolveProject.mockResolvedValue({
         project,
         library: clone(libraryModel),
@@ -511,11 +550,14 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       runtimeEvaluation.evaluate.mockRejectedValue(
         Object.assign(new Error("Agent disconnected"), { actionId: "failed-runtime-action" }),
       )
+
       await runtimeSubsystem.evaluateProject(project.id)
       const persisted = await projectDatabase.instanceEvaluationState.findFirstOrThrow()
+
       expect(persisted).toMatchObject({
         status: "error",
         evaluationActionId: "failed-runtime-action",
@@ -535,6 +577,7 @@ describe("ProjectEvaluationSubsystem", () => {
     }) => {
       const root = createCompositeInstance("wired-root")
       const evaluatedRoot = { ...root, outputs: { value: [] } }
+
       projectModelService.resolveProject.mockResolvedValue({
         project,
         library: clone(libraryModel),
@@ -542,15 +585,19 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       runtimeEvaluation.evaluate.mockResolvedValue({
         actionId: "wired-action",
         result: { success: true, virtualInstances: [evaluatedRoot], topLevelErrors: {} },
       })
+
       await runtimeSubsystem.evaluateProject(project.id)
+
       const persisted = await projectDatabase.instanceState.findUniqueOrThrow({
         where: { instanceId: root.id },
         include: { evaluationState: true },
       })
+
       expect(persisted.source).toBe("resident")
       expect(persisted.evaluationState?.model).toEqual(evaluatedRoot)
     },
@@ -568,6 +615,7 @@ describe("ProjectEvaluationSubsystem", () => {
     }) => {
       const root = createCompositeInstance("duplicate-root")
       const child = createVirtualInstance("duplicate-child")
+
       projectModelService.resolveProject.mockResolvedValue({
         project,
         library: clone(libraryModel),
@@ -575,28 +623,36 @@ describe("ProjectEvaluationSubsystem", () => {
         stateMap: new Map(),
         resolvedInputs: {},
       })
+
       runtimeEvaluation.evaluate.mockResolvedValueOnce({
         actionId: "valid-action",
         result: { success: true, virtualInstances: [child], topLevelErrors: {} },
       })
+
       await runtimeSubsystem.evaluateProject(project.id)
+
       runtimeEvaluation.evaluate.mockResolvedValueOnce({
         actionId: "duplicate-action",
         result: { success: true, virtualInstances: [child, child], topLevelErrors: {} },
       })
+
       await runtimeSubsystem.evaluateProject(project.id)
+
       const persisted = await projectDatabase.instanceState.findUniqueOrThrow({
         where: { instanceId: child.id },
         include: { evaluationState: true },
       })
+
       expect(persisted.evaluationState).toMatchObject({
         status: "evaluated",
         evaluationActionId: "valid-action",
       })
+
       const composite = await projectDatabase.instanceState.findUniqueOrThrow({
         where: { instanceId: root.id },
         include: { evaluationState: true },
       })
+
       expect(composite.evaluationState).toMatchObject({
         status: "error",
         evaluationActionId: "duplicate-action",

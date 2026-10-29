@@ -182,6 +182,7 @@ export class BackendRoleSettingsService {
             target,
           })
         : ({ OR: [] } as TWhere)
+
     const [
       projects,
       projectSpaces,
@@ -262,6 +263,7 @@ export class BackendRoleSettingsService {
         select: { id: true, meta: true },
       }),
     ])
+
     return {
       projects,
       projectSpaces,

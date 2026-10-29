@@ -16,14 +16,19 @@ import {
 import { z } from "@highstate/contract"
 
 export function toCatalogSource(source: CatalogSource | undefined) {
-  if (!source) return undefined
-  if (source.kind === "package")
+  if (!source) {
+    return undefined
+  }
+
+  if (source.kind === "package") {
     return create(LibraryCatalogSourceSchema, {
       kind: LibraryCatalogSourceKind.PACKAGE,
       packageName: source.packageName,
       packageVersion: source.version,
       librarySnapshotId: source.snapshotId,
     })
+  }
+
   return create(LibraryCatalogSourceSchema, {
     kind:
       source.kind === "local" ? LibraryCatalogSourceKind.LOCAL : LibraryCatalogSourceKind.VIRTUAL,
@@ -82,7 +87,10 @@ const phases = {
 }
 
 export function toSnapshotImage(value: unknown) {
-  if (value == null) return undefined
+  if (value == null) {
+    return undefined
+  }
+
   const image = imageSchema.parse(value)
   return create(LibrarySnapshotImageSchema, {
     id: image.id,

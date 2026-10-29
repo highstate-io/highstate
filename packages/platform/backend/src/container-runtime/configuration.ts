@@ -5,7 +5,9 @@ import type { RuntimeSecretResolver } from "./factory"
 import type { SnapshotImageBuildConfig, SnapshotImageConfiguration } from "./snapshot-images"
 import { armor, Decrypter } from "age-encryption"
 
-/** Decrypts backend-owned credentials only at their runtime boundary. */
+/**
+ * Decrypts backend-owned credentials only at their runtime boundary.
+ */
 export class BackendRuntimeSecrets implements RuntimeSecretResolver {
   constructor(
     private readonly database: DatabaseManager,
@@ -23,19 +25,23 @@ export class BackendRuntimeSecrets implements RuntimeSecretResolver {
       where: { id: runtimeId },
       include: { containerRegistryCredentials: true },
     })
+
     return await Promise.all(
       runtime.containerRegistryCredentials.map(async credential => {
         const value = JSON.parse(await this.decrypt(credential.encryptedCredentials)) as {
           username: string
           password: string
         }
+
         return { serveraddress: credential.registryUrl, ...value }
       }),
     )
   }
 }
 
-/** Supplies runtime-scoped registry credentials as ephemeral build secrets. */
+/**
+ * Supplies runtime-scoped registry credentials as ephemeral build secrets.
+ */
 export class DatabaseSnapshotImageConfiguration implements SnapshotImageConfiguration {
   constructor(
     private readonly database: DatabaseManager,
@@ -45,18 +51,25 @@ export class DatabaseSnapshotImageConfiguration implements SnapshotImageConfigur
   ) {}
 
   async get(projectId: string, runtimeId: string): Promise<SnapshotImageBuildConfig> {
-    if (!this.baseImage)
+    if (!this.baseImage) {
       throw new Error("HIGHSTATE_RUNNER_BASE_IMAGE must name a digest-pinned runner image")
+    }
+
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: runtimeId },
     })
+
     const lines: string[] = []
+
     for (const [scope, access] of Object.entries((await this.npm.scopes?.(projectId)) ?? {})) {
       const url = new URL(access.registryUrl)
       lines.push(`${scope ? `${scope}:` : ""}registry=${url.href}`)
-      if (access.token)
+
+      if (access.token) {
         lines.push(`//${url.host}${url.pathname.replace(/\/?$/, "/")}:_authToken=${access.token}`)
+      }
     }
+
     return {
       baseImage: this.baseImage,
       repository: runtime.spec.imageRepository,

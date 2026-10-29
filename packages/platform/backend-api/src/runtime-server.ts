@@ -18,7 +18,7 @@ export type RuntimeServerOptions = RuntimeServiceOptions & {
 
 export type RuntimeListenerOptions = Pick<RuntimeServerOptions, "host" | "port" | "tls">
 
-export type RuntimeServer = {
+export interface RuntimeServer {
   address: AddressInfo | string | null
   shutdown(): Promise<void>
 }
@@ -32,24 +32,34 @@ export async function loadRuntimeListenerOptions(): Promise<RuntimeListenerOptio
   const keyPath = process.env.HIGHSTATE_RUNTIME_TLS_KEY_PATH
   const certPath = process.env.HIGHSTATE_RUNTIME_TLS_CERT_PATH
   const caPath = process.env.HIGHSTATE_RUNTIME_TLS_CA_PATH
-  if (portValue === undefined && !keyPath && !certPath && !caPath) return undefined
-  if (!keyPath || !certPath) throw new Error("Runtime TLS key and certificate paths are required")
-  if (portValue !== undefined && !/^\d+$/.test(portValue))
+  if (portValue === undefined && !keyPath && !certPath && !caPath) {
+    return undefined
+  }
+
+  if (!keyPath || !certPath) {
+    throw new Error("Runtime TLS key and certificate paths are required")
+  }
+
+  if (portValue !== undefined && !/^\d+$/.test(portValue)) {
     throw new Error("Invalid runtime listener port")
+  }
 
   const port = portValue === undefined ? 7284 : Number(portValue)
   validatePort(port)
+
   const [key, cert, ca] = await Promise.all([
     readFile(keyPath),
     readFile(certPath),
     caPath ? readFile(caPath) : undefined,
   ])
+
   return { host: process.env.HIGHSTATE_RUNTIME_HOST, port, tls: { key, cert, ca } }
 }
 
 function validatePort(port: number): void {
-  if (!Number.isInteger(port) || port < 0 || port > 65535)
+  if (!Number.isInteger(port) || port < 0 || port > 65535) {
     throw new Error("Invalid runtime listener port")
+  }
 }
 
 /**
@@ -60,8 +70,11 @@ export async function startRuntimeServer(
   options: RuntimeServerOptions,
 ): Promise<RuntimeServer> {
   validatePort(options.port)
-  if (!options.tls.key || !options.tls.cert)
+
+  if (!options.tls.key || !options.tls.cert) {
     throw new Error("Runtime TLS key and certificate are required")
+  }
+
   const handler = connectNodeAdapter({
     grpc: true,
     grpcWeb: false,
@@ -70,6 +83,7 @@ export async function startRuntimeServer(
       router.service(RuntimeService, createRuntimeService(coordinator, options))
     },
   })
+
   const server = createSecureServer(
     { ...options.tls, allowHTTP1: true, ALPNProtocols: ["h2", "http/1.1"] },
     (request, response) => {
@@ -78,50 +92,69 @@ export async function startRuntimeServer(
         void options.artifacts
           .handle(request as unknown as IncomingMessage, response as unknown as ServerResponse)
           .then(handled => {
-            if (!handled) response.writeHead(404).end()
+            if (!handled) {
+              response.writeHead(404).end()
+            }
           })
           .catch(() => response.destroy())
-      } else handler(request, response)
+      } else {
+        handler(request, response)
+      }
     },
   )
+
   const sessions = new Set<ServerHttp2Session>()
   const sockets = new Set<Socket>()
   server.on("tlsClientError", (_error, socket) => socket.destroy())
+
   server.on("secureConnection", socket => {
     socket.on("error", () => socket.destroy())
   })
+
   server.on("connection", socket => {
     sockets.add(socket)
     socket.on("error", () => socket.destroy())
     socket.once("close", () => sockets.delete(socket))
   })
+
   server.on("session", session => {
     sessions.add(session)
     session.on("error", () => session.destroy())
     session.once("close", () => sessions.delete(session))
   })
+
   await new Promise<void>((resolve, reject) => {
     const failed = (error: Error) => {
       server.removeListener("listening", listening)
       reject(error)
     }
+
     const listening = () => {
       server.removeListener("error", failed)
       resolve()
     }
+
     server.once("error", failed)
     server.once("listening", listening)
     server.listen(options.port, options.host ?? "0.0.0.0")
   })
+
   let shutdown: Promise<void> | undefined
   return {
     address: server.address(),
     async shutdown() {
       shutdown ??= new Promise<void>((resolve, reject) => {
         server.close(error => (error ? reject(error) : resolve()))
-        for (const session of sessions) session.destroy()
-        for (const socket of sockets) socket.destroy()
+
+        for (const session of sessions) {
+          session.destroy()
+        }
+
+        for (const socket of sockets) {
+          socket.destroy()
+        }
       })
+
       await shutdown
     },
   }

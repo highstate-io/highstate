@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { RuntimeSettingsKind, RuntimeSettingsOutputs } from "@highstate/backend/shared"
-import {
-  containerRuntimeInputSchema,
-  pulumiStateBackendInputSchema,
-  npmRegistryCredentialInputSchema,
-  containerRegistryCredentialInputSchema,
-} from "@highstate/backend/shared"
 import type { RuntimeSettingsWrite } from "../../../stores/settings/backend/runtime"
+import {
+  containerRegistryCredentialInputSchema,
+  containerRuntimeInputSchema,
+  npmRegistryCredentialInputSchema,
+  pulumiStateBackendInputSchema,
+} from "@highstate/backend/shared"
 import RuntimeSecretField from "./RuntimeSecretField.vue"
 
 const props = defineProps<{
@@ -76,6 +76,7 @@ const credentialsConfigured = computed(
 
 function reset(item: typeof props.item) {
   selected.value = item
+
   Object.assign(draft, {
     id: item?.id ?? "",
     title: item?.meta.title ?? "",
@@ -97,17 +98,32 @@ function reset(item: typeof props.item) {
     npmRegistryCredentialIds: [],
     containerRegistryCredentialIds: [],
   })
+
   if (item && "spec" in item) {
     Object.assign(draft, item.spec)
   }
+
   if (item && "npmRegistryCredentialIds" in item) {
     draft.npmRegistryCredentialIds = [...item.npmRegistryCredentialIds]
     draft.containerRegistryCredentialIds = [...item.containerRegistryCredentialIds]
   }
-  if (item && "registryUrl" in item) draft.registryUrl = item.registryUrl
-  if (item && "scope" in item) draft.scope = item.scope
-  for (const key of Object.keys(secrets) as (keyof typeof secrets)[]) secrets[key] = ""
-  for (const key of Object.keys(clear) as (keyof typeof clear)[]) clear[key] = false
+
+  if (item && "registryUrl" in item) {
+    draft.registryUrl = item.registryUrl
+  }
+
+  if (item && "scope" in item) {
+    draft.scope = item.scope
+  }
+
+  for (const key of Object.keys(secrets) as (keyof typeof secrets)[]) {
+    secrets[key] = ""
+  }
+
+  for (const key of Object.keys(clear) as (keyof typeof clear)[]) {
+    clear[key] = false
+  }
+
   error.value = ""
   conflict.value = false
   confirmDelete.value = false
@@ -117,8 +133,11 @@ function reset(item: typeof props.item) {
 watch(
   () => [visible.value, props.item, props.kind] as const,
   () => {
-    if (visible.value) reset(props.item)
-    else reset(null)
+    if (visible.value) {
+      reset(props.item)
+    } else {
+      reset(null)
+    }
   },
   { immediate: true },
 )
@@ -136,8 +155,12 @@ function input(): RuntimeSettingsWrite {
       description: draft.description.trim() || undefined,
     },
   }
+
   const id = draft.id.trim()
-  if (!id) throw new Error("ID is required")
+  if (!id) {
+    throw new Error("ID is required")
+  }
+
   switch (props.kind) {
     case "container-runtime": {
       const common = {
@@ -145,6 +168,7 @@ function input(): RuntimeSettingsWrite {
         runtimeApiCaBundle: draft.runtimeApiCaBundle || undefined,
         imageRepository: draft.imageRepository || undefined,
       }
+
       const spec =
         draft.type === "docker"
           ? {
@@ -167,6 +191,7 @@ function input(): RuntimeSettingsWrite {
               context: draft.context || undefined,
               kubeconfig: secret("kubeconfig"),
             }
+
       return {
         kind: props.kind,
         id,
@@ -188,8 +213,9 @@ function input(): RuntimeSettingsWrite {
         }),
       }
     case "npm-registry-credential":
-      if (!credentialsConfigured.value && !secrets.token)
+      if (!credentialsConfigured.value && !secrets.token) {
         throw new Error("A token is required for a new credential")
+      }
       return {
         kind: props.kind,
         id,
@@ -201,10 +227,12 @@ function input(): RuntimeSettingsWrite {
         }),
       }
     case "container-registry-credential":
-      if (!credentialsConfigured.value && !secrets.password)
+      if (!credentialsConfigured.value && !secrets.password) {
         throw new Error("Username and password are required for a new credential")
-      if (!!draft.username !== !!secrets.password)
+      }
+      if (!!draft.username !== !!secrets.password) {
         throw new Error("Enter both username and password to replace credentials")
+      }
       return {
         kind: props.kind,
         id,
@@ -221,17 +249,23 @@ function input(): RuntimeSettingsWrite {
 
 function failed(caught: unknown) {
   error.value = caught instanceof Error ? caught.message : "Request failed"
+
   if (typeof caught === "object" && caught !== null && "data" in caught) {
     const data = caught.data
-    if (typeof data === "object" && data !== null && "code" in data && data.code === "CONFLICT")
+    if (typeof data === "object" && data !== null && "code" in data && data.code === "CONFLICT") {
       conflict.value = true
+    }
   }
 }
 
 async function save() {
-  if (busy.value || conflict.value) return
+  if (busy.value || conflict.value) {
+    return
+  }
+
   busy.value = true
   error.value = ""
+
   try {
     const result = await store.put(input())
     reset(result)
@@ -244,22 +278,29 @@ async function save() {
 }
 
 async function reload() {
-  if (busy.value) return
+  if (busy.value) {
+    return
+  }
+
   busy.value = true
+
   try {
     await store.load()
+
     const collections = {
       "container-runtime": store.runtimes,
       "pulumi-state-backend": store.stateBackends,
       "npm-registry-credential": store.npmCredentials,
       "container-registry-credential": store.ociCredentials,
     }
+
     const item = collections[props.kind].find(item => item.id === draft.id.trim())
     if (!item) {
       visible.value = false
       emit("changed")
       return
     }
+
     reset(item)
   } catch (caught) {
     failed(caught)
@@ -269,9 +310,13 @@ async function reload() {
 }
 
 async function remove() {
-  if (!selected.value || busy.value || conflict.value) return
+  if (!selected.value || busy.value || conflict.value) {
+    return
+  }
+
   busy.value = true
   error.value = ""
+
   try {
     await store.remove(props.kind, selected.value.id, selected.value.revision)
     visible.value = false
@@ -284,10 +329,14 @@ async function remove() {
 }
 
 async function preflight() {
-  if (!selected.value || busy.value || conflict.value) return
+  if (!selected.value || busy.value || conflict.value) {
+    return
+  }
+
   busy.value = true
   checks.value = []
   error.value = ""
+
   try {
     checks.value = await store.preflight(selected.value.id)
   } catch (caught) {

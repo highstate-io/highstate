@@ -1,4 +1,6 @@
-/** Backend-owned runtime settings; stored secrets are encrypted rather than wire input bytes. */
+/**
+ * Backend-owned runtime settings; stored secrets are encrypted rather than wire input bytes.
+ */
 export type ContainerRuntimeSpec = {
   runtimeApiUrl: string
   runtimeApiCaBundle?: string
@@ -24,7 +26,9 @@ export type ContainerRuntimeSpec = {
     }
 )
 
-/** Reusable Pulumi state configuration independent of workload placement. */
+/**
+ * Reusable Pulumi state configuration independent of workload placement.
+ */
 export type PulumiStateBackendSpec = {
   url: string
   encryptedCredentials?: string

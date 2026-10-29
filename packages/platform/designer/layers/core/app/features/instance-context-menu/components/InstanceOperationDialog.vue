@@ -115,14 +115,22 @@ const requestPlan = async () => {
       options: options.value,
     })
 
-    if (request !== planRequest) return
+    if (request !== planRequest) {
+      return
+    }
+
     reviewed.value = newPlan
     operationPlan.value = newPlan.phases
   } catch (error) {
-    if (request !== planRequest) return
+    if (request !== planRequest) {
+      return
+    }
+
     planError.value = error instanceof Error ? error.message : "Unknown error"
   } finally {
-    if (request === planRequest) planLoading.value = false
+    if (request === planRequest) {
+      planLoading.value = false
+    }
   }
 }
 
@@ -268,16 +276,24 @@ const loading = ref(false)
 
 const operate = async () => {
   const review = reviewed.value
-  if (!review || loading.value) return
+  if (!review || loading.value) {
+    return
+  }
+
   loading.value = true
   launchWait = new AbortController()
   const signal = launchWait.signal
 
   try {
     waitingForImage.value = true
+
     while (review.librarySnapshotId) {
       await libraryStore.refresh()
-      if (signal.aborted) return
+
+      if (signal.aborted) {
+        return
+      }
+
       const catalog = libraryStore.catalog
       if (
         catalog?.snapshotId !== review.librarySnapshotId ||
@@ -285,25 +301,40 @@ const operate = async () => {
       ) {
         throw new Error("Reviewed plan is stale; review the current library before launching")
       }
+
       const image = libraryStore.projectLibrary?.image
       if (image && typeof image === "object" && "status" in image) {
-        if (image.status === "ready") break
-        if (image.status === "failed")
+        if (image.status === "ready") {
+          break
+        }
+
+        if (image.status === "failed") {
           throw new Error("Snapshot image failed; retry its build in Project library")
+        }
       }
+
       await new Promise<void>(resolve => {
         const finish = () => {
           clearTimeout(timer)
           signal.removeEventListener("abort", finish)
           resolve()
         }
+
         const timer = setTimeout(finish, 1500)
         signal.addEventListener("abort", finish, { once: true })
       })
-      if (signal.aborted) return
+
+      if (signal.aborted) {
+        return
+      }
     }
+
     waitingForImage.value = false
-    if (signal.aborted) return
+
+    if (signal.aborted) {
+      return
+    }
+
     await operationsStore.launchOperation({
       planToken: review.token,
       projectId: projectStore.projectId,

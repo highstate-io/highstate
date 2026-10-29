@@ -17,9 +17,13 @@ import {
 import { ComponentSchema, InstanceSchema } from "@highstate/api/v1"
 import { fromInstance, toComponent, toInstance } from "../shared/conversion"
 
-type Pending = { value: ConnectResponse; resolve(): void; reject(reason: unknown): void }
+interface Pending {
+  value: ConnectResponse
+  resolve(): void
+  reject(reason: unknown): void
+}
 
-export type RuntimeServiceOptions = {
+export interface RuntimeServiceOptions {
   proxyWorker?: ServiceImpl<typeof RuntimeService>["proxyWorker"]
   encodeCommand?: (command: AgentCommand) => ConnectResponse
   decodeEvent?: (envelope: Record<string, unknown>) => AgentEvent
@@ -33,20 +37,26 @@ export function createRuntimeService(
 ): ServiceImpl<typeof RuntimeService> {
   const config = typeof options === "function" ? { proxyWorker: options } : options
   const maxPendingSends = config.maxPendingSends ?? 32
+
   const leaseCheckIntervalMs =
     config.leaseCheckIntervalMs ?? Math.max(1, Math.floor(coordinator.leaseDurationMs / 3))
+
   if (
     !Number.isSafeInteger(maxPendingSends) ||
     maxPendingSends < 1 ||
     !Number.isSafeInteger(leaseCheckIntervalMs) ||
     leaseCheckIntervalMs < 1
-  )
+  ) {
     throw new Error("Invalid runtime transport limits")
+  }
 
   return {
     async *connect(requests, context) {
       const token = /^Bearer ([^\s]+)$/i.exec(context.requestHeader.get("authorization") ?? "")?.[1]
-      if (!token) throw new ConnectError("Missing runtime credential", Code.Unauthenticated)
+      if (!token) {
+        throw new ConnectError("Missing runtime credential", Code.Unauthenticated)
+      }
+
       const iterator = requests[Symbol.asyncIterator]()
       const kinds: Record<number, string> = { 1: "pulumi", 2: "worker", 3: "composite_evaluation" }
       let wake: (() => void) | undefined
@@ -56,15 +66,23 @@ export function createRuntimeService(
       let inFlight: Pending | undefined
       let connection: AgentConnection | undefined
       let leaseCheck: ReturnType<typeof setInterval> | undefined
+
       const close = (reason?: unknown) => {
-        if (closed) return
+        if (closed) {
+          return
+        }
+
         closed = true
         failure = reason
         inFlight?.reject(reason ?? new Error("Runtime stream closed"))
-        for (const pending of queue.splice(0))
+
+        for (const pending of queue.splice(0)) {
           pending.reject(reason ?? new Error("Runtime stream closed"))
+        }
+
         wake?.()
       }
+
       const aborted = () =>
         close(
           new ConnectError(
@@ -75,29 +93,41 @@ export function createRuntimeService(
             context.signal.reason,
           ),
         )
+
       context.signal.addEventListener("abort", aborted, { once: true })
-      if (context.signal.aborted) aborted()
+
+      if (context.signal.aborted) {
+        aborted()
+      }
+
       try {
         const first = await iterator.next()
-        if (closed) throw failure
+
+        if (closed) {
+          throw failure
+        }
+
         if (
           first.done ||
           first.value.event.case !== "clientHello" ||
           first.value.actionId !== undefined ||
           first.value.requestId !== undefined
-        )
+        ) {
           throw new ConnectError(
             "ClientHello must be the first runtime message",
             Code.InvalidArgument,
           )
+        }
+
         const hello = first.value.event.value
         if (
           !kinds[hello.workloadKind] ||
           hello.leaseGeneration > BigInt(Number.MAX_SAFE_INTEGER) ||
           hello.minimumProtocolVersion < 1 ||
           hello.maximumProtocolVersion < hello.minimumProtocolVersion
-        )
+        ) {
           throw new ConnectError("Invalid runtime hello", Code.InvalidArgument)
+        }
 
         try {
           connection = await coordinator.connect(
@@ -114,10 +144,16 @@ export function createRuntimeService(
             },
             {
               async send(command) {
-                if (closed) throw new Error("Runtime stream closed")
-                if (queue.length + (inFlight ? 1 : 0) >= maxPendingSends)
+                if (closed) {
+                  throw new Error("Runtime stream closed")
+                }
+
+                if (queue.length + (inFlight ? 1 : 0) >= maxPendingSends) {
                   throw new ConnectError("Runtime outgoing queue is full", Code.ResourceExhausted)
+                }
+
                 const value = (config.encodeCommand ?? encodeCommand)(command)
+
                 await new Promise<void>((resolve, reject) => {
                   queue.push({ value, resolve, reject })
                   wake?.()
@@ -135,12 +171,21 @@ export function createRuntimeService(
             error,
           )
         }
-        if (closed) throw failure
+
+        if (closed) {
+          throw failure
+        }
+
         const active = connection
         let checking = false
+
         leaseCheck = setInterval(() => {
-          if (checking || closed) return
+          if (checking || closed) {
+            return
+          }
+
           checking = true
+
           void coordinator
             .authenticate(active)
             .catch(error =>
@@ -158,7 +203,9 @@ export function createRuntimeService(
               checking = false
             })
         }, leaseCheckIntervalMs)
+
         leaseCheck.unref()
+
         yield create(ConnectResponseSchema, {
           event: {
             case: "serverHello",
@@ -169,36 +216,61 @@ export function createRuntimeService(
             },
           },
         })
+
         const receive = (async () => {
           while (!closed) {
             const next = await iterator.next()
-            if (next.done) return
-            if (closed) return
+            if (next.done) {
+              return
+            }
+
+            if (closed) {
+              return
+            }
+
             await coordinator.receive(
               active,
               (config.decodeEvent ?? decodeEvent)(
                 toJson(ConnectRequestSchema, next.value) as Record<string, unknown>,
               ),
             )
-            if (active.scope.expiresAt - Date.now() < 60_000)
+
+            if (active.scope.expiresAt - Date.now() < 60_000) {
               await coordinator.refreshCredential(active)
+            }
           }
         })()
+
         void receive.then(() => close(), close)
+
         while (!closed) {
-          if (!queue.length)
+          if (!queue.length) {
             await new Promise<void>(resolve => {
               wake = resolve
             })
+          }
+
           wake = undefined
           const pending = queue.shift()
-          if (!pending) continue
+          if (!pending) {
+            continue
+          }
+
           inFlight = pending
+
           try {
             await coordinator.authenticate(active)
-            if (closed) throw failure ?? new Error("Runtime stream closed")
+
+            if (closed) {
+              throw failure ?? new Error("Runtime stream closed")
+            }
+
             yield pending.value
-            if (closed) throw failure ?? new Error("Runtime stream closed")
+
+            if (closed) {
+              throw failure ?? new Error("Runtime stream closed")
+            }
+
             pending.resolve()
           } catch (error) {
             pending.reject(error)
@@ -209,9 +281,15 @@ export function createRuntimeService(
             inFlight = undefined
           }
         }
-        if (failure) throw failure
+
+        if (failure) {
+          throw failure
+        }
       } catch (error) {
-        if (error instanceof ConnectError) throw error
+        if (error instanceof ConnectError) {
+          throw error
+        }
+
         throw new ConnectError(
           "Runtime stream failed",
           Code.FailedPrecondition,
@@ -221,10 +299,17 @@ export function createRuntimeService(
         )
       } finally {
         close()
-        if (leaseCheck) clearInterval(leaseCheck)
+
+        if (leaseCheck) {
+          clearInterval(leaseCheck)
+        }
+
         context.signal.removeEventListener("abort", aborted)
+
         try {
-          if (connection) await coordinator.disconnected(connection)
+          if (connection) {
+            await coordinator.disconnected(connection)
+          }
         } finally {
           void iterator.return?.().catch(() => {})
         }
@@ -243,9 +328,12 @@ export function encodeCommand(command: AgentCommand): ConnectResponse {
     actionId: command.actionId,
     requestId: command.requestId,
   }
-  if (command.type === "cancel") envelope.cancelRequest = { force: command.force }
-  else if (command.type === "pulumiAction") {
+
+  if (command.type === "cancel") {
+    envelope.cancelRequest = { force: command.force }
+  } else if (command.type === "pulumiAction") {
     const payload = command.payload as Record<string, unknown>
+
     envelope.pulumiActionRequest = {
       ...payload,
       action: `PULUMI_ACTION_${String(payload.action).toUpperCase()}`,
@@ -256,6 +344,7 @@ export function encodeCommand(command: AgentCommand): ConnectResponse {
       virtualComponents: Record<string, ComponentModel>
       resolvedInputs: Record<string, Record<string, { input: unknown; type: string }[]>>
     }
+
     envelope.compositeEvaluationRequest = {
       ...payload,
       instances: payload.instances.map(instance => toJsonInstance(instance)),
@@ -270,17 +359,22 @@ export function encodeCommand(command: AgentCommand): ConnectResponse {
         })),
       })),
     }
+
     // use create for nested generated public models, then JSON for the final portable envelope
     const value = envelope.compositeEvaluationRequest as Record<string, unknown>
     delete value.projectId
   } else if (command.type === "response") {
     const payload = command.payload as Record<string, unknown>
-    if (payload?.error) envelope.error = payload.error
-    else if (payload && "host" in payload)
+    if (payload?.error) {
+      envelope.error = payload.error
+    } else if (payload && "host" in payload) {
       envelope.createSidecarResponse = { ...payload, sidecarWorkloadId: payload.id }
-    else envelope.unitConfigurationResponse = { ...payload, arguments: payload?.args }
+    } else {
+      envelope.unitConfigurationResponse = { ...payload, arguments: payload?.args }
+    }
   } else {
     const control = command.control
+
     envelope.workerControl =
       control.type === "register"
         ? { unitRegistration: { stateId: control.stateId, params: control.params } }
@@ -288,6 +382,7 @@ export function encodeCommand(command: AgentCommand): ConnectResponse {
           ? { unitDeregistration: { stateId: control.stateId } }
           : { stop: {} }
   }
+
   return fromJson(ConnectResponseSchema, JSON.parse(JSON.stringify(envelope)) as JsonValue, {
     ignoreUnknownFields: true,
   })
@@ -302,8 +397,13 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
     actionId: envelope.actionId as string | undefined,
     requestId: envelope.requestId as string | undefined,
   }
+
   const data = (name: string) => envelope[name] as Record<string, unknown>
-  if (envelope.clientHello) throw new ConnectError("Duplicate ClientHello", Code.InvalidArgument)
+
+  if (envelope.clientHello) {
+    throw new ConnectError("Duplicate ClientHello", Code.InvalidArgument)
+  }
+
   if (envelope.heartbeat) {
     const sequence = Number(data("heartbeat").sequence ?? 0)
     if (
@@ -311,27 +411,36 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
       ids.requestId !== undefined ||
       !Number.isSafeInteger(sequence) ||
       sequence < 0
-    )
+    ) {
       throw new ConnectError("Invalid runtime heartbeat", Code.InvalidArgument)
+    }
+
     return { type: "heartbeat", sequence }
   }
-  if (envelope.actionCompleted)
+
+  if (envelope.actionCompleted) {
     return {
       ...ids,
       type: "completed",
       exitCode: Number(data("actionCompleted").exitCode ?? 0),
       result: data("actionCompleted").result,
     }
-  if (envelope.error)
+  }
+
+  if (envelope.error) {
     return {
       ...ids,
       type: "error",
       code: String(data("error").code),
       message: String(data("error").message),
     }
-  if (envelope.cancelResponse)
+  }
+
+  if (envelope.cancelResponse) {
     return { ...ids, type: "cancelResponse", accepted: Boolean(data("cancelResponse").accepted) }
-  if (envelope.actionOutput)
+  }
+
+  if (envelope.actionOutput) {
     return {
       ...ids,
       type: "output",
@@ -340,10 +449,15 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
         data: Buffer.from(String(data("actionOutput").data ?? ""), "base64"),
       },
     }
+  }
+
   if (envelope.compositeEvaluationResult) {
     const result = data("compositeEvaluationResult")
     const decoded = fromJson(ConnectRequestSchema, envelope as JsonValue).event
-    if (decoded.case !== "compositeEvaluationResult") throw new Error("Invalid evaluation result")
+    if (decoded.case !== "compositeEvaluationResult") {
+      throw new Error("Invalid evaluation result")
+    }
+
     const outcome = decoded.value.outcome
     return {
       ...ids,
@@ -379,6 +493,7 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
       },
     }
   }
+
   if (envelope.createSidecarRequest) {
     const payload = data("createSidecarRequest")
     const readiness = payload.readiness as Record<string, unknown> | undefined
@@ -393,13 +508,18 @@ export function decodeEvent(envelope: Record<string, unknown>): AgentEvent {
       },
     }
   }
+
   for (const [field, type] of [
     ["pulumiEngineEvent", "engineEvent"],
     ["unitConfigurationRequest", "unitConfiguration"],
     ["unitResult", "unitResult"],
     ["createSidecarRequest", "createSidecar"],
     ["workerRegistration", "workerRegistration"],
-  ] as const)
-    if (envelope[field]) return { ...ids, type, payload: envelope[field] }
+  ] as const) {
+    if (envelope[field]) {
+      return { ...ids, type, payload: envelope[field] }
+    }
+  }
+
   throw new ConnectError("Missing runtime event", Code.InvalidArgument)
 }

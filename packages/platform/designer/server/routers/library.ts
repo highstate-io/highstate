@@ -1,9 +1,9 @@
 import {
-  type ProjectLibraryCatalog,
-  type ProjectLibraryDto,
   libraryPackageInputSchema,
   libraryPackageNameInputSchema,
   localOverlayInputSchema,
+  type ProjectLibraryCatalog,
+  type ProjectLibraryDto,
   updateLibraryPackageInputSchema,
 } from "@highstate/backend"
 import { isUnitModel } from "@highstate/contract"
@@ -84,14 +84,18 @@ export const libraryRouter = router({
     .input(z.object({ unitTypes: z.string().array() }))
     .query(async ({ ctx, input }) => {
       const catalog = await ctx.projectLibraryService.getCatalog(ctx.requestContext)
+
       const units = input.unitTypes.filter(type => {
         const component = catalog.model.components[type]
         return component && isUnitModel(component)
       })
+
       const packaged = units.filter(
         type => catalog.sources[`components:${type}`]?.kind === "package",
       )
+
       const local = units.filter(type => catalog.sources[`components:${type}`]?.kind === "local")
+
       const sources =
         catalog.snapshotId && packaged.length
           ? await ctx.projectLibraryService.getSnapshotUnitSources(
@@ -100,9 +104,11 @@ export const libraryRouter = router({
               packaged,
             )
           : []
+
       const localSources = local.length
         ? await ctx.libraryBackend.getResolvedUnitSources("local", local)
         : []
+
       return [...sources, ...localSources].map(({ unitType, sourceHash }) => ({
         unitType,
         sourceHash,

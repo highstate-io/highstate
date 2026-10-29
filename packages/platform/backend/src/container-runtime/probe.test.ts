@@ -12,8 +12,10 @@ function fixture(database: DatabaseManager, timeoutMs = 5000) {
   const signer = new RuntimeCredentialSigner("backend", new Uint8Array(32))
   const close = vi.fn()
   const cleanup = vi.fn(async () => {})
+
   const place = vi.fn(async (intent: WorkloadIntent) => {
     const env = intent.env!
+
     await coordinator.connect(
       env.HIGHSTATE_AGENT_TOKEN!,
       {
@@ -23,9 +25,12 @@ function fixture(database: DatabaseManager, timeoutMs = 5000) {
       },
       { send: async () => {}, close },
     )
+
     return { id: randomUUID(), labels: {}, state: "running" as const }
   })
+
   const adapter = { place, cleanup } as unknown as ContainerRuntimeAdapter
+
   const coordinator = new RuntimeCoordinator(
     database,
     { get: async () => adapter },
@@ -33,11 +38,13 @@ function fixture(database: DatabaseManager, timeoutMs = 5000) {
     new AgentConnectionRegistry(),
     "backend",
   )
+
   const options = {
     image: "runner:probe",
     agent: { binary: "bun", path: "/agent/main.js" },
     timeoutMs,
   }
+
   const probe = new RuntimeWorkloadProbe(database, coordinator, options)
   return { probe, coordinator, signer, place, cleanup, close, options }
 }
@@ -48,9 +55,11 @@ describe("RuntimeWorkloadProbe", () => {
     project,
   }) => {
     const runtimeId = project.containerRuntimeId!
+
     const runtime = await database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: runtimeId },
     })
+
     await database.backend.containerRuntime.update({
       where: { id: runtimeId },
       data: {
@@ -61,6 +70,7 @@ describe("RuntimeWorkloadProbe", () => {
         },
       },
     })
+
     const f = fixture(database)
     const authenticate = vi.spyOn(f.coordinator, "authenticate")
     await f.probe.probe(runtimeId)
@@ -68,6 +78,7 @@ describe("RuntimeWorkloadProbe", () => {
     expect(authenticate).toHaveBeenCalledTimes(2)
     const intents = f.place.mock.calls.map(([intent]) => intent)
     expect(new Set(intents.map(intent => intent.owner.workloadId)).size).toBe(2)
+
     for (const intent of intents) {
       expect(intent).toMatchObject({
         image: "runner:probe",
@@ -78,12 +89,16 @@ describe("RuntimeWorkloadProbe", () => {
           HIGHSTATE_AGENT_CA: "probe-ca",
         },
       })
+
       const credential = f.signer.verify(intent.env!.HIGHSTATE_AGENT_TOKEN!)
+
       expect(credential).toMatchObject({
         ...JSON.parse(intent.env!.HIGHSTATE_AGENT_SCOPE!),
         permissions: ["connect", "heartbeat", "evaluation"],
       })
+
       expect(f.coordinator.connections.current(intent.owner.workloadId)).toBeUndefined()
+
       expect(
         await database.backend.runtimeWorkload.findUniqueOrThrow({
           where: { id: intent.owner.workloadId },
@@ -94,6 +109,7 @@ describe("RuntimeWorkloadProbe", () => {
         ownerId: expect.stringMatching(/^runtime-probe:/),
       })
     }
+
     expect(f.cleanup).toHaveBeenCalledTimes(2)
     expect(f.close).toHaveBeenCalledTimes(2)
   })
@@ -103,12 +119,15 @@ describe("RuntimeWorkloadProbe", () => {
     project,
   }) => {
     const f = fixture(database)
+
     const missingImage = new RuntimeWorkloadProbe(database, f.coordinator, {
       agent: f.options.agent,
     })
+
     await expect(missingImage.probe(project.containerRuntimeId!)).rejects.toThrow(
       "Configure a runtime base image",
     )
+
     const runtime = await database.backend.containerRuntime.create({
       data: {
         meta: { title: "Unassigned" },
@@ -120,6 +139,7 @@ describe("RuntimeWorkloadProbe", () => {
         },
       },
     })
+
     await expect(f.probe.probe(runtime.id)).rejects.toThrow("Assign an existing project")
     expect(f.place).not.toHaveBeenCalled()
     expect(f.cleanup).not.toHaveBeenCalled()
@@ -133,6 +153,7 @@ describe("RuntimeWorkloadProbe", () => {
     f.place.mockImplementation(async () => ({ id: randomUUID(), labels: {}, state: "running" }))
     await expect(f.probe.probe(project.containerRuntimeId!)).rejects.toThrow("timed out")
     expect(f.cleanup).toHaveBeenCalledTimes(1)
+
     expect(
       f.coordinator.connections.current(f.place.mock.calls[0]![0].owner.workloadId),
     ).toBeUndefined()
@@ -141,13 +162,16 @@ describe("RuntimeWorkloadProbe", () => {
   test("cancels a connection wait but does not cancel cleanup", async ({ database, project }) => {
     const f = fixture(database)
     const controller = new AbortController()
+
     f.place.mockImplementation(async () => {
       controller.abort(new Error("Probe cancelled"))
       return { id: randomUUID(), labels: {}, state: "running" }
     })
+
     await expect(f.probe.probe(project.containerRuntimeId!, controller.signal)).rejects.toThrow(
       "Probe cancelled",
     )
+
     expect(f.cleanup).toHaveBeenCalledTimes(1)
   })
 
@@ -166,13 +190,16 @@ describe("RuntimeWorkloadProbe", () => {
   }) => {
     const f = fixture(database)
     const create = f.coordinator.createWorkload.bind(f.coordinator)
+
     vi.spyOn(f.coordinator, "createWorkload").mockImplementationOnce(async input => ({
       ...(await create(input)),
       runtimeId: "other-runtime",
     }))
+
     await expect(f.probe.probe(project.containerRuntimeId!)).rejects.toThrow(
       "Project runtime changed",
     )
+
     expect(f.place).not.toHaveBeenCalled()
     expect(f.cleanup).toHaveBeenCalledTimes(1)
   })
@@ -190,10 +217,13 @@ describe("RuntimeWorkloadProbe", () => {
   }) => {
     const f = fixture(database)
     f.cleanup.mockRejectedValue(new Error("Engine unavailable"))
+
     await expect(f.probe.probe(project.containerRuntimeId!)).rejects.toThrow(
       "Failed to clean up runtime probe",
     )
+
     f.place.mockRejectedValueOnce(new Error("Image missing"))
+
     await expect(f.probe.probe(project.containerRuntimeId!)).rejects.toMatchObject({
       errors: [
         expect.objectContaining({ message: "Image missing" }),
@@ -206,9 +236,11 @@ describe("RuntimeWorkloadProbe", () => {
 
   test("honors cancellation before creating resources", async ({ database, project }) => {
     const f = fixture(database)
+
     await expect(
       f.probe.probe(project.containerRuntimeId!, AbortSignal.abort(new Error("Already cancelled"))),
     ).rejects.toThrow("Already cancelled")
+
     expect(f.place).not.toHaveBeenCalled()
     expect(f.cleanup).not.toHaveBeenCalled()
   })

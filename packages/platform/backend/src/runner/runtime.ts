@@ -48,9 +48,13 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       yield* this.legacy.watch(options)
       return
     }
+
     for await (const [update] of on(this.events, this.key(options), { signal: options.signal })) {
       yield update as UnitStateUpdate
-      if (update.type === "completion" || update.type === "error") return
+
+      if (update.type === "completion" || update.type === "error") {
+        return
+      }
     }
   }
 
@@ -66,12 +70,15 @@ export class RuntimeRunnerBackend implements RunnerBackend {
   async update(options: UnitUpdateOptions): Promise<void> {
     await this.enqueue("update", options)
   }
+
   async preview(options: UnitUpdateOptions): Promise<void> {
     await this.enqueue("preview", options)
   }
+
   async destroy(options: UnitDestroyOptions): Promise<void> {
     await this.enqueue("destroy", options)
   }
+
   async refresh(options: UnitOptions): Promise<void> {
     await this.enqueue("refresh", options)
   }
@@ -87,15 +94,19 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       await this.legacy.deleteState(options)
       return
     }
+
     const runner = await this.execution.start(
       options.projectId,
       deployed.librarySnapshotId,
       "pulumi",
       randomUUID(),
     )
+
     let actionId: string | undefined
+
     try {
       const state = await this.state.get(options.projectId)
+
       const action = await this.execution.coordinator.createAction({
         workloadId: runner.workload.id,
         kind: "pulumi",
@@ -107,7 +118,9 @@ export class RuntimeRunnerBackend implements RunnerBackend {
         snapshotId: deployed.librarySnapshotId,
         imageDigest: runner.imageDigest,
       })
+
       actionId = action.id
+
       await this.execution.coordinator.dispatch(action.id, {
         action: "destroy",
         stackName: options.stateId,
@@ -123,11 +136,16 @@ export class RuntimeRunnerBackend implements RunnerBackend {
           }),
         },
       })
+
       const result = await this.execution.coordinator.waitForAction(action.id)
-      if (result.type !== "completed" || result.exitCode !== 0)
+      if (result.type !== "completed" || result.exitCode !== 0) {
         throw new Error(result.type === "error" ? result.message : "State deletion failed")
+      }
     } finally {
-      if (actionId) this.actions.delete(actionId)
+      if (actionId) {
+        this.actions.delete(actionId)
+      }
+
       await this.execution.coordinator.requestCleanup(runner.workload.id)
     }
   }
@@ -137,8 +155,14 @@ export class RuntimeRunnerBackend implements RunnerBackend {
   }
 
   private async isLegacy(options: UnitOptions): Promise<boolean> {
-    if (options.librarySnapshotId) return false
-    if (options.libraryId === undefined || options.libraryId === "local") return true
+    if (options.librarySnapshotId) {
+      return false
+    }
+
+    if (options.libraryId === undefined || options.libraryId === "local") {
+      return true
+    }
+
     const db = await this.database.forProject(options.projectId)
     const state = await db.instanceState.findUnique({ where: { id: options.stateId } })
     return !state?.librarySnapshotId && state?.status !== "undeployed"
@@ -149,11 +173,15 @@ export class RuntimeRunnerBackend implements RunnerBackend {
     options: UnitOptions,
   ): Promise<void> {
     if (await this.isLegacy(options)) {
-      if (phase === "update" || phase === "preview")
+      if (phase === "update" || phase === "preview") {
         await this.legacy[phase](options as UnitUpdateOptions)
-      else await this.legacy[phase](options)
+      } else {
+        await this.legacy[phase](options)
+      }
+
       return
     }
+
     // the orchestration watcher must be running before an action can emit its first event
     void this.run(phase, options).catch(error =>
       this.emit(options, {
@@ -169,19 +197,24 @@ export class RuntimeRunnerBackend implements RunnerBackend {
     signal?.throwIfAborted()
     const db = await this.database.forProject(options.projectId)
     const deployed = await db.instanceState.findUniqueOrThrow({ where: { id: options.stateId } })
+
     const snapshotId =
       options.librarySnapshotId ??
       (phase === "destroy" || phase === "refresh"
         ? deployed.librarySnapshotId
         : (await this.library.desiredSnapshot(options.projectId)).id)
-    if (!snapshotId)
+
+    if (!snapshotId) {
       throw new Error("Historical execution requires the retained legacy environment")
+    }
+
     const key = `${options.projectId}/${options.operationId}/${snapshotId}`
     let pending = this.executions.get(key)
     if (!pending) {
       const sibling = [...this.executions.entries()].find(([key]) =>
         key.startsWith(`${options.projectId}/${options.operationId}/`),
       )
+
       pending = (async () =>
         await this.execution.start(
           options.projectId,
@@ -191,15 +224,19 @@ export class RuntimeRunnerBackend implements RunnerBackend {
           signal,
           sibling ? (await sibling[1]).environment : undefined,
         ))()
+
       this.executions.set(key, pending)
     }
+
     const runner = await pending
     signal?.throwIfAborted()
+
     const source = (
       await this.library.getSnapshotUnitSources(options.projectId, snapshotId, [
         options.instanceType,
       ])
     )[0]!
+
     await db.instanceOperationState.update({
       where: {
         operationId_stateId: { operationId: options.operationId, stateId: options.stateId },
@@ -210,7 +247,9 @@ export class RuntimeRunnerBackend implements RunnerBackend {
         previousLibraryPackageVersionId: deployed.libraryPackageVersionId,
       },
     })
+
     const state = await this.state.get(options.projectId)
+
     const action = await this.execution.coordinator.createAction({
       workloadId: runner.workload.id,
       kind: "pulumi",
@@ -225,9 +264,11 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       snapshotId,
       imageDigest: runner.imageDigest,
     })
+
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: runner.workload.runtimeId },
     })
+
     const transfer = this.artifacts.issue(runtime.spec.runtimeApiUrl, {
       projectId: options.projectId,
       stateId: options.stateId,
@@ -237,25 +278,38 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       writable: phase !== "preview",
       validate: async () => {
         const connection = this.execution.coordinator.connections.current(runner.workload.id)
-        if (!connection) throw new Error("Runtime disconnected")
+        if (!connection) {
+          throw new Error("Runtime disconnected")
+        }
+
         await this.execution.coordinator.authenticate(connection)
+
         const current = await this.database.backend.runtimeAction.findUniqueOrThrow({
           where: { id: action.id },
         })
-        if (current.status !== "running") throw new Error("Artifact action is no longer running")
+
+        if (current.status !== "running") {
+          throw new Error("Artifact action is no longer running")
+        }
       },
     })
+
     this.actions.set(action.id, { options, phase })
+
     const cancel = () => {
       void this.execution.coordinator.cancelAction(action.id).catch(() => {})
     }
+
     const force = () => {
       void this.execution.coordinator.cancelAction(action.id, true).catch(() => {})
     }
+
     signal?.addEventListener("abort", cancel, { once: true })
     options.forceSignal?.addEventListener("abort", force, { once: true })
+
     try {
       signal?.throwIfAborted()
+
       await this.execution.coordinator.dispatch(
         action.id,
         {
@@ -280,22 +334,31 @@ export class RuntimeRunnerBackend implements RunnerBackend {
         },
         signal,
       )
+
       const result = await this.execution.coordinator.waitForAction(action.id)
-      if (result.type === "error") throw new Error(result.message)
-      if (result.type !== "completed" || result.exitCode !== 0)
+      if (result.type === "error") {
+        throw new Error(result.message)
+      }
+
+      if (result.type !== "completed" || result.exitCode !== 0) {
         throw new Error("Pulumi action failed")
+      }
+
       signal?.throwIfAborted()
       const rawOutputs = result.result as import("./abstractions").RawPulumiOutputs
       if (phase !== "preview" && rawOutputs?.$artifacts) {
         const declared = z
           .record(z.string(), unitArtifactSchema.array())
           .parse(rawOutputs.$artifacts.value)
+
         for (const item of Object.values(declared).flat()) {
           const stored = await db.artifact.findUniqueOrThrow({ where: { hash: item.hash } })
           item[unitArtifactId] = stored.id
         }
+
         rawOutputs.$artifacts.value = declared
       }
+
       this.emit(options, {
         type: "completion",
         unitId: getInstanceId(options.instanceType, options.instanceName),
@@ -324,32 +387,45 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       const owner = context.action
         ? (JSON.parse(context.action.ownerId) as { phase?: string })
         : undefined
+
       if (
         owner?.phase === "delete-state" &&
         ["completed", "error", "output", "engineEvent"].includes(event.type)
-      )
+      ) {
         return
+      }
+
       throw new Error("Unknown runner action")
     }
+
     const { options } = active
+
     if (event.type === "unitConfiguration" || event.type === "unitResult") {
       const payload = event.payload as { stateId: string; phase?: string }
       if (
         payload.stateId !== options.stateId ||
         (event.type === "unitConfiguration" &&
           payload.phase !== (options.executionPhase ?? active.phase))
-      )
+      ) {
         throw new Error("Unit request does not match its owning action")
+      }
     }
+
     const unitId = getInstanceId(options.instanceType, options.instanceName)
+
     if (event.type === "unitConfiguration") {
-      if (!options.config) throw new Error("Action has no unit configuration")
+      if (!options.config) {
+        throw new Error("Action has no unit configuration")
+      }
+
       return { ...options.config, importBasePath: "/opt/highstate/library/package.json" }
     }
+
     if (event.type === "createSidecar") {
       const runner = await this.executions.get(
         `${options.projectId}/${options.operationId}/${context.action?.snapshotId}`,
       )
+
       return await this.sidecars.start(
         context,
         event.payload,
@@ -357,10 +433,12 @@ export class RuntimeRunnerBackend implements RunnerBackend {
         runner?.environment,
       )
     }
+
     if (event.type === "output") {
       const payload = event.payload as { data: Uint8Array }
       this.emit(options, { type: "message", unitId, message: Buffer.from(payload.data).toString() })
     }
+
     return undefined
   }
 
@@ -368,6 +446,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
     await this.sidecars.finishOperation(projectId, operationId)
     const prefix = `${projectId}/${operationId}/`
     const pending = [...this.executions.entries()].filter(([key]) => key.startsWith(prefix))
+
     for (const [key, execution] of pending.reverse()) {
       try {
         await this.execution.coordinator.requestCleanup((await execution).workload.id)
@@ -375,6 +454,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
         this.executions.delete(key)
       }
     }
+
     await this.legacy.finishOperation?.(projectId, operationId)
   }
 }

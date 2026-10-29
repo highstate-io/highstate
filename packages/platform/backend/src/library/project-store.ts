@@ -16,11 +16,13 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
 
   async initialize(projectId: string, selections: SelectedLibraryPackage[]): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     await database.projectLibraryState.upsert({
       where: { id: "default" },
       create: { id: "default", selectedPackages: selectedLibraryPackagesSchema.parse(selections) },
       update: {},
     })
+
     await database.projectLibraryState.updateMany({
       where: { id: "default", desiredSnapshotId: null, selectedPackages: { equals: [] } },
       data: { selectedPackages: selectedLibraryPackagesSchema.parse(selections) },
@@ -39,10 +41,12 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
 
   async snapshot(projectId: string, snapshotId: string): Promise<ProjectLibrarySnapshot> {
     const database = await this.database.forProject(projectId)
+
     const snapshot = await database.librarySnapshot.findUniqueOrThrow({
       where: { id: snapshotId },
       include: { versions: { include: { libraryPackageVersion: true } } },
     })
+
     const packages = snapshot.versions.map(({ libraryPackageVersion: pkg }) => ({
       id: pkg.id,
       packageName: pkg.packageName,
@@ -54,6 +58,7 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
       sourceManifest: pkg.sourceManifest,
       packageMetadata: pkg.packageMetadata,
     }))
+
     return {
       id: snapshot.id,
       hash: snapshot.hash,
@@ -74,28 +79,38 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
     content: LibrarySnapshotContent,
     hash: string,
   ): Promise<ProjectLibrarySnapshot> {
-    if (snapshotHash(content) !== hash) throw new Error("Library snapshot hash mismatch")
+    if (snapshotHash(content) !== hash) {
+      throw new Error("Library snapshot hash mismatch")
+    }
+
     const packageSelections = selectedLibraryPackagesSchema.parse(
       content.packages.map(({ packageName, version }) => ({ packageName, version })),
     )
+
     if (
       canonicalJson(packageSelections) !==
       canonicalJson(selectedLibraryPackagesSchema.parse(content.selectedPackages))
-    )
+    ) {
       throw new Error("Snapshot membership does not match package selections")
+    }
+
     const database = await this.database.forProject(projectId)
+
     const id = await database.$transaction(async tx => {
       // fence the actual selection and desired snapshot rather than inventing a generic revision
       const state = await tx.projectLibraryState.findUniqueOrThrow({ where: { id: "default" } })
       if (
         canonicalJson(state.selectedPackages) !== canonicalJson(previous.selectedPackages) ||
         state.desiredSnapshotId !== previous.desiredSnapshotId
-      )
+      ) {
         throw new Error("Project library changed concurrently")
+      }
+
       const cached = await tx.librarySnapshot.findUnique({ where: { hash } })
       let snapshotId = cached?.id
       if (!snapshotId) {
         const versions: string[] = []
+
         for (const pkg of content.packages) {
           const version = await tx.libraryPackageVersion.upsert({
             where: {
@@ -117,14 +132,18 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
             },
             update: {},
           })
+
           // serialized artifacts are graph-independent; never cache live module evaluation under this key
           if (
             canonicalJson(decode(version.evaluatedModel)) !== canonicalJson(pkg.model) ||
             canonicalJson(version.sourceManifest) !== canonicalJson(pkg.sourceManifest)
-          )
+          ) {
             throw new Error("Immutable package artifact changed")
+          }
+
           versions.push(version.id)
         }
+
         const snapshot = await tx.librarySnapshot.create({
           data: {
             hash,
@@ -137,8 +156,10 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
             },
           },
         })
+
         snapshotId = snapshot.id
       }
+
       const result = await tx.projectLibraryState.updateMany({
         where: {
           id: "default",
@@ -147,14 +168,20 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
         },
         data: { selectedPackages: content.selectedPackages, desiredSnapshotId: snapshotId },
       })
-      if (result.count !== 1) throw new Error("Project library changed concurrently")
+
+      if (result.count !== 1) {
+        throw new Error("Project library changed concurrently")
+      }
+
       return snapshotId
     })
+
     return await this.snapshot(projectId, id)
   }
 
   async setOverlay(projectId: string, enabled: boolean): Promise<void> {
     const database = await this.database.forProject(projectId)
+
     await database.projectLibraryState.update({
       where: { id: "default" },
       data: { localOverlayEnabled: enabled },

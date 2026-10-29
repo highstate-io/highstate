@@ -87,7 +87,9 @@ export type UnitOptions = {
    */
   libraryId: string | undefined
 
-  /** The immutable desired snapshot captured before operation planning. */
+  /**
+   * The immutable desired snapshot captured before operation planning.
+   */
   librarySnapshotId?: string | null
 
   executionPhase?: OperationPhaseType

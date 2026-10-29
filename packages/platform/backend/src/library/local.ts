@@ -142,6 +142,7 @@ export class LocalLibraryBackend implements LibraryBackend {
     signal?.throwIfAborted()
     return await this.lock.acquire(async () => {
       const library = await this.getLibrary(false)
+
       const implementationNames = [
         ...new Set(
           Object.values(library.components)
@@ -149,23 +150,33 @@ export class LocalLibraryBackend implements LibraryBackend {
             .map(unit => unit.source.package),
         ),
       ]
+
       await this.ensureLibraryPackagesLoaded(implementationNames, false)
+
       for (const name of implementationNames) {
         const pkg = this.packages.get(name)
-        if (!pkg) throw new Error(`Local implementation package "${name}" is unavailable`)
+        if (!pkg) {
+          throw new Error(`Local implementation package "${name}" is unavailable`)
+        }
+
         await this.reloadUnitManifest(pkg)
       }
+
       for (const unit of Object.values(library.components).filter(isUnitModel)) {
-        if (!this.resolvedUnitSources.has(unit.type))
+        if (!this.resolvedUnitSources.has(unit.type)) {
           throw new Error(`Local implementation source "${unit.type}" is unavailable`)
+        }
       }
+
       const sources = Array.from(this.resolvedUnitSources.values())
         .filter(source => Object.hasOwn(library.components, source.unitType))
         .map(({ unitType, sourceHash }) => ({ unitType, sourceHash }))
         .sort((a, b) => a.unitType.localeCompare(b.unitType))
+
       const revision = createHash("sha256")
         .update(canonicalJson({ model: library, sources }))
         .digest("hex")
+
       return { model: library, revision }
     })
   }
@@ -285,9 +296,11 @@ export class LocalLibraryBackend implements LibraryBackend {
     this.eventEmitter.emit("library", [{ type: "reload-started" }])
 
     await this.ensureLibraryPackagesLoaded(this.libraryPackages, installIfNotFound)
+
     for (const name of this.libraryPackages) {
-      if (!this.packages.has(name))
+      if (!this.packages.has(name)) {
         throw new Error(`Local library package "${name}" is unavailable`)
+      }
     }
 
     const loadedPackages = this.packages
@@ -300,14 +313,18 @@ export class LocalLibraryBackend implements LibraryBackend {
       const libraryContent = await this.readLibraryContent(loadedPackage)
 
       for (const [componentType, component] of Object.entries(libraryContent.components)) {
-        if (Object.hasOwn(mergedLibrary.components, componentType))
+        if (Object.hasOwn(mergedLibrary.components, componentType)) {
           throw new Error(`Duplicate local component type "${componentType}"`)
+        }
+
         mergedLibrary.components[componentType] = component
       }
 
       for (const [entityType, entity] of Object.entries(libraryContent.entities)) {
-        if (Object.hasOwn(mergedLibrary.entities, entityType))
+        if (Object.hasOwn(mergedLibrary.entities, entityType)) {
           throw new Error(`Duplicate local entity type "${entityType}"`)
+        }
+
         mergedLibrary.entities[entityType] = entity
       }
     }
@@ -350,7 +367,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       // TODO: resolve the path
       const relativePath = unit.source.path ? `./dist/${unit.source.path}` : `./dist`
       const sourceHash = manifest?.sourceHashes?.[`${relativePath}/index.js`]
-
       if (sourceHash === undefined) {
         this.resolvedUnitSources.delete(unit.type)
         this.logger.warn(`source hash not found for unit: "%s"`, unit.type)

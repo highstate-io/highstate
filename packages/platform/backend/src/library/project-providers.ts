@@ -11,7 +11,9 @@ export interface NpmCredentialDecrypter {
   decrypt(credentialId: string, encryptedCredentials: string): Promise<{ token: string }>
 }
 
-/** Restricts credential lookup to the npm credentials associated with the project's selected runtime. */
+/**
+ * Restricts credential lookup to the npm credentials associated with the project's selected runtime.
+ */
 export class RuntimeProjectNpmRegistryProvider implements ProjectNpmRegistryProvider {
   constructor(
     private readonly database: DatabaseManager,
@@ -30,14 +32,18 @@ export class RuntimeProjectNpmRegistryProvider implements ProjectNpmRegistryProv
       where: { id: projectId },
       select: { containerRuntime: { select: { npmRegistryCredentials: true } } },
     })
+
     const scopes: Record<string, NpmRegistryAccess> = {}
+
     for (const credential of project.containerRuntime.npmRegistryCredentials) {
       const { token } = await this.credentials.decrypt(
         credential.id,
         credential.encryptedCredentials,
       )
+
       scopes[credential.scope.replace(/\/$/, "")] = { registryUrl: credential.registryUrl, token }
     }
+
     return scopes
   }
 }
@@ -53,7 +59,9 @@ export interface LocalLibraryOverlayProvider {
   getLocalOverlaySnapshot?(): Promise<LocalLibraryOverlaySnapshot>
 }
 
-/** Adapts existing virtual definitions and the host backend without ever using the host as a packaged fallback. */
+/**
+ * Adapts existing virtual definitions and the host backend without ever using the host as a packaged fallback.
+ */
 export class RuntimeProjectLibraryCatalogProvider implements ProjectLibraryCatalogProvider {
   constructor(
     private readonly database: DatabaseManager,
@@ -73,6 +81,7 @@ export class RuntimeProjectLibraryCatalogProvider implements ProjectLibraryCatal
       where: { id: projectId },
       select: { containerRuntimeId: true, containerRuntime: { select: { spec: true } } },
     })
+
     const spec = project.containerRuntime.spec
     return (
       project.containerRuntimeId === localContainerRuntime.id &&
@@ -82,26 +91,38 @@ export class RuntimeProjectLibraryCatalogProvider implements ProjectLibraryCatal
   }
 
   async localOverlay(projectId: string) {
-    if (!(await this.supportsLocalOverlay(projectId)))
+    if (!(await this.supportsLocalOverlay(projectId))) {
       throw new Error("Local overlays require the well-known local runtime")
-    if (!this.local.loadLocalOverlay)
+    }
+
+    if (!this.local.loadLocalOverlay) {
       throw new Error("The library backend does not support local overlays")
+    }
+
     return await this.local.loadLocalOverlay()
   }
 
   async localOverlayRevision(projectId: string): Promise<string> {
-    if (!(await this.supportsLocalOverlay(projectId)))
+    if (!(await this.supportsLocalOverlay(projectId))) {
       throw new Error("Local overlays require the well-known local runtime")
-    if (!this.local.getLocalOverlayRevision)
+    }
+
+    if (!this.local.getLocalOverlayRevision) {
       throw new Error("The library backend does not expose local source revisions")
+    }
+
     return await this.local.getLocalOverlayRevision()
   }
 
   async localOverlaySnapshot(projectId: string): Promise<LocalLibraryOverlaySnapshot> {
-    if (!(await this.supportsLocalOverlay(projectId)))
+    if (!(await this.supportsLocalOverlay(projectId))) {
       throw new Error("Local overlays require the well-known local runtime")
-    if (!this.local.getLocalOverlaySnapshot)
+    }
+
+    if (!this.local.getLocalOverlaySnapshot) {
       throw new Error("The library backend does not support atomic local overlay snapshots")
+    }
+
     return await this.local.getLocalOverlaySnapshot()
   }
 }

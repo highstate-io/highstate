@@ -36,6 +36,7 @@ describe("resource conversion", () => {
         },
       ],
     })
+
     expect(phase.instances[0]).toMatchObject({
       id: "example.unit.v1:main",
       libraryPackageUpgrade: {
@@ -47,6 +48,7 @@ describe("resource conversion", () => {
       },
     })
   })
+
   it("converts instance dynamic values and references in both directions", () => {
     const backend = {
       id: "example.component.v1:main" as const,

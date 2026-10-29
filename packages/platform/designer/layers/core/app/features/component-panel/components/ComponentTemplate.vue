@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { CatalogSource } from "@highstate/backend"
 import { type ComponentModel, parseVersionedName } from "@highstate/contract"
 import { ComponentCard, setComponentDragData } from "#layers/core/app/features/shared"
-import type { CatalogSource } from "@highstate/backend"
 
 const { components, sources } = defineProps<{
   components: ComponentModel[]
@@ -18,9 +18,18 @@ const selectedComponent = computed(() => {
 
 const sourceLabel = computed(() => {
   const source = sources?.[`components:${selectedComponent.value.type}`]
-  if (source?.kind === "package") return `${source.packageName}@${source.version}`
-  if (source?.kind === "local") return "Local overlay"
-  if (source?.kind === "virtual") return "Virtual"
+  if (source?.kind === "package") {
+    return `${source.packageName}@${source.version}`
+  }
+
+  if (source?.kind === "local") {
+    return "Local overlay"
+  }
+
+  if (source?.kind === "virtual") {
+    return "Virtual"
+  }
+
   return undefined
 })
 

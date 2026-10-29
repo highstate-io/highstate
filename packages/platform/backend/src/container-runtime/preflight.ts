@@ -7,9 +7,11 @@ import {
   resolveRuntimeAdapterConfig,
 } from "./factory"
 
-export type RuntimePreflightOptions = {
+export interface RuntimePreflightOptions {
   registryImage?: string
-  /** Optional real authenticated agent probe, supplied by the runtime transport composition. */
+  /**
+   * Optional real authenticated agent probe, supplied by the runtime transport composition.
+   */
   probe?: (signal?: AbortSignal) => Promise<void>
   signal?: AbortSignal
 }
@@ -23,6 +25,7 @@ export class RuntimeSettingsPreflightBridge {
     options: RuntimePreflightOptions = {},
   ): Promise<PreflightCheck[]> {
     const checks: PreflightCheck[] = []
+
     const check = async (name: string, operation: () => Promise<void>) => {
       try {
         await operation()
@@ -32,21 +35,30 @@ export class RuntimeSettingsPreflightBridge {
         checks.push({ name, ok: false, detail: String(error) })
       }
     }
+
     const adapter = createContainerRuntimeAdapter(
       await resolveRuntimeAdapterConfig(spec, this.secrets, runtimeId),
     )
+
     await check("connectivity", async () => {
       checks.push(...(await adapter.preflight(options.signal)))
     })
+
     await check("runtime-api-url", async () => {
-      if (new URL(spec.runtimeApiUrl).protocol !== "https:")
+      if (new URL(spec.runtimeApiUrl).protocol !== "https:") {
         throw new Error("Workload runtime API URL must use TLS")
+      }
     })
-    if (spec.type === "kubernetes" || (spec.type === "docker" && !spec.local))
+
+    if (spec.type === "kubernetes" || (spec.type === "docker" && !spec.local)) {
       await check("image-repository", async () => {
-        if (!spec.imageRepository) throw new Error("Remote runtimes require an image repository")
+        if (!spec.imageRepository) {
+          throw new Error("Remote runtimes require an image repository")
+        }
       })
-    if (options.registryImage)
+    }
+
+    if (options.registryImage) {
       await check("registry", async () => {
         await adapter.ensureImage(
           options.registryImage!,
@@ -54,15 +66,21 @@ export class RuntimeSettingsPreflightBridge {
           options.signal,
         )
       })
-    if (options.probe)
+    }
+
+    if (options.probe) {
       await check("authenticated-agent-stream", async () => {
         await options.probe!(options.signal)
       })
+    }
+
     return checks
   }
 }
 
-/** Structurally implements the settings service's injectable preflight provider. */
+/**
+ * Structurally implements the settings service's injectable preflight provider.
+ */
 export class RuntimePreflightProviderBridge {
   constructor(
     private readonly database: DatabaseManager,
@@ -78,6 +96,7 @@ export class RuntimePreflightProviderBridge {
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: runtimeId },
     })
+
     return {
       preflight: async signal =>
         await this.bridge.preflight(runtimeId, runtime.spec, {

@@ -87,19 +87,23 @@ describe("registered runtime settings commands", () => {
     stdout = ""
     stderr = ""
     cli = new Cli({ binaryName: "highstate" })
+
     for (const command of Object.values(commands)) {
       cli.register(command)
     }
 
     client = settingsClient()
+
     vi.spyOn(RemoteCommand.prototype, "remote").mockResolvedValue({
       clients: { runtimeSettings: client } as unknown as HighstateClients,
       target: { apiUrl: "https://backend.example", apiToken: "token", projectId: "" },
     })
+
     vi.spyOn(process.stdout, "write").mockImplementation(chunk => {
       stdout += String(chunk)
       return true
     })
+
     vi.spyOn(process.stderr, "write").mockImplementation(chunk => {
       stderr += String(chunk)
       return true
@@ -183,10 +187,12 @@ describe("registered runtime settings commands", () => {
     resources,
   )("lists and gets $path through the list RPC without revealing secrets", async resource => {
     expect(await run(resource.path, "list")).toBe(0)
+
     expect(JSON.parse(stdout)[resource.collection][0]).toMatchObject({
       id: resource.id,
       revision: "7",
     })
+
     expect(stdout).not.toContain(Buffer.from("private-token").toString("base64"))
     expect(stdout).not.toContain(Buffer.from("private-key").toString("base64"))
     stdout = ""
@@ -203,12 +209,14 @@ describe("registered runtime settings commands", () => {
   )("creates, replaces, and deletes $path with explicit concurrency", async resource => {
     const path = await file(JSON.stringify(resource.document))
     expect(await run(resource.path, "create", "--file", path)).toBe(0)
+
     expect(client[resource.put]).toHaveBeenLastCalledWith(
       expect.objectContaining({
         [resource.singular]: expect.objectContaining({ id: "" }),
         expectedRevision: undefined,
       }),
     )
+
     expect(
       await run(
         resource.path,
@@ -220,17 +228,21 @@ describe("registered runtime settings commands", () => {
         "9007199254740993",
       ),
     ).toBe(0)
+
     expect(client[resource.put]).toHaveBeenLastCalledWith(
       expect.objectContaining({
         [resource.singular]: expect.objectContaining({ id: resource.id }),
         expectedRevision: 9007199254740993n,
       }),
     )
+
     expect(await run(resource.path, "delete", resource.id, "--expected-revision", "7")).toBe(0)
+
     expect(client[resource.delete]).toHaveBeenCalledWith({
       [resource.idField]: resource.id,
       expectedRevision: 7n,
     })
+
     expect(stdout).not.toContain(Buffer.from("private-token").toString("base64"))
   })
 
@@ -238,6 +250,7 @@ describe("registered runtime settings commands", () => {
     const path = await file(
       JSON.stringify({ ...resource.document, id: resource.id, revision: "7" }),
     )
+
     await run(resource.path, "put", "--file", path)
     expect(stderr).toContain("--expected-revision")
     expect(client[resource.put]).not.toHaveBeenCalled()
@@ -285,6 +298,7 @@ describe("registered runtime settings commands", () => {
         credentials,
       }),
     )
+
     await run("npm-registry-credential", "put", "--file", path, "--expected-revision", "7")
     expect(client.putNpmRegistryCredential).toHaveBeenCalledOnce()
     expect(client.putNpmRegistryCredential.mock.calls[0]![0].credential.credentials).toBeUndefined()
@@ -293,6 +307,7 @@ describe("registered runtime settings commands", () => {
   it("reads YAML documents and raw credentials from a file without echoing secrets", async () => {
     const path = await file("meta:\n  title: Registry\nregistry_url: ghcr.io\n")
     const secret = await file("username:password", "credentials")
+
     expect(
       await run(
         "container-registry-credential",
@@ -303,6 +318,7 @@ describe("registered runtime settings commands", () => {
         secret,
       ),
     ).toBe(0)
+
     expect(client.putContainerRegistryCredential).toHaveBeenCalledWith({
       credential: expect.objectContaining({
         registryUrl: "ghcr.io",
@@ -310,6 +326,7 @@ describe("registered runtime settings commands", () => {
       }),
       expectedRevision: undefined,
     })
+
     expect(stdout + stderr).not.toContain("username:password")
   })
 
@@ -319,30 +336,39 @@ describe("registered runtime settings commands", () => {
       .mockResolvedValue(
         "id: backend-1\nmeta: {title: State}\nurl: s3://state\ncredentials: 'IAo='\nclear_credentials: true\n",
       )
+
     expect(
       await run("pulumi-state-backend", "put", "--file", "-", "--expected-revision", "7"),
     ).toBe(0)
+
     expect(text).toHaveBeenCalledOnce()
+
     expect(client.putPulumiStateBackend).toHaveBeenCalledWith({
       backend: expect.objectContaining({ clearCredentials: true }),
       expectedRevision: 7n,
     })
+
     expect(client.putPulumiStateBackend.mock.calls[0]![0].backend.credentials).toBeUndefined()
   })
 
   it("reads raw credentials from stdin and rejects competing stdin consumers", async () => {
     const path = await file("meta: {title: Npm}\nregistry_url: https://registry.npmjs.org\n")
+
     vi.spyOn(Bun.stdin, "arrayBuffer").mockResolvedValue(
       new TextEncoder().encode("stdin-token").buffer,
     )
+
     vi.spyOn(Bun.stdin, "text").mockResolvedValue("meta: {title: Npm}")
+
     expect(
       await run("npm-registry-credential", "put", "--file", path, "--credentials-file", "-"),
     ).toBe(0)
+
     expect(client.putNpmRegistryCredential).toHaveBeenCalledWith({
       credential: expect.objectContaining({ credentials: Buffer.from("stdin-token") }),
       expectedRevision: undefined,
     })
+
     client.putNpmRegistryCredential.mockClear()
     await run("npm-registry-credential", "put", "--file", "-", "--credentials-file", "-")
     expect(stderr).toContain("Stdin may only be used for one input")
@@ -352,6 +378,7 @@ describe("registered runtime settings commands", () => {
   it("omits whitespace-only credentials from files and supports explicit Pulumi clear", async () => {
     const path = await file("id: backend-1\nmeta: {title: State}\nurl: s3://state\n")
     const secret = await file(" \n\t", "credentials")
+
     await run(
       "pulumi-state-backend",
       "put",
@@ -363,10 +390,12 @@ describe("registered runtime settings commands", () => {
       "7",
       "--clear-credentials",
     )
+
     expect(client.putPulumiStateBackend).toHaveBeenCalledWith({
       backend: expect.objectContaining({ clearCredentials: true }),
       expectedRevision: 7n,
     })
+
     expect(client.putPulumiStateBackend.mock.calls[0]![0].backend.credentials).toBeUndefined()
   })
 
@@ -383,8 +412,10 @@ describe("registered runtime settings commands", () => {
         },
       }),
     )
+
     const ca = await file("CA CONTENT", "ca.pem")
     const certificate = await file("CERTIFICATE CONTENT", "client.pem")
+
     await run(
       "runtime",
       "put",
@@ -397,6 +428,7 @@ describe("registered runtime settings commands", () => {
       "--docker-client-certificate-file",
       certificate,
     )
+
     expect(client.putContainerRuntime).toHaveBeenCalledWith({
       runtime: expect.objectContaining({
         spec: expect.objectContaining({
@@ -414,6 +446,7 @@ describe("registered runtime settings commands", () => {
       }),
       expectedRevision: 7n,
     })
+
     expect(
       client.putContainerRuntime.mock.calls[0]![0].runtime.spec.runtime.value.tls.clientKey,
     ).toBeUndefined()
@@ -436,8 +469,10 @@ describe("registered runtime settings commands", () => {
         container_registry_credential_ids: ["container-1"],
       }),
     )
+
     const kubeconfig = await file("KUBECONFIG", "kubeconfig")
     const ca = await file("API CA", "api-ca.pem")
+
     await run(
       "runtime",
       "put",
@@ -448,6 +483,7 @@ describe("registered runtime settings commands", () => {
       "--runtime-api-ca-bundle-file",
       ca,
     )
+
     expect(client.putContainerRuntime).toHaveBeenCalledWith({
       runtime: expect.objectContaining({
         npmRegistryCredentialIds: ["npm-1"],
@@ -485,16 +521,22 @@ describe("registered runtime settings commands", () => {
         checks: [{ name: "runtime-api", passed: false, message: "Workloads cannot reach backend" }],
       }),
     )
+
     expect(await run("runtime", "check", "runtime-1", "--probe")).toBe(1)
+
     expect(client.checkContainerRuntime).toHaveBeenCalledWith({
       containerRuntimeId: "runtime-1",
       probeRuntimeApi: true,
     })
+
     expect(JSON.parse(stdout).checks[0].message).toBe("Workloads cannot reach backend")
+
     client.checkContainerRuntime.mockResolvedValue(
       create(CheckContainerRuntimeResponseSchema, { ready: true }),
     )
+
     expect(await run("runtime", "check", "runtime-1")).toBe(0)
+
     expect(client.checkContainerRuntime).toHaveBeenLastCalledWith({
       containerRuntimeId: "runtime-1",
       probeRuntimeApi: false,

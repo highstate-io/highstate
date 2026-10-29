@@ -119,16 +119,18 @@ export class OperationWorkset {
       this.project.id,
       Array.from(this.allAffectedInstanceIds).map(instanceId => {
         const state = this.context.getState(instanceId)
+
         const firstPhase = this.phases.find(phase =>
           phase.instances.some(instance => instance.id === instanceId),
         )!
-        const instance = this.context.getExecutionInstance(instanceId, firstPhase.type)
 
+        const instance = this.context.getExecutionInstance(instanceId, firstPhase.type)
         if (!instance) {
           throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
         }
 
         const resolvedInputs = this.context.getExecutionInputs(instance.id, firstPhase.type)
+
         const serializedResolvedInputs =
           resolvedInputs != null
             ? this.context.serializeResolvedInputs(
@@ -139,6 +141,7 @@ export class OperationWorkset {
                 ),
               )
             : (state.resolvedInputs ?? {})
+
         const provenance = this.context.getExecutionProvenance(instanceId, firstPhase.type)
 
         return [

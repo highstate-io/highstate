@@ -25,13 +25,15 @@ export interface RuntimeSecretResolver {
   registryCredentials(runtimeId: string): Promise<RegistryCredential[]>
 }
 
-/** Shared by placement and the settings preflight bridge, including unsaved settings. */
+/**
+ * Shared by placement and the settings preflight bridge, including unsaved settings.
+ */
 export async function resolveRuntimeAdapterConfig(
   spec: ContainerRuntimeSpec,
   secrets: RuntimeSecretResolver,
   runtimeId: string,
 ): Promise<ContainerRuntimeFactoryConfig> {
-  if (spec.type === "docker")
+  if (spec.type === "docker") {
     return {
       type: "docker",
       endpoint: spec.engineEndpoint,
@@ -51,6 +53,8 @@ export async function resolveRuntimeAdapterConfig(
           }
         : undefined,
     }
+  }
+
   return {
     type: "kubernetes",
     namespace: spec.namespace,
@@ -69,6 +73,7 @@ export class DatabaseRuntimeAdapterProvider implements RuntimeAdapterProvider {
     string,
     { revision: number; adapter: ContainerRuntimeAdapter }
   >()
+
   constructor(
     private readonly database: DatabaseManager,
     private readonly secrets: RuntimeSecretResolver,
@@ -78,8 +83,12 @@ export class DatabaseRuntimeAdapterProvider implements RuntimeAdapterProvider {
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
       where: { id: runtimeId },
     })
+
     const current = this.adapters.get(runtimeId)
-    if (current?.revision === runtime.revision) return current.adapter
+    if (current?.revision === runtime.revision) {
+      return current.adapter
+    }
+
     const config = await resolveRuntimeAdapterConfig(runtime.spec, this.secrets, runtimeId)
     const adapter = createContainerRuntimeAdapter(config)
     this.adapters.set(runtimeId, { revision: runtime.revision, adapter })

@@ -1,8 +1,8 @@
 import {
   containerRegistryCredentialInputSchema,
+  containerRegistryCredentialOutputSchema,
   containerRuntimeInputSchema,
   containerRuntimeOutputSchema,
-  containerRegistryCredentialOutputSchema,
   npmRegistryCredentialInputSchema,
   npmRegistryCredentialOutputSchema,
   pulumiStateBackendInputSchema,
@@ -36,9 +36,11 @@ function rethrowSettingsError(error: unknown): never {
   if (error instanceof RuntimeSettingsConflictError) {
     throw new TRPCError({ code: "CONFLICT", message: error.message, cause: error })
   }
+
   if (error instanceof RuntimeSettingsInUseError) {
     throw new TRPCError({ code: "PRECONDITION_FAILED", message: error.message, cause: error })
   }
+
   throw error
 }
 
@@ -55,12 +57,14 @@ export const runtimeSettingsRouter = router({
     .query(async ({ ctx }) => {
       const service = ctx.runtimeSettingsService
       const context = ctx.requestContext
+
       const [runtimes, stateBackends, npmCredentials, ociCredentials] = await Promise.all([
         service.list(context, "container-runtime"),
         service.list(context, "pulumi-state-backend"),
         service.list(context, "npm-registry-credential"),
         service.list(context, "container-registry-credential"),
       ])
+
       return { runtimes, stateBackends, npmCredentials, ociCredentials }
     }),
   put: backendProcedure

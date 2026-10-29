@@ -1,5 +1,5 @@
-import { getSharedServices } from "@highstate/backend"
 import { Readable } from "node:stream"
+import { getSharedServices } from "@highstate/backend"
 import {
   getPanelCorsOrigin,
   getPanelFrameContentSecurityPolicy,
@@ -102,14 +102,17 @@ export default defineEventHandler(async event => {
   } else {
     delete headers.cookie
   }
+
   delete headers["x-highstate-panel-name"]
   delete headers["x-highstate-state-id"]
   const controller = new AbortController()
   const abort = () => controller.abort()
   event.node.req.once("aborted", abort)
   event.node.res.once("close", abort)
+
   try {
     const body = getRequestWebStream(event)
+
     const response = await services.panelEndpointManager.proxy(
       session.projectId,
       panel.workerVersionId,
@@ -124,14 +127,23 @@ export default defineEventHandler(async event => {
             : (Array.isArray(values) ? values : [values]).map(value => ({ name, value })),
         ),
         body: (async function* () {
-          if (!body) return
+          if (!body) {
+            return
+          }
+
           const reader = body.getReader()
+
           try {
             for (;;) {
               const { done, value } = await reader.read()
-              if (done) break
-              for (let offset = 0; offset < value.byteLength; offset += 65536)
+
+              if (done) {
+                break
+              }
+
+              for (let offset = 0; offset < value.byteLength; offset += 65536) {
                 yield value.subarray(offset, offset + 65536)
+              }
             }
           } finally {
             await reader.cancel()
@@ -141,6 +153,7 @@ export default defineEventHandler(async event => {
       },
       controller.signal,
     )
+
     return await sendProxyResponse(event, response)
   } catch (error) {
     console.error("Panel proxy request failed:", error)
@@ -160,6 +173,7 @@ async function sendProxyResponse(
   },
 ): Promise<unknown> {
   setResponseStatus(event, response.status)
+
   for (const { name, value } of response.headers) {
     const sanitized = sanitizePanelResponseHeader({ name, value })
     if (sanitized && !hopByHopHeaders.has(sanitized.name.toLowerCase())) {

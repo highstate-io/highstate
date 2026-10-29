@@ -36,13 +36,19 @@ export interface LibraryBackend {
    */
   loadLibrary(libraryId: string | undefined, signal?: AbortSignal): Promise<LibraryModel>
 
-  /** Loads the optional host overlay without installing missing npm packages. */
+  /**
+   * Loads the optional host overlay without installing missing npm packages.
+   */
   loadLocalOverlay?(signal?: AbortSignal): Promise<LibraryModel>
 
-  /** Revision includes both local definition and implementation source hashes. */
+  /**
+   * Revision includes both local definition and implementation source hashes.
+   */
   getLocalOverlayRevision?(): Promise<string>
 
-  /** Captures definitions and implementation hashes under the same local-library lock. */
+  /**
+   * Captures definitions and implementation hashes under the same local-library lock.
+   */
   getLocalOverlaySnapshot?(signal?: AbortSignal): Promise<LocalLibraryOverlaySnapshot>
 
   /**

@@ -20,6 +20,7 @@ describe("project library conversion", () => {
       updatedAt: new Date(0),
       completedAt: null,
     })
+
     expect(image).toMatchObject({
       phase: LibrarySnapshotImagePhase.FAILED,
       generation: 2n,
@@ -29,6 +30,7 @@ describe("project library conversion", () => {
       librarySnapshotId: "snapshot",
       containerRuntimeId: "runtime",
     })
+
     expect(toSnapshotImage(null)).toBeUndefined()
   })
 
@@ -46,7 +48,9 @@ describe("project library conversion", () => {
       packageVersion: "2.3.4",
       librarySnapshotId: "snapshot",
     })
+
     expect(toCatalogSource({ kind: "local" })?.kind).toBe(LibraryCatalogSourceKind.LOCAL)
+
     expect(
       toLocalOverlay({
         enabled: true,

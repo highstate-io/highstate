@@ -17,10 +17,12 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
   return {
     async getProjectLibrary(request, context) {
       const auth = await authenticateProject(services, request, context)
+
       const [state, catalog] = await Promise.all([
         services.projectLibraryService.getProjectLibrary(auth),
         services.projectLibraryService.getCatalog(auth),
       ])
+
       return {
         selectedPackages: state.selectedPackages,
         desiredSnapshot: state.desiredSnapshot
@@ -33,31 +35,37 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
     },
     async addLibraryPackage(request, context) {
       const auth = await authenticateProject(services, request, context)
+
       const selection = parseValue(
         { packageName: request.packageName, version: request.version },
         "package",
         libraryPackageInputSchema,
       )
+
       const snapshot = await services.projectLibraryService.addPackage(auth, selection)
       return { package: selection, desiredSnapshot: toLibrarySnapshot(snapshot) }
     },
     async updateLibraryPackage(request, context) {
       const auth = await authenticateProject(services, request, context)
+
       const selection = parseValue(
         { packageName: request.packageName, version: request.version },
         "package",
         libraryPackageInputSchema,
       )
+
       const snapshot = await services.projectLibraryService.updatePackage(auth, selection)
       return { package: selection, desiredSnapshot: toLibrarySnapshot(snapshot) }
     },
     async removeLibraryPackage(request, context) {
       const auth = await authenticateProject(services, request, context)
+
       const input = parseValue(
         { packageName: request.packageName },
         "package",
         libraryPackageNameInputSchema,
       )
+
       return {
         desiredSnapshot: toLibrarySnapshot(
           await services.projectLibraryService.removePackage(auth, input),
@@ -74,24 +82,30 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
     },
     async listLibraryPackageVersions(request, context) {
       const auth = await authenticateProject(services, request, context)
+
       const input = parseValue(
         { packageName: request.packageName },
         "package",
         libraryPackageNameInputSchema,
       )
+
       return { versions: await services.projectLibraryService.listPackageVersions(auth, input) }
     },
     async getLibraryPackageVersion(request, context) {
       const auth = await authenticateProject(services, request, context)
       const state = await services.projectLibraryService.getProjectLibrary(auth)
+
       const member = state.desiredSnapshot?.packages.find(
         pkg => pkg.id === request.libraryPackageVersionId,
       )
-      if (request.libraryPackageVersionId && !member)
+
+      if (request.libraryPackageVersionId && !member) {
         throw new ConnectError(
           "Package version is not in the desired project snapshot; provide package name and exact version",
           Code.NotFound,
         )
+      }
+
       const selection = parseValue(
         {
           packageName: member?.packageName ?? request.packageName,
@@ -100,9 +114,11 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
         "package",
         libraryPackageInputSchema,
       )
+
       const metadata =
         member?.packageMetadata ??
         (await services.projectLibraryService.getPackageVersion(auth, selection))
+
       return {
         packageVersion: {
           id: member?.id,
@@ -121,9 +137,11 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
     },
     async setLocalLibraryOverlay(request, context) {
       const auth = await authenticateProject(services, request, context)
+
       const catalog = await services.projectLibraryService.setLocalOverlay(auth, {
         enabled: request.enabled,
       })
+
       return { localOverlay: toLocalOverlay(catalog.overlay) }
     },
     async retryLibrarySnapshotImage(request, context) {
@@ -156,6 +174,7 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
         { pageSize: request.pageSize, pageToken: request.pageToken },
         context.signal,
       )
+
       const catalog = await services.projectLibraryService.getCatalog(requestContext)
 
       return {

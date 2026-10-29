@@ -22,6 +22,7 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
   const directory = await mkdtemp(join(tmpdir(), "highstate-worker-grpc-"))
   const keyPath = join(directory, "key.pem")
   const certPath = join(directory, "cert.pem")
+
   execFileSync(
     "openssl",
     [
@@ -43,8 +44,10 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
     ],
     { stdio: "ignore" },
   )
+
   const cert = await readFile(certPath)
   const server = new Server()
+
   const definition = {
     connect: {
       path: "/io.highstate.runtime.v1.RuntimeService/Connect",
@@ -69,21 +72,26 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
       responseDeserialize: (value: Buffer) => fromBinary(ProxyWorkerResponseSchema, value),
     },
   }
+
   let registered = false
   let requests = 0
   let responseStatus = 0
   const responseHeaders: { name: string; value: string }[] = []
   const responseBytes: number[] = []
   let completed: (() => void) | undefined
+
   const responseComplete = new Promise<void>(resolve => {
     completed = resolve
   })
+
   server.addService(definition, {
     connect(call: ServerDuplexStream<ConnectRequest, ConnectResponse>) {
       expect(call.metadata.get("authorization")).toEqual(["Bearer lease-token"])
+
       call.on("data", (value: ConnectRequest) => {
         if (value.event.case === "clientHello") {
           expect(value.event.value.leaseGeneration).toBe(2n)
+
           call.write(
             create(ConnectResponseSchema, {
               event: {
@@ -94,6 +102,7 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
           )
         } else if (value.event.case === "workerRegistration") {
           registered = true
+
           call.write(
             create(ConnectResponseSchema, {
               event: {
@@ -109,17 +118,24 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
           )
         }
       })
+
       call.on("error", () => {})
     },
     proxyWorker(call: ServerDuplexStream<ProxyWorkerRequest, ProxyWorkerResponse>) {
       expect(call.metadata.get("authorization")).toEqual(["Bearer lease-token"])
       let active = false
+
       call.on("data", (value: ProxyWorkerRequest) => {
         if (value.event.case === "ready") {
           expect(value.event.value.leaseGeneration).toBe(2n)
           requests++
-          if (requests !== 1) return
+
+          if (requests !== 1) {
+            return
+          }
+
           active = true
+
           call.write(
             create(ProxyWorkerResponseSchema, {
               event: {
@@ -137,11 +153,13 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
               },
             }),
           )
+
           call.write(
             create(ProxyWorkerResponseSchema, {
               event: { case: "body", value: new Uint8Array([0, 255, 128]) },
             }),
           )
+
           call.write(
             create(ProxyWorkerResponseSchema, { event: { case: "body", value: new Uint8Array() } }),
           )
@@ -153,13 +171,19 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
           responseBytes.push(...value.event.value)
         }
       })
+
       call.on("end", () => {
         call.end()
-        if (active) completed!()
+
+        if (active) {
+          completed!()
+        }
       })
+
       call.on("error", () => {})
     },
   })
+
   const port = await new Promise<number>((resolve, reject) =>
     server.bindAsync(
       "127.0.0.1:0",
@@ -169,7 +193,9 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
       (error, port) => (error ? reject(error) : resolve(port)),
     ),
   )
+
   const targets = new PanelTargetRegistry()
+
   targets.apply(
     "state",
     targets.prepare([
@@ -188,6 +214,7 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
       },
     ]),
   )
+
   const client = new WorkerRuntimeClient(
     {
       runtimeApiUrl: `https://localhost:${port}`,
@@ -205,23 +232,31 @@ test("uses authenticated TLS gRPC controls and bounded reverse channels for bina
     },
     targets,
   )
+
   const controls = vi.fn()
+
   const connecting = client.connect(async event => {
     controls(event)
   })
+
   void connecting.catch(() => {})
+
   try {
     await responseComplete
     expect(registered).toBe(true)
+
     expect(controls).toHaveBeenCalledWith({
       type: "register",
       stateId: "state",
       params: { enabled: true },
     })
+
     expect(responseStatus).toBe(201)
+
     expect(
       responseHeaders.filter(header => header.name === "set-cookie").map(header => header.value),
     ).toEqual(["a=1", "b=2"])
+
     expect(responseBytes.length).toBe(140000)
     expect(responseBytes.every(value => value === 255)).toBe(true)
     await vi.waitFor(() => expect(requests).toBeGreaterThanOrEqual(4))

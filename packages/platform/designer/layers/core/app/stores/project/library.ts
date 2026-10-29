@@ -7,12 +7,18 @@ export const useProjectLibraryStore = defineMultiStore({
       const libraryStore = shallowRef<LibraryStore>()
       const initialized = ref(false)
       const loading = ref(false)
+
       const addLibraryRoot = () => {
         libraryStore.value = useLibraryStore.ensureCreated(projectId)
       }
+
       const initialize = async () => {
-        if (initialized.value) return
+        if (initialized.value) {
+          return
+        }
+
         loading.value = true
+
         try {
           libraryStore.value ??= useLibraryStore.ensureCreated(projectId)
           await libraryStore.value!.initialize()
@@ -24,7 +30,10 @@ export const useProjectLibraryStore = defineMultiStore({
 
       return {
         library: computed(() => {
-          if (!libraryStore.value) throw new Error("Library store not initialized")
+          if (!libraryStore.value) {
+            throw new Error("Library store not initialized")
+          }
+
           return libraryStore.value
         }),
         components: computed(() => libraryStore.value?.components ?? {}),

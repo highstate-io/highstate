@@ -98,10 +98,12 @@ export async function migrateDatabase(
     try {
       await client.$transaction(async tx => {
         const transaction = tx as MigrationClient
+
         for (const statement of statements) {
           if (/^PRAGMA\s+(foreign_keys|defer_foreign_keys)\s*=/i.test(statement)) {
             continue
           }
+
           await transaction.$executeRawUnsafe(statement)
         }
 
@@ -109,6 +111,7 @@ export async function migrateDatabase(
         if (violations.length > 0) {
           throw new Error(`Migration "${nextMigrationName}" violates foreign key constraints`)
         }
+
         await writeVersion(nextVersion)
       })
     } finally {

@@ -42,7 +42,9 @@ export interface ProjectLibraryCatalogProvider {
   localOverlay(projectId: string): Promise<LibraryModel>
   localOverlayRevision?(projectId: string): Promise<string>
   localOverlaySnapshot?(projectId: string): Promise<LocalLibraryOverlaySnapshot>
-  /** True only for the well-known local runtime identity, not arbitrary local Docker settings. */
+  /**
+   * True only for the well-known local runtime identity, not arbitrary local Docker settings.
+   */
   supportsLocalOverlay(projectId: string): Promise<boolean>
 }
 
@@ -68,32 +70,42 @@ export class ProjectLibraryService {
 
   async getProjectLibraryCore(projectId: string): Promise<ProjectLibraryDto> {
     const state = await this.store.read(projectId)
+
     const desiredSnapshot = state.desiredSnapshotId
       ? await this.historicalSnapshot(projectId, state.desiredSnapshotId)
       : null
+
     const image = desiredSnapshot
       ? await this.images.getDesiredImage?.(projectId, desiredSnapshot)
       : undefined
+
     return { ...state, desiredSnapshot, diagnostics: this.diagnostics.get(projectId) ?? [], image }
   }
 
-  /** Invoke on creation and every unlock. Failed resolution leaves saved initial selections accessible. */
+  /**
+   * Invoke on creation and every unlock. Failed resolution leaves saved initial selections accessible.
+   */
   async bootstrap(projectId: string): Promise<ProjectLibraryDto> {
     await this.store.initialize(
       projectId,
       selectedLibraryPackagesSchema.parse(this.initialPackages),
     )
+
     const state = await this.store.read(projectId)
+
     try {
-      if (state.desiredSnapshotId)
+      if (state.desiredSnapshotId) {
         await this.activate(
           projectId,
           await this.historicalSnapshot(projectId, state.desiredSnapshotId),
         )
-      else await this.propose(projectId, state, state.selectedPackages)
+      } else {
+        await this.propose(projectId, state, state.selectedPackages)
+      }
     } catch {
       // proposal/materialization retains the actionable phase diagnostic
     }
+
     return await this.getProjectLibraryCore(projectId)
   }
 
@@ -108,8 +120,10 @@ export class ProjectLibraryService {
     requireProjectPermission(context, "library.manage")
     const selection = libraryPackageInputSchema.parse(input)
     const state = await this.store.read(context.projectId)
-    if (state.selectedPackages.some(pkg => pkg.packageName === selection.packageName))
+    if (state.selectedPackages.some(pkg => pkg.packageName === selection.packageName)) {
       throw new Error(`Package "${selection.packageName}" is already selected`)
+    }
+
     return await this.propose(context.projectId, state, [...state.selectedPackages, selection])
   }
 
@@ -120,14 +134,17 @@ export class ProjectLibraryService {
     requireProjectPermission(context, "library.manage")
     const parsed = updateLibraryPackageInputSchema.parse(input)
     const state = await this.store.read(context.projectId)
-    if (!state.selectedPackages.some(pkg => pkg.packageName === parsed.packageName))
+    if (!state.selectedPackages.some(pkg => pkg.packageName === parsed.packageName)) {
       throw new Error(`Package "${parsed.packageName}" is not selected`)
+    }
+
     const selection = {
       packageName: parsed.packageName,
       version:
         parsed.version ??
         (await this.resolver.latestVersion(context.projectId, parsed.packageName)),
     }
+
     return await this.propose(
       context.projectId,
       state,
@@ -144,8 +161,10 @@ export class ProjectLibraryService {
     requireProjectPermission(context, "library.manage")
     const { packageName } = libraryPackageNameInputSchema.parse(input)
     const state = await this.store.read(context.projectId)
-    if (!state.selectedPackages.some(pkg => pkg.packageName === packageName))
+    if (!state.selectedPackages.some(pkg => pkg.packageName === packageName)) {
       throw new Error(`Package "${packageName}" is not selected`)
+    }
+
     return await this.propose(
       context.projectId,
       state,
@@ -156,12 +175,14 @@ export class ProjectLibraryService {
   async updateAll(context: ProjectRequestContext): Promise<ProjectLibrarySnapshot> {
     requireProjectPermission(context, "library.manage")
     const state = await this.store.read(context.projectId)
+
     const selections = await Promise.all(
       state.selectedPackages.map(async pkg => ({
         packageName: pkg.packageName,
         version: await this.resolver.latestVersion(context.projectId, pkg.packageName),
       })),
     )
+
     return await this.propose(context.projectId, state, selections)
   }
 
@@ -190,8 +211,11 @@ export class ProjectLibraryService {
   ): Promise<ProjectLibraryCatalog> {
     requireProjectPermission(context, "library.manage")
     const { enabled } = localOverlayInputSchema.parse(input)
-    if (enabled && !(await this.catalogs.supportsLocalOverlay(context.projectId)))
+
+    if (enabled && !(await this.catalogs.supportsLocalOverlay(context.projectId))) {
       throw new Error("Local overlays require the well-known local runtime")
+    }
+
     await this.store.setOverlay(context.projectId, enabled)
     return await this.catalog(context.projectId)
   }
@@ -207,19 +231,27 @@ export class ProjectLibraryService {
 
   async desiredSnapshot(projectId: string): Promise<ProjectLibrarySnapshot> {
     const state = await this.store.read(projectId)
-    if (!state.desiredSnapshotId)
+    if (!state.desiredSnapshotId) {
       throw new Error("Project library has no resolved desired snapshot")
+    }
+
     return await this.historicalSnapshot(projectId, state.desiredSnapshotId)
   }
 
   async historicalSnapshot(projectId: string, snapshotId: string): Promise<ProjectLibrarySnapshot> {
     const snapshot = await this.store.snapshot(projectId, snapshotId)
     const { id: _id, hash, ...content } = snapshot
-    if (snapshotHash(content) !== hash) throw new Error("Library snapshot hash mismatch")
+
+    if (snapshotHash(content) !== hash) {
+      throw new Error("Library snapshot hash mismatch")
+    }
+
     return snapshot
   }
 
-  /** Resolves portable sources strictly inside a persisted graph, with no backend-host package resolution. */
+  /**
+   * Resolves portable sources strictly inside a persisted graph, with no backend-host package resolution.
+   */
   async getSnapshotUnitSources(
     projectId: string,
     snapshotId: string,
@@ -228,19 +260,29 @@ export class ProjectLibraryService {
     const snapshot = await this.historicalSnapshot(projectId, snapshotId)
     return unitTypes.map(unitType => {
       const component = snapshot.model.components[unitType]
-      if (!component || !isUnitModel(component))
+      if (!component || !isUnitModel(component)) {
         throw new Error(`Packaged unit "${unitType}" not found`)
+      }
+
       const owner = snapshot.sourceManifest.owners[`components:${unitType}`]
       const pkg = snapshot.packages.find(pkg => pkg.packageName === owner)
-      if (!pkg?.id) throw new Error(`Missing snapshot membership for "${unitType}"`)
+      if (!pkg?.id) {
+        throw new Error(`Missing snapshot membership for "${unitType}"`)
+      }
+
       const implementationPath = component.source.path
         ? `./dist/${component.source.path}`
         : "./dist"
+
       const sourceHash =
         snapshot.sourceManifest.packages[component.source.package]?.sourceHashes?.[
           `${implementationPath}/index.js`
         ]
-      if (sourceHash === undefined) throw new Error(`Missing frozen source hash for "${unitType}"`)
+
+      if (sourceHash === undefined) {
+        throw new Error(`Missing frozen source hash for "${unitType}"`)
+      }
+
       return {
         unitType,
         snapshotId,
@@ -269,37 +311,46 @@ export class ProjectLibraryService {
 
   async catalog(projectId: string): Promise<ProjectLibraryCatalog> {
     const state = await this.store.read(projectId)
+
     const snapshot = state.desiredSnapshotId
       ? await this.historicalSnapshot(projectId, state.desiredSnapshotId)
       : null
+
     const model = structuredClone(snapshot?.model ?? { components: {}, entities: {} })
     const sources = snapshot ? this.packageSources(snapshot) : {}
     const virtual = await this.catalogs.virtualModel(projectId)
     this.mergeCatalog(model, sources, virtual, { kind: "virtual" })
+
     const overlay: ProjectLibraryCatalog["overlay"] = {
       enabled: state.localOverlayEnabled,
       active: false,
       conflicts: [],
     }
+
     if (state.localOverlayEnabled) {
-      if (!(await this.catalogs.supportsLocalOverlay(projectId)))
+      if (!(await this.catalogs.supportsLocalOverlay(projectId))) {
         overlay.reason = "Local overlays require the well-known local runtime"
-      else {
+      } else {
         try {
           const localSnapshot = await this.catalogs.localOverlaySnapshot?.(projectId)
           const local = localSnapshot?.model ?? (await this.catalogs.localOverlay(projectId))
+
           for (const collection of ["components", "entities"] as const) {
-            for (const type of Object.keys(local[collection]))
-              if (Object.hasOwn(model[collection], type))
+            for (const type of Object.keys(local[collection])) {
+              if (Object.hasOwn(model[collection], type)) {
                 overlay.conflicts.push(`${collection}:${type}`)
+              }
+            }
           }
-          if (overlay.conflicts.length)
+
+          if (overlay.conflicts.length) {
             overlay.reason = "The complete local overlay is disabled because definitions conflict"
-          else {
+          } else {
             const revision =
               localSnapshot?.revision ??
               (await this.catalogs.localOverlayRevision?.(projectId)) ??
               createHash("sha256").update(canonicalJson(local)).digest("hex")
+
             this.mergeCatalog(model, sources, local, { kind: "local" })
             overlay.active = true
             overlay.revision = revision
@@ -309,16 +360,22 @@ export class ProjectLibraryService {
         }
       }
     }
+
     return { model, sources, snapshotId: snapshot?.id ?? null, overlay }
   }
 
   private packageSources(snapshot: ProjectLibrarySnapshot): Record<string, CatalogSource> {
     const sources: Record<string, CatalogSource> = {}
+
     for (const [key, packageName] of Object.entries(snapshot.sourceManifest.owners)) {
       const pkg = snapshot.packages.find(pkg => pkg.packageName === packageName)
-      if (!pkg) throw new Error(`Snapshot owner "${packageName}" is not a member`)
+      if (!pkg) {
+        throw new Error(`Snapshot owner "${packageName}" is not a member`)
+      }
+
       sources[key] = { kind: "package", packageName, version: pkg.version, snapshotId: snapshot.id }
     }
+
     return sources
   }
 
@@ -330,14 +387,17 @@ export class ProjectLibraryService {
   ): void {
     for (const collection of ["components", "entities"] as const) {
       for (const [type, definition] of Object.entries(addition[collection])) {
-        if (Object.hasOwn(model[collection], type))
+        if (Object.hasOwn(model[collection], type)) {
           throw new Error(`Duplicate catalog definition "${collection}:${type}"`)
+        }
+
         Object.defineProperty(model[collection], type, {
           value: definition,
           enumerable: true,
           configurable: true,
           writable: true,
         })
+
         sources[`${collection}:${type}`] = source
       }
     }
@@ -349,17 +409,20 @@ export class ProjectLibraryService {
     selections: SelectedLibraryPackage[],
   ): Promise<ProjectLibrarySnapshot> {
     let snapshot: ProjectLibrarySnapshot
+
     try {
       const content = await this.resolver.resolve(
         projectId,
         selectedLibraryPackagesSchema.parse(selections),
       )
+
       this.mergeCatalog(
         structuredClone(content.model),
         {},
         await this.catalogs.virtualModel(projectId),
         { kind: "virtual" },
       )
+
       snapshot = await this.store.commit(projectId, previous, content, snapshotHash(content))
       this.diagnostics.delete(projectId)
     } catch (error) {
@@ -372,21 +435,26 @@ export class ProjectLibraryService {
               : "Package resolution or selection commit failed",
         },
       ])
+
       throw error
     }
+
     await this.activate(projectId, snapshot)
     return snapshot
   }
 
   private async activate(projectId: string, snapshot: ProjectLibrarySnapshot): Promise<void> {
     let publicationFailed = false
+
     try {
       await this.onDesiredSnapshot?.(projectId, snapshot)
     } catch {
       publicationFailed = true
     }
+
     await this.materialize(projectId, snapshot)
-    if (publicationFailed)
+
+    if (publicationFailed) {
       this.diagnostics.set(projectId, [
         ...(this.diagnostics.get(projectId) ?? []),
         {
@@ -395,6 +463,7 @@ export class ProjectLibraryService {
             "Desired snapshot committed but catalog publication failed; unlock the project to resume",
         },
       ])
+    }
   }
 
   private async materialize(
@@ -413,6 +482,7 @@ export class ProjectLibraryService {
           message: "Desired snapshot image materialization failed; retry the image build",
         },
       ])
+
       return undefined
     }
   }

@@ -2,18 +2,25 @@ import type { RuntimeFile } from "./contracts"
 import { posix } from "node:path"
 import { pack } from "tar-stream"
 
-/** Creates a portable archive without reading paths on the backend host. */
+/**
+ * Creates a portable archive without reading paths on the backend host.
+ */
 export async function archiveFiles(files: RuntimeFile[]): Promise<Buffer> {
   const archive = pack()
   const chunks: Buffer[] = []
+
   const reading = (async () => {
-    for await (const chunk of archive) chunks.push(Buffer.from(chunk as Uint8Array))
+    for await (const chunk of archive) {
+      chunks.push(Buffer.from(chunk as Uint8Array))
+    }
   })()
+
   for (const file of files) {
     const name = file.path.replace(/^\/+/, "")
     if (!name || posix.normalize(name) !== name || name.startsWith("../") || name.includes("\0")) {
       throw new Error(`Invalid runtime file path "${file.path}"`)
     }
+
     await new Promise<void>((resolve, reject) =>
       archive.entry(
         {
@@ -29,6 +36,7 @@ export async function archiveFiles(files: RuntimeFile[]): Promise<Buffer> {
       ),
     )
   }
+
   archive.finalize()
   await reading
   return Buffer.concat(chunks)

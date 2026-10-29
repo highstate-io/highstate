@@ -16,6 +16,7 @@ function coordinatorFor(adapter: ContainerRuntimeAdapter) {
     projectId: "project",
     leaseGeneration: 1,
   }
+
   const owner = {
     backendId: "terminal-test",
     projectId: "project",
@@ -24,6 +25,7 @@ function coordinatorFor(adapter: ContainerRuntimeAdapter) {
     kind: "terminal" as const,
     generation: 1,
   }
+
   const coordinator = {
     leaseDurationMs: 30000,
     createWorkload: vi.fn(async () => workload),
@@ -36,6 +38,7 @@ function coordinatorFor(adapter: ContainerRuntimeAdapter) {
     renewBackendLease: vi.fn(),
     requestCleanup: vi.fn(async () => await adapter.cleanup(owner)),
   }
+
   return {
     coordinator,
     backend: new RuntimeTerminalBackend(coordinator as unknown as RuntimeCoordinator, {
@@ -50,10 +53,12 @@ function coordinatorFor(adapter: ContainerRuntimeAdapter) {
 describe("runtime terminals", () => {
   test("rejects unavailable attachment and cleans the persisted domain workload", async () => {
     const cleanup = vi.fn()
+
     const { coordinator, backend } = coordinatorFor({
       capabilities: { attach: false },
       cleanup,
     } as unknown as ContainerRuntimeAdapter)
+
     await expect(
       backend.run({
         projectId: "project",
@@ -64,11 +69,13 @@ describe("runtime terminals", () => {
         screenSize: { cols: 80, rows: 24 },
       }),
     ).rejects.toThrow("attachment")
+
     expect(coordinator.createWorkload).toHaveBeenCalledWith({
       projectId: "project",
       kind: "terminal",
       ownerId: "session",
     })
+
     expect(cleanup).toHaveBeenCalledOnce()
     expect(coordinator.place).not.toHaveBeenCalled()
   })
@@ -80,15 +87,19 @@ describe("runtime terminals", () => {
         endpoint: "unix:///var/run/docker.sock",
         local: true,
       })
+
       const { backend, coordinator } = coordinatorFor(adapter)
       const stdin = new PassThrough()
       const stdout = new PassThrough()
       let output = ""
       let sent = false
+
       stdout.on("data", data => {
         output += String(data)
+
         if (!sent && output.includes("READY")) {
           sent = true
+
           setTimeout(() => {
             void backend
               .resize("session", { cols: 93, rows: 37 })
@@ -96,6 +107,7 @@ describe("runtime terminals", () => {
           }, 200)
         }
       })
+
       await backend.run({
         projectId: "project",
         sessionId: "session",
@@ -120,6 +132,7 @@ describe("runtime terminals", () => {
         screenSize: { cols: 80, rows: 24 },
         signal: AbortSignal.timeout(15000),
       })
+
       expect(output).toContain("37 93")
       expect(output).toContain("hello world:spaces preserved:file without newline")
       expect(coordinator.requestCleanup).toHaveBeenCalledOnce()

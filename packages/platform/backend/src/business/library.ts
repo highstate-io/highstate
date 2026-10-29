@@ -90,8 +90,10 @@ export class LibraryService {
 
     for (const importPort of importPorts) {
       const importComponent = await this.createImportComponent(importPort, privateKey)
-      if (Object.hasOwn(components, importComponent.type))
+      if (Object.hasOwn(components, importComponent.type)) {
         throw new Error(`Duplicate virtual component type "${importComponent.type}"`)
+      }
+
       components[importComponent.type] = importComponent
     }
 
@@ -121,22 +123,28 @@ export class LibraryService {
 
   async getLibraryModelCore(projectId: string, signal?: AbortSignal): Promise<LibraryModel> {
     signal?.throwIfAborted()
+
     if (this.projectLibrary) {
       return (await this.projectLibrary.catalog(projectId)).model
     }
+
     const [baseLibrary, virtualComponents] = await Promise.all([
       this.libraryBackend.loadLibrary(undefined, signal),
       this.getVirtualComponentsCore(projectId, signal),
     ])
 
     const virtualEntities = this.getVirtualEntities()
+
     for (const type of Object.keys(virtualComponents)) {
-      if (Object.hasOwn(baseLibrary.components, type))
+      if (Object.hasOwn(baseLibrary.components, type)) {
         throw new Error(`Duplicate virtual component type "${type}"`)
+      }
     }
+
     for (const type of Object.keys(virtualEntities)) {
-      if (Object.hasOwn(baseLibrary.entities, type))
+      if (Object.hasOwn(baseLibrary.entities, type)) {
         throw new Error(`Duplicate virtual entity type "${type}"`)
+      }
     }
 
     const proxiedComponents = new Proxy(baseLibrary.components, {

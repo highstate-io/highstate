@@ -20,11 +20,14 @@ export const useLibraryStore = defineMultiStore({
       const search = ref("")
       const packageFilter = ref<string[]>([])
       const sourceFilter = ref<string[]>([])
+
       const { on: onComponentUpdated, trigger: componentUpdated } =
         createEventHook<ComponentModel>()
+
       const { on: onComponentRemoved, trigger: componentRemoved } = createEventHook<string>()
       const { on: onEntityUpdated, trigger: entityUpdated } = createEventHook<EntityModel>()
       const { on: onEntityRemoved, trigger: entityRemoved } = createEventHook<string>()
+
       const { on: onUnitSourceHashChanged, trigger: hashChanged } = createEventHook<{
         unitType: string
         sourceHash: number
@@ -32,66 +35,88 @@ export const useLibraryStore = defineMultiStore({
 
       const ensureUnitSourceHashesLoaded = async (unitTypes: string[], trigger = false) => {
         const types = unitTypes.filter(type => !unitSourceHashes.has(type) && components[type])
-        if (!types.length) return
+        if (!types.length) {
+          return
+        }
+
         const hashes = await $client.library.getUnitSourceHashes.query({
           projectId,
           unitTypes: types,
         })
+
         for (const hash of hashes) {
           unitSourceHashes.set(hash.unitType, hash.sourceHash)
-          if (trigger) void hashChanged(hash)
+
+          if (trigger) {
+            void hashChanged(hash)
+          }
         }
       }
 
       let refreshing: Promise<void> | undefined
+
       const refresh = (): Promise<void> => {
-        if (refreshing) return refreshing
+        if (refreshing) {
+          return refreshing
+        }
+
         refreshing = (async () => {
           const [next, state] = await Promise.all([
             $client.library.get.query({ projectId }),
             $client.library.getProjectLibrary.query({ projectId }),
           ])
+
           const changed = JSON.stringify(catalog.value) !== JSON.stringify(next)
           if (changed) {
             isReloading.value = true
+
             for (const type of Object.keys(components)) {
               if (!next.model.components[type]) {
                 delete components[type]
                 void componentRemoved(type)
               }
             }
+
             for (const [type, component] of Object.entries(next.model.components)) {
               if (JSON.stringify(components[type]) !== JSON.stringify(component)) {
                 components[type] = component
                 void componentUpdated(component)
               }
             }
+
             for (const type of Object.keys(entities)) {
               if (!next.model.entities[type]) {
                 delete entities[type]
                 void entityRemoved(type)
               }
             }
+
             for (const [type, entity] of Object.entries(next.model.entities)) {
               if (JSON.stringify(entities[type]) !== JSON.stringify(entity)) {
                 entities[type] = entity
                 void entityUpdated(entity)
               }
             }
+
             const previousHashes = new Map(unitSourceHashes)
             unitSourceHashes.clear()
             await ensureUnitSourceHashesLoaded([...previousHashes.keys()])
+
             for (const [unitType, sourceHash] of unitSourceHashes) {
-              if (previousHashes.get(unitType) !== sourceHash)
+              if (previousHashes.get(unitType) !== sourceHash) {
                 void hashChanged({ unitType, sourceHash })
+              }
             }
+
             catalog.value = next
           }
+
           projectLibrary.value = state
         })().finally(() => {
           refreshing = undefined
           isReloading.value = false
         })
+
         return refreshing
       }
 
@@ -105,19 +130,27 @@ export const useLibraryStore = defineMultiStore({
         3000,
         { immediate: false },
       )
+
       onDeactivated(pause)
 
       const initialize = async () => {
-        if (isInitialized.value) return
+        if (isInitialized.value) {
+          return
+        }
+
         await refresh()
         isInitialized.value = true
         resume()
       }
 
       const mutate = async (operation: () => Promise<unknown>) => {
-        if (busy.value) return false
+        if (busy.value) {
+          return false
+        }
+
         busy.value = true
         error.value = undefined
+
         try {
           await operation()
           return true
@@ -132,6 +165,7 @@ export const useLibraryStore = defineMultiStore({
           } catch (cause) {
             error.value = cause instanceof Error ? cause.message : "Catalog refresh failed"
           }
+
           busy.value = false
         }
       }
@@ -144,6 +178,7 @@ export const useLibraryStore = defineMultiStore({
             (source?.kind === "package" && packageFilter.value.includes(source.packageName)))
         )
       }
+
       const filteredComponents = computed(() =>
         Object.values(components).filter(component => {
           const text = `${component.type} ${component.meta.title} ${component.meta.description ?? ""} ${component.meta.category ?? ""}`

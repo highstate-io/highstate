@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { type ComponentModel, parseVersionedName } from "@highstate/contract"
 import { groupBy, map, pipe, sortBy } from "remeda"
-import ComponentTemplate from "./ComponentTemplate.vue"
 import ProjectLibrary from "../../library/components/ProjectLibrary.vue"
+import ComponentTemplate from "./ComponentTemplate.vue"
 
 const { projectId } = defineProps<{
   projectId: string

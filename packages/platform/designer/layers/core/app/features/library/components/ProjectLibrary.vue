@@ -21,14 +21,21 @@ const loadVersions = async () => {
   const current = ++request
   listing.value = true
   listError.value = undefined
+
   try {
     const result = await store.listPackageVersions(packageName.value.trim())
-    if (current === request) versions.value = result
+
+    if (current === request) {
+      versions.value = result
+    }
   } catch (cause) {
-    if (current === request)
+    if (current === request) {
       listError.value = cause instanceof Error ? cause.message : "Could not list package versions"
+    }
   } finally {
-    if (current === request) listing.value = false
+    if (current === request) {
+      listing.value = false
+    }
   }
 }
 const addPackage = async () => {

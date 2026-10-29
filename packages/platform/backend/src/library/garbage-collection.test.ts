@@ -22,6 +22,7 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
       packageMetadata: {},
     },
   })
+
   const snapshot = async () =>
     await db.librarySnapshot.create({
       data: {
@@ -38,21 +39,26 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
         versions: { create: { libraryPackageVersionId: version.id } },
       },
     })
+
   const desired = await snapshot()
   const deployed = await snapshot()
   const historical = await snapshot()
   const actionSnapshot = await snapshot()
   const buildSnapshot = await snapshot()
   const orphan = await snapshot()
+
   await db.projectLibraryState.update({
     where: { id: "default" },
     data: { desiredSnapshotId: desired.id },
   })
+
   const state = await createInstanceState(project.id)
+
   await db.instanceState.update({
     where: { id: state.id },
     data: { librarySnapshotId: deployed.id, libraryPackageVersionId: version.id },
   })
+
   await db.operation.create({
     data: {
       type: "update",
@@ -62,6 +68,7 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
       librarySnapshotId: historical.id,
     },
   })
+
   const workload = await database.backend.runtimeWorkload.create({
     data: {
       projectId: project.id,
@@ -70,6 +77,7 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
       ownerId: "operation",
     },
   })
+
   await database.backend.runtimeAction.create({
     data: {
       workloadId: workload.id,
@@ -79,6 +87,7 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
       status: "completed",
     },
   })
+
   const build = await database.backend.runtimeWorkload.create({
     data: {
       projectId: project.id,
@@ -87,6 +96,7 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
       ownerId: buildSnapshot.id,
     },
   })
+
   await database.backend.librarySnapshotImage.create({
     data: {
       projectId: project.id,
@@ -95,17 +105,21 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
       snapshotHash: orphan.hash,
     },
   })
+
   const gc = new ProjectLibraryGarbageCollector(database)
   expect(await gc.collect(project.id)).toEqual({ snapshots: 1, packageVersions: 0 })
   expect(await db.librarySnapshot.findUnique({ where: { id: orphan.id } })).toBeNull()
   expect(await db.librarySnapshot.count()).toBe(5)
+
   expect(
     await database.backend.librarySnapshotImage.count({ where: { snapshotId: orphan.id } }),
   ).toBe(0)
+
   await database.backend.runtimeWorkload.update({
     where: { id: build.id },
     data: { cleanedUpAt: new Date() },
   })
+
   expect(await gc.collect(project.id)).toEqual({ snapshots: 1, packageVersions: 0 })
   expect(await db.librarySnapshot.findUnique({ where: { id: actionSnapshot.id } })).not.toBeNull()
   expect(await gc.collect(project.id)).toEqual({ snapshots: 0, packageVersions: 0 })

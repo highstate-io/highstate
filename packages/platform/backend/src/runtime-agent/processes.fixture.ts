@@ -14,14 +14,17 @@ process.on("message", (message: FixtureMessage) => {
     process.stdout.write("x".repeat(256 * 1024), () => process.exit(0))
     return
   }
+
   if (message.ping) {
     process.send?.({ pong: true })
     return
   }
+
   if (message.interruptChild) {
     interruptChild?.()
     return
   }
+
   const child = spawn(
     process.execPath,
     [
@@ -30,9 +33,11 @@ process.on("message", (message: FixtureMessage) => {
     ],
     { stdio: ["ignore", "pipe", "pipe"] },
   )
+
   child.stdout.pipe(process.stdout)
   child.stderr.pipe(process.stderr)
   interruptChild = () => child.kill("SIGINT")
+
   // the process group can deliver the child's exit before this process handles SIGINT
   const closed = new Promise<void>(resolve => {
     child.once("close", () => {
@@ -40,12 +45,15 @@ process.on("message", (message: FixtureMessage) => {
       resolve()
     })
   })
+
   process.send?.({ started: true })
+
   process.on("SIGINT", () => {
     if (message.ignoreInterrupt) {
       process.send?.({ ignored: true })
       return
     }
+
     void closed.then(() => process.exit(0))
   })
 })

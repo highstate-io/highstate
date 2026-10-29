@@ -42,6 +42,7 @@ describe("Operation - Cancel", () => {
         setupPersistenceMocks({ instances: [unit] })
 
         const cancelled = createDeferred<void>()
+
         operationService.updateOperation.mockImplementation(
           async (_projectId, _operationId, patch) => {
             if (patch.status === "cancelled") {
@@ -54,14 +55,16 @@ describe("Operation - Cancel", () => {
 
         const started = createDeferred<void>()
         let forceAborted = false
+
         runner.setUpdateImpl(async input => {
           started.resolve(undefined)
 
           const signal = input.signal
           const forceSignal = input.forceSignal
           if (!signal || !forceSignal) {
-            throw new Error("expected runner update to receive abort signals")
+            throw new Error("Expected runner update to receive abort signals")
           }
+
           forceSignal.addEventListener("abort", () => {
             forceAborted = true
           })
@@ -77,6 +80,7 @@ describe("Operation - Cancel", () => {
               },
               { once: true },
             )
+
             return
           }
 

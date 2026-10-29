@@ -17,9 +17,11 @@ function fixture() {
     diagnostics: [{ phase: "resolution", message: "Package unavailable" }],
     image: null,
   }
+
   const getState = vi.fn(async () => state)
   const addPackage = vi.fn()
   const retry = vi.fn()
+
   const getVersion = vi.fn(async () => ({
     name: "@example/library",
     version: "1.2.3",
@@ -29,6 +31,7 @@ function fixture() {
       integrity: "sha512-example",
     },
   }))
+
   const services = {
     database: {
       backend: { project: { findUnique: async () => ({ id: "project" }) } },
@@ -50,6 +53,7 @@ function fixture() {
       getCatalog: async () => ({ overlay: { enabled: false, active: false, conflicts: [] } }),
     },
   }
+
   return {
     handler: createLibraryService(services as never),
     getState,
@@ -62,10 +66,12 @@ function fixture() {
 describe("project library transport", () => {
   it("keeps initial selections and diagnostics accessible before initial resolution succeeds", async () => {
     const { handler } = fixture()
+
     const result = await handler.getProjectLibrary(
       create(GetProjectLibraryRequestSchema, { projectId: "project" }),
       context as never,
     )
+
     expect(result).toMatchObject({
       selectedPackages: [{ packageName: "@example/library", version: "1.2.3" }],
       desiredSnapshot: undefined,
@@ -75,6 +81,7 @@ describe("project library transport", () => {
 
   it("rejects version ranges before changing the selection", async () => {
     const { handler, addPackage } = fixture()
+
     await expect(
       handler.addLibraryPackage(
         create(AddLibraryPackageRequestSchema, {
@@ -85,11 +92,13 @@ describe("project library transport", () => {
         context as never,
       ),
     ).rejects.toMatchObject({ code: Code.InvalidArgument })
+
     expect(addPackage).not.toHaveBeenCalled()
   })
 
   it("looks up exact versions without publishing registry download credentials", async () => {
     const { handler, getVersion } = fixture()
+
     const result = await handler.getLibraryPackageVersion(
       create(GetLibraryPackageVersionRequestSchema, {
         projectId: "project",
@@ -98,20 +107,24 @@ describe("project library transport", () => {
       }),
       context as never,
     )
+
     expect(getVersion).toHaveBeenCalledWith(expect.objectContaining({ projectId: "project" }), {
       packageName: "@example/library",
       version: "1.2.3",
     })
+
     expect(result.packageVersion?.packageMetadata).toMatchObject({ description: "Example" })
     expect(JSON.stringify(result)).not.toContain("sensitive")
   })
 
   it("reads canonical status after retry rather than converting an adapter-specific image result", async () => {
     const { handler, retry, getState } = fixture()
+
     await handler.retryLibrarySnapshotImage(
       create(RetryLibrarySnapshotImageRequestSchema, { projectId: "project" }),
       context as never,
     )
+
     expect(retry).toHaveBeenCalledOnce()
     expect(getState).toHaveBeenCalledOnce()
     expect(retry.mock.invocationCallOrder[0]).toBeLessThan(getState.mock.invocationCallOrder[0]!)

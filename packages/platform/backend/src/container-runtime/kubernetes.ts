@@ -50,13 +50,22 @@ export function nativeName(identity: string): string {
 export function operationAliasConfig(aliases: Record<string, string>, clusterDns: string): string {
   const zones = Object.entries(aliases)
     .map(([alias, address]) => {
-      if (!/^(?=.{1,253}\.?$)[a-zA-Z0-9_](?:[a-zA-Z0-9_.-]*[a-zA-Z0-9_])?\.?$/.test(alias))
+      if (!/^(?=.{1,253}\.?$)[a-zA-Z0-9_](?:[a-zA-Z0-9_.-]*[a-zA-Z0-9_])?\.?$/.test(alias)) {
         throw new Error(`Invalid sidecar DNS alias "${alias}"`)
-      if (!/^[a-fA-F0-9:.]+$/.test(address)) throw new Error("Invalid sidecar service address")
+      }
+
+      if (!/^[a-fA-F0-9:.]+$/.test(address)) {
+        throw new Error("Invalid sidecar service address")
+      }
+
       return `${alias.replace(/\.$/, "")}:53 {\n hosts {\n ${address} ${alias.replace(/\.$/, "")}\n }\n}\n`
     })
     .join("")
-  if (!/^[a-fA-F0-9:.]+$/.test(clusterDns)) throw new Error("Invalid cluster DNS address")
+
+  if (!/^[a-fA-F0-9:.]+$/.test(clusterDns)) {
+    throw new Error("Invalid cluster DNS address")
+  }
+
   return `${zones}.:53 {\n forward . ${clusterDns}\n cache 5\n reload 2s 1s\n}\n`
 }
 
@@ -84,14 +93,23 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     kubeconfig?: k8s.KubeConfig,
   ) {
     this.kubeconfig = kubeconfig ?? new k8s.KubeConfig()
+
     if (!kubeconfig) {
-      if (config.kubeconfig) this.kubeconfig.loadFromString(config.kubeconfig)
-      else this.kubeconfig.loadFromDefault()
-      if (config.context) this.kubeconfig.setCurrentContext(config.context)
+      if (config.kubeconfig) {
+        this.kubeconfig.loadFromString(config.kubeconfig)
+      } else {
+        this.kubeconfig.loadFromDefault()
+      }
+
+      if (config.context) {
+        this.kubeconfig.setCurrentContext(config.context)
+      }
     }
+
     this.core = this.kubeconfig.makeApiClient(k8s.CoreV1Api)
     this.apps = this.kubeconfig.makeApiClient(k8s.AppsV1Api)
     this.batch = this.kubeconfig.makeApiClient(k8s.BatchV1Api)
+
     this.registry = new ImageRegistry({
       credentials: config.registryCredentials,
       allowHttp: config.allowHttpRegistry,
@@ -101,15 +119,19 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
   async preflight(signal?: AbortSignal) {
     throwIfAborted(signal)
     await this.core.readNamespace({ name: this.config.namespace })
+
     await this.core.readNamespacedServiceAccount({
       namespace: this.config.namespace,
       name: this.config.serviceAccount,
     })
+
     const authorization = this.kubeconfig.makeApiClient(k8s.AuthorizationV1Api)
+
     const checks = [
       { name: "namespace", ok: true },
       { name: "service-account", ok: true },
     ]
+
     for (const [group, resource, verb] of [
       ["", "pods", "create"],
       ["", "pods/exec", "create"],
@@ -128,8 +150,10 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           spec: { resourceAttributes: { namespace: this.config.namespace, group, resource, verb } },
         },
       })
+
       checks.push({ name: `${verb}:${resource}`, ok: review.status?.allowed === true })
     }
+
     return checks
   }
 
@@ -149,7 +173,10 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
       const actual = await this.registry.inspect(image.reference, signal)
       return actual.digest === image.digest && actual.imageHash === image.imageHash
     } catch (error) {
-      if (error instanceof RegistryResponseError && error.status === 404) return false
+      if (error instanceof RegistryResponseError && error.status === 404) {
+        return false
+      }
+
       throw error
     }
   }
@@ -158,20 +185,29 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     try {
       return await create()
     } catch (error) {
-      if (statusCode(error) !== 409) throw error
+      if (statusCode(error) !== 409) {
+        throw error
+      }
+
       return await read()
     }
   }
 
   private async clusterDns(): Promise<string> {
-    if (this.config.clusterDns) return this.config.clusterDns
+    if (this.config.clusterDns) {
+      return this.config.clusterDns
+    }
+
     // read-only discovery; every resource created by this adapter remains namespace-local
     const service = await this.core.readNamespacedService({
       namespace: "kube-system",
       name: "kube-dns",
     })
-    if (!service.spec?.clusterIP)
+
+    if (!service.spec?.clusterIP) {
       throw new Error("Configure clusterDns when kube-dns discovery is unavailable")
+    }
+
     return service.spec.clusterIP
   }
 
@@ -181,6 +217,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     const namespace = this.config.namespace
     const labels = { ...ownershipLabels(owner), "highstate.io/environment": name }
     const clusterDns = await this.clusterDns()
+
     await this.createOrRead(
       () =>
         this.core.createNamespacedConfigMap({
@@ -192,6 +229,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         }),
       () => this.core.readNamespacedConfigMap({ namespace, name }),
     )
+
     const service = await this.createOrRead(
       () =>
         this.core.createNamespacedService({
@@ -209,6 +247,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         }),
       () => this.core.readNamespacedService({ namespace, name }),
     )
+
     await this.createOrRead(
       () =>
         this.core.createNamespacedPod({
@@ -232,34 +271,49 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         }),
       () => this.core.readNamespacedPod({ namespace, name }),
     )
-    if (!service.spec?.clusterIP) throw new Error("Operation DNS service has no cluster IP")
+
+    if (!service.spec?.clusterIP) {
+      throw new Error("Operation DNS service has no cluster IP")
+    }
+
     return { id: name, owner }
   }
 
   private async addAliases(environment: string, aliases: string[], address: string): Promise<void> {
     const namespace = this.config.namespace
+
     for (let attempt = 0; attempt < 10; attempt++) {
       const config = await this.core.readNamespacedConfigMap({ namespace, name: environment })
+
       const mapping = JSON.parse(
         config.metadata?.annotations?.["highstate.io/aliases"] ?? "{}",
       ) as Record<string, string>
+
       for (const alias of aliases) {
-        if (mapping[alias] && mapping[alias] !== address)
+        if (mapping[alias] && mapping[alias] !== address) {
           throw new Error(`Sidecar alias "${alias}" already belongs to another workload`)
+        }
+
         mapping[alias] = address
       }
+
       config.metadata!.annotations = {
         ...config.metadata!.annotations,
         "highstate.io/aliases": JSON.stringify(mapping),
       }
+
       config.data = { Corefile: operationAliasConfig(mapping, await this.clusterDns()) }
+
       try {
         await this.core.replaceNamespacedConfigMap({ namespace, name: environment, body: config })
         return
       } catch (error) {
-        if (statusCode(error) !== 409) throw error
+        if (statusCode(error) !== 409) {
+          throw error
+        }
       }
     }
+
     throw new Error("Operation DNS configuration remained contested")
   }
 
@@ -273,30 +327,43 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
 
   private async placeNative(intent: WorkloadIntent, signal?: AbortSignal): Promise<NativeWorkload> {
     throwIfAborted(signal)
-    if (intent.localBinds?.length) throw new Error("Kubernetes cannot mount backend-host paths")
+
+    if (intent.localBinds?.length) {
+      throw new Error("Kubernetes cannot mount backend-host paths")
+    }
+
     const namespace = this.config.namespace
     const name = nativeName(`${intent.owner.workloadId}/${intent.owner.generation}`)
+
     const labels = {
       ...ownershipLabels(intent.owner),
       "highstate.io/intent": `h${workloadFingerprint(intent)}h`,
     }
+
     const existing = await this.discover(ownershipLabels(intent.owner), signal)
     if (existing[0]) {
-      if (existing[0].labels["highstate.io/intent"] !== labels["highstate.io/intent"])
+      if (existing[0].labels["highstate.io/intent"] !== labels["highstate.io/intent"]) {
         throw new Error("Workload declaration changed within one generation")
+      }
+
       return existing[0]
     }
+
     const podLabels = { ...labels, "highstate.io/root": name }
     const mounts: k8s.V1VolumeMount[] = []
     const volumes: k8s.V1Volume[] = []
     const initContainers: k8s.V1Container[] = []
+
     for (const [index, file] of (intent.files ?? []).entries()) {
       const fileName = `${name}-f${index}`
       const path = file.path.startsWith("/") ? file.path : `/${file.path}`
-      if (path.includes("/../") || path.includes("\0"))
+      if (path.includes("/../") || path.includes("\0")) {
         throw new Error("Invalid Kubernetes file path")
+      }
+
       if (file.data.byteLength > 512 * 1024) {
         const sources: k8s.V1VolumeProjection[] = []
+
         for (
           let offset = 0, part = 0;
           offset < file.data.byteLength;
@@ -305,6 +372,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           throwIfAborted(signal)
           const partName = `${fileName}-${part}`
           const key = `part-${String(part).padStart(8, "0")}`
+
           await this.createOrRead(
             () =>
               this.core.createNamespacedSecret({
@@ -320,12 +388,15 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
               }),
             () => this.core.readNamespacedSecret({ namespace, name: partName }),
           )
+
           sources.push({ secret: { name: partName } })
         }
+
         volumes.push(
           { name: `chunks-${index}`, projected: { sources } },
           { name: `file-${index}`, emptyDir: file.secret ? { medium: "Memory" } : {} },
         )
+
         initContainers.push({
           name: `file-${index}`,
           image: this.config.fileHelperImage ?? "busybox:1.37",
@@ -339,40 +410,50 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
             { name: `file-${index}`, mountPath: "/out" },
           ],
         })
+
         mounts.push({ name: `file-${index}`, mountPath: path, subPath: "value", readOnly: true })
         continue
       }
+
       const secret = {
         metadata: { name: fileName, labels },
         data: { value: Buffer.from(file.data).toString("base64") },
       }
+
       await this.createOrRead(
         () => this.core.createNamespacedSecret({ namespace, body: secret }),
         () => this.core.readNamespacedSecret({ namespace, name: fileName }),
       )
+
       volumes.push({
         name: `file-${index}`,
         secret: { secretName: fileName, defaultMode: file.mode ?? 0o400 },
       })
+
       mounts.push({ name: `file-${index}`, mountPath: path, subPath: "value", readOnly: true })
     }
+
     for (const [index, volume] of (intent.volumes ?? []).entries()) {
       await this.ensureVolume(intent.owner, volume, signal)
       volumes.push({ name: `pvc-${index}`, persistentVolumeClaim: { claimName: volume.name } })
       mounts.push({ name: `pvc-${index}`, mountPath: volume.mountPath })
     }
+
     let dnsConfig: k8s.V1PodDNSConfig | undefined
+
     if (intent.environment) {
       const service = await this.core.readNamespacedService({
         namespace,
         name: intent.environment.id,
       })
+
       dnsConfig = {
         nameservers: [service.spec!.clusterIP!],
         searches: [],
         options: [{ name: "ndots", value: "1" }],
       }
     }
+
     const spec: k8s.V1PodSpec = {
       securityContext: intent.rootlessBuilder ? { fsGroup: 1000 } : undefined,
       serviceAccountName: this.config.serviceAccount,
@@ -408,9 +489,10 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         },
       ],
     }
+
     const template = { metadata: { labels: podLabels }, spec }
     const mode = intent.mode ?? "pod"
-    if (mode === "deployment")
+    if (mode === "deployment") {
       await this.createOrRead(
         () =>
           this.apps.createNamespacedDeployment({
@@ -426,7 +508,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           }),
         () => this.apps.readNamespacedDeployment({ namespace, name }),
       )
-    else if (mode === "job")
+    } else if (mode === "job") {
       await this.createOrRead(
         () =>
           this.batch.createNamespacedJob({
@@ -435,7 +517,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           }),
         () => this.batch.readNamespacedJob({ namespace, name }),
       )
-    else
+    } else {
       await this.createOrRead(
         () =>
           this.core.createNamespacedPod({
@@ -444,8 +526,13 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           }),
         () => this.core.readNamespacedPod({ namespace, name }),
       )
+    }
+
     if (intent.aliases?.length) {
-      if (!intent.environment) throw new Error("Sidecar aliases require an operation environment")
+      if (!intent.environment) {
+        throw new Error("Sidecar aliases require an operation environment")
+      }
+
       const service = await this.createOrRead(
         () =>
           this.core.createNamespacedService({
@@ -464,32 +551,41 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           }),
         () => this.core.readNamespacedService({ namespace, name }),
       )
+
       await this.addAliases(intent.environment.id, intent.aliases, service.spec!.clusterIP!)
     }
+
     return await this.inspect(`${mode}/${name}`, signal)
   }
 
   private async pod(id: string, signal?: AbortSignal): Promise<k8s.V1Pod> {
     const [kind, name] = id.split("/")
-    if (kind === "pod")
+
+    if (kind === "pod") {
       return await this.core.readNamespacedPod({ namespace: this.config.namespace, name: name! })
+    }
+
     const pods = await this.core.listNamespacedPod({
       namespace: this.config.namespace,
       labelSelector: `highstate.io/root=${name}`,
     })
+
     const pod =
       pods.items.find(pod => pod.status?.phase === "Running") ??
       pods.items.find(pod => pod.status?.phase === "Pending") ??
       pods.items[0]
+
     if (!pod) {
       throwIfAborted(signal)
       throw Object.assign(new Error("Workload pod is pending"), { code: 404 })
     }
+
     return pod
   }
 
   async inspect(id: string, signal?: AbortSignal): Promise<NativeWorkload> {
     throwIfAborted(signal)
+
     try {
       const pod = await this.pod(id, signal)
       const phase = pod.status?.phase
@@ -507,11 +603,16 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         exitCode: pod.status?.containerStatuses?.[0]?.state?.terminated?.exitCode,
       }
     } catch (error) {
-      if (statusCode(error) !== 404) throw error
+      if (statusCode(error) !== 404) {
+        throw error
+      }
+
       const [kind, name] = id.split("/")
+
       try {
         let labels: Record<string, string> = {}
-        if (kind === "deployment")
+
+        if (kind === "deployment") {
           labels =
             (
               await this.apps.readNamespacedDeployment({
@@ -519,14 +620,20 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
                 name: name!,
               })
             ).metadata?.labels ?? {}
-        else if (kind === "job")
+        } else if (kind === "job") {
           labels =
             (await this.batch.readNamespacedJob({ namespace: this.config.namespace, name: name! }))
               .metadata?.labels ?? {}
-        else return { id, labels: {}, state: "missing" }
+        } else {
+          return { id, labels: {}, state: "missing" }
+        }
+
         return { id, labels, state: "pending" }
       } catch (error) {
-        if (statusCode(error) === 404) return { id, labels: {}, state: "missing" }
+        if (statusCode(error) === 404) {
+          return { id, labels: {}, state: "missing" }
+        }
+
         throw error
       }
     }
@@ -535,11 +642,13 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
   async discover(labels: Record<string, string>, signal?: AbortSignal): Promise<NativeWorkload[]> {
     throwIfAborted(signal)
     const query = { namespace: this.config.namespace, labelSelector: selector(labels) }
+
     const [pods, deployments, jobs] = await Promise.all([
       this.core.listNamespacedPod(query),
       this.apps.listNamespacedDeployment(query),
       this.batch.listNamespacedJob(query),
     ])
+
     const roots = [
       ...deployments.items.map(item => `deployment/${item.metadata!.name}`),
       ...jobs.items.map(item => `job/${item.metadata!.name}`),
@@ -550,12 +659,14 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         )
         .map(item => `pod/${item.metadata!.name}`),
     ]
+
     return await Promise.all(roots.map(id => this.inspect(id, signal)))
   }
 
   async discoverResources(labels: Record<string, string>, signal?: AbortSignal) {
     throwIfAborted(signal)
     const query = { namespace: this.config.namespace, labelSelector: selector(labels) }
+
     const groups = await Promise.all([
       this.core.listNamespacedPod(query).then(list => ({ type: "pod", items: list.items })),
       this.core.listNamespacedService(query).then(list => ({ type: "service", items: list.items })),
@@ -571,6 +682,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         .then(list => ({ type: "deployment", items: list.items })),
       this.batch.listNamespacedJob(query).then(list => ({ type: "job", items: list.items })),
     ])
+
     return groups.flatMap(group =>
       group.items.map(item => ({
         id: `${group.type}/${item.metadata!.name}`,
@@ -585,8 +697,9 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
       labels["highstate.io/backend"] !== owner.backendId ||
       labels["highstate.io/project"] !== owner.projectId ||
       labels["highstate.io/runtime"] !== owner.runtimeId
-    )
+    ) {
       throw new Error("Managed PVC belongs to another owner")
+    }
   }
 
   async ensureVolume(
@@ -596,6 +709,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
   ): Promise<void> {
     throwIfAborted(signal)
     const namespace = this.config.namespace
+
     const native = await this.createOrRead(
       () =>
         this.core.createNamespacedPersistentVolumeClaim({
@@ -611,41 +725,55 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         }),
       () => this.core.readNamespacedPersistentVolumeClaim({ namespace, name: volume.name }),
     )
+
     this.assertVolumeOwner(owner, native.metadata?.labels ?? {})
   }
 
   async removeVolume(owner: RuntimeOwnership, name: string, signal?: AbortSignal): Promise<void> {
     throwIfAborted(signal)
+
     try {
       const native = await this.core.readNamespacedPersistentVolumeClaim({
         namespace: this.config.namespace,
         name,
       })
+
       this.assertVolumeOwner(owner, native.metadata?.labels ?? {})
+
       await this.core.deleteNamespacedPersistentVolumeClaim({
         namespace: this.config.namespace,
         name,
       })
     } catch (error) {
-      if (statusCode(error) !== 404) throw error
+      if (statusCode(error) !== 404) {
+        throw error
+      }
     }
   }
 
   async stop(id: string, force = false, signal?: AbortSignal): Promise<void> {
     throwIfAborted(signal)
     const [kind, name] = id.split("/")
+
     const request = {
       namespace: this.config.namespace,
       name: name!,
       gracePeriodSeconds: force ? 0 : 10,
       propagationPolicy: "Foreground",
     }
+
     try {
-      if (kind === "deployment") await this.apps.deleteNamespacedDeployment(request)
-      else if (kind === "job") await this.batch.deleteNamespacedJob(request)
-      else await this.core.deleteNamespacedPod(request)
+      if (kind === "deployment") {
+        await this.apps.deleteNamespacedDeployment(request)
+      } else if (kind === "job") {
+        await this.batch.deleteNamespacedJob(request)
+      } else {
+        await this.core.deleteNamespacedPod(request)
+      }
     } catch (error) {
-      if (statusCode(error) !== 404) throw error
+      if (statusCode(error) !== 404) {
+        throw error
+      }
     }
   }
 
@@ -654,7 +782,11 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     const labels = ownershipLabels(owner)
     delete labels["highstate.io/generation"]
     const query = { namespace: this.config.namespace, labelSelector: selector(labels) }
-    for (const root of await this.discover(labels, signal)) await this.stop(root.id, true, signal)
+
+    for (const root of await this.discover(labels, signal)) {
+      await this.stop(root.id, true, signal)
+    }
+
     const resources = [
       {
         list: () => this.core.listNamespacedPod(query),
@@ -681,23 +813,32 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           this.core.deleteNamespacedConfigMap({ namespace: query.namespace, name }),
       },
     ]
+
     for (const resource of resources) {
       for (const item of (await resource.list()).items) {
         throwIfAborted(signal)
+
         try {
           await resource.remove(item.metadata!.name!)
         } catch (error) {
-          if (statusCode(error) !== 404) throw error
+          if (statusCode(error) !== 404) {
+            throw error
+          }
         }
       }
     }
+
     // deletion acknowledgement is not deletion completion; never release ownership while finalizers remain
     for (let attempt = 0; attempt < 60; attempt++) {
       const remaining = await Promise.all(resources.map(resource => resource.list()))
       const roots = await this.discover(labels, signal)
-      if (remaining.every(list => list.items.length === 0) && roots.length === 0) return
+      if (remaining.every(list => list.items.length === 0) && roots.length === 0) {
+        return
+      }
+
       await delay(500, signal)
     }
+
     throw new Error("Kubernetes cleanup is still pending")
   }
 
@@ -708,17 +849,23 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     signal?: AbortSignal,
   ): Promise<RuntimeSession> {
     let pod = await this.pod(id, signal)
+
     while (pod.status?.phase !== "Running") {
-      if (pod.status?.phase === "Succeeded" || pod.status?.phase === "Failed")
+      if (pod.status?.phase === "Succeeded" || pod.status?.phase === "Failed") {
         throw new Error("Cannot attach to a terminated Kubernetes workload")
+      }
+
       await delay(250, signal)
       pod = await this.pod(id, signal)
     }
+
     const effectiveTty = command
       ? tty
       : (pod.spec?.containers.find(container => container.name === "workload")?.tty ?? false)
+
     const input = new PassThrough()
     const output = new PassThrough()
+
     const stream = new Duplex({
       read() {
         output.resume()
@@ -735,21 +882,34 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         callback(error)
       },
     })
+
     output.on("data", chunk => {
-      if (!stream.push(chunk)) output.pause()
+      if (!stream.push(chunk)) {
+        output.pause()
+      }
     })
+
     output.on("end", () => stream.push(null))
+
     output.on("error", error => {
-      if (!stream.destroyed) stream.destroy(error)
+      if (!stream.destroyed) {
+        stream.destroy(error)
+      }
     })
+
     input.on("error", error => {
-      if (!stream.destroyed) stream.destroy(error)
+      if (!stream.destroyed) {
+        stream.destroy(error)
+      }
     })
+
     output.pause()
     let finish: (value: number | undefined) => void = () => {}
+
     const completed = new Promise<number | undefined>(resolve => {
       finish = resolve
     })
+
     const connecting = command
       ? new k8s.Exec(this.kubeconfig).exec(
           this.config.namespace,
@@ -764,6 +924,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
             const exitCode = status.details?.causes?.find(
               cause => cause.reason === "ExitCode",
             )?.message
+
             finish(status.status === "Success" ? 0 : Number(exitCode ?? 1))
             output.end()
           },
@@ -777,25 +938,33 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           input,
           effectiveTty,
         )
+
     void connecting
       .then(socket => {
-        if (signal?.aborted) socket.close()
+        if (signal?.aborted) {
+          socket.close()
+        }
       })
       .catch(() => {})
+
     const socket = await abortable(connecting, signal)
+
     const close = () => {
       socket.close()
       input.destroy()
       output.destroy()
     }
+
     stream.once("close", close)
     signal?.addEventListener("abort", close, { once: true })
+
     socket.once("close", () => {
       signal?.removeEventListener("abort", close)
       output.end()
       input.end()
       finish(command ? -1 : undefined)
     })
+
     socket.once("error", error => stream.destroy(error))
     return {
       stream,
@@ -825,12 +994,15 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     session.stream.resume()
     session.stream.end(await archiveFiles(files))
     const code = await abortable(session.completed, signal)
-    if (code !== 0) throw new Error("Kubernetes file transfer failed")
+    if (code !== 0) {
+      throw new Error("Kubernetes file transfer failed")
+    }
   }
 
   async *logs(id: string, follow = false, signal?: AbortSignal): AsyncIterable<RuntimeLog> {
     const pod = await this.pod(id, signal)
     const stream = new PassThrough()
+
     const controller = await new k8s.Log(this.kubeconfig).log(
       this.config.namespace,
       pod.metadata!.name!,
@@ -838,14 +1010,18 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
       stream,
       { follow },
     )
+
     const close = () => {
       controller.abort()
       stream.destroy()
     }
+
     signal?.addEventListener("abort", close, { once: true })
+
     try {
-      for await (const chunk of stream)
+      for await (const chunk of stream) {
         yield { stream: "stdout" as const, data: Buffer.from(chunk) }
+      }
     } finally {
       signal?.removeEventListener("abort", close)
       close()
@@ -869,10 +1045,14 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     progress: (phase: "installing" | "building" | "pushing" | "verifying") => Promise<void>,
     signal: AbortSignal,
   ): Promise<ImageIdentity> {
-    if (!request.repository) throw new Error("Kubernetes builds require an image repository")
+    if (!request.repository) {
+      throw new Error("Kubernetes builds require an image repository")
+    }
+
     const files = snapshotBuildFiles(request)
     const tag = buildTag(request)
     const credentials = request.registryCredentials ?? this.config.registryCredentials ?? []
+
     const dockerConfig = JSON.stringify({
       auths: Object.fromEntries(
         credentials.map(item => [
@@ -881,9 +1061,11 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
         ]),
       ),
     })
+
     const namespace = this.config.namespace
     const pullSecret = `${nativeName(`${request.owner.workloadId}/${request.owner.generation}`)}-registry`
-    if (credentials.length)
+
+    if (credentials.length) {
       await this.createOrRead(
         () =>
           this.core.createNamespacedSecret({
@@ -896,7 +1078,10 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
           }),
         () => this.core.readNamespacedSecret({ namespace, name: pullSecret }),
       )
+    }
+
     await progress("installing")
+
     const root = await this.place(
       {
         owner: request.owner,
@@ -930,19 +1115,29 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
       },
       signal,
     )
+
     await progress("building")
+
     for (;;) {
       const state = await this.inspect(root.id, signal)
-      if (state.state === "failed" || state.state === "missing")
+      if (state.state === "failed" || state.state === "missing") {
         throw new Error("Rootless BuildKit job failed")
-      if (state.state === "completed") break
+      }
+
+      if (state.state === "completed") {
+        break
+      }
+
       await delay(500, signal)
     }
+
     await progress("pushing")
     await progress("verifying")
     const image = await this.ensureImage(tag, credentials, signal)
-    if (image.imageHash !== request.snapshotHash)
+    if (image.imageHash !== request.snapshotHash) {
       throw new Error("Built image snapshot hash mismatch")
+    }
+
     return image
   }
 }

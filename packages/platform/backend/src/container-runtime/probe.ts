@@ -8,15 +8,18 @@ export type RuntimeWorkloadProbeOptions = {
   timeoutMs?: number
 }
 
-/** Verifies that a disposable workload can open an authenticated runtime agent stream. */
+/**
+ * Verifies that a disposable workload can open an authenticated runtime agent stream.
+ */
 export class RuntimeWorkloadProbe {
   constructor(
     private readonly database: DatabaseManager,
     private readonly coordinator: RuntimeCoordinator,
     private readonly options: RuntimeWorkloadProbeOptions,
   ) {
-    if (!Number.isSafeInteger(options.timeoutMs ?? 30_000) || (options.timeoutMs ?? 30_000) <= 0)
+    if (!Number.isSafeInteger(options.timeoutMs ?? 30_000) || (options.timeoutMs ?? 30_000) <= 0) {
       throw new Error("Runtime probe timeout must be a positive integer in milliseconds")
+    }
   }
 
   /**
@@ -26,10 +29,12 @@ export class RuntimeWorkloadProbe {
   async probe(runtimeId: string, signal?: AbortSignal): Promise<void> {
     signal?.throwIfAborted()
     const image = this.options.image?.trim()
-    if (!image)
+    if (!image) {
       throw new Error("Configure a runtime base image containing the runtime agent before probing")
+    }
 
     const controller = new AbortController()
+
     const timeout = setTimeout(
       () =>
         controller.abort(
@@ -39,40 +44,52 @@ export class RuntimeWorkloadProbe {
         ),
       this.options.timeoutMs ?? 30_000,
     )
+
     const waitSignal = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal
     let workloadId: string | undefined
     const errors: unknown[] = []
+
     try {
       const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
         where: { id: runtimeId },
       })
+
       const project = await this.database.backend.project.findFirst({
         where: { containerRuntimeId: runtimeId },
         orderBy: { id: "asc" },
         select: { id: true },
       })
-      if (!project)
+
+      if (!project) {
         throw new Error(
           `Assign an existing project to container runtime "${runtimeId}" before probing`,
         )
+      }
 
       waitSignal.throwIfAborted()
+
       const workload = await this.coordinator.createWorkload({
         projectId: project.id,
         kind: "composite_evaluation",
         ownerId: `runtime-probe:${randomUUID()}`,
       })
+
       workloadId = workload.id
-      if (workload.runtimeId !== runtimeId)
+
+      if (workload.runtimeId !== runtimeId) {
         throw new Error(`Project runtime changed before probing "${runtimeId}"; retry the probe`)
+      }
 
       waitSignal.throwIfAborted()
+
       const authorization = await this.coordinator.authorize(workload.id, [
         "connect",
         "heartbeat",
         "evaluation",
       ])
+
       waitSignal.throwIfAborted()
+
       await this.coordinator.place(
         workload.id,
         {
@@ -89,6 +106,7 @@ export class RuntimeWorkloadProbe {
         },
         waitSignal,
       )
+
       const connection = await this.coordinator.connections.wait(workload.id, waitSignal)
       await this.coordinator.authenticate(connection)
       waitSignal.throwIfAborted()
@@ -96,6 +114,7 @@ export class RuntimeWorkloadProbe {
       errors.push(error)
     } finally {
       clearTimeout(timeout)
+
       if (workloadId) {
         try {
           // cleanup must outlive the cancelled or timed-out probe signal
@@ -107,8 +126,13 @@ export class RuntimeWorkloadProbe {
         }
       }
     }
-    if (errors.length === 1) throw errors[0]
-    if (errors.length)
+
+    if (errors.length === 1) {
+      throw errors[0]
+    }
+
+    if (errors.length) {
       throw new AggregateError(errors, `Runtime probe for "${runtimeId}" and cleanup failed`)
+    }
   }
 }

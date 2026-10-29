@@ -89,10 +89,14 @@ export class ProjectEvaluationSubsystem {
   private async evaluateProjectLoop(projectId: string): Promise<void> {
     do {
       this.evaluationRequested.delete(projectId)
+
       try {
         await this.evaluateProjectNow(projectId)
       } catch (error) {
-        if (!(error instanceof StaleEvaluationError)) throw error
+        if (!(error instanceof StaleEvaluationError)) {
+          throw error
+        }
+
         this.evaluationRequested.add(projectId)
       }
     } while (this.evaluationRequested.has(projectId))
@@ -100,6 +104,7 @@ export class ProjectEvaluationSubsystem {
 
   private async evaluateProjectNow(projectId: string): Promise<void> {
     const catalog = await this.projectLibrary?.catalog(projectId)
+
     const { project, instances, resolvedInputs } = structuredClone(
       await this.projectModelService.resolveProject(projectId),
     )
@@ -120,6 +125,7 @@ export class ProjectEvaluationSubsystem {
       localOverlayRevision: catalog?.overlay.revision ?? null,
       evaluationActionId: this.runtimeEvaluation ? "" : `local:${randomUUID()}`,
     }
+
     const isCurrent = async () => {
       const current = await this.projectModelService.resolveProject(projectId)
       const currentCatalog = await this.projectLibrary?.catalog(projectId)
@@ -130,17 +136,23 @@ export class ProjectEvaluationSubsystem {
         (currentCatalog?.overlay.revision ?? null) === fence.localOverlayRevision
       )
     }
+
     const residentInstanceIds = new Set(instances.map(instance => instance.id))
 
     try {
       const virtualComponents = await this.libraryService.getVirtualComponentsCore(project.id)
-      if (!(await isCurrent())) throw new StaleEvaluationError()
+
+      if (!(await isCurrent())) {
+        throw new StaleEvaluationError()
+      }
+
       if (
         (this.projectLibrary || this.runtimeEvaluation) &&
         (!this.runtimeEvaluation || !fence.librarySnapshotId)
       ) {
         throw new Error("Snapshot evaluation requires a resolved snapshot and runtime evaluator")
       }
+
       const runtimeResult = this.runtimeEvaluation
         ? await this.runtimeEvaluation.evaluate(
             {
@@ -155,11 +167,15 @@ export class ProjectEvaluationSubsystem {
             new AbortController().signal,
           )
         : undefined
+
       if (runtimeResult) {
-        if (!runtimeResult.actionId)
+        if (!runtimeResult.actionId) {
           throw new Error("Runtime evaluation returned no action identity")
+        }
+
         fence.evaluationActionId = runtimeResult.actionId
       }
+
       const result =
         runtimeResult?.result ??
         (await this.libraryBackend.evaluateCompositeInstances(
@@ -169,15 +185,21 @@ export class ProjectEvaluationSubsystem {
           resolvedInputs,
         ))
 
-      if (!(await isCurrent())) throw new StaleEvaluationError()
+      if (!(await isCurrent())) {
+        throw new StaleEvaluationError()
+      }
+
       if (result.success) {
         const ids = new Set<string>()
+
         for (const instance of result.virtualInstances) {
           if (
             ids.has(instance.id) ||
             (instancesMap.has(instance.id) && instancesMap.get(instance.id)?.kind !== "composite")
-          )
+          ) {
             throw new Error(`Duplicate evaluated instance "${instance.id}"`)
+          }
+
           ids.add(instance.id)
         }
       }
@@ -252,11 +274,16 @@ export class ProjectEvaluationSubsystem {
         this.evaluationRequested.add(projectId)
         return
       }
+
       this.logger.error({ projectId: project.id, error }, "failed to evaluate project")
+
       if (error instanceof Error && "actionId" in error && typeof error.actionId === "string") {
         fence.evaluationActionId = error.actionId
       }
-      if (!fence.evaluationActionId) throw error
+
+      if (!fence.evaluationActionId) {
+        throw error
+      }
 
       // set all composite instances to internal error state
       const internalErrorStates: EvaluatedInstance[] = compositeInstanceIds.map(instanceId => ({
@@ -292,11 +319,16 @@ export class ProjectEvaluationSubsystem {
     },
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
-    if (!(await options.isCurrent())) throw new StaleEvaluationError()
+
+    if (!(await options.isCurrent())) {
+      throw new StaleEvaluationError()
+    }
 
     const outcome = await database.$transaction(async tx => {
-      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent)))
+      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent))) {
         throw new StaleEvaluationError()
+      }
+
       const previousVirtualStates = await tx.instanceState.findMany({
         where: { source: "virtual" },
         select: {
@@ -468,13 +500,17 @@ export class ProjectEvaluationSubsystem {
         .filter(state => state.model !== DbNull)
         .map(state => state.model as InstanceModel)
         .filter(isNonNullish)
+
       const deletedVirtualInstanceIds = statesToDelete
         .filter(state => state.state.source === "virtual")
         .map(state => state.state.instanceId)
+
       const updatedGhostInstances = newGhostInstances.filter(isNonNullish)
 
-      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent)))
+      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent))) {
         throw new StaleEvaluationError()
+      }
+
       return {
         stateIds: Array.from(instanceIdToStateMap.values()).map(state => state.id),
         updatedStates,
@@ -488,7 +524,10 @@ export class ProjectEvaluationSubsystem {
       }
     })
 
-    if (!(await options.isCurrent())) throw new StaleEvaluationError()
+    if (!(await options.isCurrent())) {
+      throw new StaleEvaluationError()
+    }
+
     if (outcome.updatedStates.length > 0 || outcome.deletedStateIds.length > 0) {
       void this.pubsubManager.publish(["instance-state", projectId], {
         type: "patched-batch",
@@ -504,9 +543,11 @@ export class ProjectEvaluationSubsystem {
         ],
       })
     }
+
     if (Object.values(outcome.modelUpdate).some(values => values.length > 0)) {
       void this.pubsubManager.publish(["project-model", projectId], outcome.modelUpdate)
     }
+
     if (outcome.stateIds.length > 0) {
       await this.objectRefIndexService.track(projectId, outcome.stateIds)
     }

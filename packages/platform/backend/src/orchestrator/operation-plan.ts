@@ -472,6 +472,7 @@ function createOrderedPhases(
     const instancesNeedingUpdate = includedIds.filter(id => {
       const instance =
         type === "refresh" ? context.getExecutionInstance(id, "refresh")! : context.getInstance(id)
+
       const inclusionReason = workState.included.get(id)
 
       // always include if outdated or forced
@@ -784,8 +785,10 @@ function generateContextualMessage(
 
     // check if changed by using same logic as isOutdated (for units only)
     const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instanceId)
-    if (state.inputHash !== expectedHash || context.hasExecutionUpgrade(instanceId))
+
+    if (state.inputHash !== expectedHash || context.hasExecutionUpgrade(instanceId)) {
       return "changed"
+    }
 
     return "up-to-date"
   }
@@ -940,7 +943,10 @@ function isOutdated(instance: InstanceModel, context: OperationContext): boolean
   if (state.status === "failed" || state.status === "undeployed") {
     return true
   }
-  if (!context.tryGetInstance(instance.id)) return false
+
+  if (!context.tryGetInstance(instance.id)) {
+    return false
+  }
 
   // check if input hash has changed by comparing with expected hash from resolver
   const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instance.id)

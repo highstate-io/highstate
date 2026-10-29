@@ -9,6 +9,7 @@ test("remote placement disables the overlay, invalidates evaluation cache, and r
 }) => {
   const project = await createProject("remote-placement")
   const projectDatabase = await database.forProject(project.id)
+
   const runtime = await database.backend.containerRuntime.create({
     data: {
       meta: { title: "Remote" },
@@ -21,6 +22,7 @@ test("remote placement disables the overlay, invalidates evaluation cache, and r
       },
     },
   })
+
   const instance = await projectDatabase.instanceState.create({
     data: {
       instanceId: "test.v1:composite",
@@ -29,6 +31,7 @@ test("remote placement disables the overlay, invalidates evaluation cache, and r
       source: "resident",
     },
   })
+
   await projectDatabase.instanceEvaluationState.create({
     data: {
       stateId: instance.id,
@@ -37,6 +40,7 @@ test("remote placement disables the overlay, invalidates evaluation cache, and r
       evaluationActionId: "actual-evaluation-action",
     },
   })
+
   await projectDatabase.projectLibraryState.update({
     where: { id: "default" },
     data: { selectedPackages: [{ packageName: "@example/library", version: "1.0.0" }] },
@@ -50,13 +54,16 @@ test("remote placement disables the overlay, invalidates evaluation cache, and r
   expect(
     await database.backend.project.findUniqueOrThrow({ where: { id: project.id } }),
   ).toMatchObject({ containerRuntimeId: runtime.id, pulumiStateBackendId: "local" })
+
   expect(
     await projectDatabase.projectLibraryState.findUniqueOrThrow({ where: { id: "default" } }),
   ).toMatchObject({
     localOverlayEnabled: false,
     selectedPackages: [{ packageName: "@example/library", version: "1.0.0" }],
   })
+
   expect(await projectDatabase.instanceEvaluationState.count()).toBe(0)
+
   await expect(
     updateProjectPlacement(database, project.id, {
       containerRuntimeId: runtime.id,
@@ -72,24 +79,31 @@ test("placement rejects active and uncleaned workloads and permits a cleaned his
   expect,
 }) => {
   const project = await createProject("workload-placement")
+
   const workload = await database.backend.runtimeWorkload.create({
     data: { runtimeId: "local", projectId: project.id, kind: "pulumi", ownerId: "operation" },
   })
+
   const placement = { containerRuntimeId: "local", pulumiStateBackendId: "local" }
+
   await expect(updateProjectPlacement(database, project.id, placement)).rejects.toThrow(
     "active or uncleaned",
   )
+
   await database.backend.runtimeWorkload.update({
     where: { id: workload.id },
     data: { status: "completed" },
   })
+
   await expect(updateProjectPlacement(database, project.id, placement)).rejects.toThrow(
     "active or uncleaned",
   )
+
   await database.backend.runtimeWorkload.update({
     where: { id: workload.id },
     data: { cleanedUpAt: new Date() },
   })
+
   await expect(updateProjectPlacement(database, project.id, placement)).resolves.toBeUndefined()
 })
 
@@ -100,6 +114,7 @@ test("placement rejects in-flight legacy operations even before runtime workload
 }) => {
   const project = await createProject("operation-placement")
   const projectDatabase = await database.forProject(project.id)
+
   const operation = await projectDatabase.operation.create({
     data: {
       type: "update",
@@ -109,13 +124,17 @@ test("placement rejects in-flight legacy operations even before runtime workload
       requestedInstanceIds: [],
     },
   })
+
   const placement = { containerRuntimeId: "local", pulumiStateBackendId: "local" }
+
   await expect(updateProjectPlacement(database, project.id, placement)).rejects.toThrow(
     "active operations",
   )
+
   await projectDatabase.operation.update({
     where: { id: operation.id },
     data: { status: "completed" },
   })
+
   await expect(updateProjectPlacement(database, project.id, placement)).resolves.toBeUndefined()
 })

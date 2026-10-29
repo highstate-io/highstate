@@ -21,6 +21,7 @@ export const useRuntimeSettingsStore = defineStore("runtime-settings", () => {
 
   async function load() {
     loading.value = true
+
     try {
       const result = await $client.runtimeSettings.list.query()
       runtimes.value = result.runtimes

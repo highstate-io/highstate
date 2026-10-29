@@ -39,11 +39,13 @@ export class LibraryPackageAddCommand extends PackageSelectionCommand {
   async execute(): Promise<void> {
     const version = exactVersion(this.version)
     const { clients, target } = await this.remote()
+
     const response = await clients.library.addLibraryPackage({
       projectId: target.projectId,
       packageName: this.packageName,
       version,
     })
+
     const result = messageJson(AddLibraryPackageResponseSchema, response)
     this.print(result, humanDetails(result))
   }
@@ -60,11 +62,13 @@ export class LibraryPackageUpdateCommand extends PackageSelectionCommand {
   async execute(): Promise<void> {
     const version = exactVersion(this.version)
     const { clients, target } = await this.remote()
+
     const response = await clients.library.updateLibraryPackage({
       projectId: target.projectId,
       packageName: this.packageName,
       version,
     })
+
     const result = messageJson(UpdateLibraryPackageResponseSchema, response)
     this.print(result, humanDetails(result))
   }
@@ -82,10 +86,12 @@ export class LibraryPackageRemoveCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.library.removeLibraryPackage({
       projectId: target.projectId,
       packageName: this.packageName,
     })
+
     const result = messageJson(RemoveLibraryPackageResponseSchema, response)
     this.print(result, humanDetails(result))
   }
@@ -118,6 +124,7 @@ export class LibraryPackageListCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
     const response = await clients.library.getProjectLibrary({ projectId: target.projectId })
+
     this.print(
       {
         selected_packages: response.selectedPackages.map(value => ({
@@ -146,10 +153,12 @@ export class LibraryPackageVersionsCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.library.listLibraryPackageVersions({
       projectId: target.projectId,
       packageName: this.packageName,
     })
+
     this.print(
       messageJson(ListLibraryPackageVersionsResponseSchema, response),
       response.versions.join("\n") || "No versions",
@@ -180,12 +189,14 @@ export class LibraryPackageGetCommand extends RemoteCommand {
 
     const version = this.version === undefined ? undefined : exactVersion(this.version)
     const { clients, target } = await this.remote()
+
     const response = await clients.library.getLibraryPackageVersion({
       projectId: target.projectId,
       libraryPackageVersionId: this.id ?? "",
       packageName: this.packageName,
       version,
     })
+
     const result = messageJson(GetLibraryPackageVersionResponseSchema, response)
     this.print(result, humanDetails(result))
   }
@@ -229,10 +240,12 @@ export class LibraryLocalOverlayCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const enabled = overlayEnabled(this.state)
     const { clients, target } = await this.remote()
+
     const response = await clients.library.setLocalLibraryOverlay({
       projectId: target.projectId,
       enabled,
     })
+
     const result = messageJson(SetLocalLibraryOverlayResponseSchema, response)
     this.print(result, humanDetails(result))
   }
@@ -248,9 +261,11 @@ export class LibraryRetryCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const { clients, target } = await this.remote()
+
     const response = await clients.library.retryLibrarySnapshotImage({
       projectId: target.projectId,
     })
+
     const result = messageJson(RetryLibrarySnapshotImageResponseSchema, response)
     this.print(result, humanDetails(result))
   }
@@ -271,13 +286,16 @@ export class ProjectPlacementCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const localOverlayEnabled =
       this.localOverlay === undefined ? undefined : overlayEnabled(this.localOverlay)
+
     const { clients, target } = await this.remote()
+
     const response = await clients.project.updateProjectPlacement({
       projectId: target.projectId,
       containerRuntimeId: this.containerRuntimeId,
       pulumiStateBackendId: this.pulumiStateBackendId,
       localOverlayEnabled,
     })
+
     const result = messageJson(UpdateProjectPlacementResponseSchema, response)
     this.print(result, humanDetails(result))
   }

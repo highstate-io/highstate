@@ -25,8 +25,10 @@ export function ownershipLabels(owner: RuntimeOwnership): Record<string, string>
     ) ||
     !Number.isSafeInteger(owner.generation) ||
     owner.generation < 1
-  )
+  ) {
     throw new Error("Invalid runtime resource ownership")
+  }
+
   return Object.fromEntries(
     Object.entries({
       backend: owner.backendId,
@@ -98,7 +100,9 @@ export interface RuntimeSession {
   readonly stream: Duplex
   resize(columns: number, rows: number): Promise<void>
   close(): void
-  /** Resolves to the process exit code for exec, or void for attach. */
+  /**
+   * Resolves to the process exit code for exec, or void for attach.
+   */
   completed: Promise<number | undefined>
 }
 export type ImageIdentity = { reference: string; digest: string; imageHash: string }
@@ -158,8 +162,13 @@ export function throwIfAborted(signal?: AbortSignal): void {
 
 export async function abortable<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
   signal?.throwIfAborted()
-  if (!signal) return await promise
+
+  if (!signal) {
+    return await promise
+  }
+
   let listener: () => void = () => {}
+
   try {
     return await Promise.race([
       promise,
@@ -175,6 +184,7 @@ export async function abortable<T>(promise: Promise<T>, signal?: AbortSignal): P
 
 export async function delay(ms: number, signal?: AbortSignal): Promise<void> {
   let timer: ReturnType<typeof setTimeout> | undefined
+
   try {
     await abortable(
       new Promise<void>(resolve => {

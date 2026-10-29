@@ -22,11 +22,13 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
     async planOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
       requireProjectPermission(requestContext, "operation.create")
+
       const input = parseValue(
         { ...request, projectId: requestContext.projectId, type: fromOperationType(request.type) },
         "request",
         operationPlanInputSchema,
       )
+
       const plan = await services.operationManager.planReviewed(input)
 
       return {
@@ -43,12 +45,14 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
     async launchOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
       requireProjectPermission(requestContext, "operation.create")
+
       if (request.plan.length && !request.planToken) {
         throw new ConnectError(
           "Review a backend-issued plan and provide its plan token",
           Code.FailedPrecondition,
         )
       }
+
       const input = parseValue(
         {
           ...request,
@@ -60,7 +64,9 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
         "request",
         operationLaunchInputSchema,
       )
+
       let operation: Operation
+
       try {
         operation = await services.operationManager.launch(input)
       } catch (error) {
@@ -75,6 +81,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
             Code.FailedPrecondition,
           )
         }
+
         throw error
       }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localContainerRuntime, localPulumiStateBackend } from "@highstate/backend/shared"
 import { camelCaseToHumanReadable } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import {
@@ -6,9 +7,6 @@ import {
   UnlockMethodForm,
   type UnlockMethodFormData,
 } from "#layers/core/app/features/unlock-methods"
-import { camelCaseToHumanReadable } from "@highstate/contract"
-import { createId } from "@paralleldrive/cuid2"
-import { localContainerRuntime, localPulumiStateBackend } from "@highstate/backend/shared"
 
 const visible = defineModel<boolean>("visible")
 
@@ -46,6 +44,7 @@ const placementLoaded = ref(false)
 async function loadPlacement() {
   placementLoaded.value = false
   placementError.value = ""
+
   try {
     await runtimeSettings.load()
     placementLoaded.value = true
@@ -103,6 +102,7 @@ watch(visible, newVisible => {
     pulumiStateBackendId.value = localPulumiStateBackend.id
     void loadPlacement()
   }
+
   if (!newVisible) {
     projectName.value = ""
     unlockMethodForm.value?.resetForm()

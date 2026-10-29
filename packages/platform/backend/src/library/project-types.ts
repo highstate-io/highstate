@@ -59,6 +59,7 @@ export const selectedLibraryPackagesSchema = z
     if (new Set(items.map(item => item.packageName)).size !== items.length) {
       context.addIssue({ code: "custom", message: "Duplicate package selection" })
     }
+
     return items.toSorted((a, b) =>
       a.packageName < b.packageName ? -1 : a.packageName > b.packageName ? 1 : 0,
     )
@@ -116,7 +117,9 @@ export interface ProjectLibraryStore {
   initialize(projectId: string, selections: SelectedLibraryPackage[]): Promise<void>
   read(projectId: string): Promise<ProjectLibraryState>
   snapshot(projectId: string, snapshotId: string): Promise<ProjectLibrarySnapshot>
-  /** Atomically persist immutable versions, membership, snapshot, and selections, or throw on a stale previous state. */
+  /**
+   * Atomically persist immutable versions, membership, snapshot, and selections, or throw on a stale previous state.
+   */
   commit(
     projectId: string,
     previous: ProjectLibraryState,
@@ -127,7 +130,9 @@ export interface ProjectLibraryStore {
 }
 
 export interface ProjectLibraryImageService {
-  /** Called only after the desired snapshot transaction commits. Must be idempotent and resume persisted builds. */
+  /**
+   * Called only after the desired snapshot transaction commits. Must be idempotent and resume persisted builds.
+   */
   ensureDesiredImage(
     projectId: string,
     snapshot: ProjectLibrarySnapshot,

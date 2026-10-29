@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ProjectOutput } from "@highstate/backend/shared"
 import {
   baseHeaders,
   IdTableCell,
@@ -6,8 +7,6 @@ import {
   SettingsListPage,
   type TableHeader,
 } from "#layers/core/app/features/settings"
-import { IdTableCell } from "#layers/core/app/features/settings"
-import type { ProjectOutput } from "@highstate/backend/shared"
 import ProjectPlacementDialog from "#layers/core/app/features/settings/components/ProjectPlacementDialog.vue"
 
 const projectsStore = useProjectsStore()

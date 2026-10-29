@@ -6,6 +6,7 @@ test("initializes legacy tooling only on demand and shares initialization across
   const refresh = vi.fn(async () => {})
   const finish = vi.fn(async () => {})
   const dispose = vi.fn(async () => {})
+
   const create = vi.fn(
     async () =>
       ({
@@ -14,6 +15,7 @@ test("initializes legacy tooling only on demand and shares initialization across
         [Symbol.asyncDispose]: dispose,
       }) as unknown as RunnerBackend,
   )
+
   const lazy = new LazyRunnerBackend(create)
   await lazy.finishOperation("project", "operation")
   expect(create).not.toHaveBeenCalled()

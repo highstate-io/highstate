@@ -1,7 +1,7 @@
 import {
   projectInputSchema,
-  projectPlacementInputSchema,
   projectModelInstanceSchema,
+  projectPlacementInputSchema,
   unlockMethodInputSchema,
 } from "@highstate/backend/shared"
 import {

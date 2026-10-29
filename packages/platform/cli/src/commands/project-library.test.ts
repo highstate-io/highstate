@@ -29,6 +29,7 @@ describe("registered project library commands", () => {
     setLocalLibraryOverlay: vi.fn(),
     retryLibrarySnapshotImage: vi.fn(),
   }
+
   const project = { updateProjectPlacement: vi.fn() }
   let cli: Cli
   let stdout: string
@@ -39,24 +40,30 @@ describe("registered project library commands", () => {
     registerRemoteCommands(cli)
     stdout = ""
     stderr = ""
+
     vi.spyOn(process.stdout, "write").mockImplementation(value => {
       stdout += String(value)
       return true
     })
+
     vi.spyOn(process.stderr, "write").mockImplementation(value => {
       stderr += String(value)
       return true
     })
+
     vi.spyOn(RemoteCommand.prototype, "remote").mockResolvedValue({
       clients: { library, project } as unknown as HighstateClients,
       target: { apiUrl: "https://example.test", apiToken: "token", projectId: "project-1" },
     })
+
     library.addLibraryPackage.mockResolvedValue(create(AddLibraryPackageResponseSchema))
     library.updateLibraryPackage.mockResolvedValue(create(UpdateLibraryPackageResponseSchema))
     library.removeLibraryPackage.mockResolvedValue(create(RemoveLibraryPackageResponseSchema))
+
     library.updateAllLibraryPackages.mockResolvedValue(
       create(UpdateAllLibraryPackagesResponseSchema),
     )
+
     library.getProjectLibrary.mockResolvedValue(
       create(GetProjectLibraryResponseSchema, {
         selectedPackages: [{ packageName: "@example/lib", version: "1.2.3" }],
@@ -65,16 +72,21 @@ describe("registered project library commands", () => {
         desiredSnapshotImage: { phase: 10, error: "Build failed", progress: 0.5 },
       }),
     )
+
     library.listLibraryPackageVersions.mockResolvedValue(
       create(ListLibraryPackageVersionsResponseSchema, { versions: ["1.2.3"] }),
     )
+
     library.getLibraryPackageVersion.mockResolvedValue(
       create(GetLibraryPackageVersionResponseSchema),
     )
+
     library.setLocalLibraryOverlay.mockResolvedValue(create(SetLocalLibraryOverlayResponseSchema))
+
     library.retryLibrarySnapshotImage.mockResolvedValue(
       create(RetryLibrarySnapshotImageResponseSchema),
     )
+
     project.updateProjectPlacement.mockResolvedValue(create(UpdateProjectPlacementResponseSchema))
   })
 
@@ -94,6 +106,7 @@ describe("registered project library commands", () => {
       "--output",
       "json",
     ])
+
     expect(
       action === "add" ? library.addLibraryPackage : library.updateLibraryPackage,
     ).toHaveBeenCalledWith({
@@ -116,10 +129,12 @@ describe("registered project library commands", () => {
 
   it("removes selections and updates all through the atomic endpoint", async () => {
     await cli.run(["library", "package", "remove", "@example/lib"])
+
     expect(library.removeLibraryPackage).toHaveBeenCalledWith({
       projectId: "project-1",
       packageName: "@example/lib",
     })
+
     await cli.run(["library", "package", "update-all"])
     expect(library.updateAllLibraryPackages).toHaveBeenCalledWith({ projectId: "project-1" })
     expect(library.updateLibraryPackage).not.toHaveBeenCalled()
@@ -127,6 +142,7 @@ describe("registered project library commands", () => {
 
   it("lists unresolved selections without requiring a snapshot", async () => {
     await cli.run(["library", "package", "list", "--output", "json"])
+
     expect(JSON.parse(stdout)).toEqual({
       selected_packages: [{ package_name: "@example/lib", version: "1.2.3" }],
     })
@@ -141,17 +157,21 @@ describe("registered project library commands", () => {
 
   it("lists available versions and retrieves evaluated versions by either lookup", async () => {
     await cli.run(["library", "package", "versions", "@example/lib"])
+
     expect(library.listLibraryPackageVersions).toHaveBeenCalledWith({
       projectId: "project-1",
       packageName: "@example/lib",
     })
+
     await cli.run(["library", "package", "get", "version-id"])
+
     expect(library.getLibraryPackageVersion).toHaveBeenLastCalledWith({
       projectId: "project-1",
       libraryPackageVersionId: "version-id",
       packageName: undefined,
       version: undefined,
     })
+
     await cli.run([
       "library",
       "package",
@@ -161,6 +181,7 @@ describe("registered project library commands", () => {
       "--version",
       "1.2.3",
     ])
+
     expect(library.getLibraryPackageVersion).toHaveBeenLastCalledWith({
       projectId: "project-1",
       libraryPackageVersionId: "",
@@ -177,10 +198,12 @@ describe("registered project library commands", () => {
 
   it("disables local overlay explicitly and retries desired snapshot", async () => {
     await cli.run(["library", "local-overlay", "disable"])
+
     expect(library.setLocalLibraryOverlay).toHaveBeenCalledWith({
       projectId: "project-1",
       enabled: false,
     })
+
     await cli.run(["library", "retry"])
     expect(library.retryLibrarySnapshotImage).toHaveBeenCalledWith({ projectId: "project-1" })
   })
@@ -199,6 +222,7 @@ describe("registered project library commands", () => {
       "state-1",
       ...(overlay ? ["--local-overlay", overlay] : []),
     ])
+
     expect(project.updateProjectPlacement).toHaveBeenCalledWith({
       projectId: "project-1",
       containerRuntimeId: "runtime-1",

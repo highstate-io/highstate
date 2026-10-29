@@ -22,7 +22,9 @@ const projectReadTransaction = new AsyncLocalStorage<{
   transaction: ProjectTransaction
 }>()
 
-/** Reuses a transaction for service reads made while validating its commit fence. */
+/**
+ * Reuses a transaction for service reads made while validating its commit fence.
+ */
 export function withProjectReadTransaction<T>(
   projectId: string,
   transaction: ProjectTransaction,
@@ -163,7 +165,10 @@ export class DatabaseManagerImpl implements DatabaseManager {
 
   async forProject(projectId: string): Promise<ProjectDatabase> {
     const scope = projectReadTransaction.getStore()
-    if (scope?.projectId === projectId) return scope.transaction as ProjectDatabase
+    if (scope?.projectId === projectId) {
+      return scope.transaction as ProjectDatabase
+    }
+
     const cachedDatabase = this.projectDatabases.get(projectId)
     if (cachedDatabase) {
       return cachedDatabase

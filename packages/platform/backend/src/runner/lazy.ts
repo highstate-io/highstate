@@ -7,7 +7,9 @@ import type {
   UnitUpdateOptions,
 } from "./abstractions"
 
-/** Defers host tooling initialization until a legacy or local-overlay action actually needs it. */
+/**
+ * Defers host tooling initialization until a legacy or local-overlay action actually needs it.
+ */
 export class LazyRunnerBackend implements RunnerBackend, AsyncDisposable {
   private backend: Promise<RunnerBackend> | undefined
 
@@ -18,6 +20,7 @@ export class LazyRunnerBackend implements RunnerBackend, AsyncDisposable {
       this.backend = undefined
       throw error
     })
+
     return await this.backend
   }
 
@@ -28,28 +31,39 @@ export class LazyRunnerBackend implements RunnerBackend, AsyncDisposable {
   async update(options: UnitUpdateOptions): Promise<void> {
     await (await this.get()).update(options)
   }
+
   async preview(options: UnitUpdateOptions): Promise<void> {
     await (await this.get()).preview(options)
   }
+
   async destroy(options: UnitDestroyOptions): Promise<void> {
     await (await this.get()).destroy(options)
   }
+
   async refresh(options: UnitOptions): Promise<void> {
     await (await this.get()).refresh(options)
   }
+
   async deleteState(options: UnitStateOptions): Promise<void> {
     await (await this.get()).deleteState(options)
   }
 
   async finishOperation(projectId: string, operationId: string): Promise<void> {
-    if (this.backend) await (await this.backend).finishOperation?.(projectId, operationId)
+    if (this.backend) {
+      await (await this.backend).finishOperation?.(projectId, operationId)
+    }
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
     const backend = await this.backend
-    if (!backend) return
-    if (Symbol.asyncDispose in backend)
+    if (!backend) {
+      return
+    }
+
+    if (Symbol.asyncDispose in backend) {
       await (backend as RunnerBackend & AsyncDisposable)[Symbol.asyncDispose]()
-    else if (Symbol.dispose in backend) (backend as RunnerBackend & Disposable)[Symbol.dispose]()
+    } else if (Symbol.dispose in backend) {
+      ;(backend as RunnerBackend & Disposable)[Symbol.dispose]()
+    }
   }
 }

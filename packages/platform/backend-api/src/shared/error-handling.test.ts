@@ -15,6 +15,7 @@ import { createErrorHandlingInterceptor } from "./error-handling"
 describe("createErrorHandlingInterceptor", () => {
   it("makes settings conflicts and referenced deletions actionable without leaking settings identifiers", async () => {
     const logger = { error: vi.fn() }
+
     for (const [error, code] of [
       [new RuntimeSettingsConflictError("container-runtime", "private-runtime"), Code.Aborted],
       [
@@ -25,13 +26,16 @@ describe("createErrorHandlingInterceptor", () => {
       const handler = createErrorHandlingInterceptor({ logger } as never)(async () => {
         throw error
       })
+
       const failure = await handler({
         method: { name: "PutContainerRuntime" },
         header: new Headers(),
       } as never).catch(error => error as ConnectError)
+
       expect(failure).toMatchObject({ code })
       expect(String(failure)).not.toContain("private-")
     }
+
     expect(logger.error).not.toHaveBeenCalled()
   })
 

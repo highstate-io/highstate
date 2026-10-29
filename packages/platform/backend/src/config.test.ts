@@ -4,6 +4,7 @@ import { loadConfig } from "./config"
 describe("initial project library configuration", () => {
   it("uses the standard library when no override is supplied", async () => {
     const config = await loadConfig({}, false)
+
     expect(config.HIGHSTATE_INITIAL_LIBRARY_PACKAGES).toEqual([
       { packageName: "@highstate/library", version: "0.30.2" },
     ])
@@ -17,6 +18,7 @@ describe("initial project library configuration", () => {
         },
         false,
       )
+
       expect(config.HIGHSTATE_INITIAL_LIBRARY_PACKAGES).toEqual(selection)
     }
   })

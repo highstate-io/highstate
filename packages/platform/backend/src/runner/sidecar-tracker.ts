@@ -162,7 +162,9 @@ export class SidecarTracker {
       await this.writeHostsFile(operation)
       await this.stopContainer(containerName)
 
-      throw new Error(`Failed to start sidecar "${input.dnsName}". See unit sidecar logs.`)
+      throw new Error(`Failed to start sidecar "${input.dnsName}". See unit sidecar logs`, {
+        cause: error,
+      })
     }
   }
 
@@ -210,6 +212,7 @@ export class SidecarTracker {
     }
 
     const filesPath = join(operation.tempPath, input.dnsName, "files")
+
     for (const file of input.files) {
       const filePath = join(filesPath, file.path.replace(/^\/+/, ""))
       await mkdir(dirname(filePath), { recursive: true })

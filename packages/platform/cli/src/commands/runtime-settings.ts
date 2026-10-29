@@ -15,7 +15,7 @@ import { RemoteCommand } from "./remote"
 
 type SettingsClient = Client<typeof RuntimeSettingsService>
 
-type SettingsResource = {
+interface SettingsResource {
   name: string
   collection: string
   singular: string
@@ -46,6 +46,7 @@ function resource<Desc extends DescMessage>(options: {
     },
     async put(client, document, revision) {
       let value: MessageShape<Desc>
+
       try {
         value = fromJson(options.schema, document)
       } catch (error) {
@@ -198,6 +199,7 @@ abstract class SettingsListCommand extends SettingsCommand {
   async execute(): Promise<void> {
     const { clients } = await this.remote(false)
     const values = await this.resource.list(clients.runtimeSettings)
+
     this.print(
       { [this.resource.collection]: values },
       humanTable(
@@ -218,9 +220,11 @@ abstract class SettingsGetCommand extends SettingsCommand {
 
   async execute(): Promise<void> {
     const { clients } = await this.remote(false)
+
     const value = (await this.resource.list(clients.runtimeSettings)).find(
       value => value.id === this.id,
     )
+
     if (!value) {
       throw new Error(`Setting "${this.id}" not found`)
     }
@@ -262,6 +266,7 @@ abstract class SettingsPutCommand extends SettingsCommand {
   async execute(): Promise<void> {
     this.stdinUsed = this.file === "-"
     let input: unknown
+
     try {
       input = await readDocument(this.file)
     } catch (error) {
@@ -274,6 +279,7 @@ abstract class SettingsPutCommand extends SettingsCommand {
     }
 
     document.id = this.id ?? document.id ?? ""
+
     if (typeof document.id !== "string") {
       throw new Error("Setting ID must be a string")
     }
@@ -282,6 +288,7 @@ abstract class SettingsPutCommand extends SettingsCommand {
     if (action === "create" && document.id) {
       throw new Error("Create requires an empty setting ID")
     }
+
     if (action === "update" && !document.id) {
       throw new Error("Update requires a setting ID")
     }
@@ -362,17 +369,20 @@ export class RuntimePutCommand extends SettingsPutCommand {
 
   protected override async prepare(document: JsonObject): Promise<void> {
     const spec = child(document, "spec")
+
     const dockerFiles = [
       this.dockerCaBundleFile,
       this.dockerClientCertificateFile,
       this.dockerClientKeyFile,
     ]
+
     if (
       this.kubeconfigFile !== undefined &&
       (spec.docker !== undefined || dockerFiles.some(path => path !== undefined))
     ) {
       throw new Error("Kubeconfig input requires a Kubernetes runtime")
     }
+
     if (dockerFiles.some(path => path !== undefined) && spec.kubernetes !== undefined) {
       throw new Error("Docker TLS input requires a Docker runtime")
     }
@@ -380,6 +390,7 @@ export class RuntimePutCommand extends SettingsPutCommand {
     if (this.kubeconfigFile !== undefined) {
       await this.secret(child(spec, "kubernetes"), "kubeconfig", this.kubeconfigFile)
     }
+
     if (dockerFiles.some(path => path !== undefined)) {
       const tls = child(child(spec, "docker"), "tls")
       await this.secret(tls, "ca_bundle", this.dockerCaBundleFile)
@@ -415,10 +426,12 @@ export class RuntimeCheckCommand extends RemoteCommand {
 
   async execute(): Promise<number> {
     const { clients } = await this.remote(false)
+
     const response = await clients.runtimeSettings.checkContainerRuntime({
       containerRuntimeId: this.id,
       probeRuntimeApi: this.probe,
     })
+
     this.print(messageJson(CheckContainerRuntimeResponseSchema, response))
     return response.ready ? 0 : 1
   }
@@ -464,6 +477,7 @@ export class PulumiStateBackendPutCommand extends CredentialPutCommand {
 
   protected override async prepare(document: JsonObject): Promise<void> {
     await super.prepare(document)
+
     if (this.clearCredentials) {
       document.clear_credentials = true
     }

@@ -33,6 +33,7 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
       ["network", "inspect", "bridge", "--format", "{{(index .IPAM.Config 0).Gateway}}"],
       { encoding: "utf8" },
     ).trim()
+
     const directory = mkdtempSync(join(tmpdir(), "highstate-docker-probe-"))
     writeFileSync(join(directory, "hosts"), `127.0.0.1 localhost\n${host} runtime-probe.test\n`)
     const root = fileURLToPath(new URL("../../../..", import.meta.url))
@@ -40,6 +41,7 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
     const protocolRoot = join(directory, "protocol")
     cpSync(join(root, "packages/platform/api/protocol"), protocolRoot, { recursive: true })
     mkdirSync(join(protocolRoot, "google/protobuf"), { recursive: true })
+
     // supply the standard descriptor imported by google/api annotations alongside application schemas
     copyFileSync(
       join(
@@ -48,22 +50,31 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
       ),
       join(protocolRoot, "google/protobuf/descriptor.proto"),
     )
+
     const adapter = new DockerRuntimeAdapter({
       endpoint: "unix:///var/run/docker.sock",
       local: true,
     })
+
     const agentLogs: string[] = []
     const nativeCleanup = adapter.cleanup.bind(adapter)
+
     vi.spyOn(adapter, "cleanup").mockImplementation(async owner => {
       try {
-        for (const native of await adapter.discover({ "highstate.io/workload": owner.workloadId }))
-          for await (const log of adapter.logs(native.id))
+        for (const native of await adapter.discover({
+          "highstate.io/workload": owner.workloadId,
+        })) {
+          for await (const log of adapter.logs(native.id)) {
             agentLogs.push(Buffer.from(log.data).toString())
+          }
+        }
       } finally {
         await nativeCleanup(owner)
       }
     })
+
     const nativePlace = adapter.place.bind(adapter)
+
     vi.spyOn(adapter, "place").mockImplementation(
       async (intent: WorkloadIntent, signal?: AbortSignal) =>
         await nativePlace(
@@ -91,6 +102,7 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
           signal,
         ),
     )
+
     const coordinator = new RuntimeCoordinator(
       database,
       { get: async () => adapter },
@@ -98,8 +110,10 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
       new AgentConnectionRegistry(),
       "docker-probe",
     )
+
     const authenticated = vi.spyOn(coordinator, "authenticate")
     let shutdown: (() => Promise<void>) | undefined
+
     try {
       execFileSync(
         "openssl",
@@ -122,23 +136,30 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
         ],
         { stdio: "ignore" },
       )
+
       const cert = readFileSync(join(directory, "cert.pem"), "utf8")
+
       const server = await startRuntimeServer(coordinator, {
         host: "0.0.0.0",
         port: 0,
         tls: { key: readFileSync(join(directory, "key.pem")), cert },
       })
+
       shutdown = server.shutdown
       const runtimeId = project.containerRuntimeId!
+
       const runtime = await database.backend.containerRuntime.findUniqueOrThrow({
         where: { id: runtimeId },
       })
+
       const spec = {
         ...runtime.spec,
         runtimeApiUrl: `https://runtime-probe.test:${(server.address as AddressInfo).port}`,
         runtimeApiCaBundle: cert,
       }
+
       await database.backend.containerRuntime.update({ where: { id: runtimeId }, data: { spec } })
+
       const probe = new RuntimeWorkloadProbe(database, coordinator, {
         image:
           runnerImage ?? process.env.HIGHSTATE_TEST_DOCKER_PROBE_IMAGE ?? "oven/bun:1.3.13-debian",
@@ -150,23 +171,30 @@ test.skipIf(process.env.HIGHSTATE_TEST_DOCKER_RUNTIME_PROBE !== "1")(
         },
         timeoutMs: 5000,
       })
+
       try {
         await probe.probe(runtimeId)
       } catch (cause) {
         throw new Error(`Docker agent probe failed with logs: ${agentLogs.join("")}`, { cause })
       }
+
       expect(authenticated).toHaveBeenCalled()
       const authenticatedCount = authenticated.mock.calls.length
+
       await database.backend.containerRuntime.update({
         where: { id: runtimeId },
         data: { spec: { ...spec, runtimeApiCaBundle: undefined } },
       })
+
       await expect(probe.probe(runtimeId)).rejects.toThrow("timed out")
       expect(authenticated).toHaveBeenCalledTimes(authenticatedCount)
+
       const workloads = await database.backend.runtimeWorkload.findMany({
         where: { projectId: project.id, ownerId: { startsWith: "runtime-probe:" } },
       })
+
       expect(workloads).toHaveLength(2)
+
       for (const workload of workloads) {
         expect(workload.cleanedUpAt).toBeInstanceOf(Date)
         expect(await adapter.discover({ "highstate.io/workload": workload.id })).toEqual([])

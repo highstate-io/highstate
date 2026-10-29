@@ -142,12 +142,14 @@ export class Worker<TParamsSchema extends z.ZodType> {
     })
 
     const runtime = new WorkerRuntimeClient(this.runOptions, this.panelTargets)
+
     try {
       await runtime.connect(async event => {
-        if (event.type === "register")
+        if (event.type === "register") {
           this.eventEmitter.emit("unitRegistration", event.stateId, event.params)
-        else if (event.type === "deregister")
+        } else if (event.type === "deregister") {
           this.eventEmitter.emit("unitDeregistration", event.stateId)
+        }
       })
     } finally {
       runtime.close()
@@ -166,8 +168,10 @@ export class Worker<TParamsSchema extends z.ZodType> {
     let runOptionsJson: unknown = process.env.HIGHSTATE_WORKER_RUN_OPTIONS
       ? JSON.parse(process.env.HIGHSTATE_WORKER_RUN_OPTIONS)
       : undefined
+
     delete process.env.HIGHSTATE_WORKER_RUN_OPTIONS
-    if (!runOptionsJson)
+
+    if (!runOptionsJson) {
       for await (const line of createInterface({ input: process.stdin })) {
         try {
           runOptionsJson = JSON.parse(line)
@@ -177,6 +181,7 @@ export class Worker<TParamsSchema extends z.ZodType> {
 
         break
       }
+    }
 
     if (!runOptionsJson) {
       throw new Error("No worker run options provided")

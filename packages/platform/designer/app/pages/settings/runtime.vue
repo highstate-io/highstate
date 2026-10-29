@@ -31,6 +31,7 @@ const items = computed(
 
 async function load() {
   error.value = ""
+
   try {
     await store.load()
   } catch (caught) {

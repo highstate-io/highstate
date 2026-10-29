@@ -98,15 +98,19 @@ export class OperationManager {
 
     const catalog = await this.projectLibrary?.catalog(request.projectId)
     const resolved = await this.projectModelService.resolveProject(request.projectId)
+
     const revision = modelRevision({
       instances: resolved.instances,
       resolvedInputs: resolved.resolvedInputs,
     })
+
     if (catalog) {
       const database = await this.database.forProject(request.projectId)
+
       const evaluations = await database.instanceEvaluationState.findMany({
         include: { state: { select: { instanceId: true } } },
       })
+
       const evaluatedIds = new Set(evaluations.map(state => state.state.instanceId))
       if (
         evaluations.some(
@@ -119,11 +123,13 @@ export class OperationManager {
         resolved.instances.some(
           instance => instance.kind === "composite" && !evaluatedIds.has(instance.id),
         )
-      )
+      ) {
         throw new Error(
           "Composite evaluation is stale; evaluate the current project before planning",
         )
+      }
     }
+
     const context = await OperationContext.load(
       request.projectId,
       this.libraryService,
@@ -145,11 +151,14 @@ export class OperationManager {
     const options = operationOptionsSchema.parse(request.options ?? {})
 
     const phases = createOperationPlan(context, request.type, request.instanceIds, options)
+
     if (
       catalog &&
       (await this.projectLibrary!.catalog(request.projectId)).snapshotId !== catalog.snapshotId
-    )
+    ) {
       throw new Error("Library snapshot changed during planning")
+    }
+
     const review: ReviewedPlan = {
       projectId: request.projectId,
       type: request.type,
@@ -161,6 +170,7 @@ export class OperationManager {
       localOverlayRevision: catalog?.overlay.revision ?? null,
       expiresAt: Date.now() + 900_000,
     }
+
     this.reviewedContexts.set(review, context)
     return review
   }
@@ -172,15 +182,21 @@ export class OperationManager {
    */
   async launch(request: OperationLaunchInput): Promise<Operation> {
     const options = operationOptionsSchema.parse(request.options ?? {})
-    if (request.plan)
+
+    if (request.plan) {
       throw new Error("Client-supplied phases are not accepted; supply a reviewed plan token")
+    }
+
     const current = await this.review(request)
+
     if (request.planToken) {
       const reviewed = this.planSigner.verify(request.planToken)
       const { expiresAt: _reviewedExpiry, ...reviewedContent } = reviewed
       const { expiresAt: _currentExpiry, ...currentContent } = current
-      if (stableJsonStringify(reviewedContent) !== stableJsonStringify(currentContent))
+
+      if (stableJsonStringify(reviewedContent) !== stableJsonStringify(currentContent)) {
         throw new Error("Reviewed plan is stale or does not match the launch request")
+      }
     }
 
     const operation = await this.operationService.createOperation(
@@ -211,6 +227,7 @@ export class OperationManager {
       await this.operationService.markOperationFinished(project.id, operation.id, "failed")
       throw new Error("Library changed before operation launch")
     }
+
     this.startOperation(project, operation, this.reviewedContexts.get(current))
 
     return operation

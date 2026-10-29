@@ -16,12 +16,12 @@ import {
   projectApiKeySettingsRouter,
   projectRoleSettingsRouter,
   projectServiceAccountSettingsRouter,
+  runtimeSettingsRouter,
   secretSettingsRouter,
   terminalSettingsRouter,
   triggerSettingsRouter,
   unlockMethodSettingsRouter,
   workerSettingsRouter,
-  runtimeSettingsRouter,
 } from "./routers/settings"
 import { stateRouter } from "./routers/state"
 import { terminalRouter } from "./routers/terminal"

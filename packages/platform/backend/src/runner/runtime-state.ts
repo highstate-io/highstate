@@ -15,12 +15,15 @@ export class DatabasePulumiActionConfiguration implements PulumiActionConfigurat
       where: { id: projectId },
       include: { pulumiStateBackend: true },
     })
+
     const spec = project.pulumiStateBackend.spec
+
     const credentials = spec.encryptedCredentials
       ? z
           .record(z.string(), z.string())
           .parse(JSON.parse(await this.decrypt(spec.encryptedCredentials)))
       : {}
+
     return {
       url: spec.url.startsWith("file:") ? "file:///var/lib/highstate/pulumi" : spec.url,
       environment: {

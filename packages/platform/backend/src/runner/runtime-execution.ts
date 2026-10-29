@@ -14,12 +14,14 @@ export type RuntimeExecution = {
   environment?: RuntimeEnvironment
 }
 
-/** Places authenticated agents only after the immutable snapshot image barrier succeeds. */
+/**
+ * Places authenticated agents only after the immutable snapshot image barrier succeeds.
+ */
 export class RuntimeExecutionService {
   constructor(
     private readonly database: DatabaseManager,
-    readonly coordinator: RuntimeCoordinator,
-    readonly adapters: RuntimeAdapterProvider,
+    private readonly runtimeCoordinator: RuntimeCoordinator,
+    private readonly adapters: RuntimeAdapterProvider,
     private readonly images: SnapshotImageService,
     private readonly agent: { binary: string; path: string } = {
       binary: "bun",
@@ -27,12 +29,20 @@ export class RuntimeExecutionService {
     },
   ) {}
 
+  /**
+   * Returns the coordinator that owns this execution service's workloads and actions.
+   */
+  get coordinator(): RuntimeCoordinator {
+    return this.runtimeCoordinator
+  }
+
   async prepare(projectId: string, snapshotIds: string[], signal: AbortSignal): Promise<void> {
     await Promise.all(
       [...new Set(snapshotIds)].map(async snapshotId => {
         await this.images.ensureImage(projectId, snapshotId, signal)
       }),
     )
+
     signal.throwIfAborted()
   }
 
@@ -47,19 +57,25 @@ export class RuntimeExecutionService {
     const image = await this.images.ensureImage(projectId, snapshotId, signal)
     signal?.throwIfAborted()
     const workload = await this.coordinator.createWorkload({ projectId, kind, ownerId })
+
     try {
-      if (workload.runtimeId !== image.runtimeId)
+      if (workload.runtimeId !== image.runtimeId) {
         throw new Error("Project runtime changed before agent placement")
+      }
+
       const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
         where: { id: workload.runtimeId },
       })
+
       const permissions: RuntimePermission[] =
         kind === "pulumi"
           ? ["connect", "heartbeat", "pulumi", "unit", "sidecar"]
           : ["connect", "heartbeat", "evaluation"]
+
       const authorization = await this.coordinator.authorize(workload.id, permissions)
       const current = { ...workload, leaseGeneration: authorization.scope.generation }
       const adapter = await this.adapters.get(workload.runtimeId)
+
       const project =
         kind === "pulumi"
           ? await this.database.backend.project.findUniqueOrThrow({
@@ -67,6 +83,7 @@ export class RuntimeExecutionService {
               include: { pulumiStateBackend: true },
             })
           : undefined
+
       const volumes = project?.pulumiStateBackend.spec.url.startsWith("file:")
         ? [
             {
@@ -75,8 +92,11 @@ export class RuntimeExecutionService {
             },
           ]
         : []
-      if (kind === "pulumi" && !environment)
+
+      if (kind === "pulumi" && !environment) {
         environment = await adapter.createEnvironment(this.coordinator.ownership(current), signal)
+      }
+
       const placed = await this.coordinator.place(
         workload.id,
         {
@@ -96,6 +116,7 @@ export class RuntimeExecutionService {
         },
         signal,
       )
+
       return { workload: placed, snapshotId, imageDigest: image.digest, environment }
     } catch (error) {
       await this.coordinator.requestCleanup(workload.id).catch(() => {})

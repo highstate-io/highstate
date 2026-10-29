@@ -42,24 +42,31 @@ describe("OperationManager reviewed context", () => {
         setupImmediateLocking()
         const library = createMockLibrary()
         const catalog = { model: library, snapshotId: null, overlay: { revision: overlayRevision } }
+
         const projectLibrary = {
           catalog: vi.fn().mockResolvedValue(catalog),
         } as unknown as ProjectLibraryService
+
         const projectUnlock = {
           registerUnlockTask: vi.fn(),
         } as unknown as ProjectUnlockService
+
         projectModelService.resolveProject = vi.fn().mockResolvedValue({
           instances: [],
           resolvedInputs: {},
         })
+
         libraryService.getLibraryModelCore.mockRejectedValue(new Error("Unpinned library read"))
+
         operationService.createOperation = vi
           .fn()
           .mockImplementation(async () =>
             createOperation({ type: "update", requestedInstanceIds: [], phases: [] }),
           )
+
         const load = vi.spyOn(OperationContext, "load")
         const operate = vi.spyOn(RuntimeOperation.prototype, "operateSafe")
+
         const manager = new OperationManager(
           runnerBackend,
           libraryBackend,
@@ -86,9 +93,11 @@ describe("OperationManager reviewed context", () => {
           instanceIds: [],
           meta: { title: "Reviewed operation" },
         })
+
         await operate.mock.results[0].value
 
         expect(load).toHaveBeenCalledOnce()
+
         expect(load.mock.calls[0][6]).toEqual({
           library,
           snapshotId: null,
@@ -96,9 +105,11 @@ describe("OperationManager reviewed context", () => {
           modelRevision: modelRevision({ instances: [], resolvedInputs: {} }),
           localOverlayRevision: overlayRevision ?? null,
         })
+
         const reviewedContext = await load.mock.results[0].value
         expect(reviewedContext.library).toBe(library)
         expect(reviewedContext.localOverlayRevision).toBe(overlayRevision ?? null)
+
         expect(operationService.markOperationFinished).toHaveBeenCalledWith(
           project.id,
           expect.any(String),

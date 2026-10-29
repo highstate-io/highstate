@@ -14,6 +14,7 @@ export function createProjectService(services: Services): ServiceImpl<typeof Pro
     async createProject(request, context) {
       const requestContext = await authenticateBackend(services, context)
       const project = request.project
+
       const input = parseValue(
         project && {
           name: project.name,
@@ -26,8 +27,10 @@ export function createProjectService(services: Services): ServiceImpl<typeof Pro
         "project",
         projectInputSchema,
       )
+
       const unlockMethod = parseValue(request.unlockMethod, "unlockMethod", unlockMethodInputSchema)
       const projectId = parseValue(request.projectId, "projectId", z.cuid2().optional())
+
       const created = await services.projectService.createProject(
         requestContext,
         input,
@@ -41,6 +44,7 @@ export function createProjectService(services: Services): ServiceImpl<typeof Pro
     async unlockProject(request, context) {
       const requestContext = await authenticateBackend(services, context)
       const projectId = parseValue(request.projectId, "projectId", z.string().min(1))
+
       await services.projectUnlockService.unlockProject(
         requestContext,
         projectId,
@@ -54,6 +58,7 @@ export function createProjectService(services: Services): ServiceImpl<typeof Pro
       const requestContext = await authenticateBackend(services, context)
       const projectId = parseValue(request.projectId, "projectId", z.string().min(1))
       const input = parseValue(request, "request", projectPlacementInputSchema)
+
       const project = await services.projectService.updateProjectPlacement(
         requestContext,
         projectId,

@@ -14,6 +14,7 @@ export async function initializeProjectLibrarySelection(
     create: { id: "default", selectedPackages, selectionInitialized: true },
     update: {},
   })
+
   await database.projectLibraryState.updateMany({
     where: { id: "default", selectionInitialized: false },
     data: { selectedPackages, selectionInitialized: true },

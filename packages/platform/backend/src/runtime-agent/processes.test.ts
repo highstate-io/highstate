@@ -5,7 +5,9 @@ import { ActionProcesses } from "./processes"
 const fixture = fileURLToPath(new URL("./processes.fixture.ts", import.meta.url))
 const managers: ActionProcesses[] = []
 afterEach(() => {
-  for (const manager of managers.splice(0)) manager.stop()
+  for (const manager of managers.splice(0)) {
+    manager.stop()
+  }
 })
 
 describe("ActionProcesses", () => {
@@ -13,6 +15,7 @@ describe("ActionProcesses", () => {
     const manager = new ActionProcesses()
     managers.push(manager)
     let received = 0
+
     await manager.start(
       "complete",
       fixture,
@@ -23,6 +26,7 @@ describe("ActionProcesses", () => {
         received += data.length
       },
     )
+
     expect(received).toBe(256 * 1024)
     expect(manager.cancel("complete", true)).toBe(false)
   })
@@ -35,6 +39,7 @@ describe("ActionProcesses", () => {
     const firstReady = Promise.withResolvers<void>()
     const secondReady = Promise.withResolvers<void>()
     const pong = Promise.withResolvers<void>()
+
     const first = manager.start(
       "first",
       fixture,
@@ -42,21 +47,31 @@ describe("ActionProcesses", () => {
       async () => {},
       async data => {
         firstOutput += data.toString()
-        if (firstOutput.includes("child-ready")) firstReady.resolve()
+
+        if (firstOutput.includes("child-ready")) {
+          firstReady.resolve()
+        }
       },
     )
+
     const second = manager.start(
       "second",
       fixture,
       {},
       async event => {
-        if ((event as { pong?: boolean }).pong) pong.resolve()
+        if ((event as { pong?: boolean }).pong) {
+          pong.resolve()
+        }
       },
       async data => {
         secondOutput += data.toString()
-        if (secondOutput.includes("child-ready")) secondReady.resolve()
+
+        if (secondOutput.includes("child-ready")) {
+          secondReady.resolve()
+        }
       },
     )
+
     void first.catch(() => {})
     void second.catch(() => {})
     await Promise.all([firstReady.promise, secondReady.promise])
@@ -77,27 +92,37 @@ describe("ActionProcesses", () => {
     const ignored = Promise.withResolvers<void>()
     const pong = Promise.withResolvers<void>()
     let output = ""
+
     const first = manager.start(
       "first",
       fixture,
       { ignoreInterrupt: true },
       async event => {
-        if ((event as { ignored?: boolean }).ignored) ignored.resolve()
+        if ((event as { ignored?: boolean }).ignored) {
+          ignored.resolve()
+        }
       },
       async data => {
         output += data.toString()
-        if (output.includes("child-ready")) ready.resolve()
+
+        if (output.includes("child-ready")) {
+          ready.resolve()
+        }
       },
     )
+
     const second = manager.start(
       "second",
       fixture,
       {},
       async event => {
-        if ((event as { pong?: boolean }).pong) pong.resolve()
+        if ((event as { pong?: boolean }).pong) {
+          pong.resolve()
+        }
       },
       async () => {},
     )
+
     void first.catch(() => {})
     void second.catch(() => {})
     await ready.promise
@@ -117,18 +142,25 @@ describe("ActionProcesses", () => {
     const ready = Promise.withResolvers<void>()
     const childExited = Promise.withResolvers<void>()
     let output = ""
+
     const action = manager.start(
       "child-first",
       fixture,
       {},
       async event => {
-        if ((event as { childExited?: boolean }).childExited) childExited.resolve()
+        if ((event as { childExited?: boolean }).childExited) {
+          childExited.resolve()
+        }
       },
       async data => {
         output += data.toString()
-        if (output.includes("child-ready")) ready.resolve()
+
+        if (output.includes("child-ready")) {
+          ready.resolve()
+        }
       },
     )
+
     void action.catch(() => {})
     await ready.promise
     manager.respond("child-first", { interruptChild: true })
