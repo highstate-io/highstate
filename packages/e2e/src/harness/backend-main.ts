@@ -18,6 +18,7 @@ process.on("unhandledRejection", error => {
 })
 
 const services = await createServices({ config: await loadConfig(process.env, false) })
+services.logger.info("e2e: provisioning backend credentials")
 const credentialsPath = process.env.HIGHSTATE_E2E_CREDENTIALS!
 try {
   await readFile(credentialsPath)
@@ -41,10 +42,12 @@ try {
 
   await writeFile(credentialsPath, credential.token, { mode: 0o600 })
 }
+services.logger.info("e2e: starting backend api listeners")
 const api = await startBackendApi(services, {
   address: process.env.HIGHSTATE_E2E_API_URL!,
   workerSocketPath: process.env.HIGHSTATE_E2E_WORKER_SOCKET!,
 })
+services.logger.info("e2e: backend api ready")
 process.send?.({ ready: true, address: api.address })
 process.on("SIGTERM", async () => {
   await api.shutdown()

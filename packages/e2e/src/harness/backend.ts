@@ -101,7 +101,7 @@ export async function startBackend(options: {
     }
   } catch (error) {
     child.kill("SIGKILL")
-    await exited
-    throw error
+    const exitError = await exited
+    throw new Error(`Backend startup failed: ${exitError.message}`, { cause: error })
   }
 }
