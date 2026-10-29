@@ -5,6 +5,7 @@
   "scripts": {
     "test": "bun run --bun vitest run src/harness/registry.test.ts",
     "test:e2e": "bun src/run.ts",
+    "test:services": "bun src/services-run.ts",
     "test:conformance": "bun run --bun vitest run src/conformance",
     "typecheck": "tsc --noEmit",
     "biome:check": "biome check --error-on-warnings",
@@ -25,6 +26,7 @@
     "@highstate/backend": "workspace:*",
     "@highstate/backend-api": "workspace:*",
     "@highstate/contract": "workspace:*",
+    "@highstate/worker-sdk": "workspace:*",
     "age-encryption": "^0.2.4"
   },
   "devDependencies": {

@@ -7,30 +7,43 @@ export const root = resolve(import.meta.dir, "../../../..")
 
 async function freePort(): Promise<number> {
   const server = createServer()
+
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject)
     server.listen(0, "127.0.0.1", resolve)
   })
+
   const address = server.address()
-  if (!address || typeof address === "string") throw new Error("No allocated port")
+  if (!address || typeof address === "string") {
+    throw new Error("No allocated port")
+  }
+
   await new Promise<void>((resolve, reject) =>
     server.close(error => (error ? reject(error) : resolve())),
   )
+
   return address.port
 }
 
-/** Starts the built Designer against disposable storage, never an existing server or database. */
-export async function startDesigner() {
-  const directory = await mkdtemp(join(tmpdir(), "highstate-browser-"))
+/**
+ * Starts the built Designer against disposable storage, never an existing server or database.
+ */
+export async function startDesigner(
+  options: { env?: Record<string, string>; directory?: string } = {},
+) {
+  const directory = options.directory ?? (await mkdtemp(join(tmpdir(), "highstate-browser-")))
   let child: ReturnType<typeof Bun.spawn> | undefined
   let output = ""
+
   try {
-    await mkdir(join(directory, "home"))
-    await mkdir(join(directory, ".highstate"))
+    await mkdir(join(directory, "home"), { recursive: true })
+    await mkdir(join(directory, ".highstate"), { recursive: true })
+
     await writeFile(
       join(directory, "package.json"),
       JSON.stringify({ name: "highstate-browser-isolated", private: true, workspaces: [] }),
     )
+
     await writeFile(
       join(directory, "bun.lock"),
       JSON.stringify({
@@ -39,15 +52,22 @@ export async function startDesigner() {
         packages: {},
       }),
     )
+
     const port = await freePort()
     let eventsPort = await freePort()
-    while (eventsPort === port) eventsPort = await freePort()
+
+    while (eventsPort === port) {
+      eventsPort = await freePort()
+    }
+
     const url = `http://127.0.0.1:${port}`
+
     const env = Object.fromEntries(
       Object.entries(process.env).filter(
         ([key]) => !/^(HIGHSTATE_|NUXT_|NITRO_|DATABASE_URL$|DOTENV_|BUN_ENV$|NODE_ENV$)/.test(key),
       ),
     )
+
     child = Bun.spawn(
       [process.execPath, join(root, "packages/platform/designer/.output/server/index.mjs")],
       {
@@ -71,49 +91,78 @@ export async function startDesigner() {
           NITRO_HOST: "127.0.0.1",
           NITRO_PORT: String(port),
           NUXT_PUBLIC_EVENTS_PORT: String(eventsPort),
+          ...options.env,
         },
         stdout: "pipe",
         stderr: "pipe",
       },
     )
+
     const consume = async (stream: ReadableStream<Uint8Array>) => {
       const decoder = new TextDecoder()
-      for await (const chunk of stream) output = (output + decoder.decode(chunk)).slice(-100_000)
+
+      for await (const chunk of stream) {
+        output = (output + decoder.decode(chunk)).slice(-100_000)
+      }
     }
+
     const logs = Promise.all([
       consume(child.stdout as ReadableStream<Uint8Array>),
       consume(child.stderr as ReadableStream<Uint8Array>),
     ])
+
     const deadline = Date.now() + 60_000
+
     while (true) {
-      if (child.exitCode !== null)
+      if (child.exitCode !== null) {
         throw new Error(`Production Designer exited (${child.exitCode})\n${output}`)
+      }
+
       try {
         const response = await fetch(url, { signal: AbortSignal.timeout(1000) })
-        if (response.ok) break
+        if (response.ok) {
+          break
+        }
       } catch {}
-      if (Date.now() > deadline)
+
+      if (Date.now() > deadline) {
         throw new Error(`Production Designer readiness timed out\n${output}`)
+      }
+
       await Bun.sleep(200)
     }
+
     return {
       url,
+      logs: () => output,
       async stop() {
         child?.kill("SIGTERM")
+
         const exited = await Promise.race([
           child?.exited.then(() => true),
           Bun.sleep(5000).then(() => false),
         ])
-        if (!exited) child?.kill("SIGKILL")
+
+        if (!exited) {
+          child?.kill("SIGKILL")
+        }
+
         await child?.exited
         await logs
-        await rm(directory, { recursive: true, force: true })
+
+        if (!options.directory) {
+          await rm(directory, { recursive: true, force: true })
+        }
       },
     }
   } catch (error) {
     child?.kill("SIGKILL")
     await child?.exited
-    await rm(directory, { recursive: true, force: true })
+
+    if (!options.directory) {
+      await rm(directory, { recursive: true, force: true })
+    }
+
     throw error
   }
 }

@@ -21,6 +21,19 @@ databases populated by the published previous backend release through normal sta
 Use this command to verify changes that cross the backend, API, CLI, unit execution, or runner boundary.
 Run `bun run ci:verify` alongside it for affected-package verification against `origin/main`.
 
+Verify packaged sidecars, artifact storage and downloads, worker panel streaming, and terminal WebSockets
+through the production Designer with:
+
+```sh
+bun run --bun --filter @highstate/e2e test:services
+```
+
+This command builds Designer and the runner image and uses isolated project storage.
+It checks binary panel requests, response delivery before EOF, terminal artifact files, and PTY resize,
+then destroys the fixture and verifies collection of its unreferenced artifact.
+For local iteration after a successful runner build, `HIGHSTATE_E2E_REUSE_RUNNER=1` reuses that image.
+Rebuild the image after changing runtime-agent code.
+
 ## Runtime Conformance
 
 Select the runtime explicitly when checking container runtime changes:

@@ -10,34 +10,46 @@ import { waitFor } from "./wait"
 
 export async function freePort(): Promise<number> {
   const server = createServer()
+
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject)
     server.listen(0, "0.0.0.0", resolve)
   })
+
   const address = server.address()
-  if (!address || typeof address === "string") throw new Error("No allocated port")
+  if (!address || typeof address === "string") {
+    throw new Error("No allocated port")
+  }
+
   await new Promise<void>((resolve, reject) =>
     server.close(error => (error ? reject(error) : resolve())),
   )
+
   return address.port
 }
 
-/** Allocates only disposable run-scoped infrastructure and builds the product runner from this checkout. */
+/**
+ * Allocates only disposable run-scoped infrastructure and builds the product runner from this checkout.
+ */
 export async function createEnvironment() {
   const root = resolve(import.meta.dir, "../../../..")
   const runId = `${new Date().toISOString().replaceAll(/[:.]/g, "-")}-${randomUUID().slice(0, 8)}`
   const evidence = new Evidence(join(root, ".artifacts/e2e", runId))
   const cleanup = new Cleanup()
   const directory = await mkdtemp(join(tmpdir(), "highstate-e2e-"))
+
   cleanup.add(async () => {
-    if (process.env.HIGHSTATE_E2E_KEEP_FAILED !== "1")
+    if (process.env.HIGHSTATE_E2E_KEEP_FAILED !== "1") {
       await rm(directory, { recursive: true, force: true })
+    }
   })
+
   try {
     await writeFile(
       join(directory, "package.json"),
       JSON.stringify({ name: "highstate-e2e-isolated", private: true, workspaces: [] }),
     )
+
     await writeFile(
       join(directory, "bun.lock"),
       JSON.stringify({
@@ -46,7 +58,9 @@ export async function createEnvironment() {
         packages: {},
       }),
     )
+
     const engine = await command(["docker", "info", "--format", "{{json .ServerVersion}}"])
+
     const host = await command([
       "docker",
       "network",
@@ -55,6 +69,7 @@ export async function createEnvironment() {
       "--format",
       "{{(index .IPAM.Config 0).Gateway}}",
     ])
+
     await command([
       "openssl",
       "req",
@@ -73,7 +88,9 @@ export async function createEnvironment() {
       "-out",
       join(directory, "cert.pem"),
     ])
+
     evidence.redact(await readFile(join(directory, "key.pem"), "utf8"))
+
     await evidence.write("environment.json", {
       runId,
       engine: JSON.parse(engine),
@@ -81,7 +98,9 @@ export async function createEnvironment() {
       commit: await command(["git", "rev-parse", "HEAD"], { cwd: root }),
       runtime: "local-docker",
     })
+
     const registry = `highstate-e2e-registry-${runId.toLowerCase()}`
+
     await command([
       "docker",
       "run",
@@ -94,11 +113,14 @@ export async function createEnvironment() {
       "127.0.0.1::5000",
       "registry:2",
     ])
+
     cleanup.add(async () => {
       await command(["docker", "rm", "-fv", registry])
     })
+
     const binding = await command(["docker", "port", registry, "5000/tcp"])
     const registryAddress = binding.replace("127.0.0.1", "localhost")
+
     await waitFor(
       "OCI registry readiness",
       async () => {
@@ -111,7 +133,9 @@ export async function createEnvironment() {
       status => status === 200,
       30_000,
     )
+
     const imageTag = `${registryAddress}/highstate-e2e-runner:${runId}`
+
     if (process.env.HIGHSTATE_E2E_REUSE_RUNNER !== "1") {
       await command(
         [
@@ -126,11 +150,15 @@ export async function createEnvironment() {
         { cwd: root, evidence, name: "runner-build.log", timeoutMs: 900_000 },
       )
     }
+
     await command(["docker", "tag", "highstate-e2e-runner:build", imageTag])
+
     cleanup.add(async () => {
       await command(["docker", "image", "rm", "-f", imageTag])
     })
+
     await command(["docker", "push", imageTag], { evidence, name: "runner-push.log" })
+
     const runnerImage = (
       JSON.parse(
         await command([
@@ -143,7 +171,11 @@ export async function createEnvironment() {
         ]),
       ) as string[]
     ).find(reference => reference.startsWith(`${registryAddress}/`))
-    if (!runnerImage?.includes("@sha256:")) throw new Error("Built runner has no registry digest")
+
+    if (!runnerImage?.includes("@sha256:")) {
+      throw new Error("Built runner has no registry digest")
+    }
+
     const cert = await readFile(join(directory, "cert.pem"), "utf8")
     const url = `http://127.0.0.1:${await freePort()}`
     const runtimePort = await freePort()
@@ -169,13 +201,16 @@ export async function createEnvironment() {
 }
 export type Environment = Awaited<ReturnType<typeof createEnvironment>>
 
-/** Records and removes resources of this run's projects, including when the backend has crashed. */
+/**
+ * Records and removes resources of this run's projects, including when the backend has crashed.
+ */
 export async function cleanupProjectResources(
   projectId: string,
   evidence: Evidence,
 ): Promise<void> {
   const filter = `label=highstate.io/project=${projectId}`
   const inventory: Record<string, string[]> = {}
+
   for (const kind of ["container", "network", "volume"] as const) {
     const ids = (
       await command([
@@ -190,18 +225,27 @@ export async function cleanupProjectResources(
     )
       .split(/\s+/)
       .filter(Boolean)
+
     inventory[kind] = ids
   }
+
   await evidence.write(`resources-${projectId}.json`, inventory)
+
   for (const id of inventory.container ?? []) {
     try {
       await command(["docker", "logs", id], { evidence, name: `container-${id}.log` })
     } catch (error) {
-      if (!String(error).includes("No such container")) throw error
+      if (!String(error).includes("No such container")) {
+        throw error
+      }
     }
   }
+
   for (const [kind, ids] of Object.entries(inventory)) {
-    if (!ids.length) continue
+    if (!ids.length) {
+      continue
+    }
+
     const remaining = (
       await command([
         "docker",
@@ -215,9 +259,12 @@ export async function cleanupProjectResources(
     )
       .split(/\s+/)
       .filter(Boolean)
-    if (remaining.length)
+
+    if (remaining.length) {
       await command(["docker", kind, "rm", ...(kind === "container" ? ["-fv"] : []), ...remaining])
+    }
   }
+
   for (const kind of ["container", "network", "volume"]) {
     if (
       await command([
@@ -229,15 +276,23 @@ export async function cleanupProjectResources(
         "--filter",
         filter,
       ])
-    )
+    ) {
       throw new Error(`Leaked ${kind} for project "${projectId}"`)
+    }
   }
+
   const images = (await command(["docker", "image", "ls", "-aq", "--filter", filter]))
     .split(/\s+/)
     .filter(Boolean)
-  if (images.length) await command(["docker", "image", "rm", "-f", ...new Set(images)])
-  if (await command(["docker", "image", "ls", "-aq", "--filter", filter]))
+
+  if (images.length) {
+    await command(["docker", "image", "rm", "-f", ...new Set(images)])
+  }
+
+  if (await command(["docker", "image", "ls", "-aq", "--filter", filter])) {
     throw new Error(`Leaked images for project "${projectId}"`)
+  }
+
   await evidence.write(`cleanup-${projectId}.json`, {
     containers: [],
     networks: [],

@@ -1,7 +1,9 @@
 import { mkdir, writeFile } from "node:fs/promises"
 import { join } from "node:path"
 
-/** Stores publishable evidence separately from private keys, tokens, and databases. */
+/**
+ * Stores publishable evidence separately from private keys, tokens, and databases.
+ */
 export class Evidence {
   private readonly secrets = new Set<string>()
 
@@ -13,6 +15,7 @@ export class Evidence {
 
   async write(name: string, value: unknown): Promise<void> {
     await mkdir(this.directory, { recursive: true })
+
     let text =
       typeof value === "string"
         ? value
@@ -21,7 +24,11 @@ export class Evidence {
             (_key, value: unknown) => (typeof value === "bigint" ? value.toString() : value),
             2,
           )
-    for (const secret of this.secrets) text = text.replaceAll(secret, "[redacted]")
+
+    for (const secret of this.secrets) {
+      text = text.replaceAll(secret, "[redacted]")
+    }
+
     text = text.replace(/(Bearer\s+)[A-Za-z0-9._-]+/gi, "$1[redacted]")
     await writeFile(join(this.directory, name), text)
   }

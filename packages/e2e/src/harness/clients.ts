@@ -9,7 +9,9 @@ import {
   RuntimeSettingsService,
 } from "@highstate/api/v1"
 
-/** Uses authenticated network clients for all product workflow mutations and observations. */
+/**
+ * Uses authenticated network clients for all product workflow mutations and observations.
+ */
 export function createClients(url: string, token: string) {
   const transport = createConnectTransport({
     baseUrl: url,
@@ -22,6 +24,7 @@ export function createClients(url: string, token: string) {
     ],
     defaultTimeoutMs: 180_000,
   })
+
   return {
     project: createClient(ProjectService, transport),
     model: createClient(ProjectModelService, transport),

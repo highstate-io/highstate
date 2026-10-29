@@ -3,7 +3,9 @@ import type { Environment } from "./environment"
 import assert from "node:assert/strict"
 import { generateIdentity, identityToRecipient } from "age-encryption"
 
-/** Configures placement and creates an unlocked project through the public API. */
+/**
+ * Configures placement and creates an unlocked project through the public API.
+ */
 export async function createProject(
   clients: Clients,
   environment: Environment,
@@ -17,7 +19,9 @@ export async function createProject(
       credentials: Buffer.from(JSON.stringify({ token: "isolated-e2e-registry" })),
     },
   })
+
   assert(credential)
+
   const { runtime } = await clients.runtime.putContainerRuntime({
     expectedRevision: (await clients.runtime.listContainerRuntimes({})).runtimes.find(
       runtime => runtime.id === "local",
@@ -36,9 +40,11 @@ export async function createProject(
       npmRegistryCredentialIds: [credential.id],
     },
   })
+
   assert(runtime)
   const identity = await generateIdentity()
   environment.evidence.redact(identity)
+
   const { project } = await clients.project.createProject(
     {
       projectId: environment.projectId,
@@ -58,6 +64,7 @@ export async function createProject(
     },
     { timeoutMs: 30_000 },
   )
+
   assert(project)
   assert.equal((await clients.project.getProject({ projectId: project.id })).isLocked, false)
   await clients.library.setLocalLibraryOverlay({ projectId: project.id, enabled: false })

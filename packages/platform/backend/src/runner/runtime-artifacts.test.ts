@@ -1,9 +1,14 @@
 import type { ArtifactBackend, ArtifactService } from "../artifact"
 import { createHash } from "node:crypto"
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { createServer, type Server } from "node:http"
+import { createServer as createHttp2Server } from "node:http2"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import { Readable } from "node:stream"
 import { HighstateSignature } from "@highstate/contract"
 import { afterEach, describe, expect, test, vi } from "vitest"
+import { transferArtifact } from "../runtime-agent/artifacts"
 import { RuntimeArtifactTransfer } from "./runtime-artifacts"
 
 const servers: Server[] = []
@@ -13,40 +18,54 @@ afterEach(async () => {
       server =>
         new Promise<void>(resolve => {
           server.close(() => resolve())
-          server.closeAllConnections()
+          server.closeAllConnections?.()
         }),
     ),
   )
 })
 
-async function setup(writable = true) {
+async function setup(writable = true, http2 = false) {
   const content = Buffer.from("artifact bytes across a network boundary")
   const hash = createHash("sha256").update(content).digest("hex")
+
   const backend = {
     retrieve: vi
       .fn()
       .mockImplementation(async () => Readable.from([content.subarray(0, 8), content.subarray(8)])),
   }
+
   const stored: Uint8Array[] = []
+
   const service = {
     store: vi.fn().mockImplementation(async (_projectId, _hash, _size, _meta, stream) => {
-      for await (const chunk of stream) stored.push(chunk)
+      for await (const chunk of stream) {
+        stored.push(chunk)
+      }
+
       return { id: "stored-id" }
     }),
   }
+
   const transfer = new RuntimeArtifactTransfer(
     backend as unknown as ArtifactBackend,
     service as unknown as ArtifactService,
   )
-  const server = createServer((request, response) => {
+
+  const listener: import("node:http").RequestListener = (request, response) => {
     void transfer.handle(request, response).then(handled => {
-      if (!handled) response.writeHead(404).end()
+      if (!handled) {
+        response.writeHead(404).end()
+      }
     })
-  })
-  servers.push(server)
+  }
+
+  const server = http2 ? createHttp2Server(listener as never) : createServer(listener)
+
+  servers.push(server as Server)
   await new Promise<void>(resolve => server.listen(0, "127.0.0.1", resolve))
   const address = server.address() as { port: number }
   const validate = vi.fn().mockResolvedValue(undefined)
+
   const authorization = transfer.issue(`http://127.0.0.1:${address.port}`, {
     projectId: "project",
     stateId: "state",
@@ -54,6 +73,7 @@ async function setup(writable = true) {
     writable,
     validate,
   })
+
   const url = `${authorization.url}${hash}.tgz`
   return {
     content,
@@ -69,6 +89,28 @@ async function setup(writable = true) {
 }
 
 describe("RuntimeArtifactTransfer", () => {
+  test("preserves HTTP/2 upload bytes while authorization awaits and downloads the stored content", async () => {
+    const fixture = await setup(true, true)
+
+    fixture.validate.mockImplementation(async () => {
+      await new Promise(resolve => setTimeout(resolve, 30))
+    })
+
+    const directory = await mkdtemp(join(tmpdir(), "highstate-transfer-test-"))
+
+    try {
+      const source = join(directory, "source.tgz")
+      const target = join(directory, "download.tgz")
+      await writeFile(source, fixture.content)
+      await transferArtifact(fixture.url, source, JSON.parse(fixture.declaration))
+      expect(Buffer.concat(fixture.stored)).toEqual(fixture.content)
+      await transferArtifact(fixture.url, target)
+      expect(await readFile(target)).toEqual(fixture.content)
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
   test("streams only action-owned inputs and revokes the endpoint on action cleanup", async () => {
     const fixture = await setup()
     const response = await fetch(fixture.url)
@@ -84,29 +126,35 @@ describe("RuntimeArtifactTransfer", () => {
 
   test("validates uploaded content and persists the exact streamed artifact", async () => {
     const fixture = await setup()
+
     const response = await fetch(fixture.url, {
       method: "PUT",
       headers: { "x-highstate-artifact": fixture.declaration },
       body: fixture.content,
     })
+
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ id: "stored-id" })
     expect(Buffer.concat(fixture.stored)).toEqual(fixture.content)
+
     expect(fixture.service.store.mock.calls[0]?.slice(0, 3)).toEqual([
       "project",
       fixture.hash,
       fixture.content.length,
     ])
+
     expect(fixture.validate).toHaveBeenCalledTimes(2)
   })
 
   test("rejects corrupted uploads before durable storage", async () => {
     const fixture = await setup()
+
     const response = await fetch(fixture.url, {
       method: "PUT",
       headers: { "x-highstate-artifact": fixture.declaration },
       body: "different bytes",
     })
+
     expect(response.status).toBe(400)
     expect(await response.text()).toContain("content hash mismatch")
     expect(fixture.service.store).not.toHaveBeenCalled()
@@ -114,14 +162,17 @@ describe("RuntimeArtifactTransfer", () => {
 
   test("rejects a lease lost during upload before durable storage", async () => {
     const fixture = await setup()
+
     fixture.validate
       .mockResolvedValueOnce(undefined)
       .mockRejectedValue(new Error("Action lease replaced"))
+
     const response = await fetch(fixture.url, {
       method: "PUT",
       headers: { "x-highstate-artifact": fixture.declaration },
       body: fixture.content,
     })
+
     expect(response.status).toBe(400)
     expect(await response.text()).toContain("lease replaced")
     expect(fixture.service.store).not.toHaveBeenCalled()
@@ -129,11 +180,13 @@ describe("RuntimeArtifactTransfer", () => {
 
   test("preview transfers cannot upload outputs", async () => {
     const fixture = await setup(false)
+
     const response = await fetch(fixture.url, {
       method: "PUT",
       headers: { "x-highstate-artifact": fixture.declaration },
       body: fixture.content,
     })
+
     expect(response.status).toBe(405)
     expect(fixture.service.store).not.toHaveBeenCalled()
   })

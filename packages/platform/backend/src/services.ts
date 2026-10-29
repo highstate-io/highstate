@@ -298,6 +298,7 @@ export async function createServices({
   const runtimeSecrets = new BackendRuntimeSecrets(database, privateKey)
   const runtimeAdapters = new DatabaseRuntimeAdapterProvider(database, runtimeSecrets)
   runtimeCredentialSigner ??= new RuntimeCredentialSigner(backendId, randomBytes(32))
+
   runtimeCoordinator ??= new RuntimeCoordinator(
     database,
     runtimeAdapters,
@@ -305,12 +306,14 @@ export async function createServices({
     new AgentConnectionRegistry(),
     backendId,
   )
+
   workerProxyRegistry ??= new WorkerProxyRegistry(
     runtimeCoordinator.connections,
     async connection => {
       await runtimeCoordinator!.authenticate(connection)
     },
   )
+
   runtimeSettingsService ??= new RuntimeSettingsService(
     database,
     privateKey,
@@ -330,10 +333,12 @@ export async function createServices({
       }),
     ),
   )
+
   const npmRegistries = new RuntimeProjectNpmRegistryProvider(database, {
     decrypt: async (_id, ciphertext) =>
       JSON.parse(await runtimeSecrets.decrypt(ciphertext)) as { token: string },
   })
+
   const snapshotImages = new SnapshotImageManager(
     database,
     runtimeAdapters,
@@ -345,6 +350,7 @@ export async function createServices({
       config.HIGHSTATE_RUNNER_BASE_IMAGE,
     ),
   )
+
   const runtimeExecution = new RuntimeExecutionService(
     database,
     runtimeCoordinator,
@@ -427,7 +433,9 @@ export async function createServices({
     new RuntimeProjectLibraryCatalogProvider(database, libraryBackend, libraryService),
     config.HIGHSTATE_INITIAL_LIBRARY_PACKAGES,
     async projectId => {
-      if (projectEvaluationSubsystem) await projectEvaluationSubsystem.evaluateProject(projectId)
+      if (projectEvaluationSubsystem) {
+        await projectEvaluationSubsystem.evaluateProject(projectId)
+      }
     },
   )
 
@@ -497,6 +505,7 @@ export async function createServices({
   projectUnlockService.registerUnlockTask("sync-object-refs", async projectId => {
     await objectRefIndexService.syncProject(projectId)
   })
+
   projectUnlockService.registerUnlockTask("initialize-project-library", async projectId => {
     try {
       await projectLibraryService!.onProjectUnlocked(projectId)
@@ -504,6 +513,7 @@ export async function createServices({
       logger!.error({ error, projectId }, "failed to initialize project library")
     }
   })
+
   projectUnlockService.registerUnlockTask("collect-library-history", async projectId => {
     await new ProjectLibraryGarbageCollector(database!).collect(projectId)
   })
@@ -528,18 +538,31 @@ export async function createServices({
 
   terminalBackend ??= createTerminalBackend(runtimeCoordinator, runtimeAdapters, {
     readArtifact: async (projectId, file) => {
-      if (file.content.type !== "artifact") throw new Error("Expected an artifact file")
+      if (file.content.type !== "artifact") {
+        throw new Error("Expected an artifact file")
+      }
+
       const project = await database!.forProject(projectId)
+
       const artifact = await project.artifact.findUniqueOrThrow({
         where: { hash: file.content.hash },
       })
-      const content = await artifactBackend!.retrieve(projectId, artifact.hash, artifact.chunkSize)
-      if (!content) throw new Error("Terminal artifact content is missing")
+
+      const content = await artifactBackend!.retrieve(projectId, artifact.id, artifact.chunkSize)
+      if (!content) {
+        throw new Error("Terminal artifact content is missing")
+      }
+
       const chunks: Uint8Array[] = []
-      for await (const chunk of content) chunks.push(chunk)
+
+      for await (const chunk of content) {
+        chunks.push(chunk)
+      }
+
       return Buffer.concat(chunks)
     },
   })
+
   terminalManager ??= TerminalManager.create(
     terminalBackend,
     database,
@@ -563,6 +586,7 @@ export async function createServices({
       onError: error => logger!.error({ error }, "worker runtime control failed"),
     },
   )
+
   workerManager ??= new WorkerManager(
     config,
     runtimeId,
@@ -771,16 +795,23 @@ export function getSharedServices(options: CreateServicesOptions = {}): Promise<
  */
 export async function disposeServices(services: Services): Promise<void> {
   await services.runtimeMaintenance?.[Symbol.asyncDispose]()
+
   const entries = Object.entries(services)
     .reverse()
     .filter(([key]) => key !== "database" && key !== "runtimeMaintenance")
+
   entries.push(["database", services.database])
   const disposed = new Set<object>()
+
   for (const [key, service] of entries) {
     if (typeof service !== "object" || service === null) {
       continue
     }
-    if (disposed.has(service)) continue
+
+    if (disposed.has(service)) {
+      continue
+    }
+
     disposed.add(service)
 
     if (Symbol.dispose in service) {

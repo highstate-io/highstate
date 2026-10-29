@@ -2,6 +2,7 @@ import type { Services } from "@highstate/backend"
 import { rm } from "node:fs/promises"
 import { createServer, type RequestListener, type Server } from "node:http"
 import { create } from "@bufbuild/protobuf"
+import { type ConnectRouter, createConnectRouter } from "@connectrpc/connect"
 import { connectNodeAdapter } from "@connectrpc/connect-node"
 import { ProxyWorkerResponseSchema } from "@highstate/api/runtime.v1"
 import {
@@ -42,7 +43,9 @@ export {
 export type BackendApiOptions = {
   address?: string
   workerSocketPath?: string
-  /** Dedicated TLS listener configuration; defaults to HIGHSTATE_RUNTIME_* environment variables. */
+  /**
+   * Dedicated TLS listener configuration; defaults to HIGHSTATE_RUNTIME_* environment variables.
+   */
   runtime?: RuntimeListenerOptions | false
 }
 
@@ -70,18 +73,90 @@ export function createBackendApiHandler(
   return connectNodeAdapter({
     interceptors: [createErrorHandlingInterceptor(services)],
     requestPathPrefix: options.requestPathPrefix,
-    routes(router) {
-      router.service(InstanceStateService, createInstanceStateService(services))
-      router.service(LibraryService, createLibraryService(services))
-      router.service(OperationService, createOperationService(services))
-      router.service(PanelService, createPanelService(services))
-      router.service(ProjectModelService, createProjectModelService(services))
-      router.service(ProjectService, createProjectService(services))
-      router.service(SecretService, createSecretService(services))
-      router.service(RuntimeSettingsService, createRuntimeSettingsService(services))
-      router.service(WorkerService, createWorkerService(services))
-    },
+    routes: router => registerServices(router, services),
   })
+}
+
+function registerServices(router: ConnectRouter, services: Services): void {
+  router.service(InstanceStateService, createInstanceStateService(services))
+  router.service(LibraryService, createLibraryService(services))
+  router.service(OperationService, createOperationService(services))
+  router.service(PanelService, createPanelService(services))
+  router.service(ProjectModelService, createProjectModelService(services))
+  router.service(ProjectService, createProjectService(services))
+  router.service(SecretService, createSecretService(services))
+  router.service(RuntimeSettingsService, createRuntimeSettingsService(services))
+  router.service(WorkerService, createWorkerService(services))
+}
+
+/**
+ * Adapts the public API to Fetch hosts whose Node.js request objects are compatibility shims.
+ * Request and response bodies retain streaming and cancellation semantics.
+ */
+export function createBackendApiFetchHandler(
+  services: Services,
+): (request: Request) => Promise<Response> {
+  const router = createConnectRouter({ interceptors: [createErrorHandlingInterceptor(services)] })
+  registerServices(router, services)
+  const handlers = new Map(router.handlers.map(handler => [handler.requestPath, handler]))
+  return async request => {
+    const handler = handlers.get(new URL(request.url).pathname)
+    if (!handler) {
+      return new Response(null, { status: 404 })
+    }
+
+    const response = await handler({
+      httpVersion: "1.1",
+      method: request.method,
+      url: request.url,
+      header: request.headers,
+      signal: request.signal,
+      body: (async function* () {
+        if (!request.body) {
+          return
+        }
+
+        const reader = request.body.getReader()
+
+        try {
+          for (;;) {
+            const next = await reader.read()
+            if (next.done) {
+              return
+            }
+
+            yield next.value
+          }
+        } finally {
+          reader.releaseLock()
+        }
+      })(),
+    })
+
+    const iterator = response.body?.[Symbol.asyncIterator]()
+
+    const body = iterator
+      ? new ReadableStream<Uint8Array>({
+          async pull(controller) {
+            try {
+              const next = await iterator.next()
+              if (next.done) {
+                controller.close()
+              } else {
+                controller.enqueue(next.value)
+              }
+            } catch (error) {
+              controller.error(error)
+            }
+          },
+          async cancel() {
+            await iterator.return?.()
+          },
+        })
+      : null
+
+    return new Response(body, { status: response.status, headers: response.header })
+  }
 }
 
 /**
@@ -99,6 +174,7 @@ export async function startBackendApi(
     options.runtime === false
       ? undefined
       : (options.runtime ?? (await loadRuntimeListenerOptions()))
+
   const uid = process.geteuid?.()
   const workerSocketPath = options.workerSocketPath ?? `/run/user/${uid}/highstate.sock`
   const workerAddress = `unix:${workerSocketPath}`
@@ -122,6 +198,7 @@ export async function startBackendApi(
       await listen(server, serverAddress)
       services.logger.info(`api listening at "%s"`, serverAddress)
     }
+
     if (runtimeOptions) {
       runtime = await startRuntimeServer(services.runtimeCoordinator, {
         ...runtimeOptions,
@@ -133,6 +210,7 @@ export async function startBackendApi(
           frame => create(ProxyWorkerResponseSchema, frame),
         ),
       })
+
       services.logger.info({ address: runtime.address }, "runtime tls api listening")
     }
   } catch (error) {

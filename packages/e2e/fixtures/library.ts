@@ -1,4 +1,4 @@
-import { defineComponent, defineEntity, defineUnit, z } from "@highstate/contract"
+import { defineComponent, defineEntity, defineUnit, fileSchema, z } from "@highstate/contract"
 
 export const markerEntity = defineEntity({
   type: "e2e.marker.v1",
@@ -27,4 +27,13 @@ export const composite = defineComponent({
   create({ name, args }) {
     return marker({ name: `${name}-child`, args })
   },
+})
+
+export const fileEntity = defineEntity({ type: "e2e.file.v1", schema: fileSchema })
+
+export const services = defineUnit({
+  type: "e2e.services.v1",
+  args: { endpoint: z.url(), workerImage: z.string() },
+  outputs: { file: fileEntity },
+  source: { package: "@highstate/e2e-resources", path: "services" },
 })

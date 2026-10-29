@@ -7,5 +7,7 @@ for (const command of [
 ]) {
   const child = Bun.spawn(command, { cwd: root, stdout: "inherit", stderr: "inherit" })
   const code = await child.exited
-  if (code !== 0) process.exit(code)
+  if (code !== 0) {
+    process.exit(code)
+  }
 }

@@ -2,9 +2,15 @@ import type { Evidence } from "./evidence"
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 
-export type BackendProcess = { url: string; token: string; stop(force?: boolean): Promise<void> }
+export interface BackendProcess {
+  url: string
+  token: string
+  stop(force?: boolean): Promise<void>
+}
 
-/** Starts the ordinary backend composition and public and TLS runtime listeners in another process. */
+/**
+ * Starts the ordinary backend composition and public and TLS runtime listeners in another process.
+ */
 export async function startBackend(options: {
   root: string
   directory: string
@@ -15,6 +21,7 @@ export async function startBackend(options: {
   logName?: string
 }): Promise<BackendProcess> {
   const credentials = join(options.directory, "credential")
+
   const child = Bun.spawn(["bun", join(options.root, "packages/e2e/src/harness/backend-main.ts")], {
     cwd: options.directory,
     env: {
@@ -41,20 +48,27 @@ export async function startBackend(options: {
     stdout: "pipe",
     stderr: "pipe",
     ipc(message) {
-      if (typeof message === "object" && message !== null && "ready" in message) ready()
+      if (typeof message === "object" && message !== null && "ready" in message) {
+        ready()
+      }
     },
   })
+
   let ready!: () => void
+
   const started = new Promise<void>(resolve => {
     ready = resolve
   })
+
   const stdout = new Response(child.stdout).text()
   const stderr = new Response(child.stderr).text()
+
   const exited = child.exited.then(async code => {
     const output = `${await stdout}\n${await stderr}`
     await options.evidence.write(options.logName ?? "backend.log", output)
     return new Error(`Backend exited (${code}): ${output}`)
   })
+
   try {
     await Promise.race([
       started,
@@ -65,6 +79,7 @@ export async function startBackend(options: {
         throw new Error("Backend startup timed out")
       }),
     ])
+
     const token = await readFile(credentials, "utf8")
     options.evidence.redact(token)
     return {
@@ -72,6 +87,7 @@ export async function startBackend(options: {
       token,
       async stop(force = false) {
         child.kill(force ? "SIGKILL" : "SIGTERM")
+
         await Promise.race([
           child.exited,
           Bun.sleep(15_000).then(() => {
@@ -79,6 +95,7 @@ export async function startBackend(options: {
             return child.exited
           }),
         ])
+
         await exited
       },
     }

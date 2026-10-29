@@ -32,11 +32,13 @@ try {
       ),
     ),
   }
+
   const credential = await services.backendApiKeySettingsService.create(context, {
     meta: { title: "E2E isolated administrator" },
     restrictionRules: [],
     expiresAt: null,
   })
+
   await writeFile(credentialsPath, credential.token, { mode: 0o600 })
 }
 const api = await startBackendApi(services, {

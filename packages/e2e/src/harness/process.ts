@@ -1,6 +1,8 @@
 import type { Evidence } from "./evidence"
 
-/** Runs a bounded subprocess and records its output without retrying failed commands. */
+/**
+ * Runs a bounded subprocess and records its output without retrying failed commands.
+ */
 export async function command(
   args: string[],
   options: {
@@ -18,14 +20,20 @@ export async function command(
     stderr: "pipe",
     timeout: options.timeoutMs ?? 600_000,
   })
+
   const [stdout, stderr, code] = await Promise.all([
     new Response(child.stdout).text(),
     new Response(child.stderr).text(),
     child.exited,
   ])
-  if (options.evidence)
+
+  if (options.evidence) {
     await options.evidence.write(options.name ?? "command.log", `${stdout}\n${stderr}`)
-  if (code !== 0)
+  }
+
+  if (code !== 0) {
     throw new Error(`Command failed (${code}): ${args.join(" ")}\n${stdout}\n${stderr}`)
+  }
+
   return stdout.trim()
 }

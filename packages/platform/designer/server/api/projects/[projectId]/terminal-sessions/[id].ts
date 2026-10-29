@@ -63,6 +63,7 @@ export default defineWebSocketHandler({
     }
 
     const [cols, rows] = screenSizeText.split("x").map(Number)
+
     if (![cols, rows].every(value => Number.isSafeInteger(value) && value > 0 && value <= 65535)) {
       throw new Error("Invalid screenSize")
     }
@@ -88,17 +89,22 @@ export default defineWebSocketHandler({
       return
     }
 
-    if (typeof message.data === "string") {
-      const control = JSON.parse(message.data) as { type: string; cols?: number; rows?: number }
+    // the Node WebSocket adapter represents text frames as Buffers too
+    const text = message.text()
+    if (text.startsWith('{"type":"resize"')) {
+      const control = JSON.parse(text) as { type: string; cols?: number; rows?: number }
       if (control.type === "resize" && control.cols !== undefined && control.rows !== undefined) {
         const services = await getSharedServices()
+
         await services.terminalManager.resize(state.sessionId, {
           cols: control.cols,
           rows: control.rows,
         })
       }
+
       return
     }
+
     state.stdin.write(message.data)
   },
 

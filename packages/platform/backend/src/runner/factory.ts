@@ -41,18 +41,26 @@ export async function createRunnerBackend(
   runtime?: RuntimeRunnerDependencies,
 ): Promise<RunnerBackend> {
   if (config.HIGHSTATE_RUNNER_BACKEND_TYPE === "runtime") {
-    if (!runtime) throw new Error("Runtime runner dependencies are required")
+    if (!runtime) {
+      throw new Error("Runtime runner dependencies are required")
+    }
+
     // retain the old executable environment only for null-provenance and local callers
     const legacy =
       runtime.legacy ??
       (await LocalRunnerBackend.create(
         config,
-        LocalPulumiHost.create(secretService, logger),
+        LocalPulumiHost.create(
+          secretService,
+          logger,
+          config.HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS,
+        ),
         libraryBackend,
         artifactManager,
         artifactBackend,
         logger,
       ))
+
     return new RuntimeRunnerBackend(
       runtime.database,
       runtime.execution,
@@ -63,6 +71,7 @@ export async function createRunnerBackend(
       runtime.artifacts,
     )
   }
+
   switch (config.HIGHSTATE_RUNNER_BACKEND_TYPE) {
     case "local": {
       const localPulumiHost = LocalPulumiHost.create(
