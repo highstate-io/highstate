@@ -50,7 +50,7 @@ let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
 const faults: string[] = []
 const pendingRequests = new Set<Request>()
 const navigationEvents: string[] = []
-let failedRequests: { type: string; path: string }[] = []
+let failedRequests: { type: string; host: string; path: string }[] = []
 try {
   designer = await startDesigner()
   browser = await chromium.launch({ headless: true })
@@ -272,10 +272,15 @@ try {
 } catch (error) {
   failedRequests = [...pendingRequests].map(request => ({
     type: request.resourceType(),
+    host: new URL(request.url()).hostname,
     path: new URL(request.url()).pathname,
   }))
 
   console.error("Browser navigation diagnostics", { navigationEvents, pending: failedRequests })
+
+  if (activeStep === "fresh production app and runtime settings") {
+    console.error("Fresh Designer startup log", designer?.logs())
+  }
 
   if (steps.at(-1)?.name !== activeStep) {
     steps.push({ name: activeStep, status: "failed", durationMs: Date.now() - started })
