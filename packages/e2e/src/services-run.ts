@@ -11,19 +11,6 @@ import { startRegistry } from "./harness/registry"
 import { workloadServices } from "./scenarios/workload-services"
 
 const root = Bun.fileURLToPath(new URL("../../..", import.meta.url))
-await command(
-  [
-    "bunx",
-    "--bun",
-    "nx",
-    "run-many",
-    "-t",
-    "build",
-    "--projects=@highstate/designer,@highstate/worker-sdk",
-    "--parallel=2",
-  ],
-  { cwd: root, timeoutMs: 600_000 },
-)
 const environment = await createEnvironment()
 let failure: unknown
 try {

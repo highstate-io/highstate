@@ -6,8 +6,8 @@ These checks use real resources and complement the focused tests described in [T
 ## Lifecycle Verification
 
 The lifecycle command requires Bun, Node.js, Docker, and OpenSSL on `PATH`, with a reachable Docker daemon.
-Install workspace dependencies with `bun install --frozen-lockfile` and bootstrap the CLI with
-`scripts/bootstrap-cli.sh` when preparing a fresh checkout.
+Install workspace dependencies with `bun install --frozen-lockfile`, then run `bun run ci:prepare`
+to bootstrap and link the CLI when preparing a fresh checkout.
 
 From the workspace root, run:
 

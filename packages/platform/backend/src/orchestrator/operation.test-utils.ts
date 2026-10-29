@@ -108,640 +108,653 @@ export interface RunnerTestController {
   ) => void
 }
 
-export const operationTest = test.extend<{
-  runnerBackend: MockedObject<RunnerBackend>
-  runner: RunnerTestController
-  libraryBackend: MockedObject<LibraryBackend>
-  artifactService: MockedObject<ArtifactService>
-  instanceLockService: MockedObject<InstanceLockService>
-  operationService: MockedObject<OperationService>
-  secretService: MockedObject<SecretService>
-  instanceStateService: MockedObject<InstanceStateService>
-  projectModelService: MockedObject<ProjectModelService>
-  libraryService: MockedObject<LibraryService>
-  projectPortService: MockedObject<ProjectPortService>
-  unitExtraService: MockedObject<UnitExtraService>
-  entitySnapshotService: MockedObject<EntitySnapshotService>
-  unitOutputService: MockedObject<UnitOutputService>
+export const operationTest = createOperationTest()
 
-  createMockLibrary: () => LibraryModel
-  createUnit: (name: string, type?: VersionedName) => InstanceModel
-  createComposite: (name: string, type?: VersionedName) => InstanceModel
-  createDeployedUnitState: (instance: InstanceModel) => InstanceState
-  createOperation: (input: {
-    type: Operation["type"]
-    requestedInstanceIds: InstanceId[]
-    phases: OperationPhase[]
-    options?: Partial<OperationOptions>
-  }) => Operation
-  createContext: (input: {
-    instances: InstanceModel[]
-    ghostInstances?: InstanceModel[]
-    states: InstanceState[]
-    library?: LibraryModel
-    pinned?: PinnedOperationLibrary
-  }) => Promise<OperationContext>
-  setupPersistenceMocks: (input: { instances: InstanceModel[] }) => void
-  setupImmediateLocking: () => void
-}>({
-  runnerBackend: async ({}, use) => {
-    let autoCompletionEnabled = true
+/**
+ * Creates fresh fixture definitions for suites that extend the operation fixtures.
+ * Nested extensions must not reuse dependency metadata resolved in another test file.
+ */
+export function createOperationTest() {
+  return test.extend<{
+    runnerBackend: MockedObject<RunnerBackend>
+    runner: RunnerTestController
+    libraryBackend: MockedObject<LibraryBackend>
+    artifactService: MockedObject<ArtifactService>
+    instanceLockService: MockedObject<InstanceLockService>
+    operationService: MockedObject<OperationService>
+    secretService: MockedObject<SecretService>
+    instanceStateService: MockedObject<InstanceStateService>
+    projectModelService: MockedObject<ProjectModelService>
+    libraryService: MockedObject<LibraryService>
+    projectPortService: MockedObject<ProjectPortService>
+    unitExtraService: MockedObject<UnitExtraService>
+    entitySnapshotService: MockedObject<EntitySnapshotService>
+    unitOutputService: MockedObject<UnitOutputService>
 
-    const lastOperationTypeByStateId = new Map<string, OperationType>()
-    const updatesByStateId = new Map<string, AsyncQueue<UnitStateUpdate>>()
-
-    const getQueue = (stateId: string): AsyncQueue<UnitStateUpdate> => {
-      const existing = updatesByStateId.get(stateId)
-      if (existing) {
-        return existing
-      }
-
-      const created = createAsyncQueue<UnitStateUpdate>()
-      updatesByStateId.set(stateId, created)
-      return created
-    }
-
-    let updateImpl: (options: UnitUpdateOptions) => Promise<void> = async () => {}
-    let previewImpl: (options: UnitUpdateOptions) => Promise<void> = async () => {}
-    let refreshImpl: (options: UnitOptions) => Promise<void> = async () => {}
-    let destroyImpl: (options: UnitDestroyOptions) => Promise<void> = async () => {}
-
-    const runner: RunnerTestController = {
-      setAutoCompletion: enabled => {
-        autoCompletionEnabled = enabled
-      },
-      setUpdateImpl: impl => {
-        updateImpl = impl
-      },
-      setPreviewImpl: impl => {
-        previewImpl = impl
-      },
-      setRefreshImpl: impl => {
-        refreshImpl = impl
-      },
-      setDestroyImpl: impl => {
-        destroyImpl = impl
-      },
-      emitProgress: (stateId, update) => {
-        getQueue(stateId).push({
-          type: "progress",
-          unitId: stateId as unknown as InstanceId,
-          currentResourceCount: update.current,
-          totalResourceCount: update.total,
-        })
-      },
-      emitMessage: (stateId, message) => {
-        getQueue(stateId).push({
-          type: "message",
-          unitId: stateId as unknown as InstanceId,
-          message,
-        })
-      },
-      emitError: (stateId, message) => {
-        getQueue(stateId).push({
-          type: "error",
-          unitId: stateId as unknown as InstanceId,
-          message,
-        })
-      },
-      emitCompletion: (stateId, update = {}) => {
-        const operationType =
-          update.operationType ?? lastOperationTypeByStateId.get(stateId) ?? "update"
-
-        const rawOutputs = update.rawOutputs ?? {
-          // note: tests generally don't care about actual Pulumi outputs
-          // provide a non-empty object so business parsing can run if needed
-          $test: { value: true },
-        }
-
-        getQueue(stateId).push({
-          type: "completion",
-          unitId: stateId as unknown as InstanceId,
-          operationType,
-          rawOutputs,
-          provenance: update.provenance,
-        })
-      },
-    }
-
-    const runnerBackend = vi.mockObject({
-      update: vi.fn().mockImplementation(async (options: UnitUpdateOptions) => {
-        lastOperationTypeByStateId.set(options.stateId, "update")
-        await updateImpl(options)
-
-        if (autoCompletionEnabled) {
-          runner.emitCompletion(options.stateId, { operationType: "update" })
-        }
-      }),
-      preview: vi.fn().mockImplementation(async (options: UnitUpdateOptions) => {
-        lastOperationTypeByStateId.set(options.stateId, "update")
-        await previewImpl(options)
-
-        if (autoCompletionEnabled) {
-          runner.emitCompletion(options.stateId, { operationType: "update" })
-        }
-      }),
-      refresh: vi.fn().mockImplementation(async (options: UnitOptions) => {
-        lastOperationTypeByStateId.set(options.stateId, "refresh")
-        await refreshImpl(options)
-
-        if (autoCompletionEnabled) {
-          runner.emitCompletion(options.stateId, { operationType: "refresh" })
-        }
-      }),
-      destroy: vi.fn().mockImplementation(async (options: UnitDestroyOptions) => {
-        lastOperationTypeByStateId.set(options.stateId, "destroy")
-        await destroyImpl(options)
-
-        if (autoCompletionEnabled) {
-          runner.emitCompletion(options.stateId, { operationType: "destroy" })
-        }
-      }),
-      watch: vi.fn().mockImplementation((options: UnitOptions) => {
-        const queue = getQueue(options.stateId)
-
-        return (async function* () {
-          while (true) {
-            const update = await queue.shift()
-            yield update
-
-            if (update.type === "completion") {
-              return
-            }
-          }
-        })()
-      }),
-    } as unknown as RunnerBackend)
-
-    Object.defineProperty(runnerBackend, "__testController", {
-      value: runner,
-      enumerable: false,
-    })
-
-    await use(runnerBackend)
-  },
-
-  runner: async ({ runnerBackend }, use) => {
-    const controller = (runnerBackend as unknown as { __testController?: RunnerTestController })
-      .__testController
-
-    if (!controller) {
-      throw new Error("Runner test controller was not initialized")
-    }
-
-    await use(controller)
-  },
-
-  libraryBackend: async ({}, use) => {
-    const libraryBackend = vi.mockObject({
-      loadLibrary: vi.fn(),
-      getResolvedUnitSources: vi.fn(),
-    } as unknown as LibraryBackend)
-
-    await use(libraryBackend)
-  },
-
-  artifactService: async ({}, use) => {
-    const artifactService = vi.mockObject({
-      getArtifactsByIds: vi.fn().mockResolvedValue([]),
-    } as unknown as ArtifactService)
-
-    await use(artifactService)
-  },
-
-  instanceLockService: async ({}, use) => {
-    const instanceLockService = vi.mockObject({
-      lockInstances: vi.fn(),
-      unlockInstances: vi.fn().mockResolvedValue(undefined),
-      unlockInstancesUnconditionally: vi.fn().mockResolvedValue(undefined),
-      tryLockInstances: vi.fn(),
-    } as unknown as InstanceLockService)
-
-    await use(instanceLockService)
-  },
-
-  operationService: async ({}, use) => {
-    const operationService = vi.mockObject({
-      updateOperation: vi.fn().mockResolvedValue({} as Operation),
-      markOperationFinished: vi.fn().mockResolvedValue({} as Operation),
-      appendLog: vi.fn().mockResolvedValue({} as Operation),
-    } as unknown as OperationService)
-
-    await use(operationService)
-  },
-
-  secretService: async ({}, use) => {
-    const secretService = vi.mockObject({
-      getInstanceSecretValuesCore: vi.fn().mockResolvedValue({}),
-    } as unknown as SecretService)
-
-    await use(secretService)
-  },
-
-  instanceStateService: async ({}, use) => {
-    const instanceStateService = vi.mockObject({
-      getInstanceStatesCore: vi.fn(),
-      createOperationStates: vi.fn(),
-      updateOperationState: vi.fn(),
-      updateOperationProgress: vi.fn(),
-      publishGhostInstanceDeletion: vi.fn(),
-    } as unknown as InstanceStateService)
-
-    await use(instanceStateService)
-  },
-
-  projectModelService: async ({}, use) => {
-    const projectModelService = vi.mockObject({
-      getProjectModelCore: vi.fn(),
-    } as unknown as ProjectModelService)
-
-    await use(projectModelService)
-  },
-
-  libraryService: async ({}, use) => {
-    const libraryService = vi.mockObject({
-      getLibraryModelCore: vi.fn(),
-      getResolvedUnitSources: vi.fn(),
-    } as unknown as LibraryService)
-
-    await use(libraryService)
-  },
-
-  projectPortService: async ({}, use) => {
-    const projectPortService = vi.mockObject({
-      isExportPortType: vi.fn().mockReturnValue(false),
-      isImportPortType: vi.fn().mockReturnValue(false),
-      extractImportSourceStateId: vi.fn().mockReturnValue(null),
-      getImportPortContentHash: vi.fn().mockResolvedValue(null),
-      getImportPortPayload: vi.fn().mockResolvedValue(null),
-      buildImportCapturedOutputValues: vi.fn().mockReturnValue({}),
-      buildImportEntitySnapshotPayload: vi.fn().mockReturnValue({
-        nodes: [],
-        explicitReferences: [],
-        implicitReferences: [],
-      }),
-      buildExportPayload: vi.fn(),
-      syncExportPort: vi.fn().mockResolvedValue(undefined),
-      clearExportPort: vi.fn().mockResolvedValue(undefined),
-    } as unknown as ProjectPortService)
-
-    await use(projectPortService)
-  },
-
-  unitExtraService: async ({}, use) => {
-    const unitExtraService = vi.mockObject({
-      getInstanceTriggers: vi.fn().mockResolvedValue([]),
-      processUnitPages: vi.fn().mockResolvedValue([]),
-      processUnitTerminals: vi.fn().mockResolvedValue([]),
-      processUnitTriggers: vi.fn().mockResolvedValue([]),
-      pruneInstanceArtifacts: vi.fn().mockResolvedValue(undefined),
-    } as unknown as UnitExtraService)
-
-    await use(unitExtraService)
-  },
-
-  unitOutputService: async ({}, use) => {
-    const unitOutputService = vi.mockObject({
-      parseUnitOutputs: vi.fn().mockResolvedValue({
-        outputHash: null,
-        statusFields: null,
-        terminals: null,
-        pages: null,
-        triggers: null,
-        secrets: null,
-        workers: null,
-        exportedArtifactIds: null,
-        hasResourceHooks: false,
-        entitySnapshotError: null,
-        entitySnapshotPayload: null,
-      }),
-    } as unknown as UnitOutputService)
-
-    await use(unitOutputService)
-  },
-
-  entitySnapshotService: async ({}, use) => {
-    const entitySnapshotService = vi.mockObject({
-      reconstructLatestExportedOutputValues: vi.fn().mockResolvedValue(new Map()),
-      persistUnitEntitySnapshots: vi.fn().mockResolvedValue(undefined),
-    } as unknown as EntitySnapshotService)
-
-    await use(entitySnapshotService)
-  },
-
-  createMockLibrary: async ({}, use) => {
-    const createMockLibrary = (): LibraryModel => {
-      const testEntity = defineEntity({
-        type: "test.entity.v1",
-        schema: z.object({
-          value: z.string(),
-        }),
-      })
-
-      const testUnit = defineUnit({
-        type: "component.v1",
-        inputs: {
-          dependency: testEntity,
-        },
-        outputs: {
-          value: testEntity,
-        },
-        source: {
-          package: "@test/units",
-          path: "test-unit",
-        },
-      })
-
-      const testComposite = defineComponent({
-        type: "composite.v1",
-        create: () => {},
-      })
-
-      return {
-        components: {
-          "component.v1": testUnit.model,
-          "composite.v1": testComposite.model,
-        },
-        entities: {
-          "test.entity.v1": testEntity.model,
-        },
-      }
-    }
-
-    await use(createMockLibrary)
-  },
-
-  createUnit: async ({}, use) => {
-    const createUnit = (name: string, type: VersionedName = "component.v1"): InstanceModel => {
-      return {
-        id: getInstanceId(type, name),
-        name,
-        type,
-        kind: "unit",
-        parentId: undefined,
-        inputs: {},
-        args: {},
-        outputs: {},
-      }
-    }
-
-    await use(createUnit)
-  },
-
-  createComposite: async ({}, use) => {
-    const createComposite = (name: string, type: VersionedName = "composite.v1"): InstanceModel => {
-      return {
-        id: getInstanceId(type, name),
-        name,
-        type,
-        kind: "composite",
-        parentId: undefined,
-        inputs: {},
-        args: {},
-        outputs: {},
-      }
-    }
-
-    await use(createComposite)
-  },
-
-  createDeployedUnitState: async ({}, use) => {
-    const createDeployedUnitState = (instance: InstanceModel): InstanceState => {
-      return {
-        id: instance.id,
-        instanceId: instance.id,
-        status: "deployed",
-        source: "resident",
-        kind: instance.kind,
-        hasResourceHooks: false,
-        parentId: null,
-        parentInstanceId: instance.parentId ?? null,
-        selfHash: null,
-        librarySnapshotId: null,
-        libraryPackageVersionId: null,
-        inputHash: 12345,
-        outputHash: 12345,
-        dependencyOutputHash: 0,
-        statusFields: null,
-        exportedArtifactIds: null,
-        inputHashNonce: null,
-        currentResourceCount: null,
-        model: null,
-        resolvedInputs: null,
-        lastOperationState: {
-          operationId: "test-op",
-          librarySnapshotId: null,
-          libraryPackageVersionId: null,
-          previousLibraryPackageVersionId: null,
-          localOverlayActive: false,
-          localOverlayRevision: null,
-          stateId: instance.id,
-          status: "updated" as InstanceOperationStatus,
-          currentResourceCount: null,
-          totalResourceCount: null,
-          model: instance,
-          resolvedInputs: {},
-          startedAt: null,
-          finishedAt: null,
-        },
-        evaluationState: {} as InstanceState["evaluationState"],
-      }
-    }
-
-    await use(createDeployedUnitState)
-  },
-
-  createOperation: async ({}, use) => {
-    const createOperation = (input: {
+    createMockLibrary: () => LibraryModel
+    createUnit: (name: string, type?: VersionedName) => InstanceModel
+    createComposite: (name: string, type?: VersionedName) => InstanceModel
+    createDeployedUnitState: (instance: InstanceModel) => InstanceState
+    createOperation: (input: {
       type: Operation["type"]
       requestedInstanceIds: InstanceId[]
       phases: OperationPhase[]
       options?: Partial<OperationOptions>
-    }): Operation => {
-      return {
-        id: createId(),
-        librarySnapshotId: null,
-        meta: {
-          title: "Test Operation",
-          description: "Orchestrator runtime test",
-        },
-        type: input.type,
-        status: "pending",
-        options: {
-          forceUpdateDependencies: false,
-          ignoreDependencies: false,
-          ignoreChangedDependencies: false,
-          forceUpdateChildren: false,
-          destroyDependentInstances: true,
-          invokeDestroyTriggers: true,
-          deleteUnreachableResources: false,
-          forceDeleteState: false,
-          allowPartialCompositeInstanceUpdate: false,
-          allowPartialCompositeInstanceDestruction: false,
-          refresh: false,
-          ...input.options,
-        },
-        phases: input.phases,
-        requestedInstanceIds: input.requestedInstanceIds,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-        finishedAt: null,
-      }
-    }
-
-    await use(createOperation)
-  },
-
-  createContext: async (
-    {
-      project,
-      logger,
-      libraryService,
-      instanceStateService,
-      projectModelService,
-      createMockLibrary,
-    },
-    use,
-  ) => {
-    const createContext = async (input: {
+    }) => Operation
+    createContext: (input: {
       instances: InstanceModel[]
       ghostInstances?: InstanceModel[]
       states: InstanceState[]
       library?: LibraryModel
       pinned?: PinnedOperationLibrary
-    }): Promise<OperationContext> => {
-      const library = input.library ?? createMockLibrary()
+    }) => Promise<OperationContext>
+    setupPersistenceMocks: (input: { instances: InstanceModel[] }) => void
+    setupImmediateLocking: () => void
+  }>({
+    runnerBackend: async ({}, use) => {
+      let autoCompletionEnabled = true
 
-      const unitSources: ResolvedUnitSource[] = [
-        {
-          unitType: "component.v1",
-          sourceHash: 12345,
-          projectPath: "test",
-          allowedDependencies: [],
-        },
-        {
-          unitType: "composite.v1",
-          sourceHash: 12345,
-          projectPath: "test",
-          allowedDependencies: [],
-        },
-      ]
+      const lastOperationTypeByStateId = new Map<string, OperationType>()
+      const updatesByStateId = new Map<string, AsyncQueue<UnitStateUpdate>>()
 
-      libraryService.getLibraryModelCore.mockResolvedValue(library)
-      libraryService.getResolvedUnitSources.mockResolvedValue(unitSources)
+      const getQueue = (stateId: string): AsyncQueue<UnitStateUpdate> => {
+        const existing = updatesByStateId.get(stateId)
+        if (existing) {
+          return existing
+        }
 
-      projectModelService.getProjectModelCore.mockResolvedValue([
-        {
-          instances: input.instances,
-          virtualInstances: [],
-          hubs: [],
-          ghostInstances: input.ghostInstances ?? [],
+        const created = createAsyncQueue<UnitStateUpdate>()
+        updatesByStateId.set(stateId, created)
+        return created
+      }
+
+      let updateImpl: (options: UnitUpdateOptions) => Promise<void> = async () => {}
+      let previewImpl: (options: UnitUpdateOptions) => Promise<void> = async () => {}
+      let refreshImpl: (options: UnitOptions) => Promise<void> = async () => {}
+      let destroyImpl: (options: UnitDestroyOptions) => Promise<void> = async () => {}
+
+      const runner: RunnerTestController = {
+        setAutoCompletion: enabled => {
+          autoCompletionEnabled = enabled
         },
+        setUpdateImpl: impl => {
+          updateImpl = impl
+        },
+        setPreviewImpl: impl => {
+          previewImpl = impl
+        },
+        setRefreshImpl: impl => {
+          refreshImpl = impl
+        },
+        setDestroyImpl: impl => {
+          destroyImpl = impl
+        },
+        emitProgress: (stateId, update) => {
+          getQueue(stateId).push({
+            type: "progress",
+            unitId: stateId as unknown as InstanceId,
+            currentResourceCount: update.current,
+            totalResourceCount: update.total,
+          })
+        },
+        emitMessage: (stateId, message) => {
+          getQueue(stateId).push({
+            type: "message",
+            unitId: stateId as unknown as InstanceId,
+            message,
+          })
+        },
+        emitError: (stateId, message) => {
+          getQueue(stateId).push({
+            type: "error",
+            unitId: stateId as unknown as InstanceId,
+            message,
+          })
+        },
+        emitCompletion: (stateId, update = {}) => {
+          const operationType =
+            update.operationType ?? lastOperationTypeByStateId.get(stateId) ?? "update"
+
+          const rawOutputs = update.rawOutputs ?? {
+            // note: tests generally don't care about actual Pulumi outputs
+            // provide a non-empty object so business parsing can run if needed
+            $test: { value: true },
+          }
+
+          getQueue(stateId).push({
+            type: "completion",
+            unitId: stateId as unknown as InstanceId,
+            operationType,
+            rawOutputs,
+            provenance: update.provenance,
+          })
+        },
+      }
+
+      const runnerBackend = vi.mockObject({
+        update: vi.fn().mockImplementation(async (options: UnitUpdateOptions) => {
+          lastOperationTypeByStateId.set(options.stateId, "update")
+          await updateImpl(options)
+
+          if (autoCompletionEnabled) {
+            runner.emitCompletion(options.stateId, { operationType: "update" })
+          }
+        }),
+        preview: vi.fn().mockImplementation(async (options: UnitUpdateOptions) => {
+          lastOperationTypeByStateId.set(options.stateId, "update")
+          await previewImpl(options)
+
+          if (autoCompletionEnabled) {
+            runner.emitCompletion(options.stateId, { operationType: "update" })
+          }
+        }),
+        refresh: vi.fn().mockImplementation(async (options: UnitOptions) => {
+          lastOperationTypeByStateId.set(options.stateId, "refresh")
+          await refreshImpl(options)
+
+          if (autoCompletionEnabled) {
+            runner.emitCompletion(options.stateId, { operationType: "refresh" })
+          }
+        }),
+        destroy: vi.fn().mockImplementation(async (options: UnitDestroyOptions) => {
+          lastOperationTypeByStateId.set(options.stateId, "destroy")
+          await destroyImpl(options)
+
+          if (autoCompletionEnabled) {
+            runner.emitCompletion(options.stateId, { operationType: "destroy" })
+          }
+        }),
+        watch: vi.fn().mockImplementation((options: UnitOptions) => {
+          const queue = getQueue(options.stateId)
+
+          return (async function* () {
+            while (true) {
+              const update = await queue.shift()
+              yield update
+
+              if (update.type === "completion") {
+                return
+              }
+            }
+          })()
+        }),
+      } as unknown as RunnerBackend)
+
+      Object.defineProperty(runnerBackend, "__testController", {
+        value: runner,
+        enumerable: false,
+      })
+
+      await use(runnerBackend)
+    },
+
+    runner: async ({ runnerBackend }, use) => {
+      const controller = (runnerBackend as unknown as { __testController?: RunnerTestController })
+        .__testController
+
+      if (!controller) {
+        throw new Error("Runner test controller was not initialized")
+      }
+
+      await use(controller)
+    },
+
+    libraryBackend: async ({}, use) => {
+      const libraryBackend = vi.mockObject({
+        loadLibrary: vi.fn(),
+        getResolvedUnitSources: vi.fn(),
+      } as unknown as LibraryBackend)
+
+      await use(libraryBackend)
+    },
+
+    artifactService: async ({}, use) => {
+      const artifactService = vi.mockObject({
+        getArtifactsByIds: vi.fn().mockResolvedValue([]),
+      } as unknown as ArtifactService)
+
+      await use(artifactService)
+    },
+
+    instanceLockService: async ({}, use) => {
+      const instanceLockService = vi.mockObject({
+        lockInstances: vi.fn(),
+        unlockInstances: vi.fn().mockResolvedValue(undefined),
+        unlockInstancesUnconditionally: vi.fn().mockResolvedValue(undefined),
+        tryLockInstances: vi.fn(),
+      } as unknown as InstanceLockService)
+
+      await use(instanceLockService)
+    },
+
+    operationService: async ({}, use) => {
+      const operationService = vi.mockObject({
+        updateOperation: vi.fn().mockResolvedValue({} as Operation),
+        markOperationFinished: vi.fn().mockResolvedValue({} as Operation),
+        appendLog: vi.fn().mockResolvedValue({} as Operation),
+      } as unknown as OperationService)
+
+      await use(operationService)
+    },
+
+    secretService: async ({}, use) => {
+      const secretService = vi.mockObject({
+        getInstanceSecretValuesCore: vi.fn().mockResolvedValue({}),
+      } as unknown as SecretService)
+
+      await use(secretService)
+    },
+
+    instanceStateService: async ({}, use) => {
+      const instanceStateService = vi.mockObject({
+        getInstanceStatesCore: vi.fn(),
+        createOperationStates: vi.fn(),
+        updateOperationState: vi.fn(),
+        updateOperationProgress: vi.fn(),
+        publishGhostInstanceDeletion: vi.fn(),
+      } as unknown as InstanceStateService)
+
+      await use(instanceStateService)
+    },
+
+    projectModelService: async ({}, use) => {
+      const projectModelService = vi.mockObject({
+        getProjectModelCore: vi.fn(),
+      } as unknown as ProjectModelService)
+
+      await use(projectModelService)
+    },
+
+    libraryService: async ({}, use) => {
+      const libraryService = vi.mockObject({
+        getLibraryModelCore: vi.fn(),
+        getResolvedUnitSources: vi.fn(),
+      } as unknown as LibraryService)
+
+      await use(libraryService)
+    },
+
+    projectPortService: async ({}, use) => {
+      const projectPortService = vi.mockObject({
+        isExportPortType: vi.fn().mockReturnValue(false),
+        isImportPortType: vi.fn().mockReturnValue(false),
+        extractImportSourceStateId: vi.fn().mockReturnValue(null),
+        getImportPortContentHash: vi.fn().mockResolvedValue(null),
+        getImportPortPayload: vi.fn().mockResolvedValue(null),
+        buildImportCapturedOutputValues: vi.fn().mockReturnValue({}),
+        buildImportEntitySnapshotPayload: vi.fn().mockReturnValue({
+          nodes: [],
+          explicitReferences: [],
+          implicitReferences: [],
+        }),
+        buildExportPayload: vi.fn(),
+        syncExportPort: vi.fn().mockResolvedValue(undefined),
+        clearExportPort: vi.fn().mockResolvedValue(undefined),
+      } as unknown as ProjectPortService)
+
+      await use(projectPortService)
+    },
+
+    unitExtraService: async ({}, use) => {
+      const unitExtraService = vi.mockObject({
+        getInstanceTriggers: vi.fn().mockResolvedValue([]),
+        processUnitPages: vi.fn().mockResolvedValue([]),
+        processUnitTerminals: vi.fn().mockResolvedValue([]),
+        processUnitTriggers: vi.fn().mockResolvedValue([]),
+        pruneInstanceArtifacts: vi.fn().mockResolvedValue(undefined),
+      } as unknown as UnitExtraService)
+
+      await use(unitExtraService)
+    },
+
+    unitOutputService: async ({}, use) => {
+      const unitOutputService = vi.mockObject({
+        parseUnitOutputs: vi.fn().mockResolvedValue({
+          outputHash: null,
+          statusFields: null,
+          terminals: null,
+          pages: null,
+          triggers: null,
+          secrets: null,
+          workers: null,
+          exportedArtifactIds: null,
+          hasResourceHooks: false,
+          entitySnapshotError: null,
+          entitySnapshotPayload: null,
+        }),
+      } as unknown as UnitOutputService)
+
+      await use(unitOutputService)
+    },
+
+    entitySnapshotService: async ({}, use) => {
+      const entitySnapshotService = vi.mockObject({
+        reconstructLatestExportedOutputValues: vi.fn().mockResolvedValue(new Map()),
+        persistUnitEntitySnapshots: vi.fn().mockResolvedValue(undefined),
+      } as unknown as EntitySnapshotService)
+
+      await use(entitySnapshotService)
+    },
+
+    createMockLibrary: async ({}, use) => {
+      const createMockLibrary = (): LibraryModel => {
+        const testEntity = defineEntity({
+          type: "test.entity.v1",
+          schema: z.object({
+            value: z.string(),
+          }),
+        })
+
+        const testUnit = defineUnit({
+          type: "component.v1",
+          inputs: {
+            dependency: testEntity,
+          },
+          outputs: {
+            value: testEntity,
+          },
+          source: {
+            package: "@test/units",
+            path: "test-unit",
+          },
+        })
+
+        const testComposite = defineComponent({
+          type: "composite.v1",
+          create: () => {},
+        })
+
+        return {
+          components: {
+            "component.v1": testUnit.model,
+            "composite.v1": testComposite.model,
+          },
+          entities: {
+            "test.entity.v1": testEntity.model,
+          },
+        }
+      }
+
+      await use(createMockLibrary)
+    },
+
+    createUnit: async ({}, use) => {
+      const createUnit = (name: string, type: VersionedName = "component.v1"): InstanceModel => {
+        return {
+          id: getInstanceId(type, name),
+          name,
+          type,
+          kind: "unit",
+          parentId: undefined,
+          inputs: {},
+          args: {},
+          outputs: {},
+        }
+      }
+
+      await use(createUnit)
+    },
+
+    createComposite: async ({}, use) => {
+      const createComposite = (
+        name: string,
+        type: VersionedName = "composite.v1",
+      ): InstanceModel => {
+        return {
+          id: getInstanceId(type, name),
+          name,
+          type,
+          kind: "composite",
+          parentId: undefined,
+          inputs: {},
+          args: {},
+          outputs: {},
+        }
+      }
+
+      await use(createComposite)
+    },
+
+    createDeployedUnitState: async ({}, use) => {
+      const createDeployedUnitState = (instance: InstanceModel): InstanceState => {
+        return {
+          id: instance.id,
+          instanceId: instance.id,
+          status: "deployed",
+          source: "resident",
+          kind: instance.kind,
+          hasResourceHooks: false,
+          parentId: null,
+          parentInstanceId: instance.parentId ?? null,
+          selfHash: null,
+          librarySnapshotId: null,
+          libraryPackageVersionId: null,
+          inputHash: 12345,
+          outputHash: 12345,
+          dependencyOutputHash: 0,
+          statusFields: null,
+          exportedArtifactIds: null,
+          inputHashNonce: null,
+          currentResourceCount: null,
+          model: null,
+          resolvedInputs: null,
+          lastOperationState: {
+            operationId: "test-op",
+            librarySnapshotId: null,
+            libraryPackageVersionId: null,
+            previousLibraryPackageVersionId: null,
+            localOverlayActive: false,
+            localOverlayRevision: null,
+            stateId: instance.id,
+            status: "updated" as InstanceOperationStatus,
+            currentResourceCount: null,
+            totalResourceCount: null,
+            model: instance,
+            resolvedInputs: {},
+            startedAt: null,
+            finishedAt: null,
+          },
+          evaluationState: {} as InstanceState["evaluationState"],
+        }
+      }
+
+      await use(createDeployedUnitState)
+    },
+
+    createOperation: async ({}, use) => {
+      const createOperation = (input: {
+        type: Operation["type"]
+        requestedInstanceIds: InstanceId[]
+        phases: OperationPhase[]
+        options?: Partial<OperationOptions>
+      }): Operation => {
+        return {
+          id: createId(),
+          librarySnapshotId: null,
+          meta: {
+            title: "Test Operation",
+            description: "Orchestrator runtime test",
+          },
+          type: input.type,
+          status: "pending",
+          options: {
+            forceUpdateDependencies: false,
+            ignoreDependencies: false,
+            ignoreChangedDependencies: false,
+            forceUpdateChildren: false,
+            destroyDependentInstances: true,
+            invokeDestroyTriggers: true,
+            deleteUnreachableResources: false,
+            forceDeleteState: false,
+            allowPartialCompositeInstanceUpdate: false,
+            allowPartialCompositeInstanceDestruction: false,
+            refresh: false,
+            ...input.options,
+          },
+          phases: input.phases,
+          requestedInstanceIds: input.requestedInstanceIds,
+          startedAt: new Date(),
+          updatedAt: new Date(),
+          finishedAt: null,
+        }
+      }
+
+      await use(createOperation)
+    },
+
+    createContext: async (
+      {
         project,
-      ])
-
-      instanceStateService.getInstanceStatesCore.mockResolvedValue(input.states)
-
-      return await OperationContext.load(
-        project.id,
+        logger,
         libraryService,
         instanceStateService,
         projectModelService,
-        undefined,
-        logger,
-        input.pinned,
-      )
-    }
+        createMockLibrary,
+      },
+      use,
+    ) => {
+      const createContext = async (input: {
+        instances: InstanceModel[]
+        ghostInstances?: InstanceModel[]
+        states: InstanceState[]
+        library?: LibraryModel
+        pinned?: PinnedOperationLibrary
+      }): Promise<OperationContext> => {
+        const library = input.library ?? createMockLibrary()
 
-    await use(createContext)
-  },
+        const unitSources: ResolvedUnitSource[] = [
+          {
+            unitType: "component.v1",
+            sourceHash: 12345,
+            projectPath: "test",
+            allowedDependencies: [],
+          },
+          {
+            unitType: "composite.v1",
+            sourceHash: 12345,
+            projectPath: "test",
+            allowedDependencies: [],
+          },
+        ]
 
-  setupPersistenceMocks: async ({ instanceStateService }, use) => {
-    const setupPersistenceMocks = (input: { instances: InstanceModel[] }) => {
-      const instanceByStateId = new Map<string, InstanceModel>(
-        input.instances.map(instance => [instance.id, instance]),
-      )
+        libraryService.getLibraryModelCore.mockResolvedValue(library)
+        libraryService.getResolvedUnitSources.mockResolvedValue(unitSources)
 
-      const lastStatusByStateId = new Map<string, InstanceOperationStatus>()
+        projectModelService.getProjectModelCore.mockResolvedValue([
+          {
+            instances: input.instances,
+            virtualInstances: [],
+            hubs: [],
+            ghostInstances: input.ghostInstances ?? [],
+          },
+          project,
+        ])
 
-      instanceStateService.createOperationStates.mockImplementation(async (_projectId, tuples) => {
-        return tuples.map(([opState, instancePatch]) => {
-          lastStatusByStateId.set(opState.stateId, opState.status)
+        instanceStateService.getInstanceStatesCore.mockResolvedValue(input.states)
 
-          return {
-            instanceId: opState.model.id,
-            ...instancePatch,
-            lastOperationState: {
-              operationId: opState.operationId,
-              librarySnapshotId: null,
-              libraryPackageVersionId: null,
-              previousLibraryPackageVersionId: null,
-              localOverlayActive: false,
-              localOverlayRevision: null,
-              stateId: opState.stateId,
-              status: opState.status,
-              currentResourceCount: null,
-              totalResourceCount: null,
-              model: opState.model,
-              resolvedInputs: opState.resolvedInputs,
-              startedAt: null,
-              finishedAt: null,
-            },
-          }
-        })
-      })
+        return await OperationContext.load(
+          project.id,
+          libraryService,
+          instanceStateService,
+          projectModelService,
+          undefined,
+          logger,
+          input.pinned,
+        )
+      }
 
-      instanceStateService.updateOperationState.mockImplementation(
-        async (_projectId, stateId, operationId, options) => {
-          const status =
-            typeof options.operationState?.status === "string"
-              ? options.operationState.status
-              : (lastStatusByStateId.get(stateId) ?? "pending")
+      await use(createContext)
+    },
 
-          lastStatusByStateId.set(stateId, status)
+    setupPersistenceMocks: async ({ instanceStateService }, use) => {
+      const setupPersistenceMocks = (input: { instances: InstanceModel[] }) => {
+        const instanceByStateId = new Map<string, InstanceModel>(
+          input.instances.map(instance => [instance.id, instance]),
+        )
 
-          const instance = instanceByStateId.get(stateId) ?? input.instances[0]
-          if (!instance) {
-            throw new Error("No instances provided to setupPersistenceMocks")
-          }
+        const lastStatusByStateId = new Map<string, InstanceOperationStatus>()
 
-          return {
-            instanceId: instance.id,
-            ...options.instanceState,
-            lastOperationState: {
-              operationId,
-              librarySnapshotId: null,
-              libraryPackageVersionId: null,
-              previousLibraryPackageVersionId: null,
-              localOverlayActive: false,
-              localOverlayRevision: null,
-              stateId,
-              status,
-              currentResourceCount: null,
-              totalResourceCount: null,
-              model: instance,
-              resolvedInputs: {},
-              startedAt: null,
-              finishedAt: null,
-            },
-          }
-        },
-      )
-    }
+        instanceStateService.createOperationStates.mockImplementation(
+          async (_projectId, tuples) => {
+            return tuples.map(([opState, instancePatch]) => {
+              lastStatusByStateId.set(opState.stateId, opState.status)
 
-    await use(setupPersistenceMocks)
-  },
+              return {
+                instanceId: opState.model.id,
+                ...instancePatch,
+                lastOperationState: {
+                  operationId: opState.operationId,
+                  librarySnapshotId: null,
+                  libraryPackageVersionId: null,
+                  previousLibraryPackageVersionId: null,
+                  localOverlayActive: false,
+                  localOverlayRevision: null,
+                  stateId: opState.stateId,
+                  status: opState.status,
+                  currentResourceCount: null,
+                  totalResourceCount: null,
+                  model: opState.model,
+                  resolvedInputs: opState.resolvedInputs,
+                  startedAt: null,
+                  finishedAt: null,
+                },
+              }
+            })
+          },
+        )
 
-  setupImmediateLocking: async ({ instanceLockService }, use) => {
-    const setupImmediateLocking = () => {
-      instanceLockService.lockInstances.mockImplementation(
-        async (_projectId, stateIds, _meta, action) => {
-          await action?.(undefined as never, stateIds)
-          return ["test", stateIds]
-        },
-      )
-    }
+        instanceStateService.updateOperationState.mockImplementation(
+          async (_projectId, stateId, operationId, options) => {
+            const status =
+              typeof options.operationState?.status === "string"
+                ? options.operationState.status
+                : (lastStatusByStateId.get(stateId) ?? "pending")
 
-    await use(setupImmediateLocking)
-  },
-})
+            lastStatusByStateId.set(stateId, status)
+
+            const instance = instanceByStateId.get(stateId) ?? input.instances[0]
+            if (!instance) {
+              throw new Error("No instances provided to setupPersistenceMocks")
+            }
+
+            return {
+              instanceId: instance.id,
+              ...options.instanceState,
+              lastOperationState: {
+                operationId,
+                librarySnapshotId: null,
+                libraryPackageVersionId: null,
+                previousLibraryPackageVersionId: null,
+                localOverlayActive: false,
+                localOverlayRevision: null,
+                stateId,
+                status,
+                currentResourceCount: null,
+                totalResourceCount: null,
+                model: instance,
+                resolvedInputs: {},
+                startedAt: null,
+                finishedAt: null,
+              },
+            }
+          },
+        )
+      }
+
+      await use(setupPersistenceMocks)
+    },
+
+    setupImmediateLocking: async ({ instanceLockService }, use) => {
+      const setupImmediateLocking = () => {
+        instanceLockService.lockInstances.mockImplementation(
+          async (_projectId, stateIds, _meta, action) => {
+            await action?.(undefined as never, stateIds)
+            return ["test", stateIds]
+          },
+        )
+      }
+
+      await use(setupImmediateLocking)
+    },
+  })
+}

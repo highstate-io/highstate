@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "bun run --bun vitest run src/harness/registry.test.ts",
-    "test:e2e": "bun src/run.ts",
-    "test:services": "bun src/services-run.ts",
+    "test:e2e": "bunx --bun nx run-many -t build --projects=@highstate/backend,@highstate/backend-api,@highstate/pulumi --parallel=2 && bun src/run.ts",
+    "test:services": "bunx --bun nx run-many -t build --projects=@highstate/designer,@highstate/worker-sdk --parallel=2 && bun src/services-run.ts",
     "test:conformance": "bun run --bun vitest run src/conformance",
     "typecheck": "tsc --noEmit",
     "biome:check": "biome check --error-on-warnings",

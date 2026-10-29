@@ -2,10 +2,10 @@ import type { ProjectLibraryService } from "../business"
 import type { ProjectLibrarySnapshot } from "../library"
 import { describe, vi } from "vitest"
 import { RuntimeOperation } from "./operation"
-import { createDeferred, operationTest } from "./operation.test-utils"
+import { createDeferred, createOperationTest } from "./operation.test-utils"
 import { createOperationPlan } from "./operation-plan"
 
-const provenanceTest = operationTest.extend<{
+const provenanceTest = createOperationTest().extend<{
   scenario: {
     runtime: (type: "update" | "recreate" | "refresh" | "preview") => RuntimeOperation
     context: import("./operation-context").OperationContext

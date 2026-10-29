@@ -3,27 +3,12 @@ import { startBackend } from "./harness/backend"
 import { createClients } from "./harness/clients"
 import { startEffects } from "./harness/effects"
 import { cleanupProjectResources, createEnvironment } from "./harness/environment"
-import { command } from "./harness/process"
 import { createProject } from "./harness/project"
 import { startRegistry } from "./harness/registry"
 import { lifecycle, runOperation } from "./scenarios/lifecycle"
 import { resilience } from "./scenarios/resilience"
 import { upgrade } from "./scenarios/upgrade"
 
-const root = Bun.fileURLToPath(new URL("../../..", import.meta.url))
-await command(
-  [
-    "bunx",
-    "--bun",
-    "nx",
-    "run-many",
-    "-t",
-    "build",
-    "--projects=@highstate/backend,@highstate/backend-api,@highstate/pulumi",
-    "--parallel=2",
-  ],
-  { cwd: root },
-)
 const environment = await createEnvironment()
 let failure: unknown
 try {
