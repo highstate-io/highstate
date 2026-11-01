@@ -2,7 +2,7 @@ import { dnsRecordMediator, type ResolvedDnsRecordArgs } from "@highstate/common
 import { cloudflare } from "@highstate/library"
 import { getResourceComment } from "@highstate/pulumi"
 import { DnsRecord } from "@pulumi/cloudflare"
-import { ComponentResource, type ResourceOptions } from "@pulumi/pulumi"
+import { ComponentResource, type ResourceOptions, rootStackResource } from "@pulumi/pulumi"
 import { getProvider } from "../provider"
 
 type CloudflareDnsRecordArgs = ResolvedDnsRecordArgs & {
@@ -30,14 +30,14 @@ class CloudflareDnsRecord extends ComponentResource {
         ttl: args.ttl ?? 1,
         priority: args.priority,
       },
-      opts,
+      { ...opts, parent: this, aliases: [{ parent: rootStackResource }] },
     )
   }
 }
 
 export const createDnsRecord = dnsRecordMediator.implement(
   cloudflare.providerDataSchema,
-  ({ name, args }, data) => {
+  ({ name, args, dependsOn, replaceWith }, data) => {
     const provider = getProvider(data)
     const zoneId = data.zoneIds[args.zone]
     if (!zoneId) {
@@ -46,6 +46,6 @@ export const createDnsRecord = dnsRecordMediator.implement(
       )
     }
 
-    return new CloudflareDnsRecord(name, { ...args, zoneId }, { provider })
+    return new CloudflareDnsRecord(name, { ...args, zoneId }, { provider, dependsOn, replaceWith })
   },
 )
