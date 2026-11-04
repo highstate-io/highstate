@@ -28,7 +28,7 @@
     },
     "packages/platform/api": {
       "name": "@highstate/api",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@bufbuild/protobuf": "catalog:",
         "@connectrpc/connect": "catalog:",
@@ -45,7 +45,7 @@
     },
     "packages/platform/backend": {
       "name": "@highstate/backend",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@aws-crypto/crc32": "^5.2.0",
         "@highstate/contract": "workspace:*",
@@ -101,7 +101,7 @@
     },
     "packages/platform/backend-api": {
       "name": "@highstate/backend-api",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@bufbuild/protobuf": "catalog:",
         "@connectrpc/connect": "catalog:",
@@ -129,7 +129,7 @@
     },
     "packages/platform/cli": {
       "name": "@highstate/cli",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "bin": {
         "highstate": "./dist/main.js",
       },
@@ -175,7 +175,7 @@
     },
     "packages/platform/contract": {
       "name": "@highstate/contract",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@noble/hashes": "^2.0.0",
         "@paralleldrive/cuid2": "^2.2.2",
@@ -193,7 +193,7 @@
     },
     "packages/platform/create-highstate": {
       "name": "create-highstate",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "bin": {
         "create-highstate": "./dist/main.js",
       },
@@ -208,7 +208,7 @@
     },
     "packages/platform/designer": {
       "name": "@highstate/designer",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@highstate/backend": "workspace:*",
         "@highstate/backend-api": "workspace:*",
@@ -335,7 +335,7 @@
     },
     "packages/platform/pulumi": {
       "name": "@highstate/pulumi",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@highstate/contract": "workspace:*",
         "@pulumi/pulumi": "3.232.0",
@@ -361,7 +361,7 @@
     },
     "packages/platform/worker-sdk": {
       "name": "@highstate/worker-sdk",
-      "version": "1.1.1",
+      "version": "0.32.0",
       "dependencies": {
         "@bufbuild/protobuf": "catalog:",
         "@connectrpc/connect": "catalog:",
