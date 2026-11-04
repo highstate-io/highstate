@@ -5,7 +5,6 @@ import {
   type Input,
   type InputArray,
   type InputOrArray,
-  interpolate,
   normalizeInputsAndMap,
   type Output,
   output,
@@ -14,12 +13,19 @@ import {
 } from "@highstate/pulumi"
 import { flat, uniqueBy } from "remeda"
 import { Command, type CommandHost } from "./command"
+import { DnsRecordSetLifecycle, getDnsRecordFamily } from "./dns-lifecycle"
+import { getDnsWaitScript } from "./dns-wait"
 import { ImplementationMediator } from "./impl-ref"
 import { type InputEndpoint, l3EndpointToString, parseEndpoint } from "./network/endpoints"
 
 export const dnsRecordMediator = new ImplementationMediator(
   "dns-record",
-  z.object({ name: z.string(), args: z.custom<ResolvedDnsRecordArgs>() }),
+  z.object({
+    name: z.string(),
+    args: z.custom<ResolvedDnsRecordArgs>(),
+    dependsOn: z.custom<ResourceOptions["dependsOn"]>().optional(),
+    replaceWith: z.custom<ResourceOptions["replaceWith"]>().optional(),
+  }),
   z.instanceof(ComponentResource),
 )
 
@@ -164,6 +170,8 @@ export class DnsRecord extends ComponentResource {
 
         return dnsRecordMediator.call(provider.implRef, {
           name,
+          dependsOn: opts?.dependsOn,
+          replaceWith: opts?.replaceWith,
           args: {
             name: resolvedName,
             priority: args.priority,
@@ -182,7 +190,8 @@ export class DnsRecord extends ComponentResource {
       waitAt: args.waitAt,
       resolvedType,
       proxied: args.proxied,
-    }).apply(({ waitAt, resolvedType, proxied }) => {
+      dnsRecord: this.dnsRecord,
+    }).apply(({ waitAt, resolvedType, proxied, dnsRecord }) => {
       if (resolvedType === "CNAME") {
         // TODO: handle CNAME records
         return []
@@ -201,14 +210,10 @@ export class DnsRecord extends ComponentResource {
             `${name}.wait-for-dns.${hostname}`,
             {
               host,
-              create: [
-                interpolate`while ! getent hosts "${resolvedName}";`,
-                interpolate`do echo "Waiting for DNS record \"${resolvedName}\" to be available...";`,
-                `sleep 5;`,
-                `done`,
-              ],
+              ignoreCommandChanges: false,
+              create: getDnsWaitScript(resolvedName),
             },
-            { parent: this },
+            { parent: this, dependsOn: dnsRecord },
           )
         })
       }
@@ -220,14 +225,10 @@ export class DnsRecord extends ComponentResource {
           `${name}.wait-for-dns.${hostname}`,
           {
             host,
-            create: [
-              interpolate`while ! getent hosts "${resolvedName}" | grep "${resolvedValue}";`,
-              interpolate`do echo "Waiting for DNS record \"${resolvedName}" to resolve to "${resolvedValue}"...";`,
-              `sleep 5;`,
-              `done`,
-            ],
+            ignoreCommandChanges: false,
+            create: getDnsWaitScript(resolvedName, resolvedValue),
           },
-          { parent: this },
+          { parent: this, dependsOn: dnsRecord },
         )
       })
     })
@@ -282,9 +283,18 @@ export class DnsRecordSet extends ComponentResource {
         return output({
           name: args.name ?? name,
           providers: matchedProviders,
-        }).apply(({ name, providers }) => {
-          return providers.flatMap(provider =>
-            values.map(
+          types: values.map(value => args.type ?? getTypeByEndpoint(value)),
+        }).apply(({ name, providers, types }) => {
+          const family = getDnsRecordFamily(types)
+
+          return providers.flatMap(provider => {
+            const lifecycle = new DnsRecordSetLifecycle(
+              `${name}.${getEntityId(provider)}.lifecycle`,
+              family === "alias" ? `alias:${l3EndpointToString(values[0])}` : family,
+              { parent: this },
+            )
+
+            return values.map(
               l3Endpoint =>
                 new DnsRecord(
                   `${name}.${getEntityId(provider)}.${l3EndpointToString(l3Endpoint)}`,
@@ -298,10 +308,10 @@ export class DnsRecordSet extends ComponentResource {
                     priority: args.priority,
                     waitAt: args.waitAt,
                   },
-                  { parent: this },
+                  { parent: this, dependsOn: lifecycle, replaceWith: [lifecycle] },
                 ),
-            ),
-          )
+            )
+          })
         })
       })
       .apply(flat)
