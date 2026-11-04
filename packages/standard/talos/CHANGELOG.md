@@ -1,3 +1,13 @@
+## 0.31.1
+
+### Patch Changes
+
+- Updated dependencies [[`4d53935`](https://github.com/highstate-io/highstate/commit/4d539353c8174af02696556a29117920bb45d503)]:
+  - @highstate/library@0.31.1
+  - @highstate/cilium@0.31.1
+  - @highstate/common@0.31.1
+  - @highstate/k8s@0.31.1
+
 ## 0.31.0
 
 ### Patch Changes

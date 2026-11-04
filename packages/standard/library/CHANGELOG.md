@@ -1,3 +1,9 @@
+## 0.31.1
+
+### Patch Changes
+
+- [#65](https://github.com/highstate-io/highstate/pull/65) [`4d53935`](https://github.com/highstate-io/highstate/commit/4d539353c8174af02696556a29117920bb45d503) Thanks [@Exeteres](https://github.com/Exeteres)! - Use the restored Highstate v0 platform dependencies instead of the accidentally published v1 release line.
+
 ## 0.31.0
 
 ### Minor Changes
