@@ -149,26 +149,6 @@ jobs:
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      - name: Deprecate accidental platform v1 releases
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_USERCONFIG: ${{ runner.temp }}/npm-recovery.npmrc
-        run: |
-          if [ "$(jq -r '.version' packages/platform/contract/package.json)" != "0.32.0" ]; then
-            exit 0
-          fi
-          printf '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}\n' > "$NPM_CONFIG_USERCONFIG"
-          mapfile -t packages < <(jq -r '.fixed[0][]' .changeset/config.json)
-          for package in "${packages[@]}"; do
-            npm view "$package@0.32.0" version --registry=https://registry.npmjs.org
-          done
-          for package in "${packages[@]}"; do
-            npm deprecate "$package@>=1.0.0 <2.0.0" \
-              'Tainted release: the v1 version line was published accidentally. Use the v0 release line (0.32.0 or newer), which retains the current code and restores pre-1.0 versioning.' \
-              --registry=https://registry.npmjs.org
-            npm dist-tag add "$package@0.32.0" latest --registry=https://registry.npmjs.org
-          done
-
       - name: Create GitHub releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
