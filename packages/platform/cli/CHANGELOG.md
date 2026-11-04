@@ -1,3 +1,9 @@
+## 0.32.0
+
+### Patch Changes
+
+- Restore pre-1.0 versioning after the accidental v1 releases, retaining all changes through 1.1.1.
+
 ## 1.1.1
 
 ### Patch Changes
