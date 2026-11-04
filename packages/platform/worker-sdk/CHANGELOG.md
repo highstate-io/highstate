@@ -1,3 +1,11 @@
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @highstate/api@1.1.1
+  - @highstate/contract@1.1.1
+
 ## 1.1.0
 
 ### Patch Changes

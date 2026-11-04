@@ -1,3 +1,19 @@
+## 0.31.0
+
+### Minor Changes
+
+- [#60](https://github.com/highstate-io/highstate/pull/60) [`654e12d`](https://github.com/highstate-io/highstate/commit/654e12dd8363cb8a78663fd89f9cd719250657c1) Thanks [@Exeteres](https://github.com/Exeteres)! - Add an ExetRouter Kubernetes unit with persistent state, an HTTPS API, restricted SSH management, and optional encrypted restic backups with consistent SQLite snapshots and automatic restoration.
+
+  Support ACME DNS01 CNAME delegation through application `dnsChallengeAlias` arguments and certificate `dnsChallengeAliases` maps. Validate existing challenge CNAME records before issuance and select a compatible issuer using the delegated TXT record locations.
+
+### Patch Changes
+
+- Updated dependencies [[`654e12d`](https://github.com/highstate-io/highstate/commit/654e12dd8363cb8a78663fd89f9cd719250657c1), [`a00db11`](https://github.com/highstate-io/highstate/commit/a00db11e2899606273da751d3b84e482514582f1)]:
+  - @highstate/library@0.31.0
+  - @highstate/common@0.31.0
+  - @highstate/pulumi@1.1.1
+  - @highstate/contract@1.1.1
+
 ## 0.30.3
 
 ### Patch Changes

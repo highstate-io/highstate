@@ -1,3 +1,12 @@
+## 1.1.1
+
+### Patch Changes
+
+- [#59](https://github.com/highstate-io/highstate/pull/59) [`ec6cfcd`](https://github.com/highstate-io/highstate/commit/ec6cfcde274848bf2e886c1669d6fca15903eef3) Thanks [@Exeteres](https://github.com/Exeteres)! - Restore signal forwarding for isolated Pulumi commands by default so cancellation and force kill work in supported environments. Set `HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS=false` when using an `unshare` version without `--forward-signals` support.
+
+- Updated dependencies []:
+  - @highstate/contract@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

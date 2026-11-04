@@ -1,3 +1,14 @@
+## 1.1.1
+
+### Patch Changes
+
+- [#50](https://github.com/highstate-io/highstate/pull/50) [`dc22806`](https://github.com/highstate-io/highstate/commit/dc22806193dc725376978259bcef1e19bc888d59) Thanks [@Exeteres](https://github.com/Exeteres)! - Show current operation state for composite children first opened after a CLI operation starts.
+
+- Updated dependencies [[`ec6cfcd`](https://github.com/highstate-io/highstate/commit/ec6cfcde274848bf2e886c1669d6fca15903eef3)]:
+  - @highstate/backend@1.1.1
+  - @highstate/backend-api@1.1.1
+  - @highstate/contract@1.1.1
+
 ## 1.1.0
 
 ### Patch Changes

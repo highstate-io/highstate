@@ -1,3 +1,10 @@
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @highstate/cli@1.1.1
+
 ## 1.1.0
 
 ### Patch Changes

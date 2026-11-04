@@ -2,7 +2,7 @@
   "exetrouter": {
     "name": "ghcr.io/highstate-io/apps/exetrouter",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/apps/exetrouter:latest"
+    "image": "ghcr.io/highstate-io/apps/exetrouter:latest@sha256:0d4ffc7283395b28c01d49ce8fa2afa580241d50336596eb7159787354e90164"
   },
   "vaultwarden": {
     "name": "vaultwarden/server",

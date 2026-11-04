@@ -1,3 +1,12 @@
+## 0.31.0
+
+### Patch Changes
+
+- Updated dependencies [[`654e12d`](https://github.com/highstate-io/highstate/commit/654e12dd8363cb8a78663fd89f9cd719250657c1), [`a00db11`](https://github.com/highstate-io/highstate/commit/a00db11e2899606273da751d3b84e482514582f1)]:
+  - @highstate/library@0.31.0
+  - @highstate/common@0.31.0
+  - @highstate/pulumi@1.1.1
+
 ## 0.30.3
 
 ### Patch Changes
