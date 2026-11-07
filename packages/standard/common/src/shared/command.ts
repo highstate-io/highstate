@@ -11,7 +11,6 @@ import {
   mergeOptions,
   type Output,
   output,
-  secret,
   toPromise,
 } from "@highstate/pulumi"
 import { sha256 } from "@noble/hashes/sha2"
@@ -35,8 +34,7 @@ import { l3EndpointToString } from "./network/endpoints"
 export function getServerConnection(
   ssh: Input<ssh.Connection>,
 ): Output<types.input.remote.ConnectionArgs> {
-  // unwrapping Highstate credentials does not propagate Pulumi secrecy by itself
-  return secret(ssh).apply(ssh => {
+  return output(ssh).apply(ssh => {
     return {
       host: l3EndpointToString(ssh.endpoints[0]),
       port: ssh.endpoints[0].port,
@@ -446,14 +444,7 @@ export class Command extends ComponentResource {
   public readonly stderr: Output<string>
 
   constructor(name: string, args: CommandArgs, opts?: ComponentResourceOptions) {
-    // Highstate secret wrappers are ordinary objects to Pulumi. Protect the whole
-    // remote host, including nested credentials, without changing its entity shape.
-    super(
-      "highstate:common:Command",
-      name,
-      { ...args, host: args.host === "local" ? args.host : secret(args.host) },
-      opts,
-    )
+    super("highstate:common:Command", name, args, opts)
 
     const environment = applyUpdateTriggers(
       args.environment,
