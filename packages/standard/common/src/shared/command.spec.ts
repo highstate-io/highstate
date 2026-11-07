@@ -1,5 +1,13 @@
 import { common, network, ssh } from "@highstate/library"
-import { isSecret, makeEntity, output, runtime, secret, toPromise } from "@highstate/pulumi"
+import {
+  isSecret,
+  makeEntity,
+  makeSecret,
+  output,
+  runtime,
+  secret,
+  toPromise,
+} from "@highstate/pulumi"
 import getKeys from "micro-key-producer/ssh.js"
 import { describe, expect, it } from "vitest"
 import { Command, getServerConnection } from "./command"
@@ -46,7 +54,7 @@ describe("command credential provenance", () => {
     expect(await isSecret(password)).toBe(true)
   })
 
-  it("isolates secrecy loss to server materialization and plain entity reconstruction", async () => {
+  it("retains schema-compatible secret metadata through server materialization and reconstruction", async () => {
     const { keyPair, password } = createCredentials()
 
     const server = await createServerEntity({
@@ -60,6 +68,7 @@ describe("command credential provenance", () => {
 
     expect(await isSecret(output(server.ssh?.password?.value))).toBe(false)
     expect(await isSecret(output(server.ssh?.keyPair?.privateKey.value))).toBe(false)
+    expect(common.serverEntity.schema.safeParse(server).success).toBe(true)
 
     let props: Record<string, unknown> = {}
 
@@ -105,9 +114,9 @@ describe("command credential provenance", () => {
   })
 
   it("propagates normal Pulumi secrecy through the unchanged connection helper", async () => {
-    const { keyPair } = createCredentials()
+    const { keyPair, password } = createCredentials()
 
-    const connection = keyPair.apply(keyPair =>
+    const connection = output({ keyPair, password }).apply(({ keyPair, password }) =>
       makeEntity({
         entity: ssh.connectionEntity,
         identity: "synthetic",
@@ -116,6 +125,8 @@ describe("command credential provenance", () => {
           user: "root",
           hostKey: "synthetic-host-key",
           keyPair,
+          password: makeSecret(password),
+          proxy: { endpoint: l3EndpointToL4(endpoint, 22), user: "synthetic-proxy" },
         },
       }),
     )
@@ -128,5 +139,25 @@ describe("command credential provenance", () => {
     })
 
     expect(serialized.connection[specialSigKey]).toBe(specialSecretSig)
+    const value = await toPromise(derived)
+    expect(value.proxy?.password === value.password).toBe(true)
+    expect(value.proxy?.privateKey === value.privateKey).toBe(true)
+  })
+
+  it("does not evaluate unknown connection inputs", async () => {
+    const connection = output(runtime.deserializeProperty(runtime.unknownValue) as ssh.Connection)
+    const derived = getServerConnection(connection)
+    let evaluated = false
+
+    derived.apply(() => {
+      evaluated = true
+    })
+
+    const serialized = await serializeProperties("synthetic unknown connection", {
+      connection: derived,
+    })
+
+    expect(serialized.connection).toBe(runtime.unknownValue)
+    expect(evaluated).toBe(false)
   })
 })

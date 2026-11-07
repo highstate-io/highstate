@@ -43,6 +43,14 @@ Code in the backend API authentication layer, designer tRPC context, business se
 schemas owns the exact permission checks.
 Role and permission inventories remain in those sources rather than architecture documentation.
 
+## Secret Metadata
+
+Domain entity secret wrappers carry secrecy metadata across JSON transport and asynchronous materialization.
+They remain schema-compatible domain values rather than depending on Pulumi output types.
+The Pulumi runtime interprets that metadata at resolved resource-input registration, protecting wrapped values
+without hiding public sibling properties.
+The contract secret schema and `packages/platform/pulumi/src/secrets.ts` own the exact representation and adapter.
+
 ## Isolation And Ownership
 
 Each project has independent operational data and key material.
