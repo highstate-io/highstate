@@ -38,6 +38,7 @@ import {
   highstateRuntimeTokenEnvVar,
   isHighstateRuntimeAvaiable,
 } from "./runtime"
+import { registerHighstateResourceTransform } from "./secrets"
 import { type DeepInput, toPromise } from "./utils"
 
 type StatusField<TArgName extends string = string> = Omit<
@@ -258,6 +259,8 @@ export function forUnit<
       `Runtime config is required. Set "${highstateRuntimeEndpointEnvVar}" and "${highstateRuntimeTokenEnvVar}"`,
     )
   }
+
+  registerHighstateResourceTransform()
 
   const args = mapValues(unit.model.args, (arg, argName) => {
     const value = parseArgumentValue(hsConfig.args[argName])
