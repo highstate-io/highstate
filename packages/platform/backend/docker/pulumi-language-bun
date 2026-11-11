@@ -1,0 +1,3 @@
+#!/bin/sh
+# Pulumi's Bun host delegates to the Node.js language host with this runtime flag.
+exec pulumi-language-nodejs -runtime bun "$@"

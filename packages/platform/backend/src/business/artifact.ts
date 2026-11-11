@@ -44,7 +44,7 @@ export class ArtifactService {
     const artifactId = existingArtifact?.id ?? createId()
 
     // only upload to backend if file doesn't exist there
-    if (!existingArtifact || !(await this.artifactBackend.exists(projectId, hash))) {
+    if (!existingArtifact || !(await this.artifactBackend.exists(projectId, artifactId))) {
       if (existingArtifact) {
         this.logger.warn(
           `artifact with hash "%s" exists in database but not in the storage backend, re-uploading`,
@@ -128,7 +128,7 @@ export class ArtifactService {
     await Promise.all(
       unreferencedArtifacts.map(async artifact => {
         try {
-          await this.artifactBackend.delete(projectId, artifact.hash)
+          await this.artifactBackend.delete(projectId, artifact.id)
         } catch (error: unknown) {
           this.logger.warn(
             { error, projectId, hash: artifact.hash },

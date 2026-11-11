@@ -1,0 +1,264 @@
+---
+title: Runtimes and Project Libraries
+description: Choose workload placement, manage exact library versions, and upgrade existing projects.
+navigation:
+  icon: i-lucide-container
+---
+
+## Two Independent Choices
+
+A project's **container runtime** determines where its packaged operations, composite evaluation, sidecars,
+terminals, workers, and library image builds run.
+Its **Pulumi state backend** determines where Pulumi stores infrastructure state.
+Changing workload placement does not copy Pulumi state or move the Highstate project database.
+
+Runtime settings include local and remote Docker engines and Kubernetes namespaces.
+The default runtime is Local Docker, with the stable ID `local`.
+The Highstate backend still owns authorization, project keys, planning, and recovery, even when workloads run
+on another machine.
+
+The Designer's **Runtime & Registries** settings page manages reusable runtimes, Pulumi state backends, npm credentials,
+and container registry credentials.
+Project placement selects a runtime and state backend from those settings.
+The same workflows are available through the [CLI](/advanced/cli).
+
+## Preparing a Runtime
+
+Workload agents need an HTTPS runtime API URL reachable from their Docker engine or Kubernetes cluster.
+This is a dedicated authenticated gRPC listener, separate from the public API used by CLI contexts.
+The backend host must run that listener with a certificate valid for the configured hostname.
+A private certificate authority requires the runtime API CA bundle in runtime settings.
+Saving a URL does not start a listener or issue a certificate.
+
+The integrated backend API enables its runtime listener when TLS certificate and key paths are configured.
+Set these variables in the backend environment before starting the Designer:
+
+```bash
+export HIGHSTATE_RUNTIME_TLS_KEY_PATH=/path/to/runtime-key.pem
+export HIGHSTATE_RUNTIME_TLS_CERT_PATH=/path/to/runtime-cert.pem
+export HIGHSTATE_RUNTIME_PORT=7284
+```
+
+`HIGHSTATE_RUNTIME_HOST` optionally selects the bind address; the default is all interfaces.
+Without an explicit port, configuring the TLS paths enables port `7284`.
+Set each runtime's API URL to the externally reachable HTTPS hostname and port of this listener.
+An unconfigured listener remains disabled, and configuring only one of the certificate or key paths fails startup.
+
+Snapshot image builds also require `HIGHSTATE_RUNNER_BASE_IMAGE` to name a compatible runner image pinned by
+digest, such as `registry.example.com/highstate/runner@sha256:<digest>`.
+The runner image must include the runtime agent and the release-aligned Bun and Pulumi toolchain.
+There is no implicit mutable base-image fallback.
+
+Docker settings specify an engine endpoint and whether it shares the backend host.
+Remote engine TLS credentials are separate from the runtime API certificate configuration.
+Remote Docker and Kubernetes also require an OCI image repository for pushed snapshot images.
+Kubernetes settings specify kubeconfig, context when needed, namespace, service account, and a rootless
+BuildKit image for builds.
+
+List and inspect settings, then check the selected runtime:
+
+```bash
+highstate runtime list
+highstate runtime get <runtime-id> --output yaml
+highstate runtime check <runtime-id>
+highstate runtime check <runtime-id> --probe
+highstate pulumi-state-backend list
+```
+
+The check reports the checks provided by the backend and returns a nonzero exit code when it is not ready.
+The integrated backend checks access to the configured runner base image and starts a disposable workload to
+verify its authenticated runtime API connection.
+This requires `HIGHSTATE_RUNNER_BASE_IMAGE` and an existing project assigned to the runtime.
+The probe uses the configured runtime agent binary and path, waits up to 30 seconds, and requests workload
+cleanup after success, failure, timeout, or cancellation.
+Cleanup failures also fail the check.
+The `--probe` option requires an authenticated probe result, including when connecting to a separately assembled
+backend; a missing probe provider is an error.
+A successful connectivity check does not establish that every build, attach, storage, and networking path works.
+
+### Creating and Updating Settings
+
+CLI settings documents use protobuf JSON field names in JSON or YAML.
+For example, a remote Docker runtime document has this shape:
+
+```yaml [runtime.yaml]
+meta:
+  title: Remote Docker
+spec:
+  docker:
+    engine_endpoint: https://docker.example.com:2376
+    local: false
+  runtime_api_url: https://runtime.example.com:7443
+  image_repository: registry.example.com/highstate/library
+```
+
+Create it with the engine's client TLS files:
+
+```bash
+highstate runtime create --file runtime.yaml \
+  --docker-ca-bundle-file docker-ca.pem \
+  --docker-client-certificate-file docker-client.pem \
+  --docker-client-key-file docker-client-key.pem
+```
+
+For Kubernetes, `--kubeconfig-file` supplies kubeconfig content.
+`--runtime-api-ca-bundle-file` supplies a private runtime API CA bundle for either runtime type.
+The CLI encodes these files for the API's byte fields; inline byte fields use base64.
+Use `--file -` or a secret-file option with `-` to read that input from standard input.
+Only one input can consume standard input in a command.
+
+Updates replace the non-secret settings and require the revision returned by the latest read:
+
+```bash
+highstate runtime update <runtime-id> --file runtime.yaml --expected-revision <revision>
+```
+
+Include the complete intended non-secret configuration, including credential associations.
+A stale revision fails instead of overwriting another edit.
+Omitted write-only secrets retain their stored values; blank secret-file inputs also preserve existing values.
+Explicit API clear fields remove supported stored secrets.
+Secret values are not returned after saving; reads expose whether they are configured.
+Deletes also require `--expected-revision` and reject settings that remain referenced.
+
+The `pulumi-state-backend`, `npm-registry-credential`, and `container-registry-credential` command groups provide
+the same `list`, `get`, `create`, `update`, and `delete` workflow.
+Their `--credentials-file` option supplies a JSON credential document: a Pulumi environment-variable map,
+an npm `token` object, or a container registry `username` and `password` object.
+Associate credential IDs with the runtime that needs them.
+Npm credentials select a package scope; container credentials select a registry host, optionally with a port.
+
+### Changing Project Placement
+
+Stop project operations, terminals, and workers and allow runtime cleanup to finish before changing placement.
+Active or uncleaned workloads block the change.
+
+```bash
+highstate project placement \
+  --container-runtime <runtime-id> \
+  --pulumi-state-backend <state-backend-id> \
+  --local-overlay disabled
+```
+
+Existing library images can be rebuilt on the new runtime from project snapshots.
+Filesystem-backed Pulumi state remains in the old runtime's storage unless it is moved separately.
+Selecting another state backend is a configuration change, not a state migration.
+
+## Managing Project Libraries
+
+Each project selects exact npm package versions, initially including `@highstate/library@0.30.2` by default.
+Highstate resolves the complete dependency graph into an immutable **library snapshot** and builds an execution
+image on the project's runtime.
+The project database keeps the snapshot and lockfile; the container image is a rebuildable cache.
+Reconstruction still requires the locked package archives to remain available from their registries.
+On project unlock, Highstate collects unreferenced library snapshots and package versions.
+Desired snapshots and retained deployment, evaluation, operation, runtime action, and unfinished build records
+preserve the library history they reference.
+Removing an image cache record does not delete its image from a Docker engine or registry.
+
+The Designer's project library controls show selected packages, available versions, package sources, image
+build progress, diagnostics, and local-overlay status.
+The component list can filter by package and shows package-version provenance.
+
+Backend hosts can override the initial selection before starting the Designer or creating the service graph:
+
+```bash
+export HIGHSTATE_INITIAL_LIBRARY_PACKAGES='[{"packageName":"@acme/library","version":"1.2.3"}]'
+```
+
+The value is a JSON array of unique package names and exact versions.
+Use `[]` to start with no packaged library.
+This setting initializes new projects and projects without a saved library selection; it does not replace an
+existing selection on restart or unlock.
+Packages must be available from the npm registries configured for the project's runtime.
+
+```bash
+highstate library package list
+highstate library package versions @acme/library
+highstate library package add @acme/library 1.2.3
+highstate library package update @acme/library 1.2.4
+highstate library package update-all
+highstate library status
+highstate library retry
+```
+
+Add and update require exact versions, not ranges or dist-tags.
+Update-all selects compatible versions and validates the proposed set together.
+Resolution, integrity, compatibility, or duplicate-type failures leave the previous selection unchanged.
+An image failure happens after the new snapshot is selected; inspect `library status`, correct the runtime or
+registry configuration, and use `library retry` to retry materialization.
+Operations wait cancellably for required images and do not silently use the previous image.
+
+Changing a package does not immediately change deployed infrastructure.
+Planning shows package upgrades, and successful non-preview execution records the snapshot and package version
+used for that deployment.
+Preview, failed execution, and cancellation do not advance deployed provenance.
+Refresh and destroy use the recorded historical snapshot when available, rebuilding its image if needed.
+Authored instance models and project YAML continue to identify components by type without package fields.
+
+### Local Development Libraries
+
+The optional local overlay loads development definitions and sources from the backend's workspace.
+It is available only with the well-known Local Docker runtime, not another runtime marked as local.
+Remote Docker and Kubernetes cannot use this overlay.
+
+```bash
+highstate library local-overlay enabled
+highstate library local-overlay disabled
+```
+
+If a local component or entity type conflicts with the project catalog, Highstate disables the complete overlay
+and reports the conflicts.
+For development on a packaged type, remove the conflicting package selection or use distinct component types.
+Local units retain local execution and do not gain portable packaged provenance.
+Local edits invalidate reviewed plans independently of package updates.
+
+## Creating and Unlocking Projects Through the API
+
+The public Connect `io.highstate.v1.ProjectService` exposes `CreateProject` and `UnlockProject` for backend API keys.
+Send the key as `Authorization: Bearer <token>`.
+Creation requires `project.create` and access to the selected container runtime and Pulumi state backend.
+Unlock requires `project.unlock` for the project and works while its project database is locked.
+
+`CreateProject` accepts a `project` with `name`, `meta.title`, and optional `spaceId`, `modelStorageId`,
+`containerRuntimeId`, and `pulumiStateBackendId`.
+Omitted placement IDs use the same defaults as Designer creation.
+An optional top-level `projectId` reserves a CUID2 ID; otherwise the backend generates one.
+The required `unlockMethod` contains `type` (`password` or `passkey`), `meta.title`, `recipient`, and
+`encryptedIdentity`; passkeys also require `passkeyIdentity`.
+The client generates an AGE identity and recipient and encrypts the identity with the password or passkey
+before sending the request.
+The response contains the canonical `project`, which is initially unlocked.
+
+After a backend restart, call `UnlockProject` with `projectId` and the client-decrypted AGE identity in
+`decryptedIdentity`.
+When the backend runs with encryption disabled, `decryptedIdentity` may be empty.
+Unlocking an already unlocked project succeeds without repeating unlock tasks.
+Library resolution and image status remain available through the project library API even if initial
+bootstrap fails.
+
+## Upgrading Existing Projects
+
+Database upgrades run forward automatically on backend startup and project unlock.
+Keep a backup of the backend and project data together before opening it with a newer release.
+Downgrade migrations are not provided.
+
+The runtime upgrade preserves project IDs, keys, imports, deployed state, operation history, and logs.
+It replaces backend library assignments with project-library storage and creates runtime placement references.
+Old evaluation caches are invalidated and regenerated.
+Package bootstrap saves initial exact selections before resolution, so a registry failure leaves the project
+available for settings and diagnostics and can be retried on unlock.
+
+Migration does not infer which npm version created an existing deployment.
+Unknown historical provenance remains unknown, and those refresh and destroy paths require the retained legacy
+executable environment.
+Preserve that workspace and its implementation dependencies until those deployments have moved to known
+snapshot provenance or have been destroyed.
+Existing host Pulumi configuration is preserved as `legacy:host`; this marker is not a usable container state
+URL and does not copy host state into a runtime volume.
+Configure the intended state backend and arrange state transfer separately before packaged execution.
+
+Old saved operation plans must be regenerated.
+New plans carry a backend-issued review token, and launch rejects plans whose snapshot, model, overlay, options,
+or phases no longer match the reviewed state.
+Runtime-launched workers also need a runtime-aware worker SDK; the SDK's legacy connection mode alone does not
+make an older image compatible with the new launch configuration.

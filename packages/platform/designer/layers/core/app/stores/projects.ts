@@ -1,4 +1,8 @@
-import type { ProjectOutput, UnlockMethodInput } from "@highstate/backend/shared"
+import type {
+  ProjectOutput,
+  ProjectPlacementInput,
+  UnlockMethodInput,
+} from "@highstate/backend/shared"
 import type { CommonObjectMeta } from "@highstate/contract"
 
 export const useProjectsStore = defineStore("projects", () => {
@@ -22,6 +26,7 @@ export const useProjectsStore = defineStore("projects", () => {
     name: string,
     meta: CommonObjectMeta,
     unlockMethodInput: UnlockMethodInput,
+    placement?: Pick<ProjectPlacementInput, "containerRuntimeId" | "pulumiStateBackendId">,
   ) => {
     loadingCreateProject.value = true
 
@@ -31,6 +36,7 @@ export const useProjectsStore = defineStore("projects", () => {
         projectInput: {
           meta,
           name,
+          ...placement,
         },
         unlockMethodInput,
       })
@@ -49,11 +55,18 @@ export const useProjectsStore = defineStore("projects", () => {
 
   const focusedProjectId = ref<string | null>(null)
 
+  async function updatePlacement(projectId: string, placement: ProjectPlacementInput) {
+    const result = await $client.project.updatePlacement.mutate({ projectId, placement })
+    projects.value = projects.value.map(project => (project.id === projectId ? result : project))
+    return result
+  }
+
   return {
     projects,
     focusedProjectId,
     createProject,
     loadingCreateProject,
     getById,
+    updatePlacement,
   }
 })

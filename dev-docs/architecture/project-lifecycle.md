@@ -31,19 +31,20 @@ destroy resources that no longer exist in desired state.
 
 ## Evaluation
 
-Input resolution prepares the resident graph before composite code executes in a worker thread.
+Input resolution prepares the resident graph before packaged composite code executes in a snapshot-image workload.
 Composite registration captures generated parent-child structure, resolved inputs, and outputs.
 Generated instance IDs are unique across the project.
 A duplicate ID invalidates the evaluation because later persistence and planning could not identify one owner.
 
 Ordinary composite failures can remain isolated to an affected branch while independent branches report their
 own results.
-Worker crashes, timeouts, and library loading failures are system failures and invalidate the evaluation run.
+Workload crashes, timeouts, and library loading failures are system failures and invalidate the evaluation run.
 The backend persists virtual models and evaluation status because operation planning depends on that result.
 
-Model mutations request reevaluation, but the current architecture does not promise a transactional barrier
-from every edit through evaluation to a newly started operation.
-An asynchronous evaluation request and operation launch do not form one transaction for clients.
+Evaluation results carry snapshot, resident-model, and local-overlay revisions.
+Planning rejects stale persisted virtual models, including after restart.
+Model mutation, evaluation, and launch remain separate transactions; revision fencing prevents an old result
+from being accepted as current.
 
 The evaluation subsystem, worker evaluator, contract evaluation helpers, and project-model service own exact
 error and persistence behavior.
@@ -65,6 +66,15 @@ Planning computes closure across explicit targets, dependencies, dependents, com
 ghosts before execution.
 Updates follow dependency order; destruction follows the reverse order.
 The Protobuf operation contract and planner source own the exact option matrix.
+
+Reviewed plans carry backend-issued tokens bound to project revisions, requested options, and planned phases.
+Launch validates the token and rejects stale or modified plans.
+Operations capture their desired library snapshot before execution and wait cancellably for required images.
+Updates and previews use desired packaged code; refresh and destroy use deployed historical provenance where
+known.
+Snapshot-homogeneous runners can participate in one operation while sharing its sidecar environment.
+Successful non-preview execution advances deployed provenance; failed, cancelled, and preview work does not.
+The [project library architecture](project-library.md) defines the durable library boundary.
 
 ## Execution And Recovery
 

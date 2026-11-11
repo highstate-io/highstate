@@ -4,6 +4,7 @@ import { getSharedServices } from "@highstate/backend"
 type TerminalBridgeState = {
   abortController: AbortController
   stdin: PassThrough
+  sessionId: string
 }
 
 const terminalBridgeStateByPeerId = new Map<string, TerminalBridgeState>()
@@ -63,13 +64,14 @@ export default defineWebSocketHandler({
 
     const [cols, rows] = screenSizeText.split("x").map(Number)
 
-    if (Number.isNaN(cols) || Number.isNaN(rows)) {
+    if (![cols, rows].every(value => Number.isSafeInteger(value) && value > 0 && value <= 65535)) {
       throw new Error("Invalid screenSize")
     }
 
     terminalBridgeStateByPeerId.set(peer.id, {
       abortController,
       stdin,
+      sessionId,
     })
 
     services.terminalManager.attach(
@@ -81,9 +83,25 @@ export default defineWebSocketHandler({
     )
   },
 
-  message: (peer, message) => {
+  message: async (peer, message) => {
     const state = terminalBridgeStateByPeerId.get(peer.id)
     if (!state) {
+      return
+    }
+
+    // the Node WebSocket adapter represents text frames as Buffers too
+    const text = message.text()
+    if (text.startsWith('{"type":"resize"')) {
+      const control = JSON.parse(text) as { type: string; cols?: number; rows?: number }
+      if (control.type === "resize" && control.cols !== undefined && control.rows !== undefined) {
+        const services = await getSharedServices()
+
+        await services.terminalManager.resize(state.sessionId, {
+          cols: control.cols,
+          rows: control.rows,
+        })
+      }
+
       return
     }
 
@@ -102,11 +120,11 @@ export default defineWebSocketHandler({
   },
 })
 
-function createOutputStream(send: (data: string) => void, close: () => void) {
+function createOutputStream(send: (data: Uint8Array) => void, close: () => void) {
   const stream = new PassThrough()
 
   stream.on("data", data => {
-    send(String(data).replace(/\n/g, "\r\n"))
+    send(data)
   })
 
   stream.on("end", close)

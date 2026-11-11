@@ -1,11 +1,15 @@
-import type { ServiceImpl } from "@connectrpc/connect"
 import type { OperationService } from "@highstate/api/v1"
 import type { Services } from "@highstate/backend"
-import { operationLaunchInputSchema, operationPlanInputSchema } from "@highstate/backend/shared"
+import { Code, ConnectError, type ServiceImpl } from "@connectrpc/connect"
+import { requireProjectPermission } from "@highstate/backend"
+import {
+  type Operation,
+  operationLaunchInputSchema,
+  operationPlanInputSchema,
+} from "@highstate/backend/shared"
 import { instanceIdSchema, z } from "@highstate/contract"
 import {
   authenticateProject,
-  fromOperationPhase,
   fromOperationType,
   parseValue,
   toOperation,
@@ -17,6 +21,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
   return {
     async planOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+      requireProjectPermission(requestContext, "operation.create")
 
       const input = parseValue(
         { ...request, projectId: requestContext.projectId, type: fromOperationType(request.type) },
@@ -24,26 +29,61 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
         operationPlanInputSchema,
       )
 
-      const phases = await services.operationManager.plan(input)
+      const plan = await services.operationManager.planReviewed(input)
 
-      return { phases: phases.map(toOperationPhase) }
+      return {
+        phases: plan.phases.map(toOperationPhase),
+        plan: {
+          ...plan,
+          phases: plan.phases.map(toOperationPhase),
+          librarySnapshotId: plan.librarySnapshotId ?? undefined,
+          localOverlayRevision: plan.localOverlayRevision ?? undefined,
+        },
+      }
     },
 
     async launchOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+      requireProjectPermission(requestContext, "operation.create")
+
+      if (request.plan.length && !request.planToken) {
+        throw new ConnectError(
+          "Review a backend-issued plan and provide its plan token",
+          Code.FailedPrecondition,
+        )
+      }
 
       const input = parseValue(
         {
           ...request,
           projectId: requestContext.projectId,
           type: fromOperationType(request.type),
-          plan: request.plan.length > 0 ? request.plan.map(fromOperationPhase) : undefined,
+          plan: undefined,
+          planToken: request.planToken,
         },
         "request",
         operationLaunchInputSchema,
       )
 
-      const operation = await services.operationManager.launch(input)
+      let operation: Operation
+
+      try {
+        operation = await services.operationManager.launch(input)
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          /^(Reviewed plan (is stale or does not match the launch request|expired)|Invalid reviewed plan (token|signature))$/.test(
+            error.message,
+          )
+        ) {
+          throw new ConnectError(
+            "The reviewed plan is stale or invalid; review a new plan before launching",
+            Code.FailedPrecondition,
+          )
+        }
+
+        throw error
+      }
 
       return { operation: toOperation(operation) }
     },
@@ -92,6 +132,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
 
     async cancelOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+      requireProjectPermission(requestContext, "operation.cancel")
       const operationId = parseValue(request.operationId, "operationId", z.string().min(1))
       await services.operationService.getOperationOrThrow(requestContext, operationId)
 
@@ -102,6 +143,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
 
     async cancelInstanceOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
+      requireProjectPermission(requestContext, "operation.cancel")
       const operationId = parseValue(request.operationId, "operationId", z.string().min(1))
       const instanceId = parseValue(request.instanceId, "instanceId", instanceIdSchema)
       await services.operationService.getOperationOrThrow(requestContext, operationId)

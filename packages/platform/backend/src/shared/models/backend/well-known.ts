@@ -1,10 +1,10 @@
 import type {
   BackendRoleCreateInput,
   BackendServiceAccountCreateInput,
-  LibraryCreateInput,
+  ContainerRuntimeCreateInput,
   ProjectModelStorageCreateInput,
   ProjectSpaceCreateInput,
-  PulumiBackendCreateInput,
+  PulumiStateBackendCreateInput,
 } from "../../../database"
 import { backendPermissionGroups } from "./role"
 
@@ -42,26 +42,28 @@ export const globalProjectSpace = {
   },
 } satisfies ProjectSpaceCreateInput
 
-export const codebaseLibrary = {
-  id: "n0rfvpl9o77iqf29ff4kk5gf",
+export const localContainerRuntime = {
+  id: "local",
   meta: {
-    title: "Codebase Library",
-    description:
-      "The library which loads components and entities from packages (local or NPM-installed) in the codebase.",
-    icon: "mdi-package-variant",
-    iconColor: "#2196F3",
+    title: "Local Docker",
+    description: "Runs project workloads on the local Docker engine.",
   },
-  spec: { type: "host" },
-} satisfies LibraryCreateInput
+  spec: {
+    type: "docker",
+    local: true,
+    engineEndpoint: "unix:///var/run/docker.sock",
+    runtimeApiUrl: "https://host.docker.internal:3000",
+  },
+} satisfies ContainerRuntimeCreateInput
 
-export const hostPulumiBackend = {
-  id: "pmn9y901jeiz2ydh93045l39",
+export const localPulumiStateBackend = {
+  id: "local",
   meta: {
-    title: "Host Pulumi Backend",
-    description: "The Pulumi backend which will always use the Pulumi CLI configured on the host.",
+    title: "Local Pulumi State",
+    description: "Stores Pulumi state in the runtime's persistent local state directory.",
   },
-  spec: { type: "host" },
-} satisfies PulumiBackendCreateInput
+  spec: { url: "file://~" },
+} satisfies PulumiStateBackendCreateInput
 
 export const codebaseProjectModelStorage = {
   id: "qppfcerovu3h22o0x8rlpc3g",

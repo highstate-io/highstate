@@ -137,6 +137,7 @@ describe("store", () => {
       // assert
       expect(result.id).toBe(existing.id)
       expect(result.size).toBe(size)
+      expect(artifactBackend.exists).toHaveBeenCalledWith(project.id, existing.id)
       expect(artifactBackend.store).not.toHaveBeenCalled()
 
       // verify track callback was executed - new reference was created
@@ -406,7 +407,7 @@ describe("collectGarbage", () => {
       expect(deleted).toBeNull()
 
       // verify backend deletion called
-      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, hash)
+      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, orphan.id)
     },
   )
 
@@ -613,7 +614,7 @@ describe("collectGarbage", () => {
       expect(deleted).toBeNull()
 
       // verify backend deletion was attempted
-      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, hash)
+      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, orphan.id)
     },
   )
 
@@ -681,8 +682,8 @@ describe("collectGarbage", () => {
 
       // verify backend deletions called for orphans only
       expect(artifactBackend.delete).toHaveBeenCalledTimes(2)
-      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, orphan1Hash)
-      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, orphan2Hash)
+      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, orphan1.id)
+      expect(artifactBackend.delete).toHaveBeenCalledWith(project.id, orphan2.id)
     },
   )
 })

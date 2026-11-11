@@ -1,4 +1,5 @@
 import type { RunnerBackend } from "./runner"
+import { randomBytes } from "node:crypto"
 import { createId } from "@paralleldrive/cuid2"
 import { type Logger, pino } from "pino"
 import { type ArtifactBackend, ArtifactService, createArtifactBackend } from "./artifact"
@@ -22,12 +23,14 @@ import {
   PanelService,
   PanelSettingsService,
   ProjectApiKeySettingsService,
+  ProjectLibraryService,
   ProjectModelService,
   ProjectPortService,
   ProjectRoleSettingsService,
   ProjectService,
   ProjectServiceAccountSettingsService,
   ProjectUnlockService,
+  RuntimeSettingsService,
   SecretService,
   SecretSettingsService,
   TerminalSessionService,
@@ -42,18 +45,48 @@ import {
 import { ProjectEvaluationSubsystem } from "./business/evaluation"
 import { type Config, loadConfig } from "./config"
 import {
+  AgentConnectionRegistry,
+  BackendRuntimeSecrets,
+  DatabaseRuntimeAdapterProvider,
+  DatabaseSnapshotImageConfiguration,
+  RuntimeCoordinator,
+  RuntimeCredentialSigner,
+  RuntimeMaintenance,
+  RuntimePreflightProviderBridge,
+  RuntimeSettingsPreflightBridge,
+  RuntimeWorkloadProbe,
+  SnapshotImageManager,
+  WorkerProxyRegistry,
+} from "./container-runtime"
+import {
   createBackendDatabaseBackend,
   createProjectDatabaseBackend,
   type DatabaseManager,
   DatabaseManagerImpl,
 } from "./database"
-import { createLibraryBackend, type LibraryBackend } from "./library"
+import {
+  createLibraryBackend,
+  type LibraryBackend,
+  NpmProjectLibraryResolver,
+  PrismaProjectLibraryStore,
+  ProjectLibraryGarbageCollector,
+  RuntimeProjectLibraryCatalogProvider,
+  RuntimeProjectNpmRegistryProvider,
+} from "./library"
 import { createLockBackend, type LockBackend, LockManager } from "./lock"
 import { OperationManager } from "./orchestrator"
 import { PanelEndpointManager } from "./panel"
 import { createProjectModelBackends, type ProjectModelBackend } from "./project-model"
 import { createPubSubBackend, type PubSubBackend, PubSubManager } from "./pubsub"
-import { createRunnerBackend } from "./runner"
+import {
+  createRunnerBackend,
+  DatabasePulumiActionConfiguration,
+  LazyRunnerBackend,
+  RuntimeArtifactTransfer,
+  RuntimeEvaluationBackend,
+  RuntimeExecutionService,
+  RuntimeSidecarManager,
+} from "./runner"
 import { createTerminalBackend, type TerminalBackend, TerminalManager } from "./terminal"
 import { MemoryProjectUnlockBackend, type ProjectUnlockBackend } from "./unlock"
 import { createWorkerBackend, type WorkerBackend, WorkerManager } from "./worker"
@@ -90,6 +123,13 @@ export type Services = {
 
   readonly libraryBackend: LibraryBackend
   readonly runnerBackend: RunnerBackend
+  readonly runtimeCoordinator: RuntimeCoordinator
+  readonly runtimeCredentialSigner: RuntimeCredentialSigner
+  readonly workerProxyRegistry: WorkerProxyRegistry
+  readonly runtimeArtifactTransfer: RuntimeArtifactTransfer
+  readonly projectLibraryService: ProjectLibraryService
+  readonly runtimeSettingsService: RuntimeSettingsService
+  readonly runtimeMaintenance: RuntimeMaintenance
 
   readonly projectModelBackends: Record<string, ProjectModelBackend>
   readonly projectEvaluationSubsystem: ProjectEvaluationSubsystem
@@ -174,6 +214,13 @@ export async function createServices({
 
     libraryBackend,
     runnerBackend,
+    runtimeCoordinator,
+    runtimeCredentialSigner,
+    workerProxyRegistry,
+    runtimeArtifactTransfer,
+    projectLibraryService,
+    runtimeSettingsService,
+    runtimeMaintenance,
 
     projectModelBackends,
     projectEvaluationSubsystem,
@@ -248,6 +295,70 @@ export async function createServices({
     logger,
   )
 
+  const runtimeSecrets = new BackendRuntimeSecrets(database, privateKey)
+  const runtimeAdapters = new DatabaseRuntimeAdapterProvider(database, runtimeSecrets)
+  runtimeCredentialSigner ??= new RuntimeCredentialSigner(backendId, randomBytes(32))
+
+  runtimeCoordinator ??= new RuntimeCoordinator(
+    database,
+    runtimeAdapters,
+    runtimeCredentialSigner,
+    new AgentConnectionRegistry(),
+    backendId,
+  )
+
+  workerProxyRegistry ??= new WorkerProxyRegistry(
+    runtimeCoordinator.connections,
+    async connection => {
+      await runtimeCoordinator!.authenticate(connection)
+    },
+  )
+
+  runtimeSettingsService ??= new RuntimeSettingsService(
+    database,
+    privateKey,
+    new RuntimePreflightProviderBridge(
+      database,
+      new RuntimeSettingsPreflightBridge(runtimeSecrets),
+      async runtimeId => ({
+        registryImage: config.HIGHSTATE_RUNNER_BASE_IMAGE,
+        probe: signal =>
+          new RuntimeWorkloadProbe(database!, runtimeCoordinator!, {
+            image: config.HIGHSTATE_RUNNER_BASE_IMAGE,
+            agent: {
+              binary: config.HIGHSTATE_RUNTIME_AGENT_BINARY,
+              path: config.HIGHSTATE_RUNTIME_AGENT_PATH,
+            },
+          }).probe(runtimeId, signal),
+      }),
+    ),
+  )
+
+  const npmRegistries = new RuntimeProjectNpmRegistryProvider(database, {
+    decrypt: async (_id, ciphertext) =>
+      JSON.parse(await runtimeSecrets.decrypt(ciphertext)) as { token: string },
+  })
+
+  const snapshotImages = new SnapshotImageManager(
+    database,
+    runtimeAdapters,
+    runtimeCoordinator,
+    new DatabaseSnapshotImageConfiguration(
+      database,
+      runtimeSecrets,
+      npmRegistries,
+      config.HIGHSTATE_RUNNER_BASE_IMAGE,
+    ),
+  )
+
+  const runtimeExecution = new RuntimeExecutionService(
+    database,
+    runtimeCoordinator,
+    runtimeAdapters,
+    snapshotImages,
+    { binary: config.HIGHSTATE_RUNTIME_AGENT_BINARY, path: config.HIGHSTATE_RUNTIME_AGENT_PATH },
+  )
+
   objectRefIndexService ??= new ObjectRefIndexService(
     database,
     logger.child({ service: "ObjectRefIndexService" }),
@@ -307,6 +418,25 @@ export async function createServices({
     libraryBackend,
     projectUnlockBackend,
     logger.child({ service: "LibraryService" }),
+    { catalog: projectId => projectLibraryService!.catalog(projectId) },
+  )
+
+  projectLibraryService ??= new ProjectLibraryService(
+    new PrismaProjectLibraryStore(database),
+    new NpmProjectLibraryResolver(npmRegistries, {
+      runtimeProtocolVersion: 1,
+      packageFormatVersion: 1,
+      bunVersion: "1.3.13",
+      pulumiVersion: "3.232.0",
+    }),
+    snapshotImages,
+    new RuntimeProjectLibraryCatalogProvider(database, libraryBackend, libraryService),
+    config.HIGHSTATE_INITIAL_LIBRARY_PACKAGES,
+    async projectId => {
+      if (projectEvaluationSubsystem) {
+        await projectEvaluationSubsystem.evaluateProject(projectId)
+      }
+    },
   )
 
   secretService ??= new SecretService(
@@ -318,6 +448,7 @@ export async function createServices({
   )
 
   sessionService ??= new TerminalSessionService(database)
+  runtimeArtifactTransfer ??= new RuntimeArtifactTransfer(artifactBackend, artifactService)
 
   runnerBackend ??= await createRunnerBackend(
     config,
@@ -326,6 +457,27 @@ export async function createServices({
     artifactBackend,
     secretService,
     logger,
+    {
+      database,
+      execution: runtimeExecution,
+      library: projectLibraryService,
+      state: new DatabasePulumiActionConfiguration(database, secretService, ciphertext =>
+        runtimeSecrets.decrypt(ciphertext),
+      ),
+      sidecars: new RuntimeSidecarManager(runtimeCoordinator, runtimeAdapters),
+      artifacts: runtimeArtifactTransfer,
+      legacy: new LazyRunnerBackend(
+        async () =>
+          await createRunnerBackend(
+            { ...config!, HIGHSTATE_RUNNER_BACKEND_TYPE: "local" },
+            libraryBackend!,
+            artifactService!,
+            artifactBackend!,
+            secretService!,
+            logger!,
+          ),
+      ),
+    },
   )
 
   unitOutputService ??= new UnitOutputService(
@@ -354,6 +506,18 @@ export async function createServices({
     await objectRefIndexService.syncProject(projectId)
   })
 
+  projectUnlockService.registerUnlockTask("initialize-project-library", async projectId => {
+    try {
+      await projectLibraryService!.onProjectUnlocked(projectId)
+    } catch (error) {
+      logger!.error({ error, projectId }, "failed to initialize project library")
+    }
+  })
+
+  projectUnlockService.registerUnlockTask("collect-library-history", async projectId => {
+    await new ProjectLibraryGarbageCollector(database!).collect(projectId)
+  })
+
   operationService ??= new OperationService(
     database,
     pubsubManager,
@@ -361,7 +525,7 @@ export async function createServices({
     logger.child({ service: "OperationService" }),
   )
 
-  panelEndpointManager ??= new PanelEndpointManager(pubsubManager)
+  panelEndpointManager ??= new PanelEndpointManager(pubsubManager, workerProxyRegistry)
   panelService ??= new PanelService(database, pubsubManager, panelEndpointManager)
 
   entitySnapshotService ??= new EntitySnapshotService(
@@ -372,7 +536,32 @@ export async function createServices({
 
   apiKeyService ??= new ApiKeyService(database, logger.child({ service: "ApiKeyService" }))
 
-  terminalBackend ??= createTerminalBackend(config, logger)
+  terminalBackend ??= createTerminalBackend(runtimeCoordinator, runtimeAdapters, {
+    readArtifact: async (projectId, file) => {
+      if (file.content.type !== "artifact") {
+        throw new Error("Expected an artifact file")
+      }
+
+      const project = await database!.forProject(projectId)
+
+      const artifact = await project.artifact.findUniqueOrThrow({
+        where: { hash: file.content.hash },
+      })
+
+      const content = await artifactBackend!.retrieve(projectId, artifact.id, artifact.chunkSize)
+      if (!content) {
+        throw new Error("Terminal artifact content is missing")
+      }
+
+      const chunks: Uint8Array[] = []
+
+      for await (const chunk of content) {
+        chunks.push(chunk)
+      }
+
+      return Buffer.concat(chunks)
+    },
+  })
 
   terminalManager ??= TerminalManager.create(
     terminalBackend,
@@ -383,7 +572,20 @@ export async function createServices({
     logger,
   )
 
-  workerBackend ??= createWorkerBackend(config, logger)
+  workerBackend ??= createWorkerBackend(
+    runtimeCoordinator,
+    runtimeAdapters,
+    database,
+    pubsubManager,
+    panelEndpointManager,
+    {
+      publicApiUrl: config.HIGHSTATE_PUBLIC_API_URL,
+      onRunning: async (projectId, versionId, instanceId) => {
+        await workerManager!.setWorkerRunning(projectId, versionId, instanceId)
+      },
+      onError: error => logger!.error({ error }, "worker runtime control failed"),
+    },
+  )
 
   workerManager ??= new WorkerManager(
     config,
@@ -445,6 +647,8 @@ export async function createServices({
     projectUnlockService,
     objectRefIndexService,
     logger,
+    new RuntimeEvaluationBackend(runtimeExecution),
+    projectLibraryService,
   )
 
   projectService ??= new ProjectService(
@@ -457,6 +661,7 @@ export async function createServices({
     pubsubManager,
     objectRefIndexService,
     logger.child({ service: "ProjectService" }),
+    projectLibraryService,
   )
 
   projectPortService ??= new ProjectPortService(
@@ -483,7 +688,11 @@ export async function createServices({
     projectPortService,
     database,
     logger,
+    projectLibraryService,
   )
+
+  runtimeMaintenance ??= new RuntimeMaintenance(database, runtimeCoordinator, logger)
+  await runtimeMaintenance.reconcile()
 
   logger.info("services created")
 
@@ -505,6 +714,13 @@ export async function createServices({
 
     libraryBackend,
     runnerBackend,
+    runtimeCoordinator,
+    runtimeCredentialSigner,
+    workerProxyRegistry,
+    runtimeArtifactTransfer,
+    projectLibraryService,
+    runtimeSettingsService,
+    runtimeMaintenance,
 
     projectModelBackends,
     projectEvaluationSubsystem,
@@ -578,12 +794,25 @@ export function getSharedServices(options: CreateServicesOptions = {}): Promise<
  * @param services The services to dispose
  */
 export async function disposeServices(services: Services): Promise<void> {
-  const promises: Promise<unknown>[] = []
+  await services.runtimeMaintenance?.[Symbol.asyncDispose]()
 
-  for (const [key, service] of Object.entries(services)) {
+  const entries = Object.entries(services)
+    .reverse()
+    .filter(([key]) => key !== "database" && key !== "runtimeMaintenance")
+
+  entries.push(["database", services.database])
+  const disposed = new Set<object>()
+
+  for (const [key, service] of entries) {
     if (typeof service !== "object" || service === null) {
       continue
     }
+
+    if (disposed.has(service)) {
+      continue
+    }
+
+    disposed.add(service)
 
     if (Symbol.dispose in service) {
       // sync dispose
@@ -604,9 +833,7 @@ export async function disposeServices(services: Services): Promise<void> {
         }
       }
 
-      promises.push(disposeAsync())
+      await disposeAsync()
     }
   }
-
-  await Promise.all(promises)
 }

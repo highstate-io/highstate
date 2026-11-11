@@ -6,6 +6,7 @@ import type {
   LibraryService,
   ProjectModelService,
 } from "../business"
+import type { ProjectLibraryService } from "../business/project-library"
 import {
   type ComponentModel,
   type InstanceId,
@@ -27,6 +28,8 @@ import {
   type InstanceState,
   isTransientInstanceOperationStatus,
   type LibraryModel,
+  type OperationPhaseInstance,
+  type OperationPhaseType,
   type ProjectOutput,
   type ResolvedInstanceInput,
   type StableInstanceInput,
@@ -34,7 +37,99 @@ import {
 
 type RawPulumiOutputs = Record<string, { value: unknown; secret?: boolean }>
 
+type ExecutionProvenance = {
+  librarySnapshotId: string
+  libraryPackageVersionId: string
+  packageName: string
+  version: string
+}
+
+export type PinnedOperationLibrary = {
+  library: LibraryModel
+  snapshotId: string | null
+  projectLibrary: ProjectLibraryService
+  modelRevision?: string
+  localOverlayRevision?: string | null
+}
+
 export class OperationContext {
+  public desiredSnapshotId: string | null = null
+  public localOverlayRevision: string | null = null
+  private readonly desiredProvenance = new Map<string, ExecutionProvenance>()
+  private readonly historicalProvenance = new Map<InstanceId, ExecutionProvenance>()
+  private readonly historicalLibraries = new Map<string, LibraryModel>()
+  private readonly historicalModels = new Map<InstanceId, InstanceModel>()
+  private readonly historicalInputs = new Map<InstanceId, Record<string, ResolvedInstanceInput[]>>()
+
+  public getExecutionProvenance(
+    instanceId: InstanceId,
+    phase: OperationPhaseType,
+  ): ExecutionProvenance | undefined {
+    if (phase === "destroy" || phase === "refresh") {
+      return this.historicalProvenance.get(instanceId)
+    }
+
+    return this.desiredProvenance.get(this.getInstance(instanceId).type)
+  }
+
+  public getExecutionLibrary(instanceId: InstanceId, phase: OperationPhaseType): LibraryModel {
+    const provenance = this.getExecutionProvenance(instanceId, phase)
+    return (phase === "destroy" || phase === "refresh") && provenance
+      ? this.historicalLibraries.get(provenance.librarySnapshotId)!
+      : this.library
+  }
+
+  public getExecutionInstance(
+    instanceId: InstanceId,
+    phase: OperationPhaseType,
+  ): InstanceModel | undefined {
+    return phase === "destroy" || phase === "refresh"
+      ? (this.historicalModels.get(instanceId) ?? this.tryGetInstanceForDestroy(instanceId))
+      : this.tryGetInstance(instanceId)
+  }
+
+  public getExecutionInputs(
+    instanceId: InstanceId,
+    phase: OperationPhaseType,
+  ): Record<string, ResolvedInstanceInput[]> | undefined {
+    return phase === "destroy" || phase === "refresh"
+      ? (this.historicalInputs.get(instanceId) ?? this.getResolvedInputs(instanceId))
+      : this.getResolvedInputs(instanceId)
+  }
+
+  public hasExecutionUpgrade(instanceId: InstanceId): boolean {
+    const desired = this.desiredProvenance.get(this.getInstance(instanceId).type)
+    const state = this.getState(instanceId)
+
+    if (!desired) {
+      return state.librarySnapshotId != null
+    }
+
+    return (
+      state.librarySnapshotId !== desired.librarySnapshotId ||
+      state.libraryPackageVersionId !== desired.libraryPackageVersionId
+    )
+  }
+
+  public getLibraryPackageUpgrade(
+    instanceId: InstanceId,
+  ): OperationPhaseInstance["libraryPackageUpgrade"] {
+    const desired = this.desiredProvenance.get(this.getInstance(instanceId).type)
+    if (!desired || !this.hasExecutionUpgrade(instanceId)) {
+      return undefined
+    }
+
+    const previous = this.historicalProvenance.get(instanceId)
+    return {
+      packageName: desired.packageName,
+      version: desired.version,
+      libraryPackageVersionId: desired.libraryPackageVersionId,
+      previousVersion: previous?.version,
+      previousLibraryPackageVersionId:
+        this.getState(instanceId).libraryPackageVersionId ?? undefined,
+    }
+  }
+
   private readonly instanceMap = new Map<InstanceId, InstanceModel>()
   private readonly instanceChildrenMap = new Map<InstanceId, InstanceModel[]>()
   private readonly ghostInstanceIds = new Set<InstanceId>()
@@ -153,8 +248,9 @@ export class OperationContext {
     instanceId: InstanceId
     instanceType: VersionedName
     outputs: RawPulumiOutputs
+    library?: LibraryModel
   }): void {
-    const component = this.library.components[options.instanceType]
+    const component = (options.library ?? this.library).components[options.instanceType]
     if (!component) {
       return
     }
@@ -302,7 +398,10 @@ export class OperationContext {
       throw new Error(`Found multiple instances with the same ID: ${instance.id}`)
     }
 
-    if (!(instance.type in this.library.components)) {
+    if (
+      !(instance.type in this.library.components) &&
+      !(isGhost && this.getExecutionLibrary(instance.id, "destroy").components[instance.type])
+    ) {
       this.logger.warn(
         'ignoring instance "%s" because its type "%s" is not in the library',
         instance.id,
@@ -369,7 +468,7 @@ export class OperationContext {
     }
   }
 
-  private async captureEntitySnapshotsAtOperationStart(options: {
+  public async captureEntitySnapshotsAtOperationStart(options: {
     projectId: string
     entitySnapshotService: EntitySnapshotService
   }): Promise<void> {
@@ -462,6 +561,23 @@ export class OperationContext {
       }
     }
 
+    for (const [instanceId, groups] of this.historicalInputs) {
+      for (const input of Object.values(groups).flat()) {
+        if (input.input.instanceId === instanceId) {
+          continue
+        }
+
+        const state = this.getState(input.input.instanceId)
+
+        keys.push({
+          instanceId: state.instanceId,
+          stateId: state.id,
+          output: input.input.output,
+          operationId: state.lastOperationState?.operationId,
+        })
+      }
+    }
+
     if (keys.length === 0) {
       return
     }
@@ -497,6 +613,7 @@ export class OperationContext {
     projectModelService: ProjectModelService,
     entitySnapshotService: EntitySnapshotService | undefined,
     logger: Logger,
+    pinned?: PinnedOperationLibrary,
   ): Promise<OperationContext> {
     const [{ instances, virtualInstances, hubs, ghostInstances }, project] =
       await projectModelService.getProjectModelCore(projectId, {
@@ -505,7 +622,7 @@ export class OperationContext {
       })
 
     const [library, states] = await Promise.all([
-      librarySource.getLibraryModelCore(projectId),
+      pinned ? Promise.resolve(pinned.library) : librarySource.getLibraryModelCore(projectId),
       instanceStateService.getInstanceStatesCore(projectId, {
         includeEvaluationState: true,
         includeParentInstanceId: true,
@@ -517,6 +634,116 @@ export class OperationContext {
       library,
       logger.child({ service: "OperationContext" }),
     )
+
+    if (
+      pinned?.modelRevision !== undefined &&
+      (instances.some(instance => instance.kind === "composite") || virtualInstances.length > 0)
+    ) {
+      const evaluations = states.filter(state => state.evaluationState)
+      const evaluatedIds = new Set(evaluations.map(state => state.instanceId))
+      if (
+        evaluations.some(
+          ({ evaluationState }) =>
+            evaluationState!.librarySnapshotId !== pinned.snapshotId ||
+            evaluationState!.modelRevision !== pinned.modelRevision ||
+            evaluationState!.localOverlayRevision !== (pinned.localOverlayRevision ?? null) ||
+            !evaluationState!.evaluationActionId,
+        ) ||
+        instances.some(instance => instance.kind === "composite" && !evaluatedIds.has(instance.id))
+      ) {
+        throw new Error(
+          "Composite evaluation is stale; evaluate the current project before planning",
+        )
+      }
+    }
+
+    if (pinned) {
+      context.desiredSnapshotId = pinned.snapshotId
+      context.localOverlayRevision = pinned.localOverlayRevision ?? null
+
+      const snapshotIds = unique([
+        ...(pinned.snapshotId ? [pinned.snapshotId] : []),
+        ...states.flatMap(state => (state.librarySnapshotId ? [state.librarySnapshotId] : [])),
+      ])
+
+      for (const snapshotId of snapshotIds) {
+        const snapshot = await pinned.projectLibrary.historicalSnapshot(projectId, snapshotId)
+        context.historicalLibraries.set(snapshotId, snapshot.model)
+
+        for (const [key, packageName] of Object.entries(snapshot.sourceManifest.owners)) {
+          if (!key.startsWith("components:")) {
+            continue
+          }
+
+          const type = key.slice("components:".length)
+          const pkg = snapshot.packages.find(pkg => pkg.packageName === packageName)
+          if (!pkg?.id) {
+            throw new Error(`Missing snapshot membership for "${type}"`)
+          }
+
+          const provenance = {
+            librarySnapshotId: snapshotId,
+            libraryPackageVersionId: pkg.id,
+            packageName,
+            version: pkg.version,
+          }
+
+          if (snapshotId === pinned.snapshotId) {
+            context.desiredProvenance.set(type, provenance)
+          }
+
+          for (const state of states) {
+            const stateModel = state.model ?? state.lastOperationState?.model
+            if (
+              state.librarySnapshotId === snapshotId &&
+              (stateModel?.type ?? parseInstanceId(state.instanceId)[0]) === type
+            ) {
+              if (state.libraryPackageVersionId !== pkg.id) {
+                throw new Error(`Invalid deployed snapshot membership for "${state.instanceId}"`)
+              }
+
+              context.historicalProvenance.set(state.instanceId, provenance)
+            }
+          }
+        }
+      }
+    }
+
+    for (const state of states) {
+      const model = state.model ?? state.lastOperationState?.model
+      if (model) {
+        context.historicalModels.set(state.instanceId, {
+          ...structuredClone(model),
+          id: state.instanceId,
+          name: parseInstanceId(state.instanceId)[1],
+          parentId: state.parentInstanceId ?? undefined,
+        })
+      }
+
+      if (!state.resolvedInputs) {
+        continue
+      }
+
+      const library = context.getExecutionLibrary(state.instanceId, "destroy")
+      const component = model && library.components[model.type]
+
+      context.historicalInputs.set(
+        state.instanceId,
+        mapValues(state.resolvedInputs, (inputs, name) =>
+          inputs.map(input => {
+            const dependency = states.find(state => state.id === input.stateId)
+            if (!dependency) {
+              throw new Error(`Historical dependency state "${input.stateId}" not found`)
+            }
+
+            return {
+              input: { instanceId: dependency.instanceId, output: input.output, path: input.path },
+              type: component?.inputs[name]?.type ?? "object",
+            }
+          }),
+        ),
+      )
+    }
 
     // prepare instances
     for (const instance of instances) {
@@ -548,10 +775,35 @@ export class OperationContext {
 
     const unitSourceTypes = unique(Array.from(context.instanceMap.values()).map(i => i.type))
 
-    const unitSources = await librarySource.getResolvedUnitSources(
-      project.libraryId,
-      unitSourceTypes,
-    )
+    const packagedTypes = pinned
+      ? unitSourceTypes.filter(
+          type =>
+            library.components[type] &&
+            isUnitModel(library.components[type]) &&
+            context.desiredProvenance.has(type),
+        )
+      : []
+
+    const unitSources: { unitType: string; sourceHash: number }[] = pinned?.snapshotId
+      ? await pinned.projectLibrary.getSnapshotUnitSources(
+          projectId,
+          pinned.snapshotId,
+          packagedTypes,
+        )
+      : await librarySource.getResolvedUnitSources(project.id, unitSourceTypes)
+
+    if (pinned?.snapshotId) {
+      const localTypes = unitSourceTypes.filter(
+        type =>
+          library.components[type] &&
+          isUnitModel(library.components[type]) &&
+          !context.desiredProvenance.has(type),
+      )
+
+      if (localTypes.length) {
+        unitSources.push(...(await librarySource.getResolvedUnitSources(project.id, localTypes)))
+      }
+    }
 
     for (const unitSource of unitSources) {
       context.unitSourceHashMap.set(unitSource.unitType, unitSource.sourceHash)
@@ -561,11 +813,15 @@ export class OperationContext {
 
     // prepare input resolver
     for (const instance of context.instanceMap.values()) {
+      const instanceLibrary = context.isGhostInstance(instance.id)
+        ? context.getExecutionLibrary(instance.id, "destroy")
+        : library
+
       context.inputResolverNodes.set(`instance:${instance.id}`, {
         kind: "instance",
         instance,
-        component: library.components[instance.type],
-        entities: library.entities,
+        component: instanceLibrary.components[instance.type],
+        entities: instanceLibrary.entities,
       })
     }
 
@@ -592,7 +848,11 @@ export class OperationContext {
       context.resolvedInstanceInputs.set(instance.id, output.resolvedInputs)
 
       if (instance.kind === "unit") {
-        const component = context.library.components[instance.type]
+        const instanceLibrary = context.isGhostInstance(instance.id)
+          ? context.getExecutionLibrary(instance.id, "destroy")
+          : library
+
+        const component = instanceLibrary.components[instance.type]
 
         context.inputHashNodes.set(instance.id, {
           instance,

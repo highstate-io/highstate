@@ -26,7 +26,7 @@ export default defineEventHandler(async event => {
     // retrieve artifact content from backend
     const contentIterable = await services.artifactBackend.retrieve(
       projectId,
-      artifact.hash,
+      artifact.id,
       artifact.chunkSize,
     )
 

@@ -158,7 +158,7 @@ export class BuildCommand extends Command {
       const library = await loadLibrary(logger, fullModulePaths)
       const libraryPath = resolve("./dist", "highstate.library.msgpack")
 
-      await writeFile(libraryPath, encode(library), "utf8")
+      await writeFile(libraryPath, encode(library, { ignoreUndefined: true }), "utf8")
     }
 
     logger.info("build completed successfully")

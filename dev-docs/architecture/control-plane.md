@@ -12,9 +12,11 @@ The exact service inventory and configuration remain source-owned.
 
 The adapter interfaces separate domain behavior from persistence, execution, coordination, workers, and
 terminals.
-Those interfaces are extension seams, not claims that multiple supported implementations exist.
-Current factories expose local databases and artifacts, a local library and runner, Docker workers and
-terminals, and process-local unlock, pubsub, and lock implementations.
+Persistence and coordination remain local to the backend process.
+Execution adapters support Docker engines and Kubernetes namespaces through a shared runtime coordinator.
+Workload-specific managers retain domain behavior; adapters own placement, images, networking, logs, attach,
+and cleanup.
+The [container runtime design](../design/container-runtime.md) describes the integrated lifecycle and validation coverage.
 
 ## Embedding And Transports
 
@@ -23,6 +25,12 @@ It creates the backend services and mounts two different access paths:
 
 - Designer tRPC is a trusted local UI facade over the in-process service graph.
 - ConnectRPC exposes public and worker APIs around the same domain services.
+
+Workload agents use a separate authenticated TLS gRPC listener.
+The runtime transport accepts an existing coordinator; the embedding host owns listener startup and shutdown.
+Backend API startup enables the optional listener from explicit options or TLS environment configuration and
+closes it with the public API.
+`packages/platform/backend-api/src/runtime-server.ts` owns the listener contract.
 
 The CLI manages active backends as a ConnectRPC client.
 It also imports backend services directly for local backend administration and integrated development commands.
@@ -42,14 +50,18 @@ Different workloads cross different isolation boundaries:
 | Workload | Current boundary |
 | --- | --- |
 | Backend and designer API | One Bun/Nitro process |
-| Composite evaluation | A fresh Node worker thread |
-| Unit deployment | A local Pulumi Automation API program using Bun |
-| Background worker | A backend-supervised Docker container |
-| Interactive terminal | A backend-supervised Docker container |
-| Unit sidecar | A Docker container controlled through the unit runtime |
+| Packaged composite evaluation | A disposable snapshot-image workload |
+| Packaged unit deployment | A snapshot-image workload running Pulumi through a runtime agent |
+| Local or unknown-provenance unit deployment | The retained local runner and executable environment |
+| Background worker | A supervised workload on the project's runtime |
+| Interactive terminal | Adapter-managed workload with direct attach |
+| Unit sidecar | A workload in the operation's isolated runtime network |
 
-Pulumi programs use an ephemeral, operation-scoped loopback API.
-They do not call the public backend API.
+The project selects one container runtime independently of its Pulumi state backend.
+Runtime workloads and actions persist placement, lease, cancellation, and cleanup identity without becoming
+owners of project outcomes.
+Agent-backed Pulumi communication crosses the runtime stream; terminal I/O uses the adapter directly.
+The retained local runner still uses its operation-scoped loopback API.
 [Contracts and Extensions](contracts-and-extensions.md#worker-connectivity) defines worker connectivity.
 
 ## Coordination Boundary

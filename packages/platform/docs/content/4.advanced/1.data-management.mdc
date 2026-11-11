@@ -20,7 +20,9 @@ A backend opens project databases, evaluates instances, runs operations, and kee
 A **backend** is the runtime process that loads projects, runs operations, and keeps every unlocked project alive inside a single isolation boundary.
 ::
 
-One backend can load many projects once you unlock them, and every operation runs inside that runtime.
+One backend can load many projects once you unlock them and coordinates their operations.
+Packaged execution can run on a project's selected container runtime while project keys and orchestration stay
+with the backend.
 Yes, when you launch Highstate Designer you also launch a local backend right beside it.
 That backend shares the process, filesystem access, and memory space with anything you unlock.
 
@@ -32,7 +34,8 @@ We expect one backend to manage a project at a time because concurrent runtimes 
 Every backend keeps a SQLite database at `.highstate/backend.db`.
 Here's what happens around that file:
 
-- The backend registers projects, libraries, space hierarchy, and stores encrypted project master keys.
+- The backend registers projects, space hierarchy, runtime and Pulumi state settings, encrypted registry credentials,
+  workload inventory, image caches, and encrypted project master keys.
 - Metadata lives in `backend.meta.yaml` next to the database and includes the schema version plus the encrypted database master key.
 - When encryption is enabled, the backend:
   - Generates a 32-byte master key for the database.
@@ -99,6 +102,11 @@ The flow looks like this:
 - Project creation generates a 32-byte master key specific to that project.
 - The backend stores that encrypted key together with the project database version inside `backend.db`.
 - When you unlock the project (see the next section), the backend decrypts the key and stores it in memory; the unlock tasks then open the database, run any pending migrations, update the stored version, and keep every transaction scoped to that project only.
+
+Exact library package selections, frozen dependency snapshots, and deployment package provenance also live in
+the project database.
+Runtime images are backend-local caches that can be rebuilt from those snapshots.
+See [Runtimes and Project Libraries](/advanced/runtime-and-libraries) for placement and migration behavior.
 
 ## Unlocking Projects
 

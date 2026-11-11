@@ -41,8 +41,8 @@ export type ProjectMinAggregateOutputType = {
   name: string | null
   spaceId: string | null
   modelStorageId: string | null
-  libraryId: string | null
-  pulumiBackendId: string | null
+  containerRuntimeId: string | null
+  pulumiStateBackendId: string | null
   encryptedMasterKey: string | null
   encryptedPrivateKey: string | null
   publicKey: string | null
@@ -56,8 +56,8 @@ export type ProjectMaxAggregateOutputType = {
   name: string | null
   spaceId: string | null
   modelStorageId: string | null
-  libraryId: string | null
-  pulumiBackendId: string | null
+  containerRuntimeId: string | null
+  pulumiStateBackendId: string | null
   encryptedMasterKey: string | null
   encryptedPrivateKey: string | null
   publicKey: string | null
@@ -72,8 +72,9 @@ export type ProjectCountAggregateOutputType = {
   name: number
   spaceId: number
   modelStorageId: number
-  libraryId: number
-  pulumiBackendId: number
+  containerRuntimeId: number
+  pulumiStateBackendId: number
+  legacyExecutionConfig: number
   encryptedMasterKey: number
   encryptedPrivateKey: number
   publicKey: number
@@ -98,8 +99,8 @@ export type ProjectMinAggregateInputType = {
   name?: true
   spaceId?: true
   modelStorageId?: true
-  libraryId?: true
-  pulumiBackendId?: true
+  containerRuntimeId?: true
+  pulumiStateBackendId?: true
   encryptedMasterKey?: true
   encryptedPrivateKey?: true
   publicKey?: true
@@ -113,8 +114,8 @@ export type ProjectMaxAggregateInputType = {
   name?: true
   spaceId?: true
   modelStorageId?: true
-  libraryId?: true
-  pulumiBackendId?: true
+  containerRuntimeId?: true
+  pulumiStateBackendId?: true
   encryptedMasterKey?: true
   encryptedPrivateKey?: true
   publicKey?: true
@@ -129,8 +130,9 @@ export type ProjectCountAggregateInputType = {
   name?: true
   spaceId?: true
   modelStorageId?: true
-  libraryId?: true
-  pulumiBackendId?: true
+  containerRuntimeId?: true
+  pulumiStateBackendId?: true
+  legacyExecutionConfig?: true
   encryptedMasterKey?: true
   encryptedPrivateKey?: true
   publicKey?: true
@@ -233,8 +235,9 @@ export type ProjectGroupByOutputType = {
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig:PrismaJson.LegacyProjectExecutionConfig | null
   encryptedMasterKey: string
   encryptedPrivateKey: string | null
   publicKey: string | null
@@ -273,8 +276,9 @@ export type ProjectWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   spaceId?: Prisma.StringFilter<"Project"> | string
   modelStorageId?: Prisma.StringFilter<"Project"> | string
-  libraryId?: Prisma.StringFilter<"Project"> | string
-  pulumiBackendId?: Prisma.StringFilter<"Project"> | string
+  containerRuntimeId?: Prisma.StringFilter<"Project"> | string
+  pulumiStateBackendId?: Prisma.StringFilter<"Project"> | string
+  legacyExecutionConfig?: Prisma.JsonNullableFilter<"Project">
   encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -284,8 +288,10 @@ export type ProjectWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   space?: Prisma.XOR<Prisma.ProjectSpaceScalarRelationFilter, Prisma.ProjectSpaceWhereInput>
   modelStorage?: Prisma.XOR<Prisma.ProjectModelStorageScalarRelationFilter, Prisma.ProjectModelStorageWhereInput>
-  library?: Prisma.XOR<Prisma.LibraryScalarRelationFilter, Prisma.LibraryWhereInput>
-  pulumiBackend?: Prisma.XOR<Prisma.PulumiBackendScalarRelationFilter, Prisma.PulumiBackendWhereInput>
+  containerRuntime?: Prisma.XOR<Prisma.ContainerRuntimeScalarRelationFilter, Prisma.ContainerRuntimeWhereInput>
+  pulumiStateBackend?: Prisma.XOR<Prisma.PulumiStateBackendScalarRelationFilter, Prisma.PulumiStateBackendWhereInput>
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageListRelationFilter
+  runtimeWorkloads?: Prisma.RuntimeWorkloadListRelationFilter
   importPorts?: Prisma.ProjectImportPortListRelationFilter
   exportPorts?: Prisma.ProjectImportPortListRelationFilter
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingListRelationFilter
@@ -297,8 +303,9 @@ export type ProjectOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   modelStorageId?: Prisma.SortOrder
-  libraryId?: Prisma.SortOrder
-  pulumiBackendId?: Prisma.SortOrder
+  containerRuntimeId?: Prisma.SortOrder
+  pulumiStateBackendId?: Prisma.SortOrder
+  legacyExecutionConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   publicKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -308,8 +315,10 @@ export type ProjectOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   space?: Prisma.ProjectSpaceOrderByWithRelationInput
   modelStorage?: Prisma.ProjectModelStorageOrderByWithRelationInput
-  library?: Prisma.LibraryOrderByWithRelationInput
-  pulumiBackend?: Prisma.PulumiBackendOrderByWithRelationInput
+  containerRuntime?: Prisma.ContainerRuntimeOrderByWithRelationInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendOrderByWithRelationInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageOrderByRelationAggregateInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadOrderByRelationAggregateInput
   importPorts?: Prisma.ProjectImportPortOrderByRelationAggregateInput
   exportPorts?: Prisma.ProjectImportPortOrderByRelationAggregateInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingOrderByRelationAggregateInput
@@ -325,8 +334,9 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Project"> | string
   spaceId?: Prisma.StringFilter<"Project"> | string
   modelStorageId?: Prisma.StringFilter<"Project"> | string
-  libraryId?: Prisma.StringFilter<"Project"> | string
-  pulumiBackendId?: Prisma.StringFilter<"Project"> | string
+  containerRuntimeId?: Prisma.StringFilter<"Project"> | string
+  pulumiStateBackendId?: Prisma.StringFilter<"Project"> | string
+  legacyExecutionConfig?: Prisma.JsonNullableFilter<"Project">
   encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -336,8 +346,10 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   space?: Prisma.XOR<Prisma.ProjectSpaceScalarRelationFilter, Prisma.ProjectSpaceWhereInput>
   modelStorage?: Prisma.XOR<Prisma.ProjectModelStorageScalarRelationFilter, Prisma.ProjectModelStorageWhereInput>
-  library?: Prisma.XOR<Prisma.LibraryScalarRelationFilter, Prisma.LibraryWhereInput>
-  pulumiBackend?: Prisma.XOR<Prisma.PulumiBackendScalarRelationFilter, Prisma.PulumiBackendWhereInput>
+  containerRuntime?: Prisma.XOR<Prisma.ContainerRuntimeScalarRelationFilter, Prisma.ContainerRuntimeWhereInput>
+  pulumiStateBackend?: Prisma.XOR<Prisma.PulumiStateBackendScalarRelationFilter, Prisma.PulumiStateBackendWhereInput>
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageListRelationFilter
+  runtimeWorkloads?: Prisma.RuntimeWorkloadListRelationFilter
   importPorts?: Prisma.ProjectImportPortListRelationFilter
   exportPorts?: Prisma.ProjectImportPortListRelationFilter
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingListRelationFilter
@@ -349,8 +361,9 @@ export type ProjectOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   modelStorageId?: Prisma.SortOrder
-  libraryId?: Prisma.SortOrder
-  pulumiBackendId?: Prisma.SortOrder
+  containerRuntimeId?: Prisma.SortOrder
+  pulumiStateBackendId?: Prisma.SortOrder
+  legacyExecutionConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   publicKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -374,8 +387,9 @@ export type ProjectScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
   spaceId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   modelStorageId?: Prisma.StringWithAggregatesFilter<"Project"> | string
-  libraryId?: Prisma.StringWithAggregatesFilter<"Project"> | string
-  pulumiBackendId?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  containerRuntimeId?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  pulumiStateBackendId?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  legacyExecutionConfig?: Prisma.JsonNullableWithAggregatesFilter<"Project">
   encryptedMasterKey?: Prisma.StringWithAggregatesFilter<"Project"> | string
   encryptedPrivateKey?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   publicKey?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -389,6 +403,7 @@ export type ProjectCreateInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -398,8 +413,10 @@ export type ProjectCreateInput = {
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
@@ -411,8 +428,9 @@ export type ProjectUncheckedCreateInput = {
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -420,6 +438,8 @@ export type ProjectUncheckedCreateInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
@@ -429,6 +449,7 @@ export type ProjectUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -438,8 +459,10 @@ export type ProjectUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
   modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
@@ -451,8 +474,9 @@ export type ProjectUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -460,6 +484,8 @@ export type ProjectUncheckedUpdateInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
@@ -471,8 +497,9 @@ export type ProjectCreateManyInput = {
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -486,6 +513,7 @@ export type ProjectUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,8 +529,9 @@ export type ProjectUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -517,16 +546,6 @@ export type ProjectScalarRelationFilter = {
   isNot?: Prisma.ProjectWhereInput
 }
 
-export type ProjectListRelationFilter = {
-  every?: Prisma.ProjectWhereInput
-  some?: Prisma.ProjectWhereInput
-  none?: Prisma.ProjectWhereInput
-}
-
-export type ProjectOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type ProjectSpaceIdNameCompoundUniqueInput = {
   spaceId: string
   name: string
@@ -538,8 +557,9 @@ export type ProjectCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   modelStorageId?: Prisma.SortOrder
-  libraryId?: Prisma.SortOrder
-  pulumiBackendId?: Prisma.SortOrder
+  containerRuntimeId?: Prisma.SortOrder
+  pulumiStateBackendId?: Prisma.SortOrder
+  legacyExecutionConfig?: Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrder
   publicKey?: Prisma.SortOrder
@@ -558,8 +578,8 @@ export type ProjectMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   modelStorageId?: Prisma.SortOrder
-  libraryId?: Prisma.SortOrder
-  pulumiBackendId?: Prisma.SortOrder
+  containerRuntimeId?: Prisma.SortOrder
+  pulumiStateBackendId?: Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrder
   publicKey?: Prisma.SortOrder
@@ -573,8 +593,8 @@ export type ProjectMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
   modelStorageId?: Prisma.SortOrder
-  libraryId?: Prisma.SortOrder
-  pulumiBackendId?: Prisma.SortOrder
+  containerRuntimeId?: Prisma.SortOrder
+  pulumiStateBackendId?: Prisma.SortOrder
   encryptedMasterKey?: Prisma.SortOrder
   encryptedPrivateKey?: Prisma.SortOrder
   publicKey?: Prisma.SortOrder
@@ -585,6 +605,16 @@ export type ProjectMinOrderByAggregateInput = {
 
 export type ProjectSumOrderByAggregateInput = {
   databaseVersion?: Prisma.SortOrder
+}
+
+export type ProjectListRelationFilter = {
+  every?: Prisma.ProjectWhereInput
+  some?: Prisma.ProjectWhereInput
+  none?: Prisma.ProjectWhereInput
+}
+
+export type ProjectOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ProjectCreateNestedOneWithoutImportPortsInput = {
@@ -615,58 +645,18 @@ export type ProjectUpdateOneRequiredWithoutExportPortsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutExportPortsInput, Prisma.ProjectUpdateWithoutExportPortsInput>, Prisma.ProjectUncheckedUpdateWithoutExportPortsInput>
 }
 
-export type ProjectCreateNestedManyWithoutLibraryInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLibraryInput, Prisma.ProjectUncheckedCreateWithoutLibraryInput> | Prisma.ProjectCreateWithoutLibraryInput[] | Prisma.ProjectUncheckedCreateWithoutLibraryInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLibraryInput | Prisma.ProjectCreateOrConnectWithoutLibraryInput[]
-  createMany?: Prisma.ProjectCreateManyLibraryInputEnvelope
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+export type ProjectCreateNestedOneWithoutLibrarySnapshotImagesInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLibrarySnapshotImagesInput, Prisma.ProjectUncheckedCreateWithoutLibrarySnapshotImagesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLibrarySnapshotImagesInput
+  connect?: Prisma.ProjectWhereUniqueInput
 }
 
-export type ProjectUncheckedCreateNestedManyWithoutLibraryInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLibraryInput, Prisma.ProjectUncheckedCreateWithoutLibraryInput> | Prisma.ProjectCreateWithoutLibraryInput[] | Prisma.ProjectUncheckedCreateWithoutLibraryInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLibraryInput | Prisma.ProjectCreateOrConnectWithoutLibraryInput[]
-  createMany?: Prisma.ProjectCreateManyLibraryInputEnvelope
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-}
-
-export type ProjectUpdateManyWithoutLibraryNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLibraryInput, Prisma.ProjectUncheckedCreateWithoutLibraryInput> | Prisma.ProjectCreateWithoutLibraryInput[] | Prisma.ProjectUncheckedCreateWithoutLibraryInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLibraryInput | Prisma.ProjectCreateOrConnectWithoutLibraryInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutLibraryInput | Prisma.ProjectUpsertWithWhereUniqueWithoutLibraryInput[]
-  createMany?: Prisma.ProjectCreateManyLibraryInputEnvelope
-  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutLibraryInput | Prisma.ProjectUpdateWithWhereUniqueWithoutLibraryInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutLibraryInput | Prisma.ProjectUpdateManyWithWhereWithoutLibraryInput[]
-  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-}
-
-export type ProjectUncheckedUpdateManyWithoutLibraryNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLibraryInput, Prisma.ProjectUncheckedCreateWithoutLibraryInput> | Prisma.ProjectCreateWithoutLibraryInput[] | Prisma.ProjectUncheckedCreateWithoutLibraryInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLibraryInput | Prisma.ProjectCreateOrConnectWithoutLibraryInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutLibraryInput | Prisma.ProjectUpsertWithWhereUniqueWithoutLibraryInput[]
-  createMany?: Prisma.ProjectCreateManyLibraryInputEnvelope
-  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutLibraryInput | Prisma.ProjectUpdateWithWhereUniqueWithoutLibraryInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutLibraryInput | Prisma.ProjectUpdateManyWithWhereWithoutLibraryInput[]
-  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type ProjectUpdateOneRequiredWithoutLibrarySnapshotImagesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLibrarySnapshotImagesInput, Prisma.ProjectUncheckedCreateWithoutLibrarySnapshotImagesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLibrarySnapshotImagesInput
+  upsert?: Prisma.ProjectUpsertWithoutLibrarySnapshotImagesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLibrarySnapshotImagesInput, Prisma.ProjectUpdateWithoutLibrarySnapshotImagesInput>, Prisma.ProjectUncheckedUpdateWithoutLibrarySnapshotImagesInput>
 }
 
 export type ProjectCreateNestedManyWithoutSpaceInput = {
@@ -753,46 +743,102 @@ export type ProjectUncheckedUpdateManyWithoutModelStorageNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
-export type ProjectCreateNestedManyWithoutPulumiBackendInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput> | Prisma.ProjectCreateWithoutPulumiBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput[]
-  createMany?: Prisma.ProjectCreateManyPulumiBackendInputEnvelope
+export type ProjectCreateNestedManyWithoutPulumiStateBackendInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput> | Prisma.ProjectCreateWithoutPulumiStateBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput[]
+  createMany?: Prisma.ProjectCreateManyPulumiStateBackendInputEnvelope
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
 }
 
-export type ProjectUncheckedCreateNestedManyWithoutPulumiBackendInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput> | Prisma.ProjectCreateWithoutPulumiBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput[]
-  createMany?: Prisma.ProjectCreateManyPulumiBackendInputEnvelope
+export type ProjectUncheckedCreateNestedManyWithoutPulumiStateBackendInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput> | Prisma.ProjectCreateWithoutPulumiStateBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput[]
+  createMany?: Prisma.ProjectCreateManyPulumiStateBackendInputEnvelope
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
 }
 
-export type ProjectUpdateManyWithoutPulumiBackendNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput> | Prisma.ProjectCreateWithoutPulumiBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiBackendInput | Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiBackendInput[]
-  createMany?: Prisma.ProjectCreateManyPulumiBackendInputEnvelope
+export type ProjectUpdateManyWithoutPulumiStateBackendNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput> | Prisma.ProjectCreateWithoutPulumiStateBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiStateBackendInput | Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiStateBackendInput[]
+  createMany?: Prisma.ProjectCreateManyPulumiStateBackendInputEnvelope
   set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiBackendInput | Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiBackendInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutPulumiBackendInput | Prisma.ProjectUpdateManyWithWhereWithoutPulumiBackendInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiStateBackendInput | Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiStateBackendInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutPulumiStateBackendInput | Prisma.ProjectUpdateManyWithWhereWithoutPulumiStateBackendInput[]
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
-export type ProjectUncheckedUpdateManyWithoutPulumiBackendNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput> | Prisma.ProjectCreateWithoutPulumiBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiBackendInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiBackendInput | Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiBackendInput[]
-  createMany?: Prisma.ProjectCreateManyPulumiBackendInputEnvelope
+export type ProjectUncheckedUpdateManyWithoutPulumiStateBackendNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput> | Prisma.ProjectCreateWithoutPulumiStateBackendInput[] | Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput | Prisma.ProjectCreateOrConnectWithoutPulumiStateBackendInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiStateBackendInput | Prisma.ProjectUpsertWithWhereUniqueWithoutPulumiStateBackendInput[]
+  createMany?: Prisma.ProjectCreateManyPulumiStateBackendInputEnvelope
   set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiBackendInput | Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiBackendInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutPulumiBackendInput | Prisma.ProjectUpdateManyWithWhereWithoutPulumiBackendInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiStateBackendInput | Prisma.ProjectUpdateWithWhereUniqueWithoutPulumiStateBackendInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutPulumiStateBackendInput | Prisma.ProjectUpdateManyWithWhereWithoutPulumiStateBackendInput[]
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectCreateNestedManyWithoutContainerRuntimeInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput> | Prisma.ProjectCreateWithoutContainerRuntimeInput[] | Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput | Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput[]
+  createMany?: Prisma.ProjectCreateManyContainerRuntimeInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutContainerRuntimeInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput> | Prisma.ProjectCreateWithoutContainerRuntimeInput[] | Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput | Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput[]
+  createMany?: Prisma.ProjectCreateManyContainerRuntimeInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUpdateManyWithoutContainerRuntimeNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput> | Prisma.ProjectCreateWithoutContainerRuntimeInput[] | Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput | Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutContainerRuntimeInput | Prisma.ProjectUpsertWithWhereUniqueWithoutContainerRuntimeInput[]
+  createMany?: Prisma.ProjectCreateManyContainerRuntimeInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutContainerRuntimeInput | Prisma.ProjectUpdateWithWhereUniqueWithoutContainerRuntimeInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutContainerRuntimeInput | Prisma.ProjectUpdateManyWithWhereWithoutContainerRuntimeInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutContainerRuntimeNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput> | Prisma.ProjectCreateWithoutContainerRuntimeInput[] | Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput | Prisma.ProjectCreateOrConnectWithoutContainerRuntimeInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutContainerRuntimeInput | Prisma.ProjectUpsertWithWhereUniqueWithoutContainerRuntimeInput[]
+  createMany?: Prisma.ProjectCreateManyContainerRuntimeInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutContainerRuntimeInput | Prisma.ProjectUpdateWithWhereUniqueWithoutContainerRuntimeInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutContainerRuntimeInput | Prisma.ProjectUpdateManyWithWhereWithoutContainerRuntimeInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectCreateNestedOneWithoutRuntimeWorkloadsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutRuntimeWorkloadsInput, Prisma.ProjectUncheckedCreateWithoutRuntimeWorkloadsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutRuntimeWorkloadsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutRuntimeWorkloadsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutRuntimeWorkloadsInput, Prisma.ProjectUncheckedCreateWithoutRuntimeWorkloadsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutRuntimeWorkloadsInput
+  upsert?: Prisma.ProjectUpsertWithoutRuntimeWorkloadsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutRuntimeWorkloadsInput, Prisma.ProjectUpdateWithoutRuntimeWorkloadsInput>, Prisma.ProjectUncheckedUpdateWithoutRuntimeWorkloadsInput>
 }
 
 export type ProjectCreateNestedOneWithoutBackendServiceAccountBindingsInput = {
@@ -813,6 +859,7 @@ export type ProjectCreateWithoutImportPortsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -822,8 +869,10 @@ export type ProjectCreateWithoutImportPortsInput = {
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
@@ -834,8 +883,9 @@ export type ProjectUncheckedCreateWithoutImportPortsInput = {
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -843,6 +893,8 @@ export type ProjectUncheckedCreateWithoutImportPortsInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -856,6 +908,7 @@ export type ProjectCreateWithoutExportPortsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -865,8 +918,10 @@ export type ProjectCreateWithoutExportPortsInput = {
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
@@ -877,8 +932,9 @@ export type ProjectUncheckedCreateWithoutExportPortsInput = {
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -886,6 +942,8 @@ export type ProjectUncheckedCreateWithoutExportPortsInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -910,6 +968,7 @@ export type ProjectUpdateWithoutImportPortsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -919,8 +978,10 @@ export type ProjectUpdateWithoutImportPortsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
   modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
@@ -931,8 +992,9 @@ export type ProjectUncheckedUpdateWithoutImportPortsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -940,6 +1002,8 @@ export type ProjectUncheckedUpdateWithoutImportPortsInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -959,6 +1023,7 @@ export type ProjectUpdateWithoutExportPortsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -968,8 +1033,10 @@ export type ProjectUpdateWithoutExportPortsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
   modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
@@ -980,8 +1047,9 @@ export type ProjectUncheckedUpdateWithoutExportPortsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -989,14 +1057,17 @@ export type ProjectUncheckedUpdateWithoutExportPortsInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectCreateWithoutLibraryInput = {
+export type ProjectCreateWithoutLibrarySnapshotImagesInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1006,19 +1077,23 @@ export type ProjectCreateWithoutLibraryInput = {
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectUncheckedCreateWithoutLibraryInput = {
+export type ProjectUncheckedCreateWithoutLibrarySnapshotImagesInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
   spaceId: string
   modelStorageId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1026,60 +1101,77 @@ export type ProjectUncheckedCreateWithoutLibraryInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectCreateOrConnectWithoutLibraryInput = {
+export type ProjectCreateOrConnectWithoutLibrarySnapshotImagesInput = {
   where: Prisma.ProjectWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutLibraryInput, Prisma.ProjectUncheckedCreateWithoutLibraryInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLibrarySnapshotImagesInput, Prisma.ProjectUncheckedCreateWithoutLibrarySnapshotImagesInput>
 }
 
-export type ProjectCreateManyLibraryInputEnvelope = {
-  data: Prisma.ProjectCreateManyLibraryInput | Prisma.ProjectCreateManyLibraryInput[]
+export type ProjectUpsertWithoutLibrarySnapshotImagesInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLibrarySnapshotImagesInput, Prisma.ProjectUncheckedUpdateWithoutLibrarySnapshotImagesInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLibrarySnapshotImagesInput, Prisma.ProjectUncheckedCreateWithoutLibrarySnapshotImagesInput>
+  where?: Prisma.ProjectWhereInput
 }
 
-export type ProjectUpsertWithWhereUniqueWithoutLibraryInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLibraryInput, Prisma.ProjectUncheckedUpdateWithoutLibraryInput>
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutLibraryInput, Prisma.ProjectUncheckedCreateWithoutLibraryInput>
+export type ProjectUpdateToOneWithWhereWithoutLibrarySnapshotImagesInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLibrarySnapshotImagesInput, Prisma.ProjectUncheckedUpdateWithoutLibrarySnapshotImagesInput>
 }
 
-export type ProjectUpdateWithWhereUniqueWithoutLibraryInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLibraryInput, Prisma.ProjectUncheckedUpdateWithoutLibraryInput>
+export type ProjectUpdateWithoutLibrarySnapshotImagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
+  modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
+  importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectUpdateManyWithWhereWithoutLibraryInput = {
-  where: Prisma.ProjectScalarWhereInput
-  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutLibraryInput>
-}
-
-export type ProjectScalarWhereInput = {
-  AND?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-  OR?: Prisma.ProjectScalarWhereInput[]
-  NOT?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-  id?: Prisma.StringFilter<"Project"> | string
-  meta?: Prisma.JsonFilter<"Project">
-  name?: Prisma.StringFilter<"Project"> | string
-  spaceId?: Prisma.StringFilter<"Project"> | string
-  modelStorageId?: Prisma.StringFilter<"Project"> | string
-  libraryId?: Prisma.StringFilter<"Project"> | string
-  pulumiBackendId?: Prisma.StringFilter<"Project"> | string
-  encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
-  encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
-  publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
-  unlockSuite?: Prisma.JsonFilter<"Project">
-  databaseVersion?: Prisma.IntFilter<"Project"> | number
-  createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+export type ProjectUncheckedUpdateWithoutLibrarySnapshotImagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
+  importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutSpaceInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1088,8 +1180,10 @@ export type ProjectCreateWithoutSpaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
@@ -1100,8 +1194,9 @@ export type ProjectUncheckedCreateWithoutSpaceInput = {
   meta:PrismaJson.CommonObjectMeta
   name: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1109,6 +1204,8 @@ export type ProjectUncheckedCreateWithoutSpaceInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
@@ -1139,10 +1236,32 @@ export type ProjectUpdateManyWithWhereWithoutSpaceInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutSpaceInput>
 }
 
+export type ProjectScalarWhereInput = {
+  AND?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+  OR?: Prisma.ProjectScalarWhereInput[]
+  NOT?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+  id?: Prisma.StringFilter<"Project"> | string
+  meta?: Prisma.JsonFilter<"Project">
+  name?: Prisma.StringFilter<"Project"> | string
+  spaceId?: Prisma.StringFilter<"Project"> | string
+  modelStorageId?: Prisma.StringFilter<"Project"> | string
+  containerRuntimeId?: Prisma.StringFilter<"Project"> | string
+  pulumiStateBackendId?: Prisma.StringFilter<"Project"> | string
+  legacyExecutionConfig?: Prisma.JsonNullableFilter<"Project">
+  encryptedMasterKey?: Prisma.StringFilter<"Project"> | string
+  encryptedPrivateKey?: Prisma.StringNullableFilter<"Project"> | string | null
+  publicKey?: Prisma.StringNullableFilter<"Project"> | string | null
+  unlockSuite?: Prisma.JsonFilter<"Project">
+  databaseVersion?: Prisma.IntFilter<"Project"> | number
+  createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+}
+
 export type ProjectCreateWithoutModelStorageInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1151,8 +1270,10 @@ export type ProjectCreateWithoutModelStorageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
@@ -1163,8 +1284,9 @@ export type ProjectUncheckedCreateWithoutModelStorageInput = {
   meta:PrismaJson.CommonObjectMeta
   name: string
   spaceId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1172,6 +1294,8 @@ export type ProjectUncheckedCreateWithoutModelStorageInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
@@ -1202,10 +1326,11 @@ export type ProjectUpdateManyWithWhereWithoutModelStorageInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutModelStorageInput>
 }
 
-export type ProjectCreateWithoutPulumiBackendInput = {
+export type ProjectCreateWithoutPulumiStateBackendInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1215,19 +1340,22 @@ export type ProjectCreateWithoutPulumiBackendInput = {
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectUncheckedCreateWithoutPulumiBackendInput = {
+export type ProjectUncheckedCreateWithoutPulumiStateBackendInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
+  containerRuntimeId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1235,40 +1363,216 @@ export type ProjectUncheckedCreateWithoutPulumiBackendInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectCreateOrConnectWithoutPulumiBackendInput = {
+export type ProjectCreateOrConnectWithoutPulumiStateBackendInput = {
   where: Prisma.ProjectWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput>
 }
 
-export type ProjectCreateManyPulumiBackendInputEnvelope = {
-  data: Prisma.ProjectCreateManyPulumiBackendInput | Prisma.ProjectCreateManyPulumiBackendInput[]
+export type ProjectCreateManyPulumiStateBackendInputEnvelope = {
+  data: Prisma.ProjectCreateManyPulumiStateBackendInput | Prisma.ProjectCreateManyPulumiStateBackendInput[]
 }
 
-export type ProjectUpsertWithWhereUniqueWithoutPulumiBackendInput = {
+export type ProjectUpsertWithWhereUniqueWithoutPulumiStateBackendInput = {
   where: Prisma.ProjectWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProjectUpdateWithoutPulumiBackendInput, Prisma.ProjectUncheckedUpdateWithoutPulumiBackendInput>
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiBackendInput>
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedUpdateWithoutPulumiStateBackendInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedCreateWithoutPulumiStateBackendInput>
 }
 
-export type ProjectUpdateWithWhereUniqueWithoutPulumiBackendInput = {
+export type ProjectUpdateWithWhereUniqueWithoutPulumiStateBackendInput = {
   where: Prisma.ProjectWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProjectUpdateWithoutPulumiBackendInput, Prisma.ProjectUncheckedUpdateWithoutPulumiBackendInput>
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutPulumiStateBackendInput, Prisma.ProjectUncheckedUpdateWithoutPulumiStateBackendInput>
 }
 
-export type ProjectUpdateManyWithWhereWithoutPulumiBackendInput = {
+export type ProjectUpdateManyWithWhereWithoutPulumiStateBackendInput = {
   where: Prisma.ProjectScalarWhereInput
-  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutPulumiBackendInput>
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutPulumiStateBackendInput>
+}
+
+export type ProjectCreateWithoutContainerRuntimeInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
+  modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
+  importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
+  exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutContainerRuntimeInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  spaceId: string
+  modelStorageId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
+  importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutContainerRuntimeInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput>
+}
+
+export type ProjectCreateManyContainerRuntimeInputEnvelope = {
+  data: Prisma.ProjectCreateManyContainerRuntimeInput | Prisma.ProjectCreateManyContainerRuntimeInput[]
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutContainerRuntimeInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedUpdateWithoutContainerRuntimeInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedCreateWithoutContainerRuntimeInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutContainerRuntimeInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutContainerRuntimeInput, Prisma.ProjectUncheckedUpdateWithoutContainerRuntimeInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutContainerRuntimeInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutContainerRuntimeInput>
+}
+
+export type ProjectCreateWithoutRuntimeWorkloadsInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
+  modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
+  exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutRuntimeWorkloadsInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  spaceId: string
+  modelStorageId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutRuntimeWorkloadsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutRuntimeWorkloadsInput, Prisma.ProjectUncheckedCreateWithoutRuntimeWorkloadsInput>
+}
+
+export type ProjectUpsertWithoutRuntimeWorkloadsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutRuntimeWorkloadsInput, Prisma.ProjectUncheckedUpdateWithoutRuntimeWorkloadsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutRuntimeWorkloadsInput, Prisma.ProjectUncheckedCreateWithoutRuntimeWorkloadsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutRuntimeWorkloadsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutRuntimeWorkloadsInput, Prisma.ProjectUncheckedUpdateWithoutRuntimeWorkloadsInput>
+}
+
+export type ProjectUpdateWithoutRuntimeWorkloadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
+  modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutRuntimeWorkloadsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutBackendServiceAccountBindingsInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1278,8 +1582,10 @@ export type ProjectCreateWithoutBackendServiceAccountBindingsInput = {
   updatedAt?: Date | string
   space: Prisma.ProjectSpaceCreateNestedOneWithoutProjectsInput
   modelStorage: Prisma.ProjectModelStorageCreateNestedOneWithoutProjectsInput
-  library: Prisma.LibraryCreateNestedOneWithoutProjectsInput
-  pulumiBackend: Prisma.PulumiBackendCreateNestedOneWithoutProjectsInput
+  containerRuntime: Prisma.ContainerRuntimeCreateNestedOneWithoutProjectsInput
+  pulumiStateBackend: Prisma.PulumiStateBackendCreateNestedOneWithoutProjectsInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortCreateNestedManyWithoutSourceProjectInput
 }
@@ -1290,8 +1596,9 @@ export type ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput = {
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1299,6 +1606,8 @@ export type ProjectUncheckedCreateWithoutBackendServiceAccountBindingsInput = {
   databaseVersion: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutProjectInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedCreateNestedManyWithoutProjectInput
   importPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutProjectInput
   exportPorts?: Prisma.ProjectImportPortUncheckedCreateNestedManyWithoutSourceProjectInput
 }
@@ -1323,6 +1632,7 @@ export type ProjectUpdateWithoutBackendServiceAccountBindingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1332,8 +1642,10 @@ export type ProjectUpdateWithoutBackendServiceAccountBindingsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
   modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
 }
@@ -1344,8 +1656,9 @@ export type ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1353,78 +1666,10 @@ export type ProjectUncheckedUpdateWithoutBackendServiceAccountBindingsInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
-}
-
-export type ProjectCreateManyLibraryInput = {
-  id?: string
-  meta:PrismaJson.CommonObjectMeta
-  name: string
-  spaceId: string
-  modelStorageId: string
-  pulumiBackendId: string
-  encryptedMasterKey: string
-  encryptedPrivateKey?: string | null
-  publicKey?: string | null
-  unlockSuite:PrismaJson.ProjectUnlockSuite
-  databaseVersion: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProjectUpdateWithoutLibraryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unlockSuite?:PrismaJson.ProjectUnlockSuite
-  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
-  modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
-  importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
-  exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
-  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
-}
-
-export type ProjectUncheckedUpdateWithoutLibraryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unlockSuite?:PrismaJson.ProjectUnlockSuite
-  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
-  exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
-  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
-}
-
-export type ProjectUncheckedUpdateManyWithoutLibraryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  meta?:PrismaJson.CommonObjectMeta
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
-  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unlockSuite?:PrismaJson.ProjectUnlockSuite
-  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProjectCreateManySpaceInput = {
@@ -1432,8 +1677,9 @@ export type ProjectCreateManySpaceInput = {
   meta:PrismaJson.CommonObjectMeta
   name: string
   modelStorageId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1447,6 +1693,7 @@ export type ProjectUpdateWithoutSpaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1455,8 +1702,10 @@ export type ProjectUpdateWithoutSpaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
@@ -1467,8 +1716,9 @@ export type ProjectUncheckedUpdateWithoutSpaceInput = {
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1476,6 +1726,8 @@ export type ProjectUncheckedUpdateWithoutSpaceInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
@@ -1486,8 +1738,9 @@ export type ProjectUncheckedUpdateManyWithoutSpaceInput = {
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1502,8 +1755,9 @@ export type ProjectCreateManyModelStorageInput = {
   meta:PrismaJson.CommonObjectMeta
   name: string
   spaceId: string
-  libraryId: string
-  pulumiBackendId: string
+  containerRuntimeId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1517,6 +1771,7 @@ export type ProjectUpdateWithoutModelStorageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1525,8 +1780,10 @@ export type ProjectUpdateWithoutModelStorageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
-  pulumiBackend?: Prisma.PulumiBackendUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
@@ -1537,8 +1794,9 @@ export type ProjectUncheckedUpdateWithoutModelStorageInput = {
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1546,6 +1804,8 @@ export type ProjectUncheckedUpdateWithoutModelStorageInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
@@ -1556,8 +1816,9 @@ export type ProjectUncheckedUpdateManyWithoutModelStorageInput = {
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
-  pulumiBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1567,13 +1828,14 @@ export type ProjectUncheckedUpdateManyWithoutModelStorageInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ProjectCreateManyPulumiBackendInput = {
+export type ProjectCreateManyPulumiStateBackendInput = {
   id?: string
   meta:PrismaJson.CommonObjectMeta
   name: string
   spaceId: string
   modelStorageId: string
-  libraryId: string
+  containerRuntimeId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey: string
   encryptedPrivateKey?: string | null
   publicKey?: string | null
@@ -1583,10 +1845,11 @@ export type ProjectCreateManyPulumiBackendInput = {
   updatedAt?: Date | string
 }
 
-export type ProjectUpdateWithoutPulumiBackendInput = {
+export type ProjectUpdateWithoutPulumiStateBackendInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1596,19 +1859,22 @@ export type ProjectUpdateWithoutPulumiBackendInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
   modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
-  library?: Prisma.LibraryUpdateOneRequiredWithoutProjectsNestedInput
+  containerRuntime?: Prisma.ContainerRuntimeUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectUncheckedUpdateWithoutPulumiBackendInput = {
+export type ProjectUncheckedUpdateWithoutPulumiStateBackendInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1616,18 +1882,99 @@ export type ProjectUncheckedUpdateWithoutPulumiBackendInput = {
   databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
   importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
   exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
   backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectUncheckedUpdateManyWithoutPulumiBackendInput = {
+export type ProjectUncheckedUpdateManyWithoutPulumiStateBackendInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   meta?:PrismaJson.CommonObjectMeta
   name?: Prisma.StringFieldUpdateOperationsInput | string
   spaceId?: Prisma.StringFieldUpdateOperationsInput | string
   modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
-  libraryId?: Prisma.StringFieldUpdateOperationsInput | string
+  containerRuntimeId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectCreateManyContainerRuntimeInput = {
+  id?: string
+  meta:PrismaJson.CommonObjectMeta
+  name: string
+  spaceId: string
+  modelStorageId: string
+  pulumiStateBackendId: string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey: string
+  encryptedPrivateKey?: string | null
+  publicKey?: string | null
+  unlockSuite:PrismaJson.ProjectUnlockSuite
+  databaseVersion: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectUpdateWithoutContainerRuntimeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  space?: Prisma.ProjectSpaceUpdateOneRequiredWithoutProjectsNestedInput
+  modelStorage?: Prisma.ProjectModelStorageUpdateOneRequiredWithoutProjectsNestedInput
+  pulumiStateBackend?: Prisma.PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUpdateManyWithoutProjectNestedInput
+  importPorts?: Prisma.ProjectImportPortUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutContainerRuntimeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
+  encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
+  encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unlockSuite?:PrismaJson.ProjectUnlockSuite
+  databaseVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutProjectNestedInput
+  runtimeWorkloads?: Prisma.RuntimeWorkloadUncheckedUpdateManyWithoutProjectNestedInput
+  importPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutProjectNestedInput
+  exportPorts?: Prisma.ProjectImportPortUncheckedUpdateManyWithoutSourceProjectNestedInput
+  backendServiceAccountBindings?: Prisma.BackendServiceAccountProjectBindingUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutContainerRuntimeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?:PrismaJson.CommonObjectMeta
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  modelStorageId?: Prisma.StringFieldUpdateOperationsInput | string
+  pulumiStateBackendId?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyExecutionConfig?:PrismaJson.LegacyProjectExecutionConfig | Prisma.NullableJsonNullValueInput
   encryptedMasterKey?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1643,12 +1990,16 @@ export type ProjectUncheckedUpdateManyWithoutPulumiBackendInput = {
  */
 
 export type ProjectCountOutputType = {
+  librarySnapshotImages: number
+  runtimeWorkloads: number
   importPorts: number
   exportPorts: number
   backendServiceAccountBindings: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  librarySnapshotImages?: boolean | ProjectCountOutputTypeCountLibrarySnapshotImagesArgs
+  runtimeWorkloads?: boolean | ProjectCountOutputTypeCountRuntimeWorkloadsArgs
   importPorts?: boolean | ProjectCountOutputTypeCountImportPortsArgs
   exportPorts?: boolean | ProjectCountOutputTypeCountExportPortsArgs
   backendServiceAccountBindings?: boolean | ProjectCountOutputTypeCountBackendServiceAccountBindingsArgs
@@ -1662,6 +2013,20 @@ export type ProjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Select specific fields to fetch from the ProjectCountOutputType
    */
   select?: Prisma.ProjectCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountLibrarySnapshotImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibrarySnapshotImageWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountRuntimeWorkloadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RuntimeWorkloadWhereInput
 }
 
 /**
@@ -1692,8 +2057,9 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   spaceId?: boolean
   modelStorageId?: boolean
-  libraryId?: boolean
-  pulumiBackendId?: boolean
+  containerRuntimeId?: boolean
+  pulumiStateBackendId?: boolean
+  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -1703,8 +2069,10 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
-  library?: boolean | Prisma.LibraryDefaultArgs<ExtArgs>
-  pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
+  containerRuntime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
+  pulumiStateBackend?: boolean | Prisma.PulumiStateBackendDefaultArgs<ExtArgs>
+  librarySnapshotImages?: boolean | Prisma.Project$librarySnapshotImagesArgs<ExtArgs>
+  runtimeWorkloads?: boolean | Prisma.Project$runtimeWorkloadsArgs<ExtArgs>
   importPorts?: boolean | Prisma.Project$importPortsArgs<ExtArgs>
   exportPorts?: boolean | Prisma.Project$exportPortsArgs<ExtArgs>
   backendServiceAccountBindings?: boolean | Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs>
@@ -1717,8 +2085,9 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   spaceId?: boolean
   modelStorageId?: boolean
-  libraryId?: boolean
-  pulumiBackendId?: boolean
+  containerRuntimeId?: boolean
+  pulumiStateBackendId?: boolean
+  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -1728,8 +2097,8 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
-  library?: boolean | Prisma.LibraryDefaultArgs<ExtArgs>
-  pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
+  containerRuntime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
+  pulumiStateBackend?: boolean | Prisma.PulumiStateBackendDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
 export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1738,8 +2107,9 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   spaceId?: boolean
   modelStorageId?: boolean
-  libraryId?: boolean
-  pulumiBackendId?: boolean
+  containerRuntimeId?: boolean
+  pulumiStateBackendId?: boolean
+  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -1749,8 +2119,8 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
-  library?: boolean | Prisma.LibraryDefaultArgs<ExtArgs>
-  pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
+  containerRuntime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
+  pulumiStateBackend?: boolean | Prisma.PulumiStateBackendDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
 export type ProjectSelectScalar = {
@@ -1759,8 +2129,9 @@ export type ProjectSelectScalar = {
   name?: boolean
   spaceId?: boolean
   modelStorageId?: boolean
-  libraryId?: boolean
-  pulumiBackendId?: boolean
+  containerRuntimeId?: boolean
+  pulumiStateBackendId?: boolean
+  legacyExecutionConfig?: boolean
   encryptedMasterKey?: boolean
   encryptedPrivateKey?: boolean
   publicKey?: boolean
@@ -1770,12 +2141,14 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "name" | "spaceId" | "modelStorageId" | "libraryId" | "pulumiBackendId" | "encryptedMasterKey" | "encryptedPrivateKey" | "publicKey" | "unlockSuite" | "databaseVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "meta" | "name" | "spaceId" | "modelStorageId" | "containerRuntimeId" | "pulumiStateBackendId" | "legacyExecutionConfig" | "encryptedMasterKey" | "encryptedPrivateKey" | "publicKey" | "unlockSuite" | "databaseVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
-  library?: boolean | Prisma.LibraryDefaultArgs<ExtArgs>
-  pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
+  containerRuntime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
+  pulumiStateBackend?: boolean | Prisma.PulumiStateBackendDefaultArgs<ExtArgs>
+  librarySnapshotImages?: boolean | Prisma.Project$librarySnapshotImagesArgs<ExtArgs>
+  runtimeWorkloads?: boolean | Prisma.Project$runtimeWorkloadsArgs<ExtArgs>
   importPorts?: boolean | Prisma.Project$importPortsArgs<ExtArgs>
   exportPorts?: boolean | Prisma.Project$exportPortsArgs<ExtArgs>
   backendServiceAccountBindings?: boolean | Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs>
@@ -1784,14 +2157,14 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
-  library?: boolean | Prisma.LibraryDefaultArgs<ExtArgs>
-  pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
+  containerRuntime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
+  pulumiStateBackend?: boolean | Prisma.PulumiStateBackendDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.ProjectSpaceDefaultArgs<ExtArgs>
   modelStorage?: boolean | Prisma.ProjectModelStorageDefaultArgs<ExtArgs>
-  library?: boolean | Prisma.LibraryDefaultArgs<ExtArgs>
-  pulumiBackend?: boolean | Prisma.PulumiBackendDefaultArgs<ExtArgs>
+  containerRuntime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
+  pulumiStateBackend?: boolean | Prisma.PulumiStateBackendDefaultArgs<ExtArgs>
 }
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1806,13 +2179,21 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     modelStorage: Prisma.$ProjectModelStoragePayload<ExtArgs>
     /**
-     * The library used by this project.
+     * The container runtime used by this project.
      */
-    library: Prisma.$LibraryPayload<ExtArgs>
+    containerRuntime: Prisma.$ContainerRuntimePayload<ExtArgs>
     /**
-     * The Pulumi backend used by this project.
+     * The Pulumi state backend used by this project.
      */
-    pulumiBackend: Prisma.$PulumiBackendPayload<ExtArgs>
+    pulumiStateBackend: Prisma.$PulumiStateBackendPayload<ExtArgs>
+    /**
+     * Backend-local images materialized from this project's library snapshots.
+     */
+    librarySnapshotImages: Prisma.$LibrarySnapshotImagePayload<ExtArgs>[]
+    /**
+     * Backend-owned logical workloads placed for this project.
+     */
+    runtimeWorkloads: Prisma.$RuntimeWorkloadPayload<ExtArgs>[]
     /**
      * The import ports in this project.
      */
@@ -1850,13 +2231,20 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     modelStorageId: string
     /**
-     * The ID of the library used by this project.
+     * The ID of the container runtime used by this project.
      */
-    libraryId: string
+    containerRuntimeId: string
     /**
-     * The ID of the Pulumi backend used by this project.
+     * The ID of the Pulumi state backend used by this project.
      */
-    pulumiBackendId: string
+    pulumiStateBackendId: string
+    /**
+     * Original execution identifiers and host configuration retained during the runtime upgrade.
+     * These are historical configuration, not references to backend library or runner records.
+     * 
+     * [LegacyProjectExecutionConfig]
+     */
+    legacyExecutionConfig:PrismaJson.LegacyProjectExecutionConfig | null
     /**
      * Encrypted project master key in AGE format.
      */
@@ -2284,8 +2672,10 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   space<T extends Prisma.ProjectSpaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectSpaceDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectSpaceClient<runtime.Types.Result.GetResult<Prisma.$ProjectSpacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   modelStorage<T extends Prisma.ProjectModelStorageDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectModelStorageDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectModelStorageClient<runtime.Types.Result.GetResult<Prisma.$ProjectModelStoragePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  library<T extends Prisma.LibraryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDefaultArgs<ExtArgs>>): Prisma.Prisma__LibraryClient<runtime.Types.Result.GetResult<Prisma.$LibraryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  pulumiBackend<T extends Prisma.PulumiBackendDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PulumiBackendDefaultArgs<ExtArgs>>): Prisma.Prisma__PulumiBackendClient<runtime.Types.Result.GetResult<Prisma.$PulumiBackendPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  containerRuntime<T extends Prisma.ContainerRuntimeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContainerRuntimeDefaultArgs<ExtArgs>>): Prisma.Prisma__ContainerRuntimeClient<runtime.Types.Result.GetResult<Prisma.$ContainerRuntimePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  pulumiStateBackend<T extends Prisma.PulumiStateBackendDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PulumiStateBackendDefaultArgs<ExtArgs>>): Prisma.Prisma__PulumiStateBackendClient<runtime.Types.Result.GetResult<Prisma.$PulumiStateBackendPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  librarySnapshotImages<T extends Prisma.Project$librarySnapshotImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$librarySnapshotImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibrarySnapshotImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  runtimeWorkloads<T extends Prisma.Project$runtimeWorkloadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$runtimeWorkloadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RuntimeWorkloadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   importPorts<T extends Prisma.Project$importPortsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$importPortsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectImportPortPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   exportPorts<T extends Prisma.Project$exportPortsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$exportPortsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectImportPortPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   backendServiceAccountBindings<T extends Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$backendServiceAccountBindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BackendServiceAccountProjectBindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2323,8 +2713,9 @@ export interface ProjectFieldRefs {
   readonly name: Prisma.FieldRef<"Project", 'String'>
   readonly spaceId: Prisma.FieldRef<"Project", 'String'>
   readonly modelStorageId: Prisma.FieldRef<"Project", 'String'>
-  readonly libraryId: Prisma.FieldRef<"Project", 'String'>
-  readonly pulumiBackendId: Prisma.FieldRef<"Project", 'String'>
+  readonly containerRuntimeId: Prisma.FieldRef<"Project", 'String'>
+  readonly pulumiStateBackendId: Prisma.FieldRef<"Project", 'String'>
+  readonly legacyExecutionConfig: Prisma.FieldRef<"Project", 'Json'>
   readonly encryptedMasterKey: Prisma.FieldRef<"Project", 'String'>
   readonly encryptedPrivateKey: Prisma.FieldRef<"Project", 'String'>
   readonly publicKey: Prisma.FieldRef<"Project", 'String'>
@@ -2723,6 +3114,54 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Projects to delete.
    */
   limit?: number
+}
+
+/**
+ * Project.librarySnapshotImages
+ */
+export type Project$librarySnapshotImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibrarySnapshotImage
+   */
+  select?: Prisma.LibrarySnapshotImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibrarySnapshotImage
+   */
+  omit?: Prisma.LibrarySnapshotImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibrarySnapshotImageInclude<ExtArgs> | null
+  where?: Prisma.LibrarySnapshotImageWhereInput
+  orderBy?: Prisma.LibrarySnapshotImageOrderByWithRelationInput | Prisma.LibrarySnapshotImageOrderByWithRelationInput[]
+  cursor?: Prisma.LibrarySnapshotImageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibrarySnapshotImageScalarFieldEnum | Prisma.LibrarySnapshotImageScalarFieldEnum[]
+}
+
+/**
+ * Project.runtimeWorkloads
+ */
+export type Project$runtimeWorkloadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RuntimeWorkload
+   */
+  select?: Prisma.RuntimeWorkloadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RuntimeWorkload
+   */
+  omit?: Prisma.RuntimeWorkloadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RuntimeWorkloadInclude<ExtArgs> | null
+  where?: Prisma.RuntimeWorkloadWhereInput
+  orderBy?: Prisma.RuntimeWorkloadOrderByWithRelationInput | Prisma.RuntimeWorkloadOrderByWithRelationInput[]
+  cursor?: Prisma.RuntimeWorkloadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RuntimeWorkloadScalarFieldEnum | Prisma.RuntimeWorkloadScalarFieldEnum[]
 }
 
 /**

@@ -1,9 +1,9 @@
 import { commonObjectMetaSchema, genericNameSchema, timestampsSchema, z } from "@highstate/contract"
 import {
-  codebaseLibrary,
   codebaseProjectModelStorage,
   globalProjectSpace,
-  hostPulumiBackend,
+  localContainerRuntime,
+  localPulumiStateBackend,
 } from "./well-known"
 
 export const projectModelStorageSpecSchema = z.discriminatedUnion("type", [
@@ -25,8 +25,8 @@ export const projectInputSchema = z.object({
   name: genericNameSchema,
   spaceId: z.cuid2().default(globalProjectSpace.id),
   modelStorageId: z.cuid2().default(codebaseProjectModelStorage.id),
-  libraryId: z.cuid2().default(codebaseLibrary.id),
-  pulumiBackendId: z.cuid2().default(hostPulumiBackend.id),
+  containerRuntimeId: z.string().min(1).default(localContainerRuntime.id),
+  pulumiStateBackendId: z.string().min(1).default(localPulumiStateBackend.id),
   meta: commonObjectMetaSchema,
 })
 
@@ -36,8 +36,8 @@ export const projectOutputSchema = z.object({
   meta: commonObjectMetaSchema,
   spaceId: z.cuid2(),
   modelStorageId: z.cuid2(),
-  libraryId: z.cuid2(),
-  pulumiBackendId: z.cuid2(),
+  containerRuntimeId: z.string().min(1),
+  pulumiStateBackendId: z.string().min(1),
   ...timestampsSchema.shape,
 })
 
@@ -45,6 +45,14 @@ export type ProjectModelStorageSpec = z.infer<typeof projectModelStorageSpecSche
 
 export type ProjectInput = z.infer<typeof projectInputSchema>
 export type ProjectOutput = z.infer<typeof projectOutputSchema>
+
+export const projectPlacementInputSchema = z.object({
+  containerRuntimeId: z.string().min(1),
+  pulumiStateBackendId: z.string().min(1),
+  localOverlayEnabled: z.boolean().optional(),
+})
+
+export type ProjectPlacementInput = z.infer<typeof projectPlacementInputSchema>
 
 /**
  * The project unlock suite is something that the frontend

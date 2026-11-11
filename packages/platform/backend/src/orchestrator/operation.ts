@@ -40,6 +40,7 @@ import {
 import { OperationContext } from "./operation-context"
 import { createOperationPlan } from "./operation-plan"
 import { OperationWorkset } from "./operation-workset"
+import { modelRevision } from "./revisions"
 import { resolveUnitInputValues } from "./unit-input-values"
 
 type UnitOperationFailure = {
@@ -69,6 +70,9 @@ export class RuntimeOperation {
   private context!: OperationContext
 
   private readonly unlockToken = createId()
+  private pendingCancellation = false
+  private pendingForceCancellation = false
+  private readonly preparationAbortController = new AbortController()
 
   constructor(
     private readonly project: Project,
@@ -87,9 +91,19 @@ export class RuntimeOperation {
     private readonly logger: Logger,
     private readonly libraryService: LibraryService,
     private readonly projectPortService: ProjectPortService,
+    private readonly projectLibrary?: import("../business/project-library").ProjectLibraryService,
+    private readonly preloadedContext?: OperationContext,
   ) {}
 
   cancel(force = false): boolean {
+    if (!this.workset) {
+      this.pendingCancellation = true
+      this.pendingForceCancellation ||= force
+      this.preparationAbortController.abort()
+      this.tryMarkOperationCancelling()
+      return false
+    }
+
     const forceRequired = this.workset.cancel(force)
     this.tryMarkOperationCancelling()
     return forceRequired
@@ -163,16 +177,72 @@ export class RuntimeOperation {
 
   private async operate(): Promise<void> {
     this.logger.info("starting operation")
+    const signal = this.preparationAbortController.signal
+    signal.throwIfAborted()
 
     // 1. create the context for the operation
-    this.context = await OperationContext.load(
-      this.project.id,
-      this.libraryService,
-      this.instanceStateService,
-      this.projectModelService,
-      this.entitySnapshotService,
-      this.logger,
-    )
+    const catalog =
+      !this.preloadedContext && this.projectLibrary
+        ? this.operation.librarySnapshotId
+          ? await this.projectLibrary.historicalCatalog(
+              this.project.id,
+              this.operation.librarySnapshotId,
+            )
+          : await this.projectLibrary.catalog(this.project.id)
+        : undefined
+
+    const resolved = catalog
+      ? await this.projectModelService.resolveProject(this.project.id)
+      : undefined
+
+    const localOverlayRevision =
+      catalog && this.projectLibrary
+        ? ((await this.projectLibrary.catalog(this.project.id)).overlay.revision ?? null)
+        : undefined
+
+    this.context =
+      this.preloadedContext ??
+      (await OperationContext.load(
+        this.project.id,
+        this.libraryService,
+        this.instanceStateService,
+        this.projectModelService,
+        this.entitySnapshotService,
+        this.logger,
+        catalog && this.projectLibrary
+          ? {
+              library: catalog.model,
+              snapshotId: catalog.snapshotId,
+              projectLibrary: this.projectLibrary,
+              modelRevision: resolved
+                ? modelRevision({
+                    instances: resolved.instances,
+                    resolvedInputs: resolved.resolvedInputs,
+                  })
+                : undefined,
+              localOverlayRevision,
+            }
+          : undefined,
+      ))
+
+    signal.throwIfAborted()
+
+    if (this.preloadedContext) {
+      await this.context.captureEntitySnapshotsAtOperationStart({
+        projectId: this.project.id,
+        entitySnapshotService: this.entitySnapshotService,
+      })
+
+      signal.throwIfAborted()
+    }
+
+    if (!this.operation.librarySnapshotId && this.context.desiredSnapshotId) {
+      this.operation.librarySnapshotId = this.context.desiredSnapshotId
+
+      await this.updateOperation({
+        librarySnapshot: { connect: { id: this.context.desiredSnapshotId } },
+      })
+    }
 
     // 2. create the plan for the operation (or use provided one)
     let plan: OperationPhase[]
@@ -191,6 +261,30 @@ export class RuntimeOperation {
       await this.updateOperation({ phases: plan })
     }
 
+    const snapshotIds = new Set<string>()
+
+    if (this.context.desiredSnapshotId) {
+      snapshotIds.add(this.context.desiredSnapshotId)
+    }
+
+    for (const phase of plan) {
+      for (const instance of phase.instances) {
+        const provenance = this.context.getExecutionProvenance(instance.id, phase.type)
+        if (provenance) {
+          snapshotIds.add(provenance.librarySnapshotId)
+        }
+      }
+    }
+
+    await this.runnerBackend.prepareOperation?.(
+      this.project.id,
+      this.operation.id,
+      [...snapshotIds],
+      signal,
+    )
+
+    signal.throwIfAborted()
+
     // 3. create the workset to track the state of the operation
     this.workset = new OperationWorkset(
       this.project,
@@ -206,6 +300,10 @@ export class RuntimeOperation {
 
     // 5. setup abort controllers for all affected instances in all phases
     this.workset.setupAbortControllersForAllInstances()
+
+    if (this.pendingCancellation) {
+      this.workset.cancel(this.pendingForceCancellation)
+    }
 
     // 6. progressively lock instances and launch them as they get locked
     this.launchLockAcquisitionSequence()
@@ -644,7 +742,7 @@ export class RuntimeOperation {
       await this.runnerBackend.preview({
         projectId: this.project.id,
         operationId: this.operation.id,
-        libraryId: this.project.libraryId,
+        ...this.getExecutionOptions(instance.id),
         stateId: state.id,
         instanceType: instance.type,
         instanceName: instance.name,
@@ -662,7 +760,8 @@ export class RuntimeOperation {
   }
 
   private getCompositePromise(instance: InstanceModel): Promise<void> {
-    return this.getInstancePromise(instance.id, async logger => {
+    return this.getInstancePromise(instance.id, async (logger, signal) => {
+      signal.throwIfAborted()
       let instanceState: InstanceStatePatch | undefined
 
       // set parent ID on update operation
@@ -703,11 +802,17 @@ export class RuntimeOperation {
       }
 
       await waitAll(childPromises)
+      signal.throwIfAborted()
 
       logger.debug("all children completed")
 
       // update the instance and operation state after all children are completed in last phase
       if (this.workset.isLastPhaseForInstance(instance.id)) {
+        const provenance = this.context.getExecutionProvenance(
+          instance.id,
+          this.workset.currentPhase,
+        )
+
         await this.workset.updateState(instance.id, {
           operationState: {
             status: this.workset.getStableStatusByOperationPhase(),
@@ -715,6 +820,13 @@ export class RuntimeOperation {
           },
           instanceState: {
             status: this.workset.getNextStableInstanceStatus(instance.id),
+            ...(this.workset.currentPhase === "update"
+              ? {
+                  librarySnapshotId: provenance?.librarySnapshotId ?? null,
+                  libraryPackageVersionId: provenance?.libraryPackageVersionId ?? null,
+                  model: instance,
+                }
+              : {}),
           },
         })
       }
@@ -743,6 +855,7 @@ export class RuntimeOperation {
       // Do not short-circuit when the caller requested side effects that require a real engine run or the instance was explicitly requested.
       if (
         state.status === "deployed" &&
+        !this.context.hasExecutionUpgrade(instance.id) &&
         state.selfHash != null &&
         state.dependencyOutputHash != null &&
         // do not short-circuit after destroy phase in recreate operations
@@ -809,7 +922,7 @@ export class RuntimeOperation {
       await this.runnerBackend.update({
         projectId: this.project.id,
         operationId: this.operation.id,
-        libraryId: this.project.libraryId,
+        ...this.getExecutionOptions(instance.id),
         stateId: state.id,
         instanceType: instance.type,
         instanceName: instance.name,
@@ -893,7 +1006,7 @@ export class RuntimeOperation {
       projectId: this.project.id,
       operationId: this.operation.id,
       stateId: state.id,
-      libraryId: this.project.libraryId,
+      ...this.getExecutionOptions(instance.id),
       instanceType: instance.type,
       instanceName: instance.name,
       config: this.prepareUnitConfig(instance, state.id, secrets, invokedTriggers),
@@ -961,7 +1074,7 @@ export class RuntimeOperation {
         projectId: this.project.id,
         operationId: this.operation.id,
         stateId: state.id,
-        libraryId: this.project.libraryId,
+        ...this.getExecutionOptions(instance.id),
         instanceType: type,
         instanceName: name,
         config: this.prepareUnitConfig(instance, state.id, secrets),
@@ -1004,7 +1117,7 @@ export class RuntimeOperation {
         projectId: this.project.id,
         operationId: this.operation.id,
         stateId: state.id,
-        libraryId: this.project.libraryId,
+        ...this.getExecutionOptions(instance.id),
         instanceType: type,
         instanceName: name,
         config: this.prepareUnitConfig(instance, state.id, secrets),
@@ -1030,7 +1143,7 @@ export class RuntimeOperation {
       projectId: this.project.id,
       operationId: this.operation.id,
       stateId: state.id,
-      libraryId: this.project.libraryId,
+      ...this.getExecutionOptions(state.instanceId),
       instanceType,
       instanceName,
       debug: this.operation.options.debug,
@@ -1039,6 +1152,13 @@ export class RuntimeOperation {
     let update: UnitStateUpdate | undefined
 
     for await (update of stream) {
+      // remote process termination reports an error after acknowledging cancellation
+      if (update.type === "error") {
+        this.workset.instanceAbortControllers
+          .get(state.instanceId)
+          ?.abortController.signal.throwIfAborted()
+      }
+
       let handlerError: Error | null = null
 
       try {
@@ -1075,11 +1195,13 @@ export class RuntimeOperation {
     secrets: Record<string, unknown>,
     invokedTriggers: TriggerInvocation[] = [],
   ): UnitConfig {
-    const resolvedInputs = this.context.getResolvedInputs(instance.id)
-    const component = this.context.library.components[instance.type]!
+    const resolvedInputs = this.context.getExecutionInputs(instance.id, this.workset.currentPhase)
+
+    const component = this.context.getExecutionLibrary(instance.id, this.workset.currentPhase)
+      .components[instance.type]!
 
     const unfoldedInputs = mapValues(resolvedInputs ?? {}, (input, inputName) =>
-      input.flatMap(value => this.getUnitInputValues(inputName, value)),
+      input.flatMap(value => this.getUnitInputValues(inputName, value, instance.id)),
     )
 
     for (const [inputName, inputSpec] of Object.entries(component.inputs)) {
@@ -1106,7 +1228,12 @@ export class RuntimeOperation {
     }
   }
 
-  private getUnitInputValues(inputName: string, input: ResolvedInstanceInput): UnitInputValue[] {
+  private getUnitInputValues(
+    inputName: string,
+    input: ResolvedInstanceInput,
+    instanceId: InstanceId,
+  ): UnitInputValue[] {
+    const library = this.context.getExecutionLibrary(instanceId, this.workset.currentPhase)
     const dependencyInstance = this.getPhaseInstance(input.input.instanceId)
 
     const captured = this.context.getCapturedOutputValues(
@@ -1114,12 +1241,17 @@ export class RuntimeOperation {
       input.input.output,
     )
 
-    const dependencyComponent = this.context.library.components[dependencyInstance.type]
+    const dependencyComponent = library.components[dependencyInstance.type]
     const fallbackType = dependencyComponent?.outputs[input.input.output]?.type ?? input.type
 
     const getInstanceContext = (instanceId: string) => {
       const resolvedOutput = this.context.inputResolver.outputs.get(`instance:${instanceId}`)
-      if (resolvedOutput && resolvedOutput.kind === "instance") {
+      if (
+        this.workset.currentPhase !== "destroy" &&
+        this.workset.currentPhase !== "refresh" &&
+        resolvedOutput &&
+        resolvedOutput.kind === "instance"
+      ) {
         return {
           instance: resolvedOutput.instance,
           component: resolvedOutput.component,
@@ -1129,7 +1261,7 @@ export class RuntimeOperation {
 
       try {
         const instance = this.getPhaseInstance(instanceId as InstanceId)
-        const component = this.context.library.components[instance.type]
+        const component = library.components[instance.type]
         if (!component) {
           return undefined
         }
@@ -1137,7 +1269,7 @@ export class RuntimeOperation {
         return {
           instance,
           component,
-          entities: this.context.library.entities,
+          entities: library.entities,
         }
       } catch {
         return undefined
@@ -1160,7 +1292,7 @@ export class RuntimeOperation {
     })
 
     return resolveUnitInputValues({
-      library: this.context.library,
+      library,
       inputName,
       resolvedInput: input,
       dependencyInstanceType: dependencyInstance.type,
@@ -1233,6 +1365,10 @@ export class RuntimeOperation {
     update: TypedUnitStateUpdate<"completion">,
     state: InstanceState,
   ): Promise<Error | null> {
+    this.workset.instanceAbortControllers
+      .get(update.unitId)
+      ?.abortController.signal.throwIfAborted()
+
     if (this.operation.type === "preview") {
       await this.workset.updateState(update.unitId, {
         operationState: {
@@ -1246,20 +1382,36 @@ export class RuntimeOperation {
 
     const instance = this.getPhaseInstance(update.unitId)
 
+    const executionLibrary = this.context.getExecutionLibrary(
+      instance.id,
+      this.workset.currentPhase,
+    )
+
+    const provenance = this.context.getExecutionProvenance(instance.id, this.workset.currentPhase)
+    if (
+      provenance &&
+      (!update.provenance ||
+        update.provenance.librarySnapshotId !== provenance.librarySnapshotId ||
+        update.provenance.libraryPackageVersionId !== provenance.libraryPackageVersionId)
+    ) {
+      throw new Error(`Execution provenance mismatch for "${instance.id}"`)
+    }
+
     if (update.rawOutputs && update.operationType !== "destroy") {
       this.context.updateCapturedOutputValuesFromUnitOutputs({
         instanceId: instance.id,
         instanceType: instance.type,
         outputs: update.rawOutputs,
+        library: executionLibrary,
       })
     }
 
     const parsed = update.rawOutputs
       ? await this.unitOutputService.parseUnitOutputs({
-          libraryId: this.context.project.libraryId,
+          libraryId: this.context.project.id,
           instanceType: instance.type,
           outputs: update.rawOutputs,
-          libraryModel: this.context.library,
+          libraryModel: executionLibrary,
         })
       : {
           outputHash: null,
@@ -1303,6 +1455,18 @@ export class RuntimeOperation {
       statusFields: parsed.statusFields,
     }
 
+    if (this.workset.currentPhase === "update" && update.operationType === "update") {
+      data.librarySnapshotId = provenance?.librarySnapshotId ?? null
+      data.libraryPackageVersionId = provenance?.libraryPackageVersionId ?? null
+      data.model = instance
+
+      data.resolvedInputs = this.context.serializeResolvedInputs(
+        mapValues(this.context.getResolvedInputs(instance.id) ?? {}, inputs =>
+          inputs.map(input => input.input),
+        ),
+      )
+    }
+
     const artifactIds = parsed.exportedArtifactIds
       ? Object.values(parsed.exportedArtifactIds).flat()
       : []
@@ -1313,12 +1477,15 @@ export class RuntimeOperation {
       state.outputHash = parsed.outputHash
 
       // recalculate the input and output hashes for the instance
-      const { selfHash, inputHash, dependencyOutputHash } =
-        await this.context.getUpToDateInputHashOutput(instance)
+      if (this.workset.currentPhase === "update") {
+        const { selfHash, inputHash, dependencyOutputHash } =
+          await this.context.getUpToDateInputHashOutput(instance)
 
-      data.selfHash = selfHash
-      data.inputHash = inputHash
-      data.dependencyOutputHash = dependencyOutputHash
+        data.selfHash = selfHash
+        data.inputHash = inputHash
+        data.dependencyOutputHash = dependencyOutputHash
+      }
+
       data.outputHash = parsed.outputHash
 
       data.exportedArtifactIds = parsed.exportedArtifactIds
@@ -1346,6 +1513,19 @@ export class RuntimeOperation {
       data.hasResourceHooks = false
     }
 
+    if (update.operationType !== "destroy" && parsed.entitySnapshotPayload) {
+      await this.entitySnapshotService.persistUnitEntitySnapshots({
+        projectId: this.project.id,
+        operationId: this.operation.id,
+        stateId: state.id,
+        payload: parsed.entitySnapshotPayload,
+      })
+    }
+
+    this.workset.instanceAbortControllers
+      .get(update.unitId)
+      ?.abortController.signal.throwIfAborted()
+
     // update the operation state
     await this.workset.updateState(instance.id, {
       // TODO: honestly, it is not correct
@@ -1371,15 +1551,6 @@ export class RuntimeOperation {
           }
         : undefined,
     })
-
-    if (update.operationType !== "destroy" && parsed.entitySnapshotPayload) {
-      await this.entitySnapshotService.persistUnitEntitySnapshots({
-        projectId: this.project.id,
-        operationId: this.operation.id,
-        stateId: state.id,
-        payload: parsed.entitySnapshotPayload,
-      })
-    }
 
     if (
       update.operationType === "destroy" &&
@@ -1512,6 +1683,10 @@ export class RuntimeOperation {
   }
 
   private async ensureInstancesUnlocked(): Promise<void> {
+    if (!this.workset) {
+      return
+    }
+
     const lockedStateIds = Array.from(this.workset.getLockedStateIds())
     if (lockedStateIds.length === 0) {
       return
@@ -1527,6 +1702,10 @@ export class RuntimeOperation {
   }
 
   private async ensureOperationStatesFinalized(): Promise<void> {
+    if (!this.context || !this.workset) {
+      return
+    }
+
     const unfinishedStates = this.context.getUnfinishedOperationStates()
     if (unfinishedStates.length === 0) {
       return
@@ -1576,7 +1755,7 @@ export class RuntimeOperation {
   }
 
   private getPhaseInstance(instanceId: InstanceId): InstanceModel {
-    const modelInstance = this.context.tryGetInstance(instanceId)
+    const modelInstance = this.context.getExecutionInstance(instanceId, this.workset.currentPhase)
     if (modelInstance) {
       return modelInstance
     }
@@ -1589,5 +1768,14 @@ export class RuntimeOperation {
     }
 
     throw new Error(`Instance with ID ${instanceId} not found in the operation context`)
+  }
+
+  private getExecutionOptions(instanceId: InstanceId) {
+    const provenance = this.context.getExecutionProvenance(instanceId, this.workset.currentPhase)
+    return {
+      libraryId: provenance ? this.project.id : undefined,
+      librarySnapshotId: provenance?.librarySnapshotId ?? null,
+      executionPhase: this.workset.currentPhase,
+    }
   }
 }

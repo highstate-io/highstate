@@ -27,8 +27,7 @@ export const entitySettingsRouter = router({
       return null
     }
 
-    const project = await ctx.projectService.getProjectOrThrowCore(input.projectId)
-    const library = await ctx.libraryBackend.loadLibrary(project.libraryId)
+    const { model: library } = await ctx.projectLibraryService.getCatalog(ctx.requestContext)
 
     try {
       const content = await ctx.entitySnapshotService.reconstructSnapshotContent(

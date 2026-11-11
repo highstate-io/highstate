@@ -1,6 +1,12 @@
+import type {
+  WorkerProxyRegistry,
+  WorkerProxyRequest,
+  WorkerProxyResponse,
+} from "../container-runtime"
 import type { PubSubManager } from "../pubsub"
 
 export type PanelEndpoint = {
+  workloadId?: string
   authority: string
   panelName: string
   stateId: string
@@ -8,6 +14,7 @@ export type PanelEndpoint = {
 }
 
 type WorkerInstance = {
+  workloadId?: string
   authority: string
   panelIdsByState: Map<string, Set<string>>
   projectId: string
@@ -24,7 +31,40 @@ export class PanelEndpointManager {
   private readonly instanceIdsByVersion = new Map<string, string>()
   private readonly panels = new Map<string, ActivePanel>()
 
-  constructor(private readonly pubsubManager?: PubSubManager) {}
+  constructor(
+    private readonly pubsubManager?: PubSubManager,
+    private readonly proxies?: WorkerProxyRegistry,
+  ) {}
+
+  connectRuntime(
+    projectId: string,
+    workerVersionId: string,
+    workerInstanceId: string,
+    workloadId: string,
+  ): void {
+    this.connect(projectId, workerVersionId, workerInstanceId, "runtime.invalid:1")
+    this.instances.get(workerInstanceId)!.workloadId = workloadId
+  }
+
+  async proxy(
+    projectId: string,
+    workerVersionId: string,
+    panelId: string,
+    workerInstanceId: string,
+    request: Omit<WorkerProxyRequest, "stateId" | "panelName">,
+    signal?: AbortSignal,
+  ): Promise<WorkerProxyResponse> {
+    const endpoint = this.getPanelEndpoint(projectId, workerVersionId, panelId, workerInstanceId)
+    if (!endpoint?.workloadId || !this.proxies) {
+      throw new Error("Panel reverse channel is unavailable")
+    }
+
+    return await this.proxies.request(
+      endpoint.workloadId,
+      { ...request, stateId: endpoint.stateId, panelName: endpoint.panelName },
+      signal,
+    )
+  }
 
   /**
    * Verifies that a concrete worker instance has an active data endpoint.
@@ -151,6 +191,7 @@ export class PanelEndpointManager {
       }
 
       this.panels.set(panel.id, {
+        workloadId: instance.workloadId,
         authority: instance.authority,
         panelName: panel.name,
         projectId,
@@ -204,6 +245,7 @@ export class PanelEndpointManager {
     }
 
     return {
+      workloadId: panel.workloadId,
       authority: panel.authority,
       panelName: panel.panelName,
       stateId: panel.stateId,

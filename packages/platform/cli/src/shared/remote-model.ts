@@ -1,4 +1,4 @@
-import { create, fromJson, type JsonValue, toJson } from "@bufbuild/protobuf"
+import { create, fromJson, toJson } from "@bufbuild/protobuf"
 import { ValueSchema } from "@bufbuild/protobuf/wkt"
 import {
   ComponentArgumentMapEntrySchema,
@@ -196,6 +196,10 @@ export type PlanDocument = {
   type: z.infer<typeof operationTypeSchema>
   instance_ids: string[]
   options: z.infer<typeof operationOptionsInputSchema>
+  plan_token: string
+  model_revision: string
+  library_snapshot_id?: string
+  local_overlay_revision?: string
   phases: unknown[]
 }
 
@@ -205,12 +209,12 @@ export const planDocumentSchema = z.object({
   type: operationTypeSchema,
   instance_ids: z.array(z.string().min(1)).min(1),
   options: operationOptionsInputSchema.default({}),
+  plan_token: z.string().min(1),
+  model_revision: z.string().min(1),
+  library_snapshot_id: z.string().min(1).optional(),
+  local_overlay_revision: z.string().min(1).optional(),
   phases: z.array(z.json()),
 })
-
-export function phasesFromPlan(document: PlanDocument): OperationPhase[] {
-  return document.phases.map(phase => fromJson(OperationPhaseSchema, phase as JsonValue))
-}
 
 export function phasesToJson(phases: OperationPhase[]): unknown[] {
   return phases.map(phase => toJson(OperationPhaseSchema, phase, { useProtoFieldName: true }))

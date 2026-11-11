@@ -1,0 +1,157 @@
+syntax = "proto3";
+package io.highstate.runtime.v1;
+
+import "google/api/field_behavior.proto";
+
+// CreateSidecarRequest asks the backend to place one sidecar in the operation environment.
+message CreateSidecarRequest {
+  // The caller-owned DNS name exposed unchanged within the operation environment.
+  string dns_name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The immutable image reference.
+  string image = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The sidecar process command.
+  repeated string command = 3;
+
+  // Non-secret environment variables.
+  map<string, string> environment = 4;
+
+  // Secret environment variables.
+  map<string, string> secret_environment = 5 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Named TCP ports exposed within the operation environment, matching RuntimeSidecarStartInput.
+  repeated SidecarPort ports = 6;
+
+  // Arguments appended to the command or image entrypoint.
+  repeated string args = 7;
+
+  // Files mounted for this sidecar only; secret files must not enter images or logs.
+  repeated SidecarFile files = 8;
+
+  // Optional readiness condition; creation responds only after readiness succeeds.
+  optional SidecarReadiness readiness = 9;
+}
+
+// SidecarFile matches the runtime contract's text file declaration.
+message SidecarFile {
+  // The absolute mount path.
+  string path = 1;
+
+  // The file's text content.
+  string content = 2 [(google.api.field_behavior) = INPUT_ONLY];
+
+  // Whether the content is secret.
+  bool secret = 3;
+
+  // Optional numeric POSIX permission bits.
+  optional uint32 mode = 4;
+}
+
+// SidecarPort declares a named TCP container port; TCP is the only supported protocol.
+message SidecarPort {
+  // The port name used by readiness and returned mappings.
+  string name = 1;
+
+  // The container port, from 1 through 65535.
+  uint32 container_port = 2;
+}
+
+// SidecarReadiness matches the runtime contract's TCP, HTTP, or log readiness condition.
+message SidecarReadiness {
+  // The readiness check, with a default timeout of 30 seconds when omitted.
+  oneof check {
+    // Connect to a named port.
+    SidecarTcpReadiness tcp = 1;
+
+    // Request an HTTP path on a named port.
+    SidecarHttpReadiness http = 2;
+
+    // Match a regular expression in container logs.
+    SidecarLogReadiness log = 3;
+  }
+}
+
+// SidecarTcpReadiness waits for a successful TCP connection.
+message SidecarTcpReadiness {
+  // The declared port name.
+  string port = 1;
+
+  // The timeout in seconds; omission uses 30.
+  optional uint32 timeout_seconds = 2;
+}
+
+// SidecarHttpReadiness waits for an accepted HTTP status.
+message SidecarHttpReadiness {
+  // The declared port name.
+  string port = 1;
+
+  // The HTTP path.
+  string path = 2;
+
+  // Accepted HTTP statuses; empty uses 200.
+  repeated uint32 statuses = 3;
+
+  // The timeout in seconds; omission uses 30.
+  optional uint32 timeout_seconds = 4;
+}
+
+// SidecarLogReadiness waits for a log pattern.
+message SidecarLogReadiness {
+  // The regular expression to match.
+  string pattern = 1;
+
+  // The timeout in seconds; omission uses 30.
+  optional uint32 timeout_seconds = 2;
+}
+
+// SidecarPortMapping is reachable from the requesting runner, not necessarily the backend host.
+message SidecarPortMapping {
+  // The runner-reachable host.
+  string host = 1;
+
+  // The runner-reachable port.
+  uint32 port = 2;
+}
+
+// CreateSidecarResponse reports placement of one sidecar.
+message CreateSidecarResponse {
+  // The runtime-assigned sidecar workload ID.
+  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // RuntimeSidecarStartOutput.host: the caller-owned DNS name exposed unchanged to the runner.
+  string host = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // RuntimeSidecarStartOutput.ports: reachable endpoints keyed by declared port name.
+  map<string, SidecarPortMapping> ports = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SidecarEvent reports a lifecycle transition for one sidecar.
+message SidecarEvent {
+  // The runtime-assigned sidecar workload ID.
+  string sidecar_workload_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The current lifecycle state.
+  SidecarState state = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A human-readable lifecycle or health message.
+  optional string message = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SidecarState identifies one sidecar lifecycle state.
+enum SidecarState {
+  // The state was not specified or is not recognized.
+  SIDECAR_STATE_UNSPECIFIED = 0;
+
+  // The sidecar is starting.
+  SIDECAR_STATE_STARTING = 1;
+
+  // The sidecar is healthy and ready.
+  SIDECAR_STATE_READY = 2;
+
+  // The sidecar stopped.
+  SIDECAR_STATE_STOPPED = 3;
+
+  // The sidecar failed or became unhealthy.
+  SIDECAR_STATE_FAILED = 4;
+}

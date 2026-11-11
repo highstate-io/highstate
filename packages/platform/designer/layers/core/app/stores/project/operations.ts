@@ -97,12 +97,16 @@ export const useProjectOperationsStore = defineMultiStore({
         }
       }
 
-      const planOperation = async (request: OperationPlanInput): Promise<OperationPhase[]> => {
+      const reviewOperation = async (request: OperationPlanInput) => {
         if (request.type === "preview" && request.instanceIds.length !== 1) {
           throw new Error("Preview operations require exactly one instance")
         }
 
         return await $client.operation.plan.mutate(request)
+      }
+
+      const planOperation = async (request: OperationPlanInput): Promise<OperationPhase[]> => {
+        return (await reviewOperation(request)).phases
       }
 
       const planInstanceOperation = async (
@@ -211,6 +215,7 @@ export const useProjectOperationsStore = defineMultiStore({
         operations,
         operationsMap,
         planOperation,
+        reviewOperation,
         planInstanceOperation,
         launchOperation,
         launchInstanceOperation,

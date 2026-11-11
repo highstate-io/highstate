@@ -154,6 +154,8 @@ describe("getInstanceStates", () => {
         data: {
           stateId: instanceState.id,
           status: "evaluated",
+          modelRevision: "test",
+          evaluationActionId: "test",
           model: {
             id: "test.v1:example",
             kind: "unit",
@@ -647,7 +649,7 @@ describe("forgetInstanceState", () => {
       expect(runnerBackend.deleteState).toHaveBeenCalledWith({
         projectId: project.id,
         stateId: instanceState.id,
-        libraryId: project.libraryId,
+        libraryId: "local",
         instanceName,
         instanceType,
       })

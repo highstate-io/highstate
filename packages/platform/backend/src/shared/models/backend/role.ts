@@ -36,8 +36,10 @@ const backendPermissionRestrictionsSchema = z
 export type BackendPermissionRestrictionType = BackendPermissionRestriction["type"]
 
 export type BackendResourceType =
-  | "library"
-  | "pulumi-backend"
+  | "container-runtime"
+  | "pulumi-state-backend"
+  | "npm-registry-credential"
+  | "container-registry-credential"
   | "project-model-storage"
   | "backend-service-account"
   | "backend-api-key"
@@ -196,42 +198,42 @@ export const backendPermissionGroups = [
     supportedRestrictions: ["project-spaces"],
   },
   {
-    title: "Libraries",
+    title: "Container runtimes",
     permissions: [
       {
-        name: "library.get",
-        title: "View libraries",
+        name: "container-runtime.get",
+        title: "View container runtimes",
         risk: "low",
       },
       {
-        name: "library.list",
-        title: "List libraries",
+        name: "container-runtime.list",
+        title: "List container runtimes",
         risk: "low",
       },
       {
-        name: "library.manage",
-        title: "Manage libraries",
+        name: "container-runtime.manage",
+        title: "Manage container runtimes",
         risk: "high",
       },
     ],
     supportedRestrictions: ["resources"],
-    resourceType: "library",
+    resourceType: "container-runtime",
   },
   {
-    title: "Pulumi backends",
+    title: "Pulumi state backends",
     permissions: [
       {
-        name: "pulumi-backend.get",
+        name: "pulumi-state-backend.get",
         title: "View Pulumi backends",
         risk: "low",
       },
       {
-        name: "pulumi-backend.list",
+        name: "pulumi-state-backend.list",
         title: "List Pulumi backends",
         risk: "low",
       },
       {
-        name: "pulumi-backend.manage",
+        name: "pulumi-state-backend.manage",
         title: "Manage Pulumi backends",
         risk: "critical",
         consequence:
@@ -239,7 +241,43 @@ export const backendPermissionGroups = [
       },
     ],
     supportedRestrictions: ["resources"],
-    resourceType: "pulumi-backend",
+    resourceType: "pulumi-state-backend",
+  },
+  {
+    title: "Npm registry credentials",
+    permissions: [
+      { name: "npm-registry-credential.get", title: "View npm registry credentials", risk: "low" },
+      { name: "npm-registry-credential.list", title: "List npm registry credentials", risk: "low" },
+      {
+        name: "npm-registry-credential.manage",
+        title: "Manage npm registry credentials",
+        risk: "high",
+      },
+    ],
+    supportedRestrictions: ["resources"],
+    resourceType: "npm-registry-credential",
+  },
+  {
+    title: "Container registry credentials",
+    permissions: [
+      {
+        name: "container-registry-credential.get",
+        title: "View container registry credentials",
+        risk: "low",
+      },
+      {
+        name: "container-registry-credential.list",
+        title: "List container registry credentials",
+        risk: "low",
+      },
+      {
+        name: "container-registry-credential.manage",
+        title: "Manage container registry credentials",
+        risk: "high",
+      },
+    ],
+    supportedRestrictions: ["resources"],
+    resourceType: "container-registry-credential",
   },
   {
     title: "Project model storages",

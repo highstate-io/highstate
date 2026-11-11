@@ -1,6 +1,5 @@
 import type { TerminalSessionOutput } from "@highstate/backend/shared"
 import type { ILinkHandler, Terminal } from "@xterm/xterm"
-import { AttachAddon } from "@xterm/addon-attach"
 import { type ILinkProviderOptions, WebLinksAddon } from "@xterm/addon-web-links"
 
 export function useTerminalSession(projectId: string, sessionId: string) {
@@ -107,10 +106,38 @@ export function useTerminalSession(projectId: string, sessionId: string) {
       `${baseUrl}/api/projects/${projectId}/terminal-sessions/${sessionId}?screenSize=${terminal.value!.cols}x${terminal.value!.rows}`,
     )
 
-    const attachAddon = new AttachAddon(ws)
-    terminal.value!.loadAddon(attachAddon)
+    ws.binaryType = "arraybuffer"
 
-    onUnmounted(() => ws.close())
+    ws.addEventListener("message", event => {
+      terminal.value!.write(
+        typeof event.data === "string" ? event.data : new Uint8Array(event.data),
+      )
+    })
+
+    const input = terminal.value!.onData(data => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(new TextEncoder().encode(data))
+      }
+    })
+
+    const binaryInput = terminal.value!.onBinary(data => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(Uint8Array.from(data, char => char.charCodeAt(0)))
+      }
+    })
+
+    const resize = terminal.value!.onResize(({ cols, rows }) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "resize", cols, rows }))
+      }
+    })
+
+    onUnmounted(() => {
+      input.dispose()
+      binaryInput.dispose()
+      resize.dispose()
+      ws.close()
+    })
   }
 
   return {

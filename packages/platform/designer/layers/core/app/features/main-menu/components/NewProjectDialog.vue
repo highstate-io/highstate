@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localContainerRuntime, localPulumiStateBackend } from "@highstate/backend/shared"
 import { camelCaseToHumanReadable } from "@highstate/contract"
 import { createId } from "@paralleldrive/cuid2"
 import {
@@ -34,9 +35,33 @@ const projectIdRules = [
 
 const projectsStore = useProjectsStore()
 const workspaceStore = useWorkspaceStore()
+const runtimeSettings = useRuntimeSettingsStore()
+const containerRuntimeId = ref(localContainerRuntime.id)
+const pulumiStateBackendId = ref(localPulumiStateBackend.id)
+const placementError = ref("")
+const placementLoaded = ref(false)
+
+async function loadPlacement() {
+  placementLoaded.value = false
+  placementError.value = ""
+
+  try {
+    await runtimeSettings.load()
+    placementLoaded.value = true
+  } catch (caught) {
+    placementError.value =
+      caught instanceof Error ? caught.message : "Failed to load placement options"
+  }
+}
 
 const isFormValid = computed(() => {
-  return valid.value && unlockMethodValid.value
+  return (
+    valid.value &&
+    unlockMethodValid.value &&
+    placementLoaded.value &&
+    runtimeSettings.runtimes.some(item => item.id === containerRuntimeId.value) &&
+    runtimeSettings.stateBackends.some(item => item.id === pulumiStateBackendId.value)
+  )
 })
 
 const createProject = async () => {
@@ -56,6 +81,10 @@ const createProject = async () => {
     projectName.value,
     { title: title.value },
     unlockMethod,
+    {
+      containerRuntimeId: containerRuntimeId.value,
+      pulumiStateBackendId: pulumiStateBackendId.value,
+    },
   )
 
   workspaceStore.openProjectPanel(project.id)
@@ -68,6 +97,12 @@ const createProject = async () => {
 
 // reset form when dialog closes
 watch(visible, newVisible => {
+  if (newVisible) {
+    containerRuntimeId.value = localContainerRuntime.id
+    pulumiStateBackendId.value = localPulumiStateBackend.id
+    void loadPlacement()
+  }
+
   if (!newVisible) {
     projectName.value = ""
     unlockMethodForm.value?.resetForm()
@@ -104,6 +139,31 @@ watch(projectName, newProjectId => {
             label="Title"
             hint="A human-readable title for your project"
             persistent-hint
+          />
+
+          <VDivider class="my-6" />
+
+          <VAlert v-if="placementError" type="error" class="mb-4">
+            {{ placementError }}
+            <VBtn variant="text" @click="loadPlacement">Reload placement options</VBtn>
+          </VAlert>
+          <VSelect
+            v-model="containerRuntimeId"
+            :items="runtimeSettings.runtimes"
+            item-title="meta.title"
+            item-value="id"
+            label="Container runtime"
+            :loading="runtimeSettings.loading"
+            :disabled="!placementLoaded || projectsStore.loadingCreateProject"
+          />
+          <VSelect
+            v-model="pulumiStateBackendId"
+            :items="runtimeSettings.stateBackends"
+            item-title="meta.title"
+            item-value="id"
+            label="Pulumi state backend"
+            :loading="runtimeSettings.loading"
+            :disabled="!placementLoaded || projectsStore.loadingCreateProject"
           />
 
           <VDivider class="my-6" />

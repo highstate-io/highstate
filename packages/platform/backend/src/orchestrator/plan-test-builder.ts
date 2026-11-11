@@ -115,6 +115,8 @@ export class PlanTestBuilder {
       parentId: null,
       parentInstanceId: instance.parentId ?? null,
       selfHash: null,
+      librarySnapshotId: null,
+      libraryPackageVersionId: null,
       inputHash: null,
       outputHash: null,
       dependencyOutputHash: null,
@@ -136,6 +138,11 @@ export class PlanTestBuilder {
         // will be updated with actual hash after workset creation
         baseState.lastOperationState = {
           operationId: "test-op",
+          librarySnapshotId: null,
+          libraryPackageVersionId: null,
+          previousLibraryPackageVersionId: null,
+          localOverlayActive: false,
+          localOverlayRevision: null,
           stateId: instance.id,
           status: "updated",
           currentResourceCount: null,
@@ -153,6 +160,11 @@ export class PlanTestBuilder {
         baseState.inputHash = 99999 // different hash indicates changed state
         baseState.lastOperationState = {
           operationId: "test-op",
+          librarySnapshotId: null,
+          libraryPackageVersionId: null,
+          previousLibraryPackageVersionId: null,
+          localOverlayActive: false,
+          localOverlayRevision: null,
           stateId: instance.id,
           status: "updated",
           currentResourceCount: null,
@@ -168,6 +180,11 @@ export class PlanTestBuilder {
         baseState.inputHash = 12345
         baseState.lastOperationState = {
           operationId: "test-op",
+          librarySnapshotId: null,
+          libraryPackageVersionId: null,
+          previousLibraryPackageVersionId: null,
+          localOverlayActive: false,
+          localOverlayRevision: null,
           stateId: instance.id,
           status: "updated",
           currentResourceCount: null,

@@ -11,3 +11,4 @@ This section covers boundaries and compatibility constraints that affect multipl
 - [Project Lifecycle](project-lifecycle.md) follows desired state through evaluation, planning, and execution.
 - [Data and Security](data-and-security.md) defines persistence, trust, unlock, and ownership boundaries.
 - [Compatibility](compatibility.md) records release, runtime, API, extension, and persistence constraints.
+- [Project Library](project-library.md) defines durable package snapshots, execution catalogs, and image reconstruction.

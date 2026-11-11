@@ -3,7 +3,7 @@ import { artifactBackendConfig } from "./artifact"
 import { projectUnlockServiceConfig } from "./business"
 import { codebaseConfig } from "./common"
 import { databaseConfig } from "./database"
-import { libraryBackendConfig } from "./library"
+import { libraryBackendConfig, selectedLibraryPackagesSchema } from "./library"
 import { lockBackendConfig } from "./lock"
 import { pubSubBackendConfig } from "./pubsub"
 import { runnerBackendConfig } from "./runner"
@@ -27,6 +27,19 @@ const configSchema = z.object({
   ...workerManagerConfig.shape,
   ...artifactBackendConfig.shape,
   ...loggerConfig.shape,
+  HIGHSTATE_PUBLIC_API_URL: z.url().default("http://api.highstate.localhost:3000"),
+  HIGHSTATE_INITIAL_LIBRARY_PACKAGES: z
+    .string()
+    .transform((value, context) => {
+      try {
+        return JSON.parse(value) as unknown
+      } catch {
+        context.addIssue({ code: "custom", message: "Expected a JSON array of library packages" })
+        return z.NEVER
+      }
+    })
+    .pipe(selectedLibraryPackagesSchema)
+    .default([{ packageName: "@highstate/library", version: "0.30.2" }]),
 })
 
 export type Config = z.infer<typeof configSchema>

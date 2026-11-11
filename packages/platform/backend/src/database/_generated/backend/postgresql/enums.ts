@@ -9,6 +9,75 @@
 * 🟢 You can import this file directly.
 */
 
+export const LibrarySnapshotImageStatus = {
+  queued: 'queued',
+  installing: 'installing',
+  building: 'building',
+  pushing: 'pushing',
+  verifying: 'verifying',
+  ready: 'ready',
+  failed: 'failed'
+} as const
+
+export type LibrarySnapshotImageStatus = (typeof LibrarySnapshotImageStatus)[keyof typeof LibrarySnapshotImageStatus]
+
+
+export const RuntimeWorkloadKind = {
+  pulumi: 'pulumi',
+  composite_evaluation: 'composite_evaluation',
+  library_build: 'library_build',
+  sidecar: 'sidecar',
+  worker: 'worker',
+  terminal: 'terminal'
+} as const
+
+export type RuntimeWorkloadKind = (typeof RuntimeWorkloadKind)[keyof typeof RuntimeWorkloadKind]
+
+
+export const RuntimeWorkloadStatus = {
+  pending: 'pending',
+  starting: 'starting',
+  running: 'running',
+  stopping: 'stopping',
+  completed: 'completed',
+  failed: 'failed',
+  cancelled: 'cancelled',
+  lost: 'lost'
+} as const
+
+export type RuntimeWorkloadStatus = (typeof RuntimeWorkloadStatus)[keyof typeof RuntimeWorkloadStatus]
+
+
+export const RuntimeWorkloadDesiredState = {
+  running: 'running',
+  stopped: 'stopped',
+  deleted: 'deleted'
+} as const
+
+export type RuntimeWorkloadDesiredState = (typeof RuntimeWorkloadDesiredState)[keyof typeof RuntimeWorkloadDesiredState]
+
+
+export const RuntimeActionKind = {
+  pulumi: 'pulumi',
+  composite_evaluation: 'composite_evaluation'
+} as const
+
+export type RuntimeActionKind = (typeof RuntimeActionKind)[keyof typeof RuntimeActionKind]
+
+
+export const RuntimeActionStatus = {
+  pending: 'pending',
+  running: 'running',
+  cancelling: 'cancelling',
+  completed: 'completed',
+  failed: 'failed',
+  cancelled: 'cancelled',
+  interrupted: 'interrupted'
+} as const
+
+export type RuntimeActionStatus = (typeof RuntimeActionStatus)[keyof typeof RuntimeActionStatus]
+
+
 export const UserType = {
   local: 'local',
   oidc: 'oidc'

@@ -37,9 +37,27 @@ model InstanceEvaluationState {
     /// [InstanceModel]
     model Json?
 
+    /// The packaged library snapshot used to produce this evaluation state.
+    librarySnapshotId String?
+
+    /// The backend-assigned resident model revision used by the evaluation.
+    modelRevision String
+
+    /// The local development overlay revision used by the evaluation, when active.
+    localOverlayRevision String?
+
+    /// The runtime action that produced this evaluation state.
+    evaluationActionId String
+
     /// The time when the last evaluation was finished.
     evaluatedAt DateTime @updatedAt
 
     /// The instance this state belongs to.
     state InstanceState @relation(fields: [stateId], references: [id])
+
+    /// The packaged library snapshot used by the evaluation.
+    librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
+
+    @@index([librarySnapshotId])
+    @@index([modelRevision])
 }

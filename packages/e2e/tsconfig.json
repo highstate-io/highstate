@@ -1,0 +1,10 @@
+{
+  "extends": "../platform/cli/assets/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["bun-types", "node"],
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts"]
+}

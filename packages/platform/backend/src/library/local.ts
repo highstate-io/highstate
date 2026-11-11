@@ -1,16 +1,27 @@
 import type { Logger } from "pino"
-import type { LibraryBackend, ProjectEvaluationResult, ResolvedUnitSource } from "./abstractions"
+import type {
+  LibraryBackend,
+  LocalLibraryOverlaySnapshot,
+  ProjectEvaluationResult,
+  ResolvedUnitSource,
+} from "./abstractions"
 import type {
   PackageResolutionResponse,
   PackageResolutionWorkerData,
 } from "./package-resolution-worker"
 import type { WorkerData } from "./worker/protocol"
+import { createHash } from "node:crypto"
 import { EventEmitter, on } from "node:events"
 import { readFile } from "node:fs/promises"
 import { dirname, isAbsolute, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { Worker } from "node:worker_threads"
-import { type ComponentModel, type InstanceModel, isUnitModel } from "@highstate/contract"
+import {
+  type ComponentModel,
+  type InstanceModel,
+  isUnitModel,
+  type LibrarySourceManifest,
+} from "@highstate/contract"
 import { decode } from "@msgpack/msgpack"
 import { BetterLock } from "better-lock"
 import { glob } from "glob"
@@ -28,6 +39,7 @@ import {
   type LibraryUpdate,
   type ResolvedInstanceInput,
 } from "../shared"
+import { canonicalJson } from "./snapshot"
 
 export const localLibraryBackendConfig = z.object({
   HIGHSTATE_LIBRARY_BACKEND_LOCAL_LIBRARY_PACKAGES: stringArrayType.default(() => [
@@ -43,10 +55,6 @@ export const localLibraryBackendConfig = z.object({
 type Events = {
   library: [LibraryUpdate[]]
   resolvedUnitSource: [ResolvedUnitSource]
-}
-
-type HighstateManifestJson = {
-  sourceHashes?: Record<string, number>
 }
 
 type LibraryPackage = {
@@ -124,6 +132,57 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   async loadLibrary(): Promise<LibraryModel> {
     return await this.lock.acquire(async () => await this.getLibrary())
+  }
+
+  async loadLocalOverlay(signal?: AbortSignal): Promise<LibraryModel> {
+    return (await this.getLocalOverlaySnapshot(signal)).model
+  }
+
+  async getLocalOverlaySnapshot(signal?: AbortSignal): Promise<LocalLibraryOverlaySnapshot> {
+    signal?.throwIfAborted()
+    return await this.lock.acquire(async () => {
+      const library = await this.getLibrary(false)
+
+      const implementationNames = [
+        ...new Set(
+          Object.values(library.components)
+            .filter(isUnitModel)
+            .map(unit => unit.source.package),
+        ),
+      ]
+
+      await this.ensureLibraryPackagesLoaded(implementationNames, false)
+
+      for (const name of implementationNames) {
+        const pkg = this.packages.get(name)
+        if (!pkg) {
+          throw new Error(`Local implementation package "${name}" is unavailable`)
+        }
+
+        await this.reloadUnitManifest(pkg)
+      }
+
+      for (const unit of Object.values(library.components).filter(isUnitModel)) {
+        if (!this.resolvedUnitSources.has(unit.type)) {
+          throw new Error(`Local implementation source "${unit.type}" is unavailable`)
+        }
+      }
+
+      const sources = Array.from(this.resolvedUnitSources.values())
+        .filter(source => Object.hasOwn(library.components, source.unitType))
+        .map(({ unitType, sourceHash }) => ({ unitType, sourceHash }))
+        .sort((a, b) => a.unitType.localeCompare(b.unitType))
+
+      const revision = createHash("sha256")
+        .update(canonicalJson({ model: library, sources }))
+        .digest("hex")
+
+      return { model: library, revision }
+    })
+  }
+
+  async getLocalOverlayRevision(): Promise<string> {
+    return (await this.getLocalOverlaySnapshot()).revision
   }
 
   async *watchLibrary(_libraryId: string, signal?: AbortSignal): AsyncIterable<LibraryUpdate[]> {
@@ -223,20 +282,26 @@ export class LocalLibraryBackend implements LibraryBackend {
     throw new Error("Worker ended without sending any response")
   }
 
-  private async getLibrary(): Promise<LibraryModel> {
+  private async getLibrary(installIfNotFound = true): Promise<LibraryModel> {
     if (this.library) {
       return this.library
     }
 
-    return await this.reloadLibrary()
+    return await this.reloadLibrary(installIfNotFound)
   }
 
-  private async reloadLibrary(): Promise<LibraryModel> {
+  private async reloadLibrary(installIfNotFound = true): Promise<LibraryModel> {
     this.logger.info("reloading library")
 
     this.eventEmitter.emit("library", [{ type: "reload-started" }])
 
-    await this.ensureLibraryPackagesLoaded(this.libraryPackages, true)
+    await this.ensureLibraryPackagesLoaded(this.libraryPackages, installIfNotFound)
+
+    for (const name of this.libraryPackages) {
+      if (!this.packages.has(name)) {
+        throw new Error(`Local library package "${name}" is unavailable`)
+      }
+    }
 
     const loadedPackages = this.packages
       .values()
@@ -248,10 +313,18 @@ export class LocalLibraryBackend implements LibraryBackend {
       const libraryContent = await this.readLibraryContent(loadedPackage)
 
       for (const [componentType, component] of Object.entries(libraryContent.components)) {
+        if (Object.hasOwn(mergedLibrary.components, componentType)) {
+          throw new Error(`Duplicate local component type "${componentType}"`)
+        }
+
         mergedLibrary.components[componentType] = component
       }
 
       for (const [entityType, entity] of Object.entries(libraryContent.entities)) {
+        if (Object.hasOwn(mergedLibrary.entities, entityType)) {
+          throw new Error(`Duplicate local entity type "${entityType}"`)
+        }
+
         mergedLibrary.entities[entityType] = entity
       }
     }
@@ -294,7 +367,8 @@ export class LocalLibraryBackend implements LibraryBackend {
       // TODO: resolve the path
       const relativePath = unit.source.path ? `./dist/${unit.source.path}` : `./dist`
       const sourceHash = manifest?.sourceHashes?.[`${relativePath}/index.js`]
-      if (!sourceHash) {
+      if (sourceHash === undefined) {
+        this.resolvedUnitSources.delete(unit.type)
         this.logger.warn(`source hash not found for unit: "%s"`, unit.type)
         continue
       }
@@ -450,11 +524,11 @@ export class LocalLibraryBackend implements LibraryBackend {
 
   private async readLibraryPackageManifest(
     libraryPackage: LibraryPackage,
-  ): Promise<HighstateManifestJson | undefined> {
+  ): Promise<LibrarySourceManifest | undefined> {
     const manifestPath = resolve(libraryPackage.rootPath, "dist", "highstate.manifest.json")
 
     try {
-      const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as HighstateManifestJson
+      const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as LibrarySourceManifest
 
       return manifest
     } catch (error) {
@@ -483,7 +557,9 @@ export class LocalLibraryBackend implements LibraryBackend {
         libraryPackage.name,
       )
 
-      return { components: {}, entities: {} }
+      throw new Error(`Failed to read local library artifact for "${libraryPackage.name}"`, {
+        cause: error,
+      })
     }
   }
 

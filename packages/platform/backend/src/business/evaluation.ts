@@ -2,10 +2,13 @@ import type { InstanceId, InstanceModel } from "@highstate/contract"
 import type { Logger } from "pino"
 import type { LibraryBackend } from "../library"
 import type { PubSubManager } from "../pubsub"
+import type { RuntimeEvaluationBackend } from "../runner"
 import type { LibraryService } from "./library"
 import type { ObjectRefIndexService } from "./object-ref-index"
+import type { ProjectLibraryService } from "./project-library"
 import type { ProjectModelService } from "./project-model"
 import type { ProjectUnlockService } from "./project-unlock"
+import { randomUUID } from "node:crypto"
 import { isNonNullish } from "remeda"
 import { renderTree, type TreeNode } from "../common"
 import {
@@ -14,14 +17,26 @@ import {
   type InstanceEvaluationStateUncheckedCreateInput,
   type InstanceEvaluationStateUpdateInput,
   type InstanceStatus,
+  withProjectReadTransaction,
 } from "../database"
+import { modelRevision } from "../orchestrator/revisions"
 import { stableJsonStringify } from "../shared"
+
+type EvaluationFence = {
+  librarySnapshotId: string | null
+  modelRevision: string
+  localOverlayRevision: string | null
+  evaluationActionId: string
+}
+
+class StaleEvaluationError extends Error {}
 
 type EvaluatedInstance = {
   instanceId: InstanceId
   status: "evaluated" | "error"
   message?: string
   model?: InstanceModel | null
+  kind?: InstanceModel["kind"]
 }
 
 export class ProjectEvaluationSubsystem {
@@ -38,6 +53,8 @@ export class ProjectEvaluationSubsystem {
     private readonly projectUnlockService: ProjectUnlockService,
     private readonly objectRefIndexService: ObjectRefIndexService,
     private readonly logger: Logger,
+    private readonly runtimeEvaluation?: RuntimeEvaluationBackend,
+    private readonly projectLibrary?: ProjectLibraryService,
   ) {
     this.projectUnlockService.registerUnlockTask(
       "evaluate-project",
@@ -72,13 +89,25 @@ export class ProjectEvaluationSubsystem {
   private async evaluateProjectLoop(projectId: string): Promise<void> {
     do {
       this.evaluationRequested.delete(projectId)
-      await this.evaluateProjectNow(projectId)
+
+      try {
+        await this.evaluateProjectNow(projectId)
+      } catch (error) {
+        if (!(error instanceof StaleEvaluationError)) {
+          throw error
+        }
+
+        this.evaluationRequested.add(projectId)
+      }
     } while (this.evaluationRequested.has(projectId))
   }
 
   private async evaluateProjectNow(projectId: string): Promise<void> {
-    const { project, instances, resolvedInputs } =
-      await this.projectModelService.resolveProject(projectId)
+    const catalog = await this.projectLibrary?.catalog(projectId)
+
+    const { project, instances, resolvedInputs } = structuredClone(
+      await this.projectModelService.resolveProject(projectId),
+    )
 
     const instancesMap = new Map<string, InstanceModel>()
 
@@ -90,15 +119,90 @@ export class ProjectEvaluationSubsystem {
       .filter(instance => instance.kind === "composite")
       .map(instance => instance.id)
 
+    const fence: EvaluationFence = {
+      librarySnapshotId: catalog?.snapshotId ?? null,
+      modelRevision: modelRevision({ instances, resolvedInputs }),
+      localOverlayRevision: catalog?.overlay.revision ?? null,
+      evaluationActionId: this.runtimeEvaluation ? "" : `local:${randomUUID()}`,
+    }
+
+    const isCurrent = async () => {
+      const current = await this.projectModelService.resolveProject(projectId)
+      const currentCatalog = await this.projectLibrary?.catalog(projectId)
+      return (
+        modelRevision({ instances: current.instances, resolvedInputs: current.resolvedInputs }) ===
+          fence.modelRevision &&
+        (currentCatalog?.snapshotId ?? null) === fence.librarySnapshotId &&
+        (currentCatalog?.overlay.revision ?? null) === fence.localOverlayRevision
+      )
+    }
+
+    const residentInstanceIds = new Set(instances.map(instance => instance.id))
+
     try {
       const virtualComponents = await this.libraryService.getVirtualComponentsCore(project.id)
 
-      const result = await this.libraryBackend.evaluateCompositeInstances(
-        project.libraryId,
-        virtualComponents,
-        instances,
-        resolvedInputs,
-      )
+      if (!(await isCurrent())) {
+        throw new StaleEvaluationError()
+      }
+
+      if (
+        (this.projectLibrary || this.runtimeEvaluation) &&
+        (!this.runtimeEvaluation || !fence.librarySnapshotId)
+      ) {
+        throw new Error("Snapshot evaluation requires a resolved snapshot and runtime evaluator")
+      }
+
+      const runtimeResult = this.runtimeEvaluation
+        ? await this.runtimeEvaluation.evaluate(
+            {
+              projectId,
+              librarySnapshotId: fence.librarySnapshotId!,
+              modelRevision: fence.modelRevision,
+              localOverlayRevision: fence.localOverlayRevision,
+              instances,
+              resolvedInputs,
+              virtualComponents,
+            },
+            new AbortController().signal,
+          )
+        : undefined
+
+      if (runtimeResult) {
+        if (!runtimeResult.actionId) {
+          throw new Error("Runtime evaluation returned no action identity")
+        }
+
+        fence.evaluationActionId = runtimeResult.actionId
+      }
+
+      const result =
+        runtimeResult?.result ??
+        (await this.libraryBackend.evaluateCompositeInstances(
+          "local",
+          virtualComponents,
+          instances,
+          resolvedInputs,
+        ))
+
+      if (!(await isCurrent())) {
+        throw new StaleEvaluationError()
+      }
+
+      if (result.success) {
+        const ids = new Set<string>()
+
+        for (const instance of result.virtualInstances) {
+          if (
+            ids.has(instance.id) ||
+            (instancesMap.has(instance.id) && instancesMap.get(instance.id)?.kind !== "composite")
+          ) {
+            throw new Error(`Duplicate evaluated instance "${instance.id}"`)
+          }
+
+          ids.add(instance.id)
+        }
+      }
 
       if (result.success) {
         // create evaluation tree for success messages
@@ -114,6 +218,18 @@ export class ProjectEvaluationSubsystem {
           model: instance,
         }))
 
+        // completion markers also fence composites which generate no children after a restart
+        for (const instanceId of compositeInstanceIds) {
+          if (!evaluatedInstances.some(instance => instance.instanceId === instanceId)) {
+            evaluatedInstances.push({
+              instanceId,
+              status: "evaluated",
+              model: null,
+              kind: "composite",
+            })
+          }
+        }
+
         const errorEvaluatedInstances: EvaluatedInstance[] = Object.entries(
           result.topLevelErrors,
         ).map(([instanceId, message]) => ({
@@ -121,6 +237,7 @@ export class ProjectEvaluationSubsystem {
           status: "error",
           message,
           model: null,
+          kind: instancesMap.get(instanceId)?.kind,
         }))
 
         await this.setInstanceEvaluationStates(
@@ -129,6 +246,7 @@ export class ProjectEvaluationSubsystem {
             evaluatedInstances,
             errorEvaluatedInstances,
           ),
+          { fence, isCurrent, residentInstanceIds },
         )
       } else {
         // set all composite instances to error state in evaluation
@@ -141,6 +259,9 @@ export class ProjectEvaluationSubsystem {
 
         await this.setInstanceEvaluationStates(project.id, errorEvaluationStates, {
           preserveMissingVirtualEvaluationStates: true,
+          fence,
+          isCurrent,
+          residentInstanceIds,
         })
       }
 
@@ -149,7 +270,20 @@ export class ProjectEvaluationSubsystem {
         "composite instances evaluation completed",
       )
     } catch (error) {
+      if (error instanceof StaleEvaluationError || !(await isCurrent())) {
+        this.evaluationRequested.add(projectId)
+        return
+      }
+
       this.logger.error({ projectId: project.id, error }, "failed to evaluate project")
+
+      if (error instanceof Error && "actionId" in error && typeof error.actionId === "string") {
+        fence.evaluationActionId = error.actionId
+      }
+
+      if (!fence.evaluationActionId) {
+        throw error
+      }
 
       // set all composite instances to internal error state
       const internalErrorStates: EvaluatedInstance[] = compositeInstanceIds.map(instanceId => ({
@@ -161,6 +295,9 @@ export class ProjectEvaluationSubsystem {
 
       await this.setInstanceEvaluationStates(project.id, internalErrorStates, {
         preserveMissingVirtualEvaluationStates: true,
+        fence,
+        isCurrent,
+        residentInstanceIds,
       })
     }
   }
@@ -174,13 +311,24 @@ export class ProjectEvaluationSubsystem {
   private async setInstanceEvaluationStates(
     projectId: string,
     evaluatedInstances: EvaluatedInstance[],
-    options?: {
+    options: {
       preserveMissingVirtualEvaluationStates?: boolean
+      fence: EvaluationFence
+      isCurrent: () => Promise<boolean>
+      residentInstanceIds: Set<string>
     },
   ): Promise<void> {
     const database = await this.database.forProject(projectId)
 
-    const { stateIds } = await database.$transaction(async tx => {
+    if (!(await options.isCurrent())) {
+      throw new StaleEvaluationError()
+    }
+
+    const outcome = await database.$transaction(async tx => {
+      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent))) {
+        throw new StaleEvaluationError()
+      }
+
       const previousVirtualStates = await tx.instanceState.findMany({
         where: { source: "virtual" },
         select: {
@@ -205,12 +353,12 @@ export class ProjectEvaluationSubsystem {
           where: { instanceId: instance.instanceId },
           create: {
             instanceId: instance.instanceId,
-            kind: instance.model?.kind ?? "unit",
-            source: "virtual",
+            kind: instance.kind ?? instance.model?.kind ?? "unit",
+            source: options.residentInstanceIds.has(instance.instanceId) ? "resident" : "virtual",
             status: "undeployed",
           },
           update: {
-            source: "virtual",
+            source: options.residentInstanceIds.has(instance.instanceId) ? "resident" : "virtual",
           },
         })
 
@@ -224,6 +372,7 @@ export class ProjectEvaluationSubsystem {
           status: ei.status,
           message: ei.message,
           model: ei.model ?? DbNull,
+          ...options.fence,
         }
       })
 
@@ -234,6 +383,10 @@ export class ProjectEvaluationSubsystem {
           status: true,
           message: true,
           model: true,
+          librarySnapshotId: true,
+          modelRevision: true,
+          localOverlayRevision: true,
+          evaluationActionId: true,
           state: {
             select: {
               instanceId: true,
@@ -258,7 +411,11 @@ export class ProjectEvaluationSubsystem {
         return (
           existingState.status !== state.status ||
           (existingState.message ?? null) !== (state.message ?? null) ||
-          stableJsonStringify(existingState.model) !== stableJsonStringify(state.model)
+          stableJsonStringify(existingState.model) !== stableJsonStringify(state.model) ||
+          existingState.librarySnapshotId !== state.librarySnapshotId ||
+          existingState.modelRevision !== state.modelRevision ||
+          existingState.localOverlayRevision !== state.localOverlayRevision ||
+          existingState.evaluationActionId !== state.evaluationActionId
         )
       })
 
@@ -295,19 +452,6 @@ export class ProjectEvaluationSubsystem {
           },
         },
       })
-
-      // 5. publish evaluation state updates
-      if (updatedStates.length > 0) {
-        void this.pubsubManager.publish(["instance-state", projectId], {
-          type: "patched-batch",
-          patches: updatedStates.map(state => ({
-            stateId: state.stateId,
-            patch: {
-              evaluationState: state,
-            },
-          })),
-        })
-      }
 
       const currentVirtualStates = await tx.instanceState.findMany({
         where: { source: "virtual" },
@@ -353,32 +497,59 @@ export class ProjectEvaluationSubsystem {
       }
 
       const updatedVirtualInstances = [...newStates, ...updatedStates]
+        .filter(state => state.model !== DbNull)
         .map(state => state.model as InstanceModel)
         .filter(isNonNullish)
 
-      const deletedVirtualInstanceIds = statesToDelete.map(state => state.state.instanceId)
+      const deletedVirtualInstanceIds = statesToDelete
+        .filter(state => state.state.source === "virtual")
+        .map(state => state.state.instanceId)
+
       const updatedGhostInstances = newGhostInstances.filter(isNonNullish)
 
-      // 6. publish project model update
-      if (
-        updatedVirtualInstances.length > 0 ||
-        deletedVirtualInstanceIds.length > 0 ||
-        updatedGhostInstances.length > 0 ||
-        resolvedGhostInstanceIds.length > 0
-      ) {
-        void this.pubsubManager.publish(["project-model", projectId], {
+      if (!(await withProjectReadTransaction(projectId, tx, options.isCurrent))) {
+        throw new StaleEvaluationError()
+      }
+
+      return {
+        stateIds: Array.from(instanceIdToStateMap.values()).map(state => state.id),
+        updatedStates,
+        deletedStateIds: statesToDelete.map(state => state.stateId),
+        modelUpdate: {
           updatedVirtualInstances,
           deletedVirtualInstanceIds,
           updatedGhostInstances,
           deletedGhostInstanceIds: resolvedGhostInstanceIds,
-        })
+        },
       }
-
-      return { stateIds: Array.from(instanceIdToStateMap.values()).map(state => state.id) }
     })
 
-    if (stateIds.length > 0) {
-      await this.objectRefIndexService.track(projectId, stateIds)
+    if (!(await options.isCurrent())) {
+      throw new StaleEvaluationError()
+    }
+
+    if (outcome.updatedStates.length > 0 || outcome.deletedStateIds.length > 0) {
+      void this.pubsubManager.publish(["instance-state", projectId], {
+        type: "patched-batch",
+        patches: [
+          ...outcome.updatedStates.map(state => ({
+            stateId: state.stateId,
+            patch: { evaluationState: state },
+          })),
+          ...outcome.deletedStateIds.map(stateId => ({
+            stateId,
+            patch: { evaluationState: null },
+          })),
+        ],
+      })
+    }
+
+    if (Object.values(outcome.modelUpdate).some(values => values.length > 0)) {
+      void this.pubsubManager.publish(["project-model", projectId], outcome.modelUpdate)
+    }
+
+    if (outcome.stateIds.length > 0) {
+      await this.objectRefIndexService.track(projectId, outcome.stateIds)
     }
   }
 
@@ -391,7 +562,7 @@ export class ProjectEvaluationSubsystem {
     try {
       const project = await this.database.backend.project.findUnique({
         where: { id: projectId },
-        select: { id: true, libraryId: true },
+        select: { id: true },
       })
 
       if (!project) {
@@ -402,13 +573,9 @@ export class ProjectEvaluationSubsystem {
       const controller = new AbortController()
 
       this.projectWatchers.set(projectId, controller)
+      this.logger.debug({ projectId }, "tracking unlocked project for library reload evaluations")
 
-      this.logger.debug(
-        { projectId, libraryId: project.libraryId },
-        "tracking unlocked project for library reload evaluations",
-      )
-
-      void this.startProjectLibraryWatcher(projectId, project.libraryId, controller.signal)
+      void this.startProjectLibraryWatcher(projectId, "local", controller.signal)
     } catch (error) {
       this.logger.error({ projectId, error }, "failed to start tracking project")
     }
@@ -416,7 +583,7 @@ export class ProjectEvaluationSubsystem {
 
   private async startProjectLibraryWatcher(
     projectId: string,
-    libraryId: string,
+    libraryId: string | undefined,
     signal: AbortSignal,
   ): Promise<void> {
     try {

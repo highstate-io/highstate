@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/project.proto.
  */
 export const file_io_highstate_v1_project: GenFile = /*@__PURE__*/
-  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvcHJvamVjdC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIooBCgtQcm9qZWN0TWV0YRINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBEhEKBGljb24YAyABKAlIAYgBARIXCgppY29uX2NvbG9yGAQgASgJSAKIAQFCDgoMX2Rlc2NyaXB0aW9uQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIq0CCgdQcm9qZWN0Eg8KAmlkGAEgASgJQgPgQQMSDAoEbmFtZRgCIAEoCRIqCgRtZXRhGAMgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhEhUKCHNwYWNlX2lkGAQgASgJQgPgQQUSHQoQbW9kZWxfc3RvcmFnZV9pZBgFIAEoCUID4EEFEhcKCmxpYnJhcnlfaWQYBiABKAlCA+BBBRIeChFwdWx1bWlfYmFja2VuZF9pZBgHIAEoCUID4EEFEjMKCmNyZWF0ZWRfYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSMwoKdXBkYXRlZF9hdBgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAyIsChFHZXRQcm9qZWN0UmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQIiXAoSR2V0UHJvamVjdFJlc3BvbnNlEi4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECEhYKCWlzX2xvY2tlZBgCIAEoCEID4EEDImMKE0xpc3RQcm9qZWN0c1JlcXVlc3QSFgoJcGFnZV9zaXplGAEgASgFSACIAQESFwoKcGFnZV90b2tlbhgCIAEoCUgBiAEBQgwKCl9wYWdlX3NpemVCDQoLX3BhZ2VfdG9rZW4iVgoMUHJvamVjdEVudHJ5Ei4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECEhYKCWlzX2xvY2tlZBgCIAEoCEID4EEDIn4KFExpc3RQcm9qZWN0c1Jlc3BvbnNlEi8KCHByb2plY3RzGAEgAygLMh0uaW8uaGlnaHN0YXRlLnYxLlByb2plY3RFbnRyeRIhCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlCA+BBA0gAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yxAEKDlByb2plY3RTZXJ2aWNlElUKCkdldFByb2plY3QSIi5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdFJlcXVlc3QaIy5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdFJlc3BvbnNlElsKDExpc3RQcm9qZWN0cxIkLmlvLmhpZ2hzdGF0ZS52MS5MaXN0UHJvamVjdHNSZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkxpc3RQcm9qZWN0c1Jlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_timestamp]);
+  fileDesc("Ch1pby9oaWdoc3RhdGUvdjEvcHJvamVjdC5wcm90bxIPaW8uaGlnaHN0YXRlLnYxIooBCgtQcm9qZWN0TWV0YRINCgV0aXRsZRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBEhEKBGljb24YAyABKAlIAYgBARIXCgppY29uX2NvbG9yGAQgASgJSAKIAQFCDgoMX2Rlc2NyaXB0aW9uQgcKBV9pY29uQg0KC19pY29uX2NvbG9yIuoCCgdQcm9qZWN0Eg8KAmlkGAEgASgJQgPgQQMSDAoEbmFtZRgCIAEoCRIqCgRtZXRhGAMgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhEhUKCHNwYWNlX2lkGAQgASgJQgPgQQUSHQoQbW9kZWxfc3RvcmFnZV9pZBgFIAEoCUID4EEFEhYKCmxpYnJhcnlfaWQYBiABKAlCAhgBEh0KEXB1bHVtaV9iYWNrZW5kX2lkGAcgASgJQgIYARIzCgpjcmVhdGVkX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDEjMKCnVwZGF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSHAoUY29udGFpbmVyX3J1bnRpbWVfaWQYCiABKAkSHwoXcHVsdW1pX3N0YXRlX2JhY2tlbmRfaWQYCyABKAkiLAoRR2V0UHJvamVjdFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECIlwKEkdldFByb2plY3RSZXNwb25zZRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJjChNMaXN0UHJvamVjdHNSZXF1ZXN0EhYKCXBhZ2Vfc2l6ZRgBIAEoBUgAiAEBEhcKCnBhZ2VfdG9rZW4YAiABKAlIAYgBAUIMCgpfcGFnZV9zaXplQg0KC19wYWdlX3Rva2VuIlYKDFByb2plY3RFbnRyeRIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhIWCglpc19sb2NrZWQYAiABKAhCA+BBAyJ+ChRMaXN0UHJvamVjdHNSZXNwb25zZRIvCghwcm9qZWN0cxgBIAMoCzIdLmlvLmhpZ2hzdGF0ZS52MS5Qcm9qZWN0RW50cnkSIQoPbmV4dF9wYWdlX3Rva2VuGAIgASgJQgPgQQNIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIr8BCh1VcGRhdGVQcm9qZWN0UGxhY2VtZW50UmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISIQoUY29udGFpbmVyX3J1bnRpbWVfaWQYAiABKAlCA+BBAhIkChdwdWx1bWlfc3RhdGVfYmFja2VuZF9pZBgDIAEoCUID4EECEiIKFWxvY2FsX292ZXJsYXlfZW5hYmxlZBgEIAEoCEgAiAEBQhgKFl9sb2NhbF9vdmVybGF5X2VuYWJsZWQiUAoeVXBkYXRlUHJvamVjdFBsYWNlbWVudFJlc3BvbnNlEi4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECIsYBChNQcm9qZWN0VW5sb2NrTWV0aG9kEhEKBHR5cGUYASABKAlCA+BBAhIvCgRtZXRhGAIgASgLMhwuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RNZXRhQgPgQQISFgoJcmVjaXBpZW50GAMgASgJQgPgQQISHwoSZW5jcnlwdGVkX2lkZW50aXR5GAQgASgJQgPgQQISHQoQcGFzc2tleV9pZGVudGl0eRgFIAEoCUgAiAEBQhMKEV9wYXNza2V5X2lkZW50aXR5IrABChRDcmVhdGVQcm9qZWN0UmVxdWVzdBIuCgdwcm9qZWN0GAEgASgLMhguaW8uaGlnaHN0YXRlLnYxLlByb2plY3RCA+BBAhJACg11bmxvY2tfbWV0aG9kGAIgASgLMiQuaW8uaGlnaHN0YXRlLnYxLlByb2plY3RVbmxvY2tNZXRob2RCA+BBAhIXCgpwcm9qZWN0X2lkGAMgASgJSACIAQFCDQoLX3Byb2plY3RfaWQiRwoVQ3JlYXRlUHJvamVjdFJlc3BvbnNlEi4KB3Byb2plY3QYASABKAsyGC5pby5oaWdoc3RhdGUudjEuUHJvamVjdEID4EECIlAKFFVubG9ja1Byb2plY3RSZXF1ZXN0EhcKCnByb2plY3RfaWQYASABKAlCA+BBAhIfChJkZWNyeXB0ZWRfaWRlbnRpdHkYAiABKAlCA+BBAiIXChVVbmxvY2tQcm9qZWN0UmVzcG9uc2Uy/wMKDlByb2plY3RTZXJ2aWNlEl4KDUNyZWF0ZVByb2plY3QSJS5pby5oaWdoc3RhdGUudjEuQ3JlYXRlUHJvamVjdFJlcXVlc3QaJi5pby5oaWdoc3RhdGUudjEuQ3JlYXRlUHJvamVjdFJlc3BvbnNlEl4KDVVubG9ja1Byb2plY3QSJS5pby5oaWdoc3RhdGUudjEuVW5sb2NrUHJvamVjdFJlcXVlc3QaJi5pby5oaWdoc3RhdGUudjEuVW5sb2NrUHJvamVjdFJlc3BvbnNlElUKCkdldFByb2plY3QSIi5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdFJlcXVlc3QaIy5pby5oaWdoc3RhdGUudjEuR2V0UHJvamVjdFJlc3BvbnNlElsKDExpc3RQcm9qZWN0cxIkLmlvLmhpZ2hzdGF0ZS52MS5MaXN0UHJvamVjdHNSZXF1ZXN0GiUuaW8uaGlnaHN0YXRlLnYxLkxpc3RQcm9qZWN0c1Jlc3BvbnNlEnkKFlVwZGF0ZVByb2plY3RQbGFjZW1lbnQSLi5pby5oaWdoc3RhdGUudjEuVXBkYXRlUHJvamVjdFBsYWNlbWVudFJlcXVlc3QaLy5pby5oaWdoc3RhdGUudjEuVXBkYXRlUHJvamVjdFBsYWNlbWVudFJlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_timestamp]);
 
 /**
  * ProjectMeta contains display metadata for a project.
@@ -99,16 +99,18 @@ export type Project = Message<"io.highstate.v1.Project"> & {
   modelStorageId: string;
 
   /**
-   * The ID of the project library.
+   * The legacy backend-scoped library ID, superseded by project package selections.
    *
-   * @generated from field: string library_id = 6;
+   * @generated from field: string library_id = 6 [deprecated = true];
+   * @deprecated
    */
   libraryId: string;
 
   /**
-   * The ID of the Pulumi backend.
+   * The legacy Pulumi backend ID, superseded by pulumi_state_backend_id.
    *
-   * @generated from field: string pulumi_backend_id = 7;
+   * @generated from field: string pulumi_backend_id = 7 [deprecated = true];
+   * @deprecated
    */
   pulumiBackendId: string;
 
@@ -125,6 +127,20 @@ export type Project = Message<"io.highstate.v1.Project"> & {
    * @generated from field: google.protobuf.Timestamp updated_at = 9;
    */
   updatedAt?: Timestamp | undefined;
+
+  /**
+   * The ID of the container runtime used for every project workload.
+   *
+   * @generated from field: string container_runtime_id = 10;
+   */
+  containerRuntimeId: string;
+
+  /**
+   * The ID of the Pulumi state backend.
+   *
+   * @generated from field: string pulumi_state_backend_id = 11;
+   */
+  pulumiStateBackendId: string;
 };
 
 /**
@@ -268,11 +284,242 @@ export const ListProjectsResponseSchema: GenMessage<ListProjectsResponse> = /*@_
   messageDesc(file_io_highstate_v1_project, 6);
 
 /**
+ * UpdateProjectPlacementRequest selects runtime and state storage for future project work.
+ *
+ * @generated from message io.highstate.v1.UpdateProjectPlacementRequest
+ */
+export type UpdateProjectPlacementRequest = Message<"io.highstate.v1.UpdateProjectPlacementRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The runtime used for every project workload.
+   *
+   * @generated from field: string container_runtime_id = 2;
+   */
+  containerRuntimeId: string;
+
+  /**
+   * The Pulumi state backend used by the project.
+   *
+   * @generated from field: string pulumi_state_backend_id = 3;
+   */
+  pulumiStateBackendId: string;
+
+  /**
+   * Explicitly enables or disables the local development overlay during migration.
+   *
+   * @generated from field: optional bool local_overlay_enabled = 4;
+   */
+  localOverlayEnabled?: boolean | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateProjectPlacementRequest.
+ * Use `create(UpdateProjectPlacementRequestSchema)` to create a new message.
+ */
+export const UpdateProjectPlacementRequestSchema: GenMessage<UpdateProjectPlacementRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 7);
+
+/**
+ * UpdateProjectPlacementResponse returns the canonical project placement.
+ *
+ * @generated from message io.highstate.v1.UpdateProjectPlacementResponse
+ */
+export type UpdateProjectPlacementResponse = Message<"io.highstate.v1.UpdateProjectPlacementResponse"> & {
+  /**
+   * The updated project.
+   *
+   * @generated from field: io.highstate.v1.Project project = 1;
+   */
+  project?: Project | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateProjectPlacementResponse.
+ * Use `create(UpdateProjectPlacementResponseSchema)` to create a new message.
+ */
+export const UpdateProjectPlacementResponseSchema: GenMessage<UpdateProjectPlacementResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 8);
+
+/**
+ * ProjectUnlockMethod contains client-prepared credentials for a new project.
+ *
+ * @generated from message io.highstate.v1.ProjectUnlockMethod
+ */
+export type ProjectUnlockMethod = Message<"io.highstate.v1.ProjectUnlockMethod"> & {
+  /**
+   * The unlock method type: password or passkey.
+   *
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * Display metadata for the unlock method. The title is required.
+   *
+   * @generated from field: io.highstate.v1.ProjectMeta meta = 2;
+   */
+  meta?: ProjectMeta | undefined;
+
+  /**
+   * The AGE recipient used to encrypt the project keys.
+   *
+   * @generated from field: string recipient = 3;
+   */
+  recipient: string;
+
+  /**
+   * The AGE identity encrypted by the client with the password or passkey.
+   *
+   * @generated from field: string encrypted_identity = 4;
+   */
+  encryptedIdentity: string;
+
+  /**
+   * The opaque passkey identity, required for passkey methods.
+   *
+   * @generated from field: optional string passkey_identity = 5;
+   */
+  passkeyIdentity?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.ProjectUnlockMethod.
+ * Use `create(ProjectUnlockMethodSchema)` to create a new message.
+ */
+export const ProjectUnlockMethodSchema: GenMessage<ProjectUnlockMethod> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 9);
+
+/**
+ * CreateProjectRequest creates a project using backend API key authorization.
+ *
+ * @generated from message io.highstate.v1.CreateProjectRequest
+ */
+export type CreateProjectRequest = Message<"io.highstate.v1.CreateProjectRequest"> & {
+  /**
+   * The project definition. Omitted placement IDs use backend defaults.
+   *
+   * @generated from field: io.highstate.v1.Project project = 1;
+   */
+  project?: Project | undefined;
+
+  /**
+   * The initial client-prepared unlock method.
+   *
+   * @generated from field: io.highstate.v1.ProjectUnlockMethod unlock_method = 2;
+   */
+  unlockMethod?: ProjectUnlockMethod | undefined;
+
+  /**
+   * An optional client-reserved CUID2 project ID. Otherwise the backend generates it.
+   *
+   * @generated from field: optional string project_id = 3;
+   */
+  projectId?: string | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.CreateProjectRequest.
+ * Use `create(CreateProjectRequestSchema)` to create a new message.
+ */
+export const CreateProjectRequestSchema: GenMessage<CreateProjectRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 10);
+
+/**
+ * CreateProjectResponse returns the created, initially unlocked project.
+ *
+ * @generated from message io.highstate.v1.CreateProjectResponse
+ */
+export type CreateProjectResponse = Message<"io.highstate.v1.CreateProjectResponse"> & {
+  /**
+   * The canonical project.
+   *
+   * @generated from field: io.highstate.v1.Project project = 1;
+   */
+  project?: Project | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.CreateProjectResponse.
+ * Use `create(CreateProjectResponseSchema)` to create a new message.
+ */
+export const CreateProjectResponseSchema: GenMessage<CreateProjectResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 11);
+
+/**
+ * UnlockProjectRequest unlocks a project using backend API key authorization.
+ *
+ * @generated from message io.highstate.v1.UnlockProjectRequest
+ */
+export type UnlockProjectRequest = Message<"io.highstate.v1.UnlockProjectRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The AGE identity decrypted by the client. May be empty when encryption is disabled.
+   *
+   * @generated from field: string decrypted_identity = 2;
+   */
+  decryptedIdentity: string;
+};
+
+/**
+ * Describes the message io.highstate.v1.UnlockProjectRequest.
+ * Use `create(UnlockProjectRequestSchema)` to create a new message.
+ */
+export const UnlockProjectRequestSchema: GenMessage<UnlockProjectRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 12);
+
+/**
+ * UnlockProjectResponse confirms that the project is unlocked.
+ *
+ * @generated from message io.highstate.v1.UnlockProjectResponse
+ */
+export type UnlockProjectResponse = Message<"io.highstate.v1.UnlockProjectResponse"> & {
+};
+
+/**
+ * Describes the message io.highstate.v1.UnlockProjectResponse.
+ * Use `create(UnlockProjectResponseSchema)` to create a new message.
+ */
+export const UnlockProjectResponseSchema: GenMessage<UnlockProjectResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_project, 13);
+
+/**
  * ProjectService provides access to projects.
  *
  * @generated from service io.highstate.v1.ProjectService
  */
 export const ProjectService: GenService<{
+  /**
+   * Creates an initially unlocked project and bootstraps its library selection.
+   *
+   * @generated from rpc io.highstate.v1.ProjectService.CreateProject
+   */
+  createProject: {
+    methodKind: "unary";
+    input: typeof CreateProjectRequestSchema;
+    output: typeof CreateProjectResponseSchema;
+  },
+  /**
+   * Unlocks a project, including after a backend restart.
+   *
+   * @generated from rpc io.highstate.v1.ProjectService.UnlockProject
+   */
+  unlockProject: {
+    methodKind: "unary";
+    input: typeof UnlockProjectRequestSchema;
+    output: typeof UnlockProjectResponseSchema;
+  },
   /**
    * Gets one project and whether it is currently locked.
    *
@@ -292,6 +539,16 @@ export const ProjectService: GenService<{
     methodKind: "unary";
     input: typeof ListProjectsRequestSchema;
     output: typeof ListProjectsResponseSchema;
+  },
+  /**
+   * Changes project placement when no active work prevents migration.
+   *
+   * @generated from rpc io.highstate.v1.ProjectService.UpdateProjectPlacement
+   */
+  updateProjectPlacement: {
+    methodKind: "unary";
+    input: typeof UpdateProjectPlacementRequestSchema;
+    output: typeof UpdateProjectPlacementResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_io_highstate_v1_project, 0);
