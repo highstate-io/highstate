@@ -1,0 +1,212 @@
+diff --git a/src/channel.rs b/src/channel.rs
+--- a/src/channel.rs
++++ b/src/channel.rs
+@@ -869,7 +869,12 @@ impl ChannelRouter {
+     /// Detect touching colinear segments (Task #12)
+     fn mark_touching_colinear_segments(&self, segments: &mut [ShiftSegment], routes: &[Polygon]) {
+         for i in 0..segments.len() {
+-            for j in (i + 1)..segments.len() {
++            // This metadata records existence, not every touching pair. Search
++            // both directions so later unmarked segments still find earlier ones.
++            if segments[i].touches_colinear {
++                continue;
++            }
++            for j in 0..segments.len() {
+                 // Skip same route
+                 if segments[i].route_idx == segments[j].route_idx {
+                     continue;
+@@ -895,6 +900,7 @@ impl ChannelRouter {
+                     if touches || overlaps {
+                         segments[i].touches_colinear = true;
+                         segments[j].touches_colinear = true;
++                        break;
+                     }
+                 }
+             }
+@@ -1187,6 +1193,12 @@ impl ChannelRouter {
+         // merging changes the list. Use a simple approach: mark merged segments
+         // for removal.
+         let mut merged_into: Vec<Option<usize>> = vec![None; segments.len()];
++        // Only segments of the same route can align. Keep their original order
++        // so the greedy merge sequence is unchanged.
++        let mut route_segments = vec![Vec::new(); routes.len()];
++        for (idx, segment) in segments.iter().enumerate() {
++            route_segments[segment.route_idx].push(idx);
++        }
+         let mut merged = true;
+ 
+         // Keep iterating until no more merges happen
+@@ -1195,21 +1207,22 @@ impl ChannelRouter {
+ 
+             // First pass: identify pairs to merge
+             let mut pairs_to_merge: Vec<(usize, usize)> = Vec::new();
++            // The second pass discards pairs whose members were already merged.
++            // Plan that same selection here, without changing routes until pass 2.
++            let mut planned_merge = vec![false; segments.len()];
+ 
+             for i in 0..segments.len() {
+                 // Skip if already merged into another segment
+-                if merged_into[i].is_some() {
++                if merged_into[i].is_some() || planned_merge[i] {
+                     continue;
+                 }
+ 
+-                for j in (i + 1)..segments.len() {
+-                    // Skip if already merged into another segment
+-                    if merged_into[j].is_some() {
++                for &j in &route_segments[segments[i].route_idx] {
++                    if j <= i {
+                         continue;
+                     }
+-
+-                    // Skip different routes
+-                    if segments[i].route_idx != segments[j].route_idx {
++                    // Skip if already merged into another segment
++                    if merged_into[j].is_some() || planned_merge[j] {
+                         continue;
+                     }
+ 
+@@ -1217,6 +1230,7 @@ impl ChannelRouter {
+                     let routes_ref: &[Polygon] = routes;
+                     if segments[i].should_align_with(&segments[j], routes_ref) {
+                         pairs_to_merge.push((i, j));
++                        planned_merge[j] = true;
+                     }
+                 }
+             }
+@@ -1553,6 +1567,135 @@ impl Default for ChannelRouter {
+ // Tests
+ // ============================================================================
+ 
++#[cfg(test)]
++mod fragment_regression_tests {
++    use super::*;
++
++    // Reference the original all-pairs algorithms to verify that pruning
++    // redundant work does not change metadata, greedy ordering, or geometry.
++    fn mark_touching_reference(segments: &mut [ShiftSegment], routes: &[Polygon]) {
++        for i in 0..segments.len() {
++            for j in (i + 1)..segments.len() {
++                if segments[i].route_idx == segments[j].route_idx
++                    || segments[i].dimension != segments[j].dimension
++                    || (segments[i].position - segments[j].position).abs() >= 1e-6
++                {
++                    continue;
++                }
++                let (min_i, max_i) = segments[i].range(routes);
++                let (min_j, max_j) = segments[j].range(routes);
++                if (min_i - max_j).abs() < 1e-6 || (max_i - min_j).abs() < 1e-6
++                    || !(max_i < min_j || max_j < min_i)
++                {
++                    segments[i].touches_colinear = true;
++                    segments[j].touches_colinear = true;
++                }
++            }
++        }
++    }
++
++    fn merge_reference(mut segments: Vec<ShiftSegment>, routes: &mut [Polygon]) -> Vec<ShiftSegment> {
++        let mut merged_into = vec![None; segments.len()];
++        let mut merged = true;
++        while merged {
++            merged = false;
++            let mut pairs = Vec::new();
++            for i in 0..segments.len() {
++                if merged_into[i].is_some() { continue; }
++                for j in (i + 1)..segments.len() {
++                    if merged_into[j].is_none()
++                        && segments[i].route_idx == segments[j].route_idx
++                        && segments[i].should_align_with(&segments[j], routes)
++                    {
++                        pairs.push((i, j));
++                    }
++                }
++            }
++            for (i, j) in pairs {
++                if merged_into[i].is_some() || merged_into[j].is_some() { continue; }
++                let other = segments[j].clone();
++                segments[i].merge_with(&other, routes);
++                merged_into[j] = Some(i);
++                merged = true;
++            }
++        }
++        segments.into_iter().enumerate()
++            .filter(|(idx, _)| merged_into[*idx].is_none())
++            .map(|(_, segment)| segment).collect()
++    }
++
++    #[test]
++    fn fragment_optimizations_preserve_all_pairs_metadata_and_merge_geometry() {
++        let router = ChannelRouter::new();
++        for seed in 0..32u32 {
++            let mut state = seed + 1;
++            let mut routes = Vec::new();
++            for route_idx in 0..8 {
++                let mut route = Polygon::new();
++                let mut point = Point::new((route_idx % 3) as f64, 0.0);
++                route.push(point);
++                for _ in 0..24 {
++                    state = state.wrapping_mul(1664525).wrapping_add(1013904223);
++                    let step = ((state >> 16) % 7) as f64 - 3.0;
++                    if state & 4 == 0 { point.x += step; } else { point.y += step; }
++                    route.push(point);
++                }
++                routes.push(route);
++            }
++            for dimension in [0, 1] {
++                let mut segments = router.build_shift_segments(&routes, dimension);
++                router.mark_shape_connected_segments(&mut segments, &routes);
++                for (idx, segment) in segments.iter_mut().enumerate() {
++                    segment.classify_segment(&routes[segment.route_idx]);
++                    if idx % 7 == 0 {
++                        segment.checkpoints.push(*routes[segment.route_idx].at(segment.low_idx));
++                    }
++                    if idx % 11 == 0 {
++                        segment.fixed = true;
++                        segment.min_limit = segment.position;
++                        segment.max_limit = segment.position;
++                    }
++                }
++                let mut expected = segments.clone();
++                mark_touching_reference(&mut expected, &routes);
++                router.mark_touching_colinear_segments(&mut segments, &routes);
++                assert_eq!(segments.iter().map(|s| s.touches_colinear).collect::<Vec<_>>(),
++                    expected.iter().map(|s| s.touches_colinear).collect::<Vec<_>>());
++
++                let mut actual_routes = routes.clone();
++                let actual = router.merge_aligned_segments(segments, &mut actual_routes, dimension);
++                let mut expected_routes = routes.clone();
++                let expected = merge_reference(expected, &mut expected_routes);
++                assert_eq!(format!("{:?}", actual), format!("{:?}", expected));
++                assert_eq!(format!("{:?}", actual_routes), format!("{:?}", expected_routes));
++            }
++        }
++    }
++
++    #[test]
++    fn dense_collinear_fragments_merge_without_losing_route_points() {
++        let router = ChannelRouter::new();
++        let mut routes: Vec<Polygon> = (0..64).map(|_| {
++            let mut route = Polygon::new();
++            for i in 0..=512 { route.push(Point::new(100.0, i as f64)); }
++            route
++        }).collect();
++        let mut segments = router.build_shift_segments(&routes, 1);
++        router.mark_touching_colinear_segments(&mut segments, &routes);
++        assert!(segments.iter().all(|segment| segment.touches_colinear));
++        let segments = router.merge_aligned_segments(segments, &mut routes, 1);
++        assert_eq!(segments.len(), routes.len());
++        for segment in &segments {
++            assert_eq!(segment.low_idx, 0);
++            assert_eq!(segment.high_idx, 512);
++            for idx in 0..=512 {
++                assert!(segment.indexes.contains(&idx));
++                assert_eq!(*routes[segment.route_idx].at(idx), Point::new(100.0, idx as f64));
++            }
++        }
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;

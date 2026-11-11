@@ -30,6 +30,10 @@ function getStringFromWasm0(ptr, len) {
     return decodeText(ptr, len);
 }
 
+export function main() {
+    wasm.main();
+}
+
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
@@ -38,10 +42,6 @@ function _assertClass(instance, klass) {
 
 function isLikeNone(x) {
     return x === undefined || x === null;
-}
-
-export function main() {
-    wasm.main();
 }
 
 const AvoidLibFinalization = (typeof FinalizationRegistry === 'undefined')
