@@ -17,7 +17,7 @@ import {
   isUnitModel,
 } from "@highstate/contract"
 import { useNode, type ValidConnectionFunc } from "@vue-flow/core"
-import { type ComponentInstance, computed } from "vue"
+import { computed } from "vue"
 import { getBlueprintStatus } from "#layers/core/app/features/blueprint"
 import {
   InstanceArgumentEditor,
@@ -180,18 +180,8 @@ const isConnecting = computed(
   () => vueFlowStore.connectionStartHandle.value?.nodeId === node.node.id,
 )
 
-const componentCardRef: Ref<ComponentInstance<typeof ComponentCard> | null> =
-  useTemplateRef("componentCard")
-
 // show big icon instead of the component card when zoomed out
 const showIconOverlay = computed(() => vueFlowStore.viewport.value.zoom < 0.5)
-
-const overlayIconSize = computed(() =>
-  componentCardRef.value
-    ? Math.min(componentCardRef.value.$el.clientWidth, componentCardRef.value.$el.clientHeight) *
-      0.7
-    : 0,
-)
 </script>
 
 <template>
@@ -203,7 +193,6 @@ const overlayIconSize = computed(() =>
     :selected="selection.isNodeSelected(node.node)"
     style="overflow: visible"
     @contextmenu="emit('contextmenu', $event)"
-    ref="componentCard"
   >
     <slot />
 
@@ -303,22 +292,32 @@ const overlayIconSize = computed(() =>
     </InstanceNodeActions>
   </ComponentCard>
 
-  <VOverlay
-    v-model="showIconOverlay"
-    scrim="#1e1e1e"
-    :opacity="1"
-    absolute
-    class="align-center justify-center"
-    :style="`border: 3px solid ${component.meta.iconColor ?? '#3f51b5'}; border-radius: 8px`"
-    contained
+  <div
+    v-show="showIconOverlay"
+    class="instance-node__overview"
+    :style="{ borderColor: component.meta.iconColor ?? '#3f51b5' }"
+    @contextmenu="emit('contextmenu', $event)"
   >
-    <ComponentIcon :meta="component.meta" :size="overlayIconSize" />
-  </VOverlay>
+    <ComponentIcon :meta="component.meta" size="70cqmin" />
+  </div>
 </template>
 
 <style scoped>
 .instance-card--ghost {
   opacity: 0.7;
+}
+
+.instance-node__overview {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  border: 3px solid;
+  border-radius: 8px;
+  background: #1e1e1e;
+  container-type: size;
 }
 
 .instance-node__badges {
