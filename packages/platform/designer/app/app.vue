@@ -30,6 +30,7 @@ defineOptions({
 </script>
 
 <template>
+  <a href="/login" style="position: fixed; bottom: 0.5rem; right: 0.5rem; z-index: 1000">Account</a>
   <div :style="{ display: initialized ? 'block' : 'none' }">
     <DockviewVue
       class="dockview-container"

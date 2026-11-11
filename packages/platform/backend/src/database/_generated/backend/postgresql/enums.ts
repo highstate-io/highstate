@@ -11,7 +11,8 @@
 
 export const UserType = {
   local: 'local',
-  oidc: 'oidc'
+  oidc: 'oidc',
+  oauth: 'oauth'
 } as const
 
 export type UserType = (typeof UserType)[keyof typeof UserType]

@@ -1,3 +1,8 @@
+import { getHostedAuthConfig, isHostedAuth } from "./auth-config"
+
+const designerHostname = () =>
+  isHostedAuth() ? new URL(getHostedAuthConfig().publicUrl).hostname : "highstate.localhost"
+
 type PanelResponseHeader = {
   name: string
   value: string
@@ -57,7 +62,7 @@ export function getPanelCorsOrigin(
   if (
     originUrl.protocol !== requestUrl.protocol ||
     originUrl.port !== requestUrl.port ||
-    originUrl.hostname !== `${panelId}.panels.highstate.localhost`
+    originUrl.hostname !== `${panelId}.panels.${designerHostname()}`
   ) {
     return undefined
   }
@@ -87,8 +92,9 @@ export function isPanelSessionSource(
   }
 
   return (
-    sourceUrl.hostname === "highstate.localhost" ||
-    sourceUrl.hostname === `${panelId}.panels.highstate.localhost`
+    sourceUrl.hostname === designerHostname() ||
+    sourceUrl.hostname === `${panelId}.panels.${designerHostname()}` ||
+    (isHostedAuth() && sourceUrl.hostname.endsWith(`.${panelId}.panels.${designerHostname()}`))
   )
 }
 
@@ -97,7 +103,7 @@ export function getPanelFrameContentSecurityPolicy(
   requestUrl: URL,
 ): string {
   const designerOrigin = new URL(requestUrl)
-  designerOrigin.hostname = "highstate.localhost"
+  designerOrigin.hostname = designerHostname()
 
   const directives = contentSecurityPolicy
     ?.split(";")

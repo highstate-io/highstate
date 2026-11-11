@@ -29,6 +29,7 @@
         "@highstate/mysql",
         "@highstate/netaminity",
         "@highstate/nixos",
+        "@highstate/oauth",
         "@highstate/postgresql",
         "@highstate/proxmox",
         "@highstate/redis",

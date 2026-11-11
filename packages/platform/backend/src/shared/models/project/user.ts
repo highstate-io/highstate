@@ -9,7 +9,7 @@ export const userMetaSchema = z.object({
 
 export type UserMeta = z.infer<typeof userMetaSchema>
 
-export const userTypeSchema = z.enum(["local", "oidc"])
+export const userTypeSchema = z.enum(["local", "oidc", "oauth"])
 
 export type UserType = z.infer<typeof userTypeSchema>
 

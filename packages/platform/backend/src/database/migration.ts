@@ -10,6 +10,8 @@ export interface MigrationClient {
   $executeRawUnsafe(query: string): Promise<number>
 }
 
+export type MigrationTransaction = Pick<MigrationClient, "$executeRawUnsafe">
+
 export type MigrationPack = {
   type: "backend" | "project"
   schemaPath: string
@@ -17,6 +19,11 @@ export type MigrationPack = {
 }
 
 export const migrationPacks = {
+  "backend/postgresql": {
+    type: "backend" as const,
+    schemaPath: "backend/postgresql",
+    migrationNames: ["20261027214238_initial_migration"],
+  },
   "backend/sqlite": {
     type: "backend" as const,
     schemaPath: "backend/sqlite",
@@ -26,6 +33,7 @@ export const migrationPacks = {
       "20260222113554_add_object_tracking",
       "20260503160615_add_entity_sharing_system",
       "20260823193137_add_authorization",
+      "20261027214238_hosted_authentication",
     ],
   },
   project: {
@@ -51,7 +59,7 @@ export async function migrateDatabase(
   client: MigrationClient,
   migrationPack: MigrationPack,
   currentVersion: number,
-  writeVersion: (version: number) => Promise<void>,
+  writeVersion: (version: number, tx: MigrationTransaction) => Promise<void>,
   logger: Logger,
 ): Promise<void> {
   const { type, schemaPath, migrationNames } = migrationPack
@@ -90,7 +98,7 @@ export async function migrateDatabase(
         await (tx as MigrationClient).$executeRawUnsafe(statement)
       }
 
-      await writeVersion(nextVersion)
+      await writeVersion(nextVersion, tx as MigrationTransaction)
     })
   }
 

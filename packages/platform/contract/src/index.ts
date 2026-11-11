@@ -18,6 +18,7 @@ export {
 } from "./entity"
 
 export * from "./instance"
+export * from "./authentication"
 export { createInput, createNonProvidedInput } from "./instance-input"
 export * from "./unit"
 export * from "./i18n"

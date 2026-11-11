@@ -24,7 +24,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
         operationPlanInputSchema,
       )
 
-      const phases = await services.operationManager.plan(input)
+      const phases = await services.operationManager.planAuthorized(requestContext, input)
 
       return { phases: phases.map(toOperationPhase) }
     },
@@ -43,7 +43,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
         operationLaunchInputSchema,
       )
 
-      const operation = await services.operationManager.launch(input)
+      const operation = await services.operationManager.launchAuthorized(requestContext, input)
 
       return { operation: toOperation(operation) }
     },
@@ -93,7 +93,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
     async cancelOperation(request, context) {
       const requestContext = await authenticateProject(services, request, context)
       const operationId = parseValue(request.operationId, "operationId", z.string().min(1))
-      await services.operationService.getOperationOrThrow(requestContext, operationId)
+      await services.operationService.authorizeCancellation(requestContext, operationId)
 
       const forceRequired = services.operationManager.cancel(operationId, request.force)
 
@@ -104,7 +104,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
       const requestContext = await authenticateProject(services, request, context)
       const operationId = parseValue(request.operationId, "operationId", z.string().min(1))
       const instanceId = parseValue(request.instanceId, "instanceId", instanceIdSchema)
-      await services.operationService.getOperationOrThrow(requestContext, operationId)
+      await services.operationService.authorizeCancellation(requestContext, operationId, instanceId)
 
       const forceRequired = services.operationManager.cancelInstance(
         operationId,

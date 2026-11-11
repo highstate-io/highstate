@@ -7,12 +7,17 @@ import {
   localBackendDatabaseConfig,
 } from "./local"
 import { databaseManagerConfig } from "./manager"
+import {
+  createPostgresqlBackendDatabaseBackend,
+  postgresqlBackendDatabaseConfig,
+} from "./postgresql"
 
 export const databaseConfig = z.object({
-  HIGHSTATE_BACKEND_DATABASE_TYPE: z.enum(["local"]).default("local"),
+  HIGHSTATE_BACKEND_DATABASE_TYPE: z.enum(["local", "postgresql"]).default("local"),
   HIGHSTATE_PROJECT_DATABASE_TYPE: z.enum(["local"]).default("local"),
   ...localBackendDatabaseConfig.shape,
   ...databaseManagerConfig.shape,
+  ...postgresqlBackendDatabaseConfig.shape,
 })
 
 export function createBackendDatabaseBackend(
@@ -22,6 +27,8 @@ export function createBackendDatabaseBackend(
   switch (config.HIGHSTATE_BACKEND_DATABASE_TYPE) {
     case "local":
       return createLocalBackendDatabaseBackend(config, logger)
+    case "postgresql":
+      return createPostgresqlBackendDatabaseBackend(config, logger)
   }
 }
 

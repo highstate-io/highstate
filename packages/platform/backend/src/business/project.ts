@@ -209,9 +209,7 @@ export class ProjectService {
    * @param signal Optional abort signal for cancellation.
    */
   async getProjectModel(context: ProjectRequestContext): Promise<FullProjectModel> {
-    requireProjectPermission(context, "instance-model.get")
-
-    const [projectModel] = await this.projectModelService.getProjectModelCore(context.projectId, {
+    const [projectModel] = await this.projectModelService.getProjectModel(context, {
       includeVirtualInstances: true,
       includeGhostInstances: true,
     })

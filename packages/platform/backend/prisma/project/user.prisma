@@ -1,6 +1,7 @@
 enum UserType {
   local
   oidc
+  oauth
 }
 
 /// A user records a globally identified human actor known to the project.
