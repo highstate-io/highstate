@@ -9,6 +9,7 @@ import type {
 } from "#layers/core/app/workers/edge-router"
 import { createId } from "@paralleldrive/cuid2"
 import EdgeRouterWorker from "#layers/core/app/workers/edge-router?sharedworker"
+import { EDGE_ROUTER_VERSION } from "#layers/core/app/workers/edge-router-version"
 
 const {
   //
@@ -16,7 +17,7 @@ const {
   postMessage,
   onError,
 } = useHSWebWorker<EdgeRouterInputMessage, EdgeRouterOutputMessage>(EdgeRouterWorker, {
-  name: "edge-router",
+  name: `edge-router:${EDGE_ROUTER_VERSION}`,
 })
 
 export function setupEdgeRouter(
