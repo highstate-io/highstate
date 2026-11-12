@@ -10,6 +10,7 @@ import type {
 import { createId } from "@paralleldrive/cuid2"
 import EdgeRouterWorker from "#layers/core/app/workers/edge-router?sharedworker"
 import { EDGE_ROUTER_VERSION } from "#layers/core/app/workers/edge-router-version"
+import { createEdgeRouterMessageQueue } from "./edge-router-message-queue"
 
 const {
   //
@@ -29,9 +30,11 @@ export function setupEdgeRouter(
 ): void {
   const routerId = createId()
   const ready = ref(false)
-  const queuedMessages = new Map<string, EdgeRouterInputMessage>()
+  const messageQueue = createEdgeRouterMessageQueue(postMessage)
+  let geometryDirty = false
+  let disposed = false
+  let initializationFrame: number | null = null
   let flushScheduled = false
-  let flushing = false
   const pendingEdgePathUpdates = new Map<string, number[][]>()
   let edgePathFlushHandle: number | null = null
 
@@ -60,46 +63,12 @@ export function setupEdgeRouter(
     })
   }
 
-  const getMessageKey = (message: EdgeRouterInputMessage): string => {
-    switch (message.type) {
-      case "add-shape":
-      case "update-shape":
-        return `shape:${message.shape.id}`
-      case "remove-shape":
-        return `shape:${message.shapeId}`
-      case "add-edge":
-      case "update-edge":
-        return `edge:${message.edge.id}`
-      case "remove-edge":
-        return `edge:${message.edgeId}`
-      case "process-transaction":
-        return "process-transaction"
-      case "create-router":
-        return `create-router:${message.routerId}`
-      case "dispose-router":
-        return `dispose-router:${message.routerId}`
-    }
-  }
-
-  const flushQueuedMessages = async () => {
-    if (flushing || !ready.value) {
+  const flushQueuedMessages = () => {
+    if (!ready.value) {
       return
     }
 
-    flushing = true
-
-    while (queuedMessages.size > 0) {
-      const messages = Array.from(queuedMessages.values())
-      queuedMessages.clear()
-
-      for (const message of messages) {
-        postMessage(message)
-      }
-
-      await Promise.resolve()
-    }
-
-    flushing = false
+    messageQueue.flush()
   }
 
   const scheduleFlushQueuedMessages = () => {
@@ -111,12 +80,17 @@ export function setupEdgeRouter(
 
     queueMicrotask(() => {
       flushScheduled = false
-      void flushQueuedMessages()
+      flushQueuedMessages()
     })
   }
 
   const queueRouterMessage = (message: EdgeRouterInputMessage) => {
-    queuedMessages.set(getMessageKey(message), message)
+    messageQueue.enqueue(message)
+
+    if (message.type !== "process-transaction") {
+      geometryDirty = true
+    }
+
     scheduleFlushQueuedMessages()
   }
 
@@ -171,7 +145,12 @@ export function setupEdgeRouter(
   }
 
   const processTransaction = useDebounceFn(() => {
+    if (!geometryDirty) {
+      return
+    }
+
     queueRouterMessage({ type: "process-transaction", routerId })
+    geometryDirty = false
   }, 100)
 
   onNodesMoved((nodes, edges) => {
@@ -235,7 +214,7 @@ export function setupEdgeRouter(
     switch (message.type) {
       case "router-ready": {
         ready.value = true
-        void flushQueuedMessages()
+        flushQueuedMessages()
         break
       }
       case "edge-paths-updated": {
@@ -265,11 +244,16 @@ export function setupEdgeRouter(
 
   onError(() => {
     ready.value = false
-    queuedMessages.clear()
+    messageQueue.clear()
   })
 
   onScopeDispose(() => {
+    disposed = true
     globalLogger.debug({ routerId }, "disposing edge router")
+
+    if (initializationFrame !== null) {
+      cancelAnimationFrame(initializationFrame)
+    }
 
     if (edgePathFlushHandle !== null) {
       cancelAnimationFrame(edgePathFlushHandle)
@@ -283,13 +267,27 @@ export function setupEdgeRouter(
     }
   })
 
-  const shapes = vueFlowStore.nodes.value
-    .map(node => getShapeFromGraphNode(node))
-    .filter(Boolean) as EdgeRouterShape[]
+  // node initialization precedes rendered edge coordinates and lane-offset frames
+  // snapshot after those updates, rather than routing every edge twice on opening
+  void nextTick(() => {
+    if (disposed) {
+      return
+    }
 
-  const edges = vueFlowStore.edges.value.map(edge => getEdgeFromGraphEdge(edge))
+    initializationFrame = requestAnimationFrame(() => {
+      initializationFrame = null
 
-  globalLogger.debug({ routerId, shapes, edges }, "creating edge router")
+      const shapes = vueFlowStore.nodes.value
+        .map(node => getShapeFromGraphNode(node))
+        .filter(Boolean) as EdgeRouterShape[]
 
-  postMessage({ type: "create-router", routerId, shapes, edges })
+      const edges = vueFlowStore.edges.value.map(edge => getEdgeFromGraphEdge(edge))
+
+      // the complete snapshot supersedes mutations queued before it was captured
+      messageQueue.clear()
+      geometryDirty = false
+      globalLogger.debug({ routerId, shapes, edges }, "creating edge router")
+      postMessage({ type: "create-router", routerId, shapes, edges })
+    })
+  })
 }
