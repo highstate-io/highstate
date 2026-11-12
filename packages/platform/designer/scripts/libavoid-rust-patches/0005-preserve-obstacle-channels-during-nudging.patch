@@ -1,0 +1,122 @@
+diff --git a/src/channel.rs b/src/channel.rs
+index af0a3a2..f3d2115 100644
+--- a/src/channel.rs
++++ b/src/channel.rs
+@@ -1030,17 +1030,17 @@ impl ChannelRouter {
+         dimension: usize,
+         obstacles: &[Polygon],
+     ) {
+-        // Dimension for sweep (perpendicular to segment direction)
+-        let alt_dim = (dimension + 1) % 2;
+-
+         // Create events for obstacles and segments
+         let mut events = Vec::new();
+ 
+         // Add obstacle events
+         for obstacle in obstacles {
+             let (min_x, min_y, max_x, max_y) = Self::polygon_bounds(obstacle);
+-            let min_pos = if alt_dim == 0 { min_x } else { min_y };
+-            let max_pos = if alt_dim == 0 { max_x } else { max_y };
++            // dimension names the segment's parallel axis: 0 is horizontal
++            // (range in X, shifting in Y), 1 is vertical (range in Y).
++            // Obstacle and segment events must use that same sweep axis.
++            let min_pos = if dimension == 0 { min_x } else { min_y };
++            let max_pos = if dimension == 0 { max_x } else { max_y };
+             let perp_min = if dimension == 0 { min_y } else { min_x };
+             let perp_max = if dimension == 0 { max_y } else { max_x };
+ 
+@@ -1105,10 +1105,14 @@ impl ChannelRouter {
+                     }
+                 }
+                 ScanEventType::ObstacleClose => {
+-                    // Remove obstacle from scanline
+-                    active_obstacles.retain(|obs| {
+-                        (obs.0 - event.perp_min).abs() > 1e-6 || (obs.1 - event.perp_max).abs() > 1e-6
+-                    });
++                    // Equal perpendicular intervals may belong to different
++                    // obstacles. Close only one occurrence; the others can
++                    // remain active farther along the parallel sweep axis.
++                    if let Some(index) = active_obstacles.iter().position(|obs| {
++                        obs.0 == event.perp_min && obs.1 == event.perp_max
++                    }) {
++                        active_obstacles.remove(index);
++                    }
+                 }
+                 ScanEventType::SegmentOpen => {
+                     if let Some(seg_idx) = event.segment_idx {
+@@ -1567,6 +1571,46 @@ impl Default for ChannelRouter {
+ // Tests
+ // ============================================================================
+ 
++#[cfg(test)]
++mod channel_axis_regression_tests {
++    use super::*;
++    use crate::Rectangle;
++
++    #[test]
++    fn channel_sweep_uses_the_same_parallel_axis_for_obstacles_and_segments() {
++        let router = ChannelRouter::with_nudge_distance(6.0);
++        for dimension in [0, 1] {
++            let point = |x, y| if dimension == 0 { Point::new(x, y) } else { Point::new(y, x) };
++            let mut route = Polygon::new();
++            route.push(point(0.0, 1000.0));
++            route.push(point(500.0, 1000.0));
++            let obstacle: Polygon = Rectangle::new_from_points(point(200.0, 1000.0), point(300.0, 1200.0)).into();
++            let routes = vec![route];
++            let segments = router.build_shift_segments_with_obstacles(&routes, dimension, &[obstacle]);
++            assert_eq!(segments.len(), 1);
++            assert_eq!(segments[0].max_limit, 1000.0,
++                "nudging must not move a boundary segment inside the obstacle in dimension {}", dimension);
++        }
++    }
++
++    #[test]
++    fn channel_sweep_retains_overlapping_obstacles_with_identical_perpendicular_bounds() {
++        let router = ChannelRouter::with_nudge_distance(6.0);
++        for dimension in [0, 1] {
++            let point = |x, y| if dimension == 0 { Point::new(x, y) } else { Point::new(y, x) };
++            let mut route = Polygon::new();
++            route.push(point(350.0, 1000.0));
++            route.push(point(450.0, 1000.0));
++            let obstacles: Vec<Polygon> = [(200.0, 300.0), (250.0, 500.0)].iter().map(|&(low, high)|
++                Rectangle::new_from_points(point(low, 1000.0), point(high, 1200.0)).into()
++            ).collect();
++            let routes = vec![route];
++            let segments = router.build_shift_segments_with_obstacles(&routes, dimension, &obstacles);
++            assert_eq!(segments[0].max_limit, 1000.0);
++        }
++    }
++}
++
+ #[cfg(test)]
+ mod fragment_regression_tests {
+     use super::*;
+diff --git a/src/router.rs b/src/router.rs
+index 45cb765..ccd95a1 100644
+--- a/src/router.rs
++++ b/src/router.rs
+@@ -1030,10 +1030,22 @@ impl Router {
+             return;
+         }
+ 
+-        // Collect obstacle polygons
++        // Nudging must preserve the same obstacle clearance as pathfinding.
++        let buffer = self.parameters
++            .get(&RoutingParameter::ShapeBufferDistance)
++            .copied()
++            .unwrap_or(0.0);
+         let obstacles: Vec<Polygon> = self.shapes
+             .values()
+-            .map(|shape| shape.polygon().clone())
++            .map(|shape| {
++                // The orthogonal graph expands bounding boxes on each axis;
++                // polygon offset normals do not provide the same clearance.
++                let bounds = shape.polygon().bounding_rect();
++                crate::geometry::Rectangle::new_from_points(
++                    Point::new(bounds.min.x - buffer, bounds.min.y - buffer),
++                    Point::new(bounds.max.x + buffer, bounds.max.y + buffer),
++                ).into()
++            })
+             .collect();
+ 
+         // Get nudge distance from parameter (default is 4.0)

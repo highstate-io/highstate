@@ -91,6 +91,31 @@ if (scenario === "large") {
   // process first: a polyline connector added later must see current obstacles
   router.processTransaction()
   console.log(JSON.stringify({ points: route(connect(1)) }))
+} else if (scenario?.startsWith("channel-")) {
+  // Separate X/Y ranges expose the native sweep's axis convention. Two routes
+  // share the same obstacle boundary before nudging, so spacing must move them
+  // away from the obstacle, never into its body or configured clearance.
+  const vertical = scenario.endsWith("vertical")
+  const buffer = scenario.includes("buffered") ? 40 : 0
+  const point = (x: number, y: number) => (vertical ? new Point(y, x) : new Point(x, y))
+  router.setRoutingParameter(6, buffer)
+  const obstacle = Rectangle.fromCorners(point(200, 1000), point(300, 1200)).toPolygon()
+  router.addShape(new ShapeRef(router, obstacle))
+
+  const connections = [1080, 1100].map(y => {
+    const connection = ConnRef.createWithEndpoints(
+      router,
+      new ConnEnd(point(0, y), vertical ? 2 : 8),
+      new ConnEnd(point(500, y), vertical ? 1 : 4),
+    )
+
+    connection.setRoutingType(2)
+    router.addConnector(connection)
+    return connection
+  })
+
+  router.processTransaction()
+  console.log(JSON.stringify({ paths: connections.map(readRoute) }))
 } else if (scenario === "dense") {
   for (let index = 0; index < 200; index++) {
     addShape(600, index * 400, 360, 295)
