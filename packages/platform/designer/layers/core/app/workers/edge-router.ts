@@ -92,8 +92,6 @@ type RouterState = {
 
 const routers: Map<string, RouterState> = new Map()
 
-const INITIAL_EDGE_CHUNK_SIZE = 150
-
 const ROUTER_FLAG_ORTHOGONAL = 2
 
 const ROUTING_PARAMETER = {
@@ -112,39 +110,18 @@ const ROUTING_OPTION = {
 const CONN_DIR_LEFT = 4
 const CONN_DIR_RIGHT = 8
 
-const waitForNextTask = async (): Promise<void> => {
-  await new Promise<void>(resolve => {
-    setTimeout(resolve, 0)
-  })
-}
-
-const createInitialEdges = async (
+const createInitialEdges = (
   port: MessagePort,
   state: RouterState,
   edges: EdgeRouterEdge[],
-): Promise<void> => {
-  if (edges.length <= INITIAL_EDGE_CHUNK_SIZE) {
-    for (const edge of edges) {
-      addEdge(port, state, edge)
-    }
-
-    state.router.processTransaction()
-    sendAllEdgePathUpdates(port, state)
-    return
+): void => {
+  for (const edge of edges) {
+    addEdge(port, state, edge)
   }
 
-  for (let startIndex = 0; startIndex < edges.length; startIndex += INITIAL_EDGE_CHUNK_SIZE) {
-    const edgeChunk = edges.slice(startIndex, startIndex + INITIAL_EDGE_CHUNK_SIZE)
-
-    for (const edge of edgeChunk) {
-      addEdge(port, state, edge)
-    }
-
-    state.router.processTransaction()
-    sendAllEdgePathUpdates(port, state)
-
-    await waitForNextTask()
-  }
+  // routing every partial chunk repeatedly rebuilds and nudges the growing graph
+  state.router.processTransaction()
+  sendAllEdgePathUpdates(port, state)
 }
 
 const createRouter = async (
@@ -188,7 +165,7 @@ const createRouter = async (
     addShape(state, shape)
   }
 
-  await createInitialEdges(port, state, edges)
+  createInitialEdges(port, state, edges)
 
   postMessage(port, { type: "router-ready", routerId })
 }
