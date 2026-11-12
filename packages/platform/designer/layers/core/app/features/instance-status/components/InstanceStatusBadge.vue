@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { InstanceState, Operation, ValidationOutput } from "@highstate/backend/shared"
-import { GenericIcon } from "#layers/core/app/features/shared"
+import { GenericIcon, LazyMenu } from "#layers/core/app/features/shared"
 import { GenericTerminal } from "#layers/core/app/features/terminals"
 import { createStatusPanelTabs } from "../business"
 import InstanceStatusLogsTab from "./InstanceStatusLogsTab.vue"
@@ -55,7 +55,7 @@ const showProgress = computed(() => {
 </script>
 
 <template>
-  <VMenu v-model="panelOpened" open-on-hover :close-on-content-click="false" location="end">
+  <LazyMenu v-model="panelOpened" open-on-hover :close-on-content-click="false" location="end">
     <template #activator="{ props }">
       <VChip
         v-bind="props"
@@ -130,7 +130,7 @@ const showProgress = computed(() => {
         </template>
       </VTabs>
     </VSheet>
-  </VMenu>
+  </LazyMenu>
 </template>
 
 <style scoped>
