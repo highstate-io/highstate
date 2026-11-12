@@ -331,7 +331,9 @@ defineExpose({ showContextMenu })
     </template>
   </NodeContextMenu>
 
+  <!-- Keep forms after first use so reopening preserves options and closing transitions. -->
   <InstanceOperationDialog
+    v-if="operationDialogInstances.length > 0"
     v-model:visible="operationDialogVisible"
     :operation="operationDialogOp"
     :instances="operationDialogInstances"
@@ -339,6 +341,7 @@ defineExpose({ showContextMenu })
   />
 
   <ForgetInstanceStateDialog
+    v-if="forgetStateDialogInstances.length > 0"
     v-model:visible="forgetStateDialogVisible"
     :instances="forgetStateDialogInstances"
   />
