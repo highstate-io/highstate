@@ -512,8 +512,20 @@ const expressionLabelWidth = computed(() => {
 }
 
 .animated-highlight {
+  display: none;
   stroke-dasharray: 10 80;
+}
+
+.vue-flow__edge:hover .animated-highlight,
+.vue-flow__edge.selected .animated-highlight {
+  display: inline;
   animation: highlight-animation 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-highlight {
+    animation: none !important;
+  }
 }
 
 .expression-label-background {

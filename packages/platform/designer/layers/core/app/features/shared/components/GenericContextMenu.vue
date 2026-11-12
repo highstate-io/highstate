@@ -7,36 +7,49 @@ const { title, subtitle } = defineProps<{
 }>()
 
 const visible = defineModel<boolean>("visible", { default: false })
+// Preserve the menu and its closing transition after first use without allocating an idle overlay per node.
+const hasOpened = ref(visible.value)
 const menuX = ref(0)
 const menuY = ref(0)
 
 const contextMenu = useTemplateRef("contextMenu")
-
-// @ts-expect-error VueUse types not picked up here
-const { isOutside: isOutsideContextMenu } = useMouseInElement(contextMenu)
 
 const showContextMenu = async (event: MouseEvent) => {
   event.preventDefault()
   visible.value = false
   menuX.value = event.clientX
   menuY.value = event.clientY
+  hasOpened.value = true
 
   await nextTick()
   visible.value = true
 }
 
-const handleMouseEvent = () => {
-  if (isOutsideContextMenu.value) {
-    visible.value = false
-  }
-}
+watch(
+  visible,
+  (isVisible, _, onCleanup) => {
+    if (!isVisible) {
+      return
+    }
 
-onMounted(() => {
-  window.addEventListener("mousedown", handleMouseEvent)
-})
+    hasOpened.value = true
+
+    const handleMouseEvent = (event: MouseEvent) => {
+      const element = contextMenu.value?.$el as HTMLElement | undefined
+      if (event.target instanceof Node && element?.contains(event.target)) {
+        return
+      }
+
+      visible.value = false
+    }
+
+    window.addEventListener("mousedown", handleMouseEvent)
+    onCleanup(() => window.removeEventListener("mousedown", handleMouseEvent))
+  },
+  { immediate: true, flush: "sync" },
+)
 
 onUnmounted(() => {
-  window.removeEventListener("mousedown", handleMouseEvent)
   visible.value = false
 })
 
@@ -44,7 +57,13 @@ defineExpose({ showContextMenu })
 </script>
 
 <template>
-  <VMenu v-model="visible" :target="[menuX, menuY]" location="end" :close-on-content-click="false">
+  <VMenu
+    v-if="hasOpened"
+    v-model="visible"
+    :target="[menuX, menuY]"
+    location="end"
+    :close-on-content-click="false"
+  >
     <VList ref="contextMenu" density="compact" variant="text" style="padding-bottom: 0">
       <slot name="header">
         <VListItem class="mb-2">
