@@ -5,7 +5,7 @@ import {
   getEntityOverrideMetaFromContent,
   resolveEntityDisplay,
 } from "#layers/core/app/features/entity-explorer"
-import { ComponentIcon } from "#layers/core/app/features/shared"
+import { ComponentIcon, LazyMenu } from "#layers/core/app/features/shared"
 import { onHighstateActionInvoked } from "#layers/core/app/utils/monaco"
 
 type LoadFn = () => Promise<OutputReferencedEntitySnapshot[]>
@@ -132,22 +132,24 @@ const handleGlobalContextMenu = (event: MouseEvent) => {
   panelOpened.value = false
 }
 
-onMounted(() => {
-  window.addEventListener("contextmenu", handleGlobalContextMenu, { capture: true })
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener("contextmenu", handleGlobalContextMenu, { capture: true })
-})
-
-const unsubscribeAction = onHighstateActionInvoked(action => {
-  if (action.kind === "openEntitySnapshot") {
-    panelOpened.value = false
+watch(panelOpened, (opened, _, onCleanup) => {
+  if (!opened) {
+    return
   }
-})
 
-onBeforeUnmount(() => {
-  unsubscribeAction()
+  window.addEventListener("contextmenu", handleGlobalContextMenu, { capture: true })
+
+  onCleanup(() =>
+    window.removeEventListener("contextmenu", handleGlobalContextMenu, { capture: true }),
+  )
+
+  onCleanup(
+    onHighstateActionInvoked(action => {
+      if (action.kind === "openEntitySnapshot") {
+        panelOpened.value = false
+      }
+    }),
+  )
 })
 
 const getEntityMeta = (entityType: string) => {
@@ -186,7 +188,7 @@ const selectedTabColor = computed(() => {
 </script>
 
 <template>
-  <VMenu
+  <LazyMenu
     v-model="panelOpened"
     :open-on-click="false"
     :close-on-content-click="false"
@@ -312,5 +314,5 @@ const selectedTabColor = computed(() => {
         </div>
       </template>
     </VSheet>
-  </VMenu>
+  </LazyMenu>
 </template>
