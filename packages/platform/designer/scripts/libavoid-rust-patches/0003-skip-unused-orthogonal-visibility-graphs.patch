@@ -1,0 +1,278 @@
+diff --git a/src/router.rs b/src/router.rs
+index 94384a6..45cb765 100644
+--- a/src/router.rs
++++ b/src/router.rs
+@@ -189,7 +189,6 @@ impl ProgressReporter {
+ /// The main router instance for managing connector routing
+ pub struct Router {
+     /// Router configuration flags
+-    #[allow(dead_code)] // Will be used for flag-based behavior
+     flags: RouterFlags,
+     /// All shapes in the scene
+     shapes: HashMap<u32, ShapeRef>,
+@@ -201,6 +200,9 @@ pub struct Router {
+     vis_graph: VisibilityGraph,
+     /// Visibility graph for orthogonal routing
+     vis_orth_graph: VisibilityGraph,
++    /// Whether legacy visibility graphs were built, rather than skipped for orthogonal-only routing.
++    /// Pending obstacle changes continue to be tracked by needs_vis_rebuild.
++    legacy_vis_graph_built: bool,
+     /// Pathfinder for route calculation
+     path_finder: PathFinder,
+     /// Orthogonal router
+@@ -272,6 +274,7 @@ impl Router {
+             connectors: HashMap::new(),
+             vis_graph: VisibilityGraph::new(),
+             vis_orth_graph: VisibilityGraph::new(),
++            legacy_vis_graph_built: false,
+             path_finder: PathFinder::new(),
+             orthogonal_router: OrthogonalRouter::new(),
+             channel_router: ChannelRouter::new(),
+@@ -731,6 +734,12 @@ impl Router {
+ 
+     /// Routes using polyline (direct path through visibility graph)
+     fn route_polyline(&mut self, src: Point, dst: Point) -> Polygon {
++        // Polyline connectors remain supported even on an orthogonal-only router.
++        // Shapes may already have been processed without constructing these graphs.
++        if !self.legacy_vis_graph_built {
++            self.rebuild_visibility_graph_full();
++        }
++
+         let obstacles: Vec<&dyn Obstacle> = self.shapes.values()
+             .map(|s| s as &dyn Obstacle)
+             .collect();
+@@ -1071,10 +1080,23 @@ impl Router {
+         self.dirty_shapes.clear();
+     }
+ 
++    /// Orthogonal routes use their own sweep-line graph in route_orthogonal.
++    /// Preserve legacy flag 0 and polyline/mixed flags 1/3, including explicit
++    /// polyline connectors added to an orthogonal-only (flag 2) router.
++    fn needs_legacy_visibility_graph(&self) -> bool {
++        self.flags != 2
++            || self.connectors.values().any(|conn| conn.routing_type() == ConnType::PolyLine)
++    }
++
+     /// Rebuilds the visibility graph from scratch
+     fn rebuild_visibility_graph_full(&mut self) {
+         self.vis_graph.clear();
+         self.vis_orth_graph.clear();
++        self.legacy_vis_graph_built = false;
++
++        if !self.needs_legacy_visibility_graph() {
++            return;
++        }
+ 
+         // Get shape buffer distance from parameter
+         let buffer = self.parameters
+@@ -1108,6 +1130,7 @@ impl Router {
+             self.vis_graph.compute_vertex_visibility(vertex_id, &obstacles);
+             self.vis_orth_graph.compute_vertex_visibility(vertex_id, &obstacles);
+         }
++        self.legacy_vis_graph_built = true;
+     }
+ 
+     /// Performs incremental visibility update for dirty shapes only
+@@ -1119,6 +1142,13 @@ impl Router {
+     /// 3. Recompute visibility for affected vertices
+     /// 4. Also recompute visibility for vertices that might now see dirty shapes
+     fn update_visibility_incremental(&mut self) {
++        // An earlier orthogonal-only update may have skipped or invalidated the
++        // legacy graphs; incremental updates cannot repair a missing base graph.
++        if !self.needs_legacy_visibility_graph() || !self.legacy_vis_graph_built {
++            self.rebuild_visibility_graph_full();
++            return;
++        }
++
+         let dirty_shapes: Vec<u32> = self.dirty_shapes.iter().copied().collect();
+ 
+         // Collect all shape bounding boxes for proximity check
+@@ -1534,6 +1564,188 @@ impl Default for Router {
+     }
+ }
+ 
++#[cfg(test)]
++mod visibility_regression_tests {
++    use super::*;
++    use crate::connector::{CONN_DIR_LEFT, CONN_DIR_RIGHT};
++    use crate::geometry::segment_intersects_polygon_interior;
++    use crate::Rectangle;
++
++    fn obstacle(center: Point) -> Polygon {
++        Rectangle::new(center, 80.0, 80.0).into()
++    }
++
++    fn add_route(router: &mut Router, id: u32, kind: ConnType) {
++        router.add_connector(ConnRef::with_type(
++            id,
++            ConnEnd::free_point(Point::new(-200.0, 0.0), CONN_DIR_RIGHT),
++            ConnEnd::free_point(Point::new(200.0, 0.0), CONN_DIR_LEFT),
++            kind,
++        ));
++    }
++
++    fn add_outer_obstacles(router: &mut Router) {
++        // Keep ports away from the sweep's outer boundary, where the existing
++        // boundary-visibility algorithm deliberately widens endpoint directions.
++        router.add_shape(obstacle(Point::new(-500.0, 800.0)), 100);
++        router.add_shape(obstacle(Point::new(500.0, 800.0)), 101);
++    }
++
++    fn assert_legacy_graphs_empty(router: &Router) {
++        assert_eq!(router.vis_graph.vertex_count(), 0);
++        assert_eq!(router.vis_orth_graph.vertex_count(), 0);
++        assert!(!router.legacy_vis_graph_built);
++    }
++
++    fn assert_route_clear(router: &Router, id: u32, buffer: f64, orthogonal: bool) {
++        let route = router.get_connector(id).unwrap().route().expect("route");
++        assert!(route.size() >= 2);
++        assert_eq!(*route.at(0), Point::new(-200.0, 0.0));
++        assert_eq!(*route.at(route.size() - 1), Point::new(200.0, 0.0));
++        let points: Vec<_> = route.points().collect();
++        for pair in points.windows(2) {
++            if orthogonal {
++                assert!((pair[0].x - pair[1].x).abs() < 1e-6
++                    || (pair[0].y - pair[1].y).abs() < 1e-6);
++            }
++            for shape in router.shapes.values() {
++                let polygon = shape.polygon().offset_polygon(buffer);
++                assert!(!segment_intersects_polygon_interior(&pair[0], &pair[1], &polygon),
++                    "route segment {:?} intersects obstacle {:?}", pair, polygon);
++            }
++        }
++        if orthogonal {
++            // Both ports face the obstacle, so an unconstrained fallback cannot pass.
++            assert!(route.at(1).x > route.at(0).x, "route: {:?}", route);
++            assert_eq!(route.at(1).y, route.at(0).y);
++            let previous = route.at(route.size() - 2);
++            assert!(previous.x < route.at(route.size() - 1).x);
++            assert_eq!(previous.y, route.at(route.size() - 1).y);
++        }
++    }
++
++    #[test]
++    fn orthogonal_shape_batch_skips_both_legacy_graphs() {
++        let mut router = Router::new(2);
++        router.set_routing_parameter(RoutingParameter::ShapeBufferDistance, 40.0);
++        for id in 1..=798 {
++            router.add_shape(
++                Rectangle::new(Point::new(600.0, id as f64 * 400.0), 360.0, 294.625).into(),
++                id,
++            );
++        }
++        router.process_transaction();
++        assert_eq!(router.shapes.len(), 798);
++        assert_legacy_graphs_empty(&router);
++    }
++
++    #[test]
++    fn orthogonal_sweep_keeps_buffer_and_endpoint_directions() {
++        let mut router = Router::new(2);
++        router.set_routing_option(RoutingOption::NudgeOrthogonalRoutes, false);
++        router.set_routing_parameter(RoutingParameter::ShapeBufferDistance, 40.0);
++        add_outer_obstacles(&mut router);
++        router.add_shape(obstacle(Point::new(0.0, 0.0)), 1);
++        add_route(&mut router, 1, ConnType::Orthogonal);
++        router.process_transaction();
++        assert_legacy_graphs_empty(&router);
++        assert_route_clear(&router, 1, 40.0, true);
++        assert!(router.get_connector(1).unwrap().route().unwrap().size() >= 4);
++    }
++
++    #[test]
++    fn orthogonal_shape_lifecycle_keeps_current_obstacles() {
++        let mut router = Router::new(2);
++        router.set_routing_option(RoutingOption::NudgeOrthogonalRoutes, false);
++        router.set_routing_parameter(RoutingParameter::ShapeBufferDistance, 40.0);
++        add_outer_obstacles(&mut router);
++        router.add_shape(obstacle(Point::new(0.0, 0.0)), 1);
++        add_route(&mut router, 1, ConnType::Orthogonal);
++        router.process_transaction();
++        assert_route_clear(&router, 1, 40.0, true);
++
++        router.move_shape(1, Point::new(0.0, 400.0));
++        router.process_transaction();
++        assert_route_clear(&router, 1, 40.0, true);
++        assert!(router.get_connector(1).unwrap().route().unwrap().points().all(|p| p.y == 0.0));
++
++        router.delete_shape(1);
++        router.add_shape(obstacle(Point::new(20.0, 0.0)), 2);
++        router.process_transaction();
++        assert_route_clear(&router, 1, 40.0, true);
++        assert!(router.get_connector(1).unwrap().route().unwrap().size() >= 4);
++        assert_legacy_graphs_empty(&router);
++    }
++
++    #[test]
++    fn immediate_orthogonal_updates_skip_full_and_incremental_legacy_graphs() {
++        let mut router = Router::new(2);
++        router.set_transaction_use(false);
++        for id in 1..=4 {
++            router.add_shape(obstacle(Point::new(0.0, id as f64 * 400.0)), id);
++            assert_legacy_graphs_empty(&router);
++        }
++        // One dirty shape out of four takes update_visibility_incremental.
++        router.move_shape(1, Point::new(0.0, 500.0));
++        assert_legacy_graphs_empty(&router);
++        router.delete_shape(1);
++        assert_legacy_graphs_empty(&router);
++    }
++
++    #[test]
++    fn legacy_polyline_and_mixed_flags_keep_obstacle_avoidance() {
++        for flags in [0, 1, 3] {
++            let mut router = Router::new(flags);
++            router.set_routing_option(RoutingOption::NudgeOrthogonalRoutes, false);
++            add_outer_obstacles(&mut router);
++            router.add_shape(obstacle(Point::new(0.0, 0.0)), 1);
++            router.process_transaction();
++            assert_eq!(router.vis_graph.vertex_count(), 12);
++            assert_eq!(router.vis_orth_graph.vertex_count(), 12);
++            add_route(&mut router, 1, ConnType::PolyLine);
++            add_route(&mut router, 2, ConnType::Orthogonal);
++            router.process_transaction();
++            assert_route_clear(&router, 1, 0.0, false);
++            assert_route_clear(&router, 2, 0.0, true);
++            assert!(router.get_connector(1).unwrap().route().unwrap().size() > 2);
++        }
++    }
++
++    #[test]
++    fn late_polyline_builds_and_rebuilds_after_orthogonal_only_shape_changes() {
++        for transactions in [true, false] {
++            let mut router = Router::new(2);
++            router.set_transaction_use(transactions);
++            router.set_routing_option(RoutingOption::NudgeOrthogonalRoutes, false);
++            for id in 1..=4 {
++                router.add_shape(obstacle(Point::new(0.0, (id - 1) as f64 * 400.0)), id);
++            }
++            router.process_transaction();
++            assert_legacy_graphs_empty(&router);
++
++            add_route(&mut router, 1, ConnType::PolyLine);
++            router.process_transaction();
++            assert!(router.legacy_vis_graph_built);
++            assert_route_clear(&router, 1, 0.0, false);
++            assert!(router.get_connector(1).unwrap().route().unwrap().size() > 2);
++
++            router.delete_connector(1);
++            router.move_shape(1, Point::new(30.0, 10.0));
++            router.process_transaction();
++            assert_legacy_graphs_empty(&router);
++
++            add_route(&mut router, 1, ConnType::PolyLine);
++            router.process_transaction();
++            assert_route_clear(&router, 1, 0.0, false);
++            // The lazy rebuild must contain the moved corners, not the old graph.
++            for point in router.get_shape(1).unwrap().polygon().points() {
++                assert!(router.vis_graph.find_vertex_at(point).is_some());
++            }
++            assert!(router.vis_graph.find_vertex_at(&Point::new(-40.0, -40.0)).is_none());
++        }
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
