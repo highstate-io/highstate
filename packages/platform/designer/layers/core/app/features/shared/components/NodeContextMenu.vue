@@ -24,12 +24,23 @@ const showContextMenu = async (event: MouseEvent) => {
   await contextMenu.value.showContextMenu(event)
 }
 
-const { off: offViewportChange } = vueFlowStore.onViewportChange(() => {
-  visible.value = false
-})
+watch(
+  visible,
+  (isVisible, _, onCleanup) => {
+    if (!isVisible) {
+      return
+    }
+
+    const { off } = vueFlowStore.onViewportChange(() => {
+      visible.value = false
+    })
+
+    onCleanup(off)
+  },
+  { immediate: true, flush: "sync" },
+)
 
 onUnmounted(() => {
-  offViewportChange()
   visible.value = false
 })
 
