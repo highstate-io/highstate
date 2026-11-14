@@ -17,6 +17,8 @@ const prefix = value("--prefix")
 const tag = value("--tag")
 const output = value("--output")
 const bakePath = value("--bake")
+const ociIndex = process.argv.indexOf("--oci-directory")
+const ociDirectory = ociIndex === -1 ? undefined : resolve(value("--oci-directory"))
 const rootIndex = process.argv.indexOf("--root")
 const root = resolve(
   rootIndex === -1 ? resolve(import.meta.dir, "..") : process.argv[rootIndex + 1],
@@ -39,6 +41,29 @@ const result = await synchronizeRepositoryImages({
   tag,
   imageNames,
   async resolveDigest(reference) {
+    if (ociDirectory) {
+      const target = bake.group.images.targets.find(
+        (target: string) => bake.target[target].tags[0] === reference,
+      )
+
+      if (!target || !/^[a-z0-9][a-z0-9.-]*$/.test(target)) {
+        throw new Error(`Unable to locate OCI archive for "${reference}"`)
+      }
+
+      const process = Bun.spawn(
+        ["skopeo", "inspect", "--raw", `oci-archive:${ociDirectory}/${target}.tar`],
+        { stdout: "pipe", stderr: "inherit" },
+      )
+
+      const manifest = await new Response(process.stdout).arrayBuffer()
+
+      if ((await process.exited) !== 0) {
+        throw new Error(`Unable to inspect OCI archive for "${reference}"`)
+      }
+
+      return `sha256:${new Bun.CryptoHasher("sha256").update(manifest).digest("hex")}`
+    }
+
     const process = Bun.spawn(
       [
         "docker",
