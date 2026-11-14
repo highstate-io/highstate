@@ -1,3 +1,12 @@
+## 0.31.2
+
+### Patch Changes
+
+- Updated dependencies [[`ae84db5`](https://github.com/highstate-io/highstate/commit/ae84db5fbf633e826d80800a4f0845dccd967844)]:
+  - @highstate/pulumi@0.32.1
+  - @highstate/contract@0.32.1
+  - @highstate/library@0.31.2
+
 ## 0.31.1
 
 ### Patch Changes

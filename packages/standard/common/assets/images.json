@@ -2,6 +2,6 @@
   "terminal-ssh": {
     "name": "ghcr.io/highstate-io/terminal.ssh",
     "tag": "latest",
-    "image": "ghcr.io/highstate-io/terminal.ssh:latest@sha256:b6e1aa845e452b4956ac68b82b32bf147cc69c098ed1678a0953e7f24d4c11fc"
+    "image": "ghcr.io/highstate-io/terminal.ssh:latest@sha256:6b2904b5ee7e5d6b1159d3759e460c63641a2c84fb8f7c6a71a6d53ee78bd6ea"
   }
 }

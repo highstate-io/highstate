@@ -1,3 +1,12 @@
+## 0.32.1
+
+### Patch Changes
+
+- [#66](https://github.com/highstate-io/highstate/pull/66) [`ae84db5`](https://github.com/highstate-io/highstate/commit/ae84db5fbf633e826d80800a4f0845dccd967844) Thanks [@Exeteres](https://github.com/Exeteres)! - Restore Highstate secret metadata at Pulumi resource-input registration so nested wrapped values are redacted in previews and encrypted in state, without hiding public sibling fields or changing domain entity schemas. This also covers entities materialized asynchronously or reconstructed from JSON. Existing Pulumi secrecy and unknown values remain intact. Requires a Pulumi engine with resource-transform support. Previously captured logs and existing plaintext state are not retroactively sanitized.
+
+- Updated dependencies []:
+  - @highstate/contract@0.32.1
+
 ## 0.32.0
 
 ### Patch Changes

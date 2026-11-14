@@ -1,3 +1,22 @@
+## 0.32.1
+
+### Patch Changes
+
+- [#67](https://github.com/highstate-io/highstate/pull/67) [`381d0f9`](https://github.com/highstate-io/highstate/commit/381d0f99bcbedba64541acdb876bc1976fbdf6ed) Thanks [@mocki-toki](https://github.com/mocki-toki)! - Preserve obstacle clearance when separating nearby routed connections.
+
+- [#69](https://github.com/highstate-io/highstate/pull/69) [`882fa2f`](https://github.com/highstate-io/highstate/commit/882fa2f411049f577c3b57605ba1ec3309f54fd9) Thanks [@mocki-toki](https://github.com/mocki-toki)! - Route the complete initial canvas after connection coordinates settle, and apply queued geometry before later routing transactions.
+
+- [#68](https://github.com/highstate-io/highstate/pull/68) [`145e3ab`](https://github.com/highstate-io/highstate/commit/145e3ab8acbb13d6fae813a7c3d5ec08a0b735b5) Thanks [@mocki-toki](https://github.com/mocki-toki)! - Avoid long freezes when switching large canvases to the zoomed-out icon view. Reduce pointer-tracking and closed context-menu overhead while navigating, without changing node dimensions or connection handles.
+
+- [#67](https://github.com/highstate-io/highstate/pull/67) [`381d0f9`](https://github.com/highstate-io/highstate/commit/381d0f99bcbedba64541acdb876bc1976fbdf6ed) Thanks [@mocki-toki](https://github.com/mocki-toki)! - Speed up orthogonal edge routing on large project canvases by avoiding unused visibility graphs and redundant collinear-fragment comparisons. Preserve obstacle avoidance, line nudging, and polyline routing compatibility.
+
+- [#70](https://github.com/highstate-io/highstate/pull/70) [`b237649`](https://github.com/highstate-io/highstate/commit/b237649e67a6bf927a590a0c7e21af50ccc6519a) Thanks [@mocki-toki](https://github.com/mocki-toki)! - Reduce large-canvas memory use by creating context menus and operation dialogs only when first opened. Animate connection highlights only for hovered or selected connections, and respect reduced-motion preferences.
+
+- Updated dependencies []:
+  - @highstate/backend@0.32.1
+  - @highstate/backend-api@0.32.1
+  - @highstate/contract@0.32.1
+
 ## 0.32.0
 
 ### Patch Changes
