@@ -13,6 +13,7 @@ import {
   InstanceNodeOutputChipPopup,
 } from "#layers/core/app/features/entity-explorer"
 import { EXPORT_CREATE_INPUT_HANDLE } from "#layers/core/app/utils/vue-flow"
+import { useTouchConnectionHover } from "../business/touch-connection-hover"
 import InstanceNodeEditableInputChip from "./InstanceNodeEditableInputChip.vue"
 import InstanceNodeIOSideHandle from "./InstanceNodeIOSideHandle.vue"
 
@@ -97,10 +98,41 @@ const isRequiredAndNotConnected = (name: string) => {
   return !resolvedInputs?.[name]?.length
 }
 
-const columnEl = useTemplateRef("column")
-const { isOutside } = useMouseInElement(columnEl)
-const showHandlesOnHover = computed(() => !isOutside.value && !preventShowAllHandles)
+const vueFlowStore = useVueFlow()
+const isHovered = ref(false)
+const showHandlesOnHover = computed(() => isHovered.value && !preventShowAllHandles)
 const showAllHandles = computed(() => forceShowAllHandles || showHandlesOnHover.value)
+
+const updateHover = () => {
+  isHovered.value = !preventShowAllHandles && !vueFlowStore.paneDragging.value
+}
+
+const columnEl = useTemplateRef<HTMLElement>("column")
+
+useTouchConnectionHover(vueFlowStore.connectionStartHandle, columnEl, updateHover, () => {
+  isHovered.value = false
+})
+
+watch(
+  isHovered,
+  (hovered, _, onCleanup) => {
+    if (!hovered) {
+      return
+    }
+
+    // Only hovered columns observe the viewport; pan/zoom can move them away from a stationary pointer.
+    onCleanup(
+      watch(
+        [vueFlowStore.viewport, vueFlowStore.paneDragging, () => preventShowAllHandles],
+        () => {
+          isHovered.value = false
+        },
+        { flush: "sync" },
+      ),
+    )
+  },
+  { flush: "sync" },
+)
 
 const shouldShowHandle = (name: string) => {
   if (type === "outputs") {
@@ -137,8 +169,6 @@ const isEditableExportInputsColumn = computed(() => {
   )
 })
 
-const vueFlowStore = useVueFlow()
-
 const showCreateInputHandle = computed(() => {
   if (!isEditableExportInputsColumn.value) {
     return false
@@ -173,7 +203,15 @@ const renameEditableExportInput = async (oldName: string, newName: string) => {
 </script>
 
 <template>
-  <div ref="column" class="d-flex flex-column gr-2 column">
+  <div
+    ref="column"
+    data-instance-io-column
+    class="d-flex flex-column gr-2 column"
+    @pointerenter="updateHover"
+    @pointermove="updateHover"
+    @pointerleave="isHovered = false"
+    @pointercancel="isHovered = false"
+  >
     <VChip
       v-if="
         !isEditableExportInputsColumn &&

@@ -12,9 +12,6 @@ const menuY = ref(0)
 
 const contextMenu = useTemplateRef("contextMenu")
 
-// @ts-expect-error VueUse types not picked up here
-const { isOutside: isOutsideContextMenu } = useMouseInElement(contextMenu)
-
 const showContextMenu = async (event: MouseEvent) => {
   event.preventDefault()
   visible.value = false
@@ -25,18 +22,29 @@ const showContextMenu = async (event: MouseEvent) => {
   visible.value = true
 }
 
-const handleMouseEvent = () => {
-  if (isOutsideContextMenu.value) {
-    visible.value = false
-  }
-}
+watch(
+  visible,
+  (isVisible, _, onCleanup) => {
+    if (!isVisible) {
+      return
+    }
 
-onMounted(() => {
-  window.addEventListener("mousedown", handleMouseEvent)
-})
+    const handleMouseEvent = (event: MouseEvent) => {
+      const element = contextMenu.value?.$el as HTMLElement | undefined
+      if (event.target instanceof Node && element?.contains(event.target)) {
+        return
+      }
+
+      visible.value = false
+    }
+
+    window.addEventListener("mousedown", handleMouseEvent)
+    onCleanup(() => window.removeEventListener("mousedown", handleMouseEvent))
+  },
+  { immediate: true, flush: "sync" },
+)
 
 onUnmounted(() => {
-  window.removeEventListener("mousedown", handleMouseEvent)
   visible.value = false
 })
 

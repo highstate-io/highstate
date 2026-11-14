@@ -1,3 +1,4 @@
+import { EDGE_ROUTER_VERSION } from "./edge-router-version"
 import {
   AvoidLib,
   ConnEnd,
@@ -81,7 +82,9 @@ const postMessage = (port: MessagePort, message: EdgeRouterOutputMessage) => {
   port.postMessage(message)
 }
 
-const _avoid = initLibavoid("/libavoid.wasm").then(() => AvoidLib.getInstance())
+const _avoid = initLibavoid(`/libavoid.wasm?revision=${EDGE_ROUTER_VERSION}`).then(() =>
+  AvoidLib.getInstance(),
+)
 
 type RouterState = {
   routerId: string
