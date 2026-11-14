@@ -1,0 +1,165 @@
+name: PR Preview
+
+on:
+  workflow_run:
+    workflows: [PR Preview Build]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: pr-preview-publish-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    name: Resolve current pull request
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+      sha: ${{ steps.pr.outputs.sha }}
+      base: ${{ steps.pr.outputs.base }}
+    steps:
+      - name: Resolve pull request from GitHub metadata
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              ...context.repo,
+              state: 'open',
+              head: `${run.head_repository.owner.login}:${run.head_branch}`,
+              base: 'main',
+            })
+            const pr = pulls.find(pr => pr.head.repo?.id === run.head_repository.id && pr.head.sha === run.head_sha)
+            if (!pr) {
+              core.notice('No open pull request matches this build; skipping stale preview')
+              return
+            }
+            core.setOutput('number', pr.number)
+            core.setOutput('sha', pr.head.sha)
+            core.setOutput('base', pr.base.sha)
+
+  publish-images:
+    name: Publish preview images
+    needs: resolve
+    if: needs.resolve.outputs.number != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+    env:
+      IMAGE_PREFIX: ghcr.io/highstate-io/dev
+      IMAGE_TAG: pr-${{ needs.resolve.outputs.number }}
+    steps:
+      # Only base-repository code runs in this workflow. Artifacts are untrusted data.
+      - name: Checkout trusted tools
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          path: trusted
+          persist-credentials: false
+
+      - name: Download images from triggering run
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-images
+          path: images
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Install publication tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.13
+
+      - name: Publish trusted bake images
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAGS: ${{ env.IMAGE_TAG }}
+        run: |
+          skopeo login ghcr.io --username 'github-actions[bot]' --password-stdin <<< "$GHCR_TOKEN"
+          docker buildx bake --file trusted/docker/docker-bake.hcl images --print > trusted-bake.json
+          jq -e '.targets | type == "array" and all(.[]; type == "string" and test("^[a-z0-9][a-z0-9.-]*$"))' images/affected-images.json > /dev/null
+          mapfile -t targets < <(jq -r '.targets[]' images/affected-images.json)
+          for target in "${targets[@]}"; do
+            jq -e --arg target "$target" '.group.images.targets | index($target)' trusted-bake.json > /dev/null
+            test -f "images/$target.tar"
+            reference=$(jq -r --arg target "$target" '.target[$target].tags[0]' trusted-bake.json)
+            if [[ "$reference" != "$IMAGE_PREFIX/"*":$IMAGE_TAG" ]]; then
+              echo "Untrusted bake image reference: $reference" >&2
+              exit 1
+            fi
+            skopeo copy --all --preserve-digests "oci-archive:images/$target.tar" "docker://$reference"
+          done
+          jq --argjson targets "$(jq '.targets' images/affected-images.json)" '.group.images.targets = $targets' trusted-bake.json > published-bake.json
+
+      - name: Record published image digests
+        run: |
+          bun trusted/scripts/sync-repository-images.ts --root trusted --prefix "$IMAGE_PREFIX" --tag "$IMAGE_TAG" --bake published-bake.json --output published-images.json
+
+      - name: Upload published image metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-images
+          path: published-images.json
+          retention-days: 1
+
+  comment:
+    name: Update preview comment
+    needs: [resolve, publish-images]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout trusted metadata
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          path: trusted
+          persist-credentials: false
+
+      - name: Download package metadata from triggering run
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-metadata
+          path: metadata
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Download published image metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: published-images
+          path: metadata
+
+      - name: Update comment for current head only
+        uses: actions/github-script@v7
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
+          PR_NUMBER: ${{ needs.resolve.outputs.number }}
+        with:
+          script: |
+            const number = Number(process.env.PR_NUMBER)
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: number })
+            if (pr.state !== 'open' || pr.head.sha !== process.env.SOURCE_SHA) return
+            const previewContext = { repo: context.repo, issue: { ...context.repo, number } }
+            await require('./trusted/.github/scripts/update-pr-preview-comment.cjs')({ github, context: previewContext })

@@ -58,3 +58,11 @@ Data crosses a project boundary only through an explicit sharing mechanism such 
 Sharing does not merge project databases, authorization realms, or operation ownership.
 
 Runtime ownership is defined by the [control-plane coordination boundary](control-plane.md#coordination-boundary).
+
+## Pull Request Execution
+
+Fork verification and preview builds execute contributor code without repository write permissions or secrets.
+Privileged preview publication runs separately and treats build artifacts as untrusted data, not executable tools.
+Only base-repository code determines publication destinations and updates pull request comments.
+GitHub run metadata binds artifacts to the current pull request head; stale builds cannot update its preview comment.
+The workflows in `.github/workflows/` own the exact permissions and artifact handoff.
