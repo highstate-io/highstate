@@ -16,7 +16,10 @@ test("explains an empty preview without install instructions or empty tables", (
   const body = renderPreviewComment({ packages: [], images: {}, descriptor, pullRequest: 72 })
   expect(body).toContain("No packages or images are affected by this pull request.")
   expect(body).not.toContain("highstate update")
-  expect(body).not.toContain("<details>")
+  expect(body).toContain("<summary>Packages</summary>\n\nNot affected.")
+  expect(body).toContain("<summary>Images</summary>\n\nNot affected.")
+  expect(body).not.toContain("| Package | Preview URL |")
+  expect(body).not.toContain("| Image | Reference |")
   expect(body).toContain(`<!-- highstate-pr-preview\n${JSON.stringify(descriptor)}\n-->`)
 })
 
@@ -25,7 +28,8 @@ test("shows image-only previews without package installation instructions", () =
   expect(body).toContain("No packages are affected by this pull request.")
   expect(body).toContain("<summary>Images</summary>")
   expect(body).toContain(images.ssh)
-  expect(body).not.toContain("<summary>Packages</summary>")
+  expect(body).toContain("<summary>Packages</summary>\n\nNot affected.")
+  expect(body).not.toContain("| Package | Preview URL |")
   expect(body).not.toContain("highstate update")
 })
 
@@ -40,7 +44,12 @@ test.each([{}, images])("keeps install instructions for package previews", image
   expect(body).toContain("highstate update --pr 72")
   expect(body).toContain("<summary>Packages</summary>")
   expect(body).toContain(packages[0].url)
-  expect(body.includes("<summary>Images</summary>")).toBe(Object.keys(imageMetadata).length > 0)
+  expect(body).toContain("<summary>Images</summary>")
+  expect(body.includes("| Image | Reference |")).toBe(Object.keys(imageMetadata).length > 0)
+
+  expect(body.includes("<summary>Images</summary>\n\nNot affected.")).toBe(
+    Object.keys(imageMetadata).length === 0,
+  )
 })
 
 test("replaces a previous populated bot comment when the preview becomes empty", async () => {

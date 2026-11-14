@@ -9,14 +9,6 @@ function renderPreviewComment({ packages, images, descriptor, pullRequest }) {
 
   if (hasPackages) {
     sections.push(`Install all affected packages with \`highstate update --pr ${pullRequest}\`.`)
-    sections.push(`<details>
-<summary>Packages</summary>
-
-| Package | Preview URL |
-|---|---|
-${packages.map(pkg => `| \`${pkg.name}\` | \`${pkg.url}\` |`).join("\n")}
-
-</details>`)
   } else {
     sections.push(
       hasImages
@@ -25,16 +17,25 @@ ${packages.map(pkg => `| \`${pkg.name}\` | \`${pkg.url}\` |`).join("\n")}
     )
   }
 
-  if (hasImages) {
-    sections.push(`<details>
-<summary>Images</summary>
+  const packageContent = hasPackages
+    ? `| Package | Preview URL |\n|---|---|\n${packages.map(pkg => `| \`${pkg.name}\` | \`${pkg.url}\` |`).join("\n")}`
+    : "Not affected."
+  const imageContent = hasImages
+    ? `| Image | Reference |\n|---|---|\n${Object.entries(images).map(([name, image]) => `| \`${name}\` | \`${image}\` |`).join("\n")}`
+    : "Not affected."
 
-| Image | Reference |
-|---|---|
-${Object.entries(images).map(([name, image]) => `| \`${name}\` | \`${image}\` |`).join("\n")}
+  sections.push(`<details>
+<summary>Packages</summary>
+
+${packageContent}
 
 </details>`)
-  }
+  sections.push(`<details>
+<summary>Images</summary>
+
+${imageContent}
+
+</details>`)
 
   sections.push(`<!-- highstate-pr-preview\n${JSON.stringify(descriptor)}\n-->`)
   return sections.join("\n\n")
