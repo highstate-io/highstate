@@ -7,6 +7,8 @@ const { title, subtitle } = defineProps<{
 }>()
 
 const visible = defineModel<boolean>("visible", { default: false })
+// Preserve the menu and its closing transition after first use without allocating an idle overlay per node.
+const hasOpened = ref(visible.value)
 const menuX = ref(0)
 const menuY = ref(0)
 
@@ -17,6 +19,7 @@ const showContextMenu = async (event: MouseEvent) => {
   visible.value = false
   menuX.value = event.clientX
   menuY.value = event.clientY
+  hasOpened.value = true
 
   await nextTick()
   visible.value = true
@@ -28,6 +31,8 @@ watch(
     if (!isVisible) {
       return
     }
+
+    hasOpened.value = true
 
     const handleMouseEvent = (event: MouseEvent) => {
       const element = contextMenu.value?.$el as HTMLElement | undefined
@@ -52,7 +57,13 @@ defineExpose({ showContextMenu })
 </script>
 
 <template>
-  <VMenu v-model="visible" :target="[menuX, menuY]" location="end" :close-on-content-click="false">
+  <VMenu
+    v-if="hasOpened"
+    v-model="visible"
+    :target="[menuX, menuY]"
+    location="end"
+    :close-on-content-click="false"
+  >
     <VList ref="contextMenu" density="compact" variant="text" style="padding-bottom: 0">
       <slot name="header">
         <VListItem class="mb-2">

@@ -79,15 +79,6 @@ watch(
   { deep: true },
 )
 
-watch(
-  () => visible.value,
-  newVisible => {
-    if (newVisible) {
-      requestPlan()
-    }
-  },
-)
-
 const requestPlan = async () => {
   if (!visible.value) {
     return
@@ -112,6 +103,16 @@ const requestPlan = async () => {
     planLoading.value = false
   }
 }
+
+watch(
+  () => visible.value,
+  newVisible => {
+    if (newVisible) {
+      void requestPlan()
+    }
+  },
+  { immediate: true },
+)
 
 const phaseCounts = computed(() => {
   const updateInstances = new Set<string>()
