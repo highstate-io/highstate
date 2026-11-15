@@ -25,7 +25,7 @@ export const unlockMethodInputSchema = z.discriminatedUnion("type", [
     meta: unlockMethodMetaSchema.omit({ autoUnlock: true }),
     type: z.literal("passkey"),
     encryptedIdentity: z.string(),
-    passkeyIdentity: z.string(),
+    passkeyIdentity: z.string().optional(),
     recipient: z.string(),
   }),
 ])

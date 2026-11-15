@@ -99,21 +99,6 @@ export class ProjectUnlockService {
   }
 
   /**
-   * Returns portable passkey envelopes after checking access to the source project.
-   */
-  async getProjectPasskeys(context: BackendRequestContext, projectId: string) {
-    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
-    requireBackendPermission(context, "project.get", target)
-
-    const project = await this.database.backend.project.findUniqueOrThrow({
-      where: { id: projectId },
-      select: { unlockSuite: true },
-    })
-
-    return projectUnlockSuiteSchema.parse(project.unlockSuite).passkeys
-  }
-
-  /**
    * Checks whether this backend can read and write its system keyring.
    */
   async checkProjectKeyring(): Promise<{ available: boolean }> {

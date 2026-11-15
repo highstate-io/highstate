@@ -116,7 +116,7 @@ You can choose **Password**, **Passkey**, or **System keyring** when creating a 
 Every project keeps independent master keys and self-contained unlock metadata; there is no shared backend identity record that must accompany it.
 
 - **Password:** protects a project-specific AGE identity. Forgetting the password removes access through this method, while a weak or reused password exposes encrypted data to offline attacks.
-- **Passkey:** protects an AGE identity using WebAuthn. You can reuse the same passkey and AGE identity across projects by choosing **Reuse a passkey from another project**, selecting the source project and passkey, and authenticating it.
+- **Passkey:** protects a separate AGE identity for each method using WebAuthn PRF. Your authenticator offers your existing Highstate passkey for this domain; reuse it across projects without selecting a source project or registering it with a backend.
 - **System keyring:** uses a shared AGE unlock identity encrypted to a wrapping identity in the backend host's OS keyring. Each attached project stores its own copy of the encrypted unlock identity, just as password and passkey methods do. The wrapping identity and shared encrypted envelope are created once and reused. This is the keyring of the machine and OS account running the backend, not necessarily your browser's machine. It is separate from the identity used to encrypt the backend database.
 
 System keyring methods offer an **Automatically unlock on backend startup** checkbox during setup and when adding a method.
@@ -141,12 +141,13 @@ Do not assume a passkey is synchronized or backed up.
 ### Reusing Existing Passkeys
 
 Existing project-specific passkeys continue working without migration.
-To start sharing one, select it from a source project when creating a project or adding an unlock method.
-Highstate authenticates that passkey and copies its encrypted AGE identity into the destination project's unlock metadata.
-It does not generate a replacement identity, modify the source project, or delete existing methods.
+When adding a passkey method, authenticate your existing Highstate passkey in the browser prompt.
+Highstate encrypts a new AGE identity for the method without modifying any existing project or credential.
+If you have never enrolled a Highstate passkey on this domain, expand **First time using a Highstate passkey?** and complete setup once before continuing.
+Cancelled or unavailable authentication does not create a replacement credential.
 
 You can migrate other projects gradually: unlock each using a working method, add the chosen shared passkey, and verify it works before removing an old method.
-Passkeys from very old unlock suites without credential references are not offered for reuse; they can still unlock their original projects.
+Existing discoverable credentials can also protect new methods; non-discoverable legacy credentials continue to unlock their original projects through their stored references.
 Removing a project's method does not delete the passkey from your authenticator or revoke its use by other projects.
 
 ### Moving Projects Between Backends

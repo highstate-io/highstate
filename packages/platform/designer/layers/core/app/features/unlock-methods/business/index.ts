@@ -3,38 +3,7 @@ import type {
   UnlockMethodMeta,
   UnlockMethodType,
 } from "@highstate/backend/shared"
-import {
-  armor,
-  Decrypter,
-  Encrypter,
-  generateIdentity,
-  identityToRecipient,
-  webauthn,
-} from "age-encryption"
-
-export type ReusablePasskey = {
-  encryptedIdentity: string
-  passkeyIdentity: string
-}
-
-/**
- * Authenticates an existing passkey before copying its self-contained identity envelope.
- */
-export async function reusePasskeyUnlockMethod(
-  meta: UnlockMethodMeta,
-  passkey: ReusablePasskey,
-): Promise<UnlockMethodInput> {
-  const decrypter = new Decrypter()
-  decrypter.addIdentity(new webauthn.WebAuthnIdentity({ identity: passkey.passkeyIdentity }))
-  const identity = await decrypter.decrypt(armor.decode(passkey.encryptedIdentity), "text")
-
-  return {
-    type: "passkey",
-    meta,
-    ...passkey,
-    recipient: await identityToRecipient(identity),
-  }
-}
+import { armor, Encrypter, generateIdentity, identityToRecipient, webauthn } from "age-encryption"
 
 async function createUnlockMethod(meta: UnlockMethodMeta, encrypter: Encrypter) {
   const identity = await generateIdentity()
@@ -70,18 +39,13 @@ export async function createPasskeyUnlockMethod(
     throw new Error("Display name is required for passkey unlock method")
   }
 
-  const identity = await webauthn.createCredential({
-    keyName: `Highstate | ${meta.title}`,
-  })
-
   const encrypter = new Encrypter()
-  encrypter.addRecipient(new webauthn.WebAuthnRecipient({ identity }))
+  encrypter.addRecipient(new webauthn.WebAuthnRecipient())
   const unlockMethod = await createUnlockMethod(meta, encrypter)
 
   return {
     type: "passkey",
     ...unlockMethod,
-    passkeyIdentity: identity,
   }
 }
 
@@ -91,7 +55,6 @@ export type UnlockMethodFormData = {
   description: string
   password: string
   confirmPassword: string
-  existingPasskey?: ReusablePasskey
   autoUnlock?: boolean
 }
 
@@ -109,10 +72,6 @@ export function createUnlockMethodFromForm(
   }
 
   if (formData.type === "passkey") {
-    if (formData.existingPasskey) {
-      return reusePasskeyUnlockMethod(meta, formData.existingPasskey)
-    }
-
     return createPasskeyUnlockMethod(meta, project)
   }
 

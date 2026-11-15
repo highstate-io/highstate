@@ -55,7 +55,7 @@ const tryPassKeyUnlock = async () => {
       return
     }
 
-    if (passkeys.length === 0 && unlockSuite.value?.hasPasskey) {
+    if (unlockSuite.value?.hasPasskey) {
       const decrypter = new Decrypter()
       decrypter.addIdentity(new webauthn.WebAuthnIdentity())
 

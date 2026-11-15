@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { UnlockMethodType } from "@highstate/backend/shared"
-import type { ReusablePasskey } from "../business"
 import { randomBytes } from "@noble/hashes/utils.js"
+import { webauthn } from "age-encryption"
 import { secureMask } from "micro-key-producer/password.js"
 import { zxcvbn } from "zxcvbn-typescript"
 import { PasswordField } from "#layers/core/app/features/shared"
@@ -20,7 +20,6 @@ type UnlockMethodFormData = {
   description: string
   password: string
   confirmPassword: string
-  existingPasskey?: ReusablePasskey
   autoUnlock?: boolean
 }
 
@@ -59,12 +58,8 @@ const emit = defineEmits<Emits>()
 const valid = ref(false)
 const passwordVisible = ref(false)
 const { $client } = useNuxtApp()
-const projectsStore = useProjectsStore()
-const passkeyMode = ref<"new" | "existing">("new")
-const sourceProjectId = ref<string>()
-const passkeys = ref<ReusablePasskey[]>([])
-const selectedPasskey = ref<ReusablePasskey>()
-const loadingPasskeys = ref(false)
+const enrollingPasskey = ref(false)
+const passkeyEnrolled = ref(false)
 const passkeyError = ref<string>()
 const keyringAvailable = ref<boolean>()
 const checkingKeyring = ref(false)
@@ -82,39 +77,19 @@ const checkKeyring = async () => {
   }
 }
 
-watch(sourceProjectId, async (projectId, _old, onCleanup) => {
-  let active = true
-
-  onCleanup(() => {
-    active = false
-  })
-
-  selectedPasskey.value = undefined
-  passkeys.value = []
+const enrollPasskey = async () => {
+  enrollingPasskey.value = true
   passkeyError.value = undefined
-  loadingPasskeys.value = !!projectId
-
-  if (!projectId) {
-    return
-  }
 
   try {
-    const result = await $client.state.getProjectPasskeys.query({ projectId })
-
-    if (active) {
-      passkeys.value = result
-      selectedPasskey.value = result[0]
-    }
+    await webauthn.createCredential({ keyName: "Highstate" })
+    passkeyEnrolled.value = true
   } catch {
-    if (active) {
-      passkeyError.value = "Could not load passkeys from this project."
-    }
+    passkeyError.value = "Passkey setup was cancelled or unavailable. No unlock method was added."
   } finally {
-    if (active) {
-      loadingPasskeys.value = false
-    }
+    enrollingPasskey.value = false
   }
-})
+}
 
 const form = reactive<UnlockMethodFormData>({
   type: props.initialType,
@@ -125,11 +100,7 @@ const form = reactive<UnlockMethodFormData>({
 })
 
 const methodValid = computed(
-  () =>
-    valid.value &&
-    (form.type === "keyring"
-      ? keyringAvailable.value === true
-      : form.type !== "passkey" || passkeyMode.value === "new" || !!selectedPasskey.value),
+  () => valid.value && (form.type !== "keyring" || keyringAvailable.value === true),
 )
 
 watch(
@@ -141,10 +112,6 @@ watch(
   },
   { immediate: true },
 )
-
-watch([passkeyMode, selectedPasskey], () => {
-  form.existingPasskey = passkeyMode.value === "existing" ? selectedPasskey.value : undefined
-})
 
 const displayNameRules = computed(() => {
   if (!props.showDisplayName) {
@@ -237,10 +204,8 @@ const resetForm = () => {
   form.password = ""
   form.confirmPassword = ""
   passwordVisible.value = false
-  passkeyMode.value = "new"
-  sourceProjectId.value = undefined
-  selectedPasskey.value = undefined
-  form.existingPasskey = undefined
+  passkeyError.value = undefined
+  passkeyEnrolled.value = false
   form.autoUnlock = false
   keyringAvailable.value = undefined
 }
@@ -397,42 +362,23 @@ defineExpose({
     </template>
 
     <template v-else-if="form.type === 'passkey'">
-      <VSelect
-        v-model="passkeyMode"
-        :items="[{ title: 'Create a new passkey', value: 'new' }, { title: 'Reuse a passkey from another project', value: 'existing' }]"
-        label="Passkey"
-        variant="outlined"
-        density="compact"
-        class="mb-4"
-      />
-      <template v-if="passkeyMode === 'existing'">
-        <VSelect
-          v-model="sourceProjectId"
-          :items="projectsStore.projects"
-          item-title="name"
-          item-value="id"
-          label="Source project"
-          variant="outlined"
-          density="compact"
-          class="mb-4"
-        />
-        <VSelect
-          v-model="selectedPasskey"
-          :items="passkeys.map((passkey, index) => ({ title: `Passkey ${index + 1}`, value: passkey }))"
-          :loading="loadingPasskeys"
-          label="Existing passkey"
-          variant="outlined"
-          density="compact"
-          class="mb-4"
-          no-data-text="No reusable passkey references. Existing methods still work; add a shared passkey after unlocking."
-        />
-        <VAlert v-if="passkeyError" type="error" density="compact" class="mb-4"
-          >{{ passkeyError }}</VAlert
-        >
-      </template>
       <VAlert type="info" density="compact" class="mb-4">
-        {{ passkeyMode === 'new' ? "You'll be prompted to create a passkey." : "You'll be prompted to authenticate the existing passkey. Its identity will be reused without changing the source project." }}
+        You'll be prompted to use your existing Highstate passkey. Use the same passkey for all
+        projects on this domain; no source project is needed.
       </VAlert>
+      <details v-if="!passkeyEnrolled" class="mb-4">
+        <summary>First time using a Highstate passkey?</summary>
+        <p class="my-2">Set up your passkey once, then reuse it for every project.</p>
+        <VBtn :loading="enrollingPasskey" variant="tonal" @click="enrollPasskey"
+          >Set up Highstate passkey</VBtn
+        >
+      </details>
+      <VAlert v-if="passkeyEnrolled" type="success" density="compact" class="mb-4"
+        >Passkey ready. Continue to attach it to this project.</VAlert
+      >
+      <VAlert v-if="passkeyError" type="error" density="compact" class="mb-4"
+        >{{ passkeyError }}</VAlert
+      >
     </template>
 
     <template v-else-if="form.type === 'keyring'">

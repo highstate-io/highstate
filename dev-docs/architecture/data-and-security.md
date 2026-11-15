@@ -27,8 +27,9 @@ Locking the project or stopping the backend removes access to the process-local 
 it.
 
 Project unlock metadata is self-contained rather than referencing a backend-level identity registry.
-Projects may explicitly reuse a passkey's or system keyring's encrypted AGE unlock identity
-without sharing project master keys or granting access to other projects automatically.
+Projects reuse a discoverable WebAuthn credential without a backend credential registry or source-project lookup.
+Each new passkey method encrypts its own AGE identity using that credential's PRF extension.
+System keyring methods reuse an encrypted AGE unlock identity without sharing project master keys.
 New unlock methods carry encrypted AGE identity envelopes with each project.
 System-keyring wrapping secrets remain outside project storage; a keyring copy of the shared encrypted envelope
 allows new projects to reuse the unlock identity without an existing project's metadata.
