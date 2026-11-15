@@ -698,6 +698,9 @@ export type RuntimeActionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type $RuntimeActionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RuntimeAction"
   objects: {
+    /**
+     * The workload that owns the agent connection and action lifecycle.
+     */
     workload: Prisma.$RuntimeWorkloadPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -705,18 +708,45 @@ export type $RuntimeActionPayload<ExtArgs extends runtime.Types.Extensions.Inter
      * The globally unique action ID carried by runtime protocol envelopes.
      */
     id: string
+    /**
+     * The logical workload whose agent executes this action.
+     */
     workloadId: string
+    /**
+     * The protocol action and domain event handler used for dispatch.
+     */
     kind: $Enums.RuntimeActionKind
     /**
      * The project snapshot loaded for this action, when applicable.
      */
     snapshotId: string | null
+    /**
+     * The current dispatch and termination state.
+     */
     status: $Enums.RuntimeActionStatus
+    /**
+     * The time cancellation was first requested; also fences dispatch of pending actions.
+     */
     cancellationRequestedAt: Date | null
+    /**
+     * The time dispatch to the agent was recorded.
+     */
     startedAt: Date | null
+    /**
+     * The time a terminal action state was recorded.
+     */
     finishedAt: Date | null
+    /**
+     * The latest dispatch, execution or interruption error.
+     */
     lastError: string | null
+    /**
+     * The time the action was registered.
+     */
     createdAt: Date
+    /**
+     * The time its persisted state was last changed.
+     */
     updatedAt: Date
   }, ExtArgs["result"]["runtimeAction"]>
   composites: {}

@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model Project
- * 
+ * Backend-managed project configuration, placement and encrypted key material.
  */
 export type ProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$ProjectPayload>
 

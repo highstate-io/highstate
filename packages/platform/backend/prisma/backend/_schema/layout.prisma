@@ -1,3 +1,4 @@
+/// A user's saved frontend layout for the backend workspace.
 model UserWorkspaceLayout {
     /// The ID of the user to which this layout belongs.
     userId String @id

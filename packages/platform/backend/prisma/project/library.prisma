@@ -85,10 +85,16 @@ model LibrarySnapshot {
 
 /// Identifies exact snapshot membership referenced by deployed and operation provenance.
 model LibrarySnapshotVersion {
+    /// The snapshot containing this exact direct package version.
     snapshotId String
+
+    /// The cached package version included in the snapshot.
     libraryPackageVersionId String
 
+    /// The immutable environment that includes this package version.
     snapshot LibrarySnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+    /// The exact evaluated package version included in this environment.
     libraryPackageVersion LibraryPackageVersion @relation(fields: [libraryPackageVersionId], references: [id])
 
     /// Instance states deployed with this exact snapshot membership.
@@ -103,6 +109,7 @@ model LibrarySnapshotVersion {
 
 /// Singleton state identifying the project's desired packaged library snapshot.
 model ProjectLibraryState {
+    /// The singleton identity; always "default" within a project database.
     id String @id @default("default")
 
     /// Exact package selections, unique and sorted by packageName, including unresolved initial configuration.
@@ -113,9 +120,15 @@ model ProjectLibraryState {
     /// Whether the exact initial selection (including an intentionally empty list) has been recorded.
     selectionInitialized Boolean @default(false)
 
+    /// The resolved snapshot selected for subsequent evaluations and operations, when available.
     desiredSnapshotId String?
+
+    /// Whether local development sources may overlay the packaged library.
     localOverlayEnabled Boolean @default(true)
+
+    /// The time the project's library selection or overlay policy was last changed.
     updatedAt DateTime @updatedAt
 
+    /// The desired immutable packaged library environment.
     desiredSnapshot LibrarySnapshot? @relation(fields: [desiredSnapshotId], references: [id])
 }

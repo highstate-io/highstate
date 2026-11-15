@@ -33,6 +33,7 @@ model Worker {
     versions WorkerVersion[]
 }
 
+/// The observed execution state of a deployed worker image version.
 enum WorkerVersionStatus {
     /// The status is unknown.
     unknown

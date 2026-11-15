@@ -46,12 +46,12 @@ export { Prisma }
 export type BackendApiKey = Prisma.BackendApiKeyModel
 /**
  * Model ProjectImportPort
- * 
+ * Encrypted instance export content imported from another project.
  */
 export type ProjectImportPort = Prisma.ProjectImportPortModel
 /**
  * Model UserWorkspaceLayout
- * 
+ * A user's saved frontend layout for the backend workspace.
  */
 export type UserWorkspaceLayout = Prisma.UserWorkspaceLayoutModel
 /**
@@ -70,17 +70,17 @@ export type LibrarySnapshotImage = Prisma.LibrarySnapshotImageModel
 export type Object = Prisma.ObjectModel
 /**
  * Model Project
- * 
+ * Backend-managed project configuration, placement and encrypted key material.
  */
 export type Project = Prisma.ProjectModel
 /**
  * Model ProjectSpace
- * 
+ * A namespace grouping projects and their backend authorization scope.
  */
 export type ProjectSpace = Prisma.ProjectSpaceModel
 /**
  * Model ProjectModelStorage
- * 
+ * A reusable storage configuration for project models.
  */
 export type ProjectModelStorage = Prisma.ProjectModelStorageModel
 /**

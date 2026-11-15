@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { fingerprintFiles } from "./cache"
+import { checkPrismaSchemas } from "./prisma"
 import { sourceRoot } from "./source-root"
 
 const fix = process.argv.includes("--fix")
@@ -73,7 +74,7 @@ async function typedCheck(): Promise<boolean> {
 }
 
 const results = fix
-  ? [await syntaxCheck(), await typedCheck()]
-  : await Promise.all([syntaxCheck(), typedCheck()])
+  ? [await checkPrismaSchemas(true), await syntaxCheck(), await typedCheck()]
+  : await Promise.all([checkPrismaSchemas(), syntaxCheck(), typedCheck()])
 
 process.exitCode = results.every(Boolean) ? 0 : 1

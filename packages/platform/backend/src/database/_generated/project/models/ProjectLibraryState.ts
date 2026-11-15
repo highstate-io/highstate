@@ -517,9 +517,15 @@ export type ProjectLibraryStateIncludeUpdateManyAndReturn<ExtArgs extends runtim
 export type $ProjectLibraryStatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProjectLibraryState"
   objects: {
+    /**
+     * The desired immutable packaged library environment.
+     */
     desiredSnapshot: Prisma.$LibrarySnapshotPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    /**
+     * The singleton identity; always "default" within a project database.
+     */
     id: string
     /**
      * Exact package selections, unique and sorted by packageName, including unresolved initial configuration.
@@ -531,8 +537,17 @@ export type $ProjectLibraryStatePayload<ExtArgs extends runtime.Types.Extensions
      * Whether the exact initial selection (including an intentionally empty list) has been recorded.
      */
     selectionInitialized: boolean
+    /**
+     * The resolved snapshot selected for subsequent evaluations and operations, when available.
+     */
     desiredSnapshotId: string | null
+    /**
+     * Whether local development sources may overlay the packaged library.
+     */
     localOverlayEnabled: boolean
+    /**
+     * The time the project's library selection or overlay policy was last changed.
+     */
     updatedAt: Date
   }, ExtArgs["result"]["projectLibraryState"]>
   composites: {}

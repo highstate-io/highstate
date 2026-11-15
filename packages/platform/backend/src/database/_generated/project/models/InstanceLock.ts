@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model InstanceLock
- * 
+ * A persisted lock preventing concurrent operations from executing the same instance.
  */
 export type InstanceLockModel = runtime.Types.Result.DefaultSelection<Prisma.$InstanceLockPayload>
 

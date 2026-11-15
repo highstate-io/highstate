@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model InstanceState
- * 
+ * The persistent deployment state and last successful provenance of an instance.
  */
 export type InstanceStateModel = runtime.Types.Result.DefaultSelection<Prisma.$InstanceStatePayload>
 

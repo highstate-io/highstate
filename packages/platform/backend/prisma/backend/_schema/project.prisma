@@ -1,3 +1,4 @@
+/// Backend-managed project configuration, placement and encrypted key material.
 model Project {
     /// The CUIDv2 of the project.
     id String @id @default(cuid(2))
@@ -82,6 +83,7 @@ model Project {
     @@unique([spaceId, name])
 }
 
+/// A namespace grouping projects and their backend authorization scope.
 model ProjectSpace {
     /// The CUIDv2 of the project space.
     id String @id @default(cuid(2))
@@ -111,6 +113,7 @@ model ProjectSpace {
     @@unique([parentId, name])
 }
 
+/// A reusable storage configuration for project models.
 model ProjectModelStorage {
     /// The CUIDv2 of the project model storage.
     id String @id @default(cuid(2))

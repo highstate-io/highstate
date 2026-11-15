@@ -36,11 +36,19 @@ model BackendRole {
 
 /// A user role binding grants a backend role to a user.
 model UserBackendRoleBinding {
+  /// The ID of the backend role being granted.
   roleId String
+
+  /// The ID of the user receiving the role.
   userId String
+
+  /// The time when the role was granted to the user.
   createdAt DateTime @default(now())
 
+  /// The granted backend role.
   role BackendRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  /// The user receiving the backend role.
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([roleId, userId])
@@ -49,11 +57,19 @@ model UserBackendRoleBinding {
 
 /// A user group role binding grants a backend role to a group.
 model UserGroupBackendRoleBinding {
+  /// The ID of the backend role being granted.
   roleId String
+
+  /// The ID of the user group receiving the role.
   groupId String
+
+  /// The time when the role was granted to the group.
   createdAt DateTime @default(now())
 
+  /// The granted backend role.
   role BackendRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  /// The user group receiving the backend role.
   group UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@id([roleId, groupId])

@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model EntitySnapshotReference
- * 
+ * A directed, grouped relationship between two entity snapshots.
  */
 export type EntitySnapshotReferenceModel = runtime.Types.Result.DefaultSelection<Prisma.$EntitySnapshotReferencePayload>
 

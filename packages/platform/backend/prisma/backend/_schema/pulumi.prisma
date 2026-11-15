@@ -16,6 +16,7 @@ model PulumiStateBackend {
     /// [PulumiStateBackendSpec]
     spec Json
 
+    /// An opaque CUIDv2 token used only for optimistic concurrency.
     revision String @default(cuid(2))
 
     /// The time when the state backend was created.

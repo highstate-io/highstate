@@ -1,3 +1,4 @@
+/// A user's saved viewport for the project's instance graph.
 model UserProjectViewport {
     /// The ID of the user to which this viewport belongs.
     userId String @id
@@ -11,6 +12,7 @@ model UserProjectViewport {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+/// A user's saved viewport for one composite instance's generated graph.
 model UserCompositeViewport {
     /// The ID of the user to which this viewport belongs.
     userId String

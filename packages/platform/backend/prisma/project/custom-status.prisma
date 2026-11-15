@@ -1,3 +1,4 @@
+/// A named custom status attached to an instance by a service account.
 model InstanceCustomStatus {
     /// The ID of the instance state this status belongs to.
     stateId String

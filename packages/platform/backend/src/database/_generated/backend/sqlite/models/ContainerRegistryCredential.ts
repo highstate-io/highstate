@@ -592,6 +592,9 @@ export type $ContainerRegistryCredentialPayload<ExtArgs extends runtime.Types.Ex
      * The encrypted registry authentication material.
      */
     encryptedCredentials: string
+    /**
+     * An opaque CUIDv2 token used only for optimistic concurrency.
+     */
     revision: string
     /**
      * The time when the credential was created.

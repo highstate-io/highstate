@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model InstanceOperationState
- * 
+ * The execution result and provenance of one instance in an operation.
  */
 export type InstanceOperationStateModel = runtime.Types.Result.DefaultSelection<Prisma.$InstanceOperationStatePayload>
 

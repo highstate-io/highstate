@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model ProjectImportPort
- * 
+ * Encrypted instance export content imported from another project.
  */
 export type ProjectImportPortModel = runtime.Types.Result.DefaultSelection<Prisma.$ProjectImportPortPayload>
 

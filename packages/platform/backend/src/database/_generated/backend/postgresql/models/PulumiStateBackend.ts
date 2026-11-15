@@ -531,6 +531,9 @@ export type $PulumiStateBackendPayload<ExtArgs extends runtime.Types.Extensions.
      * [PulumiStateBackendSpec]
      */
     spec:PrismaJson.PulumiStateBackendSpec
+    /**
+     * An opaque CUIDv2 token used only for optimistic concurrency.
+     */
     revision: string
     /**
      * The time when the state backend was created.

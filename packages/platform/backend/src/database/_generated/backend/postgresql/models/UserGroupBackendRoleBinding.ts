@@ -537,12 +537,27 @@ export type UserGroupBackendRoleBindingIncludeUpdateManyAndReturn<ExtArgs extend
 export type $UserGroupBackendRoleBindingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserGroupBackendRoleBinding"
   objects: {
+    /**
+     * The granted backend role.
+     */
     role: Prisma.$BackendRolePayload<ExtArgs>
+    /**
+     * The user group receiving the backend role.
+     */
     group: Prisma.$UserGroupPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    /**
+     * The ID of the backend role being granted.
+     */
     roleId: string
+    /**
+     * The ID of the user group receiving the role.
+     */
     groupId: string
+    /**
+     * The time when the role was granted to the group.
+     */
     createdAt: Date
   }, ExtArgs["result"]["userGroupBackendRoleBinding"]>
   composites: {}

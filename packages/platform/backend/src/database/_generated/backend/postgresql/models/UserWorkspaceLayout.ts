@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model UserWorkspaceLayout
- * 
+ * A user's saved frontend layout for the backend workspace.
  */
 export type UserWorkspaceLayoutModel = runtime.Types.Result.DefaultSelection<Prisma.$UserWorkspaceLayoutPayload>
 

@@ -1350,9 +1350,21 @@ export type RuntimeWorkloadIncludeUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type $RuntimeWorkloadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RuntimeWorkload"
   objects: {
+    /**
+     * The runtime used to place this workload.
+     */
     runtime: Prisma.$ContainerRuntimePayload<ExtArgs>
+    /**
+     * The project that owns this workload.
+     */
     project: Prisma.$ProjectPayload<ExtArgs>
+    /**
+     * Independently cancellable actions executed by this workload.
+     */
     actions: Prisma.$RuntimeActionPayload<ExtArgs>[]
+    /**
+     * The snapshot image whose current build attempt uses this workload, if any.
+     */
     currentImageBuild: Prisma.$LibrarySnapshotImagePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1360,8 +1372,17 @@ export type $RuntimeWorkloadPayload<ExtArgs extends runtime.Types.Extensions.Int
      * The CUIDv2 used as the workload ownership label and credential subject.
      */
     id: string
+    /**
+     * The runtime responsible for placing and inspecting this workload.
+     */
     runtimeId: string
+    /**
+     * The project that owns the workload and its credentials.
+     */
     projectId: string
+    /**
+     * The domain purpose used to route workload events and reconciliation.
+     */
     kind: $Enums.RuntimeWorkloadKind
     /**
      * The domain object that owns the workload, such as an operation, terminal, worker version, or image build.
@@ -1371,17 +1392,41 @@ export type $RuntimeWorkloadPayload<ExtArgs extends runtime.Types.Extensions.Int
      * The runtime-native root resource handle used for inspection and reconciliation.
      */
     nativeResourceId: string | null
+    /**
+     * The lifecycle target requested by the backend.
+     */
     desiredState: $Enums.RuntimeWorkloadDesiredState
+    /**
+     * The last lifecycle state observed by the backend.
+     */
     status: $Enums.RuntimeWorkloadStatus
     /**
      * Incremented whenever a new connection is authorized for this logical workload.
      */
     leaseGeneration: number
+    /**
+     * The deadline after which the current workload lease is considered expired.
+     */
     leaseExpiresAt: Date | null
+    /**
+     * The time a terminal workload state was recorded.
+     */
     finishedAt: Date | null
+    /**
+     * The time removal of native workload resources was confirmed.
+     */
     cleanedUpAt: Date | null
+    /**
+     * The latest placement, execution or reconciliation failure.
+     */
     lastError: string | null
+    /**
+     * The time the logical workload was registered.
+     */
     createdAt: Date
+    /**
+     * The time its persisted state was last changed.
+     */
     updatedAt: Date
   }, ExtArgs["result"]["runtimeWorkload"]>
   composites: {}

@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model UserCompositeViewport
- * 
+ * A user's saved viewport for one composite instance's generated graph.
  */
 export type UserCompositeViewportModel = runtime.Types.Result.DefaultSelection<Prisma.$UserCompositeViewportPayload>
 

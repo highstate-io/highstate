@@ -1,9 +1,12 @@
+/// The current state or cached result of composite instance evaluation.
 enum InstanceEvaluationStatus {
-    /// transient statuses (not persisted in the database)
+    /// Evaluation is in progress; this transient state is not persisted.
     evaluating
 
-    /// stable statuses
+    /// Evaluation completed successfully and its result is cached.
     evaluated
+
+    /// Evaluation failed; the associated message describes the failure.
     error
 }
 

@@ -688,7 +688,13 @@ export type LibrarySnapshotVersionIncludeUpdateManyAndReturn<ExtArgs extends run
 export type $LibrarySnapshotVersionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LibrarySnapshotVersion"
   objects: {
+    /**
+     * The immutable environment that includes this package version.
+     */
     snapshot: Prisma.$LibrarySnapshotPayload<ExtArgs>
+    /**
+     * The exact evaluated package version included in this environment.
+     */
     libraryPackageVersion: Prisma.$LibraryPackageVersionPayload<ExtArgs>
     /**
      * Instance states deployed with this exact snapshot membership.
@@ -700,7 +706,13 @@ export type $LibrarySnapshotVersionPayload<ExtArgs extends runtime.Types.Extensi
     operationStates: Prisma.$InstanceOperationStatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    /**
+     * The snapshot containing this exact direct package version.
+     */
     snapshotId: string
+    /**
+     * The cached package version included in the snapshot.
+     */
     libraryPackageVersionId: string
   }, ExtArgs["result"]["librarySnapshotVersion"]>
   composites: {}

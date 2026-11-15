@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace.ts"
 
 /**
  * Model Operation
- * 
+ * A project operation and its captured planning context.
  */
 export type OperationModel = runtime.Types.Result.DefaultSelection<Prisma.$OperationPayload>
 

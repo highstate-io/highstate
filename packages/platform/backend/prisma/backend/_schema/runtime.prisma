@@ -41,44 +41,96 @@ model ContainerRuntime {
     workloads RuntimeWorkload[]
 }
 
+/// The domain purpose of a logical runtime workload.
 enum RuntimeWorkloadKind {
+    /// Executes Pulumi actions against an instance's stack.
     pulumi
+
+    /// Evaluates composite instances against a captured project model and library snapshot.
     composite_evaluation
+
+    /// Materializes a library snapshot as a container image.
     library_build
+
+    /// Runs an auxiliary service requested by a Pulumi action.
     sidecar
+
+    /// Runs a deployed worker version.
     worker
+
+    /// Hosts an interactive terminal session.
     terminal
 }
 
+/// The backend's last observed lifecycle state of a logical workload.
 enum RuntimeWorkloadStatus {
+    /// Recorded but not yet placed on the runtime.
     pending
+
+    /// Placement has started but the workload is not yet ready.
     starting
+
+    /// The workload has started or established its authenticated agent connection.
     running
+
+    /// Termination has been requested and is not yet confirmed.
     stopping
+
+    /// The workload finished successfully.
     completed
+
+    /// Placement or execution failed.
     failed
+
+    /// The workload was terminated in response to cancellation.
     cancelled
+
+    /// The workload can no longer be reached or found on its runtime.
     lost
 }
 
+/// The lifecycle target requested by the backend, independent of observed runtime state.
 enum RuntimeWorkloadDesiredState {
+    /// Keep the workload available for execution.
     running
+
+    /// Stop the workload without requesting removal of its native resources.
     stopped
+
+    /// Remove the workload's native resources and record completed cleanup.
     deleted
 }
 
+/// The protocol action dispatched to an authenticated runtime agent.
 enum RuntimeActionKind {
+    /// Executes a Pulumi stack action.
     pulumi
+
+    /// Evaluates a composite instance model.
     composite_evaluation
 }
 
+/// The dispatch, cancellation and completion state of one runtime action.
 enum RuntimeActionStatus {
+    /// Created but not yet dispatched to an agent.
     pending
+
+    /// Dispatched to the agent and awaiting a terminal result.
     running
+
+    /// Cancellation was requested and the action has not yet terminated.
     cancelling
+
+    /// The agent reported successful completion.
     completed
+
+    /// Dispatch or execution failed.
     failed
+
+    /// The action terminated after cancellation was requested.
     cancelled
+
+    /// The owning connection or workload was lost before a terminal result was accepted.
     interrupted
 }
 
@@ -89,8 +141,13 @@ model RuntimeWorkload {
     /// The CUIDv2 used as the workload ownership label and credential subject.
     id String @id @default(cuid(2))
 
+    /// The runtime responsible for placing and inspecting this workload.
     runtimeId String
+
+    /// The project that owns the workload and its credentials.
     projectId String
+
+    /// The domain purpose used to route workload events and reconciliation.
     kind RuntimeWorkloadKind
 
     /// The domain object that owns the workload, such as an operation, terminal, worker version, or image build.
@@ -99,21 +156,43 @@ model RuntimeWorkload {
     /// The runtime-native root resource handle used for inspection and reconciliation.
     nativeResourceId String?
 
+    /// The lifecycle target requested by the backend.
     desiredState RuntimeWorkloadDesiredState @default(running)
+
+    /// The last lifecycle state observed by the backend.
     status RuntimeWorkloadStatus @default(pending)
 
     /// Incremented whenever a new connection is authorized for this logical workload.
     leaseGeneration Int @default(1)
+
+    /// The deadline after which the current workload lease is considered expired.
     leaseExpiresAt DateTime?
+
+    /// The time a terminal workload state was recorded.
     finishedAt DateTime?
+
+    /// The time removal of native workload resources was confirmed.
     cleanedUpAt DateTime?
+
+    /// The latest placement, execution or reconciliation failure.
     lastError String?
+
+    /// The time the logical workload was registered.
     createdAt DateTime @default(now())
+
+    /// The time its persisted state was last changed.
     updatedAt DateTime @updatedAt
 
+    /// The runtime used to place this workload.
     runtime ContainerRuntime @relation(fields: [runtimeId], references: [id], onDelete: Restrict)
+
+    /// The project that owns this workload.
     project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+
+    /// Independently cancellable actions executed by this workload.
     actions RuntimeAction[]
+
+    /// The snapshot image whose current build attempt uses this workload, if any.
     currentImageBuild LibrarySnapshotImage?
 
     @@unique([runtimeId, nativeResourceId])
@@ -128,20 +207,37 @@ model RuntimeAction {
     /// The globally unique action ID carried by runtime protocol envelopes.
     id String @id @default(cuid(2))
 
+    /// The logical workload whose agent executes this action.
     workloadId String
+
+    /// The protocol action and domain event handler used for dispatch.
     kind RuntimeActionKind
 
     /// The project snapshot loaded for this action, when applicable.
     snapshotId String?
 
+    /// The current dispatch and termination state.
     status RuntimeActionStatus @default(pending)
+
+    /// The time cancellation was first requested; also fences dispatch of pending actions.
     cancellationRequestedAt DateTime?
+
+    /// The time dispatch to the agent was recorded.
     startedAt DateTime?
+
+    /// The time a terminal action state was recorded.
     finishedAt DateTime?
+
+    /// The latest dispatch, execution or interruption error.
     lastError String?
+
+    /// The time the action was registered.
     createdAt DateTime @default(now())
+
+    /// The time its persisted state was last changed.
     updatedAt DateTime @updatedAt
 
+    /// The workload that owns the agent connection and action lifecycle.
     workload RuntimeWorkload @relation(fields: [workloadId], references: [id], onDelete: Cascade)
 
     @@index([workloadId, status])

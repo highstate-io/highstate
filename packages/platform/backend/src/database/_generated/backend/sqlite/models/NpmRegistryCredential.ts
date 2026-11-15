@@ -628,6 +628,9 @@ export type $NpmRegistryCredentialPayload<ExtArgs extends runtime.Types.Extensio
      * The encrypted registry authentication material.
      */
     encryptedCredentials: string
+    /**
+     * An opaque CUIDv2 token used only for optimistic concurrency.
+     */
     revision: string
     /**
      * The time when the credential was created.

@@ -535,12 +535,27 @@ export type UserBackendRoleBindingIncludeUpdateManyAndReturn<ExtArgs extends run
 export type $UserBackendRoleBindingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserBackendRoleBinding"
   objects: {
+    /**
+     * The granted backend role.
+     */
     role: Prisma.$BackendRolePayload<ExtArgs>
+    /**
+     * The user receiving the backend role.
+     */
     user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    /**
+     * The ID of the backend role being granted.
+     */
     roleId: string
+    /**
+     * The ID of the user receiving the role.
+     */
     userId: string
+    /**
+     * The time when the role was granted to the user.
+     */
     createdAt: Date
   }, ExtArgs["result"]["userBackendRoleBinding"]>
   composites: {}

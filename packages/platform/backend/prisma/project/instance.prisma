@@ -1,3 +1,4 @@
+/// The deployment lifecycle of an instance, independent of its latest operation result.
 enum InstanceStatus {
     /// The instance is exists in the model (resident or virtual), but not yet deployed or was completely destroyed.
     ///
@@ -26,6 +27,7 @@ enum InstanceStatus {
     failed
 }
 
+/// Whether an instance is explicitly modeled or produced by composite evaluation.
 enum InstanceSource {
     /// The instance is defined in the project model.
     resident
@@ -34,6 +36,7 @@ enum InstanceSource {
     virtual
 }
 
+/// The persistent deployment state and last successful provenance of an instance.
 model InstanceState {
     /// The surrogate CUIDv2 primary key of the instance to allow renaming instances.
     id String @id @default(cuid(2))

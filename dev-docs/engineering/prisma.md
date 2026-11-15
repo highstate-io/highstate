@@ -8,6 +8,11 @@ Run migration commands from `packages/platform/backend`.
 Use Prisma's implicit many-to-many relations when the relationship has no fields of its own.
 Create an explicit join model only when the relationship stores domain data or has its own identity.
 
+Document every model field and enum value with a nonempty `///` description. Type annotations alone do
+not replace a description. Separate each field or enum value, including its documentation block, from
+the preceding entry with a blank line. `bun run lint` checks these rules; `bun run lint:fix` adds missing
+spacing but never invents documentation.
+
 ## Project Database
 
 Reset the temporary migration database before generating a project database migration:
