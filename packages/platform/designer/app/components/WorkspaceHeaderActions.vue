@@ -109,6 +109,7 @@ watch(
               <div class="text-body-2 text-medium-emphasis">{{ account.username }}</div>
             </div>
           </div>
+          <VDivider class="mb-4" />
           <VList bg-color="transparent" density="compact" class="pa-0">
             <VListItem class="px-0" v-if="account.email" title="Email" :subtitle="account.email" />
             <VListItem
