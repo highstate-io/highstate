@@ -111,10 +111,14 @@ describe("createPasskeyUnlockMethod", () => {
     expect(mocks.createCredential).not.toHaveBeenCalled()
   })
 
-  test("keyring creation delegates secret generation to the backend", async () => {
+  test.each([
+    false,
+    true,
+  ])("keyring creation delegates secrets and preserves startup preference %s", async autoUnlock => {
     const method = await createUnlockMethodFromForm(
       {
         type: "keyring",
+        autoUnlock,
         title: "Server",
         description: "",
         password: "",
@@ -123,7 +127,11 @@ describe("createPasskeyUnlockMethod", () => {
       { id: "project", name: "project" },
     )
 
-    expect(method).toEqual({ type: "keyring", meta: { title: "Server", description: "" } })
+    expect(method).toEqual({
+      type: "keyring",
+      meta: { title: "Server", description: "", autoUnlock },
+    })
+
     expect(mocks.createCredential).not.toHaveBeenCalled()
   })
 })

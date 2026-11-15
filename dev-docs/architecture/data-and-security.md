@@ -27,11 +27,17 @@ Locking the project or stopping the backend removes access to the process-local 
 it.
 
 Project unlock metadata is self-contained rather than referencing a backend-level identity registry.
-Projects may explicitly reuse a passkey's encrypted AGE identity or the backend host's system-keyring identity
+Projects may explicitly reuse a passkey's or system keyring's encrypted AGE unlock identity
 without sharing project master keys or granting access to other projects automatically.
-Passkey envelopes travel with each project; keyring secrets remain outside project storage.
+New unlock methods carry encrypted AGE identity envelopes with each project.
+System-keyring wrapping secrets remain outside project storage; a keyring copy of the shared encrypted envelope
+allows new projects to reuse the unlock identity without an existing project's metadata.
 Transferring project data does not transfer access to an OS keyring or change a passkey's WebAuthn relying party.
 The project unlock service and its shared models own identity preparation and unlock-suite compatibility.
+Startup keyring unlocking is an explicit per-method opt-in persisted with the project's unlock metadata.
+Sharing an unlock identity does not propagate that opt-in to other projects.
+Project keyring access runs in a short-lived native helper process to isolate native keyring failures from
+the Designer runtime; secrets cross that process boundary only through private standard streams.
 
 Public API authorization for project resources depends on project data and therefore requires the project to
 be unlocked.

@@ -92,6 +92,7 @@ export type UnlockMethodFormData = {
   password: string
   confirmPassword: string
   existingPasskey?: ReusablePasskey
+  autoUnlock?: boolean
 }
 
 export function createUnlockMethodFromForm(
@@ -116,7 +117,10 @@ export function createUnlockMethodFromForm(
   }
 
   if (formData.type === "keyring") {
-    return Promise.resolve({ type: "keyring", meta })
+    return Promise.resolve({
+      type: "keyring",
+      meta: { ...meta, autoUnlock: formData.autoUnlock ?? false },
+    })
   }
 
   throw new Error(`Unsupported unlock method type: ${formData.type}`)

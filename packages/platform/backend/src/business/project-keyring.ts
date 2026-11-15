@@ -1,68 +1,109 @@
-import { randomUUID } from "node:crypto"
-import { AsyncEntry, findCredentialsAsync } from "@napi-rs/keyring"
-import { generateIdentity, identityToRecipient } from "age-encryption"
+import { armor, Decrypter, Encrypter, generateIdentity, identityToRecipient } from "age-encryption"
+import { ProjectKeyringStorage } from "./project-keyring-storage"
 
-const serviceName = "io.highstate.project-unlock"
 const accountName = "identity"
+const envelopeAccountName = "unlock-envelope"
+
+type KeyringUnlockEnvelope = { recipient: string; encryptedIdentity: string }
 
 /**
- * Stores one AGE identity for project unlocking in the backend host's OS keyring.
+ * Protects a shared unlock identity with an AGE wrapping identity in the host's OS keyring.
  */
 export class ProjectKeyring {
-  private creatingIdentity?: Promise<string>
+  constructor(
+    private readonly storage: Pick<
+      ProjectKeyringStorage,
+      "read" | "write" | "probe"
+    > = new ProjectKeyringStorage(),
+  ) {}
+
+  private creatingEnvelope?: Promise<KeyringUnlockEnvelope>
 
   /**
    * Checks read/write access without creating or replacing the shared identity.
    */
   async checkAvailable(): Promise<void> {
-    const entry = new AsyncEntry(serviceName, `probe:${randomUUID()}`)
-    const value = randomUUID()
-    let created = false
+    await this.storage.probe()
+  }
+
+  /**
+   * Returns the shared encrypted unlock identity, creating it only when none exists.
+   */
+  async getOrCreateEnvelope(): Promise<KeyringUnlockEnvelope> {
+    this.creatingEnvelope ??= this.createOrReadEnvelope()
 
     try {
-      await entry.setPassword(value)
-      created = true
-
-      if ((await entry.getPassword()) !== value) {
-        throw new Error("System keyring did not return the stored value")
-      }
+      return await this.creatingEnvelope
+    } catch (error) {
+      throw new Error("Failed to prepare the system keyring unlock identity", { cause: error })
     } finally {
-      if (created) {
-        await entry.deleteCredential()
-      }
+      this.creatingEnvelope = undefined
     }
   }
 
   /**
-   * Returns the shared recipient, creating the identity only when none exists.
+   * Decrypts a project's unlock envelope using the existing keyring wrapping identity.
+   * Omitting the envelope supports legacy methods whose recipient belongs to the wrapping identity.
+   * Missing credentials and envelopes that do not match the unlock recipient fail without regeneration.
    */
-  async getOrCreateRecipient(): Promise<string> {
-    this.creatingIdentity ??= this.getOrCreateIdentity()
-
-    try {
-      return await identityToRecipient(await this.creatingIdentity)
-    } finally {
-      this.creatingIdentity = undefined
-    }
-  }
-
-  /**
-   * Loads the existing identity without regenerating a missing credential.
-   */
-  async getIdentity(recipient: string): Promise<string> {
-    const identity = await this.readIdentity()
-    if (!identity || (await identityToRecipient(identity)) !== recipient) {
+  async getIdentity(recipient: string, encryptedIdentity?: string): Promise<string> {
+    const wrappingIdentity = await this.readIdentity()
+    if (!wrappingIdentity) {
       throw new Error(
         "This project's system keyring identity is not available on this backend; use another unlock method and add this backend's system keyring",
       )
     }
 
+    let identity = wrappingIdentity
+
+    if (encryptedIdentity) {
+      const decrypter = new Decrypter()
+      decrypter.addIdentity(wrappingIdentity)
+      identity = await decrypter.decrypt(armor.decode(encryptedIdentity), "text")
+    }
+
+    if ((await identityToRecipient(identity)) !== recipient) {
+      throw new Error("The system keyring identity does not match this project's unlock recipient")
+    }
+
     return identity
+  }
+
+  private async createOrReadEnvelope(): Promise<KeyringUnlockEnvelope> {
+    const credentials = await this.storage.read()
+
+    const existingEnvelope = credentials.find(
+      entry => entry.account === envelopeAccountName,
+    )?.password
+
+    const existingWrapper = credentials.find(entry => entry.account === accountName)?.password
+    if (existingEnvelope && !existingWrapper) {
+      throw new Error(
+        "The system keyring wrapping identity is missing; restore it or use another unlock method",
+      )
+    }
+
+    const wrappingIdentity = existingWrapper ?? (await this.getOrCreateIdentity())
+
+    if (existingEnvelope) {
+      const decrypter = new Decrypter()
+      decrypter.addIdentity(wrappingIdentity)
+      const identity = await decrypter.decrypt(armor.decode(existingEnvelope), "text")
+      return { recipient: await identityToRecipient(identity), encryptedIdentity: existingEnvelope }
+    }
+
+    const identity = await generateIdentity()
+    const encrypter = new Encrypter()
+    encrypter.addRecipient(await identityToRecipient(wrappingIdentity))
+    const encryptedIdentity = armor.encode(await encrypter.encrypt(identity))
+    await this.storage.write(envelopeAccountName, encryptedIdentity)
+
+    return { recipient: await identityToRecipient(identity), encryptedIdentity }
   }
 
   private async readIdentity(): Promise<string | undefined> {
     try {
-      const credentials = await findCredentialsAsync(serviceName)
+      const credentials = await this.storage.read()
       return credentials.find(entry => entry.account === accountName)?.password
     } catch (error) {
       throw new Error("Failed to read the project unlock identity from the system keyring", {
@@ -79,14 +120,9 @@ export class ProjectKeyring {
     }
 
     const identity = await generateIdentity()
-    const entry = new AsyncEntry(serviceName, accountName)
 
     try {
-      await entry.setPassword(identity)
-
-      if ((await entry.getPassword()) !== identity) {
-        throw new Error("System keyring did not return the stored identity")
-      }
+      await this.storage.write(accountName, identity)
     } catch (error) {
       throw new Error("Failed to store the project unlock identity in the system keyring", {
         cause: error,

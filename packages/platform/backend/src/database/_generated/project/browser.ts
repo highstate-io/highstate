@@ -233,7 +233,7 @@ export type Trigger = Prisma.TriggerModel
  * 
  * Each project database is encrypted with a master key, which is then encrypted for each
  * unlock method's recipient using AGE encryption. A password or passkey decrypts an AGE
- * identity, or the backend loads an identity from its system keyring, to decrypt the master key.
+ * identity, or the backend unwraps one with its system keyring, to decrypt the master key.
  * 
  * Multiple unlock methods can exist per project, allowing different authentication paths
  * to the same encrypted database. When unlock methods are added/removed, the master key
@@ -241,7 +241,7 @@ export type Trigger = Prisma.TriggerModel
  * 
  * The encryptedIdentity contains the AGE identity encrypted with the user's authentication
  * method (password-derived key or WebAuthn), while the recipient is the public key
- * corresponding to that identity. Keyring methods store only the recipient.
+ * corresponding to that identity.
  */
 export type UnlockMethod = Prisma.UnlockMethodModel
 /**

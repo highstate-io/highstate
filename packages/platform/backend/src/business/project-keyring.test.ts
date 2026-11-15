@@ -7,30 +7,24 @@ const keyring = vi.hoisted(() => ({
   write: vi.fn(),
 }))
 
-vi.mock("@napi-rs/keyring", () => ({
-  findCredentialsAsync: keyring.find,
-  AsyncEntry: class {
-    constructor(
-      _service: string,
-      private account: string,
-    ) {}
+class TestKeyringStorage {
+  read = keyring.find
 
-    async setPassword(value: string) {
-      keyring.write(value)
-      keyring.entries.set(this.account, value)
-    }
+  async write(account: string, value: string) {
+    keyring.write(value)
+    keyring.entries.set(account, value)
+  }
 
-    async getPassword() {
-      return keyring.entries.get(this.account)
-    }
+  async probe() {}
+}
 
-    async deleteCredential() {
-      keyring.entries.delete(this.account)
-    }
-  },
-}))
+import { ProjectKeyring as RealProjectKeyring } from "./project-keyring"
 
-import { ProjectKeyring } from "./project-keyring"
+class ProjectKeyring extends RealProjectKeyring {
+  constructor() {
+    super(new TestKeyringStorage())
+  }
+}
 
 describe("ProjectKeyring", () => {
   beforeEach(() => {
@@ -48,46 +42,85 @@ describe("ProjectKeyring", () => {
     const store = new ProjectKeyring()
 
     const [first, second] = await Promise.all([
-      store.getOrCreateRecipient(),
-      store.getOrCreateRecipient(),
+      store.getOrCreateEnvelope(),
+      store.getOrCreateEnvelope(),
     ])
 
     expect(first).toBe(second)
-    expect(await new ProjectKeyring().getOrCreateRecipient()).toBe(first)
-    expect(keyring.write).toHaveBeenCalledTimes(1)
-    expect(await identityToRecipient(await store.getIdentity(first))).toBe(first)
+    expect(await new ProjectKeyring().getOrCreateEnvelope()).toEqual(first)
+    expect(keyring.write).toHaveBeenCalledTimes(2)
+
+    expect(
+      await identityToRecipient(await store.getIdentity(first.recipient, first.encryptedIdentity)),
+    ).toBe(first.recipient)
+
+    expect(await identityToRecipient(keyring.entries.get("identity")!)).not.toBe(first.recipient)
+    expect(first.encryptedIdentity).toContain("AGE ENCRYPTED FILE")
   })
 
   test("does not recreate a missing identity when unlocking a transferred project", async () => {
     const store = new ProjectKeyring()
-    const recipient = await store.getOrCreateRecipient()
+    const envelope = await store.getOrCreateEnvelope()
     keyring.entries.clear()
     keyring.write.mockClear()
-    await expect(store.getIdentity(recipient)).rejects.toThrow("not available on this backend")
+
+    await expect(store.getIdentity(envelope.recipient, envelope.encryptedIdentity)).rejects.toThrow(
+      "not available on this backend",
+    )
+
     expect(keyring.write).not.toHaveBeenCalled()
   })
 
   test("does not use a different backend's identity", async () => {
     const store = new ProjectKeyring()
-    const oldRecipient = await store.getOrCreateRecipient()
+    const envelope = await store.getOrCreateEnvelope()
     keyring.entries.clear()
-    await store.getOrCreateRecipient()
-    await expect(store.getIdentity(oldRecipient)).rejects.toThrow("not available on this backend")
-  })
+    await store.getOrCreateEnvelope()
 
-  test("probes keyring access without leaving credentials or replacing an identity", async () => {
-    const store = new ProjectKeyring()
-    await store.checkAvailable()
-    expect(keyring.entries.size).toBe(0)
-    const recipient = await store.getOrCreateRecipient()
-    await store.checkAvailable()
-    expect(keyring.entries.size).toBe(1)
-    expect(await store.getOrCreateRecipient()).toBe(recipient)
+    await expect(
+      store.getIdentity(envelope.recipient, envelope.encryptedIdentity),
+    ).rejects.toThrow()
   })
 
   test("does not overwrite an existing identity when the keyring cannot be read", async () => {
     keyring.find.mockRejectedValueOnce(new Error("Locked"))
-    await expect(new ProjectKeyring().getOrCreateRecipient()).rejects.toThrow("Failed to read")
+    await expect(new ProjectKeyring().getOrCreateEnvelope()).rejects.toThrow("Failed to prepare")
     expect(keyring.write).not.toHaveBeenCalled()
+  })
+
+  test("unlocks from the project's envelope even if the cached envelope is lost", async () => {
+    const store = new ProjectKeyring()
+    const envelope = await store.getOrCreateEnvelope()
+    keyring.entries.delete("unlock-envelope")
+    keyring.write.mockClear()
+
+    expect(
+      await identityToRecipient(
+        await store.getIdentity(envelope.recipient, envelope.encryptedIdentity),
+      ),
+    ).toBe(envelope.recipient)
+
+    expect(keyring.write).not.toHaveBeenCalled()
+  })
+
+  test("does not replace a missing wrapper or a corrupt envelope", async () => {
+    const store = new ProjectKeyring()
+    await store.getOrCreateEnvelope()
+    const wrapper = keyring.entries.get("identity")!
+    keyring.entries.delete("identity")
+    keyring.write.mockClear()
+    await expect(store.getOrCreateEnvelope()).rejects.toThrow("Failed to prepare")
+    expect(keyring.write).not.toHaveBeenCalled()
+    keyring.entries.set("identity", wrapper)
+    keyring.entries.set("unlock-envelope", "corrupt")
+    await expect(store.getOrCreateEnvelope()).rejects.toThrow()
+    expect(keyring.write).not.toHaveBeenCalled()
+  })
+
+  test("preserves direct-recipient methods from before envelope support", async () => {
+    const store = new ProjectKeyring()
+    await store.getOrCreateEnvelope()
+    const wrapper = keyring.entries.get("identity")!
+    expect(await store.getIdentity(await identityToRecipient(wrapper))).toBe(wrapper)
   })
 })

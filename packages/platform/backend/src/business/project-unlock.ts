@@ -15,6 +15,7 @@ import {
   type ProjectUnlockSuite,
   projectUnlockSuiteSchema,
   type UnlockMethodInput,
+  type UnlockMethodMeta,
   type UnlockMethodType,
 } from "../shared"
 import { resolveBackendProjectPermissionTarget } from "./project-authorization"
@@ -146,7 +147,8 @@ export class ProjectUnlockService {
       throw new Error(`System keyring recipient is not attached to project "${projectId}"`)
     }
 
-    const identity = await this.projectKeyring.getIdentity(recipient)
+    const envelope = suite.keyrings.find(method => method.recipient === recipient)
+    const identity = await this.projectKeyring.getIdentity(recipient, envelope?.encryptedIdentity)
     await this.unlockProject(context, projectId, identity)
   }
 
@@ -157,8 +159,7 @@ export class ProjectUnlockService {
 
     return {
       ...input,
-      recipient: await this.projectKeyring.getOrCreateRecipient(),
-      encryptedIdentity: "",
+      ...(await this.projectKeyring.getOrCreateEnvelope()),
     }
   }
 
@@ -230,6 +231,10 @@ export class ProjectUnlockService {
 
     requireBackendPermission(context, "project.unlock", target)
 
+    await this.unlockProjectCore(projectId, decryptedIdentity)
+  }
+
+  private async unlockProjectCore(projectId: string, decryptedIdentity: string): Promise<void> {
     if (await this.projectUnlockBackend.checkProjectUnlocked(projectId)) {
       this.logger.warn(
         { projectId },
@@ -359,7 +364,13 @@ export class ProjectUnlockService {
     await database.$transaction(async tx => {
       // 1. fetch all unlock method recipients for the project
       const unlockMethods = await tx.unlockMethod.findMany({
-        select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
+        select: {
+          type: true,
+          recipient: true,
+          encryptedIdentity: true,
+          passkeyIdentity: true,
+          meta: true,
+        },
       })
 
       // retrying a shared-identity attachment must not create a duplicate or rewrite project keys
@@ -426,7 +437,13 @@ export class ProjectUnlockService {
       // 1. fetch all unlock methods except the one to remove
       const unlockMethods = await tx.unlockMethod.findMany({
         where: { id: { not: unlockMethodId } },
-        select: { type: true, recipient: true, encryptedIdentity: true, passkeyIdentity: true },
+        select: {
+          type: true,
+          recipient: true,
+          encryptedIdentity: true,
+          passkeyIdentity: true,
+          meta: true,
+        },
       })
 
       if (unlockMethods.length === 0) {
@@ -520,14 +537,55 @@ export class ProjectUnlockService {
   }
 
   /**
-   * Auto-unlocks the projects for the development environment.
+   * Unlocks projects with opted-in system keyring methods, then applies development overrides.
+   * Unavailable keyrings leave projects locked without preventing other projects from starting.
    */
   async autoUnlockProjects(): Promise<void> {
+    const projects = await this.database.backend.project.findMany({
+      select: { id: true, unlockSuite: true },
+    })
+
+    for (const project of projects) {
+      if (await this.projectUnlockBackend.checkProjectUnlocked(project.id)) {
+        continue
+      }
+
+      try {
+        const suite = projectUnlockSuiteSchema.parse(project.unlockSuite)
+
+        for (const method of suite.keyrings.filter(method => method.autoUnlock)) {
+          try {
+            const identity = await this.projectKeyring.getIdentity(
+              method.recipient,
+              method.encryptedIdentity,
+            )
+
+            await this.unlockProjectCore(project.id, identity)
+            break
+          } catch (error) {
+            this.logger.warn(
+              { error, projectId: project.id },
+              "failed to auto-unlock project with system keyring",
+            )
+          }
+        }
+      } catch (error) {
+        this.logger.warn(
+          { error, projectId: project.id },
+          "failed to read project auto-unlock methods",
+        )
+      }
+    }
+
     // just mark the projects as unlocked with an empty master key and run unlock tasks
     for (const projectId of this.config.HIGHSTATE_DEV_AUTO_UNLOCK_PROJECT_IDS) {
       const logger = createProjectLogger(this.logger, projectId)
 
       try {
+        if (await this.projectUnlockBackend.checkProjectUnlocked(projectId)) {
+          continue
+        }
+
         logger.info("auto-unlocking project (dev mode)")
 
         await this.projectUnlockBackend.unlockProject(projectId, Buffer.alloc(0), "")
@@ -544,6 +602,7 @@ export class ProjectUnlockService {
       type: UnlockMethodType
       encryptedIdentity: string
       recipient: string
+      meta?: UnlockMethodMeta
       passkeyIdentity?: string | null
     }[],
   ): ProjectUnlockSuite {
@@ -554,6 +613,13 @@ export class ProjectUnlockService {
       keyringRecipients: unlockMethods
         .filter(method => method.type === "keyring")
         .map(method => method.recipient),
+      keyrings: unlockMethods
+        .filter(method => method.type === "keyring" && method.encryptedIdentity)
+        .map(method => ({
+          recipient: method.recipient,
+          encryptedIdentity: method.encryptedIdentity,
+          autoUnlock: method.meta?.autoUnlock ?? false,
+        })),
       hasPasskey: unlockMethods.some(method => method.type === "passkey"),
       passkeys: unlockMethods.flatMap(method => {
         if (method.type !== "passkey" || !method.passkeyIdentity) {

@@ -84,6 +84,7 @@ export const test = baseTest.extend<{
               hasPasskey: false,
               passkeys: [],
               keyringRecipients: [],
+              keyrings: [],
             },
           },
         })

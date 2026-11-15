@@ -17,6 +17,10 @@ endpoints before starting Nuxt.
 Set `NITRO_PORT` and `NUXT_PUBLIC_EVENTS_PORT` to override either port.
 The two ports must be different.
 
+Set `HIGHSTATE_CODEBASE_PATH` to a separate directory to isolate project and backend data during testing.
+Set `HIGHSTATE_DESIGNER_WORKER_SOCKET_PATH` to a unique socket path when running multiple Designer backends
+under the same OS account.
+
 Open the printed frontend URL after both listeners have started.
 An HTTP request to the root of the event port returns `404` because that port only serves the WebSocket endpoint.
 

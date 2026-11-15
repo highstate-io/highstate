@@ -105,7 +105,7 @@ The flow looks like this:
 Here is the unlock process end to end:
 
 1. For a password or passkey, the designer receives the project's unlock suite and decrypts one of its AGE-encrypted identities.
-2. The designer sends that identity and the project ID to the backend. For a system keyring method, it instead requests an explicit keyring unlock; the backend loads the attached identity directly from its OS keyring without returning the secret to the browser.
+2. The designer sends that identity and the project ID to the backend. For a system keyring method, it instead requests an explicit keyring unlock; the backend uses its OS-keyring wrapping identity to decrypt the project's encrypted unlock identity without returning either secret to the browser.
 3. The backend loads the project's `encryptedMasterKey` from `backend.db`, decrypts it with AGE using the provided identity (or uses an empty key when encryption is disabled), and asks the unlock backend to keep the resulting 32-byte key in memory.
 4. The backend publishes the updated unlock state and runs registered unlock tasks that open the project database, trigger any pending migrations, update the stored version, and rehydrate subsystems such as evaluation, workers, and terminals.
 5. The master key remains in memory until you lock the project or stop the backend, so subsequent requests can access the project database without repeating the whole flow.
@@ -117,7 +117,15 @@ Every project keeps independent master keys and self-contained unlock metadata; 
 
 - **Password:** protects a project-specific AGE identity. Forgetting the password removes access through this method, while a weak or reused password exposes encrypted data to offline attacks.
 - **Passkey:** protects an AGE identity using WebAuthn. You can reuse the same passkey and AGE identity across projects by choosing **Reuse a passkey from another project**, selecting the source project and passkey, and authenticating it.
-- **System keyring:** uses one AGE identity shared by projects that explicitly attach the backend host's OS keyring. This is the keyring of the machine and OS account running the backend, not necessarily your browser's machine. It is separate from the identity used to encrypt the backend database, and selecting it does not enable automatic unlocking.
+- **System keyring:** uses a shared AGE unlock identity encrypted to a wrapping identity in the backend host's OS keyring. Each attached project stores its own copy of the encrypted unlock identity, just as password and passkey methods do. The wrapping identity and shared encrypted envelope are created once and reused. This is the keyring of the machine and OS account running the backend, not necessarily your browser's machine. It is separate from the identity used to encrypt the backend database.
+
+System keyring methods offer an **Automatically unlock on backend startup** checkbox during setup and when adding a method.
+It is off by default and applies only to that project's method, not every project sharing the identity.
+Enabling it trusts the backend to decrypt that project whenever its OS keyring is accessible, without clicking Unlock.
+Passwords and passkeys do not offer this option because they require user interaction.
+Unavailable keyrings leave projects locked and produce a warning in the backend log; manual unlocking remains available.
+The operating system may still prompt for keyring access according to its own policy.
+To change this choice for an existing keyring method, remove and re-add the method while retaining an independent recovery method.
 
 The keyring must support reading and writing credentials; Highstate does not fall back to storing this identity in plaintext files.
 The backend database identity environment variables do not replace the project-unlock keyring identity.

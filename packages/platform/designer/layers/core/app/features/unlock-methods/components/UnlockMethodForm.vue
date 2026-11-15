@@ -21,6 +21,7 @@ type UnlockMethodFormData = {
   password: string
   confirmPassword: string
   existingPasskey?: ReusablePasskey
+  autoUnlock?: boolean
 }
 
 type Props = {
@@ -240,6 +241,7 @@ const resetForm = () => {
   sourceProjectId.value = undefined
   selectedPasskey.value = undefined
   form.existingPasskey = undefined
+  form.autoUnlock = false
   keyringAvailable.value = undefined
 }
 
@@ -434,10 +436,18 @@ defineExpose({
     </template>
 
     <template v-else-if="form.type === 'keyring'">
+      <VCheckbox
+        v-model="form.autoUnlock"
+        label="Automatically unlock on backend startup"
+        hint="Trust this backend to unlock this project without clicking Unlock whenever its system keyring is accessible."
+        persistent-hint
+        class="mb-4"
+      />
       <VAlert type="info" density="compact" class="mb-4">
         Uses the operating system keyring on the machine running the Highstate backend, not your
-        browser's machine. One AGE identity is shared by all projects that use this backend's
-        keyring. Unlocking remains explicit.
+        browser's machine. One encrypted AGE unlock identity is shared by all projects that use this
+        backend's keyring. Unlocking is explicit unless you enable automatic unlocking for this
+        method.
       </VAlert>
       <VAlert v-if="keyringAvailable === false" type="error" density="compact" class="mb-4">
         The backend's system keyring is locked or unavailable. Unlock or configure its secret

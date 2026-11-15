@@ -8,6 +8,7 @@ export const unlockMethodMetaSchema = objectMetaSchema
     description: true,
   })
   .required({ title: true })
+  .extend({ autoUnlock: z.boolean().optional() })
 
 export const unlockMethodInputSchema = z.discriminatedUnion("type", [
   z.object({
@@ -15,13 +16,13 @@ export const unlockMethodInputSchema = z.discriminatedUnion("type", [
     type: z.literal("keyring"),
   }),
   z.object({
-    meta: unlockMethodMetaSchema,
+    meta: unlockMethodMetaSchema.omit({ autoUnlock: true }),
     type: z.literal("password"),
     encryptedIdentity: z.string(),
     recipient: z.string(),
   }),
   z.object({
-    meta: unlockMethodMetaSchema,
+    meta: unlockMethodMetaSchema.omit({ autoUnlock: true }),
     type: z.literal("passkey"),
     encryptedIdentity: z.string(),
     passkeyIdentity: z.string(),

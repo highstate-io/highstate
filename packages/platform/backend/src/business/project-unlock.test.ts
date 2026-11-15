@@ -11,6 +11,93 @@ import { ProjectKeyring } from "./project-keyring"
 import { ProjectUnlockService } from "./project-unlock"
 
 describe("ProjectUnlockService", () => {
+  test("startup unlocks only opted-in keyring methods and continues after an unavailable keyring", async () => {
+    const identity = await generateIdentity()
+    const recipient = await identityToRecipient(identity)
+    const encrypter = new Encrypter()
+    encrypter.addRecipient(recipient)
+    const encryptedMasterKey = armor.encode(await encrypter.encrypt("master-key"))
+    const encryptedPrivateKey = armor.encode(await encrypter.encrypt("private-key"))
+
+    const suite = (autoUnlock: boolean, keyRecipient = recipient) => ({
+      encryptedIdentities: [],
+      hasPasskey: false,
+      keyringRecipients: [keyRecipient],
+      keyrings: [{ recipient: keyRecipient, encryptedIdentity: "envelope", autoUnlock }],
+    })
+
+    const projects = [
+      { id: "manual", unlockSuite: suite(false) },
+      { id: "unavailable", unlockSuite: suite(true, "missing") },
+      { id: "automatic", unlockSuite: suite(true) },
+      {
+        id: "legacy",
+        unlockSuite: { encryptedIdentities: [], hasPasskey: false, keyringRecipients: [recipient] },
+      },
+    ]
+
+    const keyring = new ProjectKeyring()
+
+    vi.spyOn(keyring, "getIdentity").mockImplementation(async keyRecipient => {
+      if (keyRecipient === "missing") {
+        throw new Error("Keyring unavailable")
+      }
+
+      return identity
+    })
+
+    const unlocked = new Set<string>()
+
+    const unlockBackend = {
+      checkProjectUnlocked: vi.fn(async (id: string) => unlocked.has(id)),
+      unlockProject: vi.fn(async (id: string) => {
+        unlocked.add(id)
+      }),
+    }
+
+    const publish = vi.fn()
+    const logger = pino({ level: "silent" })
+    const warning = vi.spyOn(logger, "warn")
+
+    const service = new ProjectUnlockService(
+      {
+        backend: {
+          project: {
+            findMany: vi.fn(async () => projects),
+            findUnique: vi.fn(async () => ({ encryptedMasterKey, encryptedPrivateKey })),
+          },
+        },
+      } as unknown as DatabaseManager,
+      { publish } as unknown as PubSubManager,
+      unlockBackend as unknown as ProjectUnlockBackend,
+      {} as ObjectRefIndexService,
+      { HIGHSTATE_ENCRYPTION_ENABLED: true, HIGHSTATE_DEV_AUTO_UNLOCK_PROJECT_IDS: [] },
+      logger,
+      keyring,
+    )
+
+    const task = vi.fn()
+    service.registerUnlockTask("test", task)
+    await service.autoUnlockProjects()
+    expect([...unlocked]).toEqual(["automatic"])
+    expect(keyring.getIdentity).toHaveBeenCalledTimes(2)
+
+    expect(unlockBackend.unlockProject).toHaveBeenCalledWith(
+      "automatic",
+      Buffer.from("master-key"),
+      "private-key",
+    )
+
+    expect(publish).toHaveBeenCalledWith(["project-unlock-state", "automatic"], {
+      type: "unlocked",
+    })
+
+    expect(task).toHaveBeenCalledExactlyOnceWith("automatic")
+    expect(warning).toHaveBeenCalled()
+    await service.autoUnlockProjects()
+    expect(unlockBackend.unlockProject).toHaveBeenCalledTimes(1)
+  })
+
   test.each([
     "initial",
     "additional",
@@ -18,7 +105,11 @@ describe("ProjectUnlockService", () => {
     const identity = await generateIdentity()
     const recipient = await identityToRecipient(identity)
     const keyring = new ProjectKeyring()
-    vi.spyOn(keyring, "getOrCreateRecipient").mockResolvedValue(recipient)
+    const wrappingIdentity = await generateIdentity()
+    const wrapper = new Encrypter()
+    wrapper.addRecipient(await identityToRecipient(wrappingIdentity))
+    const encryptedIdentity = armor.encode(await wrapper.encrypt(identity))
+    vi.spyOn(keyring, "getOrCreateEnvelope").mockResolvedValue({ recipient, encryptedIdentity })
     vi.spyOn(keyring, "getIdentity").mockResolvedValue(identity)
 
     const methods: {
@@ -97,7 +188,8 @@ describe("ProjectUnlockService", () => {
       keyring,
     )
 
-    const input = { type: "keyring" as const, meta: { title: "Host keyring" } }
+    const autoUnlock = mode === "additional"
+    const input = { type: "keyring" as const, meta: { title: "Host keyring", autoUnlock } }
 
     if (mode === "initial") {
       const [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite] =
@@ -111,13 +203,14 @@ describe("ProjectUnlockService", () => {
     const suite = projectUnlockSuiteSchema.parse(record.unlockSuite)
     expect(suite.encryptedIdentities).toEqual(mode === "initial" ? [] : ["password envelope"])
     expect(suite.keyringRecipients).toEqual([recipient])
+    expect(suite.keyrings).toEqual([{ recipient, encryptedIdentity, autoUnlock }])
 
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: {
           ...input,
           recipient,
-          encryptedIdentity: "",
+          encryptedIdentity,
         },
       }),
     )
@@ -135,6 +228,7 @@ describe("ProjectUnlockService", () => {
     )
 
     await service.unlockProjectWithKeyring(adminBackendContext(), "project", recipient)
+    expect(keyring.getIdentity).toHaveBeenCalledWith(recipient, encryptedIdentity)
 
     expect(unlockBackend.unlockProject).toHaveBeenLastCalledWith(
       "project",
@@ -184,6 +278,7 @@ describe("ProjectUnlockService", () => {
       hasPasskey: true,
       passkeys: [],
       keyringRecipients: [],
+      keyrings: [],
     })
   })
 
