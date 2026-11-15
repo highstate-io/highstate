@@ -37,9 +37,7 @@ export type CreateRuntimeWorkload = {
 export type CreateRuntimeAction = {
   workloadId: string
   kind: "pulumi" | "composite_evaluation"
-  ownerId: string
   snapshotId?: string
-  imageDigest?: string
 }
 const activeActions = ["pending", "running", "cancelling"] as const
 
@@ -263,7 +261,6 @@ export class RuntimeCoordinator {
       where: { id: workloadId, leaseGeneration: workload.leaseGeneration, desiredState: "running" },
       data: {
         leaseGeneration: { increment: 1 },
-        connectedAt: null,
         leaseExpiresAt: new Date(this.now() + this.startupLeaseMs),
       },
     })
@@ -375,7 +372,7 @@ export class RuntimeCoordinator {
 
       await this.database.backend.runtimeWorkload.updateMany({
         where: { id: workload.id, leaseGeneration: scope.generation },
-        data: { connectedAt: new Date(this.now()), status: "running" },
+        data: { status: "running" },
       })
 
       return connection
@@ -500,7 +497,6 @@ export class RuntimeCoordinator {
       where: { id: actionId, status: action.status },
       data: {
         cancellationRequestedAt: action.cancellationRequestedAt ?? new Date(this.now()),
-        ...(force ? { forceCancellationRequestedAt: new Date(this.now()) } : {}),
         status: pending ? "cancelled" : "cancelling",
         ...(pending ? { finishedAt: new Date(this.now()) } : {}),
       },
@@ -811,7 +807,6 @@ export class RuntimeCoordinator {
         where: { id: workloadId, cleanedUpAt: null },
         data: {
           desiredState: "deleted",
-          cleanupStartedAt: new Date(this.now()),
           status: "stopping",
         },
       })
@@ -1023,7 +1018,6 @@ export class RuntimeCoordinator {
             data: {
               status: "lost",
               desiredState: "deleted",
-              cleanupStartedAt: new Date(this.now()),
             },
           })
 

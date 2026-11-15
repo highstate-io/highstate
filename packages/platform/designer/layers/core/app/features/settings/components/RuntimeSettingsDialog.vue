@@ -368,7 +368,6 @@ async function preflight() {
               required
             />
             <VTextarea v-model="draft.description" label="Description" rows="2" />
-            <div v-if="selected" class="text-caption mb-4">Revision {{ selected.revision }}</div>
             <template v-if="kind === 'container-runtime'">
               <VSelect
                 v-model="draft.type"

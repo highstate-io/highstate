@@ -5,6 +5,8 @@ import type {
   RegistryCredential,
   RuntimeAdapterProvider,
 } from "./contracts"
+import { createHash } from "node:crypto"
+import { canonicalJson } from "../library/snapshot"
 import { DockerRuntimeAdapter, type DockerRuntimeConfig } from "./docker"
 import { KubernetesRuntimeAdapter, type KubernetesRuntimeConfig } from "./kubernetes"
 
@@ -32,16 +34,12 @@ export async function resolveRuntimeAdapterConfig(
   spec: ContainerRuntimeSpec,
   secrets: RuntimeSecretResolver,
   runtimeId: string,
-  legacyOwnershipLabel?: string | null,
 ): Promise<ContainerRuntimeFactoryConfig> {
   if (spec.type === "docker") {
     return {
       type: "docker",
       endpoint: spec.engineEndpoint,
       local: spec.local,
-      legacyOwnership: legacyOwnershipLabel
-        ? { runtimeId, label: legacyOwnershipLabel }
-        : undefined,
       registryCredentials: await secrets.registryCredentials(runtimeId),
       tls: spec.tls
         ? {
@@ -62,7 +60,6 @@ export async function resolveRuntimeAdapterConfig(
   return {
     type: "kubernetes",
     namespace: spec.namespace,
-    legacyOwnership: legacyOwnershipLabel ? { runtimeId, label: legacyOwnershipLabel } : undefined,
     serviceAccount: spec.serviceAccount,
     context: spec.context,
     buildkitImage: spec.buildkitImage,
@@ -76,7 +73,7 @@ export async function resolveRuntimeAdapterConfig(
 export class DatabaseRuntimeAdapterProvider implements RuntimeAdapterProvider {
   private readonly adapters = new Map<
     string,
-    { revision: number; adapter: ContainerRuntimeAdapter }
+    { configHash: string; adapter: ContainerRuntimeAdapter }
   >()
 
   constructor(
@@ -89,20 +86,20 @@ export class DatabaseRuntimeAdapterProvider implements RuntimeAdapterProvider {
       where: { id: runtimeId },
     })
 
-    const current = this.adapters.get(runtimeId)
-    if (current?.revision === runtime.revision) {
-      return current.adapter
-    }
-
     const config = await resolveRuntimeAdapterConfig(
       runtime.spec,
       this.secrets,
       runtimeId,
-      runtime.legacyOwnershipLabel,
     )
 
+    const configHash = createHash("sha256").update(canonicalJson(config)).digest("hex")
+    const current = this.adapters.get(runtimeId)
+    if (current?.configHash === configHash) {
+      return current.adapter
+    }
+
     const adapter = createContainerRuntimeAdapter(config)
-    this.adapters.set(runtimeId, { revision: runtime.revision, adapter })
+    this.adapters.set(runtimeId, { configHash, adapter })
     return adapter
   }
 

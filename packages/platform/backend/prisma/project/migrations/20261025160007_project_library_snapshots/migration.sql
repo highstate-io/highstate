@@ -68,7 +68,6 @@ CREATE TABLE "new_InstanceEvaluationState" (
 DROP TABLE "InstanceEvaluationState";
 ALTER TABLE "new_InstanceEvaluationState" RENAME TO "InstanceEvaluationState";
 CREATE INDEX "InstanceEvaluationState_librarySnapshotId_idx" ON "InstanceEvaluationState"("librarySnapshotId");
-CREATE INDEX "InstanceEvaluationState_modelRevision_idx" ON "InstanceEvaluationState"("modelRevision");
 CREATE TABLE "new_InstanceOperationState" (
     "operationId" TEXT NOT NULL,
     "stateId" TEXT NOT NULL,
@@ -80,7 +79,6 @@ CREATE TABLE "new_InstanceOperationState" (
     "librarySnapshotId" TEXT,
     "libraryPackageVersionId" TEXT,
     "previousLibraryPackageVersionId" TEXT,
-    "localOverlayActive" BOOLEAN NOT NULL DEFAULT false,
     "localOverlayRevision" TEXT,
     "startedAt" DATETIME,
     "finishedAt" DATETIME,

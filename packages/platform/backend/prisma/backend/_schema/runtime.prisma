@@ -6,9 +6,6 @@ model ContainerRuntime {
     /// Reserved name for a system-managed runtime.
     systemName String? @unique
 
-    /// Runtime label retained when upgrading prerelease native resources.
-    legacyOwnershipLabel String?
-
     /// The metadata managed by the backend.
     ///
     /// [CommonObjectMeta]
@@ -25,8 +22,8 @@ model ContainerRuntime {
     /// The time when the runtime was last updated.
     updatedAt DateTime @updatedAt
 
-    /// The optimistic concurrency revision of the runtime settings.
-    revision Int @default(1)
+    /// An opaque CUIDv2 token used only for optimistic concurrency.
+    revision String @default(cuid(2))
 
     /// The projects using this runtime.
     projects Project[]
@@ -108,9 +105,7 @@ model RuntimeWorkload {
     /// Incremented whenever a new connection is authorized for this logical workload.
     leaseGeneration Int @default(1)
     leaseExpiresAt DateTime?
-    connectedAt DateTime?
     finishedAt DateTime?
-    cleanupStartedAt DateTime?
     cleanedUpAt DateTime?
     lastError String?
     createdAt DateTime @default(now())
@@ -136,18 +131,11 @@ model RuntimeAction {
     workloadId String
     kind RuntimeActionKind
 
-    /// The domain object that owns the action, such as an operation or evaluation generation.
-    ownerId String
-
     /// The project snapshot loaded for this action, when applicable.
     snapshotId String?
 
-    /// The verified snapshot image digest loaded for this action, when applicable.
-    imageDigest String?
-
     status RuntimeActionStatus @default(pending)
     cancellationRequestedAt DateTime?
-    forceCancellationRequestedAt DateTime?
     startedAt DateTime?
     finishedAt DateTime?
     lastError String?
@@ -157,5 +145,4 @@ model RuntimeAction {
     workload RuntimeWorkload @relation(fields: [workloadId], references: [id], onDelete: Cascade)
 
     @@index([workloadId, status])
-    @@index([ownerId, kind])
 }

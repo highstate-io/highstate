@@ -32,7 +32,6 @@ export type DockerRuntimeConfig = {
   secretHelperImage?: string
   registryCredentials?: RegistryCredential[]
   allowHttpRegistry?: boolean
-  legacyOwnership?: { runtimeId: string; label: string }
 }
 
 export function createDockerClient(config: DockerRuntimeConfig): Docker {
@@ -509,11 +508,7 @@ export class DockerRuntimeAdapter implements ContainerRuntimeAdapter {
     if (
       labels["highstate.io/backend"] !== owner.backendId ||
       labels["highstate.io/project"] !== owner.projectId ||
-      (labels["highstate.io/runtime"] !== owner.runtimeId &&
-        !(
-          this.config.legacyOwnership?.runtimeId === owner.runtimeId &&
-          labels["highstate.io/runtime"] === this.config.legacyOwnership.label
-        ))
+      labels["highstate.io/runtime"] !== owner.runtimeId
     ) {
       throw new Error("Managed volume belongs to another owner")
     }

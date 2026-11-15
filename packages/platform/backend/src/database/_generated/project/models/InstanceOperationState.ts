@@ -47,7 +47,6 @@ export type InstanceOperationStateMinAggregateOutputType = {
   librarySnapshotId: string | null
   libraryPackageVersionId: string | null
   previousLibraryPackageVersionId: string | null
-  localOverlayActive: boolean | null
   localOverlayRevision: string | null
   startedAt: Date | null
   finishedAt: Date | null
@@ -62,7 +61,6 @@ export type InstanceOperationStateMaxAggregateOutputType = {
   librarySnapshotId: string | null
   libraryPackageVersionId: string | null
   previousLibraryPackageVersionId: string | null
-  localOverlayActive: boolean | null
   localOverlayRevision: string | null
   startedAt: Date | null
   finishedAt: Date | null
@@ -79,7 +77,6 @@ export type InstanceOperationStateCountAggregateOutputType = {
   librarySnapshotId: number
   libraryPackageVersionId: number
   previousLibraryPackageVersionId: number
-  localOverlayActive: number
   localOverlayRevision: number
   startedAt: number
   finishedAt: number
@@ -106,7 +103,6 @@ export type InstanceOperationStateMinAggregateInputType = {
   librarySnapshotId?: true
   libraryPackageVersionId?: true
   previousLibraryPackageVersionId?: true
-  localOverlayActive?: true
   localOverlayRevision?: true
   startedAt?: true
   finishedAt?: true
@@ -121,7 +117,6 @@ export type InstanceOperationStateMaxAggregateInputType = {
   librarySnapshotId?: true
   libraryPackageVersionId?: true
   previousLibraryPackageVersionId?: true
-  localOverlayActive?: true
   localOverlayRevision?: true
   startedAt?: true
   finishedAt?: true
@@ -138,7 +133,6 @@ export type InstanceOperationStateCountAggregateInputType = {
   librarySnapshotId?: true
   libraryPackageVersionId?: true
   previousLibraryPackageVersionId?: true
-  localOverlayActive?: true
   localOverlayRevision?: true
   startedAt?: true
   finishedAt?: true
@@ -242,7 +236,6 @@ export type InstanceOperationStateGroupByOutputType = {
   librarySnapshotId: string | null
   libraryPackageVersionId: string | null
   previousLibraryPackageVersionId: string | null
-  localOverlayActive: boolean
   localOverlayRevision: string | null
   startedAt: Date | null
   finishedAt: Date | null
@@ -282,7 +275,6 @@ export type InstanceOperationStateWhereInput = {
   librarySnapshotId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   libraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   previousLibraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
-  localOverlayActive?: Prisma.BoolFilter<"InstanceOperationState"> | boolean
   localOverlayRevision?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"InstanceOperationState"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"InstanceOperationState"> | Date | string | null
@@ -303,7 +295,6 @@ export type InstanceOperationStateOrderByWithRelationInput = {
   librarySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
   libraryPackageVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   previousLibraryPackageVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
-  localOverlayActive?: Prisma.SortOrder
   localOverlayRevision?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -328,7 +319,6 @@ export type InstanceOperationStateWhereUniqueInput = Prisma.AtLeast<{
   librarySnapshotId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   libraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   previousLibraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
-  localOverlayActive?: Prisma.BoolFilter<"InstanceOperationState"> | boolean
   localOverlayRevision?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"InstanceOperationState"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"InstanceOperationState"> | Date | string | null
@@ -349,7 +339,6 @@ export type InstanceOperationStateOrderByWithAggregationInput = {
   librarySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
   libraryPackageVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   previousLibraryPackageVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
-  localOverlayActive?: Prisma.SortOrder
   localOverlayRevision?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -374,7 +363,6 @@ export type InstanceOperationStateScalarWhereWithAggregatesInput = {
   librarySnapshotId?: Prisma.StringNullableWithAggregatesFilter<"InstanceOperationState"> | string | null
   libraryPackageVersionId?: Prisma.StringNullableWithAggregatesFilter<"InstanceOperationState"> | string | null
   previousLibraryPackageVersionId?: Prisma.StringNullableWithAggregatesFilter<"InstanceOperationState"> | string | null
-  localOverlayActive?: Prisma.BoolWithAggregatesFilter<"InstanceOperationState"> | boolean
   localOverlayRevision?: Prisma.StringNullableWithAggregatesFilter<"InstanceOperationState"> | string | null
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InstanceOperationState"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"InstanceOperationState"> | Date | string | null
@@ -386,7 +374,6 @@ export type InstanceOperationStateCreateInput = {
   totalResourceCount?: number | null
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -407,7 +394,6 @@ export type InstanceOperationStateUncheckedCreateInput = {
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -419,7 +405,6 @@ export type InstanceOperationStateUpdateInput = {
   totalResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -440,7 +425,6 @@ export type InstanceOperationStateUncheckedUpdateInput = {
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -457,7 +441,6 @@ export type InstanceOperationStateCreateManyInput = {
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -469,7 +452,6 @@ export type InstanceOperationStateUpdateManyMutationInput = {
   totalResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -486,7 +468,6 @@ export type InstanceOperationStateUncheckedUpdateManyInput = {
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -518,7 +499,6 @@ export type InstanceOperationStateCountOrderByAggregateInput = {
   librarySnapshotId?: Prisma.SortOrder
   libraryPackageVersionId?: Prisma.SortOrder
   previousLibraryPackageVersionId?: Prisma.SortOrder
-  localOverlayActive?: Prisma.SortOrder
   localOverlayRevision?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
@@ -538,7 +518,6 @@ export type InstanceOperationStateMaxOrderByAggregateInput = {
   librarySnapshotId?: Prisma.SortOrder
   libraryPackageVersionId?: Prisma.SortOrder
   previousLibraryPackageVersionId?: Prisma.SortOrder
-  localOverlayActive?: Prisma.SortOrder
   localOverlayRevision?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
@@ -553,7 +532,6 @@ export type InstanceOperationStateMinOrderByAggregateInput = {
   librarySnapshotId?: Prisma.SortOrder
   libraryPackageVersionId?: Prisma.SortOrder
   previousLibraryPackageVersionId?: Prisma.SortOrder
-  localOverlayActive?: Prisma.SortOrder
   localOverlayRevision?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
@@ -742,7 +720,6 @@ export type InstanceOperationStateCreateWithoutStateInput = {
   totalResourceCount?: number | null
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -761,7 +738,6 @@ export type InstanceOperationStateUncheckedCreateWithoutStateInput = {
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -806,7 +782,6 @@ export type InstanceOperationStateScalarWhereInput = {
   librarySnapshotId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   libraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   previousLibraryPackageVersionId?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
-  localOverlayActive?: Prisma.BoolFilter<"InstanceOperationState"> | boolean
   localOverlayRevision?: Prisma.StringNullableFilter<"InstanceOperationState"> | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"InstanceOperationState"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"InstanceOperationState"> | Date | string | null
@@ -818,7 +793,6 @@ export type InstanceOperationStateCreateWithoutPreviousLibraryPackageVersionInpu
   totalResourceCount?: number | null
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -837,7 +811,6 @@ export type InstanceOperationStateUncheckedCreateWithoutPreviousLibraryPackageVe
   resolvedInputs:PrismaJson.InstanceResolvedInputs
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -874,7 +847,6 @@ export type InstanceOperationStateCreateWithoutLibrarySnapshotVersionInput = {
   totalResourceCount?: number | null
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -892,7 +864,6 @@ export type InstanceOperationStateUncheckedCreateWithoutLibrarySnapshotVersionIn
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -929,7 +900,6 @@ export type InstanceOperationStateCreateWithoutOperationInput = {
   totalResourceCount?: number | null
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -948,7 +918,6 @@ export type InstanceOperationStateUncheckedCreateWithoutOperationInput = {
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -989,7 +958,6 @@ export type InstanceOperationStateCreateManyStateInput = {
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -1001,7 +969,6 @@ export type InstanceOperationStateUpdateWithoutStateInput = {
   totalResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1020,7 +987,6 @@ export type InstanceOperationStateUncheckedUpdateWithoutStateInput = {
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1036,7 +1002,6 @@ export type InstanceOperationStateUncheckedUpdateManyWithoutStateInput = {
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1052,7 +1017,6 @@ export type InstanceOperationStateCreateManyPreviousLibraryPackageVersionInput =
   resolvedInputs:PrismaJson.InstanceResolvedInputs
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -1064,7 +1028,6 @@ export type InstanceOperationStateUpdateWithoutPreviousLibraryPackageVersionInpu
   totalResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1083,7 +1046,6 @@ export type InstanceOperationStateUncheckedUpdateWithoutPreviousLibraryPackageVe
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1099,7 +1061,6 @@ export type InstanceOperationStateUncheckedUpdateManyWithoutPreviousLibraryPacka
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1114,7 +1075,6 @@ export type InstanceOperationStateCreateManyLibrarySnapshotVersionInput = {
   model:PrismaJson.InstanceModel
   resolvedInputs:PrismaJson.InstanceResolvedInputs
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -1126,7 +1086,6 @@ export type InstanceOperationStateUpdateWithoutLibrarySnapshotVersionInput = {
   totalResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1144,7 +1103,6 @@ export type InstanceOperationStateUncheckedUpdateWithoutLibrarySnapshotVersionIn
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1159,7 +1117,6 @@ export type InstanceOperationStateUncheckedUpdateManyWithoutLibrarySnapshotVersi
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1175,7 +1132,6 @@ export type InstanceOperationStateCreateManyOperationInput = {
   librarySnapshotId?: string | null
   libraryPackageVersionId?: string | null
   previousLibraryPackageVersionId?: string | null
-  localOverlayActive?: boolean
   localOverlayRevision?: string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
@@ -1187,7 +1143,6 @@ export type InstanceOperationStateUpdateWithoutOperationInput = {
   totalResourceCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   model?:PrismaJson.InstanceModel
   resolvedInputs?:PrismaJson.InstanceResolvedInputs
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1206,7 +1161,6 @@ export type InstanceOperationStateUncheckedUpdateWithoutOperationInput = {
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1222,7 +1176,6 @@ export type InstanceOperationStateUncheckedUpdateManyWithoutOperationInput = {
   librarySnapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   libraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   previousLibraryPackageVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  localOverlayActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   localOverlayRevision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1241,7 +1194,6 @@ export type InstanceOperationStateSelect<ExtArgs extends runtime.Types.Extension
   librarySnapshotId?: boolean
   libraryPackageVersionId?: boolean
   previousLibraryPackageVersionId?: boolean
-  localOverlayActive?: boolean
   localOverlayRevision?: boolean
   startedAt?: boolean
   finishedAt?: boolean
@@ -1262,7 +1214,6 @@ export type InstanceOperationStateSelectCreateManyAndReturn<ExtArgs extends runt
   librarySnapshotId?: boolean
   libraryPackageVersionId?: boolean
   previousLibraryPackageVersionId?: boolean
-  localOverlayActive?: boolean
   localOverlayRevision?: boolean
   startedAt?: boolean
   finishedAt?: boolean
@@ -1283,7 +1234,6 @@ export type InstanceOperationStateSelectUpdateManyAndReturn<ExtArgs extends runt
   librarySnapshotId?: boolean
   libraryPackageVersionId?: boolean
   previousLibraryPackageVersionId?: boolean
-  localOverlayActive?: boolean
   localOverlayRevision?: boolean
   startedAt?: boolean
   finishedAt?: boolean
@@ -1304,13 +1254,12 @@ export type InstanceOperationStateSelectScalar = {
   librarySnapshotId?: boolean
   libraryPackageVersionId?: boolean
   previousLibraryPackageVersionId?: boolean
-  localOverlayActive?: boolean
   localOverlayRevision?: boolean
   startedAt?: boolean
   finishedAt?: boolean
 }
 
-export type InstanceOperationStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"operationId" | "stateId" | "status" | "currentResourceCount" | "totalResourceCount" | "model" | "resolvedInputs" | "librarySnapshotId" | "libraryPackageVersionId" | "previousLibraryPackageVersionId" | "localOverlayActive" | "localOverlayRevision" | "startedAt" | "finishedAt", ExtArgs["result"]["instanceOperationState"]>
+export type InstanceOperationStateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"operationId" | "stateId" | "status" | "currentResourceCount" | "totalResourceCount" | "model" | "resolvedInputs" | "librarySnapshotId" | "libraryPackageVersionId" | "previousLibraryPackageVersionId" | "localOverlayRevision" | "startedAt" | "finishedAt", ExtArgs["result"]["instanceOperationState"]>
 export type InstanceOperationStateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   operation?: boolean | Prisma.OperationDefaultArgs<ExtArgs>
   state?: boolean | Prisma.InstanceStateDefaultArgs<ExtArgs>
@@ -1395,10 +1344,6 @@ export type $InstanceOperationStatePayload<ExtArgs extends runtime.Types.Extensi
      * The previously deployed package version when this operation performs an upgrade.
      */
     previousLibraryPackageVersionId: string | null
-    /**
-     * Whether this instance operation used the local development library overlay.
-     */
-    localOverlayActive: boolean
     /**
      * The local development overlay revision used by this instance operation.
      */
@@ -1849,7 +1794,6 @@ export interface InstanceOperationStateFieldRefs {
   readonly librarySnapshotId: Prisma.FieldRef<"InstanceOperationState", 'String'>
   readonly libraryPackageVersionId: Prisma.FieldRef<"InstanceOperationState", 'String'>
   readonly previousLibraryPackageVersionId: Prisma.FieldRef<"InstanceOperationState", 'String'>
-  readonly localOverlayActive: Prisma.FieldRef<"InstanceOperationState", 'Boolean'>
   readonly localOverlayRevision: Prisma.FieldRef<"InstanceOperationState", 'String'>
   readonly startedAt: Prisma.FieldRef<"InstanceOperationState", 'DateTime'>
   readonly finishedAt: Prisma.FieldRef<"InstanceOperationState", 'DateTime'>

@@ -43,7 +43,7 @@ message ContainerRuntime {
   google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The optimistic concurrency revision of these settings.
-  uint64 revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Reserved name identifying a system-managed runtime.
   optional string system_name = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -163,7 +163,7 @@ message PulumiStateBackend {
   google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The optimistic concurrency revision of these settings.
-  uint64 revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Clears stored credentials; omission of credentials otherwise preserves them.
   bool clear_credentials = 9 [(google.api.field_behavior) = INPUT_ONLY];
@@ -193,7 +193,7 @@ message NpmRegistryCredential {
   bool credentials_configured = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The optimistic concurrency revision of these settings.
-  uint64 revision = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string revision = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The time when these settings were created.
   google.protobuf.Timestamp created_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -220,7 +220,7 @@ message ContainerRegistryCredential {
   bool credentials_configured = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The optimistic concurrency revision of these settings.
-  uint64 revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The time when these settings were created.
   google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -244,7 +244,7 @@ message PutContainerRuntimeRequest {
   ContainerRuntime runtime = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The current settings revision, required when replacing an existing runtime.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // PutContainerRuntimeResponse returns the canonical container runtime.
@@ -259,7 +259,7 @@ message DeleteContainerRuntimeRequest {
   string container_runtime_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The current settings revision required for deletion.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // DeleteContainerRuntimeResponse reports successful removal.
@@ -280,7 +280,7 @@ message PutPulumiStateBackendRequest {
   PulumiStateBackend backend = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Zero creates a setting; replacing an existing setting requires its current revision.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // PutPulumiStateBackendResponse returns the canonical Pulumi state backend.
@@ -295,7 +295,7 @@ message DeletePulumiStateBackendRequest {
   string pulumi_state_backend_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The current settings revision required for deletion.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // DeletePulumiStateBackendResponse reports successful removal.
@@ -316,7 +316,7 @@ message PutNpmRegistryCredentialRequest {
   NpmRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Zero creates a setting; replacing an existing setting requires its current revision.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // PutNpmRegistryCredentialResponse returns the canonical credential without its secret value.
@@ -331,7 +331,7 @@ message DeleteNpmRegistryCredentialRequest {
   string npm_registry_credential_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The current settings revision required for deletion.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // DeleteNpmRegistryCredentialResponse reports successful removal.
@@ -352,7 +352,7 @@ message PutContainerRegistryCredentialRequest {
   ContainerRegistryCredential credential = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Zero creates a setting; replacing an existing setting requires its current revision.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // PutContainerRegistryCredentialResponse returns the canonical credential without its secret value.
@@ -367,7 +367,7 @@ message DeleteContainerRegistryCredentialRequest {
   string container_registry_credential_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The current settings revision required for deletion.
-  optional uint64 expected_revision = 2;
+  optional string expected_revision = 2;
 }
 
 // DeleteContainerRegistryCredentialResponse reports successful removal.

@@ -1,10 +1,17 @@
 enum LibrarySnapshotImageStatus {
+    /// Waiting for image materialization to start.
     queued
+    /// Installing the snapshot's dependencies from its frozen lockfile.
     installing
+    /// Building the container image for the snapshot.
     building
+    /// Uploading the built image to the configured container registry.
     pushing
+    /// Checking the image's immutable identity and snapshot hash before accepting it.
     verifying
+    /// The verified image is available for workloads on the selected runtime.
     ready
+    /// Materialization failed; the recorded error describes the failure.
     failed
 }
 
@@ -47,9 +54,6 @@ model LibrarySnapshotImage {
 
     /// The immutable OCI image digest, when available.
     imageDigest String?
-
-    /// The hash reported by the completed image build.
-    imageHash String?
 
     /// The most recent materialization error.
     error String?

@@ -27,6 +27,55 @@ function snapshotFixture() {
 }
 
 describe("Snapshot image materialization", () => {
+  test("rejects a build hash that differs from the snapshot before caching its identity", async ({
+    database,
+    project,
+  }) => {
+    const snapshot = snapshotFixture()
+    const verifyImage = vi.fn(async () => true)
+
+    const adapter = {
+      capabilities: { build: true },
+      buildImage: async () => ({
+        reference: "sha256:wrong",
+        digest: "sha256:wrong",
+        imageHash: "wrong-snapshot",
+      }),
+      verifyImage,
+      cleanup: async () => {},
+    } as unknown as ContainerRuntimeAdapter
+
+    const adapters = { get: async () => adapter }
+
+    const coordinator = new RuntimeCoordinator(
+      database,
+      adapters,
+      new RuntimeCredentialSigner("backend", new Uint8Array(32)),
+      new AgentConnectionRegistry(),
+      "backend",
+    )
+
+    const manager = new SnapshotImageManager(
+      database,
+      adapters,
+      coordinator,
+      { get: async () => ({ baseImage: `runner@sha256:${"a".repeat(64)}` }) },
+      { snapshot: async () => snapshot, desiredSnapshotId: async () => snapshot.id },
+    )
+
+    await expect(manager.ensureImage(project.id, snapshot.id)).rejects.toThrow(
+      "Snapshot image verification failed",
+    )
+
+    expect(verifyImage).not.toHaveBeenCalled()
+
+    expect(
+      await database.backend.librarySnapshotImage.findFirstOrThrow({
+        where: { projectId: project.id, snapshotId: snapshot.id },
+      }),
+    ).toMatchObject({ status: "failed", imageRef: null, imageDigest: null })
+  })
+
   test("keeps failed builds diagnostic and retries only when explicitly requested", async ({
     database,
     project,
@@ -156,6 +205,15 @@ describe("Snapshot image materialization", () => {
 
     const result = await manager.ensureImage(project.id, snapshot.id)
     expect(result.snapshotHash).toBe(snapshot.hash)
+    expect(result.imageHash).toBe(snapshot.hash)
+
+    const cached = await database.backend.librarySnapshotImage.findFirstOrThrow({
+      where: { projectId: project.id, snapshotId: snapshot.id },
+    })
+
+    expect(cached).not.toHaveProperty("imageHash")
+    expect(await manager.ensureImage(project.id, snapshot.id)).toEqual(result)
+    expect(builds).toHaveLength(1)
 
     expect(
       Buffer.from(builds[0]!.files.find(file => file.path === "bun.lock")!.data).toString(),

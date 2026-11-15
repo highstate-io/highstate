@@ -49,9 +49,7 @@ export type RuntimeWorkloadMinAggregateOutputType = {
   status: $Enums.RuntimeWorkloadStatus | null
   leaseGeneration: number | null
   leaseExpiresAt: Date | null
-  connectedAt: Date | null
   finishedAt: Date | null
-  cleanupStartedAt: Date | null
   cleanedUpAt: Date | null
   lastError: string | null
   createdAt: Date | null
@@ -69,9 +67,7 @@ export type RuntimeWorkloadMaxAggregateOutputType = {
   status: $Enums.RuntimeWorkloadStatus | null
   leaseGeneration: number | null
   leaseExpiresAt: Date | null
-  connectedAt: Date | null
   finishedAt: Date | null
-  cleanupStartedAt: Date | null
   cleanedUpAt: Date | null
   lastError: string | null
   createdAt: Date | null
@@ -89,9 +85,7 @@ export type RuntimeWorkloadCountAggregateOutputType = {
   status: number
   leaseGeneration: number
   leaseExpiresAt: number
-  connectedAt: number
   finishedAt: number
-  cleanupStartedAt: number
   cleanedUpAt: number
   lastError: number
   createdAt: number
@@ -119,9 +113,7 @@ export type RuntimeWorkloadMinAggregateInputType = {
   status?: true
   leaseGeneration?: true
   leaseExpiresAt?: true
-  connectedAt?: true
   finishedAt?: true
-  cleanupStartedAt?: true
   cleanedUpAt?: true
   lastError?: true
   createdAt?: true
@@ -139,9 +131,7 @@ export type RuntimeWorkloadMaxAggregateInputType = {
   status?: true
   leaseGeneration?: true
   leaseExpiresAt?: true
-  connectedAt?: true
   finishedAt?: true
-  cleanupStartedAt?: true
   cleanedUpAt?: true
   lastError?: true
   createdAt?: true
@@ -159,9 +149,7 @@ export type RuntimeWorkloadCountAggregateInputType = {
   status?: true
   leaseGeneration?: true
   leaseExpiresAt?: true
-  connectedAt?: true
   finishedAt?: true
-  cleanupStartedAt?: true
   cleanedUpAt?: true
   lastError?: true
   createdAt?: true
@@ -266,9 +254,7 @@ export type RuntimeWorkloadGroupByOutputType = {
   status: $Enums.RuntimeWorkloadStatus
   leaseGeneration: number
   leaseExpiresAt: Date | null
-  connectedAt: Date | null
   finishedAt: Date | null
-  cleanupStartedAt: Date | null
   cleanedUpAt: Date | null
   lastError: string | null
   createdAt: Date
@@ -309,9 +295,7 @@ export type RuntimeWorkloadWhereInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFilter<"RuntimeWorkload"> | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFilter<"RuntimeWorkload"> | number
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
-  connectedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
-  cleanupStartedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   cleanedUpAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   lastError?: Prisma.StringNullableFilter<"RuntimeWorkload"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RuntimeWorkload"> | Date | string
@@ -333,9 +317,7 @@ export type RuntimeWorkloadOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   leaseGeneration?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  connectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  cleanupStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cleanedUpAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -361,9 +343,7 @@ export type RuntimeWorkloadWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumRuntimeWorkloadStatusFilter<"RuntimeWorkload"> | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFilter<"RuntimeWorkload"> | number
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
-  connectedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
-  cleanupStartedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   cleanedUpAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   lastError?: Prisma.StringNullableFilter<"RuntimeWorkload"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RuntimeWorkload"> | Date | string
@@ -385,9 +365,7 @@ export type RuntimeWorkloadOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   leaseGeneration?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  connectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  cleanupStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cleanedUpAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -413,9 +391,7 @@ export type RuntimeWorkloadScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusWithAggregatesFilter<"RuntimeWorkload"> | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntWithAggregatesFilter<"RuntimeWorkload"> | number
   leaseExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeWorkload"> | Date | string | null
-  connectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeWorkload"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeWorkload"> | Date | string | null
-  cleanupStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeWorkload"> | Date | string | null
   cleanedUpAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeWorkload"> | Date | string | null
   lastError?: Prisma.StringNullableWithAggregatesFilter<"RuntimeWorkload"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RuntimeWorkload"> | Date | string
@@ -431,9 +407,7 @@ export type RuntimeWorkloadCreateInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -455,9 +429,7 @@ export type RuntimeWorkloadUncheckedCreateInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -475,9 +447,7 @@ export type RuntimeWorkloadUpdateInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -499,9 +469,7 @@ export type RuntimeWorkloadUncheckedUpdateInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -521,9 +489,7 @@ export type RuntimeWorkloadCreateManyInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -539,9 +505,7 @@ export type RuntimeWorkloadUpdateManyMutationInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -559,9 +523,7 @@ export type RuntimeWorkloadUncheckedUpdateManyInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -599,9 +561,7 @@ export type RuntimeWorkloadCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   leaseGeneration?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
-  connectedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
-  cleanupStartedAt?: Prisma.SortOrder
   cleanedUpAt?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -623,9 +583,7 @@ export type RuntimeWorkloadMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   leaseGeneration?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
-  connectedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
-  cleanupStartedAt?: Prisma.SortOrder
   cleanedUpAt?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -643,9 +601,7 @@ export type RuntimeWorkloadMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   leaseGeneration?: Prisma.SortOrder
   leaseExpiresAt?: Prisma.SortOrder
-  connectedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
-  cleanupStartedAt?: Prisma.SortOrder
   cleanedUpAt?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -796,9 +752,7 @@ export type RuntimeWorkloadCreateWithoutCurrentImageBuildInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -819,9 +773,7 @@ export type RuntimeWorkloadUncheckedCreateWithoutCurrentImageBuildInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -854,9 +806,7 @@ export type RuntimeWorkloadUpdateWithoutCurrentImageBuildInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -877,9 +827,7 @@ export type RuntimeWorkloadUncheckedUpdateWithoutCurrentImageBuildInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -896,9 +844,7 @@ export type RuntimeWorkloadCreateWithoutProjectInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -918,9 +864,7 @@ export type RuntimeWorkloadUncheckedCreateWithoutProjectInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -968,9 +912,7 @@ export type RuntimeWorkloadScalarWhereInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFilter<"RuntimeWorkload"> | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFilter<"RuntimeWorkload"> | number
   leaseExpiresAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
-  connectedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
-  cleanupStartedAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   cleanedUpAt?: Prisma.DateTimeNullableFilter<"RuntimeWorkload"> | Date | string | null
   lastError?: Prisma.StringNullableFilter<"RuntimeWorkload"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RuntimeWorkload"> | Date | string
@@ -986,9 +928,7 @@ export type RuntimeWorkloadCreateWithoutRuntimeInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -1008,9 +948,7 @@ export type RuntimeWorkloadUncheckedCreateWithoutRuntimeInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -1053,9 +991,7 @@ export type RuntimeWorkloadCreateWithoutActionsInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -1076,9 +1012,7 @@ export type RuntimeWorkloadUncheckedCreateWithoutActionsInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -1111,9 +1045,7 @@ export type RuntimeWorkloadUpdateWithoutActionsInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1134,9 +1066,7 @@ export type RuntimeWorkloadUncheckedUpdateWithoutActionsInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1154,9 +1084,7 @@ export type RuntimeWorkloadCreateManyProjectInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -1172,9 +1100,7 @@ export type RuntimeWorkloadUpdateWithoutProjectInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1194,9 +1120,7 @@ export type RuntimeWorkloadUncheckedUpdateWithoutProjectInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1215,9 +1139,7 @@ export type RuntimeWorkloadUncheckedUpdateManyWithoutProjectInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1234,9 +1156,7 @@ export type RuntimeWorkloadCreateManyRuntimeInput = {
   status?: $Enums.RuntimeWorkloadStatus
   leaseGeneration?: number
   leaseExpiresAt?: Date | string | null
-  connectedAt?: Date | string | null
   finishedAt?: Date | string | null
-  cleanupStartedAt?: Date | string | null
   cleanedUpAt?: Date | string | null
   lastError?: string | null
   createdAt?: Date | string
@@ -1252,9 +1172,7 @@ export type RuntimeWorkloadUpdateWithoutRuntimeInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1274,9 +1192,7 @@ export type RuntimeWorkloadUncheckedUpdateWithoutRuntimeInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1295,9 +1211,7 @@ export type RuntimeWorkloadUncheckedUpdateManyWithoutRuntimeInput = {
   status?: Prisma.EnumRuntimeWorkloadStatusFieldUpdateOperationsInput | $Enums.RuntimeWorkloadStatus
   leaseGeneration?: Prisma.IntFieldUpdateOperationsInput | number
   leaseExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  connectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  cleanupStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cleanedUpAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1346,9 +1260,7 @@ export type RuntimeWorkloadSelect<ExtArgs extends runtime.Types.Extensions.Inter
   status?: boolean
   leaseGeneration?: boolean
   leaseExpiresAt?: boolean
-  connectedAt?: boolean
   finishedAt?: boolean
-  cleanupStartedAt?: boolean
   cleanedUpAt?: boolean
   lastError?: boolean
   createdAt?: boolean
@@ -1371,9 +1283,7 @@ export type RuntimeWorkloadSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   status?: boolean
   leaseGeneration?: boolean
   leaseExpiresAt?: boolean
-  connectedAt?: boolean
   finishedAt?: boolean
-  cleanupStartedAt?: boolean
   cleanedUpAt?: boolean
   lastError?: boolean
   createdAt?: boolean
@@ -1393,9 +1303,7 @@ export type RuntimeWorkloadSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   status?: boolean
   leaseGeneration?: boolean
   leaseExpiresAt?: boolean
-  connectedAt?: boolean
   finishedAt?: boolean
-  cleanupStartedAt?: boolean
   cleanedUpAt?: boolean
   lastError?: boolean
   createdAt?: boolean
@@ -1415,16 +1323,14 @@ export type RuntimeWorkloadSelectScalar = {
   status?: boolean
   leaseGeneration?: boolean
   leaseExpiresAt?: boolean
-  connectedAt?: boolean
   finishedAt?: boolean
-  cleanupStartedAt?: boolean
   cleanedUpAt?: boolean
   lastError?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RuntimeWorkloadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "runtimeId" | "projectId" | "kind" | "ownerId" | "nativeResourceId" | "desiredState" | "status" | "leaseGeneration" | "leaseExpiresAt" | "connectedAt" | "finishedAt" | "cleanupStartedAt" | "cleanedUpAt" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["runtimeWorkload"]>
+export type RuntimeWorkloadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "runtimeId" | "projectId" | "kind" | "ownerId" | "nativeResourceId" | "desiredState" | "status" | "leaseGeneration" | "leaseExpiresAt" | "finishedAt" | "cleanedUpAt" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["runtimeWorkload"]>
 export type RuntimeWorkloadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   runtime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
@@ -1472,9 +1378,7 @@ export type $RuntimeWorkloadPayload<ExtArgs extends runtime.Types.Extensions.Int
      */
     leaseGeneration: number
     leaseExpiresAt: Date | null
-    connectedAt: Date | null
     finishedAt: Date | null
-    cleanupStartedAt: Date | null
     cleanedUpAt: Date | null
     lastError: string | null
     createdAt: Date
@@ -1916,9 +1820,7 @@ export interface RuntimeWorkloadFieldRefs {
   readonly status: Prisma.FieldRef<"RuntimeWorkload", 'RuntimeWorkloadStatus'>
   readonly leaseGeneration: Prisma.FieldRef<"RuntimeWorkload", 'Int'>
   readonly leaseExpiresAt: Prisma.FieldRef<"RuntimeWorkload", 'DateTime'>
-  readonly connectedAt: Prisma.FieldRef<"RuntimeWorkload", 'DateTime'>
   readonly finishedAt: Prisma.FieldRef<"RuntimeWorkload", 'DateTime'>
-  readonly cleanupStartedAt: Prisma.FieldRef<"RuntimeWorkload", 'DateTime'>
   readonly cleanedUpAt: Prisma.FieldRef<"RuntimeWorkload", 'DateTime'>
   readonly lastError: Prisma.FieldRef<"RuntimeWorkload", 'String'>
   readonly createdAt: Prisma.FieldRef<"RuntimeWorkload", 'DateTime'>

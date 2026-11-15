@@ -23,7 +23,7 @@ function base(
   return {
     id: value.id,
     meta: value.meta,
-    revision: BigInt(value.revision),
+    revision: value.revision,
     createdAt: timestampFromDate(value.createdAt),
     updatedAt: timestampFromDate(value.updatedAt),
   }

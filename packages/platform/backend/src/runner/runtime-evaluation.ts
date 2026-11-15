@@ -34,9 +34,7 @@ export class RuntimeEvaluationBackend {
       const action = await this.execution.coordinator.createAction({
         workloadId: runner.workload.id,
         kind: "composite_evaluation",
-        ownerId: request.modelRevision,
         snapshotId: request.librarySnapshotId,
-        imageDigest: runner.imageDigest,
       })
 
       actionId = action.id

@@ -74,7 +74,7 @@ export type ContainerRuntimeInputSpec = z.infer<typeof containerRuntimeInputSpec
 
 const baseInput = {
   meta: commonObjectMetaSchema.extend({ title: z.string().trim().min(1) }),
-  revision: z.number().int().nonnegative(),
+  revision: z.cuid2().length(24).optional(),
 }
 
 export const containerRuntimeInputSchema = z
@@ -131,7 +131,7 @@ export type RuntimeSettingsInputs = {
 const outputBase = {
   id: z.cuid2().length(24),
   meta: commonObjectMetaSchema,
-  revision: z.number().int().positive(),
+  revision: z.cuid2().length(24),
   createdAt: z.date(),
   updatedAt: z.date(),
 }

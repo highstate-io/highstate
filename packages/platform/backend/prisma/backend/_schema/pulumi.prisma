@@ -6,9 +6,6 @@ model PulumiStateBackend {
     /// Reserved name for a system-managed state backend.
     systemName String? @unique
 
-    /// Existing native state volume suffix retained during an identifier upgrade.
-    legacyStateVolumeSuffix String?
-
     /// The metadata managed by the backend.
     ///
     /// [CommonObjectMeta]
@@ -19,7 +16,7 @@ model PulumiStateBackend {
     /// [PulumiStateBackendSpec]
     spec Json
 
-    revision Int @default(1)
+    revision String @default(cuid(2))
 
     /// The time when the state backend was created.
     createdAt DateTime @default(now())

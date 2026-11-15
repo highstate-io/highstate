@@ -50,7 +50,6 @@ export type LibrarySnapshotImageMinAggregateOutputType = {
   workloadId: string | null
   imageRef: string | null
   imageDigest: string | null
-  imageHash: string | null
   error: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -68,7 +67,6 @@ export type LibrarySnapshotImageMaxAggregateOutputType = {
   workloadId: string | null
   imageRef: string | null
   imageDigest: string | null
-  imageHash: string | null
   error: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -87,7 +85,6 @@ export type LibrarySnapshotImageCountAggregateOutputType = {
   workloadId: number
   imageRef: number
   imageDigest: number
-  imageHash: number
   error: number
   createdAt: number
   updatedAt: number
@@ -115,7 +112,6 @@ export type LibrarySnapshotImageMinAggregateInputType = {
   workloadId?: true
   imageRef?: true
   imageDigest?: true
-  imageHash?: true
   error?: true
   createdAt?: true
   updatedAt?: true
@@ -133,7 +129,6 @@ export type LibrarySnapshotImageMaxAggregateInputType = {
   workloadId?: true
   imageRef?: true
   imageDigest?: true
-  imageHash?: true
   error?: true
   createdAt?: true
   updatedAt?: true
@@ -152,7 +147,6 @@ export type LibrarySnapshotImageCountAggregateInputType = {
   workloadId?: true
   imageRef?: true
   imageDigest?: true
-  imageHash?: true
   error?: true
   createdAt?: true
   updatedAt?: true
@@ -258,7 +252,6 @@ export type LibrarySnapshotImageGroupByOutputType = {
   workloadId: string | null
   imageRef: string | null
   imageDigest: string | null
-  imageHash: string | null
   error: string | null
   createdAt: Date
   updatedAt: Date
@@ -300,7 +293,6 @@ export type LibrarySnapshotImageWhereInput = {
   workloadId?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   imageRef?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   imageDigest?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
-  imageHash?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   error?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LibrarySnapshotImage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LibrarySnapshotImage"> | Date | string
@@ -322,7 +314,6 @@ export type LibrarySnapshotImageOrderByWithRelationInput = {
   workloadId?: Prisma.SortOrderInput | Prisma.SortOrder
   imageRef?: Prisma.SortOrderInput | Prisma.SortOrder
   imageDigest?: Prisma.SortOrderInput | Prisma.SortOrder
-  imageHash?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -348,7 +339,6 @@ export type LibrarySnapshotImageWhereUniqueInput = Prisma.AtLeast<{
   progress?: Prisma.JsonNullableFilter<"LibrarySnapshotImage">
   imageRef?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   imageDigest?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
-  imageHash?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   error?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LibrarySnapshotImage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LibrarySnapshotImage"> | Date | string
@@ -370,7 +360,6 @@ export type LibrarySnapshotImageOrderByWithAggregationInput = {
   workloadId?: Prisma.SortOrderInput | Prisma.SortOrder
   imageRef?: Prisma.SortOrderInput | Prisma.SortOrder
   imageDigest?: Prisma.SortOrderInput | Prisma.SortOrder
-  imageHash?: Prisma.SortOrderInput | Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -397,7 +386,6 @@ export type LibrarySnapshotImageScalarWhereWithAggregatesInput = {
   workloadId?: Prisma.StringNullableWithAggregatesFilter<"LibrarySnapshotImage"> | string | null
   imageRef?: Prisma.StringNullableWithAggregatesFilter<"LibrarySnapshotImage"> | string | null
   imageDigest?: Prisma.StringNullableWithAggregatesFilter<"LibrarySnapshotImage"> | string | null
-  imageHash?: Prisma.StringNullableWithAggregatesFilter<"LibrarySnapshotImage"> | string | null
   error?: Prisma.StringNullableWithAggregatesFilter<"LibrarySnapshotImage"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LibrarySnapshotImage"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LibrarySnapshotImage"> | Date | string
@@ -413,7 +401,6 @@ export type LibrarySnapshotImageCreateInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -435,7 +422,6 @@ export type LibrarySnapshotImageUncheckedCreateInput = {
   workloadId?: string | null
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -451,7 +437,6 @@ export type LibrarySnapshotImageUpdateInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -473,7 +458,6 @@ export type LibrarySnapshotImageUncheckedUpdateInput = {
   workloadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -492,7 +476,6 @@ export type LibrarySnapshotImageCreateManyInput = {
   workloadId?: string | null
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -508,7 +491,6 @@ export type LibrarySnapshotImageUpdateManyMutationInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -527,7 +509,6 @@ export type LibrarySnapshotImageUncheckedUpdateManyInput = {
   workloadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -552,7 +533,6 @@ export type LibrarySnapshotImageCountOrderByAggregateInput = {
   workloadId?: Prisma.SortOrder
   imageRef?: Prisma.SortOrder
   imageDigest?: Prisma.SortOrder
-  imageHash?: Prisma.SortOrder
   error?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -574,7 +554,6 @@ export type LibrarySnapshotImageMaxOrderByAggregateInput = {
   workloadId?: Prisma.SortOrder
   imageRef?: Prisma.SortOrder
   imageDigest?: Prisma.SortOrder
-  imageHash?: Prisma.SortOrder
   error?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -592,7 +571,6 @@ export type LibrarySnapshotImageMinOrderByAggregateInput = {
   workloadId?: Prisma.SortOrder
   imageRef?: Prisma.SortOrder
   imageDigest?: Prisma.SortOrder
-  imageHash?: Prisma.SortOrder
   error?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -759,7 +737,6 @@ export type LibrarySnapshotImageCreateWithoutProjectInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -779,7 +756,6 @@ export type LibrarySnapshotImageUncheckedCreateWithoutProjectInput = {
   workloadId?: string | null
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -826,7 +802,6 @@ export type LibrarySnapshotImageScalarWhereInput = {
   workloadId?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   imageRef?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   imageDigest?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
-  imageHash?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   error?: Prisma.StringNullableFilter<"LibrarySnapshotImage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LibrarySnapshotImage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LibrarySnapshotImage"> | Date | string
@@ -842,7 +817,6 @@ export type LibrarySnapshotImageCreateWithoutRuntimeInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -862,7 +836,6 @@ export type LibrarySnapshotImageUncheckedCreateWithoutRuntimeInput = {
   workloadId?: string | null
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -903,7 +876,6 @@ export type LibrarySnapshotImageCreateWithoutWorkloadInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -923,7 +895,6 @@ export type LibrarySnapshotImageUncheckedCreateWithoutWorkloadInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -955,7 +926,6 @@ export type LibrarySnapshotImageUpdateWithoutWorkloadInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -975,7 +945,6 @@ export type LibrarySnapshotImageUncheckedUpdateWithoutWorkloadInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -993,7 +962,6 @@ export type LibrarySnapshotImageCreateManyProjectInput = {
   workloadId?: string | null
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1009,7 +977,6 @@ export type LibrarySnapshotImageUpdateWithoutProjectInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1029,7 +996,6 @@ export type LibrarySnapshotImageUncheckedUpdateWithoutProjectInput = {
   workloadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1047,7 +1013,6 @@ export type LibrarySnapshotImageUncheckedUpdateManyWithoutProjectInput = {
   workloadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1065,7 +1030,6 @@ export type LibrarySnapshotImageCreateManyRuntimeInput = {
   workloadId?: string | null
   imageRef?: string | null
   imageDigest?: string | null
-  imageHash?: string | null
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1081,7 +1045,6 @@ export type LibrarySnapshotImageUpdateWithoutRuntimeInput = {
   progress?:PrismaJson.LibraryImageProgress | Prisma.NullableJsonNullValueInput
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1101,7 +1064,6 @@ export type LibrarySnapshotImageUncheckedUpdateWithoutRuntimeInput = {
   workloadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1119,7 +1081,6 @@ export type LibrarySnapshotImageUncheckedUpdateManyWithoutRuntimeInput = {
   workloadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1140,7 +1101,6 @@ export type LibrarySnapshotImageSelect<ExtArgs extends runtime.Types.Extensions.
   workloadId?: boolean
   imageRef?: boolean
   imageDigest?: boolean
-  imageHash?: boolean
   error?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1162,7 +1122,6 @@ export type LibrarySnapshotImageSelectCreateManyAndReturn<ExtArgs extends runtim
   workloadId?: boolean
   imageRef?: boolean
   imageDigest?: boolean
-  imageHash?: boolean
   error?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1184,7 +1143,6 @@ export type LibrarySnapshotImageSelectUpdateManyAndReturn<ExtArgs extends runtim
   workloadId?: boolean
   imageRef?: boolean
   imageDigest?: boolean
-  imageHash?: boolean
   error?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1206,14 +1164,13 @@ export type LibrarySnapshotImageSelectScalar = {
   workloadId?: boolean
   imageRef?: boolean
   imageDigest?: boolean
-  imageHash?: boolean
   error?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   completedAt?: boolean
 }
 
-export type LibrarySnapshotImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "snapshotId" | "snapshotHash" | "runtimeId" | "status" | "generation" | "progress" | "workloadId" | "imageRef" | "imageDigest" | "imageHash" | "error" | "createdAt" | "updatedAt" | "completedAt", ExtArgs["result"]["librarySnapshotImage"]>
+export type LibrarySnapshotImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "snapshotId" | "snapshotHash" | "runtimeId" | "status" | "generation" | "progress" | "workloadId" | "imageRef" | "imageDigest" | "error" | "createdAt" | "updatedAt" | "completedAt", ExtArgs["result"]["librarySnapshotImage"]>
 export type LibrarySnapshotImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   runtime?: boolean | Prisma.ContainerRuntimeDefaultArgs<ExtArgs>
@@ -1293,10 +1250,6 @@ export type $LibrarySnapshotImagePayload<ExtArgs extends runtime.Types.Extension
      * The immutable OCI image digest, when available.
      */
     imageDigest: string | null
-    /**
-     * The hash reported by the completed image build.
-     */
-    imageHash: string | null
     /**
      * The most recent materialization error.
      */
@@ -1750,7 +1703,6 @@ export interface LibrarySnapshotImageFieldRefs {
   readonly workloadId: Prisma.FieldRef<"LibrarySnapshotImage", 'String'>
   readonly imageRef: Prisma.FieldRef<"LibrarySnapshotImage", 'String'>
   readonly imageDigest: Prisma.FieldRef<"LibrarySnapshotImage", 'String'>
-  readonly imageHash: Prisma.FieldRef<"LibrarySnapshotImage", 'String'>
   readonly error: Prisma.FieldRef<"LibrarySnapshotImage", 'String'>
   readonly createdAt: Prisma.FieldRef<"LibrarySnapshotImage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"LibrarySnapshotImage", 'DateTime'>

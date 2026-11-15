@@ -298,7 +298,7 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
           libraryPackageVersionId: state.lastOperationState.libraryPackageVersionId ?? undefined,
           previousLibraryPackageVersionId:
             state.lastOperationState.previousLibraryPackageVersionId ?? undefined,
-          localOverlayActive: state.lastOperationState.localOverlayActive,
+          localOverlayActive: state.lastOperationState.localOverlayRevision !== null,
           localOverlayRevision: state.lastOperationState.localOverlayRevision ?? undefined,
         }
       : undefined,

@@ -30,9 +30,8 @@ export const migrationPacks = {
       "20260503160615_add_entity_sharing_system",
       "20260823193137_add_authorization",
       "20261025160007_runtime_redesign",
-      "20261115021010_runtime_entity_identity",
     ],
-    dataMigrations: { "20261115021010_runtime_entity_identity": migrateRuntimeSettingsIdentity },
+    dataMigrations: { "20261025160007_runtime_redesign": migrateRuntimeSettingsIdentity },
   },
   project: {
     type: "project" as const,

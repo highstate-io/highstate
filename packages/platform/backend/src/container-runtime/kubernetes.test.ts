@@ -161,7 +161,7 @@ const owner: RuntimeOwnership = {
 }
 
 describe("Kubernetes API placement", () => {
-  it("preserves migrated state volumes without accepting another runtime or project", async () => {
+  it("preserves owned state volumes without accepting another runtime or project", async () => {
     await withCluster(
       async (adapter, resources) => {
         const key = "/api/v1/namespaces/test/persistentvolumeclaims/state"
@@ -172,7 +172,7 @@ describe("Kubernetes API placement", () => {
             labels: {
               "highstate.io/backend": owner.backendId,
               "highstate.io/project": owner.projectId,
-              "highstate.io/runtime": "legacy-runtime",
+              "highstate.io/runtime": owner.runtimeId,
             },
           },
         })
@@ -191,7 +191,6 @@ describe("Kubernetes API placement", () => {
         await adapter.removeVolume(owner, "state")
         expect(resources.has(key)).toBe(false)
       },
-      { legacyOwnership: { runtimeId: owner.runtimeId, label: "legacy-runtime" } },
     )
   })
 

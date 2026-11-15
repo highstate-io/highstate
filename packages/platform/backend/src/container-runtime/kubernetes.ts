@@ -34,7 +34,6 @@ export type KubernetesRuntimeConfig = {
   fileHelperImage?: string
   registryCredentials?: RegistryCredential[]
   allowHttpRegistry?: boolean
-  legacyOwnership?: { runtimeId: string; label: string }
 }
 function statusCode(error: unknown): number | undefined {
   const value = error as { code?: number; statusCode?: number; response?: { statusCode: number } }
@@ -698,11 +697,7 @@ export class KubernetesRuntimeAdapter implements ContainerRuntimeAdapter {
     if (
       labels["highstate.io/backend"] !== owner.backendId ||
       labels["highstate.io/project"] !== owner.projectId ||
-      (labels["highstate.io/runtime"] !== owner.runtimeId &&
-        !(
-          this.config.legacyOwnership?.runtimeId === owner.runtimeId &&
-          labels["highstate.io/runtime"] === this.config.legacyOwnership.label
-        ))
+      labels["highstate.io/runtime"] !== owner.runtimeId
     ) {
       throw new Error("Managed PVC belongs to another owner")
     }

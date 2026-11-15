@@ -53,17 +53,16 @@ function credentials(value: Uint8Array | undefined): unknown {
   }
 }
 
-function revision(value: bigint | undefined, id: string): number {
+function revision(value: string | undefined, id: string): string | undefined {
   if (value === undefined && id) {
     throw new ConnectError("Expected revision is required", Code.InvalidArgument)
   }
 
-  const number = Number(value ?? 0n)
-  if (!Number.isSafeInteger(number) || number < 0) {
-    throw new ConnectError("Invalid expected revision", Code.InvalidArgument)
-  }
+  return value === undefined ? undefined : parseValue(value, "expectedRevision", z.cuid2().length(24))
+}
 
-  return number
+function requiredRevision(value: string | undefined): string {
+  return parseValue(value, "expectedRevision", z.cuid2().length(24))
 }
 
 function requiredId(id: string): string {
@@ -160,7 +159,7 @@ export function createRuntimeSettingsService(
         auth,
         "container-runtime",
         requiredId(request.containerRuntimeId),
-        revision(request.expectedRevision, request.containerRuntimeId),
+        requiredRevision(request.expectedRevision),
       )
 
       return {}
@@ -239,7 +238,7 @@ export function createRuntimeSettingsService(
         auth,
         "pulumi-state-backend",
         requiredId(request.pulumiStateBackendId),
-        revision(request.expectedRevision, request.pulumiStateBackendId),
+        requiredRevision(request.expectedRevision),
       )
 
       return {}
@@ -290,7 +289,7 @@ export function createRuntimeSettingsService(
         auth,
         "npm-registry-credential",
         requiredId(request.npmRegistryCredentialId),
-        revision(request.expectedRevision, request.npmRegistryCredentialId),
+        requiredRevision(request.expectedRevision),
       )
 
       return {}
@@ -340,7 +339,7 @@ export function createRuntimeSettingsService(
         auth,
         "container-registry-credential",
         requiredId(request.containerRegistryCredentialId),
-        revision(request.expectedRevision, request.containerRegistryCredentialId),
+        requiredRevision(request.expectedRevision),
       )
 
       return {}

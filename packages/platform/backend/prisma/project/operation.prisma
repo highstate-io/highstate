@@ -129,9 +129,6 @@ model InstanceOperationState {
     /// The previously deployed package version when this operation performs an upgrade.
     previousLibraryPackageVersionId String?
 
-    /// Whether this instance operation used the local development library overlay.
-    localOverlayActive Boolean @default(false)
-
     /// The local development overlay revision used by this instance operation.
     localOverlayRevision String?
 

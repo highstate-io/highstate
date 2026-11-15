@@ -27,6 +27,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
   private readonly events = new EventEmitter()
   private readonly executions = new Map<string, Promise<RuntimeExecution>>()
   private readonly actions = new Map<string, ActiveAction>()
+  private readonly stateDeletionActions = new Set<string>()
 
   constructor(
     private readonly database: DatabaseManager,
@@ -107,16 +108,11 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       const action = await this.execution.coordinator.createAction({
         workloadId: runner.workload.id,
         kind: "pulumi",
-        ownerId: JSON.stringify({
-          stateId: options.stateId,
-          phase: "delete-state",
-          librarySnapshotId: deployed.librarySnapshotId,
-        }),
         snapshotId: deployed.librarySnapshotId,
-        imageDigest: runner.imageDigest,
       })
 
       actionId = action.id
+      this.stateDeletionActions.add(action.id)
 
       await this.execution.coordinator.dispatch(action.id, {
         action: "destroy",
@@ -140,7 +136,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
       }
     } finally {
       if (actionId) {
-        this.actions.delete(actionId)
+        this.stateDeletionActions.delete(actionId)
       }
 
       await this.execution.coordinator.requestCleanup(runner.workload.id)
@@ -251,16 +247,7 @@ export class RuntimeRunnerBackend implements RunnerBackend {
     const action = await this.execution.coordinator.createAction({
       workloadId: runner.workload.id,
       kind: "pulumi",
-      ownerId: JSON.stringify({
-        operationId: options.operationId,
-        stateId: options.stateId,
-        phase: options.executionPhase ?? phase,
-        librarySnapshotId: snapshotId,
-        libraryPackageVersionId: source.libraryPackageVersionId,
-        previousLibraryPackageVersionId: deployed.libraryPackageVersionId,
-      }),
       snapshotId,
-      imageDigest: runner.imageDigest,
     })
 
     const runtime = await this.database.backend.containerRuntime.findUniqueOrThrow({
@@ -382,12 +369,9 @@ export class RuntimeRunnerBackend implements RunnerBackend {
   private async event(context: RuntimeDomainContext, event: AgentEvent): Promise<unknown> {
     const active = event.actionId ? this.actions.get(event.actionId) : undefined
     if (!active) {
-      const owner = context.action
-        ? (JSON.parse(context.action.ownerId) as { phase?: string })
-        : undefined
-
       if (
-        owner?.phase === "delete-state" &&
+        event.actionId &&
+        this.stateDeletionActions.has(event.actionId) &&
         ["completed", "error", "output", "engineEvent"].includes(event.type)
       ) {
         return

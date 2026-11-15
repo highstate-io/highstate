@@ -22,18 +22,8 @@ export type NpmRegistryCredentialModel = runtime.Types.Result.DefaultSelection<P
 
 export type AggregateNpmRegistryCredential = {
   _count: NpmRegistryCredentialCountAggregateOutputType | null
-  _avg: NpmRegistryCredentialAvgAggregateOutputType | null
-  _sum: NpmRegistryCredentialSumAggregateOutputType | null
   _min: NpmRegistryCredentialMinAggregateOutputType | null
   _max: NpmRegistryCredentialMaxAggregateOutputType | null
-}
-
-export type NpmRegistryCredentialAvgAggregateOutputType = {
-  revision: number | null
-}
-
-export type NpmRegistryCredentialSumAggregateOutputType = {
-  revision: number | null
 }
 
 export type NpmRegistryCredentialMinAggregateOutputType = {
@@ -41,7 +31,7 @@ export type NpmRegistryCredentialMinAggregateOutputType = {
   scope: string | null
   registryUrl: string | null
   encryptedCredentials: string | null
-  revision: number | null
+  revision: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,7 +41,7 @@ export type NpmRegistryCredentialMaxAggregateOutputType = {
   scope: string | null
   registryUrl: string | null
   encryptedCredentials: string | null
-  revision: number | null
+  revision: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,14 +58,6 @@ export type NpmRegistryCredentialCountAggregateOutputType = {
   _all: number
 }
 
-
-export type NpmRegistryCredentialAvgAggregateInputType = {
-  revision?: true
-}
-
-export type NpmRegistryCredentialSumAggregateInputType = {
-  revision?: true
-}
 
 export type NpmRegistryCredentialMinAggregateInputType = {
   id?: true
@@ -147,18 +129,6 @@ export type NpmRegistryCredentialAggregateArgs<ExtArgs extends runtime.Types.Ext
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: NpmRegistryCredentialAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: NpmRegistryCredentialSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: NpmRegistryCredentialMinAggregateInputType
@@ -189,8 +159,6 @@ export type NpmRegistryCredentialGroupByArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   _count?: NpmRegistryCredentialCountAggregateInputType | true
-  _avg?: NpmRegistryCredentialAvgAggregateInputType
-  _sum?: NpmRegistryCredentialSumAggregateInputType
   _min?: NpmRegistryCredentialMinAggregateInputType
   _max?: NpmRegistryCredentialMaxAggregateInputType
 }
@@ -201,12 +169,10 @@ export type NpmRegistryCredentialGroupByOutputType = {
   scope: string
   registryUrl: string
   encryptedCredentials: string
-  revision: number
+  revision: string
   createdAt: Date
   updatedAt: Date
   _count: NpmRegistryCredentialCountAggregateOutputType | null
-  _avg: NpmRegistryCredentialAvgAggregateOutputType | null
-  _sum: NpmRegistryCredentialSumAggregateOutputType | null
   _min: NpmRegistryCredentialMinAggregateOutputType | null
   _max: NpmRegistryCredentialMaxAggregateOutputType | null
 }
@@ -235,7 +201,7 @@ export type NpmRegistryCredentialWhereInput = {
   scope?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   registryUrl?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   encryptedCredentials?: Prisma.StringFilter<"NpmRegistryCredential"> | string
-  revision?: Prisma.IntFilter<"NpmRegistryCredential"> | number
+  revision?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   createdAt?: Prisma.DateTimeFilter<"NpmRegistryCredential"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NpmRegistryCredential"> | Date | string
   runtimes?: Prisma.ContainerRuntimeListRelationFilter
@@ -262,7 +228,7 @@ export type NpmRegistryCredentialWhereUniqueInput = Prisma.AtLeast<{
   meta?: Prisma.JsonFilter<"NpmRegistryCredential">
   registryUrl?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   encryptedCredentials?: Prisma.StringFilter<"NpmRegistryCredential"> | string
-  revision?: Prisma.IntFilter<"NpmRegistryCredential"> | number
+  revision?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   createdAt?: Prisma.DateTimeFilter<"NpmRegistryCredential"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NpmRegistryCredential"> | Date | string
   runtimes?: Prisma.ContainerRuntimeListRelationFilter
@@ -278,10 +244,8 @@ export type NpmRegistryCredentialOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.NpmRegistryCredentialCountOrderByAggregateInput
-  _avg?: Prisma.NpmRegistryCredentialAvgOrderByAggregateInput
   _max?: Prisma.NpmRegistryCredentialMaxOrderByAggregateInput
   _min?: Prisma.NpmRegistryCredentialMinOrderByAggregateInput
-  _sum?: Prisma.NpmRegistryCredentialSumOrderByAggregateInput
 }
 
 export type NpmRegistryCredentialScalarWhereWithAggregatesInput = {
@@ -293,7 +257,7 @@ export type NpmRegistryCredentialScalarWhereWithAggregatesInput = {
   scope?: Prisma.StringWithAggregatesFilter<"NpmRegistryCredential"> | string
   registryUrl?: Prisma.StringWithAggregatesFilter<"NpmRegistryCredential"> | string
   encryptedCredentials?: Prisma.StringWithAggregatesFilter<"NpmRegistryCredential"> | string
-  revision?: Prisma.IntWithAggregatesFilter<"NpmRegistryCredential"> | number
+  revision?: Prisma.StringWithAggregatesFilter<"NpmRegistryCredential"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"NpmRegistryCredential"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"NpmRegistryCredential"> | Date | string
 }
@@ -304,7 +268,7 @@ export type NpmRegistryCredentialCreateInput = {
   scope: string
   registryUrl: string
   encryptedCredentials: string
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   runtimes?: Prisma.ContainerRuntimeCreateNestedManyWithoutNpmRegistryCredentialsInput
@@ -316,7 +280,7 @@ export type NpmRegistryCredentialUncheckedCreateInput = {
   scope: string
   registryUrl: string
   encryptedCredentials: string
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   runtimes?: Prisma.ContainerRuntimeUncheckedCreateNestedManyWithoutNpmRegistryCredentialsInput
@@ -328,7 +292,7 @@ export type NpmRegistryCredentialUpdateInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   runtimes?: Prisma.ContainerRuntimeUpdateManyWithoutNpmRegistryCredentialsNestedInput
@@ -340,7 +304,7 @@ export type NpmRegistryCredentialUncheckedUpdateInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   runtimes?: Prisma.ContainerRuntimeUncheckedUpdateManyWithoutNpmRegistryCredentialsNestedInput
@@ -352,7 +316,7 @@ export type NpmRegistryCredentialCreateManyInput = {
   scope: string
   registryUrl: string
   encryptedCredentials: string
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -363,7 +327,7 @@ export type NpmRegistryCredentialUpdateManyMutationInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -374,7 +338,7 @@ export type NpmRegistryCredentialUncheckedUpdateManyInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -388,10 +352,6 @@ export type NpmRegistryCredentialCountOrderByAggregateInput = {
   revision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type NpmRegistryCredentialAvgOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
 }
 
 export type NpmRegistryCredentialMaxOrderByAggregateInput = {
@@ -412,10 +372,6 @@ export type NpmRegistryCredentialMinOrderByAggregateInput = {
   revision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type NpmRegistryCredentialSumOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
 }
 
 export type NpmRegistryCredentialListRelationFilter = {
@@ -472,7 +428,7 @@ export type NpmRegistryCredentialCreateWithoutRuntimesInput = {
   scope: string
   registryUrl: string
   encryptedCredentials: string
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -483,7 +439,7 @@ export type NpmRegistryCredentialUncheckedCreateWithoutRuntimesInput = {
   scope: string
   registryUrl: string
   encryptedCredentials: string
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -518,7 +474,7 @@ export type NpmRegistryCredentialScalarWhereInput = {
   scope?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   registryUrl?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   encryptedCredentials?: Prisma.StringFilter<"NpmRegistryCredential"> | string
-  revision?: Prisma.IntFilter<"NpmRegistryCredential"> | number
+  revision?: Prisma.StringFilter<"NpmRegistryCredential"> | string
   createdAt?: Prisma.DateTimeFilter<"NpmRegistryCredential"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NpmRegistryCredential"> | Date | string
 }
@@ -529,7 +485,7 @@ export type NpmRegistryCredentialUpdateWithoutRuntimesInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -540,7 +496,7 @@ export type NpmRegistryCredentialUncheckedUpdateWithoutRuntimesInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -551,7 +507,7 @@ export type NpmRegistryCredentialUncheckedUpdateManyWithoutRuntimesInput = {
   scope?: Prisma.StringFieldUpdateOperationsInput | string
   registryUrl?: Prisma.StringFieldUpdateOperationsInput | string
   encryptedCredentials?: Prisma.StringFieldUpdateOperationsInput | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -672,7 +628,7 @@ export type $NpmRegistryCredentialPayload<ExtArgs extends runtime.Types.Extensio
      * The encrypted registry authentication material.
      */
     encryptedCredentials: string
-    revision: number
+    revision: string
     /**
      * The time when the credential was created.
      */
@@ -1110,7 +1066,7 @@ export interface NpmRegistryCredentialFieldRefs {
   readonly scope: Prisma.FieldRef<"NpmRegistryCredential", 'String'>
   readonly registryUrl: Prisma.FieldRef<"NpmRegistryCredential", 'String'>
   readonly encryptedCredentials: Prisma.FieldRef<"NpmRegistryCredential", 'String'>
-  readonly revision: Prisma.FieldRef<"NpmRegistryCredential", 'Int'>
+  readonly revision: Prisma.FieldRef<"NpmRegistryCredential", 'String'>
   readonly createdAt: Prisma.FieldRef<"NpmRegistryCredential", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"NpmRegistryCredential", 'DateTime'>
 }

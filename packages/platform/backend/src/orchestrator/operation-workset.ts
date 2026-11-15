@@ -152,7 +152,6 @@ export class OperationWorkset {
             librarySnapshotId: provenance?.librarySnapshotId ?? null,
             libraryPackageVersionId: provenance?.libraryPackageVersionId ?? null,
             previousLibraryPackageVersionId: state.libraryPackageVersionId,
-            localOverlayActive: this.context.localOverlayRevision !== null,
             localOverlayRevision: this.context.localOverlayRevision,
             model: instance,
             resolvedInputs: serializedResolvedInputs,

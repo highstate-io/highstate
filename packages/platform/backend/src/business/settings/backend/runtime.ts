@@ -8,6 +8,7 @@ import type {
 import type { PubSubManager } from "../../../pubsub"
 import type { ContainerRuntimeSpec } from "../../../shared/models/backend/runtime"
 import { armor, Encrypter, identityToRecipient } from "age-encryption"
+import { createId } from "@paralleldrive/cuid2"
 import { z } from "zod"
 import { buildBackendAuthorizationWhere, requireBackendPermission } from "../../../common"
 import {
@@ -106,7 +107,7 @@ export class RuntimeSettingsService {
   }
 
   /**
-   * Creates at revision zero, or replaces the matching revision and increments it atomically.
+   * Creates without an expected revision, or replaces a matching token with a fresh CUIDv2 atomically.
    * Omitted secrets preserve stored ciphertext; explicit null clears optional secrets.
    */
   async put<K extends RuntimeSettingsKind>(
@@ -152,7 +153,7 @@ export class RuntimeSettingsService {
             if (current) {
               const result = await tx.containerRuntime.updateMany({
                 where: { id, revision: data.revision },
-                data: { ...values, revision: { increment: 1 } },
+                data: { ...values, revision: createId() },
               })
 
               assertChanged(kind, id, result.count)
@@ -194,7 +195,7 @@ export class RuntimeSettingsService {
             if (current) {
               const result = await tx.pulumiStateBackend.updateMany({
                 where: { id, revision: data.revision },
-                data: { ...values, revision: { increment: 1 } },
+                data: { ...values, revision: createId() },
               })
 
               assertChanged(kind, id, result.count)
@@ -228,7 +229,7 @@ export class RuntimeSettingsService {
             if (current) {
               const result = await tx.npmRegistryCredential.updateMany({
                 where: { id, revision: data.revision },
-                data: { ...values, revision: { increment: 1 } },
+                data: { ...values, revision: createId() },
               })
 
               assertChanged(kind, id, result.count)
@@ -260,7 +261,7 @@ export class RuntimeSettingsService {
             if (current) {
               const result = await tx.containerRegistryCredential.updateMany({
                 where: { id, revision: data.revision },
-                data: { ...values, revision: { increment: 1 } },
+                data: { ...values, revision: createId() },
               })
 
               assertChanged(kind, id, result.count)
@@ -279,7 +280,7 @@ export class RuntimeSettingsService {
       await this.pubsub?.publish(["runtime-settings"], {})
       return result
     } catch (error) {
-      if (isDatabaseError(error, "P2002") && input.revision === 0) {
+      if (isDatabaseError(error, "P2002") && input.revision === undefined) {
         throw new RuntimeSettingsConflictError(kind, id)
       }
 
@@ -295,14 +296,12 @@ export class RuntimeSettingsService {
     context: BackendRequestContext,
     kind: RuntimeSettingsKind,
     id: string,
-    revision: number,
+    revision: string,
   ): Promise<void> {
     runtimeSettingsKindSchema.parse(kind)
     requireBackendPermission(context, `${kind}.manage`, { resourceId: id })
 
-    if (!Number.isSafeInteger(revision) || revision < 1) {
-      throw new Error("A positive revision is required")
-    }
+    z.cuid2().length(24).parse(revision)
 
     try {
       await this.database.backend.$transaction(async tx => {
@@ -502,10 +501,10 @@ function stateOutput(row: PulumiStateBackend) {
 function assertRevision(
   kind: RuntimeSettingsKind,
   id: string,
-  revision: number,
-  current: { revision: number } | null,
+  revision: string | undefined,
+  current: { revision: string } | null,
 ) {
-  if (current ? revision !== current.revision : revision !== 0) {
+  if (current ? revision !== current.revision : revision !== undefined) {
     throw new RuntimeSettingsConflictError(kind, id)
   }
 }

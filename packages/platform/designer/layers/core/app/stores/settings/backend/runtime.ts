@@ -45,7 +45,7 @@ export const useRuntimeSettingsStore = defineStore("runtime-settings", () => {
     return await $client.runtimeSettings.put.mutate(input)
   }
 
-  async function remove(kind: RuntimeSettingsKind, id: string, revision: number) {
+  async function remove(kind: RuntimeSettingsKind, id: string, revision: string) {
     await $client.runtimeSettings.delete.mutate({ kind, id, revision })
   }
 

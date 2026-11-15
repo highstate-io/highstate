@@ -45,7 +45,6 @@ describe("RuntimeCoordinator persisted ownership", () => {
     const action = await coordinator.createAction({
       workloadId: workload.id,
       kind: "pulumi",
-      ownerId: "operation",
     })
 
     const controller = new AbortController()
@@ -149,7 +148,6 @@ describe("RuntimeCoordinator persisted ownership", () => {
     const action = await coordinator.createAction({
       workloadId: workload.id,
       kind: "pulumi",
-      ownerId: "operation",
     })
 
     const dispatch = coordinator.dispatch(action.id, { command: "up" })
@@ -217,13 +215,11 @@ describe("RuntimeCoordinator persisted ownership", () => {
     const first = await coordinator.createAction({
       workloadId: workload.id,
       kind: "pulumi",
-      ownerId: "first",
     })
 
     const second = await coordinator.createAction({
       workloadId: workload.id,
       kind: "pulumi",
-      ownerId: "second",
     })
 
     await Promise.all([coordinator.dispatch(first.id, {}), coordinator.dispatch(second.id, {})])
@@ -298,7 +294,6 @@ describe("RuntimeCoordinator persisted ownership", () => {
     const action = await coordinator.createAction({
       workloadId: workload.id,
       kind: "pulumi",
-      ownerId: "operation",
     })
 
     await database.backend.runtimeAction.update({

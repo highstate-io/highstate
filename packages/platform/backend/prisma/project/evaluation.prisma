@@ -59,5 +59,4 @@ model InstanceEvaluationState {
     librarySnapshot LibrarySnapshot? @relation(fields: [librarySnapshotId], references: [id])
 
     @@index([librarySnapshotId])
-    @@index([modelRevision])
 }

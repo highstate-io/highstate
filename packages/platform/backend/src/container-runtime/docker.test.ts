@@ -23,11 +23,11 @@ afterEach(async () => {
 })
 
 describe("Docker API adapter", () => {
-  it("preserves migrated volumes without accepting another runtime or project owner", async () => {
+  it("preserves owned volumes without accepting another runtime or project owner", async () => {
     const labels = {
       "highstate.io/backend": owner.backendId,
       "highstate.io/project": owner.projectId,
-      "highstate.io/runtime": "legacy-runtime",
+      "highstate.io/runtime": owner.runtimeId,
     }
 
     const remove = vi.fn(async () => {})
@@ -36,7 +36,6 @@ describe("Docker API adapter", () => {
       {
         endpoint: "unix:///var/run/docker.sock",
         local: true,
-        legacyOwnership: { runtimeId: owner.runtimeId, label: "legacy-runtime" },
       },
       {
         createVolume: vi.fn(async () => ({})),

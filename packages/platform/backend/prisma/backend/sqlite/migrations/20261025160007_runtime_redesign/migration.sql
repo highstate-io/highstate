@@ -1,4 +1,5 @@
 -- Legacy host execution configuration is retained per project before removing the old tables.
+-- The registered data migration assigns final CUIDv2 identities and concurrency tokens before commit.
 
 -- CreateTable
 CREATE TABLE "LibrarySnapshotImage" (
@@ -13,7 +14,6 @@ CREATE TABLE "LibrarySnapshotImage" (
     "workloadId" TEXT,
     "imageRef" TEXT,
     "imageDigest" TEXT,
-    "imageHash" TEXT,
     "error" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -26,9 +26,10 @@ CREATE TABLE "LibrarySnapshotImage" (
 -- CreateTable
 CREATE TABLE "PulumiStateBackend" (
     "id" TEXT NOT NULL PRIMARY KEY,
+    "systemName" TEXT,
     "meta" JSONB NOT NULL,
     "spec" JSONB NOT NULL,
-    "revision" INTEGER NOT NULL DEFAULT 1,
+    "revision" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -40,7 +41,7 @@ CREATE TABLE "NpmRegistryCredential" (
     "scope" TEXT NOT NULL,
     "registryUrl" TEXT NOT NULL,
     "encryptedCredentials" TEXT NOT NULL,
-    "revision" INTEGER NOT NULL DEFAULT 1,
+    "revision" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -51,7 +52,7 @@ CREATE TABLE "ContainerRegistryCredential" (
     "meta" JSONB NOT NULL,
     "registryUrl" TEXT NOT NULL,
     "encryptedCredentials" TEXT NOT NULL,
-    "revision" INTEGER NOT NULL DEFAULT 1,
+    "revision" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -59,27 +60,31 @@ CREATE TABLE "ContainerRegistryCredential" (
 -- CreateTable
 CREATE TABLE "ContainerRuntime" (
     "id" TEXT NOT NULL PRIMARY KEY,
+    "systemName" TEXT,
     "meta" JSONB NOT NULL,
     "spec" JSONB NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "revision" INTEGER NOT NULL DEFAULT 1
+    "revision" TEXT NOT NULL
 );
 
-INSERT INTO "ContainerRuntime" ("id", "meta", "spec", "updatedAt") VALUES
-('local', '{"title":"Local Docker","description":"Runs project workloads on the local Docker engine."}',
- '{"type":"docker","local":true,"engineEndpoint":"unix:///var/run/docker.sock","runtimeApiUrl":"https://host.docker.internal:3000"}', CURRENT_TIMESTAMP);
+INSERT INTO "ContainerRuntime" ("id", "systemName", "meta", "spec", "revision", "updatedAt") VALUES
+('local', 'local', '{"title":"Local Docker","description":"Runs project workloads on the local Docker engine."}',
+ '{"type":"docker","local":true,"engineEndpoint":"unix:///var/run/docker.sock","runtimeApiUrl":"https://host.docker.internal:3000"}', '', CURRENT_TIMESTAMP);
 
 -- The old host login may point at any Pulumi backend. Do not silently redirect its stacks to new storage.
 -- The explicit legacy URL requires operator selection of the original state URL before container execution.
-INSERT INTO "PulumiStateBackend" ("id", "meta", "spec", "updatedAt")
-SELECT "id", "meta", json_object('url', 'legacy:host'), CURRENT_TIMESTAMP FROM "PulumiBackend";
+INSERT INTO "PulumiStateBackend" ("id", "meta", "spec", "revision", "updatedAt")
+SELECT "id", "meta", json_object('url', 'legacy:host'), '', CURRENT_TIMESTAMP FROM "PulumiBackend";
 
-INSERT INTO "PulumiStateBackend" ("id", "meta", "spec", "updatedAt") VALUES
-('local', '{"title":"Local Pulumi State","description":"Stores Pulumi state in the runtime persistent local state directory."}',
- '{"url":"file://~"}', CURRENT_TIMESTAMP);
+INSERT INTO "PulumiStateBackend" ("id", "systemName", "meta", "spec", "revision", "updatedAt") VALUES
+('local', 'local', '{"title":"Local Pulumi State","description":"Stores Pulumi state in the runtime persistent local state directory."}',
+ '{"url":"file://~"}', '', CURRENT_TIMESTAMP);
 
 -- CreateTable
+CREATE UNIQUE INDEX "ContainerRuntime_systemName_key" ON "ContainerRuntime"("systemName");
+CREATE UNIQUE INDEX "PulumiStateBackend_systemName_key" ON "PulumiStateBackend"("systemName");
+
 CREATE TABLE "RuntimeWorkload" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "runtimeId" TEXT NOT NULL,
@@ -91,9 +96,7 @@ CREATE TABLE "RuntimeWorkload" (
     "status" TEXT NOT NULL DEFAULT 'pending',
     "leaseGeneration" INTEGER NOT NULL DEFAULT 1,
     "leaseExpiresAt" DATETIME,
-    "connectedAt" DATETIME,
     "finishedAt" DATETIME,
-    "cleanupStartedAt" DATETIME,
     "cleanedUpAt" DATETIME,
     "lastError" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -107,12 +110,9 @@ CREATE TABLE "RuntimeAction" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "workloadId" TEXT NOT NULL,
     "kind" TEXT NOT NULL,
-    "ownerId" TEXT NOT NULL,
     "snapshotId" TEXT,
-    "imageDigest" TEXT,
     "status" TEXT NOT NULL DEFAULT 'pending',
     "cancellationRequestedAt" DATETIME,
-    "forceCancellationRequestedAt" DATETIME,
     "startedAt" DATETIME,
     "finishedAt" DATETIME,
     "lastError" TEXT,
@@ -202,9 +202,6 @@ CREATE UNIQUE INDEX "RuntimeWorkload_runtimeId_nativeResourceId_key" ON "Runtime
 
 -- CreateIndex
 CREATE INDEX "RuntimeAction_workloadId_status_idx" ON "RuntimeAction"("workloadId", "status");
-
--- CreateIndex
-CREATE INDEX "RuntimeAction_ownerId_kind_idx" ON "RuntimeAction"("ownerId", "kind");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ContainerRegistryCredentialToContainerRuntime_AB_unique" ON "_ContainerRegistryCredentialToContainerRuntime"("A", "B");

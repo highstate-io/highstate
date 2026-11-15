@@ -317,3 +317,4 @@ export type ProxyWorkerRequest = Message<"io.highstate.runtime.v1.ProxyWorkerReq
  */
 export const ProxyWorkerRequestSchema: GenMessage<ProxyWorkerRequest> = /*@__PURE__*/
   messageDesc(file_io_highstate_runtime_v1_worker, 8);
+

@@ -87,7 +87,7 @@ export class RuntimeExecutionService {
       const volumes = project?.pulumiStateBackend.spec.url.startsWith("file:")
         ? [
             {
-              name: `hs-pulumi-${project.id}-${project.pulumiStateBackend.legacyStateVolumeSuffix ?? project.pulumiStateBackendId}`,
+              name: `hs-pulumi-${project.id}-${project.pulumiStateBackendId}`,
               mountPath: "/var/lib/highstate/pulumi",
             },
           ]

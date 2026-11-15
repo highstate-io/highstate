@@ -3688,7 +3688,6 @@ export const InstanceOperationStateScalarFieldEnum = {
   librarySnapshotId: 'librarySnapshotId',
   libraryPackageVersionId: 'libraryPackageVersionId',
   previousLibraryPackageVersionId: 'previousLibraryPackageVersionId',
-  localOverlayActive: 'localOverlayActive',
   localOverlayRevision: 'localOverlayRevision',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'

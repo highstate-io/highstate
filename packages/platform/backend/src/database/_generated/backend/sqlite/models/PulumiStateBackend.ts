@@ -22,25 +22,14 @@ export type PulumiStateBackendModel = runtime.Types.Result.DefaultSelection<Pris
 
 export type AggregatePulumiStateBackend = {
   _count: PulumiStateBackendCountAggregateOutputType | null
-  _avg: PulumiStateBackendAvgAggregateOutputType | null
-  _sum: PulumiStateBackendSumAggregateOutputType | null
   _min: PulumiStateBackendMinAggregateOutputType | null
   _max: PulumiStateBackendMaxAggregateOutputType | null
-}
-
-export type PulumiStateBackendAvgAggregateOutputType = {
-  revision: number | null
-}
-
-export type PulumiStateBackendSumAggregateOutputType = {
-  revision: number | null
 }
 
 export type PulumiStateBackendMinAggregateOutputType = {
   id: string | null
   systemName: string | null
-  legacyStateVolumeSuffix: string | null
-  revision: number | null
+  revision: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,8 +37,7 @@ export type PulumiStateBackendMinAggregateOutputType = {
 export type PulumiStateBackendMaxAggregateOutputType = {
   id: string | null
   systemName: string | null
-  legacyStateVolumeSuffix: string | null
-  revision: number | null
+  revision: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,7 +45,6 @@ export type PulumiStateBackendMaxAggregateOutputType = {
 export type PulumiStateBackendCountAggregateOutputType = {
   id: number
   systemName: number
-  legacyStateVolumeSuffix: number
   meta: number
   spec: number
   revision: number
@@ -67,18 +54,9 @@ export type PulumiStateBackendCountAggregateOutputType = {
 }
 
 
-export type PulumiStateBackendAvgAggregateInputType = {
-  revision?: true
-}
-
-export type PulumiStateBackendSumAggregateInputType = {
-  revision?: true
-}
-
 export type PulumiStateBackendMinAggregateInputType = {
   id?: true
   systemName?: true
-  legacyStateVolumeSuffix?: true
   revision?: true
   createdAt?: true
   updatedAt?: true
@@ -87,7 +65,6 @@ export type PulumiStateBackendMinAggregateInputType = {
 export type PulumiStateBackendMaxAggregateInputType = {
   id?: true
   systemName?: true
-  legacyStateVolumeSuffix?: true
   revision?: true
   createdAt?: true
   updatedAt?: true
@@ -96,7 +73,6 @@ export type PulumiStateBackendMaxAggregateInputType = {
 export type PulumiStateBackendCountAggregateInputType = {
   id?: true
   systemName?: true
-  legacyStateVolumeSuffix?: true
   meta?: true
   spec?: true
   revision?: true
@@ -143,18 +119,6 @@ export type PulumiStateBackendAggregateArgs<ExtArgs extends runtime.Types.Extens
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: PulumiStateBackendAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: PulumiStateBackendSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: PulumiStateBackendMinAggregateInputType
@@ -185,8 +149,6 @@ export type PulumiStateBackendGroupByArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   _count?: PulumiStateBackendCountAggregateInputType | true
-  _avg?: PulumiStateBackendAvgAggregateInputType
-  _sum?: PulumiStateBackendSumAggregateInputType
   _min?: PulumiStateBackendMinAggregateInputType
   _max?: PulumiStateBackendMaxAggregateInputType
 }
@@ -194,15 +156,12 @@ export type PulumiStateBackendGroupByArgs<ExtArgs extends runtime.Types.Extensio
 export type PulumiStateBackendGroupByOutputType = {
   id: string
   systemName: string | null
-  legacyStateVolumeSuffix: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.PulumiStateBackendSpec
-  revision: number
+  revision: string
   createdAt: Date
   updatedAt: Date
   _count: PulumiStateBackendCountAggregateOutputType | null
-  _avg: PulumiStateBackendAvgAggregateOutputType | null
-  _sum: PulumiStateBackendSumAggregateOutputType | null
   _min: PulumiStateBackendMinAggregateOutputType | null
   _max: PulumiStateBackendMaxAggregateOutputType | null
 }
@@ -228,10 +187,9 @@ export type PulumiStateBackendWhereInput = {
   NOT?: Prisma.PulumiStateBackendWhereInput | Prisma.PulumiStateBackendWhereInput[]
   id?: Prisma.StringFilter<"PulumiStateBackend"> | string
   systemName?: Prisma.StringNullableFilter<"PulumiStateBackend"> | string | null
-  legacyStateVolumeSuffix?: Prisma.StringNullableFilter<"PulumiStateBackend"> | string | null
   meta?: Prisma.JsonFilter<"PulumiStateBackend">
   spec?: Prisma.JsonFilter<"PulumiStateBackend">
-  revision?: Prisma.IntFilter<"PulumiStateBackend"> | number
+  revision?: Prisma.StringFilter<"PulumiStateBackend"> | string
   createdAt?: Prisma.DateTimeFilter<"PulumiStateBackend"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PulumiStateBackend"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
@@ -240,7 +198,6 @@ export type PulumiStateBackendWhereInput = {
 export type PulumiStateBackendOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrderInput | Prisma.SortOrder
-  legacyStateVolumeSuffix?: Prisma.SortOrderInput | Prisma.SortOrder
   meta?: Prisma.SortOrder
   spec?: Prisma.SortOrder
   revision?: Prisma.SortOrder
@@ -255,10 +212,9 @@ export type PulumiStateBackendWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PulumiStateBackendWhereInput | Prisma.PulumiStateBackendWhereInput[]
   OR?: Prisma.PulumiStateBackendWhereInput[]
   NOT?: Prisma.PulumiStateBackendWhereInput | Prisma.PulumiStateBackendWhereInput[]
-  legacyStateVolumeSuffix?: Prisma.StringNullableFilter<"PulumiStateBackend"> | string | null
   meta?: Prisma.JsonFilter<"PulumiStateBackend">
   spec?: Prisma.JsonFilter<"PulumiStateBackend">
-  revision?: Prisma.IntFilter<"PulumiStateBackend"> | number
+  revision?: Prisma.StringFilter<"PulumiStateBackend"> | string
   createdAt?: Prisma.DateTimeFilter<"PulumiStateBackend"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PulumiStateBackend"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
@@ -267,17 +223,14 @@ export type PulumiStateBackendWhereUniqueInput = Prisma.AtLeast<{
 export type PulumiStateBackendOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrderInput | Prisma.SortOrder
-  legacyStateVolumeSuffix?: Prisma.SortOrderInput | Prisma.SortOrder
   meta?: Prisma.SortOrder
   spec?: Prisma.SortOrder
   revision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PulumiStateBackendCountOrderByAggregateInput
-  _avg?: Prisma.PulumiStateBackendAvgOrderByAggregateInput
   _max?: Prisma.PulumiStateBackendMaxOrderByAggregateInput
   _min?: Prisma.PulumiStateBackendMinOrderByAggregateInput
-  _sum?: Prisma.PulumiStateBackendSumOrderByAggregateInput
 }
 
 export type PulumiStateBackendScalarWhereWithAggregatesInput = {
@@ -286,10 +239,9 @@ export type PulumiStateBackendScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PulumiStateBackendScalarWhereWithAggregatesInput | Prisma.PulumiStateBackendScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PulumiStateBackend"> | string
   systemName?: Prisma.StringNullableWithAggregatesFilter<"PulumiStateBackend"> | string | null
-  legacyStateVolumeSuffix?: Prisma.StringNullableWithAggregatesFilter<"PulumiStateBackend"> | string | null
   meta?: Prisma.JsonWithAggregatesFilter<"PulumiStateBackend">
   spec?: Prisma.JsonWithAggregatesFilter<"PulumiStateBackend">
-  revision?: Prisma.IntWithAggregatesFilter<"PulumiStateBackend"> | number
+  revision?: Prisma.StringWithAggregatesFilter<"PulumiStateBackend"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PulumiStateBackend"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PulumiStateBackend"> | Date | string
 }
@@ -297,10 +249,9 @@ export type PulumiStateBackendScalarWhereWithAggregatesInput = {
 export type PulumiStateBackendCreateInput = {
   id?: string
   systemName?: string | null
-  legacyStateVolumeSuffix?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.PulumiStateBackendSpec
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutPulumiStateBackendInput
@@ -309,10 +260,9 @@ export type PulumiStateBackendCreateInput = {
 export type PulumiStateBackendUncheckedCreateInput = {
   id?: string
   systemName?: string | null
-  legacyStateVolumeSuffix?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.PulumiStateBackendSpec
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutPulumiStateBackendInput
@@ -321,10 +271,9 @@ export type PulumiStateBackendUncheckedCreateInput = {
 export type PulumiStateBackendUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyStateVolumeSuffix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.PulumiStateBackendSpec
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutPulumiStateBackendNestedInput
@@ -333,10 +282,9 @@ export type PulumiStateBackendUpdateInput = {
 export type PulumiStateBackendUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyStateVolumeSuffix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.PulumiStateBackendSpec
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutPulumiStateBackendNestedInput
@@ -345,10 +293,9 @@ export type PulumiStateBackendUncheckedUpdateInput = {
 export type PulumiStateBackendCreateManyInput = {
   id?: string
   systemName?: string | null
-  legacyStateVolumeSuffix?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.PulumiStateBackendSpec
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -356,10 +303,9 @@ export type PulumiStateBackendCreateManyInput = {
 export type PulumiStateBackendUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyStateVolumeSuffix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.PulumiStateBackendSpec
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -367,10 +313,9 @@ export type PulumiStateBackendUpdateManyMutationInput = {
 export type PulumiStateBackendUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyStateVolumeSuffix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.PulumiStateBackendSpec
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -383,7 +328,6 @@ export type PulumiStateBackendScalarRelationFilter = {
 export type PulumiStateBackendCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrder
-  legacyStateVolumeSuffix?: Prisma.SortOrder
   meta?: Prisma.SortOrder
   spec?: Prisma.SortOrder
   revision?: Prisma.SortOrder
@@ -391,14 +335,9 @@ export type PulumiStateBackendCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type PulumiStateBackendAvgOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
-}
-
 export type PulumiStateBackendMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrder
-  legacyStateVolumeSuffix?: Prisma.SortOrder
   revision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -407,14 +346,9 @@ export type PulumiStateBackendMaxOrderByAggregateInput = {
 export type PulumiStateBackendMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrder
-  legacyStateVolumeSuffix?: Prisma.SortOrder
   revision?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type PulumiStateBackendSumOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
 }
 
 export type PulumiStateBackendCreateNestedOneWithoutProjectsInput = {
@@ -434,10 +368,9 @@ export type PulumiStateBackendUpdateOneRequiredWithoutProjectsNestedInput = {
 export type PulumiStateBackendCreateWithoutProjectsInput = {
   id?: string
   systemName?: string | null
-  legacyStateVolumeSuffix?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.PulumiStateBackendSpec
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -445,10 +378,9 @@ export type PulumiStateBackendCreateWithoutProjectsInput = {
 export type PulumiStateBackendUncheckedCreateWithoutProjectsInput = {
   id?: string
   systemName?: string | null
-  legacyStateVolumeSuffix?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.PulumiStateBackendSpec
-  revision?: number
+  revision?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -472,10 +404,9 @@ export type PulumiStateBackendUpdateToOneWithWhereWithoutProjectsInput = {
 export type PulumiStateBackendUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyStateVolumeSuffix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.PulumiStateBackendSpec
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -483,10 +414,9 @@ export type PulumiStateBackendUpdateWithoutProjectsInput = {
 export type PulumiStateBackendUncheckedUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyStateVolumeSuffix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.PulumiStateBackendSpec
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -525,7 +455,6 @@ export type PulumiStateBackendCountOutputTypeCountProjectsArgs<ExtArgs extends r
 export type PulumiStateBackendSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   systemName?: boolean
-  legacyStateVolumeSuffix?: boolean
   meta?: boolean
   spec?: boolean
   revision?: boolean
@@ -538,7 +467,6 @@ export type PulumiStateBackendSelect<ExtArgs extends runtime.Types.Extensions.In
 export type PulumiStateBackendSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   systemName?: boolean
-  legacyStateVolumeSuffix?: boolean
   meta?: boolean
   spec?: boolean
   revision?: boolean
@@ -549,7 +477,6 @@ export type PulumiStateBackendSelectCreateManyAndReturn<ExtArgs extends runtime.
 export type PulumiStateBackendSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   systemName?: boolean
-  legacyStateVolumeSuffix?: boolean
   meta?: boolean
   spec?: boolean
   revision?: boolean
@@ -560,7 +487,6 @@ export type PulumiStateBackendSelectUpdateManyAndReturn<ExtArgs extends runtime.
 export type PulumiStateBackendSelectScalar = {
   id?: boolean
   systemName?: boolean
-  legacyStateVolumeSuffix?: boolean
   meta?: boolean
   spec?: boolean
   revision?: boolean
@@ -568,7 +494,7 @@ export type PulumiStateBackendSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PulumiStateBackendOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "systemName" | "legacyStateVolumeSuffix" | "meta" | "spec" | "revision" | "createdAt" | "updatedAt", ExtArgs["result"]["pulumiStateBackend"]>
+export type PulumiStateBackendOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "systemName" | "meta" | "spec" | "revision" | "createdAt" | "updatedAt", ExtArgs["result"]["pulumiStateBackend"]>
 export type PulumiStateBackendInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | Prisma.PulumiStateBackend$projectsArgs<ExtArgs>
   _count?: boolean | Prisma.PulumiStateBackendCountOutputTypeDefaultArgs<ExtArgs>
@@ -594,10 +520,6 @@ export type $PulumiStateBackendPayload<ExtArgs extends runtime.Types.Extensions.
      */
     systemName: string | null
     /**
-     * Existing native state volume suffix retained during an identifier upgrade.
-     */
-    legacyStateVolumeSuffix: string | null
-    /**
      * The metadata managed by the backend.
      * 
      * [CommonObjectMeta]
@@ -609,7 +531,7 @@ export type $PulumiStateBackendPayload<ExtArgs extends runtime.Types.Extensions.
      * [PulumiStateBackendSpec]
      */
     spec:PrismaJson.PulumiStateBackendSpec
-    revision: number
+    revision: string
     /**
      * The time when the state backend was created.
      */
@@ -1044,10 +966,9 @@ export interface Prisma__PulumiStateBackendClient<T, Null = never, ExtArgs exten
 export interface PulumiStateBackendFieldRefs {
   readonly id: Prisma.FieldRef<"PulumiStateBackend", 'String'>
   readonly systemName: Prisma.FieldRef<"PulumiStateBackend", 'String'>
-  readonly legacyStateVolumeSuffix: Prisma.FieldRef<"PulumiStateBackend", 'String'>
   readonly meta: Prisma.FieldRef<"PulumiStateBackend", 'Json'>
   readonly spec: Prisma.FieldRef<"PulumiStateBackend", 'Json'>
-  readonly revision: Prisma.FieldRef<"PulumiStateBackend", 'Int'>
+  readonly revision: Prisma.FieldRef<"PulumiStateBackend", 'String'>
   readonly createdAt: Prisma.FieldRef<"PulumiStateBackend", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PulumiStateBackend", 'DateTime'>
 }

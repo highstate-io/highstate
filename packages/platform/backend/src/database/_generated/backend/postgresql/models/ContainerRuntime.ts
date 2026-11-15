@@ -22,42 +22,29 @@ export type ContainerRuntimeModel = runtime.Types.Result.DefaultSelection<Prisma
 
 export type AggregateContainerRuntime = {
   _count: ContainerRuntimeCountAggregateOutputType | null
-  _avg: ContainerRuntimeAvgAggregateOutputType | null
-  _sum: ContainerRuntimeSumAggregateOutputType | null
   _min: ContainerRuntimeMinAggregateOutputType | null
   _max: ContainerRuntimeMaxAggregateOutputType | null
-}
-
-export type ContainerRuntimeAvgAggregateOutputType = {
-  revision: number | null
-}
-
-export type ContainerRuntimeSumAggregateOutputType = {
-  revision: number | null
 }
 
 export type ContainerRuntimeMinAggregateOutputType = {
   id: string | null
   systemName: string | null
-  legacyOwnershipLabel: string | null
   createdAt: Date | null
   updatedAt: Date | null
-  revision: number | null
+  revision: string | null
 }
 
 export type ContainerRuntimeMaxAggregateOutputType = {
   id: string | null
   systemName: string | null
-  legacyOwnershipLabel: string | null
   createdAt: Date | null
   updatedAt: Date | null
-  revision: number | null
+  revision: string | null
 }
 
 export type ContainerRuntimeCountAggregateOutputType = {
   id: number
   systemName: number
-  legacyOwnershipLabel: number
   meta: number
   spec: number
   createdAt: number
@@ -67,18 +54,9 @@ export type ContainerRuntimeCountAggregateOutputType = {
 }
 
 
-export type ContainerRuntimeAvgAggregateInputType = {
-  revision?: true
-}
-
-export type ContainerRuntimeSumAggregateInputType = {
-  revision?: true
-}
-
 export type ContainerRuntimeMinAggregateInputType = {
   id?: true
   systemName?: true
-  legacyOwnershipLabel?: true
   createdAt?: true
   updatedAt?: true
   revision?: true
@@ -87,7 +65,6 @@ export type ContainerRuntimeMinAggregateInputType = {
 export type ContainerRuntimeMaxAggregateInputType = {
   id?: true
   systemName?: true
-  legacyOwnershipLabel?: true
   createdAt?: true
   updatedAt?: true
   revision?: true
@@ -96,7 +73,6 @@ export type ContainerRuntimeMaxAggregateInputType = {
 export type ContainerRuntimeCountAggregateInputType = {
   id?: true
   systemName?: true
-  legacyOwnershipLabel?: true
   meta?: true
   spec?: true
   createdAt?: true
@@ -143,18 +119,6 @@ export type ContainerRuntimeAggregateArgs<ExtArgs extends runtime.Types.Extensio
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: ContainerRuntimeAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: ContainerRuntimeSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: ContainerRuntimeMinAggregateInputType
@@ -185,8 +149,6 @@ export type ContainerRuntimeGroupByArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   _count?: ContainerRuntimeCountAggregateInputType | true
-  _avg?: ContainerRuntimeAvgAggregateInputType
-  _sum?: ContainerRuntimeSumAggregateInputType
   _min?: ContainerRuntimeMinAggregateInputType
   _max?: ContainerRuntimeMaxAggregateInputType
 }
@@ -194,15 +156,12 @@ export type ContainerRuntimeGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type ContainerRuntimeGroupByOutputType = {
   id: string
   systemName: string | null
-  legacyOwnershipLabel: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt: Date
   updatedAt: Date
-  revision: number
+  revision: string
   _count: ContainerRuntimeCountAggregateOutputType | null
-  _avg: ContainerRuntimeAvgAggregateOutputType | null
-  _sum: ContainerRuntimeSumAggregateOutputType | null
   _min: ContainerRuntimeMinAggregateOutputType | null
   _max: ContainerRuntimeMaxAggregateOutputType | null
 }
@@ -228,12 +187,11 @@ export type ContainerRuntimeWhereInput = {
   NOT?: Prisma.ContainerRuntimeWhereInput | Prisma.ContainerRuntimeWhereInput[]
   id?: Prisma.StringFilter<"ContainerRuntime"> | string
   systemName?: Prisma.StringNullableFilter<"ContainerRuntime"> | string | null
-  legacyOwnershipLabel?: Prisma.StringNullableFilter<"ContainerRuntime"> | string | null
   meta?: Prisma.JsonFilter<"ContainerRuntime">
   spec?: Prisma.JsonFilter<"ContainerRuntime">
   createdAt?: Prisma.DateTimeFilter<"ContainerRuntime"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContainerRuntime"> | Date | string
-  revision?: Prisma.IntFilter<"ContainerRuntime"> | number
+  revision?: Prisma.StringFilter<"ContainerRuntime"> | string
   projects?: Prisma.ProjectListRelationFilter
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialListRelationFilter
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialListRelationFilter
@@ -244,7 +202,6 @@ export type ContainerRuntimeWhereInput = {
 export type ContainerRuntimeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrderInput | Prisma.SortOrder
-  legacyOwnershipLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   meta?: Prisma.SortOrder
   spec?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -263,12 +220,11 @@ export type ContainerRuntimeWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ContainerRuntimeWhereInput | Prisma.ContainerRuntimeWhereInput[]
   OR?: Prisma.ContainerRuntimeWhereInput[]
   NOT?: Prisma.ContainerRuntimeWhereInput | Prisma.ContainerRuntimeWhereInput[]
-  legacyOwnershipLabel?: Prisma.StringNullableFilter<"ContainerRuntime"> | string | null
   meta?: Prisma.JsonFilter<"ContainerRuntime">
   spec?: Prisma.JsonFilter<"ContainerRuntime">
   createdAt?: Prisma.DateTimeFilter<"ContainerRuntime"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContainerRuntime"> | Date | string
-  revision?: Prisma.IntFilter<"ContainerRuntime"> | number
+  revision?: Prisma.StringFilter<"ContainerRuntime"> | string
   projects?: Prisma.ProjectListRelationFilter
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialListRelationFilter
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialListRelationFilter
@@ -279,17 +235,14 @@ export type ContainerRuntimeWhereUniqueInput = Prisma.AtLeast<{
 export type ContainerRuntimeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrderInput | Prisma.SortOrder
-  legacyOwnershipLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   meta?: Prisma.SortOrder
   spec?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   revision?: Prisma.SortOrder
   _count?: Prisma.ContainerRuntimeCountOrderByAggregateInput
-  _avg?: Prisma.ContainerRuntimeAvgOrderByAggregateInput
   _max?: Prisma.ContainerRuntimeMaxOrderByAggregateInput
   _min?: Prisma.ContainerRuntimeMinOrderByAggregateInput
-  _sum?: Prisma.ContainerRuntimeSumOrderByAggregateInput
 }
 
 export type ContainerRuntimeScalarWhereWithAggregatesInput = {
@@ -298,23 +251,21 @@ export type ContainerRuntimeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ContainerRuntimeScalarWhereWithAggregatesInput | Prisma.ContainerRuntimeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ContainerRuntime"> | string
   systemName?: Prisma.StringNullableWithAggregatesFilter<"ContainerRuntime"> | string | null
-  legacyOwnershipLabel?: Prisma.StringNullableWithAggregatesFilter<"ContainerRuntime"> | string | null
   meta?: Prisma.JsonWithAggregatesFilter<"ContainerRuntime">
   spec?: Prisma.JsonWithAggregatesFilter<"ContainerRuntime">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ContainerRuntime"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ContainerRuntime"> | Date | string
-  revision?: Prisma.IntWithAggregatesFilter<"ContainerRuntime"> | number
+  revision?: Prisma.StringWithAggregatesFilter<"ContainerRuntime"> | string
 }
 
 export type ContainerRuntimeCreateInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialCreateNestedManyWithoutRuntimesInput
@@ -325,12 +276,11 @@ export type ContainerRuntimeCreateInput = {
 export type ContainerRuntimeUncheckedCreateInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
@@ -341,12 +291,11 @@ export type ContainerRuntimeUncheckedCreateInput = {
 export type ContainerRuntimeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUpdateManyWithoutRuntimesNestedInput
@@ -357,12 +306,11 @@ export type ContainerRuntimeUpdateInput = {
 export type ContainerRuntimeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
@@ -373,34 +321,31 @@ export type ContainerRuntimeUncheckedUpdateInput = {
 export type ContainerRuntimeCreateManyInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
 }
 
 export type ContainerRuntimeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ContainerRuntimeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ContainerRuntimeScalarRelationFilter = {
@@ -421,7 +366,6 @@ export type ContainerRuntimeOrderByRelationAggregateInput = {
 export type ContainerRuntimeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrder
-  legacyOwnershipLabel?: Prisma.SortOrder
   meta?: Prisma.SortOrder
   spec?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -429,14 +373,9 @@ export type ContainerRuntimeCountOrderByAggregateInput = {
   revision?: Prisma.SortOrder
 }
 
-export type ContainerRuntimeAvgOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
-}
-
 export type ContainerRuntimeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrder
-  legacyOwnershipLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   revision?: Prisma.SortOrder
@@ -445,13 +384,8 @@ export type ContainerRuntimeMaxOrderByAggregateInput = {
 export type ContainerRuntimeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   systemName?: Prisma.SortOrder
-  legacyOwnershipLabel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  revision?: Prisma.SortOrder
-}
-
-export type ContainerRuntimeSumOrderByAggregateInput = {
   revision?: Prisma.SortOrder
 }
 
@@ -576,12 +510,11 @@ export type ContainerRuntimeUpdateOneRequiredWithoutWorkloadsNestedInput = {
 export type ContainerRuntimeCreateWithoutLibrarySnapshotImagesInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialCreateNestedManyWithoutRuntimesInput
@@ -591,12 +524,11 @@ export type ContainerRuntimeCreateWithoutLibrarySnapshotImagesInput = {
 export type ContainerRuntimeUncheckedCreateWithoutLibrarySnapshotImagesInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
@@ -622,12 +554,11 @@ export type ContainerRuntimeUpdateToOneWithWhereWithoutLibrarySnapshotImagesInpu
 export type ContainerRuntimeUpdateWithoutLibrarySnapshotImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUpdateManyWithoutRuntimesNestedInput
@@ -637,12 +568,11 @@ export type ContainerRuntimeUpdateWithoutLibrarySnapshotImagesInput = {
 export type ContainerRuntimeUncheckedUpdateWithoutLibrarySnapshotImagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
@@ -652,12 +582,11 @@ export type ContainerRuntimeUncheckedUpdateWithoutLibrarySnapshotImagesInput = {
 export type ContainerRuntimeCreateWithoutProjectsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialCreateNestedManyWithoutRuntimesInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutRuntimeInput
@@ -667,12 +596,11 @@ export type ContainerRuntimeCreateWithoutProjectsInput = {
 export type ContainerRuntimeUncheckedCreateWithoutProjectsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutRuntimeInput
@@ -698,12 +626,11 @@ export type ContainerRuntimeUpdateToOneWithWhereWithoutProjectsInput = {
 export type ContainerRuntimeUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutRuntimeNestedInput
@@ -713,12 +640,11 @@ export type ContainerRuntimeUpdateWithoutProjectsInput = {
 export type ContainerRuntimeUncheckedUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutRuntimeNestedInput
@@ -728,12 +654,11 @@ export type ContainerRuntimeUncheckedUpdateWithoutProjectsInput = {
 export type ContainerRuntimeCreateWithoutNpmRegistryCredentialsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectCreateNestedManyWithoutContainerRuntimeInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialCreateNestedManyWithoutRuntimesInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutRuntimeInput
@@ -743,12 +668,11 @@ export type ContainerRuntimeCreateWithoutNpmRegistryCredentialsInput = {
 export type ContainerRuntimeUncheckedCreateWithoutNpmRegistryCredentialsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutContainerRuntimeInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutRuntimeInput
@@ -782,23 +706,21 @@ export type ContainerRuntimeScalarWhereInput = {
   NOT?: Prisma.ContainerRuntimeScalarWhereInput | Prisma.ContainerRuntimeScalarWhereInput[]
   id?: Prisma.StringFilter<"ContainerRuntime"> | string
   systemName?: Prisma.StringNullableFilter<"ContainerRuntime"> | string | null
-  legacyOwnershipLabel?: Prisma.StringNullableFilter<"ContainerRuntime"> | string | null
   meta?: Prisma.JsonFilter<"ContainerRuntime">
   spec?: Prisma.JsonFilter<"ContainerRuntime">
   createdAt?: Prisma.DateTimeFilter<"ContainerRuntime"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContainerRuntime"> | Date | string
-  revision?: Prisma.IntFilter<"ContainerRuntime"> | number
+  revision?: Prisma.StringFilter<"ContainerRuntime"> | string
 }
 
 export type ContainerRuntimeCreateWithoutContainerRegistryCredentialsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialCreateNestedManyWithoutRuntimesInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageCreateNestedManyWithoutRuntimeInput
@@ -808,12 +730,11 @@ export type ContainerRuntimeCreateWithoutContainerRegistryCredentialsInput = {
 export type ContainerRuntimeUncheckedCreateWithoutContainerRegistryCredentialsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedCreateNestedManyWithoutRuntimeInput
@@ -844,12 +765,11 @@ export type ContainerRuntimeUpdateManyWithWhereWithoutContainerRegistryCredentia
 export type ContainerRuntimeCreateWithoutWorkloadsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialCreateNestedManyWithoutRuntimesInput
@@ -859,12 +779,11 @@ export type ContainerRuntimeCreateWithoutWorkloadsInput = {
 export type ContainerRuntimeUncheckedCreateWithoutWorkloadsInput = {
   id?: string
   systemName?: string | null
-  legacyOwnershipLabel?: string | null
   meta:PrismaJson.CommonObjectMeta
   spec:PrismaJson.ContainerRuntimeSpec
   createdAt?: Date | string
   updatedAt?: Date | string
-  revision?: number
+  revision?: string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutContainerRuntimeInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedCreateNestedManyWithoutRuntimesInput
@@ -890,12 +809,11 @@ export type ContainerRuntimeUpdateToOneWithWhereWithoutWorkloadsInput = {
 export type ContainerRuntimeUpdateWithoutWorkloadsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUpdateManyWithoutRuntimesNestedInput
@@ -905,12 +823,11 @@ export type ContainerRuntimeUpdateWithoutWorkloadsInput = {
 export type ContainerRuntimeUncheckedUpdateWithoutWorkloadsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
@@ -920,12 +837,11 @@ export type ContainerRuntimeUncheckedUpdateWithoutWorkloadsInput = {
 export type ContainerRuntimeUpdateWithoutNpmRegistryCredentialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUpdateManyWithoutContainerRuntimeNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutRuntimeNestedInput
@@ -935,12 +851,11 @@ export type ContainerRuntimeUpdateWithoutNpmRegistryCredentialsInput = {
 export type ContainerRuntimeUncheckedUpdateWithoutNpmRegistryCredentialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutContainerRuntimeNestedInput
   containerRegistryCredentials?: Prisma.ContainerRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutRuntimeNestedInput
@@ -950,23 +865,21 @@ export type ContainerRuntimeUncheckedUpdateWithoutNpmRegistryCredentialsInput = 
 export type ContainerRuntimeUncheckedUpdateManyWithoutNpmRegistryCredentialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ContainerRuntimeUpdateWithoutContainerRegistryCredentialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUpdateManyWithoutRuntimesNestedInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUpdateManyWithoutRuntimeNestedInput
@@ -976,12 +889,11 @@ export type ContainerRuntimeUpdateWithoutContainerRegistryCredentialsInput = {
 export type ContainerRuntimeUncheckedUpdateWithoutContainerRegistryCredentialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutContainerRuntimeNestedInput
   npmRegistryCredentials?: Prisma.NpmRegistryCredentialUncheckedUpdateManyWithoutRuntimesNestedInput
   librarySnapshotImages?: Prisma.LibrarySnapshotImageUncheckedUpdateManyWithoutRuntimeNestedInput
@@ -991,12 +903,11 @@ export type ContainerRuntimeUncheckedUpdateWithoutContainerRegistryCredentialsIn
 export type ContainerRuntimeUncheckedUpdateManyWithoutContainerRegistryCredentialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   systemName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyOwnershipLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   meta?:PrismaJson.CommonObjectMeta
   spec?:PrismaJson.ContainerRuntimeSpec
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -1069,7 +980,6 @@ export type ContainerRuntimeCountOutputTypeCountWorkloadsArgs<ExtArgs extends ru
 export type ContainerRuntimeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   systemName?: boolean
-  legacyOwnershipLabel?: boolean
   meta?: boolean
   spec?: boolean
   createdAt?: boolean
@@ -1086,7 +996,6 @@ export type ContainerRuntimeSelect<ExtArgs extends runtime.Types.Extensions.Inte
 export type ContainerRuntimeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   systemName?: boolean
-  legacyOwnershipLabel?: boolean
   meta?: boolean
   spec?: boolean
   createdAt?: boolean
@@ -1097,7 +1006,6 @@ export type ContainerRuntimeSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
 export type ContainerRuntimeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   systemName?: boolean
-  legacyOwnershipLabel?: boolean
   meta?: boolean
   spec?: boolean
   createdAt?: boolean
@@ -1108,7 +1016,6 @@ export type ContainerRuntimeSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type ContainerRuntimeSelectScalar = {
   id?: boolean
   systemName?: boolean
-  legacyOwnershipLabel?: boolean
   meta?: boolean
   spec?: boolean
   createdAt?: boolean
@@ -1116,7 +1023,7 @@ export type ContainerRuntimeSelectScalar = {
   revision?: boolean
 }
 
-export type ContainerRuntimeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "systemName" | "legacyOwnershipLabel" | "meta" | "spec" | "createdAt" | "updatedAt" | "revision", ExtArgs["result"]["containerRuntime"]>
+export type ContainerRuntimeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "systemName" | "meta" | "spec" | "createdAt" | "updatedAt" | "revision", ExtArgs["result"]["containerRuntime"]>
 export type ContainerRuntimeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | Prisma.ContainerRuntime$projectsArgs<ExtArgs>
   npmRegistryCredentials?: boolean | Prisma.ContainerRuntime$npmRegistryCredentialsArgs<ExtArgs>
@@ -1162,10 +1069,6 @@ export type $ContainerRuntimePayload<ExtArgs extends runtime.Types.Extensions.In
      */
     systemName: string | null
     /**
-     * Runtime label retained when upgrading prerelease native resources.
-     */
-    legacyOwnershipLabel: string | null
-    /**
      * The metadata managed by the backend.
      * 
      * [CommonObjectMeta]
@@ -1186,9 +1089,9 @@ export type $ContainerRuntimePayload<ExtArgs extends runtime.Types.Extensions.In
      */
     updatedAt: Date
     /**
-     * The optimistic concurrency revision of the runtime settings.
+     * An opaque CUIDv2 token used only for optimistic concurrency.
      */
-    revision: number
+    revision: string
   }, ExtArgs["result"]["containerRuntime"]>
   composites: {}
 }
@@ -1619,12 +1522,11 @@ export interface Prisma__ContainerRuntimeClient<T, Null = never, ExtArgs extends
 export interface ContainerRuntimeFieldRefs {
   readonly id: Prisma.FieldRef<"ContainerRuntime", 'String'>
   readonly systemName: Prisma.FieldRef<"ContainerRuntime", 'String'>
-  readonly legacyOwnershipLabel: Prisma.FieldRef<"ContainerRuntime", 'String'>
   readonly meta: Prisma.FieldRef<"ContainerRuntime", 'Json'>
   readonly spec: Prisma.FieldRef<"ContainerRuntime", 'Json'>
   readonly createdAt: Prisma.FieldRef<"ContainerRuntime", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ContainerRuntime", 'DateTime'>
-  readonly revision: Prisma.FieldRef<"ContainerRuntime", 'Int'>
+  readonly revision: Prisma.FieldRef<"ContainerRuntime", 'String'>
 }
     
 

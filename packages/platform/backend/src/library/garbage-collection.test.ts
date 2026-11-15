@@ -82,7 +82,6 @@ test("collects orphaned snapshots and versions while retaining desired, deployed
     data: {
       workloadId: workload.id,
       kind: "pulumi",
-      ownerId: "phase",
       snapshotId: actionSnapshot.id,
       status: "completed",
     },

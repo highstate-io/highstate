@@ -20,8 +20,8 @@ interface SettingsResource {
   collection: string
   singular: string
   list(client: SettingsClient): Promise<JsonObject[]>
-  put(client: SettingsClient, document: JsonObject, revision?: bigint): Promise<unknown>
-  delete(client: SettingsClient, id: string, revision: bigint): Promise<unknown>
+  put(client: SettingsClient, document: JsonObject, revision?: string): Promise<unknown>
+  delete(client: SettingsClient, id: string, revision: string): Promise<unknown>
 }
 
 function resource<Desc extends DescMessage>(options: {
@@ -33,9 +33,9 @@ function resource<Desc extends DescMessage>(options: {
   put(
     client: SettingsClient,
     value: MessageShape<Desc>,
-    revision?: bigint,
+    revision?: string,
   ): Promise<MessageShape<Desc> | undefined>
-  delete(client: SettingsClient, id: string, revision: bigint): Promise<unknown>
+  delete(client: SettingsClient, id: string, revision: string): Promise<unknown>
 }): SettingsResource {
   return {
     ...options,
@@ -160,21 +160,16 @@ function omitBlankSecrets(value: JsonObject): void {
   }
 }
 
-function expectedRevision(value: string | undefined, required: boolean): bigint | undefined {
+function expectedRevision(value: string | undefined, required: boolean): string | undefined {
   if (value === undefined && !required) {
     return undefined
   }
 
-  if (value === undefined || !/^[0-9]+$/.test(value)) {
-    throw new Error("An explicit --expected-revision integer is required for existing settings")
+  if (value === undefined || !/^[a-z][a-z0-9]{23}$/.test(value)) {
+    throw new Error("An explicit --expected-revision CUIDv2 token is required for existing settings")
   }
 
-  const revision = BigInt(value)
-  if (revision > 18446744073709551615n || (required && revision === 0n)) {
-    throw new Error("Expected revision must be a positive uint64 for existing settings")
-  }
-
-  return revision
+  return value
 }
 
 function object(value: unknown): JsonObject {
@@ -207,7 +202,7 @@ abstract class SettingsListCommand extends SettingsCommand {
         values.map(value => [
           value.id,
           (value.meta as JsonObject | undefined)?.title,
-          value.revision ?? "0",
+          value.revision ?? "",
         ]),
         "No settings",
       ),
@@ -294,8 +289,8 @@ abstract class SettingsPutCommand extends SettingsCommand {
     }
 
     const revision = expectedRevision(this.revision, Boolean(document.id))
-    if (!document.id && revision !== undefined && revision !== 0n) {
-      throw new Error("Create requires an omitted or zero expected revision")
+    if (!document.id && revision !== undefined) {
+      throw new Error("Create requires an omitted expected revision")
     }
 
     await this.prepare(document)

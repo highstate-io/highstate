@@ -31,12 +31,9 @@ export type RuntimeActionMinAggregateOutputType = {
   id: string | null
   workloadId: string | null
   kind: $Enums.RuntimeActionKind | null
-  ownerId: string | null
   snapshotId: string | null
-  imageDigest: string | null
   status: $Enums.RuntimeActionStatus | null
   cancellationRequestedAt: Date | null
-  forceCancellationRequestedAt: Date | null
   startedAt: Date | null
   finishedAt: Date | null
   lastError: string | null
@@ -48,12 +45,9 @@ export type RuntimeActionMaxAggregateOutputType = {
   id: string | null
   workloadId: string | null
   kind: $Enums.RuntimeActionKind | null
-  ownerId: string | null
   snapshotId: string | null
-  imageDigest: string | null
   status: $Enums.RuntimeActionStatus | null
   cancellationRequestedAt: Date | null
-  forceCancellationRequestedAt: Date | null
   startedAt: Date | null
   finishedAt: Date | null
   lastError: string | null
@@ -65,12 +59,9 @@ export type RuntimeActionCountAggregateOutputType = {
   id: number
   workloadId: number
   kind: number
-  ownerId: number
   snapshotId: number
-  imageDigest: number
   status: number
   cancellationRequestedAt: number
-  forceCancellationRequestedAt: number
   startedAt: number
   finishedAt: number
   lastError: number
@@ -84,12 +75,9 @@ export type RuntimeActionMinAggregateInputType = {
   id?: true
   workloadId?: true
   kind?: true
-  ownerId?: true
   snapshotId?: true
-  imageDigest?: true
   status?: true
   cancellationRequestedAt?: true
-  forceCancellationRequestedAt?: true
   startedAt?: true
   finishedAt?: true
   lastError?: true
@@ -101,12 +89,9 @@ export type RuntimeActionMaxAggregateInputType = {
   id?: true
   workloadId?: true
   kind?: true
-  ownerId?: true
   snapshotId?: true
-  imageDigest?: true
   status?: true
   cancellationRequestedAt?: true
-  forceCancellationRequestedAt?: true
   startedAt?: true
   finishedAt?: true
   lastError?: true
@@ -118,12 +103,9 @@ export type RuntimeActionCountAggregateInputType = {
   id?: true
   workloadId?: true
   kind?: true
-  ownerId?: true
   snapshotId?: true
-  imageDigest?: true
   status?: true
   cancellationRequestedAt?: true
-  forceCancellationRequestedAt?: true
   startedAt?: true
   finishedAt?: true
   lastError?: true
@@ -208,12 +190,9 @@ export type RuntimeActionGroupByOutputType = {
   id: string
   workloadId: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId: string | null
-  imageDigest: string | null
   status: $Enums.RuntimeActionStatus
   cancellationRequestedAt: Date | null
-  forceCancellationRequestedAt: Date | null
   startedAt: Date | null
   finishedAt: Date | null
   lastError: string | null
@@ -246,12 +225,9 @@ export type RuntimeActionWhereInput = {
   id?: Prisma.StringFilter<"RuntimeAction"> | string
   workloadId?: Prisma.StringFilter<"RuntimeAction"> | string
   kind?: Prisma.EnumRuntimeActionKindFilter<"RuntimeAction"> | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFilter<"RuntimeAction"> | string
   snapshotId?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
-  imageDigest?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
   status?: Prisma.EnumRuntimeActionStatusFilter<"RuntimeAction"> | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
-  forceCancellationRequestedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   lastError?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
@@ -264,12 +240,9 @@ export type RuntimeActionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workloadId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
   snapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
-  imageDigest?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   cancellationRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  forceCancellationRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -285,12 +258,9 @@ export type RuntimeActionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.RuntimeActionWhereInput | Prisma.RuntimeActionWhereInput[]
   workloadId?: Prisma.StringFilter<"RuntimeAction"> | string
   kind?: Prisma.EnumRuntimeActionKindFilter<"RuntimeAction"> | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFilter<"RuntimeAction"> | string
   snapshotId?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
-  imageDigest?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
   status?: Prisma.EnumRuntimeActionStatusFilter<"RuntimeAction"> | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
-  forceCancellationRequestedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   lastError?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
@@ -303,12 +273,9 @@ export type RuntimeActionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workloadId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
   snapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
-  imageDigest?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   cancellationRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  forceCancellationRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   finishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   lastError?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -326,12 +293,9 @@ export type RuntimeActionScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"RuntimeAction"> | string
   workloadId?: Prisma.StringWithAggregatesFilter<"RuntimeAction"> | string
   kind?: Prisma.EnumRuntimeActionKindWithAggregatesFilter<"RuntimeAction"> | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringWithAggregatesFilter<"RuntimeAction"> | string
   snapshotId?: Prisma.StringNullableWithAggregatesFilter<"RuntimeAction"> | string | null
-  imageDigest?: Prisma.StringNullableWithAggregatesFilter<"RuntimeAction"> | string | null
   status?: Prisma.EnumRuntimeActionStatusWithAggregatesFilter<"RuntimeAction"> | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeAction"> | Date | string | null
-  forceCancellationRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeAction"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeAction"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RuntimeAction"> | Date | string | null
   lastError?: Prisma.StringNullableWithAggregatesFilter<"RuntimeAction"> | string | null
@@ -342,12 +306,9 @@ export type RuntimeActionScalarWhereWithAggregatesInput = {
 export type RuntimeActionCreateInput = {
   id?: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId?: string | null
-  imageDigest?: string | null
   status?: $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Date | string | null
-  forceCancellationRequestedAt?: Date | string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   lastError?: string | null
@@ -360,12 +321,9 @@ export type RuntimeActionUncheckedCreateInput = {
   id?: string
   workloadId: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId?: string | null
-  imageDigest?: string | null
   status?: $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Date | string | null
-  forceCancellationRequestedAt?: Date | string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   lastError?: string | null
@@ -376,12 +334,9 @@ export type RuntimeActionUncheckedCreateInput = {
 export type RuntimeActionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -394,12 +349,9 @@ export type RuntimeActionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workloadId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -411,12 +363,9 @@ export type RuntimeActionCreateManyInput = {
   id?: string
   workloadId: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId?: string | null
-  imageDigest?: string | null
   status?: $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Date | string | null
-  forceCancellationRequestedAt?: Date | string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   lastError?: string | null
@@ -427,12 +376,9 @@ export type RuntimeActionCreateManyInput = {
 export type RuntimeActionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -444,12 +390,9 @@ export type RuntimeActionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workloadId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -471,12 +414,9 @@ export type RuntimeActionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workloadId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
   snapshotId?: Prisma.SortOrder
-  imageDigest?: Prisma.SortOrder
   status?: Prisma.SortOrder
   cancellationRequestedAt?: Prisma.SortOrder
-  forceCancellationRequestedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
@@ -488,12 +428,9 @@ export type RuntimeActionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workloadId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
   snapshotId?: Prisma.SortOrder
-  imageDigest?: Prisma.SortOrder
   status?: Prisma.SortOrder
   cancellationRequestedAt?: Prisma.SortOrder
-  forceCancellationRequestedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
@@ -505,12 +442,9 @@ export type RuntimeActionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workloadId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
   snapshotId?: Prisma.SortOrder
-  imageDigest?: Prisma.SortOrder
   status?: Prisma.SortOrder
   cancellationRequestedAt?: Prisma.SortOrder
-  forceCancellationRequestedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   finishedAt?: Prisma.SortOrder
   lastError?: Prisma.SortOrder
@@ -571,12 +505,9 @@ export type EnumRuntimeActionStatusFieldUpdateOperationsInput = {
 export type RuntimeActionCreateWithoutWorkloadInput = {
   id?: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId?: string | null
-  imageDigest?: string | null
   status?: $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Date | string | null
-  forceCancellationRequestedAt?: Date | string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   lastError?: string | null
@@ -587,12 +518,9 @@ export type RuntimeActionCreateWithoutWorkloadInput = {
 export type RuntimeActionUncheckedCreateWithoutWorkloadInput = {
   id?: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId?: string | null
-  imageDigest?: string | null
   status?: $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Date | string | null
-  forceCancellationRequestedAt?: Date | string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   lastError?: string | null
@@ -632,12 +560,9 @@ export type RuntimeActionScalarWhereInput = {
   id?: Prisma.StringFilter<"RuntimeAction"> | string
   workloadId?: Prisma.StringFilter<"RuntimeAction"> | string
   kind?: Prisma.EnumRuntimeActionKindFilter<"RuntimeAction"> | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFilter<"RuntimeAction"> | string
   snapshotId?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
-  imageDigest?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
   status?: Prisma.EnumRuntimeActionStatusFilter<"RuntimeAction"> | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
-  forceCancellationRequestedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   finishedAt?: Prisma.DateTimeNullableFilter<"RuntimeAction"> | Date | string | null
   lastError?: Prisma.StringNullableFilter<"RuntimeAction"> | string | null
@@ -648,12 +573,9 @@ export type RuntimeActionScalarWhereInput = {
 export type RuntimeActionCreateManyWorkloadInput = {
   id?: string
   kind: $Enums.RuntimeActionKind
-  ownerId: string
   snapshotId?: string | null
-  imageDigest?: string | null
   status?: $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Date | string | null
-  forceCancellationRequestedAt?: Date | string | null
   startedAt?: Date | string | null
   finishedAt?: Date | string | null
   lastError?: string | null
@@ -664,12 +586,9 @@ export type RuntimeActionCreateManyWorkloadInput = {
 export type RuntimeActionUpdateWithoutWorkloadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -680,12 +599,9 @@ export type RuntimeActionUpdateWithoutWorkloadInput = {
 export type RuntimeActionUncheckedUpdateWithoutWorkloadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -696,12 +612,9 @@ export type RuntimeActionUncheckedUpdateWithoutWorkloadInput = {
 export type RuntimeActionUncheckedUpdateManyWithoutWorkloadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumRuntimeActionKindFieldUpdateOperationsInput | $Enums.RuntimeActionKind
-  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   snapshotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageDigest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumRuntimeActionStatusFieldUpdateOperationsInput | $Enums.RuntimeActionStatus
   cancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  forceCancellationRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -715,12 +628,9 @@ export type RuntimeActionSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   workloadId?: boolean
   kind?: boolean
-  ownerId?: boolean
   snapshotId?: boolean
-  imageDigest?: boolean
   status?: boolean
   cancellationRequestedAt?: boolean
-  forceCancellationRequestedAt?: boolean
   startedAt?: boolean
   finishedAt?: boolean
   lastError?: boolean
@@ -733,12 +643,9 @@ export type RuntimeActionSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   workloadId?: boolean
   kind?: boolean
-  ownerId?: boolean
   snapshotId?: boolean
-  imageDigest?: boolean
   status?: boolean
   cancellationRequestedAt?: boolean
-  forceCancellationRequestedAt?: boolean
   startedAt?: boolean
   finishedAt?: boolean
   lastError?: boolean
@@ -751,12 +658,9 @@ export type RuntimeActionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   workloadId?: boolean
   kind?: boolean
-  ownerId?: boolean
   snapshotId?: boolean
-  imageDigest?: boolean
   status?: boolean
   cancellationRequestedAt?: boolean
-  forceCancellationRequestedAt?: boolean
   startedAt?: boolean
   finishedAt?: boolean
   lastError?: boolean
@@ -769,12 +673,9 @@ export type RuntimeActionSelectScalar = {
   id?: boolean
   workloadId?: boolean
   kind?: boolean
-  ownerId?: boolean
   snapshotId?: boolean
-  imageDigest?: boolean
   status?: boolean
   cancellationRequestedAt?: boolean
-  forceCancellationRequestedAt?: boolean
   startedAt?: boolean
   finishedAt?: boolean
   lastError?: boolean
@@ -782,7 +683,7 @@ export type RuntimeActionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RuntimeActionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workloadId" | "kind" | "ownerId" | "snapshotId" | "imageDigest" | "status" | "cancellationRequestedAt" | "forceCancellationRequestedAt" | "startedAt" | "finishedAt" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["runtimeAction"]>
+export type RuntimeActionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workloadId" | "kind" | "snapshotId" | "status" | "cancellationRequestedAt" | "startedAt" | "finishedAt" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["runtimeAction"]>
 export type RuntimeActionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workload?: boolean | Prisma.RuntimeWorkloadDefaultArgs<ExtArgs>
 }
@@ -806,20 +707,11 @@ export type $RuntimeActionPayload<ExtArgs extends runtime.Types.Extensions.Inter
     workloadId: string
     kind: $Enums.RuntimeActionKind
     /**
-     * The domain object that owns the action, such as an operation or evaluation generation.
-     */
-    ownerId: string
-    /**
      * The project snapshot loaded for this action, when applicable.
      */
     snapshotId: string | null
-    /**
-     * The verified snapshot image digest loaded for this action, when applicable.
-     */
-    imageDigest: string | null
     status: $Enums.RuntimeActionStatus
     cancellationRequestedAt: Date | null
-    forceCancellationRequestedAt: Date | null
     startedAt: Date | null
     finishedAt: Date | null
     lastError: string | null
@@ -1252,12 +1144,9 @@ export interface RuntimeActionFieldRefs {
   readonly id: Prisma.FieldRef<"RuntimeAction", 'String'>
   readonly workloadId: Prisma.FieldRef<"RuntimeAction", 'String'>
   readonly kind: Prisma.FieldRef<"RuntimeAction", 'RuntimeActionKind'>
-  readonly ownerId: Prisma.FieldRef<"RuntimeAction", 'String'>
   readonly snapshotId: Prisma.FieldRef<"RuntimeAction", 'String'>
-  readonly imageDigest: Prisma.FieldRef<"RuntimeAction", 'String'>
   readonly status: Prisma.FieldRef<"RuntimeAction", 'RuntimeActionStatus'>
   readonly cancellationRequestedAt: Prisma.FieldRef<"RuntimeAction", 'DateTime'>
-  readonly forceCancellationRequestedAt: Prisma.FieldRef<"RuntimeAction", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"RuntimeAction", 'DateTime'>
   readonly finishedAt: Prisma.FieldRef<"RuntimeAction", 'DateTime'>
   readonly lastError: Prisma.FieldRef<"RuntimeAction", 'String'>

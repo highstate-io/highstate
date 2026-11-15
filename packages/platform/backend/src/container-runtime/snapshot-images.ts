@@ -208,7 +208,7 @@ export class SnapshotImageManager implements SnapshotImageService {
   }
 
   private dto(image: LibrarySnapshotImage): SnapshotImage {
-    if (!image.imageRef || !image.imageDigest || !image.imageHash) {
+    if (!image.imageRef || !image.imageDigest) {
       throw new Error("Image cache has incomplete immutable identity")
     }
 
@@ -221,7 +221,7 @@ export class SnapshotImageManager implements SnapshotImageService {
       generation: image.generation,
       reference: image.imageRef,
       digest: image.imageDigest,
-      imageHash: image.imageHash,
+      imageHash: image.snapshotHash,
     }
   }
 
@@ -345,7 +345,6 @@ export class SnapshotImageManager implements SnapshotImageService {
             completedAt: null,
             imageRef: null,
             imageDigest: null,
-            imageHash: null,
           },
         })
 
@@ -430,7 +429,6 @@ export class SnapshotImageManager implements SnapshotImageService {
           status: "ready",
           imageRef: image.reference,
           imageDigest: image.digest,
-          imageHash: image.imageHash,
           completedAt: new Date(),
         },
       })

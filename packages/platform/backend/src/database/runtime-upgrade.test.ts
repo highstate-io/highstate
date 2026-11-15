@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { cuidv2d, z } from "@highstate/contract"
+import { z } from "@highstate/contract"
 import { PrismaLibSql } from "@prisma/adapter-libsql"
 import pino from "pino"
 import { afterEach, expect, test } from "vitest"
@@ -119,35 +119,17 @@ test("upgrades populated backend databases without losing project links, keys, o
     await backend.pulumiStateBackend.findUniqueOrThrow({
       where: { id: project.pulumiStateBackendId },
     }),
-  ).toMatchObject({ spec: { url: "legacy:host" }, legacyStateVolumeSuffix: "old-pulumi" })
+  ).toMatchObject({ spec: { url: "legacy:host" } })
 
-  expect(versions).toEqual([5, 6])
+  expect(versions).toEqual([5])
   expect(await client.$queryRawUnsafe("PRAGMA foreign_key_check")).toEqual([])
   expect(await client.$queryRawUnsafe("PRAGMA foreign_keys")).toEqual([{ foreign_keys: 1 }])
 })
 
-test("rekeys prerelease settings and retains credential links and native state identity", async () => {
+test("seeds runtime settings with system names, CUID identities and opaque revisions", async () => {
   const backend = await openDatabase("backend")
   const pack = migrationPacks["backend/sqlite"]
-  const previous = pack.migrationNames.length - 1
-
-  await migrateDatabase(
-    backend,
-    { ...pack, migrationNames: pack.migrationNames.slice(0, previous) },
-    0,
-    async () => {},
-    logger,
-  )
-
-  await backend.$executeRawUnsafe(
-    `INSERT INTO "NpmRegistryCredential" (id, meta, scope, "registryUrl", "encryptedCredentials", "updatedAt") VALUES ('npm-user-name', '{"title":"Registry"}', '@fixture/', 'https://registry.example', 'encrypted-token', CURRENT_TIMESTAMP)`,
-  )
-
-  await backend.$executeRawUnsafe(
-    `INSERT INTO "_ContainerRuntimeToNpmRegistryCredential" ("A", "B") VALUES ('local', 'npm-user-name')`,
-  )
-
-  await migrateDatabase(backend, pack, previous, async () => {}, logger)
+  await migrateDatabase(backend, pack, 0, async () => {}, logger)
 
   const runtime = await backend.containerRuntime.findUniqueOrThrow({
     where: { systemName: "local" },
@@ -155,107 +137,16 @@ test("rekeys prerelease settings and retains credential links and native state i
   })
 
   expect(z.cuid2().length(24).parse(runtime.id)).toBe(runtime.id)
-  expect(runtime.legacyOwnershipLabel).toBe("local")
+  expect(z.cuid2().length(24).parse(runtime.revision)).toBe(runtime.revision)
 
-  expect(runtime.npmRegistryCredentials[0]).toMatchObject({
-    id: cuidv2d("highstate.runtime-settings.NpmRegistryCredential", "npm-user-name"),
-    encryptedCredentials: "encrypted-token",
+  const stateBackend = await backend.pulumiStateBackend.findUniqueOrThrow({
+    where: { systemName: "local" },
   })
-
-  expect(
-    await backend.pulumiStateBackend.findUniqueOrThrow({ where: { systemName: "local" } }),
-  ).toMatchObject({ legacyStateVolumeSuffix: "local" })
+  expect(z.cuid2().length(24).parse(stateBackend.id)).toBe(stateBackend.id)
+  expect(z.cuid2().length(24).parse(stateBackend.revision)).toBe(stateBackend.revision)
 
   expect(await backend.containerRuntime.findUnique({ where: { id: "local" } })).toBeNull()
   expect(await backend.$queryRawUnsafe("PRAGMA foreign_key_check")).toEqual([])
-})
-
-test("identifier migration rejects uncleaned workloads and resumes after cleanup", async () => {
-  const backend = await openDatabase("backend")
-  const pack = migrationPacks["backend/sqlite"]
-  const previous = pack.migrationNames.length - 1
-
-  await migrateDatabase(
-    backend,
-    { ...pack, migrationNames: pack.migrationNames.slice(0, previous) },
-    0,
-    async () => {},
-    logger,
-  )
-
-  const space = await backend.projectSpace.create({ data: { meta: { title: "Space" } } })
-
-  const storage = await backend.projectModelStorage.create({
-    data: { meta: { title: "Storage" }, spec: { type: "database" } },
-  })
-
-  const project = await backend.project.create({
-    data: {
-      name: "upgrade",
-      meta: { title: "Upgrade" },
-      spaceId: space.id,
-      modelStorageId: storage.id,
-      containerRuntimeId: "local",
-      pulumiStateBackendId: "local",
-      encryptedMasterKey: "",
-      unlockSuite: { encryptedIdentities: [], hasPasskey: false, passkeys: [], keyrings: [] },
-      databaseVersion: 0,
-    },
-  })
-
-  const workload = await backend.runtimeWorkload.create({
-    data: {
-      runtimeId: "local",
-      projectId: project.id,
-      ownerId: cuidv2d("test-owner", "upgrade"),
-      kind: "pulumi",
-    },
-  })
-
-  let version = previous
-
-  await expect(
-    migrateDatabase(
-      backend,
-      pack,
-      previous,
-      async next => {
-        version = next
-      },
-      logger,
-    ),
-  ).rejects.toThrow("Clean up workloads")
-
-  expect(version).toBe(previous)
-
-  await backend.runtimeWorkload.update({
-    where: { id: workload.id },
-    data: { status: "completed", cleanedUpAt: new Date() },
-  })
-
-  await migrateDatabase(
-    backend,
-    pack,
-    previous,
-    async next => {
-      version = next
-    },
-    logger,
-  )
-
-  const runtime = await backend.containerRuntime.findUniqueOrThrow({
-    where: { systemName: "local" },
-  })
-
-  expect(
-    await backend.runtimeWorkload.findUniqueOrThrow({ where: { id: workload.id } }),
-  ).toMatchObject({ runtimeId: runtime.id })
-
-  expect(await backend.project.findUniqueOrThrow({ where: { id: project.id } })).toMatchObject({
-    containerRuntimeId: runtime.id,
-  })
-
-  expect(version).toBe(pack.migrationNames.length)
 })
 
 test("invalidates old evaluation cache while preserving deployed and operation history with unknown provenance", async () => {
@@ -365,7 +256,7 @@ test("fresh registered migrations allow persisted workload/action and exact pack
   })
 
   const action = await backend.runtimeAction.create({
-    data: { workloadId: workload.id, kind: "composite_evaluation", ownerId: "generation" },
+    data: { workloadId: workload.id, kind: "composite_evaluation" },
   })
 
   expect(
