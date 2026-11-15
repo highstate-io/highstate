@@ -17,6 +17,12 @@ Some simple rules to follow:
   stale or incorrect authority in the same change.
 - If user say that something is not working, assume he did correctly compile/rerun the code and information is up to date.
 - Don't use subagents unless explicitly asked to do so.
+- Do not preserve backward compatibility with intermediate designs introduced within the same pull request.
+  Remove superseded schemas, fallbacks, and migration paths; retain compatibility only for behavior that
+  existed before the pull request, unless the user explicitly requests otherwise.
+- Do not embed executable helper programs in strings or launch them with `eval`, `-e`, or equivalent flags.
+  Put subprocess and worker logic in dedicated source files so it is formatted, type-checked, and testable.
+  Pass runtime data through structured messages or standard input, never generated source code.
 - After creating or updating a pull request, monitor its checks until all required checks succeed. Fix and push
   failures, then continue monitoring the new checks.
 - After pushing changes to a pull request, run local smoke tests in parallel with GitHub CI monitoring.

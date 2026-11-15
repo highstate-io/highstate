@@ -149,15 +149,15 @@ export class ProjectUnlockService {
   }
 
   /**
-   * Checks whether this backend can read and write its system keyring.
+   * Reports backend capabilities available for project unlock methods.
    */
-  async checkProjectKeyring(): Promise<{ available: boolean }> {
+  async getBackendCapabilities(): Promise<{ keyring: boolean }> {
     try {
       await this.projectKeyring.checkAvailable()
-      return { available: true }
+      return { keyring: true }
     } catch (error) {
       this.logger.debug({ error }, "project unlock system keyring is unavailable")
-      return { available: false }
+      return { keyring: false }
     }
   }
 
@@ -178,12 +178,12 @@ export class ProjectUnlockService {
     })
 
     const suite = projectUnlockSuiteSchema.parse(project.unlockSuite)
-    if (!suite.keyringRecipients.includes(recipient)) {
+    const envelope = suite.keyrings.find(method => method.recipient === recipient)
+    if (!envelope) {
       throw new Error(`System keyring recipient is not attached to project "${projectId}"`)
     }
 
-    const envelope = suite.keyrings.find(method => method.recipient === recipient)
-    const identity = await this.projectKeyring.getIdentity(recipient, envelope?.encryptedIdentity)
+    const identity = await this.projectKeyring.getIdentity(recipient, envelope.encryptedIdentity)
     await this.unlockProject(context, projectId, identity)
   }
 
@@ -645,11 +645,8 @@ export class ProjectUnlockService {
       encryptedIdentities: unlockMethods
         .filter(method => method.type !== "keyring")
         .map(method => method.encryptedIdentity),
-      keyringRecipients: unlockMethods
-        .filter(method => method.type === "keyring")
-        .map(method => method.recipient),
       keyrings: unlockMethods
-        .filter(method => method.type === "keyring" && method.encryptedIdentity)
+        .filter(method => method.type === "keyring")
         .map(method => ({
           recipient: method.recipient,
           encryptedIdentity: method.encryptedIdentity,

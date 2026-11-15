@@ -11,6 +11,29 @@ import { ProjectKeyring } from "./project-keyring"
 import { ProjectUnlockService } from "./project-unlock"
 
 describe("ProjectUnlockService", () => {
+  test.each([true, false])("reports current keyring capability: %s", async available => {
+    const keyring = new ProjectKeyring()
+
+    const check = vi.spyOn(keyring, "checkAvailable").mockImplementation(async () => {
+      if (!available) {
+        throw new Error("Keyring locked")
+      }
+    })
+
+    const service = new ProjectUnlockService(
+      {} as DatabaseManager,
+      {} as PubSubManager,
+      {} as ProjectUnlockBackend,
+      {} as ObjectRefIndexService,
+      { HIGHSTATE_ENCRYPTION_ENABLED: true, HIGHSTATE_DEV_AUTO_UNLOCK_PROJECT_IDS: [] },
+      pino({ level: "silent" }),
+      keyring,
+    )
+
+    expect(await service.getBackendCapabilities()).toEqual({ keyring: available })
+    expect(check).toHaveBeenCalledOnce()
+  })
+
   test("startup unlocks only opted-in keyring methods and continues after an unavailable keyring", async () => {
     const identity = await generateIdentity()
     const recipient = await identityToRecipient(identity)
@@ -22,7 +45,6 @@ describe("ProjectUnlockService", () => {
     const suite = (autoUnlock: boolean, keyRecipient = recipient) => ({
       encryptedIdentities: [],
       hasPasskey: false,
-      keyringRecipients: [keyRecipient],
       keyrings: [{ recipient: keyRecipient, encryptedIdentity: "envelope", autoUnlock }],
     })
 
@@ -30,10 +52,6 @@ describe("ProjectUnlockService", () => {
       { id: "manual", unlockSuite: suite(false) },
       { id: "unavailable", unlockSuite: suite(true, "missing") },
       { id: "automatic", unlockSuite: suite(true) },
-      {
-        id: "legacy",
-        unlockSuite: { encryptedIdentities: [], hasPasskey: false, keyringRecipients: [recipient] },
-      },
     ]
 
     const keyring = new ProjectKeyring()
@@ -202,7 +220,7 @@ describe("ProjectUnlockService", () => {
 
     const suite = projectUnlockSuiteSchema.parse(record.unlockSuite)
     expect(suite.encryptedIdentities).toEqual(mode === "initial" ? [] : ["password envelope"])
-    expect(suite.keyringRecipients).toEqual([recipient])
+    expect(suite.keyrings.map(method => method.recipient)).toEqual([recipient])
     expect(suite.keyrings).toEqual([{ recipient, encryptedIdentity, autoUnlock }])
 
     expect(create).toHaveBeenCalledWith(
@@ -253,7 +271,7 @@ describe("ProjectUnlockService", () => {
       ).toBe("master-key")
 
       await service.removeProjectUnlockMethod("project", "method")
-      expect(projectUnlockSuiteSchema.parse(record.unlockSuite).keyringRecipients).toEqual([])
+      expect(projectUnlockSuiteSchema.parse(record.unlockSuite).keyrings).toEqual([])
 
       expect(
         await passwordDecrypter.decrypt(armor.decode(record.encryptedMasterKey as string), "text"),
@@ -277,7 +295,6 @@ describe("ProjectUnlockService", () => {
       encryptedIdentities: ["encrypted-identity"],
       hasPasskey: true,
       passkeys: [],
-      keyringRecipients: [],
       keyrings: [],
     })
   })

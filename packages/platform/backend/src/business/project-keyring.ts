@@ -2,12 +2,11 @@ import { armor, Decrypter, Encrypter, generateIdentity, identityToRecipient } fr
 import { ProjectKeyringStorage } from "./project-keyring-storage"
 
 const accountName = "identity"
-const envelopeAccountName = "unlock-envelope"
 
 type KeyringUnlockEnvelope = { recipient: string; encryptedIdentity: string }
 
 /**
- * Protects a shared unlock identity with an AGE wrapping identity in the host's OS keyring.
+ * Protects project unlock identities with one AGE wrapping identity in the host's OS keyring.
  */
 export class ProjectKeyring {
   constructor(
@@ -17,7 +16,7 @@ export class ProjectKeyring {
     > = new ProjectKeyringStorage(),
   ) {}
 
-  private creatingEnvelope?: Promise<KeyringUnlockEnvelope>
+  private creatingIdentity?: Promise<string>
 
   /**
    * Checks read/write access without creating or replacing the shared identity.
@@ -27,26 +26,35 @@ export class ProjectKeyring {
   }
 
   /**
-   * Returns the shared encrypted unlock identity, creating it only when none exists.
+   * Creates a project-local unlock envelope using the shared keyring wrapping identity.
    */
   async getOrCreateEnvelope(): Promise<KeyringUnlockEnvelope> {
-    this.creatingEnvelope ??= this.createOrReadEnvelope()
-
     try {
-      return await this.creatingEnvelope
+      this.creatingIdentity ??= this.getOrCreateIdentity()
+      let wrappingIdentity: string
+
+      try {
+        wrappingIdentity = await this.creatingIdentity
+      } finally {
+        this.creatingIdentity = undefined
+      }
+
+      const identity = await generateIdentity()
+      const encrypter = new Encrypter()
+      encrypter.addRecipient(await identityToRecipient(wrappingIdentity))
+      const encryptedIdentity = armor.encode(await encrypter.encrypt(identity))
+
+      return { recipient: await identityToRecipient(identity), encryptedIdentity }
     } catch (error) {
       throw new Error("Failed to prepare the system keyring unlock identity", { cause: error })
-    } finally {
-      this.creatingEnvelope = undefined
     }
   }
 
   /**
    * Decrypts a project's unlock envelope using the existing keyring wrapping identity.
-   * Omitting the envelope supports legacy methods whose recipient belongs to the wrapping identity.
    * Missing credentials and envelopes that do not match the unlock recipient fail without regeneration.
    */
-  async getIdentity(recipient: string, encryptedIdentity?: string): Promise<string> {
+  async getIdentity(recipient: string, encryptedIdentity: string): Promise<string> {
     const wrappingIdentity = await this.readIdentity()
     if (!wrappingIdentity) {
       throw new Error(
@@ -54,51 +62,14 @@ export class ProjectKeyring {
       )
     }
 
-    let identity = wrappingIdentity
-
-    if (encryptedIdentity) {
-      const decrypter = new Decrypter()
-      decrypter.addIdentity(wrappingIdentity)
-      identity = await decrypter.decrypt(armor.decode(encryptedIdentity), "text")
-    }
-
+    const decrypter = new Decrypter()
+    decrypter.addIdentity(wrappingIdentity)
+    const identity = await decrypter.decrypt(armor.decode(encryptedIdentity), "text")
     if ((await identityToRecipient(identity)) !== recipient) {
       throw new Error("The system keyring identity does not match this project's unlock recipient")
     }
 
     return identity
-  }
-
-  private async createOrReadEnvelope(): Promise<KeyringUnlockEnvelope> {
-    const credentials = await this.storage.read()
-
-    const existingEnvelope = credentials.find(
-      entry => entry.account === envelopeAccountName,
-    )?.password
-
-    const existingWrapper = credentials.find(entry => entry.account === accountName)?.password
-    if (existingEnvelope && !existingWrapper) {
-      throw new Error(
-        "The system keyring wrapping identity is missing; restore it or use another unlock method",
-      )
-    }
-
-    const wrappingIdentity = existingWrapper ?? (await this.getOrCreateIdentity())
-
-    if (existingEnvelope) {
-      const decrypter = new Decrypter()
-      decrypter.addIdentity(wrappingIdentity)
-      const identity = await decrypter.decrypt(armor.decode(existingEnvelope), "text")
-      return { recipient: await identityToRecipient(identity), encryptedIdentity: existingEnvelope }
-    }
-
-    const identity = await generateIdentity()
-    const encrypter = new Encrypter()
-    encrypter.addRecipient(await identityToRecipient(wrappingIdentity))
-    const encryptedIdentity = armor.encode(await encrypter.encrypt(identity))
-    await this.storage.write(envelopeAccountName, encryptedIdentity)
-
-    return { recipient: await identityToRecipient(identity), encryptedIdentity }
   }
 
   private async readIdentity(): Promise<string | undefined> {

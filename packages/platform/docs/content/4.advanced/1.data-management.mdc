@@ -117,7 +117,7 @@ Every project keeps independent master keys and self-contained unlock metadata; 
 
 - **Password:** protects a project-specific AGE identity. Forgetting the password removes access through this method, while a weak or reused password exposes encrypted data to offline attacks.
 - **Passkey:** protects a separate AGE identity for each method using WebAuthn PRF. Your authenticator offers your existing Highstate passkey for this domain; reuse it across projects without selecting a source project or registering it with a backend.
-- **System keyring:** uses a shared AGE unlock identity encrypted to a wrapping identity in the backend host's OS keyring. Each attached project stores its own copy of the encrypted unlock identity, just as password and passkey methods do. The wrapping identity and shared encrypted envelope are created once and reused. This is the keyring of the machine and OS account running the backend, not necessarily your browser's machine. It is separate from the identity used to encrypt the backend database.
+- **System keyring:** encrypts each method's AGE unlock identity using one shared wrapping identity in the backend host's OS keyring. Encrypted unlock identities are stored only in their projects, just as password and passkey methods do. This is the keyring of the machine and OS account running the backend, not necessarily your browser's machine. It is separate from the identity used to encrypt the backend database.
 
 System keyring methods offer an **Automatically unlock on backend startup** checkbox during setup and when adding a method.
 It is off by default and applies only to that project's method, not every project sharing the identity.

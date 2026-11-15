@@ -33,10 +33,10 @@ access, and publishes the locked state to connected clients.
 Project unlock metadata is self-contained rather than referencing a backend-level identity registry.
 Projects reuse a discoverable WebAuthn credential without a backend credential registry or source-project lookup.
 Each new passkey method encrypts its own AGE identity using that credential's PRF extension.
-System keyring methods reuse an encrypted AGE unlock identity without sharing project master keys.
+System keyring methods encrypt their own AGE unlock identities using one shared keyring wrapping identity.
 New unlock methods carry encrypted AGE identity envelopes with each project.
-System-keyring wrapping secrets remain outside project storage; a keyring copy of the shared encrypted envelope
-allows new projects to reuse the unlock identity without an existing project's metadata.
+The wrapping identity remains outside project storage, in a single keyring entry; encrypted envelopes live only
+in their respective projects.
 Transferring project data does not transfer access to an OS keyring or change a passkey's WebAuthn relying party.
 The project unlock service and its shared models own identity preparation and unlock-suite compatibility.
 Startup keyring unlocking is an explicit per-method opt-in persisted with the project's unlock metadata.

@@ -1,6 +1,17 @@
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import {
+  assertKeyringAvailable,
+  getContextToken,
+  getRemoteConfigPath,
+  normalizeApiUrl,
+  readRemoteConfig,
+  resolveRemoteTarget,
+  setContextToken,
+  validateContextName,
+  writeRemoteConfig,
+} from "./remote-context"
 
 const keyring = vi.hoisted(() => ({
   setPassword: vi.fn(),
@@ -15,18 +26,6 @@ vi.mock("@napi-rs/keyring", () => ({
     deleteCredential = keyring.deleteCredential
   },
 }))
-
-import {
-  assertKeyringAvailable,
-  getContextToken,
-  getRemoteConfigPath,
-  normalizeApiUrl,
-  readRemoteConfig,
-  resolveRemoteTarget,
-  setContextToken,
-  validateContextName,
-  writeRemoteConfig,
-} from "./remote-context"
 
 const paths: string[] = []
 

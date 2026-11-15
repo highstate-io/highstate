@@ -1,9 +1,8 @@
 import type { execa } from "execa"
 import { beforeEach, describe, expect, test, vi } from "vitest"
+import { ProjectKeyringStorage as RealProjectKeyringStorage } from "./project-keyring-storage"
 
 const run = vi.fn()
-
-import { ProjectKeyringStorage as RealProjectKeyringStorage } from "./project-keyring-storage"
 
 class ProjectKeyringStorage extends RealProjectKeyringStorage {
   constructor() {

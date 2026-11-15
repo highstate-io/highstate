@@ -392,7 +392,7 @@ export const useProjectStateStore = defineMultiStore({
           unlockState.value.type === "locked" &&
           (!unlockState.value.unlockSuite ||
             (unlockState.value.unlockSuite.encryptedIdentities.length === 0 &&
-              !unlockState.value.unlockSuite.keyringRecipients?.length))
+              !unlockState.value.unlockSuite.keyrings?.length))
         )
       })
 

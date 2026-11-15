@@ -59,11 +59,12 @@ const passwordVisible = ref(false)
 const { $client } = useNuxtApp()
 const keyringAvailable = ref<boolean>()
 
-const checkKeyring = async () => {
+const refreshBackendState = async () => {
   keyringAvailable.value = undefined
 
   try {
-    keyringAvailable.value = (await $client.state.checkProjectKeyring.query()).available
+    const state = await $client.state.getBackendState.query()
+    keyringAvailable.value = state.capabilities.keyring
   } catch {
     keyringAvailable.value = false
   }
@@ -85,7 +86,7 @@ watch(
   () => form.type,
   type => {
     if (type === "keyring") {
-      void checkKeyring()
+      void refreshBackendState()
     }
   },
   { immediate: true },
@@ -353,7 +354,7 @@ defineExpose({
         class="mb-4"
       />
       <VAlert type="info" density="compact" class="mb-4">
-        Uses the backend machine's OS keyring, not your browser's. Its unlock identity is shared
+        Uses the backend machine's OS keyring, not your browser's. Its keyring identity is shared
         across projects.
       </VAlert>
       <VAlert v-if="keyringAvailable === false" type="error" density="compact" class="mb-4">

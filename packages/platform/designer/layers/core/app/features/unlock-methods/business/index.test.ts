@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest"
+import { createPasskeyUnlockMethod, createUnlockMethodFromForm } from "."
 
 const mocks = vi.hoisted(() => ({
   createCredential: vi.fn(),
@@ -39,8 +40,6 @@ vi.mock("age-encryption", () => ({
     },
   },
 }))
-
-import { createPasskeyUnlockMethod, createUnlockMethodFromForm } from "."
 
 describe("createPasskeyUnlockMethod", () => {
   beforeEach(() => {

@@ -272,8 +272,8 @@ export const stateRouter = router({
       )
     }),
 
-  checkProjectKeyring: backendProcedure.query(async ({ ctx }) => {
-    return await ctx.projectUnlockService.checkProjectKeyring()
+  getBackendState: backendProcedure.query(async ({ ctx }) => {
+    return { capabilities: await ctx.projectUnlockService.getBackendCapabilities() }
   }),
 
   lockProject: backendProcedure

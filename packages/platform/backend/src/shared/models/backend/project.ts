@@ -66,11 +66,6 @@ export const projectUnlockSuiteSchema = z.object({
   hasPasskey: z.boolean(),
 
   /**
-   * Unlock recipients attached to a system keyring, including legacy direct-recipient methods.
-   */
-  keyringRecipients: z.array(z.string()).default([]),
-
-  /**
    * Self-contained unlock identities encrypted to the system keyring's wrapping identity.
    */
   keyrings: z

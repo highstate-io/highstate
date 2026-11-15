@@ -122,9 +122,9 @@ const tryKeyringUnlock = async () => {
   error.value = null
 
   try {
-    const recipients = unlockSuite.value?.keyringRecipients ?? []
+    const methods = unlockSuite.value?.keyrings ?? []
 
-    for (const recipient of recipients) {
+    for (const { recipient } of methods) {
       try {
         await $client.state.unlockProjectWithKeyring.mutate({ projectId, recipient })
         return
@@ -190,7 +190,7 @@ const tryKeyringUnlock = async () => {
       <VCardActions>
         <VSpacer />
         <VBtn
-          v-if="unlockSuite?.keyringRecipients?.length"
+          v-if="unlockSuite?.keyrings?.length"
           class="unlock-method-button"
           color="secondary"
           :loading="keyringLoading"
