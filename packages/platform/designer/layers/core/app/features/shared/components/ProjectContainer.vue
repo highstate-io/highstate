@@ -191,20 +191,27 @@ const tryKeyringUnlock = async () => {
         <VSpacer />
         <VBtn
           v-if="unlockSuite?.keyringRecipients?.length"
+          class="unlock-method-button"
+          color="secondary"
           :loading="keyringLoading"
           :disabled="keyringLoading"
-          prepend-icon="mdi-safe"
+          aria-label="Unlock with keyring"
           @click="tryKeyringUnlock"
-          >Keyring</VBtn
         >
+          <VIcon>mdi-safe</VIcon>
+          <VTooltip activator="parent" location="bottom">Unlock with keyring</VTooltip>
+        </VBtn>
         <VBtn
           v-if="unlockState.type === 'locked' && unlockSuite?.hasPasskey"
+          class="unlock-method-button"
           color="secondary"
           :loading="passKeyInProgress"
           :disabled="passKeyInProgress"
+          aria-label="Unlock with passkey"
           @click="tryPassKeyUnlock"
         >
           <VIcon>mdi-fingerprint</VIcon>
+          <VTooltip activator="parent" location="bottom">Unlock with passkey</VTooltip>
         </VBtn>
         <VBtn color="primary" :loading="loading" :disabled="loading" @click="tryPasswordUnlock">
           <VIcon class="mr-2">mdi-lock-open</VIcon>
@@ -232,5 +239,10 @@ const tryKeyringUnlock = async () => {
   width: 600px;
   display: block;
   margin: 0 auto;
+}
+
+.unlock-method-button {
+  min-width: 40px;
+  padding-inline: 8px;
 }
 </style>

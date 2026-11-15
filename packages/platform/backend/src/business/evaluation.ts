@@ -69,6 +69,16 @@ export class ProjectEvaluationSubsystem {
     await promise
   }
 
+  /**
+   * Stops reload-triggered evaluations and waits for the current evaluation before locking.
+   */
+  async untrackProject(projectId: string): Promise<void> {
+    this.projectWatchers.get(projectId)?.abort()
+    this.projectWatchers.delete(projectId)
+    this.evaluationRequested.delete(projectId)
+    await this.evaluationPromises.get(projectId)
+  }
+
   private async evaluateProjectLoop(projectId: string): Promise<void> {
     do {
       this.evaluationRequested.delete(projectId)
@@ -421,6 +431,10 @@ export class ProjectEvaluationSubsystem {
   ): Promise<void> {
     try {
       for await (const updates of this.libraryBackend.watchLibrary(libraryId, signal)) {
+        if (signal.aborted) {
+          break
+        }
+
         // only handle reload-completed events
         if (updates.some(update => update.type === "reload-completed")) {
           await this.handleProjectLibraryReload(projectId)
@@ -429,7 +443,9 @@ export class ProjectEvaluationSubsystem {
     } catch (error) {
       this.logger.error({ projectId, libraryId, error }, "project library reload watcher failed")
     } finally {
-      this.projectWatchers.delete(projectId)
+      if (this.projectWatchers.get(projectId)?.signal === signal) {
+        this.projectWatchers.delete(projectId)
+      }
     }
   }
 

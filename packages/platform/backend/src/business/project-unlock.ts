@@ -10,6 +10,7 @@ import { z } from "zod"
 import { createProjectLogger, requireBackendPermission } from "../common"
 import {
   CannotDeleteLastUnlockMethodError,
+  finalOperationStatuses,
   ProjectNotFoundError,
   type ProjectUnlockState,
   type ProjectUnlockSuite,
@@ -46,6 +47,55 @@ export class ProjectUnlockService {
   ) {}
 
   private readonly unlockTasks: UnlockTask[] = []
+  private readonly lockTasks = new Map<string, UnlockTask["handler"]>()
+
+  /**
+   * Registers cleanup that must complete before project keys are removed.
+   */
+  registerLockTask(name: string, handler: UnlockTask["handler"]): void {
+    this.lockTasks.set(name, handler)
+  }
+
+  /**
+   * Locks an idle project on this backend and closes its decrypted database.
+   */
+  async lockProject(context: BackendRequestContext, projectId: string): Promise<void> {
+    const target = await resolveBackendProjectPermissionTarget(this.database, projectId)
+    requireBackendPermission(context, "project.lock", target)
+
+    if (!(await this.projectUnlockBackend.checkProjectUnlocked(projectId))) {
+      return
+    }
+
+    const database = await this.database.forProject(projectId)
+
+    const [operations, workers, terminals] = await Promise.all([
+      database.operation.count({ where: { status: { notIn: [...finalOperationStatuses] } } }),
+      database.workerVersion.count({ where: { status: { in: ["starting", "running"] } } }),
+      database.terminalSession.count({ where: { finishedAt: null } }),
+    ])
+
+    if (operations || workers || terminals) {
+      throw new Error(
+        "Stop active operations, workers, and terminal sessions before locking this project",
+      )
+    }
+
+    for (const task of this.lockTasks.values()) {
+      await task(projectId)
+    }
+
+    await this.projectUnlockBackend.lockProject(projectId)
+
+    try {
+      await this.database.closeProject(projectId)
+    } finally {
+      await this.pubsubManager.publish(
+        ["project-unlock-state", projectId],
+        await this.getProjectUnlockStateCore(projectId),
+      )
+    }
+  }
 
   /**
    * Checks whether a project is currently unlocked.

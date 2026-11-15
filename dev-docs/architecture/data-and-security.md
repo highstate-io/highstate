@@ -25,6 +25,10 @@ database, and runs tasks that rehydrate evaluation, operations, workers, termina
 state.
 Locking the project or stopping the backend removes access to the process-local key and services that depend on
 it.
+Manual locking requires backend authorization and an idle project: active operations, workers, or terminal
+sessions prevent locking rather than being interrupted.
+The lock boundary stops reload-triggered evaluation, revokes unlock material, evicts cached project database
+access, and publishes the locked state to connected clients.
 
 Project unlock metadata is self-contained rather than referencing a backend-level identity registry.
 Projects reuse a discoverable WebAuthn credential without a backend credential registry or source-project lookup.

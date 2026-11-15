@@ -103,6 +103,11 @@ export const backendPermissionGroups = [
         consequence: "Allows submitting an identity that decrypts and opens a project.",
       },
       {
+        name: "project.lock",
+        title: "Lock projects",
+        risk: "high",
+      },
+      {
         name: "project.attach",
         title: "Attach projects",
         risk: "high",

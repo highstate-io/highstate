@@ -276,6 +276,12 @@ export const stateRouter = router({
     return await ctx.projectUnlockService.checkProjectKeyring()
   }),
 
+  lockProject: backendProcedure
+    .input(z.object({ projectId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.projectUnlockService.lockProject(ctx.requestContext, input.projectId)
+    }),
+
   unlockProjectWithKeyring: backendProcedure
     .input(z.object({ projectId: z.string(), recipient: z.string() }))
     .mutation(async ({ ctx, input }) => {

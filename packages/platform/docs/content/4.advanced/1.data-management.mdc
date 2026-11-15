@@ -138,6 +138,12 @@ Anyone able to use a shared identity may decrypt the keys of projects attached t
 Do not assume a passkey is synchronized or backed up.
 ::
 
+### Locking a Project
+
+The open-lock button beside **Reset Layout** locks the active project on this backend for all connected windows.
+Stop active operations, workers, and terminal sessions first; locking does not interrupt them.
+Unlock methods remain attached, and startup auto-unlock preferences still apply after a backend restart.
+
 ### Reusing Existing Passkeys
 
 Existing project-specific passkeys continue working without migration.

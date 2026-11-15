@@ -485,6 +485,10 @@ export async function createServices({
     logger,
   )
 
+  projectUnlockService.registerLockTask("stop-project-evaluation", projectId =>
+    projectEvaluationSubsystem.untrackProject(projectId),
+  )
+
   logger.info("services created")
 
   return {
