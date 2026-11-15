@@ -248,6 +248,20 @@ try {
       await expect(settings().getByText("No packages added", { exact: true })).toBeVisible()
       expect(libraryQueries).toBeGreaterThan(0)
 
+      const sections = settings().locator(".library-section")
+      await expect(sections).toHaveCount(3)
+
+      const sectionBounds = await sections.evaluateAll(items =>
+        items.map(item => {
+          const { x, width, height } = item.getBoundingClientRect()
+          return { x, width, height }
+        }),
+      )
+
+      expect(sectionBounds[0]!.width).toBeGreaterThan(400)
+      expect(sectionBounds.every(item => item.x === sectionBounds[0]!.x)).toBe(true)
+      expect(sectionBounds[1]!.height).toBeLessThan(300)
+
       await expect(
         settings().getByRole("button", { name: "Update all packages", exact: true }),
       ).toBeDisabled()
@@ -278,7 +292,7 @@ try {
       ).toHaveCount(0)
 
       await dialog().getByRole("button", { name: "Cancel", exact: true }).click()
-      await settings().getByRole("switch", { name: "Use local sources", exact: true }).click()
+      await settings().getByRole("checkbox", { name: "Use local sources", exact: true }).uncheck()
 
       await expect
         .poll(
