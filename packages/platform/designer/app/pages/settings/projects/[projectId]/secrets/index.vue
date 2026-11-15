@@ -18,6 +18,7 @@ definePageMeta({
   name: "settings.secrets",
   tab: {
     label: "Secrets",
+    group: "Resources",
     icon: "mdi-key-variant",
     order: 11,
     subpages: ["settings.secret-details"],

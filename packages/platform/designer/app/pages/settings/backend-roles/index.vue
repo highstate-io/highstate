@@ -19,6 +19,7 @@ definePageMeta({
   name: "settings.backend-roles",
   tab: {
     label: "Backend Roles",
+    group: "Security",
     icon: "mdi-shield-account",
     order: 3,
     subpages: ["settings.backend-role-details"],
@@ -68,7 +69,7 @@ void roleStore.items.load()
     description="Manage roles that grant backend-wide permissions to service accounts."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create role</VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create</VBtn>
     </template>
     <template #default="{ height }">
       <BackendRolesTable

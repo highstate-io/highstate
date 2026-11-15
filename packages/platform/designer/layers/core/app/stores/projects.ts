@@ -4,6 +4,7 @@ import type { CommonObjectMeta } from "@highstate/contract"
 export const useProjectsStore = defineStore("projects", () => {
   const { $client } = useNuxtApp()
   const projects = ref<ProjectOutput[]>([])
+  const projectsLoaded = ref(false)
 
   async function loadProjects(): Promise<ProjectOutput[]> {
     return await loadAllCollectionItems(query => $client.project.getProjects.query(query))
@@ -11,6 +12,7 @@ export const useProjectsStore = defineStore("projects", () => {
 
   async function refreshProjects(): Promise<void> {
     projects.value = await loadProjects()
+    projectsLoaded.value = true
   }
 
   void refreshProjects()
@@ -51,6 +53,7 @@ export const useProjectsStore = defineStore("projects", () => {
 
   return {
     projects,
+    projectsLoaded,
     focusedProjectId,
     createProject,
     loadingCreateProject,

@@ -107,7 +107,7 @@ onUnmounted(() => {
 
             <VListItem class="list-item" @click="dialogVisible = true">
               <VIcon class="mr-2">mdi-plus</VIcon>
-              Create new project
+              Create
             </VListItem>
           </VList>
         </VCardText>

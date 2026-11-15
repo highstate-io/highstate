@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "workspaces": [
+    "packages/e2e",
     "packages/platform/*",
     "packages/standard/*",
     "packages/third-party/*",

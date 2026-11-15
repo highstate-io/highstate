@@ -18,6 +18,7 @@ definePageMeta({
   name: "settings.workers",
   tab: {
     label: "Workers",
+    group: "Runtime",
     icon: "mdi-progress-wrench",
     order: 16,
     subpages: ["settings.worker-details"],

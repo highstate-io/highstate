@@ -4,4 +4,6 @@ dist
 .output
 .nx
 .devenv
+.artifacts
+.git
 Dockerfile

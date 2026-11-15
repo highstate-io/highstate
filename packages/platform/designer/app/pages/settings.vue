@@ -4,6 +4,11 @@ import { ProjectTabWrapper } from "#layers/core/app/features/shared"
 
 definePageMeta({
   name: "settings",
+  middleware: to => {
+    if (to.name === "settings") {
+      return navigateTo({ name: "settings.project-list" })
+    }
+  },
   panel: {
     title: "Data & Settings",
     icon: "mdi-database-cog",
@@ -15,29 +20,11 @@ const projectsStore = useProjectsStore()
 
 const router = useRouter()
 const currentRoute = shallowRef<RouteLocationNormalizedLoaded | null>(null)
-
-watch(
-  router.currentRoute,
-  async newRoute => {
-    // always store the last route on the settings panel
-    if (newRoute.path.startsWith("/settings/")) {
-      globalLogger.info(
-        {
-          from: currentRoute.value?.path,
-          to: newRoute.path,
-        },
-        "settings route changed",
-      )
-
-      currentRoute.value = newRoute
-    }
-
-    if (newRoute?.name === "settings") {
-      // redirect to the first global tab if no specific route is selected
-      await navigateToTab(tabs.value.beforeGlobalTabs[0])
-    }
-  },
-  { immediate: true },
+const selectedProjectId = ref<string | null>(projectsStore.focusedProjectId)
+const lastBackendTab = ref<string>()
+const lastProjectTab = ref<string>()
+const scope = computed(() =>
+  currentRoute.value?.path.startsWith("/settings/projects/") ? "project" : "backend",
 )
 
 type Tab = {
@@ -47,6 +34,7 @@ type Tab = {
   order: number
   isProjectTab: boolean
   subpages: string[]
+  group?: "Runtime" | "Resources" | "Security"
 }
 
 /**
@@ -80,6 +68,7 @@ const tabs = computed(() => {
       order: tabMeta.order || 50,
       isProjectTab: route.path.startsWith("/settings/projects/"),
       subpages: tabMeta.subpages ?? [],
+      group: tabMeta.group,
     }
 
     if (tab.isProjectTab) {
@@ -93,13 +82,22 @@ const tabs = computed(() => {
   globalTabs.sort((a, b) => a.order - b.order)
   projectTabs.sort((a, b) => a.order - b.order)
 
-  const beforeGlobalTabs = globalTabs.filter(tab => tab.order < 90)
-  const afterGlobalTabs = globalTabs.filter(tab => tab.order >= 90)
+  const projectGroups = [
+    { label: undefined, tabs: projectTabs.filter(tab => !tab.group) },
+    { label: "Resources", tabs: projectTabs.filter(tab => tab.group === "Resources") },
+    { label: "Runtime", tabs: projectTabs.filter(tab => tab.group === "Runtime") },
+    { label: "Security", tabs: projectTabs.filter(tab => tab.group === "Security") },
+  ].filter(group => group.tabs.length)
 
   return {
-    beforeGlobalTabs,
-    projectTabs,
-    afterGlobalTabs,
+    globalTabs,
+    globalGroups: [
+      { label: undefined, tabs: globalTabs.filter(tab => !tab.group) },
+      { label: "Runtime", tabs: globalTabs.filter(tab => tab.group === "Runtime") },
+      { label: "Security", tabs: globalTabs.filter(tab => tab.group === "Security") },
+    ].filter(group => group.tabs.length),
+    projectTabs: projectGroups.flatMap(group => group.tabs),
+    projectGroups,
   }
 })
 
@@ -111,7 +109,7 @@ const isTabActive = (tab: Tab) => {
 }
 
 const currentTab = computed(() => {
-  return tabs.value.beforeGlobalTabs.find(isTabActive) || tabs.value.projectTabs.find(isTabActive)
+  return [...tabs.value.globalTabs, ...tabs.value.projectTabs].find(isTabActive)
 })
 
 const navigateToTab = async (tab: Tab) => {
@@ -120,34 +118,86 @@ const navigateToTab = async (tab: Tab) => {
     return
   }
 
+  if (!selectedProjectId.value) {
+    return
+  }
+
   await navigateTo({
     name: tab.name,
-    params: { projectId: projectsStore.focusedProjectId },
+    params: { projectId: selectedProjectId.value },
   })
 }
 
+async function switchScope(value: unknown) {
+  if (value !== "backend" && value !== "project") {
+    return
+  }
+
+  if (value === scope.value || (value === "project" && !projectsStore.projects.length)) {
+    return
+  }
+
+  const available = value === "project" ? tabs.value.projectTabs : tabs.value.globalTabs
+
+  const previous = value === "project" ? lastProjectTab.value : lastBackendTab.value
+  const tab = available.find(tab => tab.name === previous) ?? available[0]
+  if (tab) {
+    await navigateToTab(tab)
+  }
+}
+
 watch(
-  () => projectsStore.focusedProjectId,
-  async (newProject, oldProject) => {
-    const currentRoute = router.currentRoute.value
-    if (
-      !currentRoute ||
-      (newProject === oldProject && currentRoute.path.startsWith("/settings/projects/")) ||
-      !currentRoute.path.startsWith("/settings/")
-    ) {
-      // ignore when already in a project-specific route or not in settings
+  router.currentRoute,
+  newRoute => {
+    if (newRoute.path.startsWith("/settings/")) {
+      currentRoute.value = newRoute
+
+      if (typeof newRoute.params.projectId === "string") {
+        selectedProjectId.value = newRoute.params.projectId
+      }
+
+      if (scope.value === "project") {
+        lastProjectTab.value = currentTab.value?.name
+      } else {
+        lastBackendTab.value = currentTab.value?.name
+      }
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  [() => projectsStore.projects, () => projectsStore.projectsLoaded],
+  async ([projects, loaded]) => {
+    if (!loaded) {
       return
     }
 
-    if (newProject && tabs.value.projectTabs.length > 0) {
-      // navigate to the same tab in new project or to the first project tab
-      await navigateToTab(currentTab.value ?? tabs.value.projectTabs[0])
-    } else if (!newProject && currentRoute.path.startsWith("/settings/projects/")) {
-      // navigate back to overview if project is deselected
-      await navigateToTab(tabs.value.beforeGlobalTabs[0])
+    if (!projects.some(project => project.id === selectedProjectId.value)) {
+      selectedProjectId.value =
+        projects.find(project => project.id === projectsStore.focusedProjectId)?.id ??
+        projects[0]?.id ??
+        null
+    }
+
+    if (!projects.length && router.currentRoute.value.path.startsWith("/settings/projects/")) {
+      await navigateToTab(tabs.value.globalTabs[0])
     }
   },
+  { immediate: true },
 )
+
+watch(selectedProjectId, async projectId => {
+  if (
+    !projectId ||
+    !router.currentRoute.value.path.startsWith("/settings/projects/") ||
+    router.currentRoute.value.params.projectId === projectId
+  ) {
+    return
+  }
+
+  await navigateToTab(currentTab.value?.isProjectTab ? currentTab.value : tabs.value.projectTabs[0])
+})
 </script>
 
 <template>
@@ -155,68 +205,89 @@ watch(
     <div class="panel-layout">
       <!-- Left vertical tab menu -->
       <div class="vertical-tabs">
-        <!-- Global Settings Section -->
-        <div class="tab-section">
-          <VBtn
-            v-for="tab in tabs.beforeGlobalTabs"
-            :key="tab.name"
-            variant="text"
-            :class="['tab-item', { active: isTabActive(tab) }]"
-            @click="navigateToTab(tab)"
-          >
-            <VIcon class="tab-icon">{{ tab.icon }}</VIcon>
-            <span class="tab-label">{{ tab.label }}</span>
-          </VBtn>
-        </div>
+        <VBtnToggle
+          :model-value="scope"
+          mandatory
+          divided
+          variant="outlined"
+          density="compact"
+          color="primary"
+          aria-label="Settings scope"
+          class="scope-switch"
+          @update:model-value="switchScope"
+        >
+          <VBtn value="backend">Backend</VBtn>
+          <VBtn value="project" :disabled="!projectsStore.projects.length">Project</VBtn>
+        </VBtnToggle>
 
-        <VDivider class="section-divider" />
-
-        <!-- Project Selection -->
-        <div class="tab-section">
-          <VSelect
-            v-model="projectsStore.focusedProjectId"
-            :items="projectsStore.projects"
-            label="Project"
-            item-title="meta.title"
-            item-value="id"
-            variant="outlined"
-            density="compact"
-            class="project-selector"
-            prepend-inner-icon="mdi-folder-outline"
-            clearable
-            hide-details
-          />
-
-          <!-- Project-specific tabs (only visible when project is selected) -->
-          <template v-if="projectsStore.focusedProjectId">
-            <VBtn
-              v-for="tab in tabs.projectTabs"
-              :key="tab.name"
-              variant="text"
-              :class="['tab-item', { active: isTabActive(tab) }]"
-              @click="navigateToTab(tab)"
+        <template v-if="scope === 'backend'">
+          <!-- Global Settings Section -->
+          <template v-for="(group, index) in tabs.globalGroups" :key="group.label ?? 'general'">
+            <VDivider v-if="index" class="section-divider" />
+            <div
+              class="tab-section"
+              :role="group.label ? 'group' : undefined"
+              :aria-label="group.label"
             >
-              <VIcon class="tab-icon">{{ tab.icon }}</VIcon>
-              <span class="tab-label">{{ tab.label }}</span>
-            </VBtn>
+              <div v-if="group.label" class="tab-group-title text-medium-emphasis">
+                {{ group.label }}
+              </div>
+              <VBtn
+                v-for="tab in group.tabs"
+                :key="tab.name"
+                variant="text"
+                :class="['tab-item', { active: isTabActive(tab) }]"
+                @click="navigateToTab(tab)"
+              >
+                <VIcon class="tab-icon">{{ tab.icon }}</VIcon>
+                <span class="tab-label">{{ tab.label }}</span>
+              </VBtn>
+            </div>
           </template>
-        </div>
+        </template>
 
-        <VDivider class="section-divider" />
+        <template v-else>
+          <div class="project-selector-row">
+            <VSelect
+              v-model="selectedProjectId"
+              :items="projectsStore.projects"
+              label="Project"
+              item-title="meta.title"
+              item-value="id"
+              variant="outlined"
+              density="compact"
+              class="project-selector"
+              prepend-inner-icon="mdi-folder-outline"
+              single-line
+              hide-details
+            />
+          </div>
 
-        <!-- Additional Global Settings Section -->
-        <div class="tab-section">
-          <VBtn
-            v-for="tab in tabs.afterGlobalTabs"
-            :key="tab.name"
-            variant="text"
-            :class="['tab-item', { active: isTabActive(tab) }]"
-            @click="navigateToTab(tab)"
-          >
-            <VIcon class="tab-icon">{{ tab.icon }}</VIcon>
-            <span class="tab-label">{{ tab.label }}</span>
-          </VBtn>
-        </div>
+          <VDivider class="section-divider" />
+
+          <template v-for="(group, index) in tabs.projectGroups" :key="group.label ?? 'general'">
+            <VDivider v-if="index" class="section-divider" />
+            <div
+              class="tab-section"
+              :role="group.label ? 'group' : undefined"
+              :aria-label="group.label"
+            >
+              <div v-if="group.label" class="tab-group-title text-medium-emphasis">
+                {{ group.label }}
+              </div>
+              <VBtn
+                v-for="tab in group.tabs"
+                :key="tab.name"
+                variant="text"
+                :class="['tab-item', { active: isTabActive(tab) }]"
+                @click="navigateToTab(tab)"
+              >
+                <VIcon class="tab-icon">{{ tab.icon }}</VIcon>
+                <span class="tab-label">{{ tab.label }}</span>
+              </VBtn>
+            </div>
+          </template>
+        </template>
       </div>
 
       <!-- Right content area -->
@@ -261,20 +332,46 @@ watch(
   border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   padding: 16px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.scope-switch {
+  width: 100%;
+  height: 36px;
+  margin-bottom: 12px;
+}
+
+.scope-switch :deep(.v-btn) {
+  flex: 1;
+  min-width: 0;
+  text-transform: none;
 }
 
 .tab-section {
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .section-divider {
-  margin: 16px 0;
+  margin: 12px 0;
+}
+
+.tab-group-title {
+  padding: 0 12px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .tab-item {
   width: 100%;
+  height: 40px;
+  min-height: 40px;
   justify-content: flex-start;
-  margin-bottom: 4px;
   padding: 8px 12px;
   border-radius: 8px;
   text-transform: none;
@@ -303,8 +400,18 @@ watch(
   font-size: 14px;
 }
 
+.project-selector-row {
+  width: 100%;
+  height: 40px;
+}
+
 .project-selector {
-  margin-bottom: 16px;
+  width: 100%;
+  margin: 0;
+}
+
+.project-selector :deep(.v-field__input) {
+  min-height: 40px;
 }
 
 .content-area {

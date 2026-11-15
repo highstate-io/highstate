@@ -16,6 +16,7 @@ definePageMeta({
   name: "settings.terminals",
   tab: {
     label: "Terminals",
+    group: "Runtime",
     icon: "mdi-console",
     order: 12,
     subpages: ["settings.terminal-details"],

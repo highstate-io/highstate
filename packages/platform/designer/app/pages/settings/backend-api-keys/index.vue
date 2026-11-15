@@ -28,6 +28,7 @@ definePageMeta({
   name: "settings.backend-api-keys",
   tab: {
     label: "Backend API Keys",
+    group: "Security",
     icon: "mdi-key-variant",
     order: 5,
     subpages: ["settings.backend-api-key-details"],
@@ -102,9 +103,7 @@ void apiKeyStore.items.load()
     description="Manage tokens that provide programmatic access to backend resources."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">
-        Create API key
-      </VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
     </template>
     <template #default="{ height }">
       <BackendApiKeysTable

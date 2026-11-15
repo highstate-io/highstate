@@ -19,6 +19,7 @@ definePageMeta({
   name: "settings.project-roles",
   tab: {
     label: "Roles",
+    group: "Security",
     icon: "mdi-shield-account",
     order: 18,
     subpages: ["settings.project-role-details"],
@@ -67,7 +68,7 @@ void roleStore.items.load()
     description="Manage roles that grant permissions within this project."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create role</VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create</VBtn>
     </template>
     <template #default="{ height }">
       <ProjectRolesTable

@@ -26,6 +26,7 @@ defineEmits<{
       <VBtn
         v-bind="tooltipProps"
         :icon="icon"
+        :aria-label="tooltip"
         :variant="variant"
         :size="size"
         :color="color"

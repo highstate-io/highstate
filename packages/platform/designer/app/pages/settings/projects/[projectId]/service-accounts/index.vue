@@ -66,6 +66,7 @@ definePageMeta({
   name: "settings.service-accounts",
   tab: {
     label: "Service Accounts",
+    group: "Security",
     icon: "mdi-account-circle",
     order: 17,
     subpages: ["settings.service-account-details"],
@@ -80,9 +81,7 @@ definePageMeta({
     description="Manage the service accounts that provide identities for automated processes and applications."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">
-        Create service account
-      </VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true"> Create </VBtn>
     </template>
     <template #default="{ height }">
       <ServiceAccountsTable
