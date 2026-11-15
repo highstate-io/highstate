@@ -5,8 +5,8 @@ import { operationPhaseSchema, operationPlanInputSchema, stableJsonStringify } f
 export const reviewedPlanSchema = operationPlanInputSchema.extend({
   phases: operationPhaseSchema.array(),
   librarySnapshotId: z.string().nullable(),
-  modelRevision: z.string(),
-  localOverlayRevision: z.string().nullable(),
+  modelHash: z.string(),
+  localOverlayHash: z.string().nullable(),
   expiresAt: z.number(),
 })
 export type ReviewedPlan = z.infer<typeof reviewedPlanSchema>

@@ -14,8 +14,8 @@ function fixture(allowed = true) {
     token: "signed-plan",
     phases: [],
     librarySnapshotId: "snapshot",
-    modelRevision: "model-revision",
-    localOverlayRevision: null,
+    modelHash: "model-hash",
+    localOverlayHash: null,
   }))
 
   const launch = vi.fn(async () => {
@@ -70,7 +70,7 @@ describe("reviewed operation transport", () => {
     expect(launch).not.toHaveBeenCalled()
   })
 
-  it("returns the token together with the exact revisions reviewed", async () => {
+  it("returns the token together with the exact content hashes reviewed", async () => {
     const { handler, planReviewed } = fixture()
 
     const result = await handler.planOperation(
@@ -87,7 +87,7 @@ describe("reviewed operation transport", () => {
     expect(result.plan).toMatchObject({
       token: "signed-plan",
       librarySnapshotId: "snapshot",
-      modelRevision: "model-revision",
+      modelHash: "model-hash",
       phases: [],
     })
   })

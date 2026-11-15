@@ -48,13 +48,13 @@ export type PinnedOperationLibrary = {
   library: LibraryModel
   snapshotId: string | null
   projectLibrary: ProjectLibraryService
-  modelRevision?: string
-  localOverlayRevision?: string | null
+  modelHash?: string
+  localOverlayHash?: string | null
 }
 
 export class OperationContext {
   public desiredSnapshotId: string | null = null
-  public localOverlayRevision: string | null = null
+  public localOverlayHash: string | null = null
   private readonly desiredProvenance = new Map<string, ExecutionProvenance>()
   private readonly historicalProvenance = new Map<InstanceId, ExecutionProvenance>()
   private readonly historicalLibraries = new Map<string, LibraryModel>()
@@ -637,7 +637,7 @@ export class OperationContext {
     )
 
     if (
-      pinned?.modelRevision !== undefined &&
+      pinned?.modelHash !== undefined &&
       (instances.some(instance => instance.kind === "composite") || virtualInstances.length > 0)
     ) {
       const evaluations = states.filter(state => state.evaluationState)
@@ -647,8 +647,8 @@ export class OperationContext {
         evaluations.some(
           ({ evaluationState }) =>
             evaluationState!.librarySnapshotId !== pinned.snapshotId ||
-            evaluationState!.modelRevision !== pinned.modelRevision ||
-            evaluationState!.localOverlayRevision !== (pinned.localOverlayRevision ?? null) ||
+            evaluationState!.modelHash !== pinned.modelHash ||
+            evaluationState!.localOverlayHash !== (pinned.localOverlayHash ?? null) ||
             !evaluationState!.evaluationActionId,
         ) ||
         instances.some(instance => instance.kind === "composite" && !evaluatedIds.has(instance.id))
@@ -661,7 +661,7 @@ export class OperationContext {
 
     if (pinned) {
       context.desiredSnapshotId = pinned.snapshotId
-      context.localOverlayRevision = pinned.localOverlayRevision ?? null
+      context.localOverlayHash = pinned.localOverlayHash ?? null
 
       const snapshotIds = unique([
         ...(pinned.snapshotId ? [pinned.snapshotId] : []),

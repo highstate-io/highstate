@@ -8,8 +8,8 @@ const review = (): ReviewedPlan => ({
   options: { refresh: true },
   phases: [{ type: "destroy", instances: [{ id: "test.unit.v1:unit", message: "requested" }] }],
   librarySnapshotId: "snapshot",
-  modelRevision: "model",
-  localOverlayRevision: "overlay",
+  modelHash: "model",
+  localOverlayHash: "overlay",
   expiresAt: Date.now() + 60_000,
 })
 
@@ -29,8 +29,8 @@ describe("ReviewedPlanSigner", () => {
       instanceIds: ["test.unit.v1:other"],
       phases: [],
       librarySnapshotId: "other-snapshot",
-      modelRevision: "other-model",
-      localOverlayRevision: "other-overlay",
+      modelHash: "other-model",
+      localOverlayHash: "other-overlay",
     })) {
       const tampered = Buffer.from(JSON.stringify({ ...decoded, [field]: value })).toString(
         "base64url",

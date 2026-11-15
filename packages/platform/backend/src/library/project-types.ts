@@ -154,7 +154,7 @@ export type ProjectLibraryCatalog = {
     active: boolean
     conflicts: string[]
     reason?: string
-    revision?: string
+    hash?: string
   }
 }
 

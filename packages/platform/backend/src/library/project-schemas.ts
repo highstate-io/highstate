@@ -92,6 +92,6 @@ export const projectLibraryCatalogSchema: z.ZodType<ProjectLibraryCatalog> = z.o
     active: z.boolean(),
     conflicts: z.array(z.string()),
     reason: z.string().optional(),
-    revision: z.string().optional(),
+    hash: z.string().optional(),
   }),
 })

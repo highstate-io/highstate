@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/runtime/v1/evaluation.proto.
  */
 export const file_io_highstate_runtime_v1_evaluation: GenFile = /*@__PURE__*/
-  fileDesc("Cihpby9oaWdoc3RhdGUvcnVudGltZS92MS9ldmFsdWF0aW9uLnByb3RvEhdpby5oaWdoc3RhdGUucnVudGltZS52MSLRAgoaQ29tcG9zaXRlRXZhbHVhdGlvblJlcXVlc3QSIAoTbGlicmFyeV9zbmFwc2hvdF9pZBgBIAEoCUID4EECEhsKDm1vZGVsX3JldmlzaW9uGAIgASgJQgPgQQISIwoWbG9jYWxfb3ZlcmxheV9yZXZpc2lvbhgDIAEoCUgAiAEBEjEKCWluc3RhbmNlcxgEIAMoCzIZLmlvLmhpZ2hzdGF0ZS52MS5JbnN0YW5jZUID4EECEkkKD3Jlc29sdmVkX2lucHV0cxgFIAMoCzIwLmlvLmhpZ2hzdGF0ZS5ydW50aW1lLnYxLkNvbXBvc2l0ZUluc3RhbmNlSW5wdXRzEjYKEnZpcnR1YWxfY29tcG9uZW50cxgGIAMoCzIaLmlvLmhpZ2hzdGF0ZS52MS5Db21wb25lbnRCGQoXX2xvY2FsX292ZXJsYXlfcmV2aXNpb24ibAoXQ29tcG9zaXRlSW5zdGFuY2VJbnB1dHMSGAoLaW5zdGFuY2VfaWQYASABKAlCA+BBAhI3CgZpbnB1dHMYAiADKAsyJy5pby5oaWdoc3RhdGUucnVudGltZS52MS5Db21wb3NpdGVJbnB1dCJjCg5Db21wb3NpdGVJbnB1dBIRCgRuYW1lGAEgASgJQgPgQQISPgoGdmFsdWVzGAIgAygLMi4uaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuUmVzb2x2ZWRJbnN0YW5jZUlucHV0Im0KFVJlc29sdmVkSW5zdGFuY2VJbnB1dBI6CglyZWZlcmVuY2UYASABKAsyIi5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VSZWZlcmVuY2VCA+BBAhIYCgtlbnRpdHlfdHlwZRgCIAEoCUID4EECIroCChlDb21wb3NpdGVFdmFsdWF0aW9uUmVzdWx0EiAKE2xpYnJhcnlfc25hcHNob3RfaWQYASABKAlCA+BBAxIbCg5tb2RlbF9yZXZpc2lvbhgCIAEoCUID4EEDEigKFmxvY2FsX292ZXJsYXlfcmV2aXNpb24YAyABKAlCA+BBA0gBiAEBEkYKB3N1Y2Nlc3MYBCABKAsyMy5pby5oaWdoc3RhdGUucnVudGltZS52MS5Db21wb3NpdGVFdmFsdWF0aW9uU3VjY2Vzc0gAEkYKB2ZhaWx1cmUYBSABKAsyMy5pby5oaWdoc3RhdGUucnVudGltZS52MS5Db21wb3NpdGVFdmFsdWF0aW9uRmFpbHVyZUgAQgkKB291dGNvbWVCGQoXX2xvY2FsX292ZXJsYXlfcmV2aXNpb24inwEKGkNvbXBvc2l0ZUV2YWx1YXRpb25TdWNjZXNzEjkKEXZpcnR1YWxfaW5zdGFuY2VzGAEgAygLMhkuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQgPgQQMSRgoGZXJyb3JzGAIgAygLMjEuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuQ29tcG9zaXRlRXZhbHVhdGlvbkVycm9yQgPgQQMiXQoYQ29tcG9zaXRlRXZhbHVhdGlvbkVycm9yEhgKC2luc3RhbmNlX2lkGAEgASgJQgPgQQMSEQoEY29kZRgCIAEoCUID4EEDEhQKB21lc3NhZ2UYAyABKAlCA+BBAyJFChpDb21wb3NpdGVFdmFsdWF0aW9uRmFpbHVyZRIRCgRjb2RlGAEgASgJQgPgQQMSFAoHbWVzc2FnZRgCIAEoCUID4EEDYgZwcm90bzM", [file_google_api_field_behavior, file_io_highstate_v1_common, file_io_highstate_v1_library, file_io_highstate_v1_project_model]);
+  fileDesc("Cihpby9oaWdoc3RhdGUvcnVudGltZS92MS9ldmFsdWF0aW9uLnByb3RvEhdpby5oaWdoc3RhdGUucnVudGltZS52MSLFAgoaQ29tcG9zaXRlRXZhbHVhdGlvblJlcXVlc3QSIAoTbGlicmFyeV9zbmFwc2hvdF9pZBgBIAEoCUID4EECEhcKCm1vZGVsX2hhc2gYAiABKAlCA+BBAhIfChJsb2NhbF9vdmVybGF5X2hhc2gYAyABKAlIAIgBARIxCglpbnN0YW5jZXMYBCADKAsyGS5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VCA+BBAhJJCg9yZXNvbHZlZF9pbnB1dHMYBSADKAsyMC5pby5oaWdoc3RhdGUucnVudGltZS52MS5Db21wb3NpdGVJbnN0YW5jZUlucHV0cxI2ChJ2aXJ0dWFsX2NvbXBvbmVudHMYBiADKAsyGi5pby5oaWdoc3RhdGUudjEuQ29tcG9uZW50QhUKE19sb2NhbF9vdmVybGF5X2hhc2gibAoXQ29tcG9zaXRlSW5zdGFuY2VJbnB1dHMSGAoLaW5zdGFuY2VfaWQYASABKAlCA+BBAhI3CgZpbnB1dHMYAiADKAsyJy5pby5oaWdoc3RhdGUucnVudGltZS52MS5Db21wb3NpdGVJbnB1dCJjCg5Db21wb3NpdGVJbnB1dBIRCgRuYW1lGAEgASgJQgPgQQISPgoGdmFsdWVzGAIgAygLMi4uaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuUmVzb2x2ZWRJbnN0YW5jZUlucHV0Im0KFVJlc29sdmVkSW5zdGFuY2VJbnB1dBI6CglyZWZlcmVuY2UYASABKAsyIi5pby5oaWdoc3RhdGUudjEuSW5zdGFuY2VSZWZlcmVuY2VCA+BBAhIYCgtlbnRpdHlfdHlwZRgCIAEoCUID4EECIq4CChlDb21wb3NpdGVFdmFsdWF0aW9uUmVzdWx0EiAKE2xpYnJhcnlfc25hcHNob3RfaWQYASABKAlCA+BBAxIXCgptb2RlbF9oYXNoGAIgASgJQgPgQQMSJAoSbG9jYWxfb3ZlcmxheV9oYXNoGAMgASgJQgPgQQNIAYgBARJGCgdzdWNjZXNzGAQgASgLMjMuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuQ29tcG9zaXRlRXZhbHVhdGlvblN1Y2Nlc3NIABJGCgdmYWlsdXJlGAUgASgLMjMuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuQ29tcG9zaXRlRXZhbHVhdGlvbkZhaWx1cmVIAEIJCgdvdXRjb21lQhUKE19sb2NhbF9vdmVybGF5X2hhc2ginwEKGkNvbXBvc2l0ZUV2YWx1YXRpb25TdWNjZXNzEjkKEXZpcnR1YWxfaW5zdGFuY2VzGAEgAygLMhkuaW8uaGlnaHN0YXRlLnYxLkluc3RhbmNlQgPgQQMSRgoGZXJyb3JzGAIgAygLMjEuaW8uaGlnaHN0YXRlLnJ1bnRpbWUudjEuQ29tcG9zaXRlRXZhbHVhdGlvbkVycm9yQgPgQQMiXQoYQ29tcG9zaXRlRXZhbHVhdGlvbkVycm9yEhgKC2luc3RhbmNlX2lkGAEgASgJQgPgQQMSEQoEY29kZRgCIAEoCUID4EEDEhQKB21lc3NhZ2UYAyABKAlCA+BBAyJFChpDb21wb3NpdGVFdmFsdWF0aW9uRmFpbHVyZRIRCgRjb2RlGAEgASgJQgPgQQMSFAoHbWVzc2FnZRgCIAEoCUID4EEDYgZwcm90bzM", [file_google_api_field_behavior, file_io_highstate_v1_common, file_io_highstate_v1_library, file_io_highstate_v1_project_model]);
 
 /**
  * CompositeEvaluationRequest starts one complete project composite evaluation.
@@ -33,18 +33,18 @@ export type CompositeEvaluationRequest = Message<"io.highstate.runtime.v1.Compos
   librarySnapshotId: string;
 
   /**
-   * The backend-assigned revision of the resident model and resolved inputs.
+   * The SHA-256 content hash of the resident model and resolved inputs.
    *
-   * @generated from field: string model_revision = 2;
+   * @generated from field: string model_hash = 2;
    */
-  modelRevision: string;
+  modelHash: string;
 
   /**
-   * The local overlay revision included in evaluation, when active.
+   * The content hash of the local overlay included in evaluation, when active.
    *
-   * @generated from field: optional string local_overlay_revision = 3;
+   * @generated from field: optional string local_overlay_hash = 3;
    */
-  localOverlayRevision?: string | undefined;
+  localOverlayHash?: string | undefined;
 
   /**
    * The complete resident project instance graph.
@@ -173,18 +173,18 @@ export type CompositeEvaluationResult = Message<"io.highstate.runtime.v1.Composi
   librarySnapshotId: string;
 
   /**
-   * The resident model revision evaluated by the workload.
+   * The content hash of the resident model and resolved inputs evaluated by the workload.
    *
-   * @generated from field: string model_revision = 2;
+   * @generated from field: string model_hash = 2;
    */
-  modelRevision: string;
+  modelHash: string;
 
   /**
-   * The local overlay revision used by the workload, when active.
+   * The content hash of the local overlay used by the workload, when active.
    *
-   * @generated from field: optional string local_overlay_revision = 3;
+   * @generated from field: optional string local_overlay_hash = 3;
    */
-  localOverlayRevision?: string | undefined;
+  localOverlayHash?: string | undefined;
 
   /**
    * The evaluation outcome.

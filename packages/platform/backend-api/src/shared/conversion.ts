@@ -279,8 +279,8 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
             : undefined,
           evaluatedAt: toTimestamp(state.evaluationState.evaluatedAt),
           librarySnapshotId: state.evaluationState.librarySnapshotId ?? undefined,
-          modelRevision: state.evaluationState.modelRevision,
-          localOverlayRevision: state.evaluationState.localOverlayRevision ?? undefined,
+          modelHash: state.evaluationState.modelHash,
+          localOverlayHash: state.evaluationState.localOverlayHash ?? undefined,
           evaluationActionId: state.evaluationState.evaluationActionId,
         }
       : undefined,
@@ -298,8 +298,8 @@ export function toInstanceState(state: BackendInstanceState): InstanceState {
           libraryPackageVersionId: state.lastOperationState.libraryPackageVersionId ?? undefined,
           previousLibraryPackageVersionId:
             state.lastOperationState.previousLibraryPackageVersionId ?? undefined,
-          localOverlayActive: state.lastOperationState.localOverlayRevision !== null,
-          localOverlayRevision: state.lastOperationState.localOverlayRevision ?? undefined,
+          localOverlayActive: state.lastOperationState.localOverlayHash !== null,
+          localOverlayHash: state.lastOperationState.localOverlayHash ?? undefined,
         }
       : undefined,
     terminalIds: state.terminalIds ?? [],

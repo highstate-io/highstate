@@ -11,11 +11,11 @@ message CompositeEvaluationRequest {
   // The packaged library snapshot whose implementations must be loaded.
   string library_snapshot_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The backend-assigned revision of the resident model and resolved inputs.
-  string model_revision = 2 [(google.api.field_behavior) = REQUIRED];
+  // The SHA-256 content hash of the resident model and resolved inputs.
+  string model_hash = 2 [(google.api.field_behavior) = REQUIRED];
 
-  // The local overlay revision included in evaluation, when active.
-  optional string local_overlay_revision = 3;
+  // The content hash of the local overlay included in evaluation, when active.
+  optional string local_overlay_hash = 3;
 
   // The complete resident project instance graph.
   repeated io.highstate.v1.Instance instances = 4 [(google.api.field_behavior) = REQUIRED];
@@ -59,11 +59,11 @@ message CompositeEvaluationResult {
   // The packaged library snapshot used by the workload.
   string library_snapshot_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The resident model revision evaluated by the workload.
-  string model_revision = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The content hash of the resident model and resolved inputs evaluated by the workload.
+  string model_hash = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The local overlay revision used by the workload, when active.
-  optional string local_overlay_revision = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The content hash of the local overlay used by the workload, when active.
+  optional string local_overlay_hash = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The evaluation outcome.
   oneof outcome {

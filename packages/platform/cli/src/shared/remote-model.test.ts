@@ -44,7 +44,7 @@ describe("remote model conversion", () => {
       instance_ids: ["common.server.v1:web"],
       options: { refresh: true },
       plan_token: "backend-token",
-      model_revision: "revision-1",
+      model_hash: "hash-1",
       phases: phasesToJson([phase]),
     })
 

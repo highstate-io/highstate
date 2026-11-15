@@ -3530,8 +3530,8 @@ export const InstanceEvaluationStateScalarFieldEnum = {
   message: 'message',
   model: 'model',
   librarySnapshotId: 'librarySnapshotId',
-  modelRevision: 'modelRevision',
-  localOverlayRevision: 'localOverlayRevision',
+  modelHash: 'modelHash',
+  localOverlayHash: 'localOverlayHash',
   evaluationActionId: 'evaluationActionId',
   evaluatedAt: 'evaluatedAt'
 } as const
@@ -3688,7 +3688,7 @@ export const InstanceOperationStateScalarFieldEnum = {
   librarySnapshotId: 'librarySnapshotId',
   libraryPackageVersionId: 'libraryPackageVersionId',
   previousLibraryPackageVersionId: 'previousLibraryPackageVersionId',
-  localOverlayRevision: 'localOverlayRevision',
+  localOverlayHash: 'localOverlayHash',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
 } as const

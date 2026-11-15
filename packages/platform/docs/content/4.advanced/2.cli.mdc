@@ -274,7 +274,7 @@ highstate operation launch \
 
 The plan document records its format version, project, operation type, requested instances, options, and phases.
 The CLI rejects a plan when its project differs from the selected project.
-Plans also carry a backend-issued review token bound to the library snapshot, model and local-overlay revisions,
+Plans also carry a backend-issued review token bound to the library snapshot and model and local-overlay hashes,
 operation options, and phases.
 Launch rejects stale or modified plans; generate and review a new plan after those inputs change.
 Saved plans from before review tokens were introduced must be regenerated.

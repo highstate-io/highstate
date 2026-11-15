@@ -177,8 +177,8 @@ model InstanceOperationState {
     /// The previously deployed package version when this operation performs an upgrade.
     previousLibraryPackageVersionId String?
 
-    /// The local development overlay revision used by this instance operation.
-    localOverlayRevision String?
+    /// The content hash of the local development overlay used by this instance operation, when active.
+    localOverlayHash String?
 
     /// The time when the operation on this instance started.
     /// Not populated on create, even if the instance is ready to start immediately.

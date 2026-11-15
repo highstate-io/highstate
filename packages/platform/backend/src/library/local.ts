@@ -169,16 +169,16 @@ export class LocalLibraryBackend implements LibraryBackend {
         .map(({ unitType, sourceHash }) => ({ unitType, sourceHash }))
         .sort((a, b) => a.unitType.localeCompare(b.unitType))
 
-      const revision = createHash("sha256")
+      const hash = createHash("sha256")
         .update(canonicalJson({ model: library, sources }))
         .digest("hex")
 
-      return { model: library, revision }
+      return { model: library, hash }
     })
   }
 
-  async getLocalOverlayRevision(): Promise<string> {
-    return (await this.getLocalOverlaySnapshot()).revision
+  async getLocalOverlayHash(): Promise<string> {
+    return (await this.getLocalOverlaySnapshot()).hash
   }
 
   async *watchLibrary(_libraryId: string, signal?: AbortSignal): AsyncIterable<LibraryUpdate[]> {

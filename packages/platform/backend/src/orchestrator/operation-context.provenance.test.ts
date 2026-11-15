@@ -87,8 +87,8 @@ describe("operation context evaluation provenance", () => {
           pinned: {
             library,
             snapshotId: null,
-            modelRevision: "resident-revision",
-            localOverlayRevision: null,
+            modelHash: "resident-hash",
+            localOverlayHash: null,
             projectLibrary: {} as ProjectLibraryService,
           },
         }),
@@ -108,8 +108,8 @@ describe("operation context evaluation provenance", () => {
         pinned: {
           library,
           snapshotId: null,
-          modelRevision: "empty-revision",
-          localOverlayRevision: null,
+          modelHash: "empty-hash",
+          localOverlayHash: null,
           projectLibrary: {} as ProjectLibraryService,
         },
       })
@@ -132,8 +132,8 @@ describe("operation context evaluation provenance", () => {
 
       state.evaluationState = {
         librarySnapshotId: null,
-        modelRevision: "revision",
-        localOverlayRevision: "previous-overlay",
+        modelHash: "hash",
+        localOverlayHash: "previous-overlay",
         evaluationActionId: "action",
       } as typeof state.evaluationState
 
@@ -147,8 +147,8 @@ describe("operation context evaluation provenance", () => {
           pinned: {
             library,
             snapshotId: null,
-            modelRevision: "revision",
-            localOverlayRevision: "current-overlay",
+            modelHash: "hash",
+            localOverlayHash: "current-overlay",
             projectLibrary: {} as ProjectLibraryService,
           },
         }),

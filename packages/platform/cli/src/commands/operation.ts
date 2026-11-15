@@ -88,8 +88,8 @@ async function createPlan(
     options: operationOptions(options),
   })
 
-  if (!response.plan?.token || !response.plan.modelRevision) {
-    throw new Error("Backend did not return a revision-bound operation plan")
+  if (!response.plan?.token || !response.plan.modelHash) {
+    throw new Error("Backend did not return a content-bound operation plan")
   }
 
   const document: PlanDocument = {
@@ -99,9 +99,9 @@ async function createPlan(
     instance_ids: instanceIds,
     options,
     plan_token: response.plan.token,
-    model_revision: response.plan.modelRevision,
+    model_hash: response.plan.modelHash,
     library_snapshot_id: response.plan.librarySnapshotId,
-    local_overlay_revision: response.plan.localOverlayRevision,
+    local_overlay_hash: response.plan.localOverlayHash,
     phases: phasesToJson(response.plan.phases),
   }
 

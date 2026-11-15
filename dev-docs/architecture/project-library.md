@@ -25,7 +25,7 @@ after the desired catalog changes.
 The optional local library overlay is a backend-host development source, not a portable package snapshot.
 It is available only on the well-known local Docker runtime.
 A component or entity conflict disables the complete overlay rather than merging an arbitrary subset.
-Overlay revisions fence evaluation and reviewed plans independently of packaged snapshot identity.
+Overlay content hashes fence evaluation and reviewed plans independently of packaged snapshot identity.
 Local execution retains the local runner; it does not gain packaged historical provenance.
 
 ## Reconstruction

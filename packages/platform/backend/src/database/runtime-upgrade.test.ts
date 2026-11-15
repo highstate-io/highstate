@@ -116,11 +116,13 @@ test("upgrades populated backend databases with default placement without losing
   ).toMatchObject({ systemName: "local", spec: { url: "file://~" } })
 
   expect(await backend.pulumiStateBackend.count()).toBe(1)
+
   expect(
     await client.$queryRawUnsafe(
       `SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('Library', 'PulumiBackend')`,
     ),
   ).toEqual([])
+
   const columns = await client.$queryRawUnsafe<{ name: string }[]>(`PRAGMA table_info("Project")`)
   expect(columns.map(column => column.name)).not.toContain("legacyExecutionConfig")
 
@@ -200,7 +202,7 @@ test("invalidates old evaluation cache while preserving deployed and operation h
       librarySnapshotId: null,
       libraryPackageVersionId: null,
       previousLibraryPackageVersionId: null,
-      localOverlayRevision: null,
+      localOverlayHash: null,
     },
   ])
 

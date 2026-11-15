@@ -19,13 +19,13 @@ import {
   type InstanceStatus,
   withProjectReadTransaction,
 } from "../database"
-import { modelRevision } from "../orchestrator/revisions"
+import { modelHash } from "../orchestrator/model-hash"
 import { stableJsonStringify } from "../shared"
 
 type EvaluationFence = {
   librarySnapshotId: string | null
-  modelRevision: string
-  localOverlayRevision: string | null
+  modelHash: string
+  localOverlayHash: string | null
   evaluationActionId: string
 }
 
@@ -131,8 +131,8 @@ export class ProjectEvaluationSubsystem {
 
     const fence: EvaluationFence = {
       librarySnapshotId: catalog?.snapshotId ?? null,
-      modelRevision: modelRevision({ instances, resolvedInputs }),
-      localOverlayRevision: catalog?.overlay.revision ?? null,
+      modelHash: modelHash({ instances, resolvedInputs }),
+      localOverlayHash: catalog?.overlay.hash ?? null,
       evaluationActionId: this.runtimeEvaluation ? "" : createId(),
     }
 
@@ -140,10 +140,10 @@ export class ProjectEvaluationSubsystem {
       const current = await this.projectModelService.resolveProject(projectId)
       const currentCatalog = await this.projectLibrary?.catalog(projectId)
       return (
-        modelRevision({ instances: current.instances, resolvedInputs: current.resolvedInputs }) ===
-          fence.modelRevision &&
+        modelHash({ instances: current.instances, resolvedInputs: current.resolvedInputs }) ===
+          fence.modelHash &&
         (currentCatalog?.snapshotId ?? null) === fence.librarySnapshotId &&
-        (currentCatalog?.overlay.revision ?? null) === fence.localOverlayRevision
+        (currentCatalog?.overlay.hash ?? null) === fence.localOverlayHash
       )
     }
 
@@ -168,8 +168,8 @@ export class ProjectEvaluationSubsystem {
             {
               projectId,
               librarySnapshotId: fence.librarySnapshotId!,
-              modelRevision: fence.modelRevision,
-              localOverlayRevision: fence.localOverlayRevision,
+              modelHash: fence.modelHash,
+              localOverlayHash: fence.localOverlayHash,
               instances,
               resolvedInputs,
               virtualComponents,
@@ -394,8 +394,8 @@ export class ProjectEvaluationSubsystem {
           message: true,
           model: true,
           librarySnapshotId: true,
-          modelRevision: true,
-          localOverlayRevision: true,
+          modelHash: true,
+          localOverlayHash: true,
           evaluationActionId: true,
           state: {
             select: {
@@ -423,8 +423,8 @@ export class ProjectEvaluationSubsystem {
           (existingState.message ?? null) !== (state.message ?? null) ||
           stableJsonStringify(existingState.model) !== stableJsonStringify(state.model) ||
           existingState.librarySnapshotId !== state.librarySnapshotId ||
-          existingState.modelRevision !== state.modelRevision ||
-          existingState.localOverlayRevision !== state.localOverlayRevision ||
+          existingState.modelHash !== state.modelHash ||
+          existingState.localOverlayHash !== state.localOverlayHash ||
           existingState.evaluationActionId !== state.evaluationActionId
         )
       })

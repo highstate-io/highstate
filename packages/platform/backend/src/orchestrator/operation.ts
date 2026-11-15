@@ -37,10 +37,10 @@ import {
   resolveEffectiveOutputType,
   waitAll,
 } from "../shared"
+import { modelHash } from "./model-hash"
 import { OperationContext } from "./operation-context"
 import { createOperationPlan } from "./operation-plan"
 import { OperationWorkset } from "./operation-workset"
-import { modelRevision } from "./revisions"
 import { resolveUnitInputValues } from "./unit-input-values"
 
 type UnitOperationFailure = {
@@ -195,9 +195,9 @@ export class RuntimeOperation {
       ? await this.projectModelService.resolveProject(this.project.id)
       : undefined
 
-    const localOverlayRevision =
+    const localOverlayHash =
       catalog && this.projectLibrary
-        ? ((await this.projectLibrary.catalog(this.project.id)).overlay.revision ?? null)
+        ? ((await this.projectLibrary.catalog(this.project.id)).overlay.hash ?? null)
         : undefined
 
     this.context =
@@ -214,13 +214,13 @@ export class RuntimeOperation {
               library: catalog.model,
               snapshotId: catalog.snapshotId,
               projectLibrary: this.projectLibrary,
-              modelRevision: resolved
-                ? modelRevision({
+              modelHash: resolved
+                ? modelHash({
                     instances: resolved.instances,
                     resolvedInputs: resolved.resolvedInputs,
                   })
                 : undefined,
-              localOverlayRevision,
+              localOverlayHash,
             }
           : undefined,
       ))

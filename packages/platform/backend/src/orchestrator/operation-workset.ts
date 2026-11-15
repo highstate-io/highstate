@@ -152,7 +152,7 @@ export class OperationWorkset {
             librarySnapshotId: provenance?.librarySnapshotId ?? null,
             libraryPackageVersionId: provenance?.libraryPackageVersionId ?? null,
             previousLibraryPackageVersionId: state.libraryPackageVersionId,
-            localOverlayRevision: this.context.localOverlayRevision,
+            localOverlayHash: this.context.localOverlayHash,
             model: instance,
             resolvedInputs: serializedResolvedInputs,
           },

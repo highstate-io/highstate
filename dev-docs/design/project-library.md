@@ -201,8 +201,8 @@ A failed build blocks the operations with the associated actionable error.
 Changing the desired snapshot invalidates a previously reviewed plan.
 Launch rejects a supplied plan whose snapshot no longer matches the desired snapshot and requires the user to
 review a new plan.
-Plan responses contain a backend-issued token bound to the desired snapshot, resident model revision, local
-overlay revision, operation type and options, requested instances, and planned phases.
+Plan responses contain a backend-issued token bound to the desired snapshot, resident model hash, local
+overlay hash, operation type and options, requested instances, and planned phases.
 Launch validates that token rather than trusting caller-submitted phases.
 
 ## Local Library Overlay
@@ -221,7 +221,7 @@ Highstate reports the conflicts and does not merge only the non-conflicting subs
 Local instance state has no package-version or packaged-snapshot provenance and continues to rely on local
 source and model hashes.
 
-Per-instance operation history records whether the local overlay was active and its source revision.
+Per-instance operation history records the local overlay's source content hash when it was active.
 This provenance supports diagnostics and stale-plan detection without treating local sources as portable
 snapshots.
 

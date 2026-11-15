@@ -11,7 +11,7 @@ import { randomUUID } from "node:crypto"
 import { defineComponent, defineUnit, getInstanceId, type InstanceModel } from "@highstate/contract"
 import { clone } from "remeda"
 import { describe, type MockedObject, vi } from "vitest"
-import { modelRevision } from "../orchestrator/revisions"
+import { modelHash } from "../orchestrator/model-hash"
 import { test } from "../test-utils"
 import { ProjectEvaluationSubsystem } from "./evaluation"
 
@@ -220,7 +220,7 @@ describe("ProjectEvaluationSubsystem", () => {
         model: clone(libraryModel),
         sources: {},
         snapshotId: snapshotIds[0]!,
-        overlay: { enabled: true, active: true, revision: "overlay-1", conflicts: [] },
+        overlay: { enabled: true, active: true, hash: "overlay-1", conflicts: [] },
       })
 
       await use(service)
@@ -324,8 +324,8 @@ describe("ProjectEvaluationSubsystem", () => {
         status: "evaluated",
         model: null,
         librarySnapshotId: snapshotIds[0],
-        modelRevision: modelRevision({ instances: [root], resolvedInputs: {} }),
-        localOverlayRevision: "overlay-1",
+        modelHash: modelHash({ instances: [root], resolvedInputs: {} }),
+        localOverlayHash: "overlay-1",
         evaluationActionId: "action-first",
       })
 
@@ -361,7 +361,7 @@ describe("ProjectEvaluationSubsystem", () => {
 
   for (const changed of ["model", "snapshot", "overlay"] as const) {
     runtimeTest(
-      `discards stale ${changed} output and evaluates the current revision`,
+      `discards stale ${changed} output and evaluates the current content`,
       async ({
         runtimeSubsystem,
         runtimeEvaluation,
@@ -401,7 +401,7 @@ describe("ProjectEvaluationSubsystem", () => {
               snapshotId: changed === "snapshot" ? snapshotIds[1]! : catalog.snapshotId,
               overlay: {
                 ...catalog.overlay,
-                revision: changed === "overlay" ? "overlay-2" : catalog.overlay.revision,
+                hash: changed === "overlay" ? "overlay-2" : catalog.overlay.hash,
               },
             })
           }
@@ -435,7 +435,7 @@ describe("ProjectEvaluationSubsystem", () => {
 
   for (const fence of ["transaction", "publication"] as const) {
     runtimeTest(
-      `rejects revision changes at the ${fence} fence before publishing`,
+      `rejects content changes at the ${fence} fence before publishing`,
       async ({
         runtimeSubsystem,
         runtimeEvaluation,
@@ -466,7 +466,7 @@ describe("ProjectEvaluationSubsystem", () => {
           catalogReads += 1
           return catalogReads < (fence === "transaction" ? 6 : 7)
             ? catalog
-            : { ...catalog, overlay: { ...catalog.overlay, revision: "overlay-2" } }
+            : { ...catalog, overlay: { ...catalog.overlay, hash: "overlay-2" } }
         })
 
         runtimeEvaluation.evaluate.mockResolvedValueOnce({
@@ -730,7 +730,7 @@ describe("ProjectEvaluationSubsystem", () => {
       await projectDatabase.instanceEvaluationState.create({
         data: {
           stateId: state.id,
-          modelRevision: "previous",
+          modelHash: "previous",
           evaluationActionId: "previous",
           status: "evaluated",
           message: "ok",
@@ -828,7 +828,7 @@ describe("ProjectEvaluationSubsystem", () => {
       await projectDatabase.instanceEvaluationState.create({
         data: {
           stateId: state.id,
-          modelRevision: "previous",
+          modelHash: "previous",
           evaluationActionId: "previous",
           status: "evaluated",
           message: "ok",

@@ -12,6 +12,11 @@ Prefer named domain types over expressions that extract implementation details f
 Use meaningful generic constraints when an implementation depends on properties of its type parameters.
 Do not add vacuous constraints just to constrain a generic.
 
+Reserve `revision` names for optimistic concurrency tokens, following the
+[concurrency policy](prisma.md#optimistic-concurrency). Name content fingerprints `hash` and execution
+attempt fences `generation`; do not use `revision` for cache-busting or provenance. Existing external
+protocol fields and generated upstream bindings may retain their contract-defined names.
+
 Import public APIs through the owning package or module barrel.
 Add missing public exports to that barrel rather than coupling consumers to implementation or generated modules.
 Internal imports within the owning module can reference its implementation files.

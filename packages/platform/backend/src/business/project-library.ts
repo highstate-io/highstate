@@ -40,7 +40,7 @@ export {
 export interface ProjectLibraryCatalogProvider {
   virtualModel(projectId: string): Promise<LibraryModel>
   localOverlay(projectId: string): Promise<LibraryModel>
-  localOverlayRevision?(projectId: string): Promise<string>
+  localOverlayHash?(projectId: string): Promise<string>
   localOverlaySnapshot?(projectId: string): Promise<LocalLibraryOverlaySnapshot>
   /**
    * True only for the well-known local runtime identity, not arbitrary local Docker settings.
@@ -349,14 +349,14 @@ export class ProjectLibraryService {
           if (overlay.conflicts.length) {
             overlay.reason = "The complete local overlay is disabled because definitions conflict"
           } else {
-            const revision =
-              localSnapshot?.revision ??
-              (await this.catalogs.localOverlayRevision?.(projectId)) ??
+            const hash =
+              localSnapshot?.hash ??
+              (await this.catalogs.localOverlayHash?.(projectId)) ??
               createHash("sha256").update(canonicalJson(local)).digest("hex")
 
             this.mergeCatalog(model, sources, local, { kind: "local" })
             overlay.active = true
-            overlay.revision = revision
+            overlay.hash = hash
           }
         } catch {
           overlay.reason = "Local library overlay could not be loaded"

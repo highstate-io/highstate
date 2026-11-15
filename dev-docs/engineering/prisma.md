@@ -35,6 +35,9 @@ because they are persisted.
 
 Content hashes for reproducibility and evaluation validity, and integer generations fencing worker
 attempts or connections, serve different purposes and are not entity concurrency tokens.
+Reserve `revision` terminology for optimistic concurrency only. Name content fingerprints `hash`,
+`modelHash` or `localOverlayHash`; use `generation` for workload-attempt fencing. Do not introduce new
+non-concurrency uses even when an existing external protocol uses the same word differently.
 
 ## Project Database
 

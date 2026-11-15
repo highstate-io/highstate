@@ -223,7 +223,7 @@ Connection failures use gRPC status.
 Cancellation always targets an action; the backend fans operation cancellation out to its active actions.
 A cancellation response only acknowledges the request; it does not indicate that the action has terminated.
 Worker connections receive current registrations followed by live typed changes, as in the existing worker API;
-registration revision reconciliation is deferred until a concrete replay requirement exists.
+registration replay reconciliation is deferred until a concrete replay requirement exists.
 
 Unit payloads preserve the existing `UnitConfig` capabilities, including input values and provenance, invoked
 triggers, structured secrets, instance identity, and runner-local import paths.
@@ -255,11 +255,11 @@ reconciles through Pulumi state.
 
 Composite evaluation runs as a short-lived workload from the selected project library snapshot image.
 The backend sends the complete resident instance graph, resolved inputs, project-specific virtual component
-definitions, and model and local-overlay revisions as one independently cancellable action.
+definitions, and model and local-overlay hashes as one independently cancellable action.
 The workload returns generated virtual instances and ordinary branch errors; project-level validation failures
 invalidate the complete result, while process or transport failures use the runtime error event.
-The backend owns duplicate-ID validation, revision fencing, persistence, and publication of evaluation state.
-Persisted evaluation state records the snapshot, resident model revision, local-overlay revision, and runtime
+The backend owns duplicate-ID validation, content-hash fencing, persistence, and publication of evaluation state.
+Persisted evaluation state records the snapshot, resident model hash, local-overlay hash, and runtime
 action that produced it so later planning can reject stale virtual models after a backend restart.
 
 Arbitrary terminal images are not required to contain Highstate software.

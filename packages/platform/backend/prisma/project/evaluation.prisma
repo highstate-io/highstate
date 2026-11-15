@@ -43,11 +43,11 @@ model InstanceEvaluationState {
     /// The packaged library snapshot used to produce this evaluation state.
     librarySnapshotId String?
 
-    /// The backend-assigned resident model revision used by the evaluation.
-    modelRevision String
+    /// The SHA-256 content hash of the resident model and resolved inputs used by the evaluation.
+    modelHash String
 
-    /// The local development overlay revision used by the evaluation, when active.
-    localOverlayRevision String?
+    /// The content hash of the local development overlay used by the evaluation, when active.
+    localOverlayHash String?
 
     /// The runtime action that produced this evaluation state.
     evaluationActionId String

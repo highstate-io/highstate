@@ -2,17 +2,17 @@ import type { ProjectUnlockService } from "../business"
 import type { ProjectLibraryService } from "../business/project-library"
 import { afterEach, describe, vi } from "vitest"
 import { OperationManager } from "./manager"
+import { modelHash } from "./model-hash"
 import { RuntimeOperation } from "./operation"
 import { operationTest } from "./operation.test-utils"
 import { OperationContext } from "./operation-context"
-import { modelRevision } from "./revisions"
 
 afterEach(() => vi.restoreAllMocks())
 
 describe("OperationManager reviewed context", () => {
-  for (const overlayRevision of [undefined, "local-revision"]) {
+  for (const overlayHash of [undefined, "local-hash"]) {
     operationTest(
-      `pins a local-only catalog with overlay revision ${overlayRevision ?? "null"} through execution`,
+      `pins a local-only catalog with overlay hash ${overlayHash ?? "null"} through execution`,
       async ({
         project,
         database,
@@ -41,7 +41,7 @@ describe("OperationManager reviewed context", () => {
         setupPersistenceMocks({ instances: [] })
         setupImmediateLocking()
         const library = createMockLibrary()
-        const catalog = { model: library, snapshotId: null, overlay: { revision: overlayRevision } }
+        const catalog = { model: library, snapshotId: null, overlay: { hash: overlayHash } }
 
         const projectLibrary = {
           catalog: vi.fn().mockResolvedValue(catalog),
@@ -102,13 +102,13 @@ describe("OperationManager reviewed context", () => {
           library,
           snapshotId: null,
           projectLibrary,
-          modelRevision: modelRevision({ instances: [], resolvedInputs: {} }),
-          localOverlayRevision: overlayRevision ?? null,
+          modelHash: modelHash({ instances: [], resolvedInputs: {} }),
+          localOverlayHash: overlayHash ?? null,
         })
 
         const reviewedContext = await load.mock.results[0].value
         expect(reviewedContext.library).toBe(library)
-        expect(reviewedContext.localOverlayRevision).toBe(overlayRevision ?? null)
+        expect(reviewedContext.localOverlayHash).toBe(overlayHash ?? null)
 
         expect(operationService.markOperationFinished).toHaveBeenCalledWith(
           project.id,

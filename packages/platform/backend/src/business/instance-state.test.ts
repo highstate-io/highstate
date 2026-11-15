@@ -154,7 +154,7 @@ describe("getInstanceStates", () => {
         data: {
           stateId: instanceState.id,
           status: "evaluated",
-          modelRevision: "test",
+          modelHash: "test",
           evaluationActionId: "test",
           model: {
             id: "test.v1:example",

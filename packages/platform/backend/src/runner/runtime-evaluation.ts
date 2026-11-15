@@ -6,8 +6,8 @@ import type { RuntimeExecutionService } from "./runtime-execution"
 export type EvaluationRequest = {
   projectId: string
   librarySnapshotId: string
-  modelRevision: string
-  localOverlayRevision: string | null
+  modelHash: string
+  localOverlayHash: string | null
   instances: InstanceModel[]
   virtualComponents: Record<string, ComponentModel>
   resolvedInputs: Record<string, Record<string, ResolvedInstanceInput[]>>
@@ -24,7 +24,7 @@ export class RuntimeEvaluationBackend {
       request.projectId,
       request.librarySnapshotId,
       "composite_evaluation",
-      request.modelRevision,
+      request.modelHash,
       signal,
     )
 
@@ -50,8 +50,8 @@ export class RuntimeEvaluationBackend {
 
       if (
         result.librarySnapshotId !== request.librarySnapshotId ||
-        result.modelRevision !== request.modelRevision ||
-        (result.localOverlayRevision ?? null) !== request.localOverlayRevision
+        result.modelHash !== request.modelHash ||
+        (result.localOverlayHash ?? null) !== request.localOverlayHash
       ) {
         throw new Error("Evaluation result revision mismatch")
       }

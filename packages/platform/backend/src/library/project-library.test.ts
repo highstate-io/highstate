@@ -410,12 +410,12 @@ describe("project library with a local npm registry and real project persistence
         components: { "test.atomic-local.v1": component("test.atomic-local.v1") },
         entities: {},
       },
-      revision: "captured-source-and-definition-revision",
+      hash: "captured-source-and-definition-hash",
     })
 
     const atomic = await library.catalog(context.projectId)
     expect(atomic.overlay.active).toBe(true)
-    expect(atomic.overlay.revision).toBe("captured-source-and-definition-revision")
+    expect(atomic.overlay.hash).toBe("captured-source-and-definition-hash")
     expect(atomic.sources["components:test.atomic-local.v1"]).toEqual({ kind: "local" })
   }, 30000)
 

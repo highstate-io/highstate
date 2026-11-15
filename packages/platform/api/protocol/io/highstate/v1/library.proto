@@ -354,8 +354,8 @@ message LocalLibraryOverlay {
   // Component and entity types conflicting with the packaged snapshot.
   repeated string conflicting_types = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The revision of the complete active local overlay.
-  optional string revision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The content hash of the complete active local overlay.
+  optional string hash = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EntityMeta contains display metadata for an entity definition.

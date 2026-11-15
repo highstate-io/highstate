@@ -299,7 +299,7 @@ const operate = async () => {
 
       if (
         catalog?.snapshotId !== review.librarySnapshotId ||
-        (catalog.overlay.revision ?? null) !== review.localOverlayRevision
+        (catalog.overlay.hash ?? null) !== review.localOverlayHash
       ) {
         throw new Error("Reviewed plan is stale; review the current library before launching")
       }
@@ -453,9 +453,9 @@ const title = computed(() => {
                 >
                 <div v-if="reviewed" class="text-caption mb-2">
                   Snapshot {{ reviewed.librarySnapshotId ?? 'none' }} · Model
-                  {{ reviewed.modelRevision }}
-                  <span v-if="reviewed.localOverlayRevision">
-                    · Overlay {{ reviewed.localOverlayRevision }}</span
+                  {{ reviewed.modelHash }}
+                  <span v-if="reviewed.localOverlayHash">
+                    · Overlay {{ reviewed.localOverlayHash }}</span
                   >
                 </div>
                 <VAlert v-if="waitingForImage" type="info" class="mb-3">

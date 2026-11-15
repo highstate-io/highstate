@@ -43,9 +43,9 @@ describe("registered reviewed operations", () => {
         phases: [{ type: OperationPhaseType.DESTROY }],
         plan: {
           token: "opaque-reviewed-token",
-          modelRevision: "model-2",
+          modelHash: "model-2",
           librarySnapshotId: "snapshot-3",
-          localOverlayRevision: "overlay-4",
+          localOverlayHash: "overlay-4",
           phases: [
             {
               type: OperationPhaseType.UPDATE,
@@ -65,15 +65,15 @@ describe("registered reviewed operations", () => {
     process.exitCode = 0
   })
 
-  it("round trips reviewed token and revisions while submitting no caller phases", async () => {
+  it("round trips reviewed token and hashes while submitting no caller phases", async () => {
     await cli.run(["operation", "plan", "update", "instance-1", "--refresh", "--output", "json"])
     const document = JSON.parse(stdout)
 
     expect(document).toMatchObject({
       plan_token: "opaque-reviewed-token",
-      model_revision: "model-2",
+      model_hash: "model-2",
       library_snapshot_id: "snapshot-3",
-      local_overlay_revision: "overlay-4",
+      local_overlay_hash: "overlay-4",
       phases: [{ type: "OPERATION_PHASE_TYPE_UPDATE" }],
     })
 
@@ -125,7 +125,7 @@ describe("registered reviewed operations", () => {
       instance_ids: ["instance-1"],
       phases: [],
       plan_token: "token",
-      model_revision: "rev",
+      model_hash: "hash",
     })
 
     await cli.run(["operation", "launch", "--plan", "-", "--title", "Update"])
@@ -137,6 +137,6 @@ describe("registered reviewed operations", () => {
     operation.planOperation.mockResolvedValue(create(PlanOperationResponseSchema, { phases: [] }))
     await cli.run(["operation", "run", "update", "instance-1", "--yes"])
     expect(operation.launchOperation).not.toHaveBeenCalled()
-    expect(stderr).toContain("revision-bound operation plan")
+    expect(stderr).toContain("content-bound operation plan")
   })
 })

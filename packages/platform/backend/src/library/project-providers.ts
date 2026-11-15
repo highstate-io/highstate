@@ -55,7 +55,7 @@ export interface ProjectVirtualLibraryProvider {
 
 export interface LocalLibraryOverlayProvider {
   loadLocalOverlay?(signal?: AbortSignal): Promise<LibraryModel>
-  getLocalOverlayRevision?(): Promise<string>
+  getLocalOverlayHash?(): Promise<string>
   getLocalOverlaySnapshot?(): Promise<LocalLibraryOverlaySnapshot>
 }
 
@@ -102,16 +102,16 @@ export class RuntimeProjectLibraryCatalogProvider implements ProjectLibraryCatal
     return await this.local.loadLocalOverlay()
   }
 
-  async localOverlayRevision(projectId: string): Promise<string> {
+  async localOverlayHash(projectId: string): Promise<string> {
     if (!(await this.supportsLocalOverlay(projectId))) {
       throw new Error("Local overlays require the well-known local runtime")
     }
 
-    if (!this.local.getLocalOverlayRevision) {
-      throw new Error("The library backend does not expose local source revisions")
+    if (!this.local.getLocalOverlayHash) {
+      throw new Error("The library backend does not expose local source hashes")
     }
 
-    return await this.local.getLocalOverlayRevision()
+    return await this.local.getLocalOverlayHash()
   }
 
   async localOverlaySnapshot(projectId: string): Promise<LocalLibraryOverlaySnapshot> {

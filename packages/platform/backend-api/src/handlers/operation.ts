@@ -37,7 +37,7 @@ export function createOperationService(services: Services): ServiceImpl<typeof O
           ...plan,
           phases: plan.phases.map(toOperationPhase),
           librarySnapshotId: plan.librarySnapshotId ?? undefined,
-          localOverlayRevision: plan.localOverlayRevision ?? undefined,
+          localOverlayHash: plan.localOverlayHash ?? undefined,
         },
       }
     },

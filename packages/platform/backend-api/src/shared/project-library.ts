@@ -41,7 +41,7 @@ export function toLocalOverlay(overlay: ProjectLibraryCatalog["overlay"]) {
     active: overlay.active,
     message: overlay.reason,
     conflictingTypes: overlay.conflicts,
-    revision: overlay.revision,
+    hash: overlay.hash,
   })
 }
 

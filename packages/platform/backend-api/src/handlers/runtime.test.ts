@@ -276,7 +276,7 @@ describe("runtime control transport", () => {
         instances: [],
         virtualComponents: {},
         librarySnapshotId: "snapshot",
-        modelRevision: "revision",
+        modelHash: "hash",
         resolvedInputs: {
           target: {
             source: [

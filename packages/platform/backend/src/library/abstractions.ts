@@ -8,7 +8,7 @@ export type ResolvedUnitSource = {
   allowedDependencies: string[]
 }
 
-export type LocalLibraryOverlaySnapshot = { model: LibraryModel; revision: string }
+export type LocalLibraryOverlaySnapshot = { model: LibraryModel; hash: string }
 
 export type ProjectEvaluationResult =
   | {
@@ -42,9 +42,9 @@ export interface LibraryBackend {
   loadLocalOverlay?(signal?: AbortSignal): Promise<LibraryModel>
 
   /**
-   * Revision includes both local definition and implementation source hashes.
+   * The content hash includes both local definitions and implementation sources.
    */
-  getLocalOverlayRevision?(): Promise<string>
+  getLocalOverlayHash?(): Promise<string>
 
   /**
    * Captures definitions and implementation hashes under the same local-library lock.

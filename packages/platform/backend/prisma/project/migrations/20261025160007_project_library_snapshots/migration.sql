@@ -1,4 +1,4 @@
--- Cached evaluations predate action and resident-model revisions and must be recomputed.
+-- Cached evaluations predate action identities and resident-model hashes and must be recomputed.
 -- Deployed instance models, operations, logs, and all existing provenance remain intact.
 -- CreateTable
 CREATE TABLE "LibraryPackageVersion" (
@@ -57,14 +57,14 @@ CREATE TABLE "new_InstanceEvaluationState" (
     "message" TEXT,
     "model" JSONB,
     "librarySnapshotId" TEXT,
-    "modelRevision" TEXT NOT NULL,
-    "localOverlayRevision" TEXT,
+    "modelHash" TEXT NOT NULL,
+    "localOverlayHash" TEXT,
     "evaluationActionId" TEXT NOT NULL,
     "evaluatedAt" DATETIME NOT NULL,
     CONSTRAINT "InstanceEvaluationState_stateId_fkey" FOREIGN KEY ("stateId") REFERENCES "InstanceState" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "InstanceEvaluationState_librarySnapshotId_fkey" FOREIGN KEY ("librarySnapshotId") REFERENCES "LibrarySnapshot" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
--- There is no evidence of historical action IDs or model revisions. Invalidate this cache instead of inventing them.
+-- There is no evidence of historical action IDs or model hashes. Invalidate this cache instead of inventing them.
 DROP TABLE "InstanceEvaluationState";
 ALTER TABLE "new_InstanceEvaluationState" RENAME TO "InstanceEvaluationState";
 CREATE INDEX "InstanceEvaluationState_librarySnapshotId_idx" ON "InstanceEvaluationState"("librarySnapshotId");
@@ -79,7 +79,7 @@ CREATE TABLE "new_InstanceOperationState" (
     "librarySnapshotId" TEXT,
     "libraryPackageVersionId" TEXT,
     "previousLibraryPackageVersionId" TEXT,
-    "localOverlayRevision" TEXT,
+    "localOverlayHash" TEXT,
     "startedAt" DATETIME,
     "finishedAt" DATETIME,
 

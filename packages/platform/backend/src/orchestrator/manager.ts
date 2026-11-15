@@ -27,11 +27,11 @@ import {
   stableJsonStringify,
 } from "../shared"
 import { finalInstanceOperationStatuses } from "../shared/models/project/state"
+import { modelHash } from "./model-hash"
 import { RuntimeOperation } from "./operation"
 import { OperationContext } from "./operation-context"
 import { createOperationPlan } from "./operation-plan"
 import { type ReviewedPlan, ReviewedPlanSigner } from "./reviewed-plan"
-import { modelRevision } from "./revisions"
 
 export class OperationManager {
   constructor(
@@ -80,8 +80,8 @@ export class OperationManager {
       token: this.planSigner.sign(review),
       phases: review.phases,
       librarySnapshotId: review.librarySnapshotId,
-      modelRevision: review.modelRevision,
-      localOverlayRevision: review.localOverlayRevision,
+      modelHash: review.modelHash,
+      localOverlayHash: review.localOverlayHash,
     }
   }
 
@@ -99,7 +99,7 @@ export class OperationManager {
     const catalog = await this.projectLibrary?.catalog(request.projectId)
     const resolved = await this.projectModelService.resolveProject(request.projectId)
 
-    const revision = modelRevision({
+    const hash = modelHash({
       instances: resolved.instances,
       resolvedInputs: resolved.resolvedInputs,
     })
@@ -117,8 +117,8 @@ export class OperationManager {
         evaluations.some(
           state =>
             state.librarySnapshotId !== catalog.snapshotId ||
-            state.modelRevision !== revision ||
-            state.localOverlayRevision !== (catalog.overlay.revision ?? null) ||
+            state.modelHash !== hash ||
+            state.localOverlayHash !== (catalog.overlay.hash ?? null) ||
             !state.evaluationActionId,
         ) ||
         resolved.instances.some(
@@ -143,8 +143,8 @@ export class OperationManager {
             library: catalog.model,
             snapshotId: catalog.snapshotId,
             projectLibrary: this.projectLibrary,
-            modelRevision: revision,
-            localOverlayRevision: catalog.overlay.revision ?? null,
+            modelHash: hash,
+            localOverlayHash: catalog.overlay.hash ?? null,
           }
         : undefined,
     )
@@ -167,8 +167,8 @@ export class OperationManager {
       options,
       phases,
       librarySnapshotId: catalog?.snapshotId ?? null,
-      modelRevision: revision,
-      localOverlayRevision: catalog?.overlay.revision ?? null,
+      modelHash: hash,
+      localOverlayHash: catalog?.overlay.hash ?? null,
       expiresAt: Date.now() + 900_000,
     }
 
@@ -224,7 +224,7 @@ export class OperationManager {
     if (
       catalog &&
       (catalog.snapshotId !== current.librarySnapshotId ||
-        (catalog.overlay.revision ?? null) !== current.localOverlayRevision)
+        (catalog.overlay.hash ?? null) !== current.localOverlayHash)
     ) {
       await this.operationService.markOperationFinished(project.id, operation.id, "failed")
       throw new Error("Library changed before operation launch")

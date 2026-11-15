@@ -200,9 +200,9 @@ export type PlanDocument = {
   instance_ids: string[]
   options: z.infer<typeof operationOptionsInputSchema>
   plan_token: string
-  model_revision: string
+  model_hash: string
   library_snapshot_id?: string
-  local_overlay_revision?: string
+  local_overlay_hash?: string
   phases: unknown[]
 }
 
@@ -213,9 +213,9 @@ export const planDocumentSchema = z.object({
   instance_ids: z.array(z.string().min(1)).min(1),
   options: operationOptionsInputSchema.default({}),
   plan_token: z.string().min(1),
-  model_revision: z.string().min(1),
+  model_hash: z.string().min(1),
   library_snapshot_id: z.string().min(1).optional(),
-  local_overlay_revision: z.string().min(1).optional(),
+  local_overlay_hash: z.string().min(1).optional(),
   phases: z.array(z.json()),
 })
 

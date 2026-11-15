@@ -41,9 +41,9 @@ own results.
 Workload crashes, timeouts, and library loading failures are system failures and invalidate the evaluation run.
 The backend persists virtual models and evaluation status because operation planning depends on that result.
 
-Evaluation results carry snapshot, resident-model, and local-overlay revisions.
+Evaluation results carry snapshot identity and resident-model and local-overlay content hashes.
 Planning rejects stale persisted virtual models, including after restart.
-Model mutation, evaluation, and launch remain separate transactions; revision fencing prevents an old result
+Model mutation, evaluation, and launch remain separate transactions; content-hash fencing prevents an old result
 from being accepted as current.
 
 The evaluation subsystem, worker evaluator, contract evaluation helpers, and project-model service own exact
@@ -67,7 +67,7 @@ ghosts before execution.
 Updates follow dependency order; destruction follows the reverse order.
 The Protobuf operation contract and planner source own the exact option matrix.
 
-Reviewed plans carry backend-issued tokens bound to project revisions, requested options, and planned phases.
+Reviewed plans carry backend-issued tokens bound to project content hashes, requested options, and planned phases.
 Launch validates the token and rejects stale or modified plans.
 Operations capture their desired library snapshot before execution and wait cancellably for required images.
 Updates and previews use desired packaged code; refresh and destroy use deployed historical provenance where

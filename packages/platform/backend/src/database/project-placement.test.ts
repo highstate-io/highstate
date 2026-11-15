@@ -36,7 +36,7 @@ test("remote placement disables the overlay, invalidates evaluation cache, and r
     data: {
       stateId: instance.id,
       status: "evaluated",
-      modelRevision: "resident-revision",
+      modelHash: "resident-hash",
       evaluationActionId: "actual-evaluation-action",
     },
   })

@@ -150,8 +150,8 @@ async function run(message: RuntimeMessage): Promise<void> {
     await send({
       compositeEvaluationResult: {
         librarySnapshotId: input.librarySnapshotId,
-        modelRevision: input.modelRevision,
-        localOverlayRevision: input.localOverlayRevision,
+        modelHash: input.modelHash,
+        localOverlayHash: input.localOverlayHash,
         ...(result.success
           ? {
               success: {

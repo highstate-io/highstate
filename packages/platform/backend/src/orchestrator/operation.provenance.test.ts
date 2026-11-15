@@ -44,8 +44,8 @@ const provenanceTest = createOperationTest().extend<{
     const state = createDeployedUnitState(unit)
     state.librarySnapshotId = "old"
     state.libraryPackageVersionId = "old-package"
-    state.model = { ...unit, args: { revision: "old" } }
-    unit.args = { revision: "new" }
+    state.model = { ...unit, args: { value: "old" } }
+    unit.args = { value: "new" }
     const library = createMockLibrary()
     const oldLibrary = structuredClone(library)
     oldLibrary.components[unit.type] = { ...oldLibrary.components[unit.type], inputs: {} }
@@ -180,7 +180,7 @@ describe("phase execution provenance", () => {
         expect.objectContaining({
           librarySnapshotId: "old",
           executionPhase: "destroy",
-          config: expect.objectContaining({ args: { revision: "old" } }),
+          config: expect.objectContaining({ args: { value: "old" } }),
         }),
       )
 
@@ -188,7 +188,7 @@ describe("phase execution provenance", () => {
         expect.objectContaining({
           librarySnapshotId: "new",
           executionPhase: "update",
-          config: expect.objectContaining({ args: { revision: "new" } }),
+          config: expect.objectContaining({ args: { value: "new" } }),
         }),
       )
 
@@ -252,7 +252,7 @@ describe("phase execution provenance", () => {
 
       await scenario.runtime("update").operateSafe()
       expect(scenario.state.librarySnapshotId).toBe("old")
-      expect(scenario.state.model?.args).toEqual({ revision: "old" })
+      expect(scenario.state.model?.args).toEqual({ value: "old" })
     },
   )
 
@@ -260,7 +260,7 @@ describe("phase execution provenance", () => {
     await scenario.runtime("preview").operateSafe()
     expect(scenario.state.librarySnapshotId).toBe("old")
     expect(scenario.state.libraryPackageVersionId).toBe("old-package")
-    expect(scenario.state.model?.args).toEqual({ revision: "old" })
+    expect(scenario.state.model?.args).toEqual({ value: "old" })
   })
 
   provenanceTest(
