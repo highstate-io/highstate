@@ -19,6 +19,11 @@ Registry credentials stay on the backend; browsing cannot override the registry 
 The explorer uses npm-compatible search where available and exact-name metadata lookup otherwise.
 Registry metadata and README content are untrusted display data, never executable HTML.
 
+The compiled-artifact reader retains compatibility with already-published libraries: absent inclusion
+lists serialized as null are normalized to absent lists, and the released InfluxDB database argument
+`retention_period` keeps its original identity. These are artifact-boundary exceptions, not relaxed
+authoring rules or a migration of project configuration.
+
 Authored instance models identify component types without package or snapshot fields.
 The snapshot's ownership index resolves those types to package versions.
 Deployed and operation state retain exact snapshot membership, allowing historical code to remain available

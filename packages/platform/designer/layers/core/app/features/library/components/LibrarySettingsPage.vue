@@ -106,15 +106,6 @@ async function setOverlay(enabled: boolean | null) {
       </template>
     </SettingsPageHeader>
 
-    <VAlert
-      v-if="store.error && !visible && !deleteVisible"
-      type="error"
-      variant="tonal"
-      density="compact"
-      class="mb-4"
-      >{{ store.error }}</VAlert
-    >
-
     <VCard variant="outlined" class="library-section mb-6">
       <div class="section-heading">
         <div>
@@ -172,6 +163,15 @@ async function setOverlay(enabled: boolean | null) {
         </template>
       </VDataTable>
     </VCard>
+
+    <VAlert
+      v-if="store.error && !visible && !deleteVisible"
+      type="error"
+      variant="tonal"
+      density="compact"
+      class="mb-6 library-details"
+      >{{ store.error }}</VAlert
+    >
 
     <VCard variant="outlined" class="library-section mb-6">
       <VCardText>

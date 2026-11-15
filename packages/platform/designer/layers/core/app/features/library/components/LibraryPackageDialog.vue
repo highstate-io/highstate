@@ -239,17 +239,22 @@ async function save() {
 </script>
 
 <template>
-  <VDialog v-model="visible" :max-width="item ? 560 : 880" :persistent="store.busy" scrollable>
-    <VCard :title="item ? 'Edit package' : 'Add packages'" class="package-dialog">
-      <VCardText class="package-dialog-content">
-        <VAlert
-          v-if="store.error || error"
-          type="error"
-          variant="tonal"
-          density="compact"
-          class="mb-4"
-          >{{ store.error || error }}</VAlert
-        >
+  <VDialog
+    v-model="visible"
+    :max-width="item ? 560 : 880"
+    :height="item ? undefined : 720"
+    max-height="calc(100dvh - 48px)"
+    :persistent="store.busy"
+    scrollable
+  >
+    <VCard
+      :title="item ? 'Edit package' : 'Add packages'"
+      :class="{ 'package-dialog--list': !item }"
+    >
+      <VCardText
+        class="package-dialog-content pt-4"
+        :class="{ 'package-dialog-content--list': !item }"
+      >
         <template v-if="item">
           <div class="d-flex align-center justify-space-between ga-4">
             <span>{{ item.packageName }}</span>
@@ -354,9 +359,17 @@ async function save() {
             </div>
           </div>
         </template>
+        <VAlert
+          v-if="store.error || error"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="package-error mt-4"
+          >{{ store.error || error }}</VAlert
+        >
       </VCardText>
-      <VCardActions>
-        <span v-if="!item" class="text-caption text-medium-emphasis ml-2"
+      <VCardActions class="px-6">
+        <span v-if="!item" class="text-caption text-medium-emphasis"
           >{{ selectionCount }}
           selected</span
         >
@@ -374,14 +387,41 @@ async function save() {
 .package-dialog-content {
   min-height: 0;
 }
+
+.package-dialog--list {
+  height: 100%;
+  min-height: 0;
+}
+
+.package-dialog-content--list {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.package-search,
+.package-dialog-content > p,
+.package-dialog-content > .v-alert,
+.package-dialog-content > .d-flex {
+  flex-shrink: 0;
+}
 .package-search {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 260px;
   gap: 16px;
 }
 .package-list {
-  max-height: 440px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+}
+
+.package-error {
+  flex-shrink: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 .package-row + .package-row {
   border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));

@@ -5,7 +5,12 @@ import type {
   ProjectLibrarySnapshot,
   ResolvedLibraryPackage,
 } from "./project-types"
-import { componentModelSchema, entityModelSchema } from "@highstate/contract"
+import {
+  componentArgumentSchema,
+  componentModelSchema,
+  entityModelSchema,
+  fieldNameSchema,
+} from "@highstate/contract"
 import { z } from "zod"
 import {
   exactPackageVersionSchema,
@@ -14,9 +19,45 @@ import {
   selectedLibraryPackagesSchema,
 } from "./project-types"
 
+// Published artifacts predate strict model validation. Preserve their public argument identity,
+// without allowing new snake_case arguments or changing the authoring contract.
+const packagedComponentSchema = componentModelSchema
+  .extend({
+    args: z.record(z.string(), componentArgumentSchema),
+  })
+  .loose()
+  .superRefine((component, context) => {
+    for (const name of Object.keys(component.args)) {
+      if (
+        fieldNameSchema.safeParse(name).success ||
+        (component.type === "influxdb3.database.v1" && name === "retention_period")
+      ) {
+        continue
+      }
+
+      context.addIssue({
+        code: "custom",
+        path: ["args", name],
+        message: "Invalid argument name in library artifact",
+      })
+    }
+  })
+
+// older MessagePack artifacts encode absent optional inclusion lists as null
+const optionalInclusions = entityModelSchema.shape.inclusions
+  .nullable()
+  .transform(value => value ?? undefined)
+
+const packagedEntitySchema = entityModelSchema
+  .extend({
+    inclusions: optionalInclusions,
+    directInclusions: optionalInclusions,
+  })
+  .loose()
+
 export const libraryModelSchema: z.ZodType<LibraryModel> = z.object({
-  components: z.record(z.string(), componentModelSchema.loose()),
-  entities: z.record(z.string(), entityModelSchema.loose()),
+  components: z.record(z.string(), packagedComponentSchema),
+  entities: z.record(z.string(), packagedEntitySchema),
 })
 export const librarySourceManifestSchema = z.object({
   sourceHashes: z.record(z.string(), z.number()).optional(),

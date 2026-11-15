@@ -328,11 +328,39 @@ try {
 
       await settings().getByRole("button", { name: "Add packages", exact: true }).click()
 
+      await dialog().evaluate(async element => {
+        await Promise.all(
+          element
+            .getAnimations({ subtree: true })
+            .filter(animation => animation.effect?.getTiming().iterations !== Infinity)
+            .map(animation => animation.finished.catch(() => {})),
+        )
+      })
+
+      const packageDialogBounds = await dialog().locator(".package-dialog--list").boundingBox()
+      expect(packageDialogBounds).not.toBeNull()
+      expect(Math.round(packageDialogBounds!.height)).toBe(720)
+
       await expect(
         dialog().getByRole("button", { name: "Add packages", exact: true }),
       ).toBeDisabled()
 
       await expect(dialog().getByLabel("Search packages", { exact: true })).toBeVisible()
+      await expect(dialog().locator(".package-search .v-select .v-field--active")).toHaveCount(1)
+
+      const searchLayout = await dialog()
+        .locator(".package-dialog-content")
+        .evaluate(element => ({
+          top: element.getBoundingClientRect().top,
+          labels: [
+            ...element.querySelectorAll(
+              ".package-search .v-field--active .v-field-label--floating",
+            ),
+          ].map(label => label.getBoundingClientRect().top),
+        }))
+
+      expect(searchLayout.labels.length).toBeGreaterThan(0)
+      expect(searchLayout.labels.every(top => top >= searchLayout.top)).toBe(true)
       await expect(dialog().getByLabel("Package name", { exact: true })).toHaveCount(0)
       await expect(dialog().getByLabel("Exact version", { exact: true })).toHaveCount(0)
 
