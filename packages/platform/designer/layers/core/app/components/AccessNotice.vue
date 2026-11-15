@@ -5,6 +5,7 @@ const {
   fallback = false,
 } = defineProps<{ message: string; title?: string; fallback?: boolean }>()
 const access = useAccess()
+const explanation = computed(() => message.split(/\s+(?=Required permission:)/))
 const notice = useTemplateRef("notice")
 const visible = useElementVisibility(notice)
 watch(
@@ -23,7 +24,11 @@ watch(
     <VIcon color="warning" size="28">mdi-lock-outline</VIcon>
     <div>
       <h3>{{ title }}</h3>
-      <p>{{ message }}</p>
+      <p>
+        <template v-for="(line, index) in explanation" :key="index">
+          <br v-if="index" />{{ line }}
+        </template>
+      </p>
       <a v-if="!access.authenticated.value" href="/login">Sign in again</a>
     </div>
   </section>

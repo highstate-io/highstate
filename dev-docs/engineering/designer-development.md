@@ -29,6 +29,7 @@ An HTTP request to the root of the event port returns `404` because that port on
 Every access rejection must disable the corresponding functionality and visibly explain why it is unavailable.
 Prefer keeping the control visible and disabled, with a tooltip on hover over the disabled control itself that
 identifies the missing permission.
+Put the required permission on a separate line from the explanation in notices and tooltips.
 Do not add a separate information icon for these permission tooltips.
 Prefer placing access-denied tooltips to the right of the control; use another placement when space or layout
 makes that inappropriate.

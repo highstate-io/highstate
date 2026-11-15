@@ -93,7 +93,7 @@ export default defineNuxtPlugin({
             element.setAttribute("aria-disabled", "true")
             element.setAttribute("aria-description", status.reason)
             element.setAttribute("aria-describedby", tooltip.id)
-            tooltip.textContent = status.reason
+            tooltip.textContent = status.reason.replace(/\s+(?=Required permission:)/, "\n")
 
             if (element.getClientRects().length && access.rejection.value) {
               access.explain(status.reason)
