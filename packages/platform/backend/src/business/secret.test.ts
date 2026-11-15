@@ -10,7 +10,7 @@ import {
   SYSTEM_EXPORT_COMPONENT_TYPE,
   SystemSecretNames,
 } from "../shared"
-import { test } from "../test-utils"
+import { createProjectRequestContext, grantProjectPermission, test } from "../test-utils"
 import { SecretService } from "./secret"
 
 const secretTest = test.extend<{
@@ -123,6 +123,65 @@ const secretTest = test.extend<{
 
     await use(service)
   },
+})
+
+describe("updateSecretContent", () => {
+  secretTest(
+    "updates only the authorized secret and invalidates its unit",
+    async ({
+      secretService,
+      projectDatabase,
+      project,
+      createInstanceState,
+      pubsubManager,
+      expect,
+    }) => {
+      const state = await createInstanceState(project.id)
+
+      await secretService.updateInstanceSecretsCoreWorkflow(project.id, state.id, {
+        "api-key": "old",
+        password: "untouched",
+      })
+
+      const secret = await projectDatabase.secret.findFirstOrThrow({
+        where: { stateId: state.id, name: "api-key" },
+      })
+
+      const before = await projectDatabase.instanceState.findUniqueOrThrow({
+        where: { id: state.id },
+      })
+
+      const context = createProjectRequestContext(
+        project.id,
+        grantProjectPermission("secret.update", [{ type: "resources", resourceIds: [secret.id] }]),
+      )
+
+      await secretService.updateSecretContent(context, secret.id, false)
+      const updated = await projectDatabase.secret.findUniqueOrThrow({ where: { id: secret.id } })
+      expect(updated.content).toBe(false)
+      expect(updated.meta).toEqual(secret.meta)
+
+      expect(
+        await projectDatabase.secret.findFirstOrThrow({
+          where: { stateId: state.id, name: "password" },
+        }),
+      ).toMatchObject({ content: "untouched" })
+
+      const after = await projectDatabase.instanceState.findUniqueOrThrow({
+        where: { id: state.id },
+      })
+
+      expect(after.inputHashNonce).not.toBe(before.inputHashNonce)
+
+      expect(pubsubManager.publish).toHaveBeenLastCalledWith(
+        ["instance-state", project.id],
+        expect.objectContaining({
+          stateId: state.id,
+          patch: expect.objectContaining({ inputHashNonce: after.inputHashNonce }),
+        }),
+      )
+    },
+  )
 })
 
 describe("updateInstanceSecrets", () => {

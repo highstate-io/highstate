@@ -13,7 +13,7 @@ import type { JsonObject, Message } from "@bufbuild/protobuf";
  * Describes the file io/highstate/v1/secret.proto.
  */
 export const file_io_highstate_v1_secret: GenFile = /*@__PURE__*/
-  fileDesc("Chxpby9oaWdoc3RhdGUvdjEvc2VjcmV0LnByb3RvEg9pby5oaWdoc3RhdGUudjEiSgoXR2V0U2VjcmV0Q29udGVudFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIkgKGEdldFNlY3JldENvbnRlbnRSZXNwb25zZRIsCgdjb250ZW50GAEgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlQgPgQQIi0AEKEkxpc3RTZWNyZXRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFQoIc3RhdGVfaWQYAiABKAlIAIgBARIfChJzZXJ2aWNlX2FjY291bnRfaWQYAyABKAlIAYgBARITCgZzZWFyY2gYBCABKAlIAogBARIRCglwYWdlX3NpemUYBSABKAUSEgoKcGFnZV90b2tlbhgGIAEoCUILCglfc3RhdGVfaWRCFQoTX3NlcnZpY2VfYWNjb3VudF9pZEIJCgdfc2VhcmNoIlgKE0xpc3RTZWNyZXRzUmVzcG9uc2USKAoHc2VjcmV0cxgBIAMoCzIXLmlvLmhpZ2hzdGF0ZS52MS5TZWNyZXQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIkMKEEdldFNlY3JldFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIjwKEUdldFNlY3JldFJlc3BvbnNlEicKBnNlY3JldBgBIAEoCzIXLmlvLmhpZ2hzdGF0ZS52MS5TZWNyZXQi3AEKBlNlY3JldBIKCgJpZBgBIAEoCRIkCgRtZXRhGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhEKBG5hbWUYAyABKAlIAIgBARIYCgtzeXN0ZW1fbmFtZRgEIAEoCUgBiAEBEhUKCHN0YXRlX2lkGAUgASgJSAKIAQESHwoSc2VydmljZV9hY2NvdW50X2lkGAYgASgJSAOIAQFCBwoFX25hbWVCDgoMX3N5c3RlbV9uYW1lQgsKCV9zdGF0ZV9pZEIVChNfc2VydmljZV9hY2NvdW50X2lkIksKGUdldEluc3RhbmNlU2VjcmV0c1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhUKCHN0YXRlX2lkGAIgASgJQgPgQQIiRgoaR2V0SW5zdGFuY2VTZWNyZXRzUmVzcG9uc2USKAoHc2VjcmV0cxgBIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QifQocVXBkYXRlSW5zdGFuY2VTZWNyZXRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFQoIc3RhdGVfaWQYAiABKAlCA+BBAhItCgdzZWNyZXRzGAMgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEID4EECIh8KHVVwZGF0ZUluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlMo0ECg1TZWNyZXRTZXJ2aWNlElgKC0xpc3RTZWNyZXRzEiMuaW8uaGlnaHN0YXRlLnYxLkxpc3RTZWNyZXRzUmVxdWVzdBokLmlvLmhpZ2hzdGF0ZS52MS5MaXN0U2VjcmV0c1Jlc3BvbnNlElIKCUdldFNlY3JldBIhLmlvLmhpZ2hzdGF0ZS52MS5HZXRTZWNyZXRSZXF1ZXN0GiIuaW8uaGlnaHN0YXRlLnYxLkdldFNlY3JldFJlc3BvbnNlEmcKEEdldFNlY3JldENvbnRlbnQSKC5pby5oaWdoc3RhdGUudjEuR2V0U2VjcmV0Q29udGVudFJlcXVlc3QaKS5pby5oaWdoc3RhdGUudjEuR2V0U2VjcmV0Q29udGVudFJlc3BvbnNlEm0KEkdldEluc3RhbmNlU2VjcmV0cxIqLmlvLmhpZ2hzdGF0ZS52MS5HZXRJbnN0YW5jZVNlY3JldHNSZXF1ZXN0GisuaW8uaGlnaHN0YXRlLnYxLkdldEluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlEnYKFVVwZGF0ZUluc3RhbmNlU2VjcmV0cxItLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVJbnN0YW5jZVNlY3JldHNSZXF1ZXN0Gi4uaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZUluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_struct]);
+  fileDesc("Chxpby9oaWdoc3RhdGUvdjEvc2VjcmV0LnByb3RvEg9pby5oaWdoc3RhdGUudjEiSgoXR2V0U2VjcmV0Q29udGVudFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIkgKGEdldFNlY3JldENvbnRlbnRSZXNwb25zZRIsCgdjb250ZW50GAEgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlQgPgQQIiewoaVXBkYXRlU2VjcmV0Q29udGVudFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECEiwKB2NvbnRlbnQYAyABKAsyFi5nb29nbGUucHJvdG9idWYuVmFsdWVCA+BBAiIdChtVcGRhdGVTZWNyZXRDb250ZW50UmVzcG9uc2Ui0AEKEkxpc3RTZWNyZXRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFQoIc3RhdGVfaWQYAiABKAlIAIgBARIfChJzZXJ2aWNlX2FjY291bnRfaWQYAyABKAlIAYgBARITCgZzZWFyY2gYBCABKAlIAogBARIRCglwYWdlX3NpemUYBSABKAUSEgoKcGFnZV90b2tlbhgGIAEoCUILCglfc3RhdGVfaWRCFQoTX3NlcnZpY2VfYWNjb3VudF9pZEIJCgdfc2VhcmNoIlgKE0xpc3RTZWNyZXRzUmVzcG9uc2USKAoHc2VjcmV0cxgBIAMoCzIXLmlvLmhpZ2hzdGF0ZS52MS5TZWNyZXQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIkMKEEdldFNlY3JldFJlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhYKCXNlY3JldF9pZBgCIAEoCUID4EECIjwKEUdldFNlY3JldFJlc3BvbnNlEicKBnNlY3JldBgBIAEoCzIXLmlvLmhpZ2hzdGF0ZS52MS5TZWNyZXQi3AEKBlNlY3JldBIKCgJpZBgBIAEoCRIkCgRtZXRhGAIgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhEKBG5hbWUYAyABKAlIAIgBARIYCgtzeXN0ZW1fbmFtZRgEIAEoCUgBiAEBEhUKCHN0YXRlX2lkGAUgASgJSAKIAQESHwoSc2VydmljZV9hY2NvdW50X2lkGAYgASgJSAOIAQFCBwoFX25hbWVCDgoMX3N5c3RlbV9uYW1lQgsKCV9zdGF0ZV9pZEIVChNfc2VydmljZV9hY2NvdW50X2lkIksKGUdldEluc3RhbmNlU2VjcmV0c1JlcXVlc3QSFwoKcHJvamVjdF9pZBgBIAEoCUID4EECEhUKCHN0YXRlX2lkGAIgASgJQgPgQQIiRgoaR2V0SW5zdGFuY2VTZWNyZXRzUmVzcG9uc2USKAoHc2VjcmV0cxgBIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QifQocVXBkYXRlSW5zdGFuY2VTZWNyZXRzUmVxdWVzdBIXCgpwcm9qZWN0X2lkGAEgASgJQgPgQQISFQoIc3RhdGVfaWQYAiABKAlCA+BBAhItCgdzZWNyZXRzGAMgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEID4EECIh8KHVVwZGF0ZUluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlMv8ECg1TZWNyZXRTZXJ2aWNlElgKC0xpc3RTZWNyZXRzEiMuaW8uaGlnaHN0YXRlLnYxLkxpc3RTZWNyZXRzUmVxdWVzdBokLmlvLmhpZ2hzdGF0ZS52MS5MaXN0U2VjcmV0c1Jlc3BvbnNlElIKCUdldFNlY3JldBIhLmlvLmhpZ2hzdGF0ZS52MS5HZXRTZWNyZXRSZXF1ZXN0GiIuaW8uaGlnaHN0YXRlLnYxLkdldFNlY3JldFJlc3BvbnNlEmcKEEdldFNlY3JldENvbnRlbnQSKC5pby5oaWdoc3RhdGUudjEuR2V0U2VjcmV0Q29udGVudFJlcXVlc3QaKS5pby5oaWdoc3RhdGUudjEuR2V0U2VjcmV0Q29udGVudFJlc3BvbnNlEnAKE1VwZGF0ZVNlY3JldENvbnRlbnQSKy5pby5oaWdoc3RhdGUudjEuVXBkYXRlU2VjcmV0Q29udGVudFJlcXVlc3QaLC5pby5oaWdoc3RhdGUudjEuVXBkYXRlU2VjcmV0Q29udGVudFJlc3BvbnNlEm0KEkdldEluc3RhbmNlU2VjcmV0cxIqLmlvLmhpZ2hzdGF0ZS52MS5HZXRJbnN0YW5jZVNlY3JldHNSZXF1ZXN0GisuaW8uaGlnaHN0YXRlLnYxLkdldEluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlEnYKFVVwZGF0ZUluc3RhbmNlU2VjcmV0cxItLmlvLmhpZ2hzdGF0ZS52MS5VcGRhdGVJbnN0YW5jZVNlY3JldHNSZXF1ZXN0Gi4uaW8uaGlnaHN0YXRlLnYxLlVwZGF0ZUluc3RhbmNlU2VjcmV0c1Jlc3BvbnNlYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_struct]);
 
 /**
  * GetSecretContentRequest requests dynamic content for one authorized secret.
@@ -63,6 +63,56 @@ export type GetSecretContentResponse = Message<"io.highstate.v1.GetSecretContent
  */
 export const GetSecretContentResponseSchema: GenMessage<GetSecretContentResponse> = /*@__PURE__*/
   messageDesc(file_io_highstate_v1_secret, 1);
+
+/**
+ * UpdateSecretContentRequest replaces an existing unit secret with component-owned metadata.
+ *
+ * @generated from message io.highstate.v1.UpdateSecretContentRequest
+ */
+export type UpdateSecretContentRequest = Message<"io.highstate.v1.UpdateSecretContentRequest"> & {
+  /**
+   * The project ID.
+   *
+   * @generated from field: string project_id = 1;
+   */
+  projectId: string;
+
+  /**
+   * The stable secret ID.
+   *
+   * @generated from field: string secret_id = 2;
+   */
+  secretId: string;
+
+  /**
+   * The replacement JSON value, including explicit null.
+   *
+   * @generated from field: google.protobuf.Value content = 3;
+   */
+  content?: Value | undefined;
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateSecretContentRequest.
+ * Use `create(UpdateSecretContentRequestSchema)` to create a new message.
+ */
+export const UpdateSecretContentRequestSchema: GenMessage<UpdateSecretContentRequest> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 2);
+
+/**
+ * UpdateSecretContentResponse acknowledges the update without echoing its value.
+ *
+ * @generated from message io.highstate.v1.UpdateSecretContentResponse
+ */
+export type UpdateSecretContentResponse = Message<"io.highstate.v1.UpdateSecretContentResponse"> & {
+};
+
+/**
+ * Describes the message io.highstate.v1.UpdateSecretContentResponse.
+ * Use `create(UpdateSecretContentResponseSchema)` to create a new message.
+ */
+export const UpdateSecretContentResponseSchema: GenMessage<UpdateSecretContentResponse> = /*@__PURE__*/
+  messageDesc(file_io_highstate_v1_secret, 3);
 
 /**
  * ListSecretsRequest selects authorized metadata in a project.
@@ -118,7 +168,7 @@ export type ListSecretsRequest = Message<"io.highstate.v1.ListSecretsRequest"> &
  * Use `create(ListSecretsRequestSchema)` to create a new message.
  */
 export const ListSecretsRequestSchema: GenMessage<ListSecretsRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 2);
+  messageDesc(file_io_highstate_v1_secret, 4);
 
 /**
  * ListSecretsResponse contains metadata only, never secret values.
@@ -146,7 +196,7 @@ export type ListSecretsResponse = Message<"io.highstate.v1.ListSecretsResponse">
  * Use `create(ListSecretsResponseSchema)` to create a new message.
  */
 export const ListSecretsResponseSchema: GenMessage<ListSecretsResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 3);
+  messageDesc(file_io_highstate_v1_secret, 5);
 
 /**
  * GetSecretResponse contains metadata only.
@@ -174,7 +224,7 @@ export type GetSecretRequest = Message<"io.highstate.v1.GetSecretRequest"> & {
  * Use `create(GetSecretRequestSchema)` to create a new message.
  */
 export const GetSecretRequestSchema: GenMessage<GetSecretRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 4);
+  messageDesc(file_io_highstate_v1_secret, 6);
 
 /**
  * GetSecretResponse contains metadata only.
@@ -195,7 +245,7 @@ export type GetSecretResponse = Message<"io.highstate.v1.GetSecretResponse"> & {
  * Use `create(GetSecretResponseSchema)` to create a new message.
  */
 export const GetSecretResponseSchema: GenMessage<GetSecretResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 5);
+  messageDesc(file_io_highstate_v1_secret, 7);
 
 /**
  * Secret describes a stored secret without exposing its content.
@@ -251,7 +301,7 @@ export type Secret = Message<"io.highstate.v1.Secret"> & {
  * Use `create(SecretSchema)` to create a new message.
  */
 export const SecretSchema: GenMessage<Secret> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 6);
+  messageDesc(file_io_highstate_v1_secret, 8);
 
 /**
  * GetInstanceSecretsRequest selects a unit instance by stable state ID.
@@ -279,7 +329,7 @@ export type GetInstanceSecretsRequest = Message<"io.highstate.v1.GetInstanceSecr
  * Use `create(GetInstanceSecretsRequestSchema)` to create a new message.
  */
 export const GetInstanceSecretsRequestSchema: GenMessage<GetInstanceSecretsRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 7);
+  messageDesc(file_io_highstate_v1_secret, 9);
 
 /**
  * GetInstanceSecretsResponse contains named JSON secret values.
@@ -300,7 +350,7 @@ export type GetInstanceSecretsResponse = Message<"io.highstate.v1.GetInstanceSec
  * Use `create(GetInstanceSecretsResponseSchema)` to create a new message.
  */
 export const GetInstanceSecretsResponseSchema: GenMessage<GetInstanceSecretsResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 8);
+  messageDesc(file_io_highstate_v1_secret, 10);
 
 /**
  * UpdateInstanceSecretsRequest patches named unit secret values.
@@ -335,7 +385,7 @@ export type UpdateInstanceSecretsRequest = Message<"io.highstate.v1.UpdateInstan
  * Use `create(UpdateInstanceSecretsRequestSchema)` to create a new message.
  */
 export const UpdateInstanceSecretsRequestSchema: GenMessage<UpdateInstanceSecretsRequest> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 9);
+  messageDesc(file_io_highstate_v1_secret, 11);
 
 /**
  * UpdateInstanceSecretsResponse acknowledges the update without echoing secrets.
@@ -350,7 +400,7 @@ export type UpdateInstanceSecretsResponse = Message<"io.highstate.v1.UpdateInsta
  * Use `create(UpdateInstanceSecretsResponseSchema)` to create a new message.
  */
 export const UpdateInstanceSecretsResponseSchema: GenMessage<UpdateInstanceSecretsResponse> = /*@__PURE__*/
-  messageDesc(file_io_highstate_v1_secret, 10);
+  messageDesc(file_io_highstate_v1_secret, 12);
 
 /**
  * SecretService provides explicitly authorized access to dynamic secret content.
@@ -387,6 +437,16 @@ export const SecretService: GenService<{
     methodKind: "unary";
     input: typeof GetSecretContentRequestSchema;
     output: typeof GetSecretContentResponseSchema;
+  },
+  /**
+   * Replaces one existing named unit secret and invalidates its unit inputs.
+   *
+   * @generated from rpc io.highstate.v1.SecretService.UpdateSecretContent
+   */
+  updateSecretContent: {
+    methodKind: "unary";
+    input: typeof UpdateSecretContentRequestSchema;
+    output: typeof UpdateSecretContentResponseSchema;
   },
   /**
    * Gets all named secret values for one unit instance.

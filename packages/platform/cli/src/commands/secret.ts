@@ -1,5 +1,5 @@
-import { fromJson, type JsonObject, toJson } from "@bufbuild/protobuf"
-import { StructSchema } from "@bufbuild/protobuf/wkt"
+import { fromJson, type JsonObject, type JsonValue, toJson } from "@bufbuild/protobuf"
+import { StructSchema, ValueSchema } from "@bufbuild/protobuf/wkt"
 import {
   GetInstanceSecretsResponseSchema,
   GetSecretContentResponseSchema,
@@ -61,6 +61,31 @@ export class SecretGetCommand extends RemoteCommand {
       : messageJson(GetSecretResponseSchema, await clients.secret.getSecret(request))
 
     this.print(value, humanDetails(value))
+  }
+}
+
+export class SecretUpdateCommand extends RemoteCommand {
+  static paths = [["secret", "update"]]
+
+  static usage = Command.Usage({
+    category: "Backend API",
+    description:
+      "Replaces one named unit secret from a JSON or YAML value, or stdin (-), without echoing it.",
+  })
+
+  id = Option.String({ required: true })
+  file = Option.String("--file", { required: true })
+
+  async execute(): Promise<void> {
+    const document = await readDocument(this.file)
+    const content = fromJson(ValueSchema, document as JsonValue)
+    const { clients, target } = await this.remote()
+    await clients.secret.updateSecretContent({
+      projectId: target.projectId,
+      secretId: this.id,
+      content,
+    })
+    this.print({ updated: true }, "Secret updated")
   }
 }
 

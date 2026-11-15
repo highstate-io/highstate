@@ -11,6 +11,8 @@ import {
   InstanceStateNotFoundError,
   InvalidInstanceKindError,
   ProjectNotFoundError,
+  SecretNotEditableError,
+  SecretNotFoundError,
   SystemSecretNames,
 } from "../shared"
 
@@ -142,6 +144,47 @@ export class SecretService {
     requireProjectPermission(context, "secret.update", { instanceId: state.instanceId })
 
     await this.updateInstanceSecretsCoreWorkflow(context.projectId, stateId, secretValues)
+  }
+
+  /**
+   * Replaces an existing named unit secret by its stable ID and invalidates the unit's inputs.
+   * Requires secret.update for the secret resource, owning instance, and service-account scope.
+   * Rejects missing secrets and secrets not owned by a named unit configuration entry.
+   */
+  async updateSecretContent(
+    context: ProjectRequestContext,
+    secretId: string,
+    content: unknown,
+  ): Promise<void> {
+    const database = await this.database.forProject(context.projectId)
+
+    const secret = await database.secret.findUnique({
+      where: { id: secretId },
+      select: {
+        stateId: true,
+        name: true,
+        serviceAccountId: true,
+        state: { select: { instanceId: true } },
+      },
+    })
+
+    if (!secret) {
+      throw new SecretNotFoundError(context.projectId, secretId)
+    }
+
+    requireProjectPermission(context, "secret.update", {
+      resourceId: secretId,
+      instanceId: secret.state?.instanceId,
+      ownerServiceAccountId: secret.serviceAccountId ?? undefined,
+    })
+
+    if (!secret.stateId || !secret.name) {
+      throw new SecretNotEditableError(secretId)
+    }
+
+    await this.updateInstanceSecretsCoreWorkflow(context.projectId, secret.stateId, {
+      [secret.name]: content,
+    })
   }
 
   async updateInstanceSecretsCoreWorkflow(

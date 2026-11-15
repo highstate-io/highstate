@@ -59,6 +59,26 @@ export abstract class BackendError extends Error {
   }
 }
 
+export class SecretNotFoundError extends BackendError {
+  constructor(projectId: string, secretId: string) {
+    super(`Secret "${secretId}" not found in project "${projectId}"`, {
+      reason: "SECRET_NOT_FOUND",
+      category: BackendErrorCategory.NotFound,
+      metadata: { projectId, secretId },
+    })
+  }
+}
+
+export class SecretNotEditableError extends BackendError {
+  constructor(secretId: string) {
+    super(`Secret "${secretId}" is not a named unit secret`, {
+      reason: "SECRET_NOT_EDITABLE",
+      category: BackendErrorCategory.FailedPrecondition,
+      metadata: { secretId },
+    })
+  }
+}
+
 export class MissingCredentialError extends BackendError {
   constructor(readonly credentialType: string) {
     super(`Credential of type "${credentialType}" is required`, {

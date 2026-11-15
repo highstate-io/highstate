@@ -1,6 +1,6 @@
 import type { SecretService } from "@highstate/api/v1"
 import type { Services } from "@highstate/backend"
-import { fromJson, type JsonObject, type JsonValue } from "@bufbuild/protobuf"
+import { fromJson, type JsonObject, type JsonValue, toJson } from "@bufbuild/protobuf"
 import { ValueSchema } from "@bufbuild/protobuf/wkt"
 import { Code, ConnectError, type ServiceImpl } from "@connectrpc/connect"
 import { type SecretOutput, secretQuerySchema } from "@highstate/backend/shared"
@@ -42,6 +42,22 @@ export function createSecretService(services: Services): ServiceImpl<typeof Secr
       const id = parseArgument(request, "secretId", z.cuid2())
       const content = await services.secretSettingsService.getValue(authorization, id)
       return { content: fromJson(ValueSchema, content as JsonValue) }
+    },
+    async updateSecretContent(request, context) {
+      const authorization = await authenticateProject(services, request, context)
+      const secretId = parseArgument(request, "secretId", z.cuid2())
+
+      if (!request.content) {
+        throw new ConnectError("Secret content is required", Code.InvalidArgument)
+      }
+
+      await services.secretService.updateSecretContent(
+        authorization,
+        secretId,
+        toJson(ValueSchema, request.content),
+      )
+
+      return {}
     },
     async getInstanceSecrets(request, context) {
       const authorization = await authenticateProject(services, request, context)

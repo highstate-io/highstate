@@ -9,6 +9,7 @@ The project must be unlocked and the API key must grant the requested secret per
 highstate secret list --state-id <state-id> --output json
 highstate secret get <secret-id> --output json
 highstate secret get <secret-id> --reveal --output json
+highstate secret update <secret-id> --file value.yaml
 highstate instance secrets get <state-id> --output json
 highstate instance secrets update <state-id> --file secrets.yaml
 highstate instance secrets update <state-id> --file -
@@ -24,3 +25,7 @@ Updates read a JSON or YAML object keyed by the unit component's declared secret
 `--file -` reads stdin, avoiding secret values in command arguments or shell history.
 Supplied names replace their stored values; omitted names are preserved.
 Updates invalidate the unit's input hash but do not launch a deployment or echo secret values.
+
+`secret update` replaces a single existing unit-owned secret by its stable ID.
+Its input document is the value itself, which can be any JSON value, including `null`.
+System-managed and service-account-only secrets are not editable through this command.

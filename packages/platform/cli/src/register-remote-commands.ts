@@ -44,12 +44,14 @@ import {
   ProjectUseCommand,
   SecretGetCommand,
   SecretListCommand,
+  SecretUpdateCommand,
   StateGetCommand,
   StateListCommand,
 } from "./commands"
 
 export default function registerRemoteCommands(cli: Cli): void {
   cli.register(SecretListCommand)
+  cli.register(SecretUpdateCommand)
   cli.register(SecretGetCommand)
   cli.register(InstanceSecretsGetCommand)
   cli.register(InstanceSecretsUpdateCommand)

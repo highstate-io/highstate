@@ -1,10 +1,12 @@
 import type { HandlerContext } from "@connectrpc/connect"
 import type { Services } from "@highstate/backend"
-import { create } from "@bufbuild/protobuf"
+import { create, fromJson } from "@bufbuild/protobuf"
+import { ValueSchema } from "@bufbuild/protobuf/wkt"
 import {
   GetSecretContentRequestSchema,
   ListSecretsRequestSchema,
   UpdateInstanceSecretsRequestSchema,
+  UpdateSecretContentRequestSchema,
 } from "@highstate/api/v1"
 import { describe, expect, it, vi } from "vitest"
 import { createSecretService } from "./secret"
@@ -33,6 +35,42 @@ const id = "tz4a98xxat96iws9zmbrgj3a"
 const context = { requestHeader: new Headers({ authorization: "Bearer test" }) } as HandlerContext
 
 describe("secret API", () => {
+  it.each([
+    null,
+    false,
+    "",
+    { nested: [1, true] },
+  ])("updates an individual secret with JSON value %j without echoing it", async content => {
+    const updateSecretContent = vi.fn()
+    const services = authenticatedServices({ secretService: { updateSecretContent } })
+
+    const result = await createSecretService(services).updateSecretContent(
+      create(UpdateSecretContentRequestSchema, {
+        projectId: "project",
+        secretId: id,
+        content: fromJson(ValueSchema, content),
+      }),
+      context,
+    )
+
+    expect(updateSecretContent).toHaveBeenCalledWith(authorization, id, content)
+    expect(result).toEqual({})
+  })
+
+  it("rejects an omitted individual secret value", async () => {
+    const updateSecretContent = vi.fn()
+    const services = authenticatedServices({ secretService: { updateSecretContent } })
+
+    await expect(
+      createSecretService(services).updateSecretContent(
+        create(UpdateSecretContentRequestSchema, { projectId: "project", secretId: id }),
+        context,
+      ),
+    ).rejects.toThrow("Secret content is required")
+
+    expect(updateSecretContent).not.toHaveBeenCalled()
+  })
+
   it("delegates content reads to value authorization without requiring metadata permission", async () => {
     const getValue = vi.fn(async () => false)
     const services = authenticatedServices({ secretSettingsService: { getValue } })
