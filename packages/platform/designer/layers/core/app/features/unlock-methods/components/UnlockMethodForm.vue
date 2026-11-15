@@ -340,8 +340,8 @@ defineExpose({
 
     <template v-else-if="form.type === 'passkey'">
       <VAlert type="info" density="compact" class="mb-4">
-        Reuses your Highstate passkey for this domain. If none is returned or you cancel, setup
-        opens automatically.
+        When you click Create, you'll be prompted to use or create a passkey with your device's
+        biometric authentication or a security key.
       </VAlert>
     </template>
 
@@ -374,8 +374,7 @@ defineExpose({
       </p>
       <p v-else class="mt-2">
         Losing the keyring removes this access; anyone able to use it can unlock linked projects.
-        Project backups exclude its secret. Add another method before an OS reinstall or backend
-        move.
+        Restoring on another machine requires another unlock method.
       </p>
       <p class="mt-2">
         <strong v-if="initialSetup"
