@@ -49,7 +49,6 @@ if (projectStore.initializing) {
 }
 
 const serviceAccount = ref(await serviceAccountStore.get(params.serviceAccountId))
-
 if (!serviceAccount.value) {
   throw createError({
     statusCode: 404,

@@ -6,7 +6,9 @@ const mode = process.env.HIGHSTATE_E2E_MODE ?? "development"
 if (mode !== "development" && mode !== "production") {
   throw new Error("HIGHSTATE_E2E_MODE must be development or production")
 }
+
 const designer = await startDesigner({ mode })
+
 try {
   const first = await createFixtureProject(
     designer.url,

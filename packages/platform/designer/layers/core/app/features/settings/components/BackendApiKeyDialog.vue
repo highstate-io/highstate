@@ -19,6 +19,7 @@ const { apiKey, serviceAccounts, restrictionOptions, loading } = defineProps<{
   restrictionOptions: BackendRoleRestrictionOptions
   loading?: boolean
 }>()
+
 const visible = defineModel<boolean>("visible", { required: true })
 const emit = defineEmits<{ save: [input: BackendApiKeyInput] }>()
 const title = ref("")
@@ -27,21 +28,27 @@ const serviceAccountId = ref<string>()
 const expiresAt = ref("")
 const restrictionRules = ref<BackendRoleRules>([])
 const rulesYaml = computed(() => stringify(restrictionRules.value))
+
 const allowedRules = computed(
   () => serviceAccounts.find(item => item.id === serviceAccountId.value)?.rules ?? [],
 )
+
 const titleValid = computed(() => !!title.value.trim())
+
 const serviceAccountValid = computed(() =>
   serviceAccounts.some(item => item.id === serviceAccountId.value),
 )
+
 const expirationValid = computed(
   () => !expiresAt.value || !Number.isNaN(new Date(expiresAt.value).getTime()),
 )
+
 const restrictionSchemaValid = computed(
   () =>
     restrictionRules.value.length === 0 ||
     backendRoleRulesSchema.safeParse(restrictionRules.value).success,
 )
+
 const restrictionScopeValid = computed(
   () =>
     restrictionRules.value.length === 0 ||
@@ -54,6 +61,7 @@ const restrictionScopeValid = computed(
       ),
     ),
 )
+
 const valid = computed(() => {
   return (
     titleValid.value &&

@@ -18,6 +18,7 @@ const { stateId, args, inputs, outputs } = forUnit(k8s.apps.envoyGateway)
 
 const clusterEndpoints = await toPromise(inputs.k8sCluster.endpoints)
 const namespace = await Namespace.createOrGet(args.appName, { cluster: inputs.k8sCluster })
+
 const certgenJob = await createCertgenJob({
   appName: args.appName,
   namespace,

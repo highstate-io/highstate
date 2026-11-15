@@ -11,6 +11,7 @@ import {
 const { args, inputs, outputs } = forUnit(wireguard.node)
 
 const { identity: inputIdentity, config, server, peers: inputPeers } = await toPromise(inputs)
+
 const { identity, peers } = resolveNodeInputs({
   identity: inputIdentity,
   config,
@@ -86,12 +87,15 @@ const postDown: string[] = []
 if (args.preUpScript) {
   preUp.push(`${configDirectory}/${interfaceName}.pre-up.sh`)
 }
+
 if (args.postUpScript) {
   postUp.push(`${configDirectory}/${interfaceName}.post-up.sh`)
 }
+
 if (args.preDownScript) {
   preDown.push(`${configDirectory}/${interfaceName}.pre-down.sh`)
 }
+
 if (args.postDownScript) {
   postDown.push(`${configDirectory}/${interfaceName}.post-down.sh`)
 }

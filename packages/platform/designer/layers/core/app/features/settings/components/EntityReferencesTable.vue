@@ -28,6 +28,7 @@ const itemsPerPage = defineModel<number>("itemsPerPage")
 const { libraryStore } = useProjectStores()
 
 const entityKey = direction === "outgoing" ? "to" : "from"
+
 const headers = [
   { key: entityKey, title: "Entity" },
   { key: "group", title: "Group" },

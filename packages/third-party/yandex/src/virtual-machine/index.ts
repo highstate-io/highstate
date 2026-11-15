@@ -29,6 +29,7 @@ const networkContext = await fetchNetworkContext(subnetId, provider)
 
 // create key for disk
 let encryptionKeyId: Output<string> | undefined
+
 if (args.bootDisk.encrypted) {
   const encryptionKey = new KmsSymmetricKey(
     "encryption-key",
@@ -71,7 +72,6 @@ const userData = interpolate`
 `.apply(trimIndentation)
 
 let publicAddress: string | Output<string> | undefined
-
 if (inputs.publicAddress && !args.network.assignPublicIp) {
   throw new Error('Cannot use "publicAddress" when "network.assignPublicIp" is false')
 }
@@ -149,6 +149,7 @@ const sshArgs =
   args.network.assignPublicIp || inputs.sshProxyEndpoint
     ? args.ssh
     : { ...(args.ssh ?? {}), enabled: false }
+
 const sshProxy = inputs.sshProxyEndpoint
   ? { endpoint: inputs.sshProxyEndpoint, user: "root" }
   : undefined

@@ -31,7 +31,6 @@ if (projectStore.initializing) {
 }
 
 const trigger = await settingsStore.get(params.triggerId)
-
 if (!trigger) {
   throw createError({
     statusCode: 404,

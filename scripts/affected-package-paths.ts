@@ -28,6 +28,7 @@ const nx = Bun.spawn(
     stderr: "inherit",
   },
 )
+
 const projects = JSON.parse(await new Response(nx.stdout).text()) as string[]
 
 if ((await nx.exited) !== 0) {

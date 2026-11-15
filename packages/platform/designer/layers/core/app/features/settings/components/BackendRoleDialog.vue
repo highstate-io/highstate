@@ -19,6 +19,7 @@ const { role, loading, restrictionOptions } = defineProps<{
   loading?: boolean
   restrictionOptions: BackendRoleRestrictionOptions
 }>()
+
 const visible = defineModel<boolean>("visible", { required: true })
 const emit = defineEmits<{ save: [input: BackendRoleInput] }>()
 
@@ -27,15 +28,18 @@ const description = ref("")
 const rules = ref<BackendRoleRules>([])
 const error = ref<string | null>(null)
 const rulesYaml = computed(() => stringify(rules.value))
+
 const valid = computed(() => {
   return title.value.trim().length > 0 && backendRoleRulesSchema.safeParse(rules.value).success
 })
+
 const riskColors = {
   low: "success",
   medium: "info",
   high: "warning",
   critical: "error",
 } as const
+
 const riskAssessment = computed(() => {
   const permissionDefinitions = new Map(
     backendPermissionGroups.flatMap(group =>

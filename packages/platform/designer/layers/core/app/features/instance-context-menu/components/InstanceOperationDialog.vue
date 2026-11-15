@@ -46,6 +46,7 @@ const planError = ref<string | null>(null)
 
 const operationTitle = ref("")
 const operationDescription = ref("")
+
 const isCompositeTargetsOnly = computed(() =>
   instances.every(instance => instance.kind === "composite"),
 )

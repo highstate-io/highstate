@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { fingerprintFiles } from "./cache"
+import { sourceRoot } from "./source-root"
 
 const fix = process.argv.includes("--fix")
 const cache = !process.argv.includes("--no-cache")
@@ -19,8 +20,9 @@ for await (const path of new Bun.Glob("packages/**/*.{ts,json}").scan()) {
 
   typedInputs.push(path)
 
-  if (/^packages\/[^/]+\/[^/]+\/src\//.test(path) && path.endsWith(".ts")) {
-    roots.add(path.split("/").slice(0, 3).join("/"))
+  const root = sourceRoot(path)
+  if (root) {
+    roots.add(root)
   }
 }
 

@@ -16,6 +16,7 @@ const { name, args, inputs, outputs } = forUnit(netaminity.tunnel)
 const resourceName = args.resourceName ?? name
 const namespace = await resolveNamespace(name, args.namespace, inputs.namespace, inputs.k8sCluster)
 const { endpoint, port: endpointPort } = resolveEndpoint("tunnel", args.endpoint, inputs.endpoints)
+
 const resource = new apiextensions.CustomResource(
   name,
   {

@@ -5,6 +5,7 @@ import { parseSubnets, subnetToString } from "../../../shared"
 const { name, stateId, args, inputs, outputs } = forUnit(network.network)
 
 const resolvedInputNetworks = await toPromise(inputs.subnets)
+
 const parsedSubnets = await parseSubnets(
   args.subnets,
   resolvedInputNetworks.flatMap(subnetNetwork => subnetNetwork.subnets),

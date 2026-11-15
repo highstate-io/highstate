@@ -159,6 +159,7 @@ const edge = (index: number): EdgeRouterEdge => ({
   targetX: 400,
   targetY: index + 0.75,
 })
+
 const pathUpdate = (edge: EdgeRouterEdge) => ({
   edgeId: edge.id,
   points: [

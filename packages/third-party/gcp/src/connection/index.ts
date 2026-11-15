@@ -10,7 +10,6 @@ type ServiceAccountKeyFile = {
 
 const keyFileString = await toPromise(secrets.serviceAccountKeyJson)
 const keyFileData: ServiceAccountKeyFile = JSON.parse(keyFileString)
-
 if (!keyFileData.project_id) {
   throw new Error("Could not determine project ID from service account key")
 }

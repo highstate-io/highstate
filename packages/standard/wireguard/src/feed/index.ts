@@ -51,7 +51,6 @@ const document = createFeedDocument({
 
 let privateKey: Output<string> | undefined
 let publicKey: string
-
 if (args.publicKey) {
   publicKey = args.publicKey
 } else {

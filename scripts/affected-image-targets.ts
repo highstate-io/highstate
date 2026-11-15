@@ -9,6 +9,7 @@ const terminalTargets = [
   "core-terminal-ssh",
   "core-terminal-talosctl",
 ] as const
+
 const workerTargets = ["core-worker-k8s-monitor", "core-worker-k8s-dashboard"] as const
 const allTargets = [...terminalTargets, ...workerTargets, "apps-exetrouter"]
 

@@ -32,7 +32,6 @@ if (projectStore.initializing) {
 }
 
 const operation = await settingsStore.get(params.operationId)
-
 if (!operation) {
   throw createError({
     statusCode: 404,

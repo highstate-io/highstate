@@ -15,6 +15,7 @@ const { name, args, secrets, getSecret, inputs, outputs } = forUnit(timeweb.virt
 const provider = await createProvider(inputs.connection)
 
 const vmName = args.vmName ?? name
+
 const sshKeyPair =
   inputs.sshKeyPair ??
   getSecret("sshPrivateKey", generateSshPrivateKey).apply(sshPrivateKeyToKeyPair)

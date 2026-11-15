@@ -23,6 +23,7 @@ const currentRoute = shallowRef<RouteLocationNormalizedLoaded | null>(null)
 const selectedProjectId = ref<string | null>(projectsStore.focusedProjectId)
 const lastBackendTab = ref<string>()
 const lastProjectTab = ref<string>()
+
 const scope = computed(() =>
   currentRoute.value?.path.startsWith("/settings/projects/") ? "project" : "backend",
 )

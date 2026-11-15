@@ -15,6 +15,7 @@ const roleToDelete = ref<ProjectRoleOutput | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
 const restrictionOptions = await roleStore.getRestrictionOptions()
+
 definePageMeta({
   name: "settings.project-roles",
   tab: {
@@ -25,6 +26,7 @@ definePageMeta({
     subpages: ["settings.project-role-details"],
   },
 })
+
 async function save(input: ProjectRoleInput): Promise<void> {
   saving.value = true
 

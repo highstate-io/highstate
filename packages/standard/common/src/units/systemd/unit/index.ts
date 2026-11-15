@@ -7,13 +7,13 @@ const { name, args, inputs, outputs } = forUnit(common.systemdUnit)
 
 const servers = await toPromise(inputs.servers)
 const serviceName = args.serviceName ?? name.replaceAll(".", "-")
-
 if (!/^[A-Za-z0-9:_.@-]+$/.test(serviceName)) {
   throw new Error(`Invalid systemd service name "${serviceName}"`)
 }
 
 const scriptPath = `/usr/local/lib/highstate/${serviceName}.sh`
 const servicePath = `/etc/systemd/system/${serviceName}.service`
+
 const unitContent = [
   "[Unit]",
   `Description=Highstate service ${serviceName}`,

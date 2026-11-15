@@ -7,7 +7,6 @@ const { stateId, args, secrets, outputs } = forUnit(hetzner.connection)
 const apiToken = await toPromise(secrets.apiToken)
 const provider = new Provider("hetzner", { token: apiToken })
 const locations = await getLocations({ provider })
-
 if (!locations.locations.some(location => location.name === args.defaultLocation)) {
   throw new Error(`Hetzner Cloud location "${args.defaultLocation}" is not available`)
 }

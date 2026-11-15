@@ -102,6 +102,43 @@ const service = new Service();`,
     expect(check("switch-mappers", formatted).messages).toEqual([])
   })
 
+  it("separates top-level guards and try blocks while keeping the checked assignment adjacent", () => {
+    const input = `const mode = process.env.HIGHSTATE_E2E_MODE ?? "development"
+if (mode !== "development" && mode !== "production") {
+  throw new Error("HIGHSTATE_E2E_MODE must be development or production")
+}
+const designer = await startDesigner({ mode })
+try {
+  await inspectDesigner(designer)
+} finally {
+  await designer.stop()
+}`
+
+    expect(check("statement-spacing", input).messages).toHaveLength(2)
+    const fixed = check("statement-spacing", input, true)
+    expect(fixed.messages).toEqual([])
+
+    expect(fixed.output).toBe(
+      input
+        .replace("}\nconst designer", "}\n\nconst designer")
+        .replace("({ mode })\ntry", "({ mode })\n\ntry"),
+    )
+
+    expect(check("statement-spacing", fixed.output).messages).toEqual([])
+  })
+
+  it("does not separate an ASI safety semicolon from the following expression", () => {
+    const input = `export type Output = {
+  value: string
+}
+
+;(self as Worker).onmessage = () => {
+  receive()
+}`
+
+    expect(check("statement-spacing", input).messages).toEqual([])
+  })
+
   it.each(["\n", "\n\n"])("separates multiline declarations from their guards (%j)", gap => {
     const declaration = `function validate(operation) {
   const requiresValue =

@@ -57,12 +57,14 @@ const config = ConfigMap.create(`${args.appName}-config`, {
 })
 
 const runtime = { name: "runtime", emptyDir: {} }
+
 const configMount = {
   volume: config,
   mountPath: "/etc/exetrouter/config.json",
   subPath: "config.json",
   readOnly: true,
 }
+
 const runtimeMount = { volume: runtime, mountPath: "/run/exetrouter" }
 
 const statefulSet = StatefulSet.create(

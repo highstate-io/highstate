@@ -16,6 +16,7 @@ defineProps<{
   loading?: boolean
   height?: string | number
 }>()
+
 defineEmits<{ delete: [serviceAccount: BackendServiceAccountOutput] }>()
 
 const search = defineModel<string>("search")

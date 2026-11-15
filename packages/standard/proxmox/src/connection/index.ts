@@ -31,6 +31,7 @@ if (!nodes.names.includes(nodeName)) {
 }
 
 const { datastores } = await getDatastores({ nodeName }, { provider })
+
 if (!datastores || datastores.length === 0) {
   throw new Error(`No datastores found in the node "${nodeName}"`)
 }

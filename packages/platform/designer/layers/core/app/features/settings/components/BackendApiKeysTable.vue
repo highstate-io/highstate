@@ -16,11 +16,13 @@ defineProps<{
   loading?: boolean
   height?: string | number
 }>()
+
 defineEmits<{ delete: [apiKey: BackendApiKeyOutput]; rotate: [apiKey: BackendApiKeyOutput] }>()
 const search = defineModel<string>("search")
 const sortBy = defineModel<CollectionQuery["sortBy"]>("sortBy")
 const page = defineModel<number>("page")
 const itemsPerPage = defineModel<number>("itemsPerPage")
+
 const headers = [
   baseHeaders.name,
   { title: "Service account", key: "serviceAccount", sortable: false },

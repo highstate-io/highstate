@@ -19,6 +19,7 @@ const resourceName = args.resourceName ?? name
 const namespace = await resolveNamespace(name, args.namespace, inputs.namespace, inputs.k8sCluster)
 const servicePort = args.servicePort ?? resolveEndpoint("proxy", undefined, inputs.endpoints).port
 const sharedSecret = getSecret("sharedSecret", generateKey)
+
 const secret = Secret.create(name, {
   name: `${resourceName}-netaminity`,
   namespace,
@@ -72,6 +73,7 @@ const resource = new apiextensions.CustomResource(
 const service = args.serviceEnabled
   ? wrapService(name, args.serviceName ?? resourceName, namespace, resource)
   : undefined
+
 const proxy = createProxyEntity(resource, inputs.k8sCluster, sharedSecret, service)
 
 export default outputs({

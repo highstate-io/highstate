@@ -16,7 +16,6 @@ const apiKeyStore = useBackendApiKeySettingsStore()
 const { $client } = useNuxtApp()
 const router = useRouter()
 const apiKey = ref(await apiKeyStore.get(params.apiKeyId))
-
 if (!apiKey.value) {
   throw createError({ statusCode: 404, statusMessage: "Backend API key not found" })
 }
@@ -34,6 +33,7 @@ const token = ref("")
 const saving = ref(false)
 const deleting = ref(false)
 const rotating = ref(false)
+
 const detailItems = [
   { key: "id", label: "API key ID" },
   { key: "serviceAccount", label: "Service account" },

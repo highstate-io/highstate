@@ -21,7 +21,9 @@ const {
   allowEmpty?: boolean
   sectionTitle?: string
 }>()
+
 const rules = defineModel<ProjectRoleRules>({ required: true })
+
 const groups = computed<RoleRuleBuilderGroup[]>(() =>
   projectPermissionGroups.flatMap((group, index) => {
     const permissions = group.permissions.filter(
@@ -59,6 +61,7 @@ const groups = computed<RoleRuleBuilderGroup[]>(() =>
     ]
   }),
 )
+
 const descriptors = [
   { id: "resources", title: "Resources" },
   { id: "instances", title: "Instances", recursive: true },
@@ -66,6 +69,7 @@ const descriptors = [
   { id: "self", title: "Self" },
   { id: "workers", title: "Workers" },
 ]
+
 const allBuilderOptions = computed(() => ({
   ...options.resources,
   instances: options.instances,
@@ -73,6 +77,7 @@ const allBuilderOptions = computed(() => ({
   self: [{ id: "self", title: "Current service account" }],
   workers: options.workers,
 }))
+
 const builderOptions = computed(() => {
   if (!allowedRules) {
     return allBuilderOptions.value
@@ -122,8 +127,10 @@ const builderOptions = computed(() => {
     }),
   )
 })
+
 let skipSync = false
 const builderRules = ref<RoleRuleBuilderRule[]>(toBuilder(rules.value))
+
 watch(
   rules,
   value => {

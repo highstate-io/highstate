@@ -20,10 +20,13 @@ const bakePath = value("--bake")
 const ociIndex = process.argv.indexOf("--oci-directory")
 const ociDirectory = ociIndex === -1 ? undefined : resolve(value("--oci-directory"))
 const rootIndex = process.argv.indexOf("--root")
+
 const root = resolve(
   rootIndex === -1 ? resolve(import.meta.dir, "..") : process.argv[rootIndex + 1],
 )
+
 const bake = JSON.parse(await readFile(bakePath, "utf8"))
+
 const imageNames = new Set<string>(
   bake.group.images.targets.map((target: string) => {
     const tag = bake.target[target].tags[0] as string

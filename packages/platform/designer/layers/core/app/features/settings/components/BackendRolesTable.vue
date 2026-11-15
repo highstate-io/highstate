@@ -16,6 +16,7 @@ defineProps<{
   loading?: boolean
   height?: string | number
 }>()
+
 defineEmits<{ delete: [role: BackendRoleOutput] }>()
 
 const search = defineModel<string>("search")

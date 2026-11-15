@@ -30,7 +30,6 @@ const { name, args, getSecret, inputs, outputs } = forUnit(yandex.instanceGroup)
 const groupName = args.groupName ?? name
 const nlbName = args.nlb.name ?? groupName
 const zones = args.zones ?? [inputs.connection.defaultZone]
-
 if (zones.length === 0) {
   throw new Error(`At least one zone must be specified`)
 }
@@ -60,6 +59,7 @@ const rootPassword = getSecret("rootPassword", generatePassword)
 const subnetId = await detectSubnetId(args.network.subnetId, inputs.connection, provider)
 const networkContext = await fetchNetworkContext(subnetId, provider)
 const getInstanceZone = (index: number): string => zones[index % zones.length]!
+
 const subnetIdsByZone: Record<string, string> = Object.fromEntries(
   await Promise.all(
     zones.map(async zone => [
@@ -68,6 +68,7 @@ const subnetIdsByZone: Record<string, string> = Object.fromEntries(
     ]),
   ),
 )
+
 const subnetIds = Array.from(new Set(Object.values(subnetIdsByZone)))
 const getInstanceSubnetId = (index: number): string => subnetIdsByZone[getInstanceZone(index)]!
 
@@ -91,6 +92,7 @@ function parseNlbListener(listener: string) {
 
 // create single key for all disks in the group
 let encryptionKeyId: Output<string> | undefined
+
 if (args.bootDisk.encrypted) {
   const encryptionKey = new KmsSymmetricKey(
     "encryption-key",
@@ -141,7 +143,6 @@ const internalAddresses = Array.from({ length: args.size }, (_, i) => {
 
 // create public IPs if needed
 let publicAddresses: Array<string | Output<string>> | undefined
-
 if (inputs.publicAddresses.length > 0) {
   publicAddresses = [...inputs.publicAddresses]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -332,7 +333,9 @@ const nlbSshProxyEndpoint = nlb
       return parseEndpoint(`tcp://${address}:${args.ssh.port}`, 4)
     })
   : undefined
+
 const nlbSshProxy = nlbSshProxyEndpoint?.apply(endpoint => ({ endpoint, user: "root" }))
+
 const nlbEndpoints = nlb
   ? await toPromise(
       nlb.listeners.apply(listeners => {
@@ -352,10 +355,12 @@ const nlbEndpoints = nlb
 
 const terminals: UnitTerminal[] = []
 const instances = await toPromise(instanceGroup.instances)
+
 const sshArgs =
   args.network.assignPublicIp || args.nlb.enabled || inputs.sshProxyEndpoint
     ? args.ssh
     : { ...(args.ssh ?? {}), enabled: false }
+
 const sshProxy = inputs.sshProxyEndpoint
   ? { endpoint: inputs.sshProxyEndpoint, user: "root" }
   : args.nlb.enabled

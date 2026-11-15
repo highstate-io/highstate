@@ -19,7 +19,6 @@ resetEvaluation()
 const modules = import.meta.glob("~/snippets/**/*.preview.ts")
 const snippetId = atob(route.params.snippet as string)
 const module = modules[`/snippets/${snippetId}.preview.ts`]
-
 if (module) {
   await module()
 }

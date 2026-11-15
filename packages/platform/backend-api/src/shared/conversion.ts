@@ -72,6 +72,7 @@ const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
     z.record(z.string(), jsonValueSchema),
   ]),
 )
+
 const jsonObjectSchema = z.record(z.string(), jsonValueSchema)
 
 export function toProject(project: ProjectOutput): Project {

@@ -5,6 +5,7 @@ import { afterEach, expect, test, vi } from "vitest"
 const updatePreviewComment = createRequire(import.meta.url)(
   "../.github/scripts/update-pr-preview-comment.cjs",
 )
+
 const { renderPreviewComment } = updatePreviewComment
 const packages = [{ name: "@highstate/contract", url: "https://pkg.pr.new/example" }]
 const images = { ssh: `ghcr.io/highstate-io/dev/terminal.ssh:pr-72@sha256:${"a".repeat(64)}` }

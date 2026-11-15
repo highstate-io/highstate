@@ -37,6 +37,7 @@ const instanceMutablePaths = new Set([
   "position.x",
   "position.y",
 ])
+
 const hubMutablePaths = new Set([
   "position",
   "position.x",
@@ -44,6 +45,7 @@ const hubMutablePaths = new Set([
   "inputs",
   "injection_inputs",
 ])
+
 const patchOperationSchema = z
   .object({
     operation: z.union([

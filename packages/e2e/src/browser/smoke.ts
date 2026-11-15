@@ -7,13 +7,16 @@ import { createFixtureProject } from "../harness/fixtures"
 import { inspectDesigner } from "../harness/inspection"
 
 const expect = baseExpect.configure({ timeout: 30_000 })
+
 const evidence = join(
   root,
   ".artifacts/e2e",
   `browser-${new Date().toISOString().replaceAll(/[:.]/g, "-")}`,
 )
+
 await mkdir(evidence, { recursive: true })
 const steps: { name: string; status: string }[] = []
+
 const step = async (name: string, action: () => Promise<void>) => {
   try {
     await action()
@@ -24,10 +27,12 @@ const step = async (name: string, action: () => Promise<void>) => {
     throw error
   }
 }
+
 let designer: Awaited<ReturnType<typeof startDesigner>> | undefined
 let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
 const faults: string[] = []
 const pending = new Set<Request>()
+
 try {
   designer = await startDesigner()
   browser = await chromium.launch({ headless: true })

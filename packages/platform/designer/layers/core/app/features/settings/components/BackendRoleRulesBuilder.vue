@@ -20,6 +20,7 @@ const {
   allowEmpty?: boolean
   sectionTitle?: string
 }>()
+
 const rules = defineModel<BackendRoleRules>({ required: true })
 
 const groups = computed<RoleRuleBuilderGroup[]>(() =>

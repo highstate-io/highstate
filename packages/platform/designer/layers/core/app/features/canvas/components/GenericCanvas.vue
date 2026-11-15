@@ -46,6 +46,7 @@ watch(
   },
   { immediate: true },
 )
+
 emit("init", canvasStore)
 </script>
 

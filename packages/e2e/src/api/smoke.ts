@@ -9,8 +9,10 @@ import { inspectDesigner } from "../harness/inspection"
 const evidence = new Evidence(
   join(root, ".artifacts/e2e", `api-${new Date().toISOString().replaceAll(":", "-")}`),
 )
+
 const designer = await startDesigner()
 const projectIds: string[] = []
+
 try {
   const initial = await designerCall<{ items: { id: string }[] }>(
     designer.url,

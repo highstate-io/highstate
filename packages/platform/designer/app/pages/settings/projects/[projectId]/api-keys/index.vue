@@ -29,6 +29,7 @@ if (projectStore.initializing) {
   await projectStore.initialize1()
   await projectStore.initialize2()
 }
+
 const [restrictionOptions, serviceAccounts] = await Promise.all([
   useProjectRoleSettingsStore().getRestrictionOptions(),
   apiKeyStore.getServiceAccountOptions(),

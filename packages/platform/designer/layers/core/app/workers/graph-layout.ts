@@ -27,6 +27,7 @@ export type LayoutOutput = {
   requestId: string
   nodes: OutputNode[]
 }
+
 ;(self as unknown as SharedWorkerGlobalScope).onconnect = (event: MessageEvent) => {
   const port = event.ports[0]
 

@@ -60,7 +60,6 @@ if (!instanceId) {
 }
 
 const instance = instancesStore.instances.get(instanceId)
-
 if (!instance) {
   throw createError({
     statusCode: 404,
@@ -92,6 +91,7 @@ const triggers = triggerStore.forState(params.stateId)
 const artifacts = artifactStore.forState(params.stateId)
 
 const lastOperationId = stateStore.instanceStates.get(instanceId)?.lastOperationState?.operationId
+
 const entitySnapshots = lastOperationId
   ? entityStore.snapshotsForInstanceOperation(params.stateId, lastOperationId)
   : null
@@ -102,6 +102,7 @@ void pages.load()
 void panels.load()
 void triggers.load()
 void artifacts.load()
+
 if (entitySnapshots) {
   void entitySnapshots.load()
 }

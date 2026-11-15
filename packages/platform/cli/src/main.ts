@@ -37,7 +37,6 @@ cli.register(Builtins.HelpCommand)
 cli.register(Builtins.VersionCommand)
 
 const args = process.argv.slice(2)
-
 if (args[0] !== "build") {
   const { AgentDocsGetCommand, AgentInstructionsCommand, AgentStatusCommand } = await import(
     "./commands/agent"

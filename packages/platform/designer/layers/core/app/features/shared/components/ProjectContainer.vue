@@ -19,6 +19,7 @@ const stateStore = await useProjectStateStore.async(projectId)
 const workspaceStore = useWorkspaceStore()
 
 const passKeyInProgress = ref(false)
+
 const unlockSuite = computed(() => {
   if (stateStore.unlockState?.type !== "locked") {
     return undefined
@@ -74,7 +75,6 @@ const tryPassKeyUnlock = async () => {
 }
 
 const unlockState = await until(() => stateStore.unlockState).not.toBeUndefined()
-
 if (
   unlockState.type === "locked" &&
   unlockSuite.value?.hasPasskey &&

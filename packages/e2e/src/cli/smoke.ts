@@ -5,6 +5,7 @@ import { join } from "node:path"
 import { startCli } from "../harness/cli"
 
 const directory = await mkdtemp(join(tmpdir(), "highstate-cli-e2e-"))
+
 try {
   await mkdir(join(directory, "home"))
   const help = startCli({ directory }, ["--help"])

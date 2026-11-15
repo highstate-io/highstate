@@ -550,7 +550,14 @@ const rules = {
 
           const comments = source.getCommentsBefore(current)
           const start = comments[0] ?? current
-          const gap = start.loc.start.line - previous.loc.end.line
+          const last = source.getLastToken(previous)
+
+          const previousEnd =
+            last?.value === ";" && last.loc.start.line === current.loc.start.line
+              ? source.getTokenBefore(last).loc.end.line
+              : previous.loc.end.line
+
+          const gap = start.loc.start.line - previousEnd
           // Comments can explain either side of a guard; do not move them across statements.
           if (checked && !comments.length && gap > 1) {
             report(context, current, "Keep the assignment adjacent to its checking guard", fixer =>
@@ -570,7 +577,7 @@ const rules = {
         }
       }
 
-      return { BlockStatement: inspect, StaticBlock: inspect }
+      return { Program: inspect, BlockStatement: inspect, StaticBlock: inspect }
     },
     true,
   ),

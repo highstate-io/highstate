@@ -19,6 +19,7 @@ const { projectId, data, loading, hideHeader, height } = defineProps<{
   hideHeader?: boolean
   height?: string | number
 }>()
+
 defineEmits<{ delete: [apiKey: ApiKeyOutput]; rotate: [apiKey: ApiKeyOutput] }>()
 
 const search = defineModel<string>("search")

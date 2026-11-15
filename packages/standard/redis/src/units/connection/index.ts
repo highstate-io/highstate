@@ -5,6 +5,7 @@ import { forUnit, makeEntityOutput } from "@highstate/pulumi"
 const { name, stateId, args, inputs, secrets, outputs } = forUnit(redis.connection)
 
 const endpoints = parseEndpoints([...args.endpoints, ...inputs.endpoints], 4)
+
 const credentials =
   args.username === undefined && secrets.password === undefined
     ? undefined

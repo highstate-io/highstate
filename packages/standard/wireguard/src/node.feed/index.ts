@@ -11,7 +11,6 @@ const { server, peer } = await toPromise(inputs)
 const inputEndpoints = await toPromise(inputs.endpoints ?? [])
 const secretEndpoints = await toPromise(secrets.endpoints)
 const setupUrls = [...inputEndpoints.map(l7EndpointToString), ...secretEndpoints]
-
 if (setupUrls.length === 0) {
   throw new Error(
     "At least one endpoint must be provided via inputs.endpoints or secrets.endpoints",
@@ -19,6 +18,7 @@ if (setupUrls.length === 0) {
 }
 
 const serviceName = args.serviceName ?? `wg-feed-${name}`.replaceAll(".", "-")
+
 const configContent = generateFeedDaemonConfigContent({
   statePath: args.statePath,
   feedName: args.feedName,

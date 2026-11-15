@@ -18,6 +18,7 @@ const { projectId, data, loading, hideHeader, height } = defineProps<{
   hideHeader?: boolean
   height?: string | number
 }>()
+
 defineEmits<{ delete: [serviceAccount: ServiceAccountOutput] }>()
 
 const search = defineModel<string>("search")
