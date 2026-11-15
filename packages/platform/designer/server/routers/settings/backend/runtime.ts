@@ -143,9 +143,7 @@ export const runtimeSettingsRouter = router({
       }
     }),
   delete: backendProcedure
-    .input(
-      identity.extend({ kind: runtimeSettingsKindSchema, revision: z.cuid2().length(24) }),
-    )
+    .input(identity.extend({ kind: runtimeSettingsKindSchema, revision: z.cuid2().length(24) }))
     .mutation(async ({ ctx, input }) => {
       try {
         await ctx.runtimeSettingsService.delete(

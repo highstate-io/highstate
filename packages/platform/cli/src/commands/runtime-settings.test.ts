@@ -10,14 +10,17 @@ import {
   NpmRegistryCredentialSchema,
   PulumiStateBackendSchema,
 } from "@highstate/api/v1"
+import { cuidv2d } from "@highstate/contract"
 import { Cli } from "clipanion"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { RemoteCommand } from "./remote"
 import * as commands from "./runtime-settings"
 
+const revision = cuidv2d("runtime-cli-test", "revision")
+
 const runtime = create(ContainerRuntimeSchema, {
   id: "runtime-1",
-  revision: 7n,
+  revision,
   meta: { title: "Docker" },
   spec: {
     runtimeApiUrl: "https://backend.example",
@@ -34,7 +37,7 @@ const runtime = create(ContainerRuntimeSchema, {
 
 const backend = create(PulumiStateBackendSchema, {
   id: "backend-1",
-  revision: 7n,
+  revision,
   meta: { title: "State" },
   url: "s3://state",
   credentials: Buffer.from("private-token"),
@@ -43,7 +46,7 @@ const backend = create(PulumiStateBackendSchema, {
 
 const npm = create(NpmRegistryCredentialSchema, {
   id: "npm-1",
-  revision: 7n,
+  revision,
   meta: { title: "Npm" },
   scope: "@example",
   registryUrl: "https://registry.npmjs.org",
@@ -52,7 +55,7 @@ const npm = create(NpmRegistryCredentialSchema, {
 
 const container = create(ContainerRegistryCredentialSchema, {
   id: "container-1",
-  revision: 7n,
+  revision,
   meta: { title: "OCI" },
   registryUrl: "ghcr.io",
   credentials: Buffer.from("private-token"),
@@ -193,7 +196,7 @@ describe("registered runtime settings commands", () => {
 
     expect(JSON.parse(stdout)[resource.collection][0]).toMatchObject({
       id: resource.id,
-      revision: "7",
+      revision,
     })
 
     expect(stdout).not.toContain(Buffer.from("private-token").toString("base64"))
@@ -228,31 +231,29 @@ describe("registered runtime settings commands", () => {
         "--file",
         path,
         "--expected-revision",
-        "9007199254740993",
+        revision,
       ),
     ).toBe(0)
 
     expect(client[resource.put]).toHaveBeenLastCalledWith(
       expect.objectContaining({
         [resource.singular]: expect.objectContaining({ id: resource.id }),
-        expectedRevision: 9007199254740993n,
+        expectedRevision: revision,
       }),
     )
 
-    expect(await run(resource.path, "delete", resource.id, "--expected-revision", "7")).toBe(0)
+    expect(await run(resource.path, "delete", resource.id, "--expected-revision", revision)).toBe(0)
 
     expect(client[resource.delete]).toHaveBeenCalledWith({
       [resource.idField]: resource.id,
-      expectedRevision: 7n,
+      expectedRevision: revision,
     })
 
     expect(stdout).not.toContain(Buffer.from("private-token").toString("base64"))
   })
 
   it.each(resources)("rejects blind writes and missing IDs for $path", async resource => {
-    const path = await file(
-      JSON.stringify({ ...resource.document, id: resource.id, revision: "7" }),
-    )
+    const path = await file(JSON.stringify({ ...resource.document, id: resource.id, revision }))
 
     await run(resource.path, "put", "--file", path)
     expect(stderr).toContain("--expected-revision")
@@ -302,7 +303,7 @@ describe("registered runtime settings commands", () => {
       }),
     )
 
-    await run("npm-registry-credential", "put", "--file", path, "--expected-revision", "7")
+    await run("npm-registry-credential", "put", "--file", path, "--expected-revision", revision)
     expect(client.putNpmRegistryCredential).toHaveBeenCalledOnce()
     expect(client.putNpmRegistryCredential.mock.calls[0]![0].credential.credentials).toBeUndefined()
   })
@@ -341,14 +342,14 @@ describe("registered runtime settings commands", () => {
       )
 
     expect(
-      await run("pulumi-state-backend", "put", "--file", "-", "--expected-revision", "7"),
+      await run("pulumi-state-backend", "put", "--file", "-", "--expected-revision", revision),
     ).toBe(0)
 
     expect(text).toHaveBeenCalledOnce()
 
     expect(client.putPulumiStateBackend).toHaveBeenCalledWith({
       backend: expect.objectContaining({ clearCredentials: true }),
-      expectedRevision: 7n,
+      expectedRevision: revision,
     })
 
     expect(client.putPulumiStateBackend.mock.calls[0]![0].backend.credentials).toBeUndefined()
@@ -390,13 +391,13 @@ describe("registered runtime settings commands", () => {
       "--credentials-file",
       secret,
       "--expected-revision",
-      "7",
+      revision,
       "--clear-credentials",
     )
 
     expect(client.putPulumiStateBackend).toHaveBeenCalledWith({
       backend: expect.objectContaining({ clearCredentials: true }),
-      expectedRevision: 7n,
+      expectedRevision: revision,
     })
 
     expect(client.putPulumiStateBackend.mock.calls[0]![0].backend.credentials).toBeUndefined()
@@ -425,7 +426,7 @@ describe("registered runtime settings commands", () => {
       "--file",
       path,
       "--expected-revision",
-      "7",
+      revision,
       "--docker-ca-bundle-file",
       ca,
       "--docker-client-certificate-file",
@@ -447,7 +448,7 @@ describe("registered runtime settings commands", () => {
           },
         }),
       }),
-      expectedRevision: 7n,
+      expectedRevision: revision,
     })
 
     expect(

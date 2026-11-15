@@ -29,9 +29,10 @@ export async function migrateRuntimeSettingsIdentity(database: MigrationClient):
         row.id,
       )
 
-      // Migration table rebuilds run with foreign-key enforcement disabled.
+      // migration table rebuilds run with foreign-key enforcement disabled
       if (table === "ContainerRuntime" || table === "PulumiStateBackend") {
         const field = table === "ContainerRuntime" ? "containerRuntimeId" : "pulumiStateBackendId"
+
         await database.$executeRawUnsafe(
           `UPDATE "Project" SET "${field}" = ? WHERE "${field}" = ?`,
           id,

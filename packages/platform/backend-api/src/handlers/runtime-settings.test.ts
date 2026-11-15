@@ -12,13 +12,15 @@ import { createRuntimeSettingsService } from "./runtime-settings"
 
 const context = { requestHeader: new Headers({ authorization: "Bearer backend-key" }) }
 const runtimeId = cuidv2d("runtime-settings-transport-test", "runtime")
+const previousRevision = cuidv2d("runtime-settings-transport-test", "previous-revision")
+const currentRevision = cuidv2d("runtime-settings-transport-test", "current-revision")
 
 function fixture() {
   const output = {
     id: runtimeId,
     systemName: null,
     meta: { title: "Remote engine" },
-    revision: 3,
+    revision: currentRevision,
     createdAt: new Date(0),
     updatedAt: new Date(1),
     npmRegistryCredentialIds: [],
@@ -90,7 +92,7 @@ describe("runtime settings transport", () => {
     await expect(
       handler.putContainerRuntime(
         create(PutContainerRuntimeRequestSchema, {
-          expectedRevision: 1n,
+          expectedRevision: previousRevision,
           runtime: { ...runtime, id: "human-name" },
         }),
         context as never,
@@ -123,7 +125,7 @@ describe("runtime settings transport", () => {
     const { put, handler } = fixture()
 
     const request = create(PutContainerRuntimeRequestSchema, {
-      expectedRevision: 2n,
+      expectedRevision: previousRevision,
       runtime: {
         id: runtimeId,
         meta: { title: "Remote engine" },
@@ -148,7 +150,7 @@ describe("runtime settings transport", () => {
       "container-runtime",
       runtimeId,
       expect.objectContaining({
-        revision: 2,
+        revision: previousRevision,
         spec: expect.objectContaining({
           tls: { caBundle: null, clientCertificate: undefined, clientKey: undefined },
         }),

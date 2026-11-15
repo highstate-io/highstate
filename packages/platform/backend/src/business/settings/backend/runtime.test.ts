@@ -110,9 +110,9 @@ describe("RuntimeSettingsService", () => {
     const preserved = await database.backend.containerRuntime.findUniqueOrThrow({ where: { id } })
     expect(preserved.spec).toEqual(stored.spec)
 
-    await expect(service.delete(context, "container-runtime", id, created.revision)).rejects.toBeInstanceOf(
-      RuntimeSettingsConflictError,
-    )
+    await expect(
+      service.delete(context, "container-runtime", id, created.revision),
+    ).rejects.toBeInstanceOf(RuntimeSettingsConflictError)
 
     await service.delete(context, "container-runtime", id, updated.revision)
     expect(await database.backend.containerRuntime.findUnique({ where: { id } })).toBeNull()
@@ -265,11 +265,16 @@ describe("RuntimeSettingsService", () => {
       credentials: undefined,
     })
 
-    const updatedContainer = await service.put(context, "container-registry-credential", containerId, {
-      ...container,
-      revision: containerRow.revision,
-      credentials: undefined,
-    })
+    const updatedContainer = await service.put(
+      context,
+      "container-registry-credential",
+      containerId,
+      {
+        ...container,
+        revision: containerRow.revision,
+        credentials: undefined,
+      },
+    )
 
     expect(
       (await database.backend.npmRegistryCredential.findUniqueOrThrow({ where: { id: npmId } }))
@@ -312,7 +317,12 @@ describe("RuntimeSettingsService", () => {
     ).rejects.toBeInstanceOf(RuntimeSettingsInUseError)
 
     await expect(
-      service.delete(context, "container-registry-credential", containerId, updatedContainer.revision),
+      service.delete(
+        context,
+        "container-registry-credential",
+        containerId,
+        updatedContainer.revision,
+      ),
     ).rejects.toBeInstanceOf(RuntimeSettingsInUseError)
 
     await service.delete(context, "container-runtime", runtimeId, runtime.revision)
@@ -326,7 +336,12 @@ describe("RuntimeSettingsService", () => {
     ).rejects.toBeInstanceOf(RuntimeSettingsConflictError)
 
     await service.delete(context, "npm-registry-credential", npmId, updatedNpm.revision)
-    await service.delete(context, "container-registry-credential", containerId, updatedContainer.revision)
+    await service.delete(
+      context,
+      "container-registry-credential",
+      containerId,
+      updatedContainer.revision,
+    )
   })
 
   test("denies unauthorized mutation and filters resource-restricted lists", async ({
@@ -345,7 +360,9 @@ describe("RuntimeSettingsService", () => {
       service.put(denied, "container-runtime", id, { ...dockerInput, revision: created.revision }),
     ).rejects.toThrow()
 
-    await expect(service.delete(denied, "container-runtime", id, created.revision)).rejects.toThrow()
+    await expect(
+      service.delete(denied, "container-runtime", id, created.revision),
+    ).rejects.toThrow()
     await expect(service.preflight(denied, id)).rejects.toThrow()
     await expect(service.list(denied, "container-runtime")).rejects.toThrow()
 
@@ -362,7 +379,10 @@ describe("RuntimeSettingsService", () => {
     )
 
     await expect(
-      service.put(manager, "container-runtime", otherId, { ...dockerInput, revision: other.revision }),
+      service.put(manager, "container-runtime", otherId, {
+        ...dockerInput,
+        revision: other.revision,
+      }),
     ).rejects.toThrow()
 
     await expect(
@@ -463,9 +483,9 @@ describe("RuntimeSettingsService", () => {
       pulumiStateBackendId: stateId,
     })
 
-    await expect(service.delete(context, "container-runtime", runtimeId, runtime.revision)).rejects.toBeInstanceOf(
-      RuntimeSettingsInUseError,
-    )
+    await expect(
+      service.delete(context, "container-runtime", runtimeId, runtime.revision),
+    ).rejects.toBeInstanceOf(RuntimeSettingsInUseError)
 
     await expect(
       service.delete(context, "pulumi-state-backend", stateId, state.revision),
@@ -484,18 +504,18 @@ describe("RuntimeSettingsService", () => {
       },
     })
 
-    await expect(service.delete(context, "container-runtime", runtimeId, runtime.revision)).rejects.toBeInstanceOf(
-      RuntimeSettingsInUseError,
-    )
+    await expect(
+      service.delete(context, "container-runtime", runtimeId, runtime.revision),
+    ).rejects.toBeInstanceOf(RuntimeSettingsInUseError)
 
     await database.backend.runtimeWorkload.update({
       where: { id: workload.id },
       data: { status: "completed", desiredState: "deleted", cleanedUpAt: new Date() },
     })
 
-    await expect(service.delete(context, "container-runtime", runtimeId, runtime.revision)).rejects.toBeInstanceOf(
-      RuntimeSettingsInUseError,
-    )
+    await expect(
+      service.delete(context, "container-runtime", runtimeId, runtime.revision),
+    ).rejects.toBeInstanceOf(RuntimeSettingsInUseError)
 
     await database.backend.runtimeWorkload.delete({ where: { id: workload.id } })
 
@@ -509,9 +529,9 @@ describe("RuntimeSettingsService", () => {
       },
     })
 
-    await expect(service.delete(context, "container-runtime", runtimeId, runtime.revision)).rejects.toBeInstanceOf(
-      RuntimeSettingsInUseError,
-    )
+    await expect(
+      service.delete(context, "container-runtime", runtimeId, runtime.revision),
+    ).rejects.toBeInstanceOf(RuntimeSettingsInUseError)
 
     await database.backend.librarySnapshotImage.delete({ where: { id: image.id } })
     await service.delete(context, "container-runtime", runtimeId, runtime.revision)

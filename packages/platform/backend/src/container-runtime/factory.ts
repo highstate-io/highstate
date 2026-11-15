@@ -86,14 +86,11 @@ export class DatabaseRuntimeAdapterProvider implements RuntimeAdapterProvider {
       where: { id: runtimeId },
     })
 
-    const config = await resolveRuntimeAdapterConfig(
-      runtime.spec,
-      this.secrets,
-      runtimeId,
-    )
+    const config = await resolveRuntimeAdapterConfig(runtime.spec, this.secrets, runtimeId)
 
     const configHash = createHash("sha256").update(canonicalJson(config)).digest("hex")
     const current = this.adapters.get(runtimeId)
+
     if (current?.configHash === configHash) {
       return current.adapter
     }

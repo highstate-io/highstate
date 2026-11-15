@@ -166,7 +166,9 @@ function expectedRevision(value: string | undefined, required: boolean): string 
   }
 
   if (value === undefined || !/^[a-z][a-z0-9]{23}$/.test(value)) {
-    throw new Error("An explicit --expected-revision CUIDv2 token is required for existing settings")
+    throw new Error(
+      "An explicit --expected-revision CUIDv2 token is required for existing settings",
+    )
   }
 
   return value

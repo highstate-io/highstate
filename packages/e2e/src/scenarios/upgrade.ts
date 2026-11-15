@@ -7,6 +7,7 @@ import { startBackend } from "../harness/backend"
 import { createClients } from "../harness/clients"
 import { cleanupProjectResources } from "../harness/environment"
 import { command } from "../harness/process"
+import { preparePulumiCli } from "../harness/toolchain"
 
 /**
  * Populates real databases with the published pre-redesign backend, then opens them with current startup.
@@ -44,11 +45,13 @@ export async function upgrade(environment: Environment): Promise<void> {
     join(directory, "populate.ts"),
   )
 
+  await preparePulumiCli(directory)
   await command(["bun", join(directory, "populate.ts")], {
     cwd: directory,
     env: {
       PATH: process.env.PATH,
-      HOME: directory,
+      HOME: join(directory, "home"),
+      PULUMI_HOME: join(directory, "home/.pulumi"),
       HIGHSTATE_CODEBASE_PATH: directory,
       HIGHSTATE_ENCRYPTION_ENABLED: "false",
       HIGHSTATE_E2E_PREVIOUS_BACKEND: join(packagePath, "dist/index.js"),

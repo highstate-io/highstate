@@ -7,13 +7,17 @@ import { runtimeSettingsRouter } from "./runtime"
 
 const settingsId = cuidv2d("runtime-settings-test", "state")
 const runtimeId = cuidv2d("runtime-settings-test", "runtime")
+const previousRevision = cuidv2d("runtime-settings-test", "previous")
+const currentRevision = cuidv2d("runtime-settings-test", "current")
+const nextRevision = cuidv2d("runtime-settings-test", "next")
+const latestRevision = cuidv2d("runtime-settings-test", "latest")
 
 function fixture() {
   const record = {
     id: settingsId,
     systemName: null,
     meta: { title: "State" },
-    revision: 3,
+    revision: currentRevision,
     createdAt: new Date(0),
     updatedAt: new Date(1),
     spec: { url: "s3://state", credentialsConfigured: true, encryptedCredentials: "ciphertext" },
@@ -63,29 +67,39 @@ describe("Designer runtime settings transport", () => {
     const iterator = stream[Symbol.asyncIterator]()
     const first = await iterator.next()
     assert(first.value)
-    expect(first.value.stateBackends[0]).toMatchObject({ id: settingsId, revision: 3 })
+    expect(first.value.stateBackends[0]).toMatchObject({
+      id: settingsId,
+      revision: currentRevision,
+    })
     expect(first.value.stateBackends[0].spec).not.toHaveProperty("encryptedCredentials")
-    record.revision = 4
+    record.revision = nextRevision
     events.emit("change", {})
     const second = await iterator.next()
     assert(second.value)
-    expect(second.value.stateBackends[0].revision).toBe(4)
+    expect(second.value.stateBackends[0].revision).toBe(nextRevision)
     await iterator.return?.()
     expect(events.listenerCount("change")).toBe(0)
-    record.revision = 5
+    record.revision = latestRevision
     const reconnected = (await caller.watch())[Symbol.asyncIterator]()
     const current = await reconnected.next()
     assert(current.value)
-    expect(current.value.stateBackends[0].revision).toBe(5)
+    expect(current.value.stateBackends[0].revision).toBe(latestRevision)
     await reconnected.return?.()
   })
 
   it("forwards expected revisions and secret preservation/clearing, and redacts outputs", async () => {
     const { caller, put, context } = fixture()
-    const value = { meta: { title: "State" }, revision: 2, spec: { url: "s3://state" } }
+    const value = {
+      meta: { title: "State" },
+      revision: previousRevision,
+      spec: { url: "s3://state" },
+    }
     const result = await caller.put({ kind: "pulumi-state-backend", id: settingsId, value })
     expect(put).toHaveBeenCalledWith(context, "pulumi-state-backend", settingsId, value)
-    expect(result).toMatchObject({ revision: 3, spec: { credentialsConfigured: true } })
+    expect(result).toMatchObject({
+      revision: currentRevision,
+      spec: { credentialsConfigured: true },
+    })
     expect("spec" in result && result.spec).not.toHaveProperty("encryptedCredentials")
 
     await caller.put({
@@ -113,14 +127,18 @@ describe("Designer runtime settings transport", () => {
       caller.put({
         kind: "pulumi-state-backend",
         id: settingsId,
-        value: { meta: { title: "State" }, revision: 2, spec: { url: "s3://state" } },
+        value: {
+          meta: { title: "State" },
+          revision: previousRevision,
+          spec: { url: "s3://state" },
+        },
       }),
     ).rejects.toMatchObject({ code: "CONFLICT" })
 
     remove.mockRejectedValueOnce(new RuntimeSettingsInUseError("pulumi-state-backend", settingsId))
 
     await expect(
-      caller.delete({ kind: "pulumi-state-backend", id: settingsId, revision: 3 }),
+      caller.delete({ kind: "pulumi-state-backend", id: settingsId, revision: currentRevision }),
     ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" })
 
     expect(remove).toHaveBeenCalledTimes(1)
@@ -130,7 +148,7 @@ describe("Designer runtime settings transport", () => {
     )
 
     await expect(
-      caller.delete({ kind: "pulumi-state-backend", id: settingsId, revision: 2 }),
+      caller.delete({ kind: "pulumi-state-backend", id: settingsId, revision: previousRevision }),
     ).rejects.toMatchObject({ code: "CONFLICT" })
   })
 
@@ -138,7 +156,7 @@ describe("Designer runtime settings transport", () => {
     const { caller, put, remove } = fixture()
 
     await expect(
-      caller.delete({ kind: "container-runtime", id: runtimeId, revision: 0 }),
+      caller.delete({ kind: "container-runtime", id: runtimeId, revision: "invalid" }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" })
 
     await expect(
@@ -146,7 +164,6 @@ describe("Designer runtime settings transport", () => {
         kind: "container-runtime",
         id: runtimeId,
         value: {
-          revision: 0,
           meta: { title: "Remote" },
           spec: {
             type: "docker",

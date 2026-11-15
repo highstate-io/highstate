@@ -43,7 +43,7 @@ test.each([
     projectId: "project",
     stateId: "state",
     libraryId: "library",
-      instanceType: "example.Component.v1",
+    instanceType: "example.Component.v1",
     instanceName: "example",
   })
 

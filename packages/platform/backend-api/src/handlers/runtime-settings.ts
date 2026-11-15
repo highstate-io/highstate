@@ -58,7 +58,9 @@ function revision(value: string | undefined, id: string): string | undefined {
     throw new ConnectError("Expected revision is required", Code.InvalidArgument)
   }
 
-  return value === undefined ? undefined : parseValue(value, "expectedRevision", z.cuid2().length(24))
+  return value === undefined
+    ? undefined
+    : parseValue(value, "expectedRevision", z.cuid2().length(24))
 }
 
 function requiredRevision(value: string | undefined): string {

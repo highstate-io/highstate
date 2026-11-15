@@ -142,6 +142,7 @@ test("seeds runtime settings with system names, CUID identities and opaque revis
   const stateBackend = await backend.pulumiStateBackend.findUniqueOrThrow({
     where: { systemName: "local" },
   })
+
   expect(z.cuid2().length(24).parse(stateBackend.id)).toBe(stateBackend.id)
   expect(z.cuid2().length(24).parse(stateBackend.revision)).toBe(stateBackend.revision)
 

@@ -164,7 +164,7 @@ function secret(key: keyof typeof clear) {
 
 function input(): RuntimeSettingsWrite {
   const base = {
-    revision: selected.value?.revision ?? 0,
+    revision: selected.value?.revision,
     meta: {
       ...selected.value?.meta,
       title: draft.title.trim(),
@@ -496,7 +496,7 @@ async function preflight() {
         <template v-if="kind === 'container-runtime' && selected">
           <VBtn :disabled="busy || conflict" @click="preflight">Preflight saved runtime</VBtn>
           <div class="text-caption mt-2">
-            Checks use the saved revision, not unsaved form values.
+            Checks use the saved configuration, not unsaved form values.
           </div>
           <VAlert
             v-for="(check, index) in checks"

@@ -138,7 +138,7 @@ try {
 
     stateBackendId = saved.stateBackends.find(item => item.meta.title === "Browser state")!.id
     expect(stateBackendId).toMatch(/^[a-z][a-z0-9]{23}$/)
-    await expect(dialog().getByText("Revision 1", { exact: true })).toBeVisible()
+    await expect(dialog().getByText(/revision/i)).toHaveCount(0)
     await dialog().getByLabel("Title", { exact: true }).fill("Browser state updated")
     await dialog().getByRole("button", { name: "Save", exact: true }).click()
     await expect(dialog()).toBeHidden()
@@ -152,12 +152,20 @@ try {
       "file:///tmp/highstate-browser-state",
     )
 
-    await expect(dialog().getByText("Revision 2", { exact: true })).toBeVisible()
+    await expect(dialog().getByText(/revision/i)).toHaveCount(0)
     await expect(dialog().getByRole("button", { name: "Delete", exact: true })).toHaveCount(0)
     await dialog().getByRole("button", { name: "Cancel", exact: true }).click()
   })
 
   await step("synchronize runtime settings changed by another client", async () => {
+    const saved = await designerCall<{ stateBackends: { id: string; revision: string }[] }>(
+      designer!.url,
+      "runtimeSettings.list",
+      undefined,
+    )
+
+    const revision = saved.stateBackends.find(item => item.id === stateBackendId)!.revision
+
     await designerCall(
       designer!.url,
       "runtimeSettings.put",
@@ -165,7 +173,7 @@ try {
         kind: "pulumi-state-backend",
         id: stateBackendId,
         value: {
-          revision: 2,
+          revision,
           meta: { title: "Browser state updated", description: "Changed by another client" },
           spec: { url: "file:///tmp/highstate-browser-state" },
         },

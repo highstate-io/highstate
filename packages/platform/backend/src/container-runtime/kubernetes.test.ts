@@ -162,36 +162,30 @@ const owner: RuntimeOwnership = {
 
 describe("Kubernetes API placement", () => {
   it("preserves owned state volumes without accepting another runtime or project", async () => {
-    await withCluster(
-      async (adapter, resources) => {
-        const key = "/api/v1/namespaces/test/persistentvolumeclaims/state"
+    await withCluster(async (adapter, resources) => {
+      const key = "/api/v1/namespaces/test/persistentvolumeclaims/state"
 
-        resources.set(key, {
-          metadata: {
-            name: "state",
-            labels: {
-              "highstate.io/backend": owner.backendId,
-              "highstate.io/project": owner.projectId,
-              "highstate.io/runtime": owner.runtimeId,
-            },
+      resources.set(key, {
+        metadata: {
+          name: "state",
+          labels: {
+            "highstate.io/backend": owner.backendId,
+            "highstate.io/project": owner.projectId,
+            "highstate.io/runtime": owner.runtimeId,
           },
-        })
+        },
+      })
 
-        const volume = { name: "state", mountPath: "/state" }
-        await adapter.ensureVolume(owner, volume)
+      const volume = { name: "state", mountPath: "/state" }
+      await adapter.ensureVolume(owner, volume)
 
-        await expect(
-          adapter.ensureVolume({ ...owner, projectId: "other" }, volume),
-        ).rejects.toThrow()
+      await expect(adapter.ensureVolume({ ...owner, projectId: "other" }, volume)).rejects.toThrow()
 
-        await expect(
-          adapter.ensureVolume({ ...owner, runtimeId: "other" }, volume),
-        ).rejects.toThrow()
+      await expect(adapter.ensureVolume({ ...owner, runtimeId: "other" }, volume)).rejects.toThrow()
 
-        await adapter.removeVolume(owner, "state")
-        expect(resources.has(key)).toBe(false)
-      },
-    )
+      await adapter.removeVolume(owner, "state")
+      expect(resources.has(key)).toBe(false)
+    })
   })
 
   it("places intents whose fingerprints have non-alphanumeric label boundaries", async () => {
