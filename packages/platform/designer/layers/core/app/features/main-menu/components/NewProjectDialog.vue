@@ -173,14 +173,7 @@ watch(
     <VCard title="New project">
       <VForm v-model="valid">
         <VCardText>
-          <VStepper v-model="step" flat hide-actions density="compact" class="project-stepper">
-            <VStepperHeader>
-              <VStepperItem :value="1" title="Project" :complete="step > 1" />
-              <VDivider />
-              <VStepperItem :value="2" title="Unlock methods" />
-            </VStepperHeader>
-          </VStepper>
-          <div v-show="step === 1" class="pt-4">
+          <div v-show="step === 1">
             <VTextField
               v-model="projectName"
               class="mb-4"
@@ -253,7 +246,7 @@ watch(
             </p>
           </div>
 
-          <div v-show="step === 2" class="pt-4">
+          <div v-show="step === 2">
             <div class="mb-4">
               <h3 class="text-subtitle-1 font-weight-medium mb-2">
                 <VIcon class="mr-2">mdi-lock-outline</VIcon>
@@ -322,6 +315,20 @@ watch(
         </VCardText>
 
         <VCardActions>
+          <VStepper
+            v-model="step"
+            flat
+            hide-actions
+            density="compact"
+            class="project-stepper"
+            aria-label="Project setup progress"
+          >
+            <VStepperHeader>
+              <VStepperItem :value="1" title="Project" :complete="step > 1" />
+              <VDivider />
+              <VStepperItem :value="2" title="Unlock" />
+            </VStepperHeader>
+          </VStepper>
           <VSpacer />
           <VBtn :disabled="creating" @click="visible = false">Cancel</VBtn>
           <VBtn v-if="step === 2" :disabled="creating" @click="step = 1">Back</VBtn>
@@ -348,22 +355,34 @@ watch(
 </template>
 
 <style scoped>
+.project-stepper {
+  flex: 0 0 auto;
+  background: transparent;
+}
+
 .project-stepper :deep(.v-stepper-header) {
   box-shadow: none;
+  flex-wrap: nowrap;
+}
+
+.project-stepper :deep(.v-stepper-header > .v-divider) {
+  width: 16px;
+  min-width: 16px;
+  margin: 0 2px;
 }
 
 .project-stepper :deep(.v-stepper-item) {
-  padding: 12px 16px;
+  padding: 6px;
 }
 
 .project-stepper :deep(.v-stepper-item__avatar) {
-  width: 24px;
-  height: 24px;
-  margin-inline-end: 8px;
-  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  margin-inline-end: 6px;
+  font-size: 11px;
 }
 
 .project-stepper :deep(.v-stepper-item__title) {
-  font-size: 14px;
+  font-size: 12px;
 }
 </style>
