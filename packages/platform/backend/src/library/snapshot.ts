@@ -81,7 +81,7 @@ export function mergeLibraryPackages(
   const manifests: LibrarySnapshotContent["sourceManifest"]["packages"] = {}
 
   for (const pkg of packages) {
-    manifests[pkg.packageName] = pkg.sourceManifest
+    manifests[pkg.packageName] = structuredClone(pkg.sourceManifest)
 
     for (const collection of ["components", "entities"] as const) {
       for (const [type, definition] of Object.entries(pkg.model[collection])) {

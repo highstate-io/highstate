@@ -10,7 +10,7 @@ bun run --bun --filter @highstate/e2e test:runtime-browser
 
 The e2e package requires `@playwright/test` as a development dependency.
 `run.ts` builds Designer and its workspace dependencies through Nx before running the smoke.
-To rerun against an already built checkout, use `bun packages/e2e/src/browser/smoke.ts`.
+To rerun against an already built checkout, use `bun packages/e2e/src/browser/runtime-smoke.ts`.
 
 The smoke starts `.output/server/index.mjs` under Bun on two disposable loopback ports.
 Its temporary codebase, home, backend database, and project databases are independent of local Designer state.
@@ -21,6 +21,10 @@ The browser uses a fresh context; existing Designer servers are never reused.
 Settings create, update, delete, and reload checks use the actual UI and backend.
 The smoke also creates a project through the UI, checks the empty package selection and add-package controls,
 checks the empty-project auto-update guard, and opens project operation history with a real collection query.
+It adds the published `@highstate/library@0.31.2` through registry search, inclusion checkbox, version picker,
+and the Add packages action, then reloads and verifies the saved selection and resolved catalog.
+This regression intentionally uses the pinned published release rather than a synthetic package and requires
+access to the public npm registry. Synthetic registry tests separately cover malformed and incomplete artifacts.
 It does not execute a unit or build a package image; runtime execution is covered by the lifecycle suite.
 Browser runtime, console, HTTP, and event socket errors fail the run.
 Independent package and operation checks continue after a failure so the result identifies each affected surface.

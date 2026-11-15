@@ -7,9 +7,9 @@ import type {
 } from "./project-types"
 import {
   componentArgumentSchema,
+  componentInputSchema,
   componentModelSchema,
   entityModelSchema,
-  fieldNameSchema,
 } from "@highstate/contract"
 import { z } from "zod"
 import {
@@ -19,29 +19,14 @@ import {
   selectedLibraryPackagesSchema,
 } from "./project-types"
 
-// Published artifacts predate strict model validation. Preserve their public argument identity,
-// without allowing new snake_case arguments or changing the authoring contract.
+// published artifacts retain their field identities, independently of current authoring conventions
 const packagedComponentSchema = componentModelSchema
   .extend({
     args: z.record(z.string(), componentArgumentSchema),
+    inputs: z.record(z.string(), componentInputSchema),
+    outputs: z.record(z.string(), componentInputSchema),
   })
   .loose()
-  .superRefine((component, context) => {
-    for (const name of Object.keys(component.args)) {
-      if (
-        fieldNameSchema.safeParse(name).success ||
-        (component.type === "influxdb3.database.v1" && name === "retention_period")
-      ) {
-        continue
-      }
-
-      context.addIssue({
-        code: "custom",
-        path: ["args", name],
-        message: "Invalid argument name in library artifact",
-      })
-    }
-  })
 
 // older MessagePack artifacts encode absent optional inclusion lists as null
 const optionalInclusions = entityModelSchema.shape.inclusions

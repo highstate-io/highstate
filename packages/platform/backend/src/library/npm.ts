@@ -4,6 +4,7 @@ import { createHash, timingSafeEqual } from "node:crypto"
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
+import { crc32 } from "@aws-crypto/crc32"
 import { isUnitModel } from "@highstate/contract"
 import { decode } from "@msgpack/msgpack"
 import { execa } from "execa"
@@ -360,6 +361,8 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
         ]),
       )
 
+      const archiveEntries = new Map<string, Set<string>>()
+
       for (const pkg of packages) {
         for (const component of Object.values(pkg.model.components)) {
           if (component.kind === "unit" && !isUnitModel(component)) {
@@ -429,14 +432,41 @@ export class NpmProjectLibraryResolver implements ProjectLibraryResolver {
             component.source.path
               ?.split(/[\\/]/)
               .some(part => part === ".." || part === "." || part === "") ||
-            component.source.path?.includes("\\") ||
-            !Object.hasOwn(implementation.sourceManifest.sourceHashes ?? {}, path)
+            component.source.path?.includes("\\")
           ) {
-            throw new Error(`Missing implementation source manifest for "${component.type}"`)
+            throw new Error(`Invalid implementation source path for "${component.type}"`)
           }
 
-          await runArchiveCommand(["-tzf", archivePaths.get(name)!, `package/${path.slice(2)}`])
-          merged.sourceManifest.packages[name] = implementation.sourceManifest
+          const frozenManifest = merged.sourceManifest.packages[name] ?? {
+            ...implementation.sourceManifest,
+            sourceHashes: { ...implementation.sourceManifest.sourceHashes },
+          }
+
+          if (!Object.hasOwn(frozenManifest.sourceHashes ?? {}, path)) {
+            let entries = archiveEntries.get(name)
+            if (!entries) {
+              entries = new Set(
+                (await runArchiveCommand(["-tzf", archivePaths.get(name)!])).toString().split("\n"),
+              )
+
+              archiveEntries.set(name, entries)
+            }
+
+            const entry = `package/${path.slice(2)}`
+            if (entries.has(entry)) {
+              const sourceBytes = await runArchiveCommand([
+                "-xzf",
+                archivePaths.get(name)!,
+                "-O",
+                entry,
+              ])
+
+              frozenManifest.sourceHashes ??= {}
+              frozenManifest.sourceHashes[path] = crc32(sourceBytes)
+            }
+          }
+
+          merged.sourceManifest.packages[name] = frozenManifest
         }
       }
 

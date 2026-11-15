@@ -417,7 +417,7 @@ async function save() {
 }
 
 .package-error {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   max-height: 160px;
   overflow-y: auto;
   overflow-wrap: anywhere;

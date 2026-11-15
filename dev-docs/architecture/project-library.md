@@ -20,9 +20,13 @@ The explorer uses npm-compatible search where available and exact-name metadata 
 Registry metadata and README content are untrusted display data, never executable HTML.
 
 The compiled-artifact reader retains compatibility with already-published libraries: absent inclusion
-lists serialized as null are normalized to absent lists, and the released InfluxDB database argument
-`retention_period` keeps its original identity. These are artifact-boundary exceptions, not relaxed
-authoring rules or a migration of project configuration.
+lists serialized as null are normalized to absent lists, and compiled field names keep their original
+identities instead of being checked against current authoring conventions. Missing implementation
+source hashes are derived from the integrity-verified archive entry and frozen into the snapshot.
+Archive integrity, exact package identity, and path safety checks still apply. Missing compiled entries
+do not block library selection; execution still requires their implementation sources, and missing
+source hashes are not invented for absent files.
+This relaxed artifact validation does not change authoring rules or migrate project configuration.
 
 Authored instance models identify component types without package or snapshot fields.
 The snapshot's ownership index resolves those types to package versions.

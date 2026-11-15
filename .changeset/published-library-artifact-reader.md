@@ -3,4 +3,4 @@
 "@highstate/designer": patch
 ---
 
-Accept already-published library artifacts with absent inclusion lists serialized as null while preserving the released InfluxDB retention argument name. Keep package-dialog height stable, prevent clipped search labels, and show bounded error details below the package list.
+Accept already-published library artifacts with absent inclusion lists serialized as null and preserve compiled field names. Persist normalized models without recreating null optional fields, and derive missing implementation source hashes where archive entries exist. Keep slow production library requests open, render bundled Material Design icons without CDN requests, and show naturally sized error details below the stable package list.

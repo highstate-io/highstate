@@ -45,7 +45,7 @@ describe("published library artifact compatibility", () => {
     expect(libraryModelSchema.parse(model)).toEqual(model)
   })
 
-  it("does not weaken authoring validation or accept unrelated malformed arguments", () => {
+  it("relaxes compiled field naming without weakening authoring or argument structure validation", () => {
     expect(componentModelSchema.safeParse(component).success).toBe(false)
 
     expect(
@@ -53,11 +53,16 @@ describe("published library artifact compatibility", () => {
         components: { "other.database.v1": { ...component, type: "other.database.v1" } },
         entities: {},
       }).success,
-    ).toBe(false)
+    ).toBe(true)
 
     expect(
       libraryModelSchema.safeParse({
-        components: { [component.type]: { ...component, args: { another_argument: argument } } },
+        components: {
+          [component.type]: {
+            ...component,
+            args: { another_argument: { ...argument, required: "invalid" } },
+          },
+        },
         entities: {},
       }).success,
     ).toBe(false)

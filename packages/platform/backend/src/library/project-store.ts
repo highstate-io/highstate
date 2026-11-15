@@ -128,7 +128,7 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
               registryUrl: pkg.registryUrl,
               packageIntegrity: pkg.packageIntegrity,
               tarballUrl: pkg.tarballUrl,
-              evaluatedModel: encode(pkg.model),
+              evaluatedModel: encode(pkg.model, { ignoreUndefined: true }),
               sourceManifest: pkg.sourceManifest,
               packageMetadata: JSON.parse(canonicalJson(pkg.packageMetadata)),
             },
@@ -150,7 +150,7 @@ export class PrismaProjectLibraryStore implements ProjectLibraryStore {
           data: {
             hash,
             lockfile: content.lockfile,
-            evaluatedModel: encode(content.model),
+            evaluatedModel: encode(content.model, { ignoreUndefined: true }),
             sourceManifest: content.sourceManifest,
             compatibility: content.compatibility,
             versions: {

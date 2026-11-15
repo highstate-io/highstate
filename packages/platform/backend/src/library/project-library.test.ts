@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { createServer, type Server } from "node:http"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
+import { crc32 } from "@aws-crypto/crc32"
 import { encode } from "@msgpack/msgpack"
 import pino from "pino"
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
@@ -71,6 +72,11 @@ describe("project library with a local npm registry and real project persistence
     implementation?: string,
     entityTypes: string[] = [],
     dependencies?: Record<string, string>,
+    artifact: {
+      sourceHashes?: Record<string, number>
+      includeSource?: boolean
+      nullInclusions?: boolean
+    } = {},
   ): Promise<void> {
     const root = join(directory, `fixture-${archives.size}`)
     await mkdir(join(root, "package", "dist"), { recursive: true })
@@ -96,7 +102,13 @@ describe("project library with a local npm registry and real project persistence
         entities: Object.fromEntries(
           entityTypes.map(type => [
             type,
-            { type, schema: { type: "string" }, meta: { title: type }, definitionHash: 17 },
+            {
+              type,
+              schema: { type: "string" },
+              meta: { title: type },
+              definitionHash: 17,
+              ...(artifact.nullInclusions ? { inclusions: null, directInclusions: null } : {}),
+            },
           ]),
         ),
       }),
@@ -104,10 +116,13 @@ describe("project library with a local npm registry and real project persistence
 
     await writeFile(
       join(root, "package", "dist", "highstate.manifest.json"),
-      JSON.stringify({ sourceHashes: { "./dist/index.js": 123 } }),
+      JSON.stringify({ sourceHashes: artifact.sourceHashes ?? { "./dist/index.js": 123 } }),
     )
 
-    await writeFile(join(root, "package", "dist", "index.js"), "export {}")
+    if (artifact.includeSource !== false) {
+      await writeFile(join(root, "package", "dist", "index.js"), "export {}")
+    }
+
     const archive = await runArchiveCommand(["-czf", "-", "package"], root)
     const path = `/archives/${archives.size}.tgz`
     archives.set(path, archive)
@@ -164,6 +179,44 @@ describe("project library with a local npm registry and real project persistence
     await publish("@fixture/a", "1.0.0", ["test.a.v1"])
     await publish("@fixture/a", "2.0.0", ["test.shared.v1"])
     await publish("@fixture/b", "1.0.0", ["test.b.v1"])
+
+    await publish("@fixture/null-entities", "1.0.0", [], undefined, ["test.null.v1"], undefined, {
+      nullInclusions: true,
+    })
+
+    await publish("@fixture/unhashed-implementation", "1.0.0", [], undefined, [], undefined, {
+      sourceHashes: {},
+    })
+
+    await publish(
+      "@fixture/self-unhashed",
+      "1.0.0",
+      ["test.self.v1"],
+      "@fixture/self-unhashed",
+      [],
+      undefined,
+      { sourceHashes: {} },
+    )
+
+    await publish("@fixture/missing-implementation", "1.0.0", [], undefined, [], undefined, {
+      sourceHashes: {},
+      includeSource: false,
+    })
+
+    await publish(
+      "@fixture/missing-definitions",
+      "1.0.0",
+      ["test.missing.v1"],
+      "@fixture/missing-implementation",
+    )
+
+    await publish(
+      "@fixture/unhashed-definitions",
+      "1.0.0",
+      ["test.unhashed.v1"],
+      "@fixture/unhashed-implementation",
+    )
+
     await publish("@fixture/b", "2.0.0", ["test.shared.v1"])
     await publish("@fixture/definitions", "1.0.0", ["test.unit.v1"], "@fixture/implementation")
     await publish("@fixture/implementation", "1.0.0", [])
@@ -286,6 +339,70 @@ describe("project library with a local npm registry and real project persistence
     ).rejects.toThrow("already selected")
 
     expect((await library.getProjectLibrary(context)).selectedPackages).toEqual(packages)
+  })
+
+  it("persists normalized published models without reintroducing null optional fields", async () => {
+    const { library, context } = service("null-inclusions", [
+      { packageName: "@fixture/null-entities", version: "1.0.0" },
+    ])
+
+    const result = await library.bootstrap(context.projectId)
+    expect(result.diagnostics).toEqual([])
+    expect(result.desiredSnapshot?.model.entities["test.null.v1"]?.inclusions).toBeUndefined()
+    expect(result.desiredSnapshot?.model.entities["test.null.v1"]?.directInclusions).toBeUndefined()
+    const reloaded = await library.onProjectUnlocked(context.projectId)
+    expect(reloaded.desiredSnapshot?.id).toBe(result.desiredSnapshot?.id)
+    expect(reloaded.diagnostics).toEqual([])
+  })
+
+  it("allows incomplete published implementations to be selected without inventing frozen source hashes", async () => {
+    const { library, context } = service("missing-library", [
+      { packageName: "@fixture/missing-definitions", version: "1.0.0" },
+    ])
+
+    const result = await library.bootstrap(context.projectId)
+    expect(result.diagnostics).toEqual([])
+
+    expect(
+      result.desiredSnapshot?.sourceManifest.packages["@fixture/missing-implementation"]
+        ?.sourceHashes?.["./dist/index.js"],
+    ).toBeUndefined()
+
+    await expect(
+      library.getSnapshotUnitSources(context.projectId, result.desiredSnapshot!.id, [
+        "test.missing.v1",
+      ]),
+    ).rejects.toThrow("Missing frozen source hash")
+  })
+
+  it("derives missing frozen source hashes from integrity-verified implementation bytes", async () => {
+    const { library, context } = service("unhashed-library", [
+      { packageName: "@fixture/unhashed-definitions", version: "1.0.0" },
+    ])
+
+    const result = await library.bootstrap(context.projectId)
+    expect(result.diagnostics).toEqual([])
+
+    expect(
+      result.desiredSnapshot?.sourceManifest.packages["@fixture/unhashed-implementation"]
+        ?.sourceHashes?.["./dist/index.js"],
+    ).toBe(crc32(Buffer.from("export {}")))
+  })
+
+  it("keeps derived source hashes in the snapshot without changing the immutable package artifact", async () => {
+    const { library, context } = service("self-unhashed", [
+      { packageName: "@fixture/self-unhashed", version: "1.0.0" },
+    ])
+
+    const result = await library.bootstrap(context.projectId)
+    expect(result.diagnostics).toEqual([])
+    expect(result.desiredSnapshot?.packages[0]?.sourceManifest.sourceHashes).toEqual({})
+
+    expect(
+      result.desiredSnapshot?.sourceManifest.packages["@fixture/self-unhashed"]?.sourceHashes?.[
+        "./dist/index.js"
+      ],
+    ).toBe(crc32(Buffer.from("export {}")))
   })
 
   it("resolves omitted implementation packages, persists portable artifacts, and reconstructs frozen", async () => {

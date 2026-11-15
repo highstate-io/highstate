@@ -192,6 +192,8 @@ and select multiple packages from one list. Included and selected packages stay 
 Each row has an inclusion checkbox and a version dropdown with inline search and paginated releases.
 New selections default to the registry's current `latest` release, stored as an exact version rather
 than a floating tag. The selected additions are validated and committed together.
+Production Designer running on Bun defaults to a 180-second HTTP idle timeout so package resolution
+can complete without losing its response. Override this with `NITRO_BUN_IDLE_TIMEOUT` in seconds.
 The explorer uses npm's search API, supported by npmjs and compatible registries such as Verdaccio,
 Artifactory, and Nexus when their npm search endpoint is enabled.
 Registries without that endpoint, including GitHub Packages configurations, support exact-name lookup

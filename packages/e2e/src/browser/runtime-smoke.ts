@@ -63,8 +63,16 @@ try {
 
   page.on("console", message => {
     if (message.type() === "error") {
+      const location = message.location().url
+      const url = URL.canParse(location) ? new URL(location) : undefined
+      const networkCode = message.text().match(/\bnet::[A-Z_]+\b/)?.[0]
+
       faults.push(
-        message.text().includes('/catalog" found') ? "catalog store missing" : "console.error",
+        message.text().includes('/catalog" found')
+          ? "catalog store missing"
+          : ["console.error", url ? `${url.host}${url.pathname}` : "unknown source", networkCode]
+              .filter(Boolean)
+              .join(" "),
       )
     }
   })
@@ -229,6 +237,7 @@ try {
       await Promise.all(animations.map(animation => animation.finished.catch(() => {})))
     })
 
+    await expect.poll(async () => (await setupCard.boundingBox())?.height).toBe(760)
     const initialBounds = await setupCard.boundingBox()
     expect(initialBounds).not.toBeNull()
     await expect(dialog().locator(".project-stepper .v-stepper-item").nth(1)).toBeDisabled()
@@ -337,6 +346,10 @@ try {
         )
       })
 
+      await expect
+        .poll(async () => (await dialog().locator(".package-dialog--list").boundingBox())?.height)
+        .toBe(720)
+
       const packageDialogBounds = await dialog().locator(".package-dialog--list").boundingBox()
       expect(packageDialogBounds).not.toBeNull()
       expect(Math.round(packageDialogBounds!.height)).toBe(720)
@@ -397,6 +410,54 @@ try {
       ).toBeDisabled()
     },
     false,
+  )
+
+  await step(
+    "add the published standard library through the package dialog and retain it after reload",
+    async () => {
+      await page.goto(`${designer!.url}/settings/projects/${projectId}/library`)
+      await settings().getByRole("button", { name: "Add packages", exact: true }).click()
+      await dialog().getByLabel("Search packages", { exact: true }).fill("@highstate/library")
+
+      const inclusion = dialog().getByRole("checkbox", {
+        name: "Include @highstate/library",
+        exact: true,
+      })
+
+      await inclusion.check({ timeout: 60_000 })
+
+      const version = dialog().getByRole("button", {
+        name: "Version for @highstate/library",
+        exact: true,
+      })
+
+      await expect(version).toBeEnabled()
+      await version.click()
+
+      await page
+        .getByRole("textbox", { name: "Search versions for @highstate/library", exact: true })
+        .fill("0.31.2")
+
+      await page.getByRole("option", { name: "0.31.2", exact: true }).click()
+      await expect(version).toHaveText("0.31.2")
+      await dialog().getByRole("button", { name: "Add packages", exact: true }).click()
+      await expect(dialog()).toBeHidden({ timeout: 180_000 })
+      await page.reload()
+      const row = settings().getByRole("row").filter({ hasText: "@highstate/library" })
+      await expect(row).toContainText("0.31.2", { timeout: 60_000 })
+
+      const state = await designerCall<{
+        selectedPackages: { packageName: string; version: string }[]
+        desiredSnapshot: { model: { components: Record<string, unknown> } } | null
+      }>(designer!.url, "library.getProjectLibrary", { projectId })
+
+      expect(state.selectedPackages).toEqual([
+        { packageName: "@highstate/library", version: "0.31.2" },
+      ])
+
+      expect(Object.keys(state.desiredSnapshot?.model.components ?? {}).length).toBeGreaterThan(100)
+      await page.goto(`${designer!.url}/projects/${projectId}`)
+    },
   )
 
   await step("settings scopes select a project without shifting the sidebar", async () => {
