@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const projectId = useProjectStore().projectId
-
 import type {
   ProjectRoleInput,
   ProjectRoleOutput,
@@ -15,6 +13,8 @@ import {
 } from "@highstate/backend/shared"
 import { stringify } from "yaml"
 import ProjectRoleRulesBuilder from "./ProjectRoleRulesBuilder.vue"
+
+const projectId = useProjectStore().projectId
 
 const { role, loading } = defineProps<{
   role?: ProjectRoleOutput | null

@@ -129,6 +129,7 @@ const tryPasswordUnlock = async () => {
 const rules = computed(() => [(v: string) => !!v || "Password is required"])
 
 const tryKeyringUnlock = async () => {
+  access.requireAccess(unlockAccess.value)
   keyringLoading.value = true
   error.value = null
 
@@ -212,6 +213,7 @@ const tryKeyringUnlock = async () => {
         <VSpacer />
         <VBtn
           v-if="unlockSuite?.keyrings?.length"
+          v-access="unlockAccess"
           class="unlock-method-button"
           color="secondary"
           :loading="keyringLoading"

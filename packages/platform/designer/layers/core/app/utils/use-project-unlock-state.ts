@@ -64,7 +64,8 @@ export function useProjectUnlockState(projectId: string) {
   const isUnlockImpossible = computed(
     () =>
       unlockState.value?.type === "locked" &&
-      !unlockState.value.unlockSuite?.encryptedIdentities.length,
+      !unlockState.value.unlockSuite?.encryptedIdentities.length &&
+      !unlockState.value.unlockSuite?.keyrings?.length,
   )
 
   const unlockWithIdentity = async (decryptedIdentity: string) => {

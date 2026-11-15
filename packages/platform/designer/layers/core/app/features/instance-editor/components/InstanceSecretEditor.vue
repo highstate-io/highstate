@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const projectId = useProjectStore().projectId
-
 import type { InstanceState } from "@highstate/backend"
 import type { InstanceModel, UnitModel } from "@highstate/contract"
 import { ComponentIcon } from "#layers/core/app/features/shared"
@@ -8,6 +6,8 @@ import { createEditorArguments, populateDefaultValues, removeDefaultValues } fro
 import CodeArgumentInput from "./CodeArgumentInput.vue"
 import GroupArgumentInput from "./GroupArgumentInput.vue"
 import PlainArgumentInput from "./PlainArgumentInput.vue"
+
+const projectId = useProjectStore().projectId
 
 const { component, state, initialSecrets } = defineProps<{
   instance: InstanceModel

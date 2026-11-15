@@ -62,6 +62,26 @@ test("reports subscription rejection instead of waiting indefinitely for unlock 
   scope.stop()
 })
 
+test("keeps keyring-only project unlock methods available", () => {
+  const scope = effectScope()
+  const state = scope.run(() => useProjectUnlockState("project"))!
+
+  subscribe.mock.calls[0]![1].onData({
+    type: "locked",
+    unlockSuite: {
+      encryptedIdentities: [],
+      hasPasskey: false,
+      keyrings: [
+        { recipient: "test-recipient", encryptedIdentity: "test-identity", autoUnlock: false },
+      ],
+      passkeys: [],
+    },
+  })
+
+  expect(state.isUnlockImpossible.value).toBe(false)
+  scope.stop()
+})
+
 test("detects unavailable unlock methods and submits identities only through the authorized endpoint", async () => {
   const scope = effectScope()
   const state = scope.run(() => useProjectUnlockState("project"))!

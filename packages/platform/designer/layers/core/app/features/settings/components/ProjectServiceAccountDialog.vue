@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const projectId = useProjectStore().projectId
-
 import type { ServiceAccountInput, ServiceAccountOutput } from "@highstate/backend/shared"
+
+const projectId = useProjectStore().projectId
 
 const { serviceAccount, loading } = defineProps<{
   serviceAccount?: ServiceAccountOutput | null
