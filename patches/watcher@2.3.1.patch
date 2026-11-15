@@ -1,16 +1,36 @@
 diff --git a/dist/watcher.js b/dist/watcher.js
-index 9aaf77f1685c3bd5a6229955f4265bd6e4891aa8..37db8f5bb91ee4c3fa8b41127f5f8ff598211b1e 100644
+index 9aaf77f1685c3bd5a6229955f4265bd6e4891aa8..a29d972c76831eaf9f0cdd5aa1b7eba2b487c368 100644
 --- a/dist/watcher.js
 +++ b/dist/watcher.js
-@@ -189,7 +189,7 @@ class Watcher extends EventEmitter {
+@@ -189,19 +189,15 @@ class Watcher extends EventEmitter {
                  const watcherConfig = { watcher, handler, options, folderPath, filePath };
                  const watcherHandler = watcherHandlerLast = await this.watcherAdd(watcherConfig, baseWatcherHandler);
                  const isRoot = this._roots.has(filePath || folderPath);
 -                if (isRoot) {
+-                    const parentOptions = { ...options, ignoreInitial: true, recursive: false }; // Ensuring only the parent folder is being watched
+-                    const parentFolderPath = path.dirname(folderPath);
+-                    const parentFilePath = folderPath;
+-                    await this.watchDirectories([parentFolderPath], parentOptions, handler, parentFilePath, watcherHandler);
+-                    //TODO: Watch parents recursively with the following code, which requires other things to be changed too though
+-                    // while ( true ) {
+-                    //   await this.watchDirectories ( [parentFolderPath], parentOptions, handler, parentFilePath, watcherHandler );
+-                    //   const parentFolderPathNext = path.dirname ( parentFolderPath );
+-                    //   if ( parentFolderPath === parentFolderPathNext ) break;
+-                    //   parentFilePath = parentFolderPath;
+-                    //   parentFolderPath = parentFolderPathNext;
+-                    // }
 +                if (isRoot && !filePath) {
-                     const parentOptions = { ...options, ignoreInitial: true, recursive: false }; // Ensuring only the parent folder is being watched
-                     const parentFolderPath = path.dirname(folderPath);
-                     const parentFilePath = folderPath;
++                    // Observe root replacement without opening its parent or unrelated siblings.
++                    // Bun may open inaccessible siblings even for a non-recursive parent watch.
++                    await this.watchPolling(folderPath, { ...options, recursive: false }, async () => {
++                        if (!this._watchers[folderPath]?.some(config => !config.filePath)) {
++                            await this.watchPath(folderPath, options, handler);
++                        }
++                        watcherHandler.onWatcherChange();
++                    });
+                 }
+             }
+             catch (error) {
 diff --git a/dist/watcher_handler.js b/dist/watcher_handler.js
 index e2d73044a12664f93218af70e4498f11ac2c5382..9faebd8c1e02f3ce1d043b8e0c59004092f32f46 100644
 --- a/dist/watcher_handler.js

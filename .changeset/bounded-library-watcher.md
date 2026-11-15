@@ -2,4 +2,4 @@
 "@highstate/backend": patch
 ---
 
-Keep local library watching scoped to its workspace when filesystem notifications omit filenames, avoiding scans of unrelated directories and startup stalls.
+Keep local library watching scoped to its workspace, avoiding access to unrelated parent-directory contents during startup. Detect workspace replacement through root metadata polling while retaining native file-change notifications inside the workspace.
