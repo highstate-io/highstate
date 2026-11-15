@@ -4,3 +4,5 @@
 ---
 
 Add backend and project Users pages for all known human identities, with live directory updates and permission-aware management of direct role bindings in each realm.
+
+Use matching role selectors and assigned-role tables for users and service accounts, with multi-select assignment in both realms.

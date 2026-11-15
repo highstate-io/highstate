@@ -16,6 +16,13 @@ const failure = ref<string>()
 const bindingFailure = ref<string>()
 const loading = ref(false)
 const saving = ref<string>()
+const selectedRoleIds = ref<string[]>([])
+const boundRoles = computed(() => roles.value.filter(role => role.granted))
+const availableRoles = computed(() => roles.value.filter(role => !role.granted))
+const selectedRoles = computed(() =>
+  availableRoles.value.filter(role => selectedRoleIds.value.includes(role.id)),
+)
+const addRequirements = computed(() => selectedRoles.value.flatMap(editRequirements))
 const userAllowed = computed(() => access.status({ permission: "user.get", projectId }).allowed)
 const bindingRequirements: AccessRequirement[] = [
   { permission: "user.get", projectId },
@@ -101,16 +108,17 @@ const editRequirements = (role: HumanRoleBindingOption): AccessRequirement[] => 
     ? [{ permission: "role.escalate" as const, projectId, target: { resourceId: role.id } }]
     : []),
 ]
-async function changeBinding(role: HumanRoleBindingOption) {
-  access.requireAccess(editRequirements(role))
+async function changeBinding(role: HumanRoleBindingOption, granted = false) {
   saving.value = role.id
   bindingFailure.value = undefined
 
   try {
+    access.requireAccess(editRequirements(role))
+
     const input = {
       roleId: role.id,
       subject: { type: "user" as const, id: userId },
-      granted: !role.granted,
+      granted,
     }
 
     if (projectId) {
@@ -120,10 +128,22 @@ async function changeBinding(role: HumanRoleBindingOption) {
     }
 
     await load()
+    return true
   } catch (error) {
     bindingFailure.value = accessError(error)?.message ?? "The role binding could not be changed."
   } finally {
     saving.value = undefined
+  }
+}
+async function addBindings() {
+  access.requireAccess(addRequirements.value)
+
+  for (const role of [...selectedRoles.value]) {
+    if (!(await changeBinding(role, true))) {
+      break
+    }
+
+    selectedRoleIds.value = selectedRoleIds.value.filter(id => id !== role.id)
   }
 }
 const details = [
@@ -175,36 +195,72 @@ const details = [
           :message="bindingFailure"
           title="Role bindings unavailable"
         />
-        <VList v-if="roles.length" bg-color="transparent">
-          <VListItem
-            v-for="role in roles"
-            :key="role.id"
-            :title="role.meta.title"
-            :subtitle="role.meta.description"
-            class="mb-2"
+        <div class="binding-form mb-6">
+          <VSelect
+            v-model="selectedRoleIds"
+            :items="availableRoles"
+            item-title="meta.title"
+            item-value="id"
+            :item-props="role => ({ disabled: !access.status(editRequirements(role)).allowed })"
+            label="Roles"
+            multiple
+            chips
+            closable-chips
+            density="compact"
+            variant="outlined"
+            hide-details
+            :disabled="(loading && !roles.length) || !!saving"
           >
-            <template #prepend
-              ><VIcon :color="role.granted ? 'success' : undefined" class="mr-4"
-                >{{ role.granted ? 'mdi-shield-check' : 'mdi-shield-outline' }}</VIcon
-              ></template
-            >
-            <template #append>
-              <VBtn
-                v-access="editRequirements(role)"
-                :color="role.granted ? 'error' : 'primary'"
-                variant="text"
-                :disabled="!!saving"
-                :loading="saving === role.id"
-                :aria-label="`${role.granted ? 'Remove' : 'Assign'} ${role.meta.title}`"
-                @click="changeBinding(role)"
-                >{{ role.granted ? 'Remove' : 'Assign' }}</VBtn
-              >
+            <template #item="{ props, item }">
+              <VListItem v-bind="props" v-access="editRequirements(item.raw)">
+                <template #prepend>
+                  <VCheckboxBtn
+                    :model-value="selectedRoleIds.includes(item.raw.id)"
+                    :ripple="false"
+                    tabindex="-1"
+                  />
+                </template>
+              </VListItem>
             </template>
-          </VListItem>
-        </VList>
-        <p v-else-if="!loading && !bindingFailure" class="text-medium-emphasis">
-          No visible roles in this realm.
-        </p>
+          </VSelect>
+          <VBtn
+            v-access="addRequirements"
+            color="primary"
+            class="binding-action"
+            :disabled="loading || !!saving || !selectedRoles.length"
+            :loading="!!saving"
+            @click="addBindings"
+            >Add</VBtn
+          >
+        </div>
+        <VTable>
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="role in boundRoles" :key="role.id">
+              <td>{{ role.meta.title }}</td>
+              <td class="text-right">
+                <VBtn
+                  v-access="editRequirements(role)"
+                  icon="mdi-delete-outline"
+                  variant="text"
+                  size="small"
+                  :disabled="!!saving"
+                  :loading="saving === role.id"
+                  :aria-label="`Remove ${role.meta.title}`"
+                  @click="changeBinding(role)"
+                />
+              </td>
+            </tr>
+            <tr v-if="!loading && !boundRoles.length">
+              <td colspan="2" class="text-center text-medium-emphasis py-4">No roles</td>
+            </tr>
+          </tbody>
+        </VTable>
       </AccessBoundary>
     </DetailPageLayout>
   </div>
@@ -214,7 +270,18 @@ const details = [
 .user-details :deep(.table-container > *) {
   flex-shrink: 0;
 }
-.user-details :deep(.v-list) {
-  overflow: visible;
+.binding-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+.binding-action {
+  min-height: 40px;
+}
+@media (max-width: 600px) {
+  .binding-form {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
