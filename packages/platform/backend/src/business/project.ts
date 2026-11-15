@@ -163,7 +163,6 @@ export class ProjectService {
     projectInput: ProjectInput,
     unlockMethodInput: UnlockMethodInput,
     projectId = createId(),
-    additionalUnlockMethods: UnlockMethodInput[] = [],
   ): Promise<Project> {
     requireBackendPermission(context, "project.create")
 
@@ -207,11 +206,7 @@ export class ProjectService {
 
     // setup project database
     const [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite] =
-      await this.projectUnlockService.setupProjectDatabase(
-        projectId,
-        unlockMethodInput,
-        additionalUnlockMethods,
-      )
+      await this.projectUnlockService.setupProjectDatabase(projectId, unlockMethodInput)
 
     logger.info("project database set up")
 

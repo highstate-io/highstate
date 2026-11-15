@@ -42,7 +42,6 @@ export const projectRouter = router({
         projectId: z.cuid2(),
         projectInput: projectInputSchema,
         unlockMethodInput: unlockMethodInputSchema,
-        additionalUnlockMethods: z.array(unlockMethodInputSchema).max(19).default([]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -51,7 +50,6 @@ export const projectRouter = router({
         input.projectInput,
         input.unlockMethodInput,
         input.projectId,
-        input.additionalUnlockMethods,
       )
     }),
 

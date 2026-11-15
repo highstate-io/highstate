@@ -31,7 +31,6 @@ export const useProjectsStore = defineStore("projects", () => {
     placement?: Pick<ProjectPlacementInput, "containerRuntimeId" | "pulumiStateBackendId"> & {
       localOverlayEnabled?: boolean
     },
-    additionalUnlockMethods: UnlockMethodInput[] = [],
   ) => {
     loadingCreateProject.value = true
 
@@ -44,7 +43,6 @@ export const useProjectsStore = defineStore("projects", () => {
           ...placement,
         },
         unlockMethodInput,
-        additionalUnlockMethods,
       })
 
       await refreshProjects()

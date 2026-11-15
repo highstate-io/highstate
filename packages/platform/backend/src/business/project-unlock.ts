@@ -212,7 +212,6 @@ export class ProjectUnlockService {
   async setupProjectDatabase(
     projectId: string,
     unlockMethodInput: UnlockMethodInput,
-    additionalUnlockMethods: UnlockMethodInput[] = [],
   ): Promise<
     [
       encryptedMasterKey: string,
@@ -221,9 +220,7 @@ export class ProjectUnlockService {
       unlockSuite: ProjectUnlockSuite,
     ]
   > {
-    const unlockMethods = await Promise.all(
-      [unlockMethodInput, ...additionalUnlockMethods].map(input => this.prepareUnlockMethod(input)),
-    )
+    const unlockMethod = await this.prepareUnlockMethod(unlockMethodInput)
 
     // generate a new master key for the project
     const masterKey = randomBytes(32)
@@ -233,33 +230,23 @@ export class ProjectUnlockService {
     // set the master key to setup the database encryption
     await this.projectUnlockBackend.unlockProject(projectId, masterKey, privateKey)
 
-    const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, unlockMethods)
+    const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, [unlockMethod])
 
-    const encryptedPrivateKey = await this.encryptProjectPrivateKey(
-      projectId,
-      privateKey,
-      unlockMethods,
-    )
+    const encryptedPrivateKey = await this.encryptProjectPrivateKey(projectId, privateKey, [
+      unlockMethod,
+    ])
 
     const database = await this.database.setupDatabase(projectId)
 
     // persist unlock method (now we can do it since the database is set up and unlocked)
-    const createdMethods = await database.$transaction(async tx => {
-      const methods = []
-
-      for (const data of unlockMethods) {
-        methods.push(await tx.unlockMethod.create({ data, select: { id: true } }))
-      }
-
-      return methods
+    const createdMethod = await database.unlockMethod.create({
+      data: unlockMethod,
+      select: { id: true },
     })
 
-    await this.objectRefIndexService.track(
-      projectId,
-      createdMethods.map(method => method.id),
-    )
+    await this.objectRefIndexService.track(projectId, [createdMethod.id])
 
-    const unlockSuite = ProjectUnlockService.createUnlockSuite(unlockMethods)
+    const unlockSuite = ProjectUnlockService.createUnlockSuite([unlockMethod])
 
     return [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite]
   }

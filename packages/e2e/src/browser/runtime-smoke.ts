@@ -218,9 +218,49 @@ try {
       .click()
 
     await page.locator(".main-menu-list").getByText("Create", { exact: true }).click()
+    await expect(dialog().getByRole("button", { name: "Next", exact: true })).toBeDisabled()
+    const setupCard = dialog().locator(".project-setup-card")
+
+    await dialog().evaluate(async element => {
+      const animations = element
+        .getAnimations({ subtree: true })
+        .filter(animation => animation.effect?.getTiming().iterations !== Infinity)
+
+      await Promise.all(animations.map(animation => animation.finished.catch(() => {})))
+    })
+
+    const initialBounds = await setupCard.boundingBox()
+    expect(initialBounds).not.toBeNull()
+    await expect(dialog().locator(".project-stepper .v-stepper-item").nth(1)).toBeDisabled()
     await dialog().getByLabel("Name", { exact: true }).fill("browser-smoke")
     await dialog().getByLabel("Title", { exact: true }).fill("Browser smoke")
+    await dialog().locator(".project-stepper .v-stepper-item").nth(1).click()
+    await expect(dialog().getByRole("button", { name: "Back", exact: true })).toBeVisible()
+    expect(await setupCard.boundingBox()).toEqual(initialBounds)
+    await dialog().locator(".project-stepper .v-stepper-item").nth(0).click()
+    await expect(dialog().getByLabel("Name", { exact: true })).toBeVisible()
+    expect(await setupCard.boundingBox()).toEqual(initialBounds)
     await dialog().getByRole("button", { name: "Next", exact: true }).click()
+    await expect(dialog().getByLabel("Container runtime", { exact: true })).toBeVisible()
+    await dialog().getByRole("button", { name: "Next", exact: true }).click()
+    await expect(dialog().getByLabel("Display Name", { exact: true })).toHaveValue("Default")
+    const stepHeading = dialog().locator(".project-setup-heading")
+    const headingBounds = await stepHeading.boundingBox()
+
+    await expect(
+      dialog().getByLabel("Description", { exact: true }).filter({ visible: true }),
+    ).toHaveValue("The initial unlock method configured when creating the project.")
+
+    await dialog()
+      .locator(".project-setup-content")
+      .evaluate(element => {
+        element.scrollTop = element.scrollHeight
+      })
+
+    expect(await stepHeading.boundingBox()).toEqual(headingBounds)
+
+    expect(await setupCard.boundingBox()).toEqual(initialBounds)
+
     await dialog().getByRole("button", { name: "Generate Secure Password", exact: true }).click()
 
     await dialog().getByRole("button", { name: "Create", exact: true }).click()
@@ -367,6 +407,7 @@ try {
     await page.locator(".main-menu-list").getByText("Create", { exact: true }).click()
     await dialog().getByLabel("Name", { exact: true }).fill("alternate-project")
     await dialog().getByLabel("Title", { exact: true }).fill("Alternate project")
+    await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await dialog().getByRole("button", { name: "Generate Secure Password", exact: true }).click()
     await dialog().getByRole("button", { name: "Create", exact: true }).click()

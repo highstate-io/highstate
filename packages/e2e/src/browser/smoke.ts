@@ -67,6 +67,7 @@ try {
     await dialog().getByLabel("Name", { exact: true }).fill(name)
     await dialog().getByLabel("Title", { exact: true }).fill(title)
     await dialog().getByRole("button", { name: "Next", exact: true }).click()
+    await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await dialog().getByRole("button", { name: "Generate Secure Password", exact: true }).click()
     await dialog().getByRole("button", { name: "Create", exact: true }).click()
     await expect(dialog()).toBeHidden({ timeout: 60_000 })

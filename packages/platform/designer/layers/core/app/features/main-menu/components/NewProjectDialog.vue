@@ -11,13 +11,21 @@ import {
 const visible = defineModel<boolean>("visible")
 
 const valid = ref(false)
-const unlockMethodValid = ref(false)
 const projectName = ref("")
 const title = ref("")
 const description = ref("")
 const step = ref(1)
 const localOverlayEnabled = ref(true)
-const extraMethods = ref<{ id: string; valid: boolean; data: UnlockMethodFormData }[]>([])
+const unlockMethodValid = ref(false)
+const unlockMethodForm = ref<InstanceType<typeof UnlockMethodForm>>()
+
+const unlockMethodData = ref<UnlockMethodFormData>({
+  type: "password",
+  title: "Default",
+  description: "The initial unlock method configured when creating the project.",
+  password: "",
+  confirmPassword: "",
+})
 
 const supportsLocalLibrary = computed(() =>
   runtimeSettings.runtimes.some(
@@ -26,24 +34,8 @@ const supportsLocalLibrary = computed(() =>
   ),
 )
 
-function addMethod() {
-  extraMethods.value.push({
-    id: createId(),
-    valid: false,
-    data: { type: "password", title: "", description: "", password: "", confirmPassword: "" },
-  })
-}
 const creating = ref(false)
 const error = ref<string>()
-const unlockMethodForm = ref<InstanceType<typeof UnlockMethodForm>>()
-
-const unlockMethodData = ref<UnlockMethodFormData>({
-  type: "password",
-  title: "",
-  description: "",
-  password: "",
-  confirmPassword: "",
-})
 
 const projectIdRules = [
   (v: string) => !!v || "Name is required",
@@ -62,11 +54,44 @@ const pulumiStateBackendId = ref("")
 const placementError = computed(() => runtimeSettings.error)
 const placementLoaded = computed(() => !runtimeSettings.loading && !runtimeSettings.error)
 
+const projectDetailsValid = computed(() =>
+  projectIdRules.every(rule => rule(projectName.value) === true),
+)
+
+const runtimeValid = computed(
+  () =>
+    placementLoaded.value &&
+    runtimeSettings.runtimes.some(item => item.id === containerRuntimeId.value) &&
+    runtimeSettings.stateBackends.some(item => item.id === pulumiStateBackendId.value),
+)
+
+const stepInfo = computed(
+  () =>
+    [
+      {
+        title: "Project details",
+        icon: "mdi-folder-outline",
+        description: "Choose a name, title, and description for your project.",
+      },
+      {
+        title: "Runtime",
+        icon: "mdi-server",
+        description:
+          "Choose where operations run, where state is stored, and whether to include local library sources.",
+      },
+      {
+        title: "Unlock method",
+        icon: "mdi-lock-outline",
+        description:
+          "Choose how to unlock your project's encrypted secrets and state. You can add more unlock methods in Settings later.",
+      },
+    ][step.value - 1]!,
+)
+
 const isFormValid = computed(() => {
   return (
     valid.value &&
     unlockMethodValid.value &&
-    extraMethods.value.every(method => method.valid) &&
     placementLoaded.value &&
     runtimeSettings.runtimes.some(item => item.id === containerRuntimeId.value) &&
     runtimeSettings.stateBackends.some(item => item.id === pulumiStateBackendId.value)
@@ -99,11 +124,6 @@ const createProject = async () => {
         pulumiStateBackendId: pulumiStateBackendId.value,
         localOverlayEnabled: supportsLocalLibrary.value && localOverlayEnabled.value,
       },
-      await Promise.all(
-        extraMethods.value.map(method =>
-          createUnlockMethodFromForm(method.data, { id: projectId, name: projectName.value }),
-        ),
-      ),
     )
 
     workspaceStore.openProjectPanel(project.id)
@@ -111,7 +131,6 @@ const createProject = async () => {
 
     // reset form
     projectName.value = ""
-    unlockMethodForm.value?.resetForm()
   } catch (err) {
     globalLogger.error({ error: err }, "failed to create project")
     error.value = err instanceof Error ? err.message : "Failed to create project"
@@ -125,7 +144,7 @@ watch(visible, newVisible => {
   if (newVisible) {
     step.value = 1
     description.value = ""
-    extraMethods.value = []
+    unlockMethodForm.value?.resetForm()
     localOverlayEnabled.value = true
 
     containerRuntimeId.value =
@@ -169,9 +188,26 @@ watch(
 </script>
 
 <template>
-  <VDialog v-model="visible" max-width="760" :persistent="creating" scrollable>
+  <VDialog
+    v-model="visible"
+    max-width="760"
+    height="760"
+    max-height="calc(100dvh - 48px)"
+    :persistent="creating"
+    scrollable
+  >
     <VCard title="New project" class="project-setup-card">
       <VForm v-model="valid" class="project-setup-form">
+        <div class="project-setup-heading">
+          <h3 class="text-subtitle-1 font-weight-medium mb-2">
+            <VIcon class="mr-2">{{ stepInfo.icon }}</VIcon>
+            {{ stepInfo.title }}
+          </h3>
+          <p class="text-body-2 text-medium-emphasis">
+            {{ stepInfo.description }}
+          </p>
+        </div>
+        <VDivider class="flex-grow-0" />
         <VCardText class="project-setup-content">
           <div v-show="step === 1">
             <VTextField
@@ -207,7 +243,8 @@ watch(
               auto-grow
               class="mb-4"
             />
-
+          </div>
+          <div v-show="step === 2">
             <VAlert v-if="placementError" type="error" class="mb-4">
               {{ placementError }}
             </VAlert>
@@ -217,6 +254,9 @@ watch(
               item-title="meta.title"
               item-value="id"
               label="Container runtime"
+              hint="Runs project operations, terminals, and workers. Choose a runtime configured in Backend settings."
+              persistent-hint
+              class="mb-4"
               variant="outlined"
               density="compact"
               :loading="runtimeSettings.loading"
@@ -228,6 +268,9 @@ watch(
               item-title="meta.title"
               item-value="id"
               label="Pulumi state backend"
+              hint="Stores Pulumi deployment state. Changing it later does not move existing state."
+              persistent-hint
+              class="mb-4"
               variant="outlined"
               density="compact"
               :loading="runtimeSettings.loading"
@@ -246,69 +289,18 @@ watch(
             </p>
           </div>
 
-          <div v-show="step === 2">
-            <div class="mb-4">
-              <h3 class="text-subtitle-1 font-weight-medium mb-2">
-                <VIcon class="mr-2">mdi-lock-outline</VIcon>
-                Unlock methods
-              </h3>
-              <p class="text-body-2 text-medium-emphasis mb-4">
-                Configure one or more ways to unlock this project. Each method can independently
-                unlock the same encrypted secrets and state.
-              </p>
-            </div>
-
+          <div v-show="step === 3">
             <UnlockMethodForm
               ref="unlockMethodForm"
               initial-setup
               :show-type-selector="true"
-              :show-description="false"
-              :show-display-name="false"
-              display-name-label="Unlock Method Name"
-              display-name-hint="A friendly name for your unlock method"
-              password-hint="Password must be strong enough to resist offline attacks"
+              :show-description="true"
+              :show-display-name="true"
               default-display-name="Default"
               default-description="The initial unlock method configured when creating the project."
               @update:valid="unlockMethodValid = $event"
               @update:form="unlockMethodData = $event"
             />
-            <VCard
-              v-for="(method, index) in extraMethods"
-              :key="method.id"
-              variant="outlined"
-              class="mt-4"
-            >
-              <VCardTitle class="d-flex align-center justify-space-between text-subtitle-1">
-                Unlock method {{ index + 2 }}
-                <VBtn
-                  icon="mdi-delete-outline"
-                  :aria-label="`Remove unlock method ${index + 2}`"
-                  variant="text"
-                  size="small"
-                  :disabled="creating"
-                  @click="extraMethods.splice(index, 1)"
-                />
-              </VCardTitle>
-              <VCardText>
-                <UnlockMethodForm
-                  initial-setup
-                  :show-type-selector="true"
-                  :show-description="false"
-                  :show-display-name="true"
-                  :default-display-name="`Method ${index + 2}`"
-                  @update:valid="method.valid = $event"
-                  @update:form="method.data = $event"
-                />
-              </VCardText>
-            </VCard>
-            <VBtn
-              variant="text"
-              prepend-icon="mdi-plus"
-              class="mt-4"
-              :disabled="creating || extraMethods.length >= 19"
-              @click="addMethod"
-              >Add unlock method</VBtn
-            >
           </div>
 
           <VAlert v-if="error" type="error" density="compact" class="mt-4">{{ error }}</VAlert>
@@ -328,19 +320,26 @@ watch(
               <VDivider />
               <VStepperItem
                 :value="2"
-                title="Unlock"
-                :editable="!creating && projectIdRules.every(rule => rule(projectName) === true) && placementLoaded && !!containerRuntimeId && !!pulumiStateBackendId"
+                title="Runtime"
+                :complete="step > 2"
+                :editable="!creating && projectDetailsValid"
+              />
+              <VDivider />
+              <VStepperItem
+                :value="3"
+                title="Unlock Method"
+                :editable="!creating && projectDetailsValid && runtimeValid"
               />
             </VStepperHeader>
           </VStepper>
           <VSpacer />
           <VBtn :disabled="creating" @click="visible = false">Cancel</VBtn>
-          <VBtn v-if="step === 2" :disabled="creating" @click="step = 1">Back</VBtn>
+          <VBtn v-if="step > 1" :disabled="creating" @click="step--">Back</VBtn>
           <VBtn
-            v-if="step === 1"
+            v-if="step < 3"
             color="primary"
-            :disabled="!projectIdRules.every(rule => rule(projectName) === true) || !placementLoaded || !containerRuntimeId || !pulumiStateBackendId"
-            @click="step = 2"
+            :disabled="creating || !projectDetailsValid || (step === 2 && !runtimeValid)"
+            @click="step++"
             >Next</VBtn
           >
           <VBtn
@@ -360,7 +359,8 @@ watch(
 
 <style scoped>
 .project-setup-card {
-  height: min(760px, calc(100dvh - 48px));
+  height: 100%;
+  min-height: 0;
 }
 
 .project-setup-form {
@@ -374,6 +374,11 @@ watch(
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+}
+
+.project-setup-heading {
+  flex-shrink: 0;
+  padding: 0 24px 16px;
 }
 
 .project-setup-form > .v-card-actions {

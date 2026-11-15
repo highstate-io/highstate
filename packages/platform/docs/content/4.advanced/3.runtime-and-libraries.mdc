@@ -178,10 +178,10 @@ This setting initializes new projects and projects without a saved library selec
 existing selection on restart or unlock.
 Packages must be available from the npm registries configured for the project's runtime.
 
-Designer creates projects in two steps. First choose the name, title, description, container runtime,
-Pulumi state backend, and whether to include local library sources. Local sources require the
-system-managed local runtime. Then configure one or more unlock methods. Each method independently
-unlocks the same encrypted project; all configured methods are included during initial key setup.
+Designer creates projects in three steps: project name, title, and description; container runtime,
+Pulumi state backend, and local library sources; then one initial unlock method with a name and
+description. Local sources require the system-managed local runtime. Additional unlock methods
+can be configured later in project Settings.
 
 In Designer, open **Settings → Project → Library → Add package** to search available registries,
 inspect package descriptions and README content, and choose a release tag or published exact version.
