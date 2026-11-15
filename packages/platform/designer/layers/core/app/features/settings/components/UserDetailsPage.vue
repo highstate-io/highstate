@@ -16,6 +16,7 @@ const user = shallowRef<UserOutput | null>()
 const roles = shallowRef<HumanRoleBindingOption[]>([])
 const failure = ref<string>()
 const bindingFailure = ref<string>()
+const mutationFailure = ref<string>()
 const loading = ref(false)
 const saving = ref<string>()
 const selectedRoleIds = ref<string[]>([])
@@ -125,7 +126,7 @@ const editRequirements = (role: HumanRoleBindingOption): AccessRequirement[] => 
 
 async function changeBinding(role: HumanRoleBindingOption, granted = false) {
   saving.value = role.id
-  bindingFailure.value = undefined
+  mutationFailure.value = undefined
 
   try {
     access.requireAccess(editRequirements(role))
@@ -145,7 +146,7 @@ async function changeBinding(role: HumanRoleBindingOption, granted = false) {
     await load()
     return true
   } catch (error) {
-    bindingFailure.value = accessError(error)?.message ?? "The role binding could not be changed."
+    mutationFailure.value = accessError(error)?.message ?? "The role binding could not be changed."
   } finally {
     saving.value = undefined
   }
@@ -209,8 +210,8 @@ const details = [
             </p>
             <AccessBoundary :requirements="bindingRequirements" title="Role bindings unavailable">
               <AccessNotice
-                v-if="bindingFailure"
-                :message="bindingFailure"
+                v-if="mutationFailure || bindingFailure"
+                :message="mutationFailure || bindingFailure"
                 title="Role bindings unavailable"
               />
               <div class="binding-form mb-6">
