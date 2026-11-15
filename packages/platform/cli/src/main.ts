@@ -38,13 +38,13 @@ cli.register(Builtins.VersionCommand)
 
 const args = process.argv.slice(2)
 if (args[0] !== "build") {
-  const { AgentDocsGetCommand, AgentInstructionsCommand, AgentStatusCommand } = await import(
-    "./commands/agent"
-  )
+  const { AgentDocsGetCommand, AgentInstructionsCommand } = await import("./commands/agent")
 
   const { default: registerRemoteCommands } = await import("./register-remote-commands")
 
-  cli.register(AgentStatusCommand)
+  const { StatusCommand } = await import("./commands/status")
+
+  cli.register(StatusCommand)
   cli.register(AgentInstructionsCommand)
   cli.register(AgentDocsGetCommand)
   registerRemoteCommands(cli)

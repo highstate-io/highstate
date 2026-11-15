@@ -50,6 +50,27 @@ Use a separate icon-data request for each prefix. Do not invent an icon identifi
 Keep units focused on one independently managed lifecycle. Use a composite when a capability is better expressed
 as multiple independently planned and deployed components.
 
+## Reference Existing Infrastructure
+
+Use the **Existing …** pattern for a unit that exposes infrastructure managed outside Highstate as typed entities
+for other components to consume.
+Name it `existing<Resource>` in code, `<namespace>.existing-<resource>.v1` for its component type, and
+**Existing <Resource>** for its display title.
+For example, `common.existingServer` (`common.existing-server.v1`, **Existing Server**) exposes an existing host;
+`k8s.existingCluster` (`k8s.existing-cluster.v1`, **Existing Cluster**) exposes an existing Kubernetes cluster.
+
+Accept the connection information and credentials needed to describe or access the external resource.
+Export the same entity contract that consumers use for an equivalent Highstate-provisioned resource.
+Keep creation, replacement, and deletion of the referenced resource with its external owner.
+Downstream units may manage workloads or services on that resource without owning the host or cluster itself.
+
+Do not use **Existing …** to mean importing a resource into Highstate lifecycle management.
+That is a separate workflow: the resource must enter the state of the unit that would normally create it, so
+subsequent updates and destruction are managed by that unit.
+Highstate does not yet fully support this workflow; provider import support alone does not establish a supported
+Highstate import procedure.
+Do not imply that an existing-resource reference or a matching instance name transfers ownership.
+
 ## Implement A Composite
 
 A composite's `create` function instantiates and connects other components. It does not contain Pulumi resources

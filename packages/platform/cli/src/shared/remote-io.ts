@@ -110,7 +110,7 @@ function formatDetails(value: unknown, depth: number): string[] {
         .replaceAll("_", " ")
         .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
         .replace(/^./, character => character.toUpperCase())
-        .replace(/\b(Id|Api|Url|Fqdn)\b/g, value => value.toUpperCase())
+        .replace(/\b(Id|Api|Url|Fqdn|Cli)\b/g, value => value.toUpperCase())
 
       if (entry !== null && typeof entry === "object") {
         return [`${indent}${label}:`, ...formatDetails(entry, depth + 1)]
