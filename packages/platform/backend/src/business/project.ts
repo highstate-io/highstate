@@ -163,6 +163,7 @@ export class ProjectService {
     projectInput: ProjectInput,
     unlockMethodInput: UnlockMethodInput,
     projectId = createId(),
+    additionalUnlockMethods: UnlockMethodInput[] = [],
   ): Promise<Project> {
     requireBackendPermission(context, "project.create")
 
@@ -206,7 +207,11 @@ export class ProjectService {
 
     // setup project database
     const [encryptedMasterKey, encryptedPrivateKey, publicKey, unlockSuite] =
-      await this.projectUnlockService.setupProjectDatabase(projectId, unlockMethodInput)
+      await this.projectUnlockService.setupProjectDatabase(
+        projectId,
+        unlockMethodInput,
+        additionalUnlockMethods,
+      )
 
     logger.info("project database set up")
 
@@ -231,6 +236,7 @@ export class ProjectService {
     const projectDatabase = await this.database.forProject(projectId)
 
     if (
+      projectInput.localOverlayEnabled === false ||
       runtime.systemName !== localContainerRuntime.systemName ||
       runtime.spec.type !== "docker" ||
       !runtime.spec.local

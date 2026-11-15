@@ -58,12 +58,17 @@ watchDebounced(
         offset: offset.value,
       })
 
-      if (current === searchRequest) {results.value = result}
+      if (current === searchRequest) {
+        results.value = result
+      }
     } catch (cause) {
-      if (current === searchRequest)
-        {error.value = cause instanceof Error ? cause.message : "Package search failed"}
+      if (current === searchRequest) {
+        error.value = cause instanceof Error ? cause.message : "Package search failed"
+      }
     } finally {
-      if (current === searchRequest) {searching.value = false}
+      if (current === searchRequest) {
+        searching.value = false
+      }
     }
   },
   { debounce: 300 },
@@ -81,7 +86,9 @@ watchDebounced(
   async name => {
     const current = ++detailRequest
 
-    if (!name.trim()) {return}
+    if (!name.trim()) {
+      return
+    }
 
     loadingDetails.value = true
 
@@ -91,13 +98,18 @@ watchDebounced(
         packageName: name.trim(),
       })
 
-      if (current === detailRequest) {details.value = info}
+      if (current === detailRequest) {
+        details.value = info
+      }
     } catch {
-      if (current === detailRequest)
-        {detailsError.value =
-          "Package details are unavailable. You can still enter an exact version below."}
+      if (current === detailRequest) {
+        detailsError.value =
+          "Package details are unavailable. You can still enter an exact version below."
+      }
     } finally {
-      if (current === detailRequest) {loadingDetails.value = false}
+      if (current === detailRequest) {
+        loadingDetails.value = false
+      }
     }
   },
   { debounce: 300, immediate: true },

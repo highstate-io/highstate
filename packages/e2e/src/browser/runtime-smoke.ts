@@ -220,6 +220,7 @@ try {
     await page.locator(".main-menu-list").getByText("Create", { exact: true }).click()
     await dialog().getByLabel("Name", { exact: true }).fill("browser-smoke")
     await dialog().getByLabel("Title", { exact: true }).fill("Browser smoke")
+    await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await dialog().getByRole("button", { name: "Generate Secure Password", exact: true }).click()
 
     await dialog().getByRole("button", { name: "Create", exact: true }).click()
@@ -366,6 +367,7 @@ try {
     await page.locator(".main-menu-list").getByText("Create", { exact: true }).click()
     await dialog().getByLabel("Name", { exact: true }).fill("alternate-project")
     await dialog().getByLabel("Title", { exact: true }).fill("Alternate project")
+    await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await dialog().getByRole("button", { name: "Generate Secure Password", exact: true }).click()
     await dialog().getByRole("button", { name: "Create", exact: true }).click()
     await expect(dialog()).toBeHidden({ timeout: 60_000 })
