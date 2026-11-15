@@ -6,8 +6,8 @@ import {
   OperationService,
   ProjectModelService,
   ProjectService,
-  SecretService,
   RuntimeSettingsService,
+  SecretService,
 } from "@highstate/api/v1"
 
 export type HighstateClients = {

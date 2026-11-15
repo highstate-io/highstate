@@ -57,6 +57,7 @@ export default function registerRemoteCommands(cli: Cli): void {
   cli.register(SecretGetCommand)
   cli.register(InstanceSecretsGetCommand)
   cli.register(InstanceSecretsUpdateCommand)
+
   for (const command of Object.values(projectLibraryCommands)) {
     cli.register(command)
   }
