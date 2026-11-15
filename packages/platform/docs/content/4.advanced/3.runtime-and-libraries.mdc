@@ -183,6 +183,10 @@ Pulumi state backend, and local library sources; then one initial unlock method 
 description. Local sources require the system-managed local runtime. Additional unlock methods
 can be configured later in project Settings.
 
+The Runtime step enables **Add standard library** by default. It uses the backend's configured initial
+library packages. Clear it to create an empty package selection; unlocking the project later preserves
+that choice. Local library sources are configured independently.
+
 In Designer, open **Settings → Project → Library → Add package** to search available registries,
 inspect package descriptions and README content, and choose a release tag or published exact version.
 Release tags select their current exact version; they are not stored as floating selections.

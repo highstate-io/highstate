@@ -245,7 +245,7 @@ export class ProjectService {
     await ensureAdminProjectBindingCreated(this.database.backend, projectDatabase, projectId)
 
     try {
-      await this.projectLibrary?.bootstrap(projectId)
+      await this.projectLibrary?.bootstrap(projectId, projectInput.includeStandardLibrary !== false)
     } catch (error) {
       logger.error({ error }, "failed to initialize project library")
     }

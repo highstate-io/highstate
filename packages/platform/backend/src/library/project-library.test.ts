@@ -251,6 +251,15 @@ describe("project library with a local npm registry and real project persistence
     expect(() => verifyPackageIntegrity(bytes, "sha1-deadbeef")).toThrow("supported integrity")
   })
 
+  it("preserves an explicitly empty initial library across later unlocks", async () => {
+    const { library, context } = service("empty-initial-library")
+    const created = await library.bootstrap(context.projectId, false)
+    expect(created.selectedPackages).toEqual([])
+    const unlocked = await library.bootstrap(context.projectId)
+    expect(unlocked.selectedPackages).toEqual([])
+    expect(unlocked.desiredSnapshot?.selectedPackages).toEqual([])
+  })
+
   it("resolves omitted implementation packages, persists portable artifacts, and reconstructs frozen", async () => {
     const { library, context } = service("implementations", [
       { packageName: "@fixture/definitions", version: "1.0.0" },

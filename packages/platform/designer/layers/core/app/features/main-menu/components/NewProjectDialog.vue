@@ -16,6 +16,7 @@ const title = ref("")
 const description = ref("")
 const step = ref(1)
 const localOverlayEnabled = ref(true)
+const includeStandardLibrary = ref(true)
 const unlockMethodValid = ref(false)
 const unlockMethodForm = ref<InstanceType<typeof UnlockMethodForm>>()
 
@@ -123,6 +124,7 @@ const createProject = async () => {
         containerRuntimeId: containerRuntimeId.value,
         pulumiStateBackendId: pulumiStateBackendId.value,
         localOverlayEnabled: supportsLocalLibrary.value && localOverlayEnabled.value,
+        includeStandardLibrary: includeStandardLibrary.value,
       },
     )
 
@@ -146,6 +148,7 @@ watch(visible, newVisible => {
     description.value = ""
     unlockMethodForm.value?.resetForm()
     localOverlayEnabled.value = true
+    includeStandardLibrary.value = true
 
     containerRuntimeId.value =
       runtimeSettings.runtimes.find(item => item.systemName === localContainerRuntime.systemName)
@@ -277,6 +280,17 @@ watch(
               :disabled="!placementLoaded || projectsStore.loadingCreateProject"
             />
 
+            <VCheckbox
+              v-model="includeStandardLibrary"
+              label="Add standard library"
+              :disabled="creating"
+              color="primary"
+              hide-details
+            />
+            <p class="text-caption text-medium-emphasis mt-1 mb-4">
+              Start with the backend's configured initial library packages. Clear to start with an
+              empty package selection.
+            </p>
             <VCheckbox
               v-model="localOverlayEnabled"
               label="Use local library sources"

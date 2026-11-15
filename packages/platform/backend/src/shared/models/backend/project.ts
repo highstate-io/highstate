@@ -18,6 +18,7 @@ export const projectModelStorageSpecSchema = z.discriminatedUnion("type", [
 
 export const projectInputSchema = z.object({
   localOverlayEnabled: z.boolean().optional(),
+  includeStandardLibrary: z.boolean().optional(),
   name: genericNameSchema,
   spaceId: z.cuid2().default(globalProjectSpace.id),
   modelStorageId: z.cuid2().default(codebaseProjectModelStorage.id),

@@ -85,10 +85,10 @@ export class ProjectLibraryService {
   /**
    * Invoke on creation and every unlock. Failed resolution leaves saved initial selections accessible.
    */
-  async bootstrap(projectId: string): Promise<ProjectLibraryDto> {
+  async bootstrap(projectId: string, includeStandardLibrary = true): Promise<ProjectLibraryDto> {
     await this.store.initialize(
       projectId,
-      selectedLibraryPackagesSchema.parse(this.initialPackages),
+      selectedLibraryPackagesSchema.parse(includeStandardLibrary ? this.initialPackages : []),
     )
 
     const state = await this.store.read(projectId)

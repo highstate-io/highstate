@@ -242,6 +242,12 @@ try {
     expect(await setupCard.boundingBox()).toEqual(initialBounds)
     await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await expect(dialog().getByLabel("Container runtime", { exact: true })).toBeVisible()
+
+    await expect(
+      dialog().getByRole("checkbox", { name: "Add standard library", exact: true }),
+    ).toBeChecked()
+
+    await dialog().getByRole("checkbox", { name: "Add standard library", exact: true }).uncheck()
     await dialog().getByRole("button", { name: "Next", exact: true }).click()
     await expect(dialog().getByLabel("Display Name", { exact: true })).toHaveValue("Default")
     const stepHeading = dialog().locator(".project-setup-heading")
@@ -270,6 +276,19 @@ try {
 
   const projectId = new URL(page.url()).pathname.split("/")[2]
   expect(projectId).toBeTruthy()
+
+  await step("component count remains inside its panel", async () => {
+    const count = page.locator(".component-count")
+    await expect(count).toHaveText("1 component found")
+    const countBounds = await count.boundingBox()
+    const panelBounds = await count.locator("..").boundingBox()
+    expect(countBounds).not.toBeNull()
+    expect(panelBounds).not.toBeNull()
+
+    expect(countBounds!.y + countBounds!.height).toBeLessThanOrEqual(
+      panelBounds!.y + panelBounds!.height - 12,
+    )
+  })
 
   await step(
     "library management lives in project settings, not Components",

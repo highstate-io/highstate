@@ -30,6 +30,7 @@ export const useProjectsStore = defineStore("projects", () => {
     unlockMethodInput: UnlockMethodInput,
     placement?: Pick<ProjectPlacementInput, "containerRuntimeId" | "pulumiStateBackendId"> & {
       localOverlayEnabled?: boolean
+      includeStandardLibrary?: boolean
     },
   ) => {
     loadingCreateProject.value = true
