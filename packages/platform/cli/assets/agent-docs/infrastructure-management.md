@@ -51,6 +51,35 @@ connections.
 Deleting an instance removes desired state; it does not destroy deployed infrastructure. Plan and complete the
 required destroy operation before deleting the model object when resources must be removed.
 
+## Inspect And Update Secrets
+
+Start with secret metadata; `secret list` and `secret get` do not reveal values:
+
+```bash
+highstate secret list --state-id <state-id> --output json
+highstate secret get <secret-id> --output json
+```
+
+Filter lists with `--service-account-id` or `--search`; paginate with `--page-size` and `--page-token`.
+Reveal values only when required by the user's task. `secret get --reveal` reads one value;
+`instance secrets get` reads all named secret values for a unit state:
+
+```bash
+highstate secret get <secret-id> --reveal --output json
+highstate instance secrets get <state-id> --output json
+```
+
+Do not include revealed values in conversation, logs, or committed files. Pass updates through a JSON or YAML
+file or stdin (`--file -`), not command-line arguments:
+
+```bash
+highstate secret update <secret-id> --file <value-file>
+highstate instance secrets update <state-id> --file <secrets-file>
+```
+
+`secret update` replaces one named unit secret with the document's value. `instance secrets update` accepts an
+object keyed by secret name and preserves omitted names. Both report success without echoing secret values.
+
 ## Plan And Execute Operations
 
 Research and model edits are not infrastructure deployment approval. Before a billable, destructive, or externally
