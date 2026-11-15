@@ -91,7 +91,7 @@ try {
   })
 
   const settings = () => page.locator(".data-settings-panel")
-  const dialog = () => page.getByRole("dialog")
+  const dialog = () => page.getByRole("dialog").and(page.locator(".v-overlay--active"))
 
   await step("fresh production app and runtime settings", async () => {
     await page.goto(designer!.url)
