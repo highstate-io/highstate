@@ -324,9 +324,13 @@ watch(
             aria-label="Project setup progress"
           >
             <VStepperHeader>
-              <VStepperItem :value="1" title="Project" :complete="step > 1" />
+              <VStepperItem :value="1" title="Project" :complete="step > 1" :editable="!creating" />
               <VDivider />
-              <VStepperItem :value="2" title="Unlock" />
+              <VStepperItem
+                :value="2"
+                title="Unlock"
+                :editable="!creating && projectIdRules.every(rule => rule(projectName) === true) && placementLoaded && !!containerRuntimeId && !!pulumiStateBackendId"
+              />
             </VStepperHeader>
           </VStepper>
           <VSpacer />
