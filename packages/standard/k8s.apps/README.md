@@ -74,6 +74,7 @@ The runtime retains its lock across application startup until the process exits;
 The persistent `.highstate-owner.lock` file must never be removed or replaced while either owner runs.
 Network filesystems without reliable advisory locking are not supported by the `ReadWriteOnce` option.
 This is single-owner operation, not active-active deployment or node-failure fencing.
+Startup initializes a private Pulumi file backend under the persistent data volume; no Pulumi Cloud login is required.
 Set `maintenance=true` to deploy with zero replicas for recovery.
 
 Admin IDs are Highstate's stable identity IDs, not email addresses or provider display names.

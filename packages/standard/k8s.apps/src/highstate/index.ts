@@ -55,6 +55,8 @@ const volume = await PersistentVolumeClaim.createOrGet(
     size: args.storageSize,
     storageClassName: args.storageClassName,
     accessModes: [args.storageAccessMode],
+    // waitForFirstConsumer claims cannot bind until the runtime pod is created
+    metadata: { annotations: { "pulumi.com/skipAwait": "true" } },
   },
   { retainOnDelete: true },
 )

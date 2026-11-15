@@ -20,6 +20,7 @@ describe("Pulumi runtime environment", () => {
       HOME: "/isolated/home",
       PULUMI_HOME: "/isolated/home/.pulumi",
     })
+
     expect(getPulumiEnvironment({ USERPROFILE: "/isolated/profile" })).toEqual({
       HOME: "/isolated/profile",
       PULUMI_HOME: "/isolated/profile/.pulumi",

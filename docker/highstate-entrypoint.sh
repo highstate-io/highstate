@@ -31,6 +31,10 @@ HIGHSTATE_AUTH_ADMIN_USER_IDS="$(bun /opt/highstate/docker/highstate-admins.ts u
 HIGHSTATE_AUTH_ADMIN_GROUP_IDS="$(bun /opt/highstate/docker/highstate-admins.ts groupIds)"
 export HIGHSTATE_AUTH_ADMIN_USER_IDS HIGHSTATE_AUTH_ADMIN_GROUP_IDS
 
+# Pulumi state and login metadata belong to this runtime, never a caller's cloud account.
+mkdir -p /data/pulumi-state
+pulumi login file:///data/pulumi-state
+
 attempt=0
 until docker info >/dev/null 2>&1; do
   attempt=$((attempt + 1))

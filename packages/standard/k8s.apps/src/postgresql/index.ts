@@ -46,7 +46,11 @@ const adminPasswordSecret = Secret.create(
 
 const dataVolumeClaim = PersistentVolumeClaim.create(
   `${args.appName}-data`,
-  { namespace },
+  {
+    namespace,
+    // the chart's pod is the first consumer for local-path and other delayed-binding classes
+    metadata: { annotations: { "pulumi.com/skipAwait": "true" } },
+  },
   { deletedWith: namespace },
 )
 

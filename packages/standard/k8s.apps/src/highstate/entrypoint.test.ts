@@ -20,6 +20,9 @@ async function setup() {
   await writeFile(admins, JSON.stringify({ userIds: ["user-1"], groupIds: ["group-1"] }))
 
   const scripts = {
+    pulumi: `#!/bin/sh
+printf '%s\\n' "pulumi $*" >> "$CALL_LOG"
+`,
     docker: `#!/bin/sh
 printf '%s\\n' "docker $*" >> "$CALL_LOG"
 if [ "$1" = ps ]; then printf '%s' "\${STALE_CONTAINERS:-}"; fi
@@ -106,6 +109,7 @@ describe("production entrypoint", () => {
     expect(result.status).toBe(0)
 
     expect((await readFile(log, "utf8")).trim().split("\n")).toEqual([
+      `pulumi login file://${path}/data/pulumi-state`,
       "docker info",
       "docker ps --all --quiet",
       `${path}/data/workspace`,
@@ -119,7 +123,7 @@ describe("production entrypoint", () => {
   })
 
   it("fails without starting Nitro when Docker never becomes ready", async () => {
-    const { log, script, env } = await setup()
+    const { path, log, script, env } = await setup()
 
     const result = spawnSync("sh", ["-c", script], {
       env: { ...env, DOCKER_FAIL: "true", HIGHSTATE_DOCKER_START_ATTEMPTS: "2" },
@@ -130,6 +134,7 @@ describe("production entrypoint", () => {
     expect(result.stderr).toContain("Docker did not become ready")
 
     expect((await readFile(log, "utf8")).trim().split("\n")).toEqual([
+      `pulumi login file://${path}/data/pulumi-state`,
       "docker info",
       "sleep",
       "docker info",
@@ -147,7 +152,8 @@ describe("production entrypoint", () => {
     expect(result.status).toBe(0)
     const calls = (await readFile(log, "utf8")).trim().split("\n")
 
-    expect(calls.slice(0, 4)).toEqual([
+    expect(calls.slice(0, 5)).toEqual([
+      `pulumi login file://${path}/data/pulumi-state`,
       "docker info",
       "docker ps --all --quiet",
       "docker rm --force worker-1 terminal-1",
