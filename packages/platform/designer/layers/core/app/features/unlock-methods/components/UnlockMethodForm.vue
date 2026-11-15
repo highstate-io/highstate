@@ -349,6 +349,8 @@ defineExpose({
       <VCheckbox
         v-model="form.autoUnlock"
         label="Automatically unlock on backend startup"
+        hide-details
+        density="compact"
         class="mb-4"
       />
       <VAlert type="info" density="compact" class="mb-4">
