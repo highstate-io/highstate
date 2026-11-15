@@ -98,6 +98,7 @@ function messageStyle(context, node, uppercase) {
     `Use ${uppercase ? "capitalized error" : "lowercase log"} messages without terminal punctuation`,
     fixer => {
       let text = source.getText(node)
+
       if (wrongCase) {
         text =
           text.slice(0, 1) +
@@ -521,6 +522,23 @@ const rules = {
     context => {
       const source = context.sourceCode
 
+      const referencesDeclaration = (declaration, condition) => {
+        const variables = source.getDeclaredVariables(declaration)
+
+        const referenced = variable =>
+          variable.references.some(
+            reference =>
+              reference.identifier.range[0] >= condition.range[0] &&
+              reference.identifier.range[1] <= condition.range[1],
+          )
+
+        const destructured = declaration.declarations.some(item => item.id.type === "ObjectPattern")
+        return (
+          variables.length > 0 &&
+          (destructured ? variables.every(referenced) : variables.some(referenced))
+        )
+      }
+
       const inspect = node => {
         const body = node.body.filter(statement => statement.type !== "EmptyStatement")
 
@@ -539,6 +557,7 @@ const rules = {
             previous.loc.start.line === previous.loc.end.line &&
             current.type === "IfStatement" &&
             current.loc.start.line === source.getTokenBefore(current.consequent).loc.end.line &&
+            referencesDeclaration(previous, current.test) &&
             !(
               beforePrevious?.type === "VariableDeclaration" &&
               beforePrevious.loc.end.line + 1 === previous.loc.start.line

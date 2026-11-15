@@ -88,6 +88,7 @@ const entityTypes = computed<{
     }
 
     const componentInput = component.inputs[inputKey]
+
     if (visible.length > 0) {
       return {
         all: visible,

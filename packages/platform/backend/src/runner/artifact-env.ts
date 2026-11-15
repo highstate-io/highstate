@@ -29,6 +29,7 @@ export async function setupArtifactEnvironment(
   const writeDir = await mkdtemp(join(tempBasePath, "highstate-artifacts-write-"))
 
   let readDir: string | null = null
+
   if (artifacts.length > 0) {
     // create temporary directory for reading existing artifacts using mkdtemp
     readDir = await mkdtemp(join(tempBasePath, "highstate-artifacts-read-"))

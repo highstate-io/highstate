@@ -798,6 +798,7 @@ export class EntitySnapshotService {
 
     for (const inclusion of entityModel.inclusions ?? []) {
       const toIds = refsByGroup.get(inclusion.field) ?? []
+
       if (inclusion.multiple) {
         if (toIds.length === 0) {
           if (inclusion.required) {

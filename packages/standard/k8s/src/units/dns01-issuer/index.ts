@@ -16,6 +16,7 @@ const certManagerNs = Namespace.get("cert-manager", {
 })
 
 let eabSecret: Secret | undefined
+
 if (args.acmeServer.type === "zerossl") {
   if (!secrets.eabKeyId || !secrets.eabKeySecret) {
     throw new Error("EAB key ID and secret are required for ZeroSSL ACME server")

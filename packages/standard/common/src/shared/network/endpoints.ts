@@ -100,6 +100,7 @@ export function l7EndpointToString(
   const protocol = `${l7Endpoint.appProtocol}://`
 
   let endpoint = l4EndpointToString(l7Endpoint)
+
   if (l7Endpoint.path) {
     endpoint += `/${l7Endpoint.path}`
   }
@@ -209,6 +210,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
   function makeEndpoint(value: EndpointValue): network.L3Endpoint {
     const identity = endpointIdentity(value)
+
     if (value.level === 7) {
       const title = l7EndpointToString(value as unknown as network.L7Endpoint)
 
@@ -661,6 +663,7 @@ function extractMetadata(address?: network.Address): network.L3Endpoint["metadat
   }
 
   const metadata: network.L3Endpoint["metadata"] = {}
+
   if (privateSubnets.some(subnet => doesAddressBelongToSubnet(address, subnet))) {
     metadata["iana.scope"] = "private"
   } else {

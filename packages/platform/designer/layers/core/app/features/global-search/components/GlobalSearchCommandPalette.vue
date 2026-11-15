@@ -52,6 +52,7 @@ const runSearch = async () => {
   try {
     if (plan.type === "id") {
       const results = await $client.search.searchByIds.query({ ids: plan.ids })
+
       if (requestId !== runSearchCounter.value) {
         return
       }
@@ -61,6 +62,7 @@ const runSearch = async () => {
     }
 
     const result = await $client.search.searchByText.query({ text: plan.text })
+
     if (requestId !== runSearchCounter.value) {
       return
     }

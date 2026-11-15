@@ -37,6 +37,7 @@ onMounted(() => {
   terminal = new Terminal({ fontFamily: "monospace", scrollback: 10_000 })
   fitAddon = new FitAddon()
   const webglAddon = new WebglAddon()
+
   if (needAutoResize) {
     terminal.loadAddon(fitAddon)
   } else {

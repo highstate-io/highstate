@@ -26,6 +26,7 @@ abstract class ContextCommand extends Command {
 
   async catch(error: unknown): Promise<void> {
     const message = error instanceof Error ? error.message : "Context command failed"
+
     if (this.output === "json") {
       process.stderr.write(`${JSON.stringify({ error: { message } })}\n`)
     } else {
@@ -89,6 +90,7 @@ export class ContextAddCommand extends ContextCommand {
     }
 
     let token = process.env.HIGHSTATE_API_TOKEN
+
     if (this.tokenStdin) {
       token = (await Bun.stdin.text()).trim()
     } else if (!token && process.stdin.isTTY) {
@@ -324,6 +326,7 @@ export class ContextTestCommand extends ContextCommand {
     }
 
     const clients = createHighstateClients(context.apiUrl, token)
+
     if (context.projectId) {
       await clients.project.getProject({ projectId: context.projectId })
 

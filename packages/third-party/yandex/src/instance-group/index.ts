@@ -93,6 +93,7 @@ function parseNlbListener(listener: string) {
 
 // create single key for all disks in the group
 let encryptionKeyId: Output<string> | undefined
+
 if (args.bootDisk.encrypted) {
   const encryptionKey = new KmsSymmetricKey(
     "encryption-key",
@@ -143,6 +144,7 @@ const internalAddresses = Array.from({ length: args.size }, (_, i) => {
 
 // create public IPs if needed
 let publicAddresses: Array<string | Output<string>> | undefined
+
 if (inputs.publicAddresses.length > 0) {
   publicAddresses = [...inputs.publicAddresses]
     .sort((a, b) => a.name.localeCompare(b.name))

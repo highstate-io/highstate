@@ -66,7 +66,7 @@ if (
     expect(check("statement-spacing", expected).messages).toEqual([])
   })
 
-  it("keeps a single const line adjacent to its guard regardless of referenced values", () => {
+  it("keeps a single const adjacent to a referencing guard that also uses contextual values", () => {
     const input = `const pageIndex = page.value - 1
 
 if (!force && pages.value[pageIndex]) {
@@ -86,6 +86,46 @@ if (pageIndex > 0 && !previousPage?.nextPageToken) {
     expect(check("statement-spacing", input).messages).toHaveLength(2)
     expect(check("statement-spacing", input, true).output).toBe(expected)
     expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it.each([
+    "ready",
+    "state.value",
+    "items.some(value => value.ready)",
+  ])("separates a guard that does not reference the preceding binding (%s)", condition => {
+    const input = `const value = lookup()\nif (${condition}) {\n  return\n}`
+    const expected = input.replace("\nif (", "\n\nif (")
+    expect(check("statement-spacing", input).messages).toHaveLength(1)
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it("attributes guards to destructured declaration bindings", () => {
+    const input = `const { value } = lookup()\n\nif (!value) {\n  return\n}`
+    expect(check("statement-spacing", input, true).output).toBe(input.replace("\n\nif (", "\nif ("))
+  })
+
+  it.each([
+    ["value && ready", true],
+    ["value", false],
+    ["ready", false],
+  ])("requires all object-destructured fields in the guard (%s)", (condition, adjacent) => {
+    const input = `const { value, ready } = lookup()\nif (${condition}) {\n  return\n}`
+    const separated = input.replace("\nif (", "\n\nif (")
+    const expected = adjacent ? input : separated
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", separated, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it.each([
+    ["title && Object.keys(rest).length", true],
+    ["title", false],
+    ["name && Object.keys(rest).length", false],
+  ])("attributes destructuring aliases and rest fields to their bindings (%s)", (condition, adjacent) => {
+    const input = `const { name: title, ...rest } = lookup()\nif (${condition}) {\n  return\n}`
+    const separated = input.replace("\nif (", "\n\nif (")
+    expect(check("statement-spacing", input, true).output).toBe(adjacent ? input : separated)
   })
 
   it("separates a compound guard involving multiple assigned values", () => {

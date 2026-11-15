@@ -31,6 +31,7 @@ const nx = Bun.spawn(
 )
 
 const projects = JSON.parse(await new Response(nx.stdout).text()) as string[]
+
 if ((await nx.exited) !== 0) {
   throw new Error("Unable to calculate affected projects")
 }

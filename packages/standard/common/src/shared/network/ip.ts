@@ -44,6 +44,7 @@ export function parseCidr(value: string): ParsedCidr {
 
 export function subnetBaseFromCidr(parsed: ParsedCidr): bigint {
   const bits = parsed.type === "ipv4" ? 32 : 128
+
   if (parsed.prefixLength === 0) {
     return 0n
   }
@@ -230,6 +231,7 @@ function ipv6ToString(value: bigint): string {
   }
 
   let result = parts.join(":")
+
   if (bestStart === 0) {
     result = `:${result}`
   }

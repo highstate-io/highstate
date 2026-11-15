@@ -66,6 +66,7 @@ test.each([0, 1])("resolves archive digests without registry access (exit %s)", 
   )
 
   const stderr = await new Response(process.stderr).text()
+
   if (exit) {
     expect(await process.exited).not.toBe(0)
     expect(stderr).toContain("Unable to inspect OCI archive")

@@ -37,6 +37,7 @@ export default defineNuxtRouteMiddleware(async to => {
   try {
     // resolve panel config (static object or function result)
     let panelConfig: Highstate.PanelConfig
+
     if (typeof panelMeta === "function") {
       panelConfig = await panelMeta(to as RouteLocationNormalized)
     } else {

@@ -8,6 +8,7 @@ import { forUnit } from "@highstate/pulumi"
 import { images } from "../shared"
 
 const { args, inputs, outputs } = forUnit(k8s.apps.wgFeedServer)
+
 if (Boolean(args.pathPattern) !== Boolean(inputs.fallbackSite)) {
   throw new Error("PathPattern and fallbackSite must be provided together")
 }

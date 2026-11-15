@@ -258,6 +258,7 @@ export class BackendApiKeySettingsService {
     })
 
     const grants = bindings.flatMap(binding => binding.role.rules)
+
     if (rules.length === 0) {
       return grants
     }

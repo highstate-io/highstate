@@ -73,6 +73,7 @@ const valid = computed(
 function save(): void {
   try {
     const parsedRules = projectRoleRulesSchema.parse(rules.value)
+
     if (!title.value.trim()) {
       throw new Error("Title is required")
     }

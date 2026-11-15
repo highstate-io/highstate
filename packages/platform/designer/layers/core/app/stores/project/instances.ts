@@ -306,6 +306,7 @@ export const useProjectInstancesStore = defineMultiStore({
         updateInstanceState(instance)
 
         const keysToPatch: (keyof InstanceModelPatch)[] = []
+
         if (previousInstanceInputs.length > 0) {
           keysToPatch.push("inputs")
         }

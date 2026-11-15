@@ -259,6 +259,7 @@ async function collectPackagesFromDirectory(directory: string): Promise<PackageI
   }
 
   let parentName: string | undefined
+
   if (manifest?.name && !isExample(manifest.name)) {
     packages.push({ name: manifest.name, manifest, parentName: undefined })
     parentName = manifest.name

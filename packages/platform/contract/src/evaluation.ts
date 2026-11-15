@@ -85,6 +85,7 @@ export function registerInstance<T>(component: Component, instance: InstanceMode
   runtimeInstances.set(instance.id, { instance, component })
 
   let previousParentInstance: InstanceModel | null = null
+
   if (currentInstance) {
     instance.parentId = currentInstance.id
   }

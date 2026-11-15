@@ -62,6 +62,7 @@ class CiliumNetworkPolicy extends ComponentResource {
     }
 
     const extraRules: Rule[] = []
+
     if (args.allowKubeApiServer) {
       extraRules.push({ toEntities: ["kube-apiserver"] })
     }
@@ -238,6 +239,7 @@ class CiliumNetworkPolicy extends ComponentResource {
     ports: types.input.cilium.v2.CiliumNetworkPolicySpecEgressToPorts[] | undefined,
   ): types.input.cilium.v2.CiliumNetworkPolicySpecIngress[] {
     const namespaceExpressions = CiliumNetworkPolicy.createNamespaceExpressions(rule)
+
     if (rule.selectors.length === 0) {
       if (namespaceExpressions.length === 0) {
         // if no selectors and no namespaces are provided, we do not match

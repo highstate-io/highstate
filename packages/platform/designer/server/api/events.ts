@@ -57,6 +57,7 @@ export default defineWebSocketHandler({
     }
 
     const data = message.text()
+
     if (state.upstream.readyState === WebSocket.OPEN) {
       state.upstream.send(data)
       return

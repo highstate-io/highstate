@@ -167,6 +167,7 @@ export class OperationContext {
       }
 
       const items = outputSpec.multiple ? raw : [raw]
+
       if (outputSpec.multiple && !Array.isArray(raw)) {
         throw new Error(
           `Output "${outputName}" for instance "${options.instanceId}" must be an array`,

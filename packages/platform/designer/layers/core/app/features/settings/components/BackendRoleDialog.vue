@@ -75,6 +75,7 @@ watch(
 function save(): void {
   try {
     const parsedRules = backendRoleRulesSchema.parse(rules.value)
+
     if (!title.value.trim()) {
       throw new Error("Title is required")
     }

@@ -383,6 +383,7 @@ export class OperationWorkset {
     }
 
     const { abortController, forceAbortController } = abortControllerPair
+
     if (!abortController.signal.aborted) {
       abortController.abort()
 

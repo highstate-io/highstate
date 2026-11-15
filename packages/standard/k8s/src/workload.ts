@@ -567,6 +567,7 @@ export function getWorkloadServiceComponents(
       }
 
       let resolvedServicePort: number | undefined
+
       if (servicePort != null) {
         const requestedServicePort = await toPromise(servicePort)
         if (typeof requestedServicePort === "string") {

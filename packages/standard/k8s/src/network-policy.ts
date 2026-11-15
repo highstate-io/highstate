@@ -470,6 +470,7 @@ export class NetworkPolicy extends ComponentResource {
       const cluster = await toPromise(args.namespace.cluster)
 
       const extraEgressRules: NormalizedRuleArgs[] = []
+
       if (args.allowKubeDns) {
         extraEgressRules.push({
           namespaces: ["kube-system"],
@@ -934,6 +935,7 @@ export class NativeNetworkPolicy extends ComponentResource {
     const egress = NativeNetworkPolicy.createEgressRules(args)
 
     const policyTypes: string[] = []
+
     if (ingress.length > 0 || args.isolateIngress) {
       policyTypes.push("Ingress")
     }
@@ -1015,6 +1017,7 @@ export class NativeNetworkPolicy extends ComponentResource {
     // apply fallback rules for kube-apiserver
     if (args.allowKubeApiServer) {
       const { quirks, apiEndpoints } = args.cluster
+
       if (quirks?.fallbackKubeApiAccess) {
         extraRules.push({
           to: [{ ipBlock: { cidr: `${quirks?.fallbackKubeApiAccess.serverIp}/32` } }],

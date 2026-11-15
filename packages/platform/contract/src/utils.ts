@@ -119,6 +119,7 @@ export function trimIndentation(text: string): string {
  */
 export function bytesToHumanReadable(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
+
   if (bytes === 0) {
     return "0 Bytes"
   }

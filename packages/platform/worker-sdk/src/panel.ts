@@ -164,6 +164,7 @@ export class PanelDataServer {
     }
 
     const upgradeHeaders = new Headers()
+
     if (upstream.protocol) {
       upgradeHeaders.set("sec-websocket-protocol", upstream.protocol)
     }

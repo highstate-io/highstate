@@ -349,6 +349,7 @@ export class UnitOutputService {
       }
 
       const current = nodeByEntityId.get(entityId)!
+
       if (options.relation === "exported") {
         current.node.exportedOutputs.add(options.output)
       } else {

@@ -40,6 +40,7 @@ const getSessionSubtitle = (session: TerminalSessionOutput) => {
 
 const getSessionColor = (session: TerminalSessionOutput) => {
   const theme = useTheme()
+
   if (session.finishedAt) {
     return "#9E9E9E"
   }

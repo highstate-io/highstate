@@ -402,6 +402,7 @@ export function useCanvasEdgeEndpointOffsets(
       }
 
       const patch: RoutedEdgeEndpoints = {}
+
       if (groupKey.startsWith("src:")) {
         if (Number.isFinite(edge.sourceY)) {
           patch.routedSourceY = edge.sourceY + deltaY

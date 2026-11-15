@@ -56,6 +56,7 @@ export const useCanvasStore = defineMultiStore({
 
       // prevent selection when multiple panels are open
       let selectionActive: ComputedRef<boolean>
+
       if (type === "project") {
         const router = useRouter()
 

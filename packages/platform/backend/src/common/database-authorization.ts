@@ -269,6 +269,7 @@ async function resolveProjectSpaceScopes(
 
   for (const restriction of hierarchyRestrictions) {
     const spaceIds = new Set(restriction.projectSpaceIds.filter(id => existingIds.has(id)))
+
     if (restriction.recursive) {
       for (const spaceId of [...spaceIds]) {
         addDescendants(spaceId, children, spaceIds)

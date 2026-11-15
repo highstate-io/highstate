@@ -335,6 +335,7 @@ export class StatusTracker {
       const { namespace, name } = resource.metadata
 
       const existingStatus = this.statusMap[type][namespace]?.[name]
+
       if (!resolvedStatusMap[type][namespace]) {
         resolvedStatusMap[type][namespace] = {}
       }

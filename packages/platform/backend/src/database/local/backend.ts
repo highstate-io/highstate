@@ -181,6 +181,7 @@ async function ensureDatabaseInitialized(
   logger: Logger,
 ): Promise<DatabaseInitializationResult> {
   const meta = await readMetaFile(databasePath)
+
   if (!encryptionEnabled) {
     if (meta?.masterKey) {
       throw new Error(
@@ -210,6 +211,7 @@ async function ensureDatabaseInitialized(
   }
 
   const identity = await getOrCreateBackendIdentity(config, logger)
+
   if (!meta) {
     logger.info("creating new database")
 

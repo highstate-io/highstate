@@ -569,6 +569,7 @@ export class Chart extends ComponentResource {
     }
 
     let resolvedServicePort: number | undefined
+
     if (servicePort != null) {
       const requestedServicePort = await toPromise(servicePort)
       if (typeof requestedServicePort === "string") {
@@ -808,6 +809,7 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
   const chartRef = isOci ? `${manifest.repo.replace(/\/$/, "")}/${manifest.name}` : manifest.name
 
   const pullArgs = ["pull", chartRef, "--version", manifest.version, "--destination", chartsDir]
+
   if (!isOci) {
     pullArgs.push("--repo", manifest.repo)
   }

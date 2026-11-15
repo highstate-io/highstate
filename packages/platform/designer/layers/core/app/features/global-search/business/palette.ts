@@ -139,6 +139,7 @@ export function toGroupsFromIdsResult(
       unlockStateByProjectId.set(projectResult.projectId, projectResult.unlockState)
 
       const existing = itemsByProjectId.get(projectResult.projectId) ?? []
+
       if (projectResult.unlockState === "locked") {
         existing.push({
           type: "lockedId",

@@ -61,6 +61,7 @@ export function resolveEffectiveOutputType(options: ResolveEffectiveOutputTypeOp
   }
 
   let effectiveType: string = outputSpec.type
+
   if (outputSpec.fromInput) {
     const visitedKey = `${producer.instance.id}:${options.input.output}`
     if (!visited.has(visitedKey)) {
@@ -105,6 +106,7 @@ function resolveTypeByPathOrFallbackInclusion(options: {
   fallbackType: string
 }): string {
   const { rootType, path, entities, fallbackType } = options
+
   if (!path || !entities) {
     return resolveTypeByImplicitInclusion(rootType, fallbackType, entities)
   }

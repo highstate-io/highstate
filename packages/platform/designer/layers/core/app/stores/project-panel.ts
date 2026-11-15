@@ -167,6 +167,7 @@ export const useProjectPanelStore = defineMultiStore({
           getConnectionNodes(vueFlowStore, connection)
 
         let effectiveInputKey = inputKey
+
         if (outputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE) {
           throw new Error("Export port cannot be a connection source")
         }
@@ -275,6 +276,7 @@ export const useProjectPanelStore = defineMultiStore({
           getConnectionNodes(vueFlowStore, edge)
 
         const path = (edge.data as { path?: string } | undefined)?.path
+
         if (inputInstance && outputInstance) {
           return instancesStore.removeInstanceInput(inputInstance, inputKey, {
             instanceId: outputInstance.id,

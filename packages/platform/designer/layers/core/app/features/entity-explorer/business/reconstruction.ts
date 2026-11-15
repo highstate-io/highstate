@@ -271,6 +271,7 @@ const formatEntityInto = (options: {
   }
 
   const bodyIndent = options.asListItem ? options.indent + 2 : options.indent
+
   if (description) {
     options.lines.push(`${spaces(bodyIndent)}# ${description}`)
   }

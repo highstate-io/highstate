@@ -205,6 +205,7 @@ export class InstanceGetCommand extends RemoteCommand {
     }
 
     const childrenByParent = new Map<string, Instance[]>()
+
     if (this.recursive) {
       for (const value of response.model?.instances ?? []) {
         if (!value.parentId) {

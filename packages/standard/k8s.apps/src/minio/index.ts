@@ -74,6 +74,7 @@ const backupJobPair = inputs.resticRepo
   : undefined
 
 const chartDependsOn = backupJobPair ? [credentialsSecret, backupJobPair] : [credentialsSecret]
+
 if ((args.consoleFqdn || args.fqdn) && !inputs.accessPoint) {
   throw new Error("Access point must be provided when fqdn or consoleFqdn is set")
 }

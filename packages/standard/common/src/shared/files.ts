@@ -704,6 +704,7 @@ export class MaterializedFolder extends LifetimeScopeContainer {
           async read() {
             try {
               const { done, value } = await reader.read()
+
               if (done) {
                 this.push(null)
               } else {

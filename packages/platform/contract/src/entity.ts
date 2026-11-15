@@ -455,6 +455,7 @@ export function defineEntity<
         const multiple = entityRef.multiple ?? false
 
         let getEntity: () => Entity
+
         if (typeof entityRef.entity === "function") {
           const entity = entityRef.entity
           getEntity = entity
@@ -474,6 +475,7 @@ export function defineEntity<
   const inclusionShape = includeRefs.reduce(
     (shape, includeRef) => {
       let schema: z.ZodTypeAny = z.lazy(() => includeRef.getEntity().schema)
+
       if (includeRef.multiple) {
         schema = includeRef.required ? schema.array().min(1) : schema.array().default([])
       } else {

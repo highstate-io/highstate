@@ -61,6 +61,7 @@ function resolvePathSpecifier(specifierPath: string, base?: string | URL): strin
   }
 
   const basePath = base ? resolveBasePath(base) : process.cwd()
+
   if (specifierPath.startsWith(".")) {
     const baseDir = isLikelyFilePath(basePath) ? dirname(basePath) : basePath
     return resolve(baseDir, specifierPath)

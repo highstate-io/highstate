@@ -97,6 +97,7 @@ export function assessPermissionRisk(grants: PermissionRiskGrant[]): PermissionR
 
   if (restrictedHighPermissions.length > 0 || mediumPermissions.length > 0) {
     const sentences: string[] = []
+
     if (restrictedHighPermissions.length > 0) {
       sentences.push(
         `Restrictions reduce ${formatList(restrictedHighPermissions)} from high to medium risk.`,

@@ -74,6 +74,7 @@ const loadingPanel = ref(false)
 
 const terminalIds = computed(() => {
   const ownTerminalIds = state.value?.terminalIds ?? []
+
   if (component.value.kind !== "composite") {
     return ownTerminalIds
   }

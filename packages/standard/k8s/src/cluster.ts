@@ -22,6 +22,7 @@ export async function detectExternalIps(
     const internalAddress = internalIp ? parseAddress(internalIp.address) : undefined
 
     const result: network.Address[] = []
+
     if (externalAddress) {
       result.push(externalAddress)
     }

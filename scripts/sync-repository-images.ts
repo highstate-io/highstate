@@ -60,6 +60,7 @@ const result = await synchronizeRepositoryImages({
       )
 
       const manifest = await new Response(process.stdout).arrayBuffer()
+
       if ((await process.exited) !== 0) {
         throw new Error(`Unable to inspect OCI archive for "${reference}"`)
       }
@@ -84,6 +85,7 @@ const result = await synchronizeRepositoryImages({
     )
 
     const digest = (await new Response(process.stdout).text()).trim().replace(/^"|"$/g, "")
+
     if ((await process.exited) !== 0) {
       throw new Error(`Unable to inspect "${reference}"`)
     }

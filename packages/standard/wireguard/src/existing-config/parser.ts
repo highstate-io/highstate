@@ -71,6 +71,7 @@ function parseConfigSections(config: string): ConfigSection[] {
 
     if (line.startsWith("#") || line.startsWith(";")) {
       const comment = line.slice(1).trim() || undefined
+
       if (currentSection && !currentSection.comment && currentSection.values.size === 0) {
         currentSection.comment = comment
       } else {

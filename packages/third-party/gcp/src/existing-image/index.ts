@@ -18,6 +18,7 @@ function parseImageRef(id: string): ParsedImageRef {
   }
 
   let normalized = trimmed
+
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
     const url = new URL(trimmed)
     normalized = url.pathname
@@ -50,6 +51,7 @@ const provider = await createProvider(inputs.connection)
 const parsedImageRef = parseImageRef(args.id)
 
 let resolvedImage: gcpProvider.compute.GetImageResult
+
 if (parsedImageRef.family) {
   resolvedImage = await gcpProvider.compute.getImage(
     {

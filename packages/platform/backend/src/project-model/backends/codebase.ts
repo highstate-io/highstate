@@ -381,6 +381,7 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
       const projectData = await this.loadProject(projectName)
 
       const result = callback(projectData)
+
       if (persist) {
         await this.writeProject(projectName, projectData)
       }

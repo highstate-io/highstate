@@ -188,6 +188,7 @@ const assignedAddresses = await toPromise(
 )
 
 const endpointAddresses = [...assignedAddresses.floatingAddresses]
+
 if (assignedAddresses.ipv4Address) {
   endpointAddresses.push(assignedAddresses.ipv4Address)
 }

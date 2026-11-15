@@ -16,6 +16,7 @@ function createRuntimeInputAccessor(input: RuntimeInput, boundary: InstanceInput
   return new Proxy(input as Record<string | symbol, unknown>, {
     get(target, property, receiver): unknown {
       const runtimeTarget = target as RuntimeInput
+
       if (property === boundaryInput) {
         return currentBoundary
       }

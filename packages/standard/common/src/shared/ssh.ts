@@ -334,6 +334,7 @@ export async function createServerEntity(options: ServerOptions): Promise<common
   } = await toPromise(options)
 
   const effectiveSshProxy = sshProxy ?? sshArgs.proxy
+
   if (endpoints.length === 0) {
     throw new Error("At least one L3 endpoint is required to create a server entity")
   }

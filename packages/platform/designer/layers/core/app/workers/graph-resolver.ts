@@ -196,6 +196,7 @@ const createGraphResolver = async (
   }
 
   let dependentSetHandler: DependentSetHandler | undefined
+
   if (syncDependentMap) {
     dependentSetHandler = (id, dependents) => {
       const state = resolvers.get(resolverId)

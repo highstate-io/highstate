@@ -138,6 +138,7 @@ describe("ProjectUnlockService", () => {
     }[] = []
 
     const passwordIdentity = await generateIdentity()
+
     if (mode === "additional") {
       methods.push({
         id: "password",

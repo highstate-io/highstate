@@ -848,6 +848,7 @@ function findGhostCleanup(
 
       for (const child of children) {
         const childState = context.getState(child.id)
+
         if (child.kind === "composite") {
           queue.push(child.id)
         }

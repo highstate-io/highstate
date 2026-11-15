@@ -13,6 +13,7 @@ const apiEndpoint = requireBestEndpoint(cluster.apiEndpoints)
 const afterCreateHook = new ResourceHook("restart-all-pods", async () => {
   // restart (delete) all pods to make Cilium manage their networking
   const kubeConfig = new KubeConfig()
+
   if (cluster.kubeconfig.content.type !== "embedded-secret") {
     throw new Error("Only embedded secrets are supported for kubeconfig content in this unit")
   }

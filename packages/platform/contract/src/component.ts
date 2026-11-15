@@ -796,6 +796,7 @@ function withDeepOutputAccessors(
     }
 
     const normalizedOutputs = outputGroup.map(output => createDeepOutputAccessor(output))
+
     if (outputSpec.multiple) {
       return createMultipleInputAccessor(normalizedOutputs, {
         instanceId,

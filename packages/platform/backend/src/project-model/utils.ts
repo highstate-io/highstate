@@ -163,6 +163,7 @@ function applyToContainer(
   }
 
   const exists = Object.hasOwn(container, token)
+
   if (operation.operation === "remove") {
     if (!exists) {
       throw pathNotFound()
@@ -195,6 +196,7 @@ function applyToArray(
   }
 
   const index = parseArrayIndex(token)
+
   if (operation.operation === "add") {
     if (index > array.length) {
       throw pathNotFound()

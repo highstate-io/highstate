@@ -176,6 +176,7 @@ export class RuntimeOperation {
 
     // 2. create the plan for the operation (or use provided one)
     let plan: OperationPhase[]
+
     if (this.operation.phases) {
       plan = this.operation.phases
     } else {
@@ -452,6 +453,7 @@ export class RuntimeOperation {
       })
 
       let outputHash: number | null = null
+
       if (this.projectPortService.isExportPortType(instance.type)) {
         const exportPayload = await this.projectPortService.buildExportPayloadFromSnapshots({
           projectName: this.project.name,
@@ -1245,6 +1247,7 @@ export class RuntimeOperation {
     }
 
     const instance = this.getPhaseInstance(update.unitId)
+
     if (update.rawOutputs && update.operationType !== "destroy") {
       this.context.updateCapturedOutputValuesFromUnitOutputs({
         instanceId: instance.id,
