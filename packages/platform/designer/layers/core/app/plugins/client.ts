@@ -81,7 +81,7 @@ export default defineNuxtPlugin({
                 complete: () => observer.complete(),
                 error: error => {
                   if (!op.path.startsWith("access.")) {
-                    access.reject(error, op.path, op.input)
+                    access.reject(error, op.path, op.input, op.type !== "query")
                   }
 
                   observer.error(error)

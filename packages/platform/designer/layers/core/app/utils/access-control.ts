@@ -201,7 +201,7 @@ export function createAccessController(
     return statuses.get(key)!
   }
 
-  function reject(error: unknown, path: string, input?: unknown): boolean {
+  function reject(error: unknown, path: string, input?: unknown, announce = true): boolean {
     const denial = accessError(error)
     if (!denial) {
       return false
@@ -215,7 +215,9 @@ export function createAccessController(
         ? input.projectId
         : undefined
 
-    rejection.value = { ...denial, path, projectId }
+    if (announce || denial.unauthorized) {
+      rejection.value = { ...denial, path, projectId }
+    }
 
     if (denial.unauthorized) {
       authenticated.value = false
