@@ -37,6 +37,7 @@ function removeObjectDefaultValues(value: unknown, schema: z.core.JSONSchema.Bas
   for (const key in value) {
     const propSchema = schema.properties[key] as z.core.JSONSchema.BaseSchema
     const fieldValue = (value as Record<string, unknown>)[key]
+
     if (!shouldBeRemoved(fieldValue, propSchema)) {
       result[key] = removeObjectDefaultValues(fieldValue, propSchema)
     }
@@ -60,6 +61,7 @@ function shouldBeRemoved(value: unknown, schema: z.core.JSONSchema.BaseSchema) {
 
     const stringifiedDefault = JSON.stringify(schema.default)
     const stringifiedValue = JSON.stringify(removeObjectDefaultValues(value, schema))
+
     if (stringifiedDefault === stringifiedValue) {
       return true
     }

@@ -5,6 +5,7 @@ import { forUnit } from "@highstate/pulumi"
 import { charts } from "../shared"
 
 const { args, inputs, outputs } = forUnit(netaminity.operator)
+
 const proxyHost =
   args.proxyHost ??
   (inputs.proxyHost ? l3EndpointToString(inputs.proxyHost) : undefined) ??

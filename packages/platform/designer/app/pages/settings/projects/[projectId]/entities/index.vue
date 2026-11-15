@@ -18,6 +18,7 @@ definePageMeta({
   name: "settings.entities",
   tab: {
     label: "Entities",
+    group: "Resources",
     icon: "mdi-database",
     order: 17,
     subpages: ["settings.entity-details", "settings.entity-snapshot-details"],

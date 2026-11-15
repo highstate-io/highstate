@@ -116,6 +116,7 @@ export class StatusTracker {
   ): void {
     const namespace = resource.metadata?.namespace
     const name = resource.metadata?.name
+
     if (!namespace || !name) {
       console.warn(`Missing namespace or name for ${type} resource`)
       return
@@ -191,6 +192,7 @@ export class StatusTracker {
 
     const ready = statefulSet.status.readyReplicas ?? 0
     const replicas = statefulSet.status.replicas ?? 0
+
     if (ready === replicas && replicas > 0) {
       return { status: "ok", message: `${ready}/${replicas} replicas ready` }
     }
@@ -250,6 +252,7 @@ export class StatusTracker {
 
     const acceptedCondition = conditions.find(c => c.type === "Accepted")
     const programmedCondition = conditions.find(c => c.type === "Programmed")
+
     if (acceptedCondition?.status === "True" && programmedCondition?.status === "True") {
       return { status: "ok", message: "gateway is ready" }
     }
@@ -389,6 +392,7 @@ export class StatusTracker {
   private renderStatusMessage(statusMap: ResourceStatusMap): string {
     const namespaceGroups = this.groupResourcesByNamespace(statusMap)
     const namespaces = Object.keys(namespaceGroups).sort()
+
     if (namespaces.length === 0) {
       return "No resources to display"
     }

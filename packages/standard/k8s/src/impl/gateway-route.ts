@@ -398,6 +398,7 @@ async function getCertificateSecret(
 
     const targetNamespace = await toPromise(namespace.metadata.name)
     const targetClusterId = await toPromise(namespace.cluster.id)
+
     if (certNamespace === targetNamespace && certClusterId === targetClusterId) {
       return await toPromise(resource.secret)
     }
@@ -469,6 +470,7 @@ async function resolveBackendFromEndpoints({
 
   const syntheticServiceName = await toPromise(syntheticService.service.metadata.name)
   const syntheticServiceNamespace = await toPromise(syntheticService.service.metadata.namespace)
+
   if (!syntheticServiceNamespace) {
     throw new Error(
       `Synthetic backend service "${syntheticServiceName}" for gateway route "${routeName}" has no namespace`,
@@ -498,6 +500,7 @@ function getServiceMetadataFromEndpoints(
   }
 
   const first = serviceEndpoints[0].metadata["k8s.service"]
+
   if (
     serviceEndpoints.some(
       endpoint =>
@@ -602,6 +605,7 @@ async function _getServicePorts(service: Service): Promise<ServicePortInfo[]> {
   for (const port of ports) {
     const value = port.port
     const protocol = (port.protocol ?? "TCP").toUpperCase()
+
     if (value === undefined || (protocol !== "TCP" && protocol !== "UDP")) {
       continue
     }

@@ -99,6 +99,7 @@ const canEditSecrets = computed(() => editable || isNestedInstance.value)
 
 const hasInputs = computed(() => Object.keys(component.inputs).length > 0)
 const hasOutputs = computed(() => Object.keys(component.outputs).length > 0)
+
 const canCreateExportInput = computed(
   () => editable && instance.type === SYSTEM_EXPORT_COMPONENT_TYPE,
 )
@@ -108,6 +109,7 @@ const hasInputsOrOutputs = computed(() => {
 })
 
 const resolvedInputs = computed(() => getResolvedInstanceInputs(inputResolverOutputs, instance.id))
+
 const resolvedInjectionInput = computed(() =>
   getResolvedInjectionInstanceInputs(inputResolverOutputs, instance.id).map(input => input.input),
 )

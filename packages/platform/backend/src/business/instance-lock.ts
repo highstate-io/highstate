@@ -160,6 +160,7 @@ export class InstanceLockService {
 
       const lockedStateIds = existingLocks.map(lock => lock.stateId)
       const missingLocks = stateIds.filter(id => !lockedStateIds.includes(id))
+
       if (missingLocks.length > 0) {
         throw new InstanceLockLostError(projectId, missingLocks)
       }

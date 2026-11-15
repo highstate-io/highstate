@@ -8,6 +8,7 @@ const { name, args, inputs, getSecret, outputs } = forUnit(netaminity.tunnelMc)
 const resourceName = args.resourceName ?? name
 const { endpoint, port: endpointPort } = resolveEndpoint("tunnel", args.endpoint, inputs.endpoints)
 const servicePort = args.servicePort ?? endpointPort
+
 const service = await createMcTunnel({
   name,
   resourceName,

@@ -441,6 +441,7 @@ const expressionLabelPoint = computed(() => {
     const previous = points[i - 1]
     const current = points[i]
     const segmentLength = Math.hypot(current[0] - previous[0], current[1] - previous[1])
+
     if (traversedLength + segmentLength >= midpoint) {
       const ratio = (midpoint - traversedLength) / segmentLength
       return {

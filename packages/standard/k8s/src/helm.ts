@@ -305,6 +305,7 @@ export class Chart extends ComponentResource {
 
               const serviceName = args.serviceName ?? name
               const expectedName = `${name}:${namespace}/${serviceName}`
+
               if (
                 resourceArgs.type === "kubernetes:core/v1:Service" &&
                 resourceArgs.name === expectedName
@@ -365,6 +366,7 @@ export class Chart extends ComponentResource {
         routes.map(async ({ name: routeName, route }) => {
           const { serviceName: _serviceName, rules: _rules, ...baseRoute } = route
           const accessPoint = route.accessPoint ?? args.accessPoint
+
           if (!accessPoint) {
             throw new Error(
               `Access point is required for chart route "${name}-${routeName}". Set it on the route or on Chart args.accessPoint`,
@@ -606,6 +608,7 @@ export class Chart extends ComponentResource {
     return output({ args: this.args, chart: this.chart }).apply(({ args, chart }) => {
       const resolvedName = name ?? args.serviceName ?? this.name
       const existingService = this.services.get(resolvedName)
+
       if (existingService) {
         return existingService
       }
@@ -816,6 +819,7 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
   // check the SHA256
   const content = await readFile(resolve(chartsDir, targetFileName))
   const actualSha256 = await sha256(content)
+
   if (actualSha256 !== manifest.sha256) {
     throw new Error(`SHA256 mismatch for chart '${manifest.name}'`)
   }

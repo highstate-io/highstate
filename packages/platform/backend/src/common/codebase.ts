@@ -21,6 +21,7 @@ async function _getCodebasePath(
 
   const packageJson = await resolvePackageJSON()
   const path = dirname(packageJson)
+
   if (path !== process.cwd()) {
     const relativePath = relative(process.cwd(), path)
     logger.info(`detected "%s" as codebase path`, relativePath)

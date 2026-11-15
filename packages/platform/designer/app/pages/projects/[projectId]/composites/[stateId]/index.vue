@@ -43,6 +43,7 @@ const { instancesStore, stateStore } = ensureProjectStoresCreated(params.project
 
 // resolve by state ID for resident instances, and by instance ID for ghost/virtual ones
 const instanceState = computed(() => stateStore.stateIdToStateMap.get(params.stateId))
+
 const instance = computed(() => {
   const state = instanceState.value
   return state

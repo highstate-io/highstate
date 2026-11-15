@@ -62,6 +62,7 @@ export class PanelService {
 
     const names = panels.map(panel => panel.name)
     const duplicateIndex = names.findIndex((name, index) => names.indexOf(name) !== index)
+
     if (duplicateIndex !== -1) {
       throw new DuplicatePanelNameError(
         context.projectId,

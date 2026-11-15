@@ -59,6 +59,7 @@ const file = new DownloadFile(
 function getNameByUrl(url: string): [name: string, extension: string] {
   const fullName = url.split("/").pop()?.split("?")[0]
   const parts = fullName?.split(".")
+
   if (!parts || parts.length < 2) {
     throw new Error(`Cannot extract file name and extension from URL: ${url}`)
   }

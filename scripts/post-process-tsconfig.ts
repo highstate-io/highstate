@@ -2,7 +2,6 @@ import fs from "node:fs"
 import ts from "typescript"
 
 const configPath = Bun.argv[2]
-
 if (!configPath) {
   throw new Error(`Expected tsconfig path argument`)
 }

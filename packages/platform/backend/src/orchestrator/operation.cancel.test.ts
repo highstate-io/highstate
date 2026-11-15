@@ -60,6 +60,7 @@ describe("Operation - Cancel", () => {
 
         const signal = input.signal
         const forceSignal = input.forceSignal
+
         if (!signal || !forceSignal) {
           throw new Error("Expected runner update to receive abort signals")
         }

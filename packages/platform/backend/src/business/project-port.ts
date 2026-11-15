@@ -136,6 +136,7 @@ export class ProjectPortService {
 
         const dependencyComponent = options.library.components[dependency.type]
         const outputSpec = dependencyComponent?.outputs?.[resolvedInput.input.output]
+
         if (outputSpec) {
           const normalizedOutputType = resolvedInput.type as VersionedName
 

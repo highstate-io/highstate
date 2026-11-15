@@ -211,6 +211,7 @@ if (args.autoInit.enabled) {
 }
 
 const service = await toPromise(chart.service)
+
 const endpoints = (await toPromise(service.endpoints))
   .filter(endpoint => endpoint.port === 8200)
   .map(endpoint => l4EndpointToL7(endpoint, "http"))

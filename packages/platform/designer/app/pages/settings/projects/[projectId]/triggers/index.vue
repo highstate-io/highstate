@@ -18,6 +18,7 @@ definePageMeta({
   name: "settings.triggers",
   tab: {
     label: "Triggers",
+    group: "Resources",
     icon: "mdi-flash-outline",
     order: 14,
     subpages: ["settings.trigger-details"],

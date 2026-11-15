@@ -64,6 +64,7 @@ const routes = {
 }
 
 const standalone = args.mode === "standalone"
+
 const claimNames = standalone
   ? [`${args.appName}-data`, `${args.appName}-logs`]
   : Array.from({ length: args.replicas }, (_, ordinal) => [
@@ -265,6 +266,7 @@ const chart = new Chart(
 )
 
 const endpoints = await toPromise(chart.service.endpoints)
+
 const s3Endpoints = endpoints
   .filter(endpoint => endpoint.port === S3_PORT)
   .map(endpoint => l4EndpointToL7(endpoint, "http"))

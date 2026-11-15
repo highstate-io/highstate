@@ -53,6 +53,7 @@ export class ContextAddCommand extends ContextCommand {
     const name = await this.resolveName()
     const apiUrl = await this.resolveApiUrl()
     const config = await readRemoteConfig()
+
     if (config.contexts[name] && !this.force) {
       throw new Error(`Highstate context "${name}" already exists; use --force to replace it`)
     }
@@ -221,6 +222,7 @@ export class ContextShowCommand extends ContextCommand {
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
     const name = this.name ?? config.activeContext
+
     if (!name || !config.contexts[name]) {
       throw new Error("Highstate context not found")
     }
@@ -311,12 +313,14 @@ export class ContextTestCommand extends ContextCommand {
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
     const name = this.name ?? config.activeContext
+
     if (!name || !config.contexts[name]) {
       throw new Error("Highstate context not found")
     }
 
     const context = config.contexts[name]
     const token = await getContextToken(name, context)
+
     if (!token) {
       throw new Error(`No API token stored for context "${name}"`)
     }

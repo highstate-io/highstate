@@ -12,6 +12,7 @@ function parseEndpointValue(endpoint: string): networkLibrary.L4Endpoint {
 
 const config = await toPromise(secrets.config)
 const parsedConfig = parseExistingConfig(config)
+
 const wireguardNetwork = makeEntity({
   entity: wireguard.networkEntity,
   identity: `${stateId}:network`,
@@ -29,6 +30,7 @@ const wireguardNetwork = makeEntity({
 const privateKey = parsedConfig.interface.privateKey
 const identityPublicKey = convertPrivateKeyToPublicKey(privateKey)
 const identityAddresses = parsedConfig.interface.addresses.map(parseAddress)
+
 const identityPeer = makeEntity({
   entity: wireguard.peerEntity,
   identity: identityPublicKey,

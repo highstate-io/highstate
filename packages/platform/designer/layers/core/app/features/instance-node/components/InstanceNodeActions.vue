@@ -69,6 +69,7 @@ const hasTerminal = computed(() => {
   const ids = terminalIds ?? state?.terminalIds ?? []
   return ids.length > 0
 })
+
 const hasPage = computed(() => state?.pageIds && state.pageIds.length > 0)
 const hasPanel = computed(() => state?.panelIds && state.panelIds.length > 0)
 

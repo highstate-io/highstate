@@ -16,6 +16,7 @@ definePageMeta({
   name: "settings.operations",
   tab: {
     label: "Operations",
+    group: "Runtime",
     icon: "mdi-cog-sync",
     order: 13,
     subpages: ["settings.operation-details"],

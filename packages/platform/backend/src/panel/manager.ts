@@ -35,6 +35,7 @@ export class PanelEndpointManager {
    */
   assertInstance(projectId: string, workerVersionId: string, workerInstanceId: string): void {
     const instance = this.instances.get(workerInstanceId)
+
     if (
       !instance ||
       instance.projectId !== projectId ||
@@ -62,6 +63,7 @@ export class PanelEndpointManager {
   ): void {
     const authority = parseAuthority(dataEndpoint)
     const activeInstanceId = this.instanceIdsByVersion.get(workerVersionId)
+
     if (activeInstanceId && activeInstanceId !== workerInstanceId) {
       throw new Error(`Worker version "${workerVersionId}" already has an active instance`)
     }
@@ -195,6 +197,7 @@ export class PanelEndpointManager {
     workerInstanceId?: string,
   ): PanelEndpoint | undefined {
     const panel = this.panels.get(panelId)
+
     if (
       panel?.projectId !== projectId ||
       panel.workerVersionId !== workerVersionId ||

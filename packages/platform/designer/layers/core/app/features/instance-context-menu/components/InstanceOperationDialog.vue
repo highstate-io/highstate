@@ -46,6 +46,7 @@ const planError = ref<string | null>(null)
 
 const operationTitle = ref("")
 const operationDescription = ref("")
+
 const isCompositeTargetsOnly = computed(() =>
   instances.every(instance => instance.kind === "composite"),
 )
@@ -190,7 +191,6 @@ const opButtonText = computed(() => {
   switch (operation) {
     case "update": {
       const { update } = counts
-
       if (update === 0) {
         return opText.value
       }

@@ -23,6 +23,7 @@ definePageMeta({
   name: "settings.unlock-methods",
   tab: {
     label: "Unlock Methods",
+    group: "Security",
     icon: "mdi-lock-open-outline",
     order: 17,
     subpages: ["settings.unlock-method-details"],

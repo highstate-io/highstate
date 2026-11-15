@@ -15,15 +15,18 @@ const roleToDelete = ref<ProjectRoleOutput | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
 const restrictionOptions = await roleStore.getRestrictionOptions()
+
 definePageMeta({
   name: "settings.project-roles",
   tab: {
     label: "Roles",
+    group: "Security",
     icon: "mdi-shield-account",
     order: 18,
     subpages: ["settings.project-role-details"],
   },
 })
+
 async function save(input: ProjectRoleInput): Promise<void> {
   saving.value = true
 
@@ -67,7 +70,7 @@ void roleStore.items.load()
     description="Manage roles that grant permissions within this project."
   >
     <template #actions>
-      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create role</VBtn>
+      <VBtn color="primary" prepend-icon="mdi-plus" @click="dialogVisible = true">Create</VBtn>
     </template>
     <template #default="{ height }">
       <ProjectRolesTable

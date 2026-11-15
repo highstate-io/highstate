@@ -235,6 +235,7 @@ export function useCanvasEdgeEndpointOffsets(
     for (const edgeId of edgeIds) {
       const indexed = edgeIndex.get(edgeId)
       const edge = vueFlowStore.findEdge(edgeId)
+
       if (!indexed || !edge) {
         continue
       }
@@ -253,6 +254,7 @@ export function useCanvasEdgeEndpointOffsets(
     for (const edgeId of edgeIds) {
       const indexed = edgeIndex.get(edgeId)
       const edge = vueFlowStore.findEdge(edgeId)
+
       if (!indexed || !edge) {
         continue
       }
@@ -288,6 +290,7 @@ export function useCanvasEdgeEndpointOffsets(
   const indexEdge = (edge: GraphEdge) => {
     const sourceNode = vueFlowStore.findNode(edge.source)
     const targetNode = vueFlowStore.findNode(edge.target)
+
     if (!sourceNode || !targetNode) {
       return
     }

@@ -1016,6 +1016,7 @@ export class EntitySnapshotService {
     for (const ref of options.payload.implicitReferences) {
       const fromId = snapshotIdByEntityId.get(ref.fromEntityId)
       const toId = snapshotIdByEntityId.get(ref.toEntityId)
+
       if (!fromId || !toId) {
         throw new Error("Failed to resolve implicit entity snapshot reference")
       }

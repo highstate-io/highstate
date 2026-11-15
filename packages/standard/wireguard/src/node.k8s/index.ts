@@ -18,6 +18,7 @@ import {
 const { args, inputs, outputs } = forUnit(wireguard.nodeK8s)
 
 const { identity: inputIdentity, config, peers: inputPeers } = await toPromise(inputs)
+
 const { identity, peers } = resolveNodeInputs({
   identity: inputIdentity,
   config,
@@ -54,7 +55,8 @@ const occupiedPorts = existingWorkloads.flatMap(workload =>
 )
 
 const containerPort = getNextAvailablePort(occupiedPorts, 51820)
-const priority = (100000 - containerPort) % 100 // each next interface gets lower priority
+// each next interface gets lower priority
+const priority = (100000 - containerPort) % 100
 
 const namespace = Namespace.createOrPatch(appName, {
   cluster: inputs.k8sCluster,
@@ -123,6 +125,7 @@ if (inputs.downstreamInterface) {
 const interfaceName = identityName.substring(0, 15) // linux kernel limit
 const configPath = `/config/wg_confs/${interfaceName}.conf`
 const quickCommand = network?.backend === "amneziawg" ? "awg-quick" : "wg-quick"
+
 const startupScript = [
   "set -e",
   `${quickCommand} up "${configPath}"`,

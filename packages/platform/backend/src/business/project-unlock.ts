@@ -179,6 +179,7 @@ export class ProjectUnlockService {
 
     const suite = projectUnlockSuiteSchema.parse(project.unlockSuite)
     const envelope = suite.keyrings.find(method => method.recipient === recipient)
+
     if (!envelope) {
       throw new Error(`System keyring recipient is not attached to project "${projectId}"`)
     }
@@ -424,6 +425,7 @@ export class ProjectUnlockService {
       // 2. encrypt the project data for all recipients + the new recipient
       const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, allUnlockMethods)
       const privateKey = await this.projectUnlockBackend.getProjectPrivateKey(projectId)
+
       if (!privateKey) {
         throw new Error(`Project "${projectId}" is unlocked without a private key`)
       }
@@ -488,6 +490,7 @@ export class ProjectUnlockService {
       // 2. encrypt the project data for remaining recipients
       const encryptedMasterKey = await this.encryptProjectMasterKey(projectId, unlockMethods)
       const privateKey = await this.projectUnlockBackend.getProjectPrivateKey(projectId)
+
       if (!privateKey) {
         throw new Error(`Project "${projectId}" is unlocked without a private key`)
       }

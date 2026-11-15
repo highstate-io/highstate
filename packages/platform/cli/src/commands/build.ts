@@ -122,6 +122,7 @@ export class BuildCommand extends Command {
     for (const binEntryPoint of binEntryPoints) {
       const binPath = resolve(binEntryPoint.distPath)
       const binContent = await readFile(binPath, "utf8")
+
       if (!binContent.startsWith("#!/usr/bin/env bun\n")) {
         await writeFile(binPath, `#!/usr/bin/env bun\n${binContent}`, "utf8")
       }

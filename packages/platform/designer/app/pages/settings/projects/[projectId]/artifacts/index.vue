@@ -18,6 +18,7 @@ definePageMeta({
   name: "settings.artifacts",
   tab: {
     label: "Artifacts",
+    group: "Runtime",
     icon: "mdi-package-variant",
     order: 15,
     subpages: ["settings.artifact-details"],

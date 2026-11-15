@@ -365,6 +365,7 @@ export class BackendRoleSettingsService {
   ): void {
     const ids = new Set(existing.map(item => item.id))
     const missing = requestedIds.find(id => !ids.has(id))
+
     if (missing) {
       throw new AuthorizationResourceNotFoundError("backend", type, missing)
     }

@@ -121,6 +121,7 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
       if (node.type === "Property" && "key" in node && node.key?.type === "Identifier") {
         const propertyNode = node
         const helperFunction = getHelperFunctionForProperty(parentStack)
+
         if (helperFunction) {
           const jsdoc = findLeadingComment(content, node, comments)
           if (jsdoc) {
@@ -413,6 +414,7 @@ function isInsideZodObject(parentStack: Node[]): boolean {
   // look for z.object() call expression in the parent stack
   for (let i = parentStack.length - 1; i >= 0; i--) {
     const node = parentStack[i]
+
     if (
       node.type === "CallExpression" &&
       "callee" in node &&

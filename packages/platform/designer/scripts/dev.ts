@@ -56,6 +56,7 @@ const parsePort = (name: string, value: string | undefined): number | undefined 
 }
 
 const configuredFrontendPort = parsePort("NITRO_PORT", process.env.NITRO_PORT)
+
 const configuredEventsPort = parsePort(
   "NUXT_PUBLIC_EVENTS_PORT",
   process.env.NUXT_PUBLIC_EVENTS_PORT,

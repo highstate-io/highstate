@@ -19,6 +19,7 @@ const { role, loading } = defineProps<{
   loading?: boolean
   restrictionOptions: ProjectRoleRestrictionOptions
 }>()
+
 const visible = defineModel<boolean>("visible", { required: true })
 const emit = defineEmits<{ save: [input: ProjectRoleInput] }>()
 const title = ref("")
@@ -27,6 +28,7 @@ const rules = ref<ProjectRoleRules>([])
 const error = ref<string | null>(null)
 const rulesYaml = computed(() => stringify(rules.value))
 const riskColors = { low: "success", medium: "info", high: "warning", critical: "error" } as const
+
 const riskAssessment = computed(() => {
   const definitions = new Map(
     projectPermissionGroups.flatMap(group =>
@@ -43,6 +45,7 @@ const riskAssessment = computed(() => {
     ),
   )
 })
+
 watch(
   () => [visible.value, role] as const,
   () => {
@@ -62,9 +65,11 @@ watch(
   },
   { immediate: true },
 )
+
 const valid = computed(
   () => !!title.value.trim() && projectRoleRulesSchema.safeParse(rules.value).success,
 )
+
 function save(): void {
   try {
     const parsedRules = projectRoleRulesSchema.parse(rules.value)

@@ -27,6 +27,7 @@ const portSchema = z.number().int().min(1).max(65535)
 const serviceTypeSchema = z.enum(["ClusterIP", "NodePort", "LoadBalancer"])
 const podTemplateSchema = z.record(z.string(), z.unknown()).default({})
 const replicasSchema = z.number().int().min(1).default(1)
+
 const oddReplicasSchema = z
   .number()
   .int()

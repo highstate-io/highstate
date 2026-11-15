@@ -119,6 +119,7 @@ function getArtifactParamSets(artifact: ArtifactFile): ArtifactParams[] {
 
   const base = params.base ?? {}
   const groups = params.groups ?? []
+
   if (groups.length === 0) {
     return [base]
   }

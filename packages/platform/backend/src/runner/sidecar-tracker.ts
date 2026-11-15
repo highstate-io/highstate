@@ -109,6 +109,7 @@ export class SidecarTracker {
     const operation = await this.getOrCreateOperation(operationId)
     const specKey = JSON.stringify(input)
     const existing = operation.sidecars.get(input.identity)
+
     if (existing) {
       if (existing.specKey !== specKey) {
         throw new Error(`Sidecar "${input.identity}" already exists with different configuration`)
@@ -237,6 +238,7 @@ export class SidecarTracker {
 
     const result = await this.runDocker(args)
     const containerId = result.stdout.trim()
+
     if (!containerId) {
       throw new Error(`Failed to start sidecar "${input.identity}" without container ID`)
     }

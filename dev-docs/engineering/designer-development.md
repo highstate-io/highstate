@@ -24,45 +24,7 @@ under the same OS account.
 Open the printed frontend URL after both listeners have started.
 An HTTP request to the root of the event port returns `404` because that port only serves the WebSocket endpoint.
 
-## Orca Remote Environments
+## Browser Testing
 
-The development VM's `unshare` does not support `--forward-signals`.
-Set `HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS=false` when starting Designer there so Pulumi
-commands can run.
-Signal forwarding is enabled by default to support cancellation and force kill in environments that support it.
-
-Use an Orca-managed terminal in the remote worktree so Orca can route both Designer ports to its browser.
-Create the terminal first and read its rendered screen until the automatic development shell reaches a prompt.
-Sending the command through `terminal create --command`, or through `terminal send` before the prompt appears,
-can display the command without executing it.
-
-```bash
-orca terminal create --worktree active --title Designer --json
-orca terminal read --terminal <terminal-handle> --screen --json
-orca terminal send \
-  --terminal <terminal-handle> \
-  --text 'HIGHSTATE_ENCRYPTION_ENABLED=false \
-    HIGHSTATE_RUNNER_BACKEND_LOCAL_UNSHARE_FORWARD_SIGNALS=false \
-    bun run --bun --filter @highstate/designer dev' \
-  --enter \
-  --json
-```
-
-The default accumulated-output read does not reproduce terminal repainting and can appear stuck on devenv's
-startup progress after the command is running.
-
-Keep that terminal running and open Designer in Orca's embedded browser:
-
-```bash
-orca tab create --url <printed-frontend-url> --json
-```
-
-Reload an existing Designer tab after restarting the server so its WebSocket client reconnects to the assigned
-event port.
-Successful verification includes a loaded project and no `Bun is not defined`, tRPC connection, or event-port
-WebSocket errors in the browser console.
-
-## For AI Agents
-
-When the `orca-cli` skill is available, load it before using Orca and follow its executable-resolution rules
-instead of assuming that the command is named `orca`.
+Use the [end-to-end testing harness](end-to-end-testing.md) to start an isolated local Designer for manual or
+agent-driven browser testing. Automated tests and browser tools can inspect the same server and database.

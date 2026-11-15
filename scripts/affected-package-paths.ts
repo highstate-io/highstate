@@ -5,6 +5,7 @@ import { resolve } from "node:path"
 const value = (name: string): string => {
   const index = process.argv.indexOf(name)
   const result = index === -1 ? undefined : process.argv[index + 1]
+
   if (!result) {
     throw new Error(`Missing ${name}`)
   }
@@ -28,6 +29,7 @@ const nx = Bun.spawn(
     stderr: "inherit",
   },
 )
+
 const projects = JSON.parse(await new Response(nx.stdout).text()) as string[]
 
 if ((await nx.exited) !== 0) {

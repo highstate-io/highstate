@@ -60,6 +60,7 @@ export async function synchronizeRepositoryImages(args: {
       const repository = `${args.prefix}/${name}`
       const reference = `${repository}:${args.tag}`
       let digest = resolved.get(reference)
+
       if (!digest) {
         digest = await args.resolveDigest(reference)
 

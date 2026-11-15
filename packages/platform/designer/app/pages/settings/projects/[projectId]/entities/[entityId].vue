@@ -24,7 +24,6 @@ if (projectStore.initializing) {
 }
 
 const entity = await settingsStore.get(params.entityId)
-
 if (!entity) {
   throw createError({
     statusCode: 404,

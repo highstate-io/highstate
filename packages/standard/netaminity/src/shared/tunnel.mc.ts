@@ -6,6 +6,7 @@ import { apiVersion, type NetaminityResource, proxyEndpointWaitFor } from "./ind
 
 const tunnelNameLabel = "netaminity.exeteres.net/tunnel-name"
 const tunnelIndexLabel = "netaminity.exeteres.net/tunnel-index"
+
 const appLabels = {
   "app.kubernetes.io/managed-by": "netaminity",
   "app.kubernetes.io/name": "netaminity",

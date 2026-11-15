@@ -137,6 +137,7 @@ export class ProjectApiKeySettingsService {
 
     const database = await this.database.forProject(context.projectId)
     const data = apiKeyInputSchema.parse(input)
+
     if (!hasProjectPermissionRulesSubset(context, data.restrictionRules)) {
       requireProjectPermission(context, "api-key.escalate")
     }
@@ -188,6 +189,7 @@ export class ProjectApiKeySettingsService {
     await this.assertMutable(context.projectId, apiKeyId)
     const database = await this.database.forProject(context.projectId)
     const data = apiKeyInputSchema.parse(input)
+
     if (!hasProjectPermissionRulesSubset(context, data.restrictionRules)) {
       requireProjectPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }

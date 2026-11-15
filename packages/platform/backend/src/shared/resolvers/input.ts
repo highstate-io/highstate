@@ -151,6 +151,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       for (const input of node.hub.inputs ?? []) {
         const { component } = getInstanceOutput(input)
         const componentInput = component?.outputs[input.output]
+
         if (!componentInput) {
           this.logger.warn({ msg: "output not found in the component", input, component })
           continue
@@ -227,6 +228,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
     const addInstanceInput = (inputName: string, input: InstanceInput) => {
       const componentInput = node.component.inputs[inputName]
       const isDynamicExportInput = node.instance.type === SYSTEM_EXPORT_COMPONENT_TYPE
+
       if (!componentInput && !isDynamicExportInput) {
         this.logger.warn({
           msg: "input not found in the component",

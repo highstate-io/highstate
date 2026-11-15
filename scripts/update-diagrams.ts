@@ -3,6 +3,7 @@ import path from "node:path"
 
 const BLOCK_PATTERN =
   /<!--\s*DEPENDENCY_GRAPH_START:\s*([^>]+?)\s*-->([\s\S]*?)<!--\s*DEPENDENCY_GRAPH_END\s*-->/g
+
 const DEPENDENCY_FIELDS = ["dependencies", "peerDependencies", "optionalDependencies"] as const
 
 type DependencyField = (typeof DEPENDENCY_FIELDS)[number]
@@ -47,6 +48,7 @@ async function main(): Promise<void> {
 
   const original = await fs.readFile(docPath, "utf8")
   const blocks = extractBlocks(original)
+
   if (blocks.length === 0) {
     console.warn("No dependency graph blocks found.")
     return
@@ -151,6 +153,7 @@ async function buildGraphForScopes(repoRoot: string, scopes: string[]): Promise<
   for (const pkg of packages.values()) {
     const manifest = pkg.manifest
     const targets = adjacency.get(pkg.name)
+
     if (!targets) {
       continue
     }

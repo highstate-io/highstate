@@ -53,6 +53,7 @@ export function createLibraryService(services: Services): ServiceImpl<typeof Lib
       const type = parseArgument(request, "type", z.string().min(1))
       const library = await services.libraryService.getLibraryModel(requestContext, context.signal)
       const component = library.components[type]
+
       if (!component) {
         throw new ComponentNotFoundError(requestContext.projectId, type)
       }

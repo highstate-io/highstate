@@ -14,6 +14,7 @@ if (!/^[A-Za-z0-9:_.@-]+$/.test(serviceName)) {
 
 const scriptPath = `/usr/local/lib/highstate/${serviceName}.sh`
 const servicePath = `/etc/systemd/system/${serviceName}.service`
+
 const unitContent = [
   "[Unit]",
   `Description=Highstate service ${serviceName}`,

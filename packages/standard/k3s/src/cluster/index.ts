@@ -28,6 +28,7 @@ const endpoints = uniqueBy(
 )
 
 const masterBootstrapEndpoint = l3EndpointToL4(seed.endpoints[0], 6443)
+
 const apiEndpoints = uniqueBy(
   [
     ...(inputPublicEndpoint ? [inputPublicEndpoint] : []),
@@ -35,8 +36,8 @@ const apiEndpoints = uniqueBy(
   ],
   l4EndpointToString,
 )
-const publicEndpoint = apiEndpoints[0]
 
+const publicEndpoint = apiEndpoints[0]
 if (!publicEndpoint) {
   throw new Error(`Could not determine K3s public endpoint`)
 }
@@ -77,6 +78,7 @@ const seedInstallCommand = createK3sNode({
   registries: args.registries ?? {},
   nodeConfig: args.nodeConfig,
 })
+
 let previousMasterReadyCommand = createServerReadyCommand(seed, seedInstallCommand)
 const masterReadyCommands = [previousMasterReadyCommand]
 

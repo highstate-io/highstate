@@ -45,6 +45,7 @@ export class BackendUnlockService {
   async deleteUnlockMethod(id: string): Promise<void> {
     const methods = await this.database.backend.backendUnlockMethod.findMany()
     const method = methods.find(m => m.id === id)
+
     if (!method) {
       throw new BackendUnlockMethodNotFoundError(id)
     }

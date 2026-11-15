@@ -59,6 +59,7 @@ export async function buildProjectAuthorizationWhere<TWhere>(
 ): Promise<TWhere> {
   const { database, context, permission, target } = options
   const grants = context.permissions.get(permission) ?? []
+
   if (grants.length === 0) {
     throw new PermissionDeniedError(permission)
   }
@@ -98,6 +99,7 @@ export async function buildBackendAuthorizationWhere<TWhere>(
 ): Promise<TWhere> {
   const { database, context, permission, target } = options
   const grants = context.permissions.get(permission) ?? []
+
   if (grants.length === 0) {
     throw new PermissionDeniedError(permission)
   }

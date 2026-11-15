@@ -19,6 +19,129 @@ function check(name: string, code: string, fix = false) {
 }
 
 describe("style diagnostics", () => {
+  it("preserves trailing comments when removing space before a single-line guard", () => {
+    const input = `const value = lookup() // retain this explanation
+
+if (!value) {
+  return
+}`
+
+    expect(check("statement-spacing", input, true).output).toBe(input.replace("\n\nif", "\nif"))
+  })
+
+  it("keeps a trailing comment attached when spacing the following multiline declaration", () => {
+    const input = `const priority = (100000 - containerPort) % 100 // each next interface gets lower priority
+const namespace = Namespace.createOrPatch(appName, {
+  cluster,
+})`
+
+    const expected = input.replace("\nconst namespace", "\n\nconst namespace")
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it("keeps a trailing class-member comment attached when spacing methods", () => {
+    const input = `class Store {
+  value = 1 // initial value
+  get() { return this.value }
+}`
+
+    const expected = input.replace("\n  get()", "\n\n  get()")
+    expect(check("member-spacing", input, true).output).toBe(expected)
+    expect(check("member-spacing", expected).messages).toEqual([])
+  })
+
+  it("separates a single const from a multiline guard condition", () => {
+    const input = `const previousPage = pages.value[pageIndex - 1]
+if (
+  pageIndex > 0 &&
+  !previousPage?.nextPageToken
+) {
+  return
+}`
+
+    const expected = input.replace("\nif (", "\n\nif (")
+    expect(check("statement-spacing", input).messages).toHaveLength(1)
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it("keeps a single const adjacent to a referencing guard that also uses contextual values", () => {
+    const input = `const pageIndex = page.value - 1
+
+if (!force && pages.value[pageIndex]) {
+  updateData()
+  return
+}
+
+const previousPage = pages.value[pageIndex - 1]
+
+if (pageIndex > 0 && !previousPage?.nextPageToken) {
+  page.value = Math.max(1, pages.value.length)
+  updateData()
+  return
+}`
+
+    const expected = input.replaceAll("\n\nif (", "\nif (")
+    expect(check("statement-spacing", input).messages).toHaveLength(2)
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it.each([
+    "ready",
+    "state.value",
+    "items.some(value => value.ready)",
+  ])("separates a guard that does not reference the preceding binding (%s)", condition => {
+    const input = `const value = lookup()\nif (${condition}) {\n  return\n}`
+    const expected = input.replace("\nif (", "\n\nif (")
+    expect(check("statement-spacing", input).messages).toHaveLength(1)
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it("attributes guards to destructured declaration bindings", () => {
+    const input = `const { value } = lookup()\n\nif (!value) {\n  return\n}`
+    expect(check("statement-spacing", input, true).output).toBe(input.replace("\n\nif (", "\nif ("))
+  })
+
+  it.each([
+    ["value && ready", true],
+    ["value", false],
+    ["ready", false],
+  ])("requires all object-destructured fields in the guard (%s)", (condition, adjacent) => {
+    const input = `const { value, ready } = lookup()\nif (${condition}) {\n  return\n}`
+    const separated = input.replace("\nif (", "\n\nif (")
+    const expected = adjacent ? input : separated
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", separated, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it.each([
+    ["title && Object.keys(rest).length", true],
+    ["title", false],
+    ["name && Object.keys(rest).length", false],
+  ])("attributes destructuring aliases and rest fields to their bindings (%s)", (condition, adjacent) => {
+    const input = `const { name: title, ...rest } = lookup()\nif (${condition}) {\n  return\n}`
+    const separated = input.replace("\nif (", "\n\nif (")
+    expect(check("statement-spacing", input, true).output).toBe(adjacent ? input : separated)
+  })
+
+  it("separates a compound guard involving multiple assigned values", () => {
+    const input = `const providedIpv4 = primaryAddresses.filter(address => address.type === "ipv4")
+const providedIpv6 = primaryAddresses.filter(address => address.type === "ipv6")
+
+if (providedIpv4.length > 1 || providedIpv6.length > 1) {
+  throw new Error("At most one Primary IP address of each family can be attached")
+}`
+
+    expect(check("statement-spacing", input).messages).toEqual([])
+    expect(check("statement-spacing", input, true).output).toBe(input)
+    const adjacent = input.replace("\n\nif (", "\nif (")
+    expect(check("statement-spacing", adjacent, true).output).toBe(input)
+  })
+
   it("rejects static imports after code, including hoisted mock declarations", () => {
     const result = check(
       "imports-first",
@@ -100,6 +223,43 @@ const service = new Service();`,
     )
 
     expect(check("switch-mappers", formatted).messages).toEqual([])
+  })
+
+  it("separates top-level guards and try blocks while keeping the checked assignment adjacent", () => {
+    const input = `const mode = process.env.HIGHSTATE_E2E_MODE ?? "development"
+if (mode !== "development" && mode !== "production") {
+  throw new Error("HIGHSTATE_E2E_MODE must be development or production")
+}
+const designer = await startDesigner({ mode })
+try {
+  await inspectDesigner(designer)
+} finally {
+  await designer.stop()
+}`
+
+    expect(check("statement-spacing", input).messages).toHaveLength(2)
+    const fixed = check("statement-spacing", input, true)
+    expect(fixed.messages).toEqual([])
+
+    expect(fixed.output).toBe(
+      input
+        .replace("}\nconst designer", "}\n\nconst designer")
+        .replace("({ mode })\ntry", "({ mode })\n\ntry"),
+    )
+
+    expect(check("statement-spacing", fixed.output).messages).toEqual([])
+  })
+
+  it("does not separate an ASI safety semicolon from the following expression", () => {
+    const input = `export type Output = {
+  value: string
+}
+
+;(self as Worker).onmessage = () => {
+  receive()
+}`
+
+    expect(check("statement-spacing", input).messages).toEqual([])
   })
 
   it.each(["\n", "\n\n"])("separates multiline declarations from their guards (%j)", gap => {

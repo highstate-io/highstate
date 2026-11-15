@@ -61,6 +61,7 @@ export class SecretService {
 
     const [componentType] = parseInstanceId(state.instanceId)
     const component = library.components[componentType]
+
     if (!component) {
       throw new Error(`Component type "${componentType}" not found in project "${projectId}"`)
     }

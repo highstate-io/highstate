@@ -15,6 +15,7 @@ export type EntryPoint = {
 export function extractEntryPoints(packageJson: PackageJson): Record<string, EntryPoint> {
   const exports = packageJson.exports
   let bin = packageJson.bin
+
   if (!exports && !bin) {
     logger.warn("no exports or bin found in package.json")
     return {}
@@ -57,6 +58,7 @@ export function extractEntryPoints(packageJson: PackageJson): Record<string, Ent
 
       const isJsonExport = distPath.endsWith(".json")
       const isJsExport = distPath.endsWith(".js")
+
       if (!isJsonExport && !isJsExport) {
         throw new Error(
           `The default value of export "${key}" must end with ".js" or ".json" in package.json, got "${distPath}"`,

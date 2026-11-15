@@ -47,6 +47,11 @@ declare namespace Highstate {
     order?: number
 
     /**
+     * Navigation group for backend settings.
+     */
+    group?: "Runtime" | "Resources" | "Security"
+
+    /**
      * The names of subpages that belong to this tab and should keep the tab active when navigated to.
      */
     subpages?: string[]

@@ -216,6 +216,7 @@ type StdlibPlatformCompatibilityArgs = {
 async function assertStdlibSupportsPlatform(args: StdlibPlatformCompatibilityArgs): Promise<void> {
   const stdlibManifest = await fetchManifest("@highstate/library", args.stdlibVersion)
   const supportedPlatformRange = getDependencyRange(stdlibManifest, "@highstate/pulumi")
+
   if (!supportedPlatformRange) {
     throw new Error(
       `Unable to infer "@highstate/pulumi" version from "@highstate/library@${args.stdlibVersion}"`,

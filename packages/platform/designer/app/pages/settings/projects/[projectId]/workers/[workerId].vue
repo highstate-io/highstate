@@ -35,7 +35,6 @@ if (projectStore.initializing) {
 }
 
 const worker = await settingsStore.get(params.workerId)
-
 if (!worker) {
   throw createError({
     statusCode: 404,

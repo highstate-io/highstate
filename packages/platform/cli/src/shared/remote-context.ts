@@ -6,11 +6,13 @@ import { z } from "zod"
 
 const serviceName = "io.highstate.cli"
 const contextNameSchema = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)
+
 const contextSchema = z.object({
   apiUrl: z.string().url().or(z.string().startsWith("unix://")),
   projectId: z.string().min(1).optional(),
   apiToken: z.string().min(1).optional(),
 })
+
 const configSchema = z.object({
   activeContext: z.string().optional(),
   contexts: z.record(z.string(), contextSchema).default({}),
@@ -208,6 +210,7 @@ export async function resolveRemoteTarget(
   const config = await readRemoteConfig(env)
   const contextName = overrides.context ?? env.HIGHSTATE_CONTEXT ?? config.activeContext
   const context = contextName ? config.contexts[contextName] : undefined
+
   if (contextName && !context) {
     throw new Error(`Highstate context "${contextName}" not found`)
   }

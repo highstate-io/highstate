@@ -298,6 +298,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
   const updateInstanceNode = (instance: InstanceModel) => {
     const nodeId = instanceIdToNodeIdMap.get(instance.id)
     const node = vueFlowStore.findNode(nodeId)
+
     if (!node) {
       throw new Error(`Node with id ${instance.id} not found`)
     }

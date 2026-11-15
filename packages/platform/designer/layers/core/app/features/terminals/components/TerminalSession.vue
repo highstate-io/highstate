@@ -8,7 +8,6 @@ const { sessionId } = defineProps<{
 }>()
 
 const { projectStore } = useProjectStores()
-
 if (projectStore.initializing) {
   await until(() => projectStore.initialized).toBe(true)
   projectStore.addLibraryRoot()

@@ -30,6 +30,7 @@ const { params } = defineProps<{
     panelId: string
   }
 }>()
+
 const { $client } = useNuxtApp()
 const launchUrl = ref<string>()
 const errorMessage = ref<string>()

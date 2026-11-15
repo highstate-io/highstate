@@ -23,13 +23,13 @@ export function parseIp(value: string): ParsedIp {
 
 export function parseCidr(value: string): ParsedCidr {
   const [ipPart, prefixPart, ...rest] = value.split("/")
-
   if (!ipPart || !prefixPart || rest.length > 0) {
     throw new Error(`Invalid CIDR: "${value}"`)
   }
 
   const parsedIp = parseIp(ipPart.trim())
   const prefix = parseInt(prefixPart.trim(), 10)
+
   if (!Number.isFinite(prefix)) {
     throw new Error(`Invalid CIDR prefix: "${value}"`)
   }

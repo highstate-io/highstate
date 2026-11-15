@@ -39,7 +39,6 @@ if (projectStore.initializing) {
 }
 
 const artifact = await settingsStore.get(params.artifactId)
-
 if (!artifact) {
   throw createError({
     statusCode: 404,

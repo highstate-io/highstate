@@ -16,6 +16,7 @@ definePageMeta({
   name: "settings.panels",
   tab: {
     label: "Panels",
+    group: "Resources",
     icon: "mdi-view-dashboard-outline",
     order: 13,
     subpages: ["settings.panel-details"],

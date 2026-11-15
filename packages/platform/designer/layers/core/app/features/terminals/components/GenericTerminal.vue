@@ -26,7 +26,6 @@ function fitTerminal() {
   }
 
   const { clientWidth, clientHeight } = terminalEl.value
-
   if (clientWidth <= 0 || clientHeight <= 0) {
     return
   }

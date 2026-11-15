@@ -113,6 +113,7 @@ export const useProjectPanelStore = defineMultiStore({
         const inputComponent = instancesStore.getInstanceComponent(inputInstance)
         const output = outputComponent?.outputs[outputKey]
         const input = inputComponent?.inputs[inputKey]
+
         if (!output || !input) {
           return false
         }
@@ -206,6 +207,7 @@ export const useProjectPanelStore = defineMultiStore({
 
           const outputComponent = instancesStore.getInstanceComponent(outputInstance)
           const output = outputComponent?.outputs[outputKey]
+
           if (!output) {
             throw new Error(`Output "${outputKey}" not found in instance "${outputInstance.id}"`)
           }

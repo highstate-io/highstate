@@ -32,7 +32,6 @@ if (projectStore.initializing) {
 }
 
 const unlockMethod = await settingsStore.get(params.unlockMethodId)
-
 if (!unlockMethod) {
   throw createError({
     statusCode: 404,

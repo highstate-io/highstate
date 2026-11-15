@@ -22,6 +22,7 @@ if (!args.enableIpv4 && !args.enableIpv6) {
 }
 
 const providedAddresses = inputs.ipAddresses ?? []
+
 for (const address of providedAddresses) {
   if (address.location !== location) {
     throw new Error(
@@ -82,6 +83,7 @@ function createAddress(type: "ipv4" | "ipv6"): PrimaryIp {
 const ipv4Id: Input<string> | undefined = args.enableIpv4
   ? (providedIpv4[0]?.id ?? createAddress("ipv4").id)
   : undefined
+
 const ipv6Id: Input<string> | undefined = args.enableIpv6
   ? (providedIpv6[0]?.id ?? createAddress("ipv6").id)
   : undefined
@@ -186,9 +188,11 @@ const assignedAddresses = await toPromise(
 )
 
 const endpointAddresses = [...assignedAddresses.floatingAddresses]
+
 if (assignedAddresses.ipv4Address) {
   endpointAddresses.push(assignedAddresses.ipv4Address)
 }
+
 if (assignedAddresses.ipv6Address) {
   endpointAddresses.push(assignedAddresses.ipv6Address)
 }

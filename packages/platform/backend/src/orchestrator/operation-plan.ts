@@ -78,6 +78,7 @@ export function createOperationPlan(
 
     const instanceId = requestedInstanceIds[0] as InstanceId
     const instance = context.getInstance(instanceId)
+
     if (instance.kind !== "unit") {
       throw new InvalidOperationPlanError(
         `Preview is not supported for composite instance "${instanceId}"`,
@@ -648,6 +649,7 @@ function hasGhostDescendant(instanceId: InstanceId, context: OperationContext): 
     const childId = queue.shift()!
     const child = context.getInstance(childId)
     const childState = context.getState(child.id)
+
     if (isVirtualGhostInstance(childState)) {
       return true
     }
@@ -773,7 +775,6 @@ function generateContextualMessage(
 
     // check if changed by using same logic as isOutdated (for units only)
     const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instanceId)
-
     if (state.inputHash !== expectedHash) {
       return "changed"
     }

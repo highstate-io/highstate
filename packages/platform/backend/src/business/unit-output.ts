@@ -178,6 +178,7 @@ export class UnitOutputService {
 
         const validated = unitArtifactSchema.parse(rawArtifact)
         const id = (rawArtifact as Record<string | symbol, unknown>)[unitArtifactId]
+
         if (typeof id === "string" && id.length > 0) {
           return id
         }

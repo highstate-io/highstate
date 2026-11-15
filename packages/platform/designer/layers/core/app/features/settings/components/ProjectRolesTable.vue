@@ -17,6 +17,7 @@ const { projectId } = defineProps<{
   loading?: boolean
   height?: string | number
 }>()
+
 defineEmits<{ delete: [role: ProjectRoleOutput] }>()
 const search = defineModel<string>("search")
 const sortBy = defineModel<CollectionQuery["sortBy"]>("sortBy")

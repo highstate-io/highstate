@@ -558,6 +558,7 @@ export const useProjectInstancesStore = defineMultiStore({
                   const updatedInstance = event.updatedInstances[0]
                   const deletedInstanceId = event.deletedInstanceIds[0]
                   const deletedInstance = instances.get(deletedInstanceId)
+
                   if (deletedInstance?.type === updatedInstance.type) {
                     renameInstanceLocally(deletedInstanceId, updatedInstance)
                     renamedInstanceIds.add(deletedInstanceId)

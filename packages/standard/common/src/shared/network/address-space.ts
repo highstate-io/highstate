@@ -158,13 +158,13 @@ function rangeFromString(value: string): IpRange {
 
   if (trimmed.includes("-")) {
     const [left, right, ...rest] = trimmed.split("-")
-
     if (!left || !right || rest.length > 0) {
       throw new Error(`Invalid range: "${value}"`)
     }
 
     const start = parseIp(left.trim())
     const end = parseIp(right.trim())
+
     if (start.type !== end.type) {
       throw new Error(`Range must not mix IPv4 and IPv6: "${value}"`)
     }
@@ -373,12 +373,14 @@ function sortSubnetsCanonical(subnets: network.Subnet[]): network.Subnet[] {
   return [...subnets].sort((a, b) => {
     const aFamily = a.type
     const bFamily = b.type
+
     if (aFamily !== bFamily) {
       return aFamily === "ipv4" ? -1 : 1
     }
 
     const aBase = parseIp(a.baseAddress).value
     const bBase = parseIp(b.baseAddress).value
+
     if (aBase !== bBase) {
       return aBase < bBase ? -1 : 1
     }

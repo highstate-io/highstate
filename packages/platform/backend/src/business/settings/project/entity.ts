@@ -86,7 +86,6 @@ export class EntitySettingsService {
     }
 
     const [sort] = query.sortBy
-
     if (!sort) {
       return false
     }

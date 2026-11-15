@@ -5,6 +5,7 @@ const { serviceAccount, loading } = defineProps<{
   serviceAccount?: ServiceAccountOutput | null
   loading?: boolean
 }>()
+
 const visible = defineModel<boolean>("visible", { required: true })
 const emit = defineEmits<{ save: [input: ServiceAccountInput] }>()
 const title = ref("")

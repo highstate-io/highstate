@@ -11,6 +11,7 @@ const ubuntuImage = resolveArtifactFile(artifacts.ubuntu, {
   version: args.version,
   arch: args.architecture,
 })
+
 const ubuntuImageSha256 = getSingleSha256(ubuntuImage.sha256)
 const url = new URL(ubuntuImage.url)
 

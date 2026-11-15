@@ -19,6 +19,7 @@ if (setupUrls.length === 0) {
 }
 
 const serviceName = args.serviceName ?? `wg-feed-${name}`.replaceAll(".", "-")
+
 const configContent = generateFeedDaemonConfigContent({
   statePath: args.statePath,
   feedName: args.feedName,

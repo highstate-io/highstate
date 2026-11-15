@@ -357,6 +357,7 @@ function createArchDownloadScript(file: ArtifactFile, path: string, mode: string
   for (const arch of artifactArchValues) {
     const resolved = resolveArtifactFile(file, { arch })
     const sha256 = getSingleArtifactSha(resolved)
+
     if (!sha256) {
       continue
     }
@@ -572,6 +573,7 @@ export class Command extends ComponentResource {
       ({ file, path, mode }) => {
         const resolved = resolveArtifactFile(file)
         const sha256 = getSingleArtifactSha(resolved)
+
         if (sha256) {
           return createDownloadScript(resolved.url, sha256, path, mode)
         }

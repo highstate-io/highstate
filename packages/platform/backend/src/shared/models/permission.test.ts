@@ -5,6 +5,7 @@ import { assessPermissionRisk, permissionDefinitionSchema } from "./permission"
 const lowPermission = permission("read", "Read data", "low")
 const mediumPermission = permission("inspect", "Inspect logs", "medium")
 const highPermission = permission("manage", "Manage data", "high")
+
 const criticalPermission: PermissionDefinition = {
   name: "impersonate",
   title: "Impersonate users",

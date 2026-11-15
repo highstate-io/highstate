@@ -437,6 +437,7 @@ export class OperationContext {
 
               const stateId = matchingStateIds[0]
               const currentInstanceId = stateId ? this.stateIdMap.get(stateId) : undefined
+
               if (!currentInstanceId) {
                 this.getState(input.input.instanceId)
               }

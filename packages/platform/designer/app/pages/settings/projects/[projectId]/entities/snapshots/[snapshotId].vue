@@ -27,6 +27,7 @@ const { params } = defineProps<{
 }>()
 
 const route = useRoute()
+
 const activeSnapshotId = computed(() => {
   return String(route.params.snapshotId ?? params.snapshotId)
 })
@@ -47,9 +48,11 @@ if (projectStore.initializing) {
 const snapshotDetails = shallowRef<Awaited<ReturnType<typeof settingsStore.getSnapshot>>>()
 
 const otherSnapshots = shallowRef(settingsStore.snapshots("", activeSnapshotId.value))
+
 const outgoingReferences = shallowRef(
   settingsStore.snapshotOutgoingReferences(activeSnapshotId.value),
 )
+
 const incomingReferences = shallowRef(
   settingsStore.snapshotIncomingReferences(activeSnapshotId.value),
 )
