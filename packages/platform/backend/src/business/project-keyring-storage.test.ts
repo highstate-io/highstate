@@ -1,9 +1,15 @@
+import type { execa } from "execa"
 import { beforeEach, describe, expect, test, vi } from "vitest"
 
-const run = vi.hoisted(() => vi.fn())
-vi.mock("execa", () => ({ execa: run }))
+const run = vi.fn()
 
-import { ProjectKeyringStorage } from "./project-keyring-storage"
+import { ProjectKeyringStorage as RealProjectKeyringStorage } from "./project-keyring-storage"
+
+class ProjectKeyringStorage extends RealProjectKeyringStorage {
+  constructor() {
+    super(run as typeof execa)
+  }
+}
 
 describe("ProjectKeyringStorage", () => {
   beforeEach(() => {

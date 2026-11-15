@@ -12,6 +12,8 @@ const serviceName = "io.highstate.project-unlock"
  * Isolates native keyring calls from Bun's HTTP request and reload contexts.
  */
 export class ProjectKeyringStorage {
+  constructor(private readonly execute = execa) {}
+
   async read(): Promise<{ account: string; password: string }[]> {
     return (await this.run({ operation: "read" })) as { account: string; password: string }[]
   }
@@ -57,7 +59,7 @@ export class ProjectKeyringStorage {
       }
     `
 
-    const result = await execa(process.execPath, ["--input-type=module", "-e", script], {
+    const result = await this.execute(process.execPath, ["--input-type=module", "-e", script], {
       input: JSON.stringify(request),
       reject: false,
       timeout: 30_000,
