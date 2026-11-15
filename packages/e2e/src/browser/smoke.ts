@@ -46,6 +46,7 @@ try {
 
   page.on("response", response => {
     const url = new URL(response.url())
+
     if (url.origin === designer!.url && response.status() >= 400) {
       faults.push(`${response.status()} ${url.pathname}`)
     }

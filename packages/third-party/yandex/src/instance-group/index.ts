@@ -143,6 +143,7 @@ const internalAddresses = Array.from({ length: args.size }, (_, i) => {
 
 // create public IPs if needed
 let publicAddresses: Array<string | Output<string>> | undefined
+
 if (inputs.publicAddresses.length > 0) {
   publicAddresses = [...inputs.publicAddresses]
     .sort((a, b) => a.name.localeCompare(b.name))

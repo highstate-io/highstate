@@ -321,6 +321,7 @@ export class GatewayRoute extends ComponentResource {
         : []
 
     const backends = normalizedRuleArgs.flatMap(rule => normalize(rule.backend, rule.backends))
+
     if (paths.length === 0 && backends.length === 0) {
       return undefined
     }

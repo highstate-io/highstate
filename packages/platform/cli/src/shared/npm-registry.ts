@@ -78,11 +78,13 @@ export function readPackageManifestFromTarball(tarball: Uint8Array): NpmRegistry
     const prefix = readTarString(header, 345, 155)
     const path = prefix ? `${prefix}/${name}` : name
     const size = Number.parseInt(readTarString(header, 124, 12).trim() || "0", 8)
+
     if (!Number.isSafeInteger(size) || size < 0) {
       throw new Error("Package tarball contains an invalid entry size")
     }
 
     const contentOffset = offset + 512
+
     if (contentOffset + size > tarball.length) {
       throw new Error("Package tarball contains a truncated entry")
     }
@@ -121,6 +123,7 @@ export function getReleaseGroupPackages(
   expectedGroup: string,
 ): string[] {
   const release = manifest.highstate?.release
+
   if (
     release?.group !== expectedGroup ||
     !Array.isArray(release.packages) ||

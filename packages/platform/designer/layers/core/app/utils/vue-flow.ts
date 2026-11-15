@@ -97,6 +97,7 @@ export function waitForLayoutCompletion(vueFlowStore: VueFlowStore): Promise<voi
 export function getConnectionNodes(vueFlowStore: VueFlowStore, connection: Connection) {
   const outputNode = vueFlowStore.findNode(connection.source)
   const inputNode = vueFlowStore.findNode(connection.target)
+
   if (!outputNode || !inputNode) {
     globalLogger.error({ connection, outputNode, inputNode }, "output or input node not found")
 
@@ -315,6 +316,7 @@ export const validateConnection = (
 
   const output = outputComponent.outputs[outputKey]
   const input = inputComponent.inputs[inputKey]
+
   if (!input || !output) {
     logRejectedConnection("missing_handle", {
       hasInputHandle: !!input,

@@ -307,6 +307,7 @@ function addDescendants(
 
   while (pending.length > 0) {
     const id = pending.pop()
+
     if (!id || result.has(id)) {
       continue
     }

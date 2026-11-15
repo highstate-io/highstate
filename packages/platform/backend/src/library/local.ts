@@ -724,6 +724,7 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     for (const match of matches) {
       const packageDir = match.endsWith("package.json") ? dirname(match) : match
+
       if (seen.has(packageDir)) {
         continue
       }
@@ -835,6 +836,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       }
 
       const parent = dirname(current)
+
       if (parent === current) {
         break
       }

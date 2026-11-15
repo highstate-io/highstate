@@ -132,6 +132,7 @@ export class ComponentGetCommand extends RemoteCommand {
       : undefined
 
     const args = component?.arguments as Record<string, Record<string, unknown>> | undefined
+
     if (component && args) {
       component.arguments = Object.fromEntries(
         Object.entries(args).map(([name, value]) => {

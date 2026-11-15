@@ -64,6 +64,7 @@ export function resolveEffectiveOutputType(options: ResolveEffectiveOutputTypeOp
 
   if (outputSpec.fromInput) {
     const visitedKey = `${producer.instance.id}:${options.input.output}`
+
     if (!visited.has(visitedKey)) {
       visited.add(visitedKey)
 
@@ -72,6 +73,7 @@ export function resolveEffectiveOutputType(options: ResolveEffectiveOutputTypeOp
       const hasHubInputs = (producer.instance.hubInputs?.[forwardedInputName]?.length ?? 0) > 0
       const hasInjectionInputs = (producer.instance.injectionInputs?.length ?? 0) > 0
       const directInputs = producer.instance.inputs?.[forwardedInputName] ?? []
+
       if (!hasHubInputs && !hasInjectionInputs && directInputs.length === 1) {
         const forwardedInput = directInputs[0]
         if (forwardedInput) {

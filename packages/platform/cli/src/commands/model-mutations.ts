@@ -53,6 +53,7 @@ export class InstanceUpdateCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const patch = instancePatchSchema.parse(await readDocument(this.patch))
+
     if (!Object.keys(patch).length) {
       throw new Error("Instance patch cannot be empty")
     }
@@ -270,6 +271,7 @@ export class HubUpdateCommand extends RemoteCommand {
 
   async execute(): Promise<void> {
     const patch = hubPatchSchema.parse(await readDocument(this.patch))
+
     if (!Object.keys(patch).length) {
       throw new Error("Hub patch cannot be empty")
     }

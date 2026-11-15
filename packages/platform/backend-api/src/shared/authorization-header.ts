@@ -9,6 +9,7 @@ import { createApiError } from "./api-error"
  */
 export function parseBearerToken(authorization: string | null): string {
   const match = /^Bearer ([^\s]+)$/i.exec(authorization ?? "")
+
   if (
     !match ||
     [...match[1]!].some(character => character.charCodeAt(0) <= 0x1f || character === "\x7f")

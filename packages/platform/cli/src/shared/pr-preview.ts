@@ -34,6 +34,7 @@ export function parsePrPreviewComment(
   }
 
   const descriptor = JSON.parse(match[1]) as PrPreviewDescriptor
+
   if (
     descriptor.schemaVersion !== 1 ||
     descriptor.repository !== "highstate-io/highstate" ||
@@ -57,6 +58,7 @@ export function parsePrPreviewComment(
     }
 
     const parsed = new URL(url)
+
     if (
       parsed.protocol !== "https:" ||
       parsed.hostname !== "pkg.pr.new" ||

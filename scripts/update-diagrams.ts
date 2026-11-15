@@ -360,6 +360,7 @@ function hasAlternatePath(
 
   while (queue.length > 0) {
     const current = queue.shift()!
+
     if (current === target) {
       return true
     }

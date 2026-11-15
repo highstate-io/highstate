@@ -34,6 +34,7 @@ if (isEnabled.value) {
 
   onMounted(() => {
     const currentLocale = route.path.split("/")[1]
+
     if (!locales.some(locale => locale.code === currentLocale)) {
       return navigateTo(switchLocalePath(defaultLocale) as string)
     }

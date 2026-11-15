@@ -30,11 +30,13 @@ export function parseCidr(value: string): ParsedCidr {
 
   const parsedIp = parseIp(ipPart.trim())
   const prefix = parseInt(prefixPart.trim(), 10)
+
   if (!Number.isFinite(prefix)) {
     throw new Error(`Invalid CIDR prefix: "${value}"`)
   }
 
   const bits = parsedIp.type === "ipv4" ? 32 : 128
+
   if (prefix < 0 || prefix > bits) {
     throw new Error(`Invalid CIDR prefix length: "${value}"`)
   }
@@ -76,6 +78,7 @@ function parseIpv4(value: string): bigint {
     }
 
     const octet = parseInt(part, 10)
+
     if (!Number.isInteger(octet) || octet < 0 || octet > 255) {
       throw new Error(`Invalid IPv4 address: "${value}"`)
     }
@@ -129,6 +132,7 @@ function parseIpv6(value: string): bigint {
   rightParts = expandIpv4Tail(rightParts)
 
   const totalParts = leftParts.length + rightParts.length
+
   if (doubleColonIndex < 0 && totalParts !== 8) {
     throw new Error(`Invalid IPv6 address: "${value}"`)
   }
@@ -156,6 +160,7 @@ function parseIpv6(value: string): bigint {
     }
 
     const hextet = parseInt(part, 16)
+
     if (!Number.isInteger(hextet) || hextet < 0 || hextet > 0xffff) {
       throw new Error(`Invalid IPv6 address: "${value}"`)
     }

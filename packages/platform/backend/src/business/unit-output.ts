@@ -241,6 +241,7 @@ export class UnitOutputService {
       }
 
       const meta = (value as Record<string, unknown>).$meta
+
       if (!isRecord(meta)) {
         throw new Error(`Output "${output}" must include a "$meta" object`)
       }
@@ -306,6 +307,7 @@ export class UnitOutputService {
       const entityType = entityWithMeta.$meta.type
 
       const entityId = getEntityId(entityWithMeta)
+
       if (options.stack.includes(entityId)) {
         throw new Error(
           `Detected entity inclusion cycle while collecting output "${options.output}": "${entityId}"`,

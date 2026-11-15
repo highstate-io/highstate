@@ -3,6 +3,7 @@ import { getSharedServices } from "@highstate/backend"
 export default defineEventHandler(async event => {
   const projectId = getRouterParam(event, "projectId")
   const hash = getRouterParam(event, "hash")
+
   if (!projectId || !hash) {
     throw createError({
       statusCode: 400,

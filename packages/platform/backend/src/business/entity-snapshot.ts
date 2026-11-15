@@ -365,6 +365,7 @@ export class EntitySnapshotService {
           }
 
           const keyValue = `${fromSnapshot.entityId}:${toSnapshot.entityId}:${group}`
+
           if (uniqueReferenceKeys.has(keyValue)) {
             continue
           }
@@ -765,6 +766,7 @@ export class EntitySnapshotService {
     }
 
     const content = snapshot.content
+
     if (typeof content !== "object" || content === null || Array.isArray(content)) {
       throw new Error(`Entity snapshot content is not an object for snapshot "${snapshot.id}"`)
     }
@@ -1016,6 +1018,7 @@ export class EntitySnapshotService {
     for (const ref of options.payload.implicitReferences) {
       const fromId = snapshotIdByEntityId.get(ref.fromEntityId)
       const toId = snapshotIdByEntityId.get(ref.toEntityId)
+
       if (!fromId || !toId) {
         throw new Error("Failed to resolve implicit entity snapshot reference")
       }

@@ -30,6 +30,7 @@ const bake = JSON.parse(await readFile(bakePath, "utf8"))
 const imageNames = new Set<string>(
   bake.group.images.targets.map((target: string) => {
     const tag = bake.target[target].tags[0] as string
+
     if (!tag.startsWith(`${prefix}/`)) {
       throw new Error(`Unexpected image prefix in "${tag}"`)
     }

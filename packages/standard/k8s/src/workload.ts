@@ -464,6 +464,7 @@ export function getWorkloadComponents(
     }
 
     const allowedEndpoints = containers.flatMap(container => container.allowedEndpoints ?? [])
+
     if (allowedEndpoints.length === 0 && !args.networkPolicy) {
       return output(undefined)
     }
@@ -509,6 +510,7 @@ export function getWorkloadServiceComponents(
     containers,
   }).apply(({ existing, serviceArgs, serviceOverrides, external, containers }) => {
     const hasServiceArgs = Object.keys(serviceArgs ?? {}).length > 0 || external === true
+
     if (!hasServiceArgs && !args.service && !args.route && !args.routes) {
       return undefined
     }

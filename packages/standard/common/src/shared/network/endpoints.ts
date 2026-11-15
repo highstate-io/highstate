@@ -343,6 +343,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
     // if it looks like an IPv6 address without brackets, treat it as host-only
     if (trimmed.includes(":")) {
       const firstColonIndex = trimmed.indexOf(":")
+
       if (firstColonIndex !== lastColonIndex) {
         return { host: trimmed }
       }

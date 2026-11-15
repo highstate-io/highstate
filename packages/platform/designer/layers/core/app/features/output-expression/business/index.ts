@@ -44,6 +44,7 @@ export function createOutputExpressionOptions({
     const entity = entities[type]
     const inclusions = entity?.inclusions ?? []
     const visitedKey = `${type}:${path ?? ""}`
+
     if (visited.has(visitedKey)) {
       return
     }

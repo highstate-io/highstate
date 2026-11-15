@@ -307,6 +307,7 @@ export class ProjectService {
           }
 
           const newChildInstanceId = childState.instanceId.replace(oldName, newName)
+
           if (newChildInstanceId === childState.instanceId) {
             continue
           }

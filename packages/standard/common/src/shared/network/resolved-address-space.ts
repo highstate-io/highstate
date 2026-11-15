@@ -156,6 +156,7 @@ function isRangeString(value: string): boolean {
 
   const left = parts[0]?.trim()
   const right = parts[1]?.trim()
+
   if (!left || !right) {
     return false
   }

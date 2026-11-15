@@ -264,6 +264,7 @@ function processUpdateInclusions(
 
       if (shouldInclude && !workState.included.has(instance.id)) {
         const state = context.getState(instance.id)
+
         if (!isVirtualGhostInstance(state)) {
           include(instance.id, "composite_child", workState, {
             forceFlag: options.forceUpdateChildren ? "children" : undefined,
@@ -335,6 +336,7 @@ function processRefreshInclusions(
       }
 
       const shouldInclude = options.forceUpdateDependencies
+
       if (shouldInclude && !workState.included.has(depInstance.id)) {
         include(depInstance.id, "dependency", workState, {
           requiredBy: instance.id,
@@ -358,6 +360,7 @@ function processDestroyInclusions(
   // check if should be included as composite child
   if (instance.parentId) {
     const parentType = workState.compositeTypes.get(instance.parentId)
+
     if (parentType === "substantive" && !workState.included.has(instance.id)) {
       // all children of substantive composites being destroyed must be included
       // when partial destruction is disabled
@@ -648,6 +651,7 @@ function hasGhostDescendant(instanceId: InstanceId, context: OperationContext): 
     const childId = queue.shift()!
     const child = context.getInstance(childId)
     const childState = context.getState(child.id)
+
     if (isVirtualGhostInstance(childState)) {
       return true
     }
@@ -720,6 +724,7 @@ function hasUnitDescendant(instanceId: InstanceId, context: OperationContext): b
 
   while (queue.length > 0) {
     const childId = queue.pop()!
+
     if (visited.has(childId)) {
       continue
     }

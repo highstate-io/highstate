@@ -5,6 +5,7 @@ import { parseEndpoint } from "../../shared"
 const { name, stateId, args, inputs, outputs } = forUnit(common.remoteFile)
 
 const resolvedInputs = await toPromise(inputs)
+
 if (!resolvedInputs.endpoint && !args.url) {
   throw new Error("Either 'endpoint' input or 'url' argument must be provided")
 }

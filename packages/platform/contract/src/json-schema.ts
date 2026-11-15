@@ -15,6 +15,7 @@ export function fixJsonSchema(schema: unknown): unknown {
   }
 
   const allOf = schema.allOf
+
   if (Array.isArray(allOf) && allOf.length > 0) {
     const objectSchemas: Record<string, unknown>[] = []
     const otherSchemas: unknown[] = []
@@ -35,6 +36,7 @@ export function fixJsonSchema(schema: unknown): unknown {
 
       for (const objectSchema of objectSchemas) {
         const objectRequired = objectSchema.required
+
         if (Array.isArray(objectRequired)) {
           for (const key of objectRequired) {
             if (typeof key === "string") {
@@ -44,6 +46,7 @@ export function fixJsonSchema(schema: unknown): unknown {
         }
 
         const objectProperties = objectSchema.properties
+
         if (isRecord(objectProperties)) {
           for (const [key, value] of Object.entries(objectProperties)) {
             const existing = properties[key]
@@ -87,6 +90,7 @@ export function fixJsonSchema(schema: unknown): unknown {
   }
 
   const next: Record<string, unknown> = { ...schema }
+
   if (Array.isArray(next.allOf)) {
     next.allOf = next.allOf.map(fixJsonSchema)
   }

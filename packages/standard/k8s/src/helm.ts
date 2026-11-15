@@ -305,6 +305,7 @@ export class Chart extends ComponentResource {
 
               const serviceName = args.serviceName ?? name
               const expectedName = `${name}:${namespace}/${serviceName}`
+
               if (
                 resourceArgs.type === "kubernetes:core/v1:Service" &&
                 resourceArgs.name === expectedName
@@ -792,6 +793,7 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
 
   // find all matching files
   const files = await glob(globPattern, { cwd: chartsDir })
+
   if (files.includes(targetFileName)) {
     return resolve(chartsDir, targetFileName)
   }
@@ -816,6 +818,7 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
   // check the SHA256
   const content = await readFile(resolve(chartsDir, targetFileName))
   const actualSha256 = await sha256(content)
+
   if (actualSha256 !== manifest.sha256) {
     throw new Error(`SHA256 mismatch for chart '${manifest.name}'`)
   }

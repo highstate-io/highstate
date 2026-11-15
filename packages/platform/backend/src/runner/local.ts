@@ -709,6 +709,7 @@ export class LocalRunnerBackend implements RunnerBackend {
     }
 
     const packageName = match[1]
+
     if (!allowedDependencies.includes(packageName)) {
       throw new Error(
         `Dependency '${packageName}' was requested to be auto-installed, but it is not allowed. Please add it to the 'peerDependencies' in the package.json of the unit`,

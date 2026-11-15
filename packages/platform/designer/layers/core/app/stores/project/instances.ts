@@ -222,6 +222,7 @@ export const useProjectInstancesStore = defineMultiStore({
         ])
 
         const safeBaseName = isValidExportInputName(baseName) ? baseName : "input"
+
         if (!existingInputNames.has(safeBaseName)) {
           return safeBaseName
         }
@@ -263,6 +264,7 @@ export const useProjectInstancesStore = defineMultiStore({
         }
 
         const trimmedName = newName.trim()
+
         if (!isValidExportInputName(trimmedName)) {
           throw new Error(
             `Invalid export input name "${trimmedName}" (must be 2-64 chars camelCase)`,
@@ -558,6 +560,7 @@ export const useProjectInstancesStore = defineMultiStore({
                   const updatedInstance = event.updatedInstances[0]
                   const deletedInstanceId = event.deletedInstanceIds[0]
                   const deletedInstance = instances.get(deletedInstanceId)
+
                   if (deletedInstance?.type === updatedInstance.type) {
                     renameInstanceLocally(deletedInstanceId, updatedInstance)
                     renamedInstanceIds.add(deletedInstanceId)
@@ -732,6 +735,7 @@ export const useProjectInstancesStore = defineMultiStore({
 
       const populateInstanceUnitTypes = (unitTypes: Set<string>, instance: InstanceModel) => {
         const component = getInstanceComponent(instance)
+
         if (component && isUnitModel(component)) {
           unitTypes.add(instance.type)
         }

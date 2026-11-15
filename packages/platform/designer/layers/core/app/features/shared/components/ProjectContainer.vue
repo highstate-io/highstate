@@ -75,6 +75,7 @@ const tryPassKeyUnlock = async () => {
 }
 
 const unlockState = await until(() => stateStore.unlockState).not.toBeUndefined()
+
 if (
   unlockState.type === "locked" &&
   unlockSuite.value?.hasPasskey &&

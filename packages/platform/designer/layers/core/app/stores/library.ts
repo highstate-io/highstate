@@ -112,6 +112,7 @@ export const useLibraryStore = defineMultiStore({
             {
               onData({ unitType, sourceHash }) {
                 const existingSourceHash = unitSourceHashes.get(unitType)
+
                 if (existingSourceHash === sourceHash) {
                   return
                 }

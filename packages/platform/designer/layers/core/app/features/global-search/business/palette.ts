@@ -44,6 +44,7 @@ export function parseGlobalSearchQuery(text: string): GlobalSearchQueryPlan {
   }
 
   const ids = tokens.filter(token => cuid2Regex.test(token))
+
   if (ids.length > 0 && ids.length === tokens.length) {
     return { type: "id", ids: ids.slice(0, 50) }
   }
@@ -181,6 +182,7 @@ export function toGroupsFromIdsResult(
 
     for (const item of items) {
       const key = getPaletteItemKey(item)
+
       if (seen.has(key)) {
         continue
       }

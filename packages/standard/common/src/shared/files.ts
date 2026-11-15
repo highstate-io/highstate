@@ -945,6 +945,7 @@ export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<numbe
   }
 
   const size = parseInt(contentLength, 10)
+
   if (Number.isNaN(size)) {
     throw new Error(`Invalid Content-Length value: ${contentLength}`)
   }

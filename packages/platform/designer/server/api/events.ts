@@ -11,6 +11,7 @@ export default defineWebSocketHandler({
   upgrade: request => {
     const origin = request.headers.get("origin")
     const redirectDisabled = process.env.HIGHSTATE_DESIGNER_NO_REDIRECT !== undefined
+
     if (!origin || !isDesignerOrigin(origin, request.url, redirectDisabled)) {
       return new Response("Forbidden", { status: 403 })
     }

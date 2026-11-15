@@ -99,6 +99,7 @@ export function doesAddressBelongToSubnet(
 
   const addressIp = parseIp(address.value)
   const subnetBaseIp = parseIp(subnet.baseAddress)
+
   if (addressIp.type !== subnet.type || subnetBaseIp.type !== subnet.type) {
     return false
   }

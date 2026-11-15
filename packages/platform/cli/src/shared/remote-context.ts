@@ -210,6 +210,7 @@ export async function resolveRemoteTarget(
   const config = await readRemoteConfig(env)
   const contextName = overrides.context ?? env.HIGHSTATE_CONTEXT ?? config.activeContext
   const context = contextName ? config.contexts[contextName] : undefined
+
   if (contextName && !context) {
     throw new Error(`Highstate context "${contextName}" not found`)
   }
@@ -228,6 +229,7 @@ export async function resolveRemoteTarget(
   }
 
   const projectId = overrides.projectId ?? env.HIGHSTATE_PROJECT_ID ?? context?.projectId
+
   if (options.requireProject && !projectId) {
     throw new Error("No active Highstate project; run highstate project use or provide --project")
   }

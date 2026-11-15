@@ -32,6 +32,7 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       : undefined
 
     const routeProtocol = resolveRouteProtocol(spec)
+
     if (spec.clientAuth && routeProtocol !== "http") {
       throw new Error("Gateway client authentication is only supported for HTTP routes")
     }
@@ -77,6 +78,7 @@ type GatewayRouteRuleSpec = {
 
 function resolveRouteNamespace(spec: GatewayRouteSpec, data: k8s.GatewayData): Namespace {
   const metadataNamespace = spec.metadata["k8s.namespace"]
+
   if (metadataNamespace instanceof Namespace) {
     return metadataNamespace
   }
@@ -279,6 +281,7 @@ async function createL4GatewayRoute({
   }
 
   const routeNamespace = await toPromise(namespace.metadata.name)
+
   if (backendData.serviceNamespace !== routeNamespace) {
     new gatewayApi.v1.ReferenceGrant(
       name,
@@ -392,12 +395,14 @@ async function getCertificateSecret(
   }
 
   const resource = await toPromise(resolvedCertificate.resource)
+
   if (resource instanceof Certificate) {
     const certNamespace = await toPromise(resource.namespace.metadata.name)
     const certClusterId = await toPromise(resource.namespace.cluster.id)
 
     const targetNamespace = await toPromise(namespace.metadata.name)
     const targetClusterId = await toPromise(namespace.cluster.id)
+
     if (certNamespace === targetNamespace && certClusterId === targetClusterId) {
       return await toPromise(resource.secret)
     }
@@ -415,6 +420,7 @@ function resolveRouteProtocol(spec: GatewayRouteSpec): GatewayRouteRuleSpec["typ
   }
 
   const type = rules[0].type
+
   if (rules.some(rule => rule.type !== type)) {
     throw new Error("Gateway route rules must use the same protocol type")
   }
@@ -493,11 +499,13 @@ function getServiceMetadataFromEndpoints(
     }
   | undefined {
   const serviceEndpoints = endpoints.filter(endpoint => isEndpointFromCluster(endpoint, cluster))
+
   if (serviceEndpoints.length === 0 || serviceEndpoints.length !== endpoints.length) {
     return undefined
   }
 
   const first = serviceEndpoints[0].metadata["k8s.service"]
+
   if (
     serviceEndpoints.some(
       endpoint =>
@@ -602,6 +610,7 @@ async function _getServicePorts(service: Service): Promise<ServicePortInfo[]> {
   for (const port of ports) {
     const value = port.port
     const protocol = (port.protocol ?? "TCP").toUpperCase()
+
     if (value === undefined || (protocol !== "TCP" && protocol !== "UDP")) {
       continue
     }

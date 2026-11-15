@@ -52,6 +52,7 @@ export class ValidationResolver extends GraphResolver<ValidationNode, Validation
     for (const [name, argument] of Object.entries(component.args)) {
       try {
         const value = parseArgumentValue(instance.args?.[name])
+
         if (!argument.required && value === undefined) {
           continue
         }

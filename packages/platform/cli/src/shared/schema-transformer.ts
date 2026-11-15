@@ -205,6 +205,7 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
         ) {
           // look for JSDoc comment on the parent declaration/export, not the function call itself
           const jsdoc = findJsdocForDefineFunction(content, parentStack, comments)
+
           if (jsdoc && callNode.arguments && callNode.arguments.length > 0) {
             const description = cleanJsdoc(jsdoc.value)
             const firstArg = callNode.arguments[0]
@@ -337,6 +338,7 @@ function findFirstReturnArgument(node: ObjectProperty): Node | null {
     }
 
     const returnArgument = "argument" in statement ? statement.argument : null
+
     if (returnArgument && hasSourceRange(returnArgument)) {
       return returnArgument
     }
@@ -413,6 +415,7 @@ function isInsideZodObject(parentStack: Node[]): boolean {
   // look for z.object() call expression in the parent stack
   for (let i = parentStack.length - 1; i >= 0; i--) {
     const node = parentStack[i]
+
     if (
       node.type === "CallExpression" &&
       "callee" in node &&

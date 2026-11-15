@@ -110,6 +110,7 @@ export class BackendRoleSettingsService {
     requireBackendPermission(context, "role.create")
 
     const data = backendRoleInputSchema.parse(input)
+
     if (!hasBackendPermissionRulesSubset(context, data.rules)) {
       requireBackendPermission(context, "role.escalate")
     }
@@ -135,6 +136,7 @@ export class BackendRoleSettingsService {
     requireBackendPermission(context, "role.update", { resourceId: roleId })
     await this.assertMutable(roleId)
     const data = backendRoleInputSchema.parse(input)
+
     if (!hasBackendPermissionRulesSubset(context, data.rules)) {
       requireBackendPermission(context, "role.escalate", { resourceId: roleId })
     }

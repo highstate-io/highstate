@@ -53,6 +53,7 @@ async function typedCheck(): Promise<boolean> {
   const fingerprint = await fingerprintFiles(typedInputs)
   const cachePath = `${cacheDirectory}/typed`
   const cached = await readFile(cachePath, "utf8").catch(() => undefined)
+
   if (cache && cached === fingerprint) {
     return true
   }

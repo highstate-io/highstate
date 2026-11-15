@@ -63,6 +63,7 @@ export class UpdateCommand extends Command {
       }
 
       const pullRequest = Number(this.pullRequest)
+
       if (!Number.isSafeInteger(pullRequest) || pullRequest <= 0) {
         throw new Error('Flag "--pr" must be a positive pull request number')
       }

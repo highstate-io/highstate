@@ -72,6 +72,7 @@ const userData = interpolate`
 `.apply(trimIndentation)
 
 let publicAddress: string | Output<string> | undefined
+
 if (inputs.publicAddress && !args.network.assignPublicIp) {
   throw new Error('Cannot use "publicAddress" when "network.assignPublicIp" is false')
 }

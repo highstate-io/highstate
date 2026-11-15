@@ -49,12 +49,14 @@ export function useCollectionQuery<T>(
 
   async function load(force = true): Promise<void> {
     const pageIndex = page.value - 1
+
     if (!force && pages.value[pageIndex]) {
       updateData()
       return
     }
 
     const previousPage = pages.value[pageIndex - 1]
+
     if (pageIndex > 0 && !previousPage?.nextPageToken) {
       page.value = Math.max(1, pages.value.length)
       updateData()

@@ -25,6 +25,7 @@ export function validateUpdateMask<T extends Message>(
 
   for (const path of mask.paths) {
     const normalized = normalizePath(schema, path)
+
     if (!mutablePaths.has(normalized)) {
       throw fieldMaskError(
         `update_mask.paths`,

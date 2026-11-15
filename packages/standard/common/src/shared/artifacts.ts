@@ -47,6 +47,7 @@ export function getArtifactUrlParamOrder(url: string): string[] {
 
   for (const match of url.matchAll(urlParamPattern)) {
     const name = match[1]
+
     if (names.includes(name)) {
       continue
     }
@@ -80,6 +81,7 @@ function isMatchingParamSet(params: ArtifactParams, constraints: ArtifactParams)
 
     const values = Array.isArray(value) ? value : [value]
     const expectedValues = Array.isArray(expected) ? expected : [expected]
+
     if (!expectedValues.every(expectedValue => values.includes(expectedValue))) {
       return false
     }
@@ -90,6 +92,7 @@ function isMatchingParamSet(params: ArtifactParams, constraints: ArtifactParams)
 
 function getArtifactParamSets(file: ArtifactFile, constraints: ArtifactParams): ArtifactParams[] {
   const params = file.params ?? {}
+
   if (!isStructuredParams(params)) {
     return [{ ...params, ...constraints }]
   }
@@ -200,6 +203,7 @@ export function resolveArtifactFile(file: ArtifactFile, params: ArtifactParams =
     path: file.path
       ? getArtifactUrlParamOrder(file.path).reduce((path, name) => {
           const value = mergedParams[name]
+
           if (!value || Array.isArray(value)) {
             return path
           }
@@ -300,6 +304,7 @@ async function downloadArtifactContent(url: string, sha256: string): Promise<Buf
 
   const content = Buffer.from(await response.arrayBuffer())
   const actualSha256 = createHash("sha256").update(content).digest("hex")
+
   if (actualSha256 !== sha256) {
     throw new Error(`SHA256 mismatch for artifact from "${url}"`)
   }
@@ -323,6 +328,7 @@ async function downloadArtifact(url: string, targetPath: string, sha256: string)
 
 function resolveArchivePath(root: string, path: string): string {
   const resolved = resolve(root, path)
+
   if (resolved !== root && resolved.startsWith(`${root}${sep}`)) {
     return resolved
   }

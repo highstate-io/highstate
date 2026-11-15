@@ -88,6 +88,7 @@ function resolveBasePath(base: string | URL): string {
 
 async function normalizePathForLookup(pathValue: string): Promise<string> {
   const existsAsFile = await pathExists(pathValue)
+
   if (existsAsFile && isLikelyFilePath(pathValue)) {
     return dirname(pathValue)
   }
@@ -104,11 +105,13 @@ async function findNearestPackageJson(startPath: string): Promise<string | undef
 
   while (true) {
     const candidate = resolve(current, "package.json")
+
     if (await pathExists(candidate)) {
       return candidate
     }
 
     const parent = dirname(current)
+
     if (parent === current) {
       return undefined
     }
@@ -125,11 +128,13 @@ async function findPackageJsonForBareSpecifier(
 
   while (true) {
     const candidate = resolve(current, "node_modules", packageName, "package.json")
+
     if (await pathExists(candidate)) {
       return candidate
     }
 
     const parent = dirname(current)
+
     if (parent === current) {
       return undefined
     }

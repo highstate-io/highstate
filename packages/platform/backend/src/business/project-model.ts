@@ -356,6 +356,7 @@ export class ProjectModelService {
       }
 
       const component = library.components[instance.type]
+
       if (!component || !instance.inputs) {
         continue
       }

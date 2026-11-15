@@ -43,6 +43,7 @@ const primaryAddresses = providedAddresses.filter(address => address.kind === "p
 const floatingAddresses = providedAddresses.filter(address => address.kind === "floating")
 const providedIpv4 = primaryAddresses.filter(address => address.type === "ipv4")
 const providedIpv6 = primaryAddresses.filter(address => address.type === "ipv6")
+
 if (providedIpv4.length > 1 || providedIpv6.length > 1) {
   throw new Error("At most one Primary IP address of each family can be attached")
 }

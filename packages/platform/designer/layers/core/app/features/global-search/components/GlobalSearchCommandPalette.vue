@@ -111,6 +111,7 @@ const openItem = async (item: GlobalSearchPaletteItem) => {
 
 useEventListener(window, "keydown", event => {
   const key = event.key.toLowerCase()
+
   if ((event.ctrlKey || event.metaKey) && key === "k") {
     event.preventDefault()
     visible.value = true

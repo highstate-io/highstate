@@ -32,6 +32,7 @@ export async function readCurrentPackageVersion(moduleUrl: string): Promise<stri
     }
 
     const parentDirectory = dirname(directory)
+
     if (parentDirectory === directory) {
       throw new Error(`Package manifest not found above "${directory}"`)
     }

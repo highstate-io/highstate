@@ -49,6 +49,7 @@ function setupInformerEvents<T extends KubernetesObject>(
     try {
       const namespace = obj.metadata?.namespace
       const name = obj.metadata?.name
+
       if (namespace && name) {
         statusTracker.removeResourceStatus(resourceType, namespace, name)
       }

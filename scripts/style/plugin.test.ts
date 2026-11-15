@@ -19,6 +19,20 @@ function check(name: string, code: string, fix = false) {
 }
 
 describe("style diagnostics", () => {
+  it("separates a compound guard involving multiple assigned values", () => {
+    const input = `const providedIpv4 = primaryAddresses.filter(address => address.type === "ipv4")
+const providedIpv6 = primaryAddresses.filter(address => address.type === "ipv6")
+
+if (providedIpv4.length > 1 || providedIpv6.length > 1) {
+  throw new Error("At most one Primary IP address of each family can be attached")
+}`
+
+    expect(check("statement-spacing", input).messages).toEqual([])
+    expect(check("statement-spacing", input, true).output).toBe(input)
+    const adjacent = input.replace("\n\nif (", "\nif (")
+    expect(check("statement-spacing", adjacent, true).output).toBe(input)
+  })
+
   it("rejects static imports after code, including hoisted mock declarations", () => {
     const result = check(
       "imports-first",

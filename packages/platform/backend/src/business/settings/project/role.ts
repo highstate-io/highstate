@@ -117,6 +117,7 @@ export class ProjectRoleSettingsService {
 
     const database = await this.database.forProject(context.projectId)
     const data = projectRoleInputSchema.parse(input)
+
     if (!hasProjectPermissionRulesSubset(context, data.rules)) {
       requireProjectPermission(context, "role.escalate")
     }
@@ -144,6 +145,7 @@ export class ProjectRoleSettingsService {
     await this.assertMutable(context.projectId, roleId)
     const database = await this.database.forProject(context.projectId)
     const data = projectRoleInputSchema.parse(input)
+
     if (!hasProjectPermissionRulesSubset(context, data.rules)) {
       requireProjectPermission(context, "role.escalate", { resourceId: roleId })
     }

@@ -3,6 +3,7 @@ const knownAbbreviationsMap = new Map<string, string>()
 export function registerKnownAbbreviations(abbreviations: string[]) {
   for (const abbr of abbreviations) {
     const lower = abbr.toLowerCase()
+
     if (!knownAbbreviationsMap.has(lower)) {
       knownAbbreviationsMap.set(lower, abbr)
     }
@@ -23,6 +24,7 @@ export function camelCaseToHumanReadable(text: string) {
   return words
     .map(word => {
       const lower = word.toLowerCase()
+
       if (knownAbbreviationsMap.has(lower)) {
         return knownAbbreviationsMap.get(lower)
       }

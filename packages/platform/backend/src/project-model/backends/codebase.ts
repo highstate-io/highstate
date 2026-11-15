@@ -205,6 +205,7 @@ export class CodebaseProjectModelBackend implements ProjectModelBackend {
         }
 
         const newInstanceId = getInstanceId(instance.type, newName)
+
         if (projectData.instances[newInstanceId]) {
           throw new ProjectModelInstanceAlreadyExistsError(project.id, newInstanceId)
         }

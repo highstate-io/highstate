@@ -124,6 +124,7 @@ export abstract class GraphResolver<TNode, TOutput> {
 
     while (stack.length > 0) {
       const currentNodeId = stack.pop()!
+
       if (currentNodeId === dependencyId) {
         return false
       }

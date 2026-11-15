@@ -227,6 +227,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
     const addInstanceInput = (inputName: string, input: InstanceInput) => {
       const componentInput = node.component.inputs[inputName]
       const isDynamicExportInput = node.instance.type === SYSTEM_EXPORT_COMPONENT_TYPE
+
       if (!componentInput && !isDynamicExportInput) {
         this.logger.warn({
           msg: "input not found in the component",
@@ -324,6 +325,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
           addInstanceInput(inputName, input.input)
 
           const key = inputKey(input.input)
+
           if (injectionInputs.has(key)) {
             matchedInjectionInputs.set(key, input)
           }

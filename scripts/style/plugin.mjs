@@ -86,6 +86,7 @@ function messageStyle(context, node, uppercase) {
   const last = parts.at(-1)
   const wrongCase = uppercase ? /^[a-z]/.test(first) : /^[A-Z][a-z]/.test(first)
   const punctuation = /[.!]$/.test(last)
+
   if (!wrongCase && !punctuation) {
     return
   }
@@ -180,6 +181,7 @@ const rules = {
 
             for (; end < node.body.length; end++) {
               const next = mapping(node.body[end])
+
               if (!next || next.value !== first.value) {
                 break
               }
@@ -236,6 +238,7 @@ const rules = {
         }
 
         const variable = context.sourceCode.getDeclaredVariables(node)[0]
+
         if (
           !variable ||
           variable.references.some(
@@ -292,6 +295,7 @@ const rules = {
     context => ({
       ThrowStatement(node) {
         const error = node.argument
+
         if (error?.type !== "NewExpression" || !standardError(context, error)) {
           return
         }
@@ -338,6 +342,7 @@ const rules = {
 
           for (let scope = source.getScope(node); scope; scope = scope.upper) {
             const variable = scope.set.get(caught.name)
+
             if (variable && variable !== caught) {
               return null
             }
@@ -441,6 +446,7 @@ const rules = {
       TSParameterProperty(node) {
         const declaration = node.parent.parent
         const owner = declaration?.parent?.parent
+
         if (declaration?.kind !== "constructor" || !/.+Service$/.test(owner?.id?.name ?? "")) {
           return
         }
@@ -468,6 +474,7 @@ const rules = {
             ["MethodDefinition", "TSAbstractMethodDefinition"].includes(member.type)
 
           const metadata = member => member.static && ["paths", "usage"].includes(member.key?.name)
+
           if (!method(previous) && !method(current) && !metadata(previous) && !metadata(current)) {
             continue
           }
@@ -482,6 +489,7 @@ const rules = {
 
           const comments = source.getCommentsBefore(current)
           const start = comments[0] ?? current
+
           if (start.loc.start.line - previous.loc.end.line > 1) {
             continue
           }
@@ -511,11 +519,24 @@ const rules = {
           }
 
           if (child.type === "Identifier") {
-            names.add(child.name)
+            if (!["undefined", "NaN", "Infinity"].includes(child.name)) {
+              names.add(child.name)
+            }
+          }
+
+          if (child.type === "MemberExpression") {
+            visit(child.object)
+
+            if (child.computed) {
+              visit(child.property)
+            }
+
+            return
           }
 
           for (const key of source.visitorKeys[child.type] ?? []) {
             const value = child[key]
+
             if (Array.isArray(value)) {
               value.forEach(visit)
             } else {
@@ -546,6 +567,7 @@ const rules = {
             previous.declarations.length === 1 &&
             previous.declarations[0].id.type === "Identifier" &&
             current.type === "IfStatement" &&
+            identifiers(current.test).size === 1 &&
             identifiers(current.test).has(previous.declarations[0].id.name)
 
           const comments = source.getCommentsBefore(current)
@@ -558,6 +580,7 @@ const rules = {
               : previous.loc.end.line
 
           const gap = start.loc.start.line - previousEnd
+
           // Comments can explain either side of a guard; do not move them across statements.
           if (checked && !comments.length && gap > 1) {
             report(context, current, "Keep the assignment adjacent to its checking guard", fixer =>
@@ -628,6 +651,7 @@ const rules = {
         }
 
         const source = context.sourceCode
+
         if (!/(?:^|\.)[\w$]*logger$/i.test(source.getText(node.callee.object))) {
           return
         }
@@ -661,6 +685,7 @@ const rules = {
         }
 
         const caught = caughtBinding(source, node)
+
         if (refersTo(source, first, caught)) {
           report(context, first, 'Put the caught error under the "error" context key', fixer =>
             fixer.replaceText(first, `{ error: ${source.getText(first)} }`),

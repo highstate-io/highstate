@@ -851,6 +851,7 @@ function normalizeCreateOutputs(
 
   for (const [outputName, outputSpec] of Object.entries(model.outputs)) {
     const outputGroup = outputs[outputName]
+
     if (!isNonNullish(outputGroup)) {
       if (model.kind === "unit") {
         throw new Error(`Unit output "${outputName}" in instance "${instanceId}" must be provided`)
@@ -864,6 +865,7 @@ function normalizeCreateOutputs(
     }
 
     const normalizedGroup = normalizeCreateOutputGroup(outputGroup, instanceId, outputName)
+
     if (outputSpec.multiple && normalizedGroup.some(output => !output.provided)) {
       throw new Error(
         `Multiple output "${outputName}" in instance "${instanceId}" cannot contain non-provided items`,

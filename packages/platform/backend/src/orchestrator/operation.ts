@@ -602,6 +602,7 @@ export class RuntimeOperation {
 
   private getExportTargetProjectNames(instance: InstanceModel): string[] {
     const raw = (instance.args as Record<string, unknown>).projects
+
     if (!Array.isArray(raw)) {
       return []
     }
@@ -756,6 +757,7 @@ export class RuntimeOperation {
         !this.operation.options.forceUpdateChildren
       ) {
         const expected = await this.context.getUpToDateInputHashOutput(instance)
+
         if (
           expected.selfHash === state.selfHash &&
           expected.dependencyOutputHash === state.dependencyOutputHash

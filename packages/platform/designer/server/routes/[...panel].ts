@@ -19,6 +19,7 @@ export default defineWebSocketHandler({
     const panelId = getPanelIdFromHost(request.headers.get("host") ?? undefined)
     const sessionId = getCookieValue(request.headers.get("cookie"), "highstate-panel-session")
     const session = panelId ? getRequestPanelSession(request, panelId, sessionId) : undefined
+
     if (!panelId || !session) {
       return new Response("Panel session required", { status: 401 })
     }
@@ -37,6 +38,7 @@ export default defineWebSocketHandler({
     const panelId = getPanelIdFromHost(request.headers.get("host") ?? undefined)
     const sessionId = getCookieValue(request.headers.get("cookie"), "highstate-panel-session")
     const session = panelId ? getRequestPanelSession(request, panelId, sessionId) : undefined
+
     if (!panelId || !session) {
       peer.close(1008, "Panel session required")
       return

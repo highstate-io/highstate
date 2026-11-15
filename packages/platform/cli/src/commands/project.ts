@@ -60,6 +60,7 @@ export function parsePageSize(value: string | undefined): number | undefined {
   }
 
   const pageSize = Number(value)
+
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
     throw new Error("Page size must be an integer between 1 and 100")
   }
@@ -119,6 +120,7 @@ export class ProjectUseCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
     const name = this.contextName ?? process.env.HIGHSTATE_CONTEXT ?? config.activeContext
+
     if (!name || !config.contexts[name]) {
       throw new Error("An active named context is required")
     }
@@ -152,6 +154,7 @@ export class ProjectUnsetCommand extends RemoteCommand {
   async execute(): Promise<void> {
     const config = await readRemoteConfig()
     const name = this.contextName ?? config.activeContext
+
     if (!name || !config.contexts[name]) {
       throw new Error("An active named context is required")
     }

@@ -73,6 +73,7 @@ export class BuildCommand extends Command {
     }
 
     const entryPoints = extractEntryPoints(packageJson)
+
     if (Object.keys(entryPoints).length === 0) {
       return
     }

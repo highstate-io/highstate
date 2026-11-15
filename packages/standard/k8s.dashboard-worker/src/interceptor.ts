@@ -40,6 +40,7 @@ export async function interceptDashboardRequest(
   cluster: string,
 ): Promise<Response> {
   const url = new URL(request.url)
+
   if (request.method === "GET" && url.pathname === "/config") {
     return await disableDashboardTokenAuthentication(await forward(request))
   }

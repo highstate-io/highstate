@@ -43,6 +43,7 @@ export class DesignerCommand extends Command {
     const host = "127.0.0.1"
     const configuredPort = process.env.HIGHSTATE_DESIGNER_PORT
     const port = configuredPort === undefined ? 7283 : Number(configuredPort)
+
     if (!/^\d+$/.test(configuredPort ?? port.toString()) || port < 1 || port > 65535) {
       throw new UsageError(`HIGHSTATE_DESIGNER_PORT must be an integer between "1" and "65535"`)
     }

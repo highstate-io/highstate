@@ -118,6 +118,7 @@ export async function synchronizeReleaseGroups(root: string, check: boolean): Pr
     }
 
     const updated = `${JSON.stringify(withReleaseGroup(manifest, group, packages), null, 2)}\n`
+
     if (source === updated) {
       continue
     }

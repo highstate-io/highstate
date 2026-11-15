@@ -113,11 +113,13 @@ export const useProjectPanelStore = defineMultiStore({
         const inputComponent = instancesStore.getInstanceComponent(inputInstance)
         const output = outputComponent?.outputs[outputKey]
         const input = inputComponent?.inputs[inputKey]
+
         if (!output || !input) {
           return false
         }
 
         const outputEntity = libraryStore.library.entities[output.type]
+
         if (outputEntity && isInheritedAssignableTo(outputEntity, input.type)) {
           return false
         }

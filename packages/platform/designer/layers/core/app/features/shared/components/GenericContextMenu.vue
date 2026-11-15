@@ -36,6 +36,7 @@ watch(
 
     const handleMouseEvent = (event: MouseEvent) => {
       const element = contextMenu.value?.$el as HTMLElement | undefined
+
       if (event.target instanceof Node && element?.contains(event.target)) {
         return
       }

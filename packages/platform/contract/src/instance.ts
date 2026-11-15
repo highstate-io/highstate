@@ -429,6 +429,7 @@ export function selectInput<TInput extends RuntimeInput>(
   name: string,
 ): SelectInputResult<TInput> {
   const groupBoundary = inputs[boundaryInput] ?? inputs[0]?.[boundaryInput]
+
   if (inputs.length === 0 && !groupBoundary) {
     throw new Error(
       `Cannot select input "${name}": empty input group has no boundary metadata to build a missing input reference`,

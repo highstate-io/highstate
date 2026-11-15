@@ -25,6 +25,7 @@ for (const document of documents) {
 
 const renderedDocuments = documents.flatMap(document => {
   const manifest = document.toJSON() as KubernetesManifest | null
+
   if (!manifest || shouldRemoveManifest(manifest, features)) {
     return []
   }
@@ -64,6 +65,7 @@ function processManifest(
 
 function isGatewayApiCrd(manifest: KubernetesManifest): boolean {
   const name = manifest.metadata?.name
+
   if (manifest.kind !== "CustomResourceDefinition" || typeof name !== "string") {
     return false
   }

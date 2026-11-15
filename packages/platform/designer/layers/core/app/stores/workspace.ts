@@ -40,6 +40,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
       const route = panel.params?.routeName as string | undefined
       const params = panel.params?.routeParams as Record<string, string> | undefined
       const focusable = panel.params?.focusable ?? true
+
       if (!route || !params || !focusable) {
         return
       }
@@ -69,6 +70,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const loadLayout = async () => {
     const layout = await $client.workspace.getWorkspaceLayout.query()
     const data = layout as SerializedDockview
+
     if (data?.panels && Object.keys(data.panels).length > 0) {
       try {
         const currentRoute = router.currentRoute.value

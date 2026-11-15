@@ -56,6 +56,7 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
 
   while (currentPath !== "/") {
     const packageJsonPath = join(currentPath, "package.json")
+
     if (existsSync(packageJsonPath)) {
       try {
         const content = await readFile(packageJsonPath, "utf-8")
@@ -69,6 +70,7 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
     }
 
     const parentPath = resolve(currentPath, "..")
+
     if (parentPath === currentPath) {
       break
     }
@@ -85,6 +87,7 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
 export async function scanWorkspacePackages(workspaceRoot: string): Promise<HighstatePackage[]> {
   const packages: HighstatePackage[] = []
   const packagesDir = join(workspaceRoot, "packages")
+
   if (!existsSync(packagesDir)) {
     return packages
   }

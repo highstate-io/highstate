@@ -274,6 +274,7 @@ export function forUnit<
 
   const secrets = mapValues(unit.model.secrets, (secret, secretName) => {
     const hasValue = secretName in hsConfig.secretValues
+
     if (!hasValue && !secret.required) {
       return secret.schema.default ? pulumiSecret(secret.schema.default) : undefined
     }
