@@ -59,7 +59,6 @@ const userData = interpolate`
 `.apply(trimIndentation)
 
 let kmsKey: gcpProvider.kms.CryptoKey | undefined
-
 if (args.bootDisk.encrypted) {
   const keyRing = new gcpProvider.kms.KeyRing(
     "boot-key-ring",

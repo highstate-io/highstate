@@ -157,7 +157,6 @@ async function sendProxyResponse(
     }
 
     const sanitized = sanitizePanelResponseHeader({ name, value })
-
     if (sanitized && !hopByHopHeaders.has(sanitized.name.toLowerCase())) {
       if (
         sanitized.name.toLowerCase() === "set-cookie" &&

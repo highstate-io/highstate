@@ -39,7 +39,6 @@ export function extractEntryPoints(packageJson: PackageJson): Record<string, Ent
   if (exports) {
     for (const [key, value] of Object.entries(exports)) {
       let distPath: string
-
       if (typeof value === "string") {
         distPath = value
       } else if (typeof value === "object" && !Array.isArray(value)) {

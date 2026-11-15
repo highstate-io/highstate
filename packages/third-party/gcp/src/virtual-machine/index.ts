@@ -44,7 +44,6 @@ const sshKeyPair =
 const rootPassword = getSecret("rootPassword", generatePassword)
 
 let kmsKey: gcpProvider.kms.CryptoKey | undefined
-
 if (args.bootDisk.encrypted) {
   const keyRing = new gcpProvider.kms.KeyRing(
     "boot-key-ring",
@@ -66,7 +65,6 @@ if (args.bootDisk.encrypted) {
 }
 
 let publicAddress: gcpProvider.compute.Address | undefined
-
 if (args.network.assignPublicIp && args.network.reservePublicIp) {
   publicAddress = new gcpProvider.compute.Address(
     "address",

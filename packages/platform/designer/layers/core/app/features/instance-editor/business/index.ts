@@ -14,7 +14,6 @@ export function populateDefaultValues(
 
   for (const key in args) {
     const arg = args[key]
-
     if (arg.schema.default && result[key] === undefined) {
       result[key] = clone(arg.schema.default)
     }

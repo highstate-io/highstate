@@ -8,6 +8,7 @@ if (!configPath) {
 
 const source = fs.readFileSync(configPath, "utf8")
 const parsed = ts.parseConfigFileTextToJson(configPath, source)
+
 if (parsed.error) {
   throw new Error(String(parsed.error.messageText))
 }

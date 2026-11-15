@@ -205,7 +205,6 @@ export class InstanceGetCommand extends RemoteCommand {
     }
 
     const childrenByParent = new Map<string, Instance[]>()
-
     if (this.recursive) {
       for (const value of response.model?.instances ?? []) {
         if (!value.parentId) {
@@ -259,6 +258,7 @@ export class InstanceArgumentsGetCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const response = await clients.projectModel.getProjectModel({ projectId: target.projectId })
     const instance = response.model?.instances.find(value => value.id === this.id)
+
     if (!instance) {
       throw new Error(`Instance "${this.id}" not found`)
     }
@@ -312,6 +312,7 @@ export class HubGetCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const response = await clients.projectModel.getProjectModel({ projectId: target.projectId })
     const hub = response.model?.hubs.find(value => value.id === this.id)
+
     if (!hub) {
       throw new Error(`Hub "${this.id}" not found`)
     }

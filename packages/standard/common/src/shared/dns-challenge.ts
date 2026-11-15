@@ -24,7 +24,6 @@ export async function validateDnsChallengeAliases(
 
   for (const [name, target] of Object.entries(aliases)) {
     const normalizedName = normalizeDnsName(name)
-
     if (!normalizedNames.includes(normalizedName)) {
       throw new Error(`DNS challenge alias refers to unrequested certificate name "${name}"`)
     }
@@ -35,7 +34,6 @@ export async function validateDnsChallengeAliases(
     }
 
     const previous = normalizedAliases.get(normalizedName)
-
     if (previous && previous !== normalizedTarget) {
       throw new Error(`Conflicting DNS challenge aliases for "${name}"`)
     }
@@ -47,13 +45,11 @@ export async function validateDnsChallengeAliases(
 
   for (const [name, target] of normalizedAliases) {
     const record = `_acme-challenge.${name.replace(/^\*\./, "")}`
-
     if (record === target) {
       throw new Error(`DNS challenge alias "${record}" must point to a different record`)
     }
 
     const previous = verifiedRecords.get(record)
-
     if (previous && previous !== target) {
       throw new Error(`Conflicting DNS challenge aliases for "${record}"`)
     }

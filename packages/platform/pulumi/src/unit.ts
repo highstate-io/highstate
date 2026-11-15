@@ -222,6 +222,7 @@ function getInputValue(
     const value = parseArgumentValue(entry.value)
     const schema = Array.isArray(value) ? entity.schema.array() : entity.schema
     const result = schema.safeParse(value)
+
     if (!result.success) {
       throw new Error(`Invalid value for input "${inputName}": ${z.prettifyError(result.error)}`)
     }
@@ -265,6 +266,7 @@ export function forUnit<
   const args = mapValues(unit.model.args, (arg, argName) => {
     const value = parseArgumentValue(hsConfig.args[argName])
     const result = arg[runtimeSchema]!.safeParse(value)
+
     if (!result.success) {
       throw new Error(`Invalid argument "${argName}": ${z.prettifyError(result.error)}`)
     }
@@ -274,7 +276,6 @@ export function forUnit<
 
   const secrets = mapValues(unit.model.secrets, (secret, secretName) => {
     const hasValue = secretName in hsConfig.secretValues
-
     if (!hasValue && !secret.required) {
       return secret.schema.default ? pulumiSecret(secret.schema.default) : undefined
     }
@@ -286,6 +287,7 @@ export function forUnit<
     const rawValue = hsConfig.secretValues[secretName]
     const value = parseArgumentValue(rawValue)
     const result = secret[runtimeSchema]!.safeParse(value)
+
     if (!result.success) {
       throw new Error(`Invalid secret "${secretName}": ${z.prettifyError(result.error)}`)
     }
@@ -398,6 +400,7 @@ export function forUnit<
 
         const schema = outputModel.multiple ? entity.schema.array() : entity.schema
         const parseResult = schema.safeParse(outputValue)
+
         if (!parseResult.success) {
           throw new Error(
             `Invalid value for output "${outputName}" of type "${outputModel.type}": ${z.prettifyError(

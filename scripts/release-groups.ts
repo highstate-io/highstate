@@ -96,7 +96,6 @@ export async function synchronizeReleaseGroups(root: string, check: boolean): Pr
   })
 
   const graphOutput = await new Response(nx.stdout).text()
-
   if ((await nx.exited) !== 0) {
     throw new Error("Unable to read the Nx project graph")
   }
@@ -118,7 +117,6 @@ export async function synchronizeReleaseGroups(root: string, check: boolean): Pr
     }
 
     const updated = `${JSON.stringify(withReleaseGroup(manifest, group, packages), null, 2)}\n`
-
     if (source === updated) {
       continue
     }

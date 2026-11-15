@@ -42,7 +42,6 @@ export const useProjectOperationsStore = defineMultiStore({
               switch (event.type) {
                 case "updated": {
                   const operation = event.operation
-
                   if (operationsMap.has(operation.id)) {
                     operationsMap.set(operation.id, operation)
 
@@ -184,7 +183,6 @@ export const useProjectOperationsStore = defineMultiStore({
           }
 
           const operation = operationsMap.get(state.lastOperationState.operationId)
-
           if (operation && !isFinalOperationStatus(operation.status)) {
             return false
           }

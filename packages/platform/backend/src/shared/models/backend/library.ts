@@ -39,7 +39,6 @@ export function diffLibraries(oldLibrary: LibraryModel, newLibrary: LibraryModel
 
   for (const [componentType, newComponent] of Object.entries(newLibrary.components)) {
     const existingComponent = oldLibrary.components[componentType]
-
     if (existingComponent?.definitionHash !== newComponent.definitionHash) {
       updates.push({ type: "component-updated", component: newComponent })
     }
@@ -53,7 +52,6 @@ export function diffLibraries(oldLibrary: LibraryModel, newLibrary: LibraryModel
 
   for (const [entityType, newEntity] of Object.entries(newLibrary.entities)) {
     const existingEntity = oldLibrary.entities[entityType]
-
     if (existingEntity?.definitionHash !== newEntity.definitionHash) {
       updates.push({ type: "entity-updated", entity: newEntity })
     }

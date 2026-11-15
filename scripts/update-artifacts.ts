@@ -66,7 +66,6 @@ function createUpdatePlan(manifest: ArtifactManifest, missingOnly: boolean): Art
 
     for (const values of expandArtifactParamSets(artifact, key, paramOrder)) {
       const shaKey = getShaKey(paramOrder, values)
-
       if (missingOnly && artifact.sha256?.[shaKey]) {
         continue
       }
@@ -95,7 +94,6 @@ function getParamOrder(...templates: (string | undefined)[]): string[] {
 
     for (const match of template.matchAll(urlParamPattern)) {
       const name = match[1]
-
       if (names.includes(name)) {
         continue
       }
@@ -115,13 +113,13 @@ function isStructuredParams(
 
 function getArtifactParamSets(artifact: ArtifactFile): ArtifactParams[] {
   const params = artifact.params ?? {}
-
   if (!isStructuredParams(params)) {
     return [params]
   }
 
   const base = params.base ?? {}
   const groups = params.groups ?? []
+
   if (groups.length === 0) {
     return [base]
   }

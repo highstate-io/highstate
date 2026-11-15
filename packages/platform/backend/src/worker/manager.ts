@@ -211,7 +211,6 @@ export class WorkerManager {
         }
 
         const currentInfo = this.runningWorkers.get(workerVersion.id)
-
         if (currentInfo !== existingInfo || currentInfo.abortController.signal.aborted) {
           return
         }
@@ -322,7 +321,6 @@ export class WorkerManager {
       // regardless the exit reason, we want to restart the worker if it has remaining attempts
       .finally(async () => {
         const currentInfo = this.runningWorkers.get(workerVersion.id)
-
         if (currentInfo === info) {
           // flush any remaining line buffer
           if (info.lineBuffer?.trim()) {
@@ -418,7 +416,6 @@ export class WorkerManager {
    */
   assertWorkerInstance(projectId: string, workerVersionId: string, workerInstanceId: string): void {
     const info = this.runningWorkers.get(workerVersionId)
-
     if (!info || info.projectId !== projectId || info.workerInstanceId !== workerInstanceId) {
       throw new Error(`Worker instance "${workerInstanceId}" is not active for this worker version`)
     }

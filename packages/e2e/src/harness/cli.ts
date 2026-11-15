@@ -80,7 +80,6 @@ export function startCli(
         `CLI output ${text}`,
         async () => {
           const output = stdout + stderr
-
           if (!output.includes(text) && child.exitCode !== null) {
             throw new Error(`CLI exited before expected output (${child.exitCode}): ${output}`)
           }

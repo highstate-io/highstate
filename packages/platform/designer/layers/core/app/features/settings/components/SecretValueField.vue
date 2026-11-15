@@ -53,7 +53,6 @@ const copySecretValue = async () => {
 
   try {
     let textToCopy: string
-
     if (typeof secretValue.value === "string") {
       textToCopy = secretValue.value
     } else {

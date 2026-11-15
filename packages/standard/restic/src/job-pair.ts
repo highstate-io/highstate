@@ -394,6 +394,7 @@ export class BackupJobPair extends ComponentResource {
   handleTrigger(triggers: TriggerInvocation[]): UnitTrigger | undefined {
     const triggerName = `restic.backup-on-destroy.${this.name}`
     const invokedTrigger = triggers.find(trigger => trigger.name === triggerName)
+
     if (invokedTrigger) {
       void this.createBackupOnDestroyJob()
       return

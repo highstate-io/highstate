@@ -12,7 +12,6 @@ import { forUnit, toPromise } from "@highstate/pulumi"
 const { args, inputs, outputs } = forUnit(nixos.system)
 
 const { flake, server } = await toPromise(inputs)
-
 if (!server.ssh) {
   throw new Error("Server must have an SSH endpoint defined")
 }

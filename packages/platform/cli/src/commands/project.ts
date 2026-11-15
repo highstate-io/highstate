@@ -60,7 +60,6 @@ export function parsePageSize(value: string | undefined): number | undefined {
   }
 
   const pageSize = Number(value)
-
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
     throw new Error("Page size must be an integer between 1 and 100")
   }

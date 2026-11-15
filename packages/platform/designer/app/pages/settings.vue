@@ -142,6 +142,7 @@ async function switchScope(value: unknown) {
 
   const previous = value === "project" ? lastProjectTab.value : lastBackendTab.value
   const tab = available.find(tab => tab.name === previous) ?? available[0]
+
   if (tab) {
     await navigateToTab(tab)
   }

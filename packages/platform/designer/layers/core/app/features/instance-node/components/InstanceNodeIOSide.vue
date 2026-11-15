@@ -60,7 +60,6 @@ const getResolvedInputType = (inputName: string): string | undefined => {
 
 const getHandleType = (ioType: "inputs" | "outputs", handleName: string): string => {
   const handle = component[ioType][handleName]
-
   if (ioType === "inputs") {
     return getResolvedInputType(handleName) ?? handle.type
   }

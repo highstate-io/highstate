@@ -81,7 +81,6 @@ function visibleLength(value: string): number {
 
 function formatDetails(value: unknown, depth: number): string[] {
   const indent = "  ".repeat(depth)
-
   if (Array.isArray(value)) {
     if (value.length === 0) {
       return [`${indent}<none>`]

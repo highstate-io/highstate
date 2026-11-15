@@ -74,7 +74,6 @@ async function createPlan(
   instanceIds: string[],
 ) {
   const type = operationTypeSchema.parse(typeValue)
-
   if (!instanceIds.length) {
     throw new Error("At least one instance ID is required")
   }
@@ -143,7 +142,6 @@ async function launchPlan(
   description?: string,
 ) {
   const { clients, target } = await command.remote(false)
-
   if (target.projectId && target.projectId !== document.project_id) {
     throw new Error(
       `Plan project "${document.project_id}" does not match selected project "${target.projectId}"`,
@@ -203,7 +201,6 @@ export class OperationRunCommand extends OperationRequestCommand {
 
   async execute(): Promise<void> {
     const { document } = await createPlan(this, this.type, this.instanceIds)
-
     if (!this.yes) {
       if (!process.stdin.isTTY) {
         throw new Error("Noninteractive operation execution requires --yes")

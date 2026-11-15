@@ -82,7 +82,6 @@ export function flattenMetadata(metadata: Metadata): Record<string, unknown> {
 
     for (let i = 0; i < path.length; i++) {
       const segment = path[i]
-
       if (i === path.length - 1) {
         current[segment] = value
       } else {

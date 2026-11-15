@@ -29,7 +29,6 @@ const handleClick = () => {
 
 const displayText = computed(() => {
   const text = meta?.title ?? id
-
   if (text.length <= maxLength) {
     return text
   }

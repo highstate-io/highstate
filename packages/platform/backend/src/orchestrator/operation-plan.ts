@@ -78,6 +78,7 @@ export function createOperationPlan(
 
     const instanceId = requestedInstanceIds[0] as InstanceId
     const instance = context.getInstance(instanceId)
+
     if (instance.kind !== "unit") {
       throw new InvalidOperationPlanError(
         `Preview is not supported for composite instance "${instanceId}"`,
@@ -264,7 +265,6 @@ function processUpdateInclusions(
 
       if (shouldInclude && !workState.included.has(instance.id)) {
         const state = context.getState(instance.id)
-
         if (!isVirtualGhostInstance(state)) {
           include(instance.id, "composite_child", workState, {
             forceFlag: options.forceUpdateChildren ? "children" : undefined,
@@ -336,7 +336,6 @@ function processRefreshInclusions(
       }
 
       const shouldInclude = options.forceUpdateDependencies
-
       if (shouldInclude && !workState.included.has(depInstance.id)) {
         include(depInstance.id, "dependency", workState, {
           requiredBy: instance.id,
@@ -360,7 +359,6 @@ function processDestroyInclusions(
   // check if should be included as composite child
   if (instance.parentId) {
     const parentType = workState.compositeTypes.get(instance.parentId)
-
     if (parentType === "substantive" && !workState.included.has(instance.id)) {
       // all children of substantive composites being destroyed must be included
       // when partial destruction is disabled
@@ -724,7 +722,6 @@ function hasUnitDescendant(instanceId: InstanceId, context: OperationContext): b
 
   while (queue.length > 0) {
     const childId = queue.pop()!
-
     if (visited.has(childId)) {
       continue
     }
@@ -778,7 +775,6 @@ function generateContextualMessage(
 
     // check if changed by using same logic as isOutdated (for units only)
     const { inputHash: expectedHash } = context.inputHashResolver.requireOutput(instanceId)
-
     if (state.inputHash !== expectedHash) {
       return "changed"
     }
@@ -852,7 +848,6 @@ function findGhostCleanup(
 
       for (const child of children) {
         const childState = context.getState(child.id)
-
         if (child.kind === "composite") {
           queue.push(child.id)
         }

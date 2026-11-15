@@ -26,7 +26,6 @@ function fitTerminal() {
   }
 
   const { clientWidth, clientHeight } = terminalEl.value
-
   if (clientWidth <= 0 || clientHeight <= 0) {
     return
   }
@@ -38,7 +37,6 @@ onMounted(() => {
   terminal = new Terminal({ fontFamily: "monospace", scrollback: 10_000 })
   fitAddon = new FitAddon()
   const webglAddon = new WebglAddon()
-
   if (needAutoResize) {
     terminal.loadAddon(fitAddon)
   } else {

@@ -130,7 +130,6 @@ function applyAtPath(
   }
 
   const [token, ...remaining] = tokens
-
   if (token === undefined) {
     return
   }
@@ -151,7 +150,6 @@ function applyToContainer(
 ): void {
   if (operation.operation === "test") {
     const existing = getExistingValue(container, token)
-
     if (!isDeepStrictEqual(existing, operation.value)) {
       throw new PatchFailure("TEST_FAILED", "The value at the path does not match")
     }
@@ -165,7 +163,6 @@ function applyToContainer(
   }
 
   const exists = Object.hasOwn(container, token)
-
   if (operation.operation === "remove") {
     if (!exists) {
       throw pathNotFound()
@@ -198,7 +195,6 @@ function applyToArray(
   }
 
   const index = parseArrayIndex(token)
-
   if (operation.operation === "add") {
     if (index > array.length) {
       throw pathNotFound()
@@ -222,7 +218,6 @@ function applyToArray(
 function getExistingValue(container: JsonContainer, token: string): unknown {
   if (Array.isArray(container)) {
     const index = parseArrayIndex(token)
-
     if (index >= container.length) {
       throw pathNotFound()
     }
@@ -243,7 +238,6 @@ function parseArrayIndex(token: string): number {
   }
 
   const index = Number(token)
-
   if (!Number.isSafeInteger(index)) {
     throw new PatchFailure("ARRAY_INDEX_INVALID", "The path contains an invalid array index")
   }

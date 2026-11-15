@@ -100,7 +100,6 @@ export function l7EndpointToString(
   const protocol = `${l7Endpoint.appProtocol}://`
 
   let endpoint = l4EndpointToString(l7Endpoint)
-
   if (l7Endpoint.path) {
     endpoint += `/${l7Endpoint.path}`
   }
@@ -210,7 +209,6 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
   function makeEndpoint(value: EndpointValue): network.L3Endpoint {
     const identity = endpointIdentity(value)
-
     if (value.level === 7) {
       const title = l7EndpointToString(value as unknown as network.L7Endpoint)
 
@@ -319,6 +317,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
       const host = trimmed.slice(1, closingIndex)
       const remainder = trimmed.slice(closingIndex + 1)
+
       if (!remainder) {
         return { host }
       }
@@ -343,7 +342,6 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
     // if it looks like an IPv6 address without brackets, treat it as host-only
     if (trimmed.includes(":")) {
       const firstColonIndex = trimmed.indexOf(":")
-
       if (firstColonIndex !== lastColonIndex) {
         return { host: trimmed }
       }
@@ -351,6 +349,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
 
     const host = trimmed.slice(0, lastColonIndex)
     const portString = trimmed.slice(lastColonIndex + 1)
+
     if (!/^\d{1,5}$/.test(portString)) {
       return { host: trimmed }
     }
@@ -421,6 +420,7 @@ export function parseEndpoint<TMinLevel extends network.EndpointLevel = 3>(
         if (type === "ipv4" || type === "ipv6") {
           const addressInput = input.address as Record<string, unknown> | undefined
           const addressValue = addressInput?.value
+
           if (typeof addressValue !== "string" || !addressValue.trim()) {
             throw new Error("Invalid endpoint")
           }
@@ -661,7 +661,6 @@ function extractMetadata(address?: network.Address): network.L3Endpoint["metadat
   }
 
   const metadata: network.L3Endpoint["metadata"] = {}
-
   if (privateSubnets.some(subnet => doesAddressBelongToSubnet(address, subnet))) {
     metadata["iana.scope"] = "private"
   } else {
@@ -730,6 +729,7 @@ export function mergeEndpoints<TEndpoint extends network.L3Endpoint>(
   for (const endpoint of endpoints) {
     const key = endpointToString(endpoint)
     const existing = mergedMap.get(key)
+
     if (existing) {
       mergedMap.set(key, {
         ...existing,

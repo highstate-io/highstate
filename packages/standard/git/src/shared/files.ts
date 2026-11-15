@@ -147,7 +147,6 @@ export class MaterializedRepository implements AsyncDisposable {
       this._shouldCloneAsGitRepo(l7EndpointToString(folderContent.endpoint))
 
     const folderEntity = isCloneSource ? this._makeEmptyFolderEntity() : this.entity
-
     if (!parent) {
       return {
         folder: MaterializedFolder.for(
@@ -257,7 +256,6 @@ export class MaterializedRepository implements AsyncDisposable {
     await using _ = await this.open()
 
     const excludePatterns = [...(exclude ?? []), ...(includeGit ? [] : [".git"])]
-
     if (!includeIgnored) {
       const gitIgnorePatterns = await this.getGitIgnorePatterns()
       excludePatterns.push(...gitIgnorePatterns)

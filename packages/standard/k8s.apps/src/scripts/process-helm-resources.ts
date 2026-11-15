@@ -25,7 +25,6 @@ for (const document of documents) {
 
 const renderedDocuments = documents.flatMap(document => {
   const manifest = document.toJSON() as KubernetesManifest | null
-
   if (!manifest || shouldRemoveManifest(manifest, features)) {
     return []
   }
@@ -40,6 +39,7 @@ process.stdout.write(renderedDocuments.join("---\n"))
 function parseFeatures(features: string[]): Set<HelmResourceProcessorFeature> {
   const knownFeatures = new Set<string>(helmResourceProcessorFeatures)
   const unknownFeature = features.find(feature => !knownFeatures.has(feature))
+
   if (unknownFeature) {
     throw new Error(`Unknown Helm resource processor feature: ${unknownFeature}`)
   }
@@ -65,7 +65,6 @@ function processManifest(
 
 function isGatewayApiCrd(manifest: KubernetesManifest): boolean {
   const name = manifest.metadata?.name
-
   if (manifest.kind !== "CustomResourceDefinition" || typeof name !== "string") {
     return false
   }

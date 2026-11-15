@@ -88,7 +88,6 @@ const entityTypes = computed<{
     }
 
     const componentInput = component.inputs[inputKey]
-
     if (visible.length > 0) {
       return {
         all: visible,
@@ -391,7 +390,6 @@ const allLinePoints = computed(() => {
   const endPoint = [targetX, data.routedTargetY ?? targetY]
 
   const points = [...data.points]
-
   if (!points[0] || !comparePoints(points[0], startPoint)) {
     points.unshift(startPoint)
   }

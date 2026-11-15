@@ -6,6 +6,7 @@ import { createMcTunnel } from "../shared/tunnel.mc"
 const { name, stateId, args, inputs, getSecret, outputs } = forUnit(netaminity.gateway)
 const resourceName = args.resourceName ?? name
 const targetEndpoint = inputs.targetGateway.endpoints[0]
+
 if (!targetEndpoint) {
   throw new Error("Netaminity Gateway target gateway must expose at least one endpoint")
 }

@@ -34,7 +34,6 @@ function createCoordinator(connection: Ref<unknown>, document: Document): TouchH
       ?.closest("[data-instance-io-column]")
 
     const column = element ? columns.get(element) : undefined
-
     if (column !== hovered) {
       clearHover()
       hovered = column

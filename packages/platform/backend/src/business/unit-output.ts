@@ -178,6 +178,7 @@ export class UnitOutputService {
 
         const validated = unitArtifactSchema.parse(rawArtifact)
         const id = (rawArtifact as Record<string | symbol, unknown>)[unitArtifactId]
+
         if (typeof id === "string" && id.length > 0) {
           return id
         }
@@ -241,7 +242,6 @@ export class UnitOutputService {
       }
 
       const meta = (value as Record<string, unknown>).$meta
-
       if (!isRecord(meta)) {
         throw new Error(`Output "${output}" must include a "$meta" object`)
       }
@@ -307,7 +307,6 @@ export class UnitOutputService {
       const entityType = entityWithMeta.$meta.type
 
       const entityId = getEntityId(entityWithMeta)
-
       if (options.stack.includes(entityId)) {
         throw new Error(
           `Detected entity inclusion cycle while collecting output "${options.output}": "${entityId}"`,
@@ -350,7 +349,6 @@ export class UnitOutputService {
       }
 
       const current = nodeByEntityId.get(entityId)!
-
       if (options.relation === "exported") {
         current.node.exportedOutputs.add(options.output)
       } else {

@@ -13,7 +13,6 @@ import { BackupJobPair } from "@highstate/restic"
 import { charts } from "../shared"
 
 const { stateId, args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.rustfs)
-
 if ((args.consoleFqdn || args.fqdn) && !inputs.accessPoint) {
   throw new Error("Access point must be provided when fqdn or consoleFqdn is set")
 }

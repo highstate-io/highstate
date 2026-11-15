@@ -21,6 +21,7 @@ const remoteInfo = await toPromise(
     // extract the type from the remote section
     const remoteSection = config.split(`[${remoteName}]`)[1]?.split(/\n\s*\[/)[0] || ""
     const typeMatch = remoteSection.match(/^\s*type\s*=\s*(.+)$/m)
+
     if (!typeMatch) {
       throw new Error(`No type found for remote '${remoteName}'`)
     }

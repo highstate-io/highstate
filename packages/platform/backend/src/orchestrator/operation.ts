@@ -176,7 +176,6 @@ export class RuntimeOperation {
 
     // 2. create the plan for the operation (or use provided one)
     let plan: OperationPhase[]
-
     if (this.operation.phases) {
       plan = this.operation.phases
     } else {
@@ -453,7 +452,6 @@ export class RuntimeOperation {
       })
 
       let outputHash: number | null = null
-
       if (this.projectPortService.isExportPortType(instance.type)) {
         const exportPayload = await this.projectPortService.buildExportPayloadFromSnapshots({
           projectName: this.project.name,
@@ -602,7 +600,6 @@ export class RuntimeOperation {
 
   private getExportTargetProjectNames(instance: InstanceModel): string[] {
     const raw = (instance.args as Record<string, unknown>).projects
-
     if (!Array.isArray(raw)) {
       return []
     }
@@ -1132,6 +1129,7 @@ export class RuntimeOperation {
       try {
         const instance = this.getPhaseInstance(instanceId as InstanceId)
         const component = this.context.library.components[instance.type]
+
         if (!component) {
           return undefined
         }
@@ -1247,7 +1245,6 @@ export class RuntimeOperation {
     }
 
     const instance = this.getPhaseInstance(update.unitId)
-
     if (update.rawOutputs && update.operationType !== "destroy") {
       this.context.updateCapturedOutputValuesFromUnitOutputs({
         instanceId: instance.id,
@@ -1413,6 +1410,7 @@ export class RuntimeOperation {
 
     const logger = this.logger.child({ instanceId }, { msgPrefix: `[${instanceId}] ` })
     const abortControllerPair = this.workset.instanceAbortControllers.get(instanceId)
+
     if (!abortControllerPair) {
       throw new Error(`Abort controllers for instance "${instanceId}" are not initialized`)
     }
@@ -1564,6 +1562,7 @@ export class RuntimeOperation {
 
         const outputKey = input.input.output
         const outputArtifactIds = dependencyState.exportedArtifactIds[outputKey]
+
         if (!outputArtifactIds) {
           continue
         }

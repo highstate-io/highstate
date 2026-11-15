@@ -265,7 +265,6 @@ export function useCanvasEdgeEndpointOffsets(
         indexed.targetKind === "instance" && indexed.targetHandle.length > 0
 
       const desiredWeight = isHubTypedToComponentInput ? 1 : totalSlots
-
       if (indexed.weight !== desiredWeight) {
         indexed.weight = desiredWeight
         markEdgeDirty(edgeId)
@@ -403,7 +402,6 @@ export function useCanvasEdgeEndpointOffsets(
       }
 
       const patch: RoutedEdgeEndpoints = {}
-
       if (groupKey.startsWith("src:")) {
         if (Number.isFinite(edge.sourceY)) {
           patch.routedSourceY = edge.sourceY + deltaY

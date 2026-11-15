@@ -52,7 +52,6 @@ export function parseSubnet(subnet: InputSubnet): network.Subnet {
   }
 
   let parsed: ParsedCidr
-
   if (input.includes("/")) {
     parsed = parseCidr(input)
   } else {

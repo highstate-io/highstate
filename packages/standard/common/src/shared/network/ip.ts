@@ -23,7 +23,6 @@ export function parseIp(value: string): ParsedIp {
 
 export function parseCidr(value: string): ParsedCidr {
   const [ipPart, prefixPart, ...rest] = value.split("/")
-
   if (!ipPart || !prefixPart || rest.length > 0) {
     throw new Error(`Invalid CIDR: "${value}"`)
   }
@@ -36,7 +35,6 @@ export function parseCidr(value: string): ParsedCidr {
   }
 
   const bits = parsedIp.type === "ipv4" ? 32 : 128
-
   if (prefix < 0 || prefix > bits) {
     throw new Error(`Invalid CIDR prefix length: "${value}"`)
   }
@@ -46,7 +44,6 @@ export function parseCidr(value: string): ParsedCidr {
 
 export function subnetBaseFromCidr(parsed: ParsedCidr): bigint {
   const bits = parsed.type === "ipv4" ? 32 : 128
-
   if (parsed.prefixLength === 0) {
     return 0n
   }
@@ -78,7 +75,6 @@ function parseIpv4(value: string): bigint {
     }
 
     const octet = parseInt(part, 10)
-
     if (!Number.isInteger(octet) || octet < 0 || octet > 255) {
       throw new Error(`Invalid IPv4 address: "${value}"`)
     }
@@ -132,7 +128,6 @@ function parseIpv6(value: string): bigint {
   rightParts = expandIpv4Tail(rightParts)
 
   const totalParts = leftParts.length + rightParts.length
-
   if (doubleColonIndex < 0 && totalParts !== 8) {
     throw new Error(`Invalid IPv6 address: "${value}"`)
   }
@@ -160,7 +155,6 @@ function parseIpv6(value: string): bigint {
     }
 
     const hextet = parseInt(part, 16)
-
     if (!Number.isInteger(hextet) || hextet < 0 || hextet > 0xffff) {
       throw new Error(`Invalid IPv6 address: "${value}"`)
     }
@@ -236,7 +230,6 @@ function ipv6ToString(value: bigint): string {
   }
 
   let result = parts.join(":")
-
   if (bestStart === 0) {
     result = `:${result}`
   }

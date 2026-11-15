@@ -78,6 +78,7 @@ function messageParts(node) {
 function messageStyle(context, node, uppercase) {
   const source = context.sourceCode
   const parts = messageParts(node)
+
   if (!parts.length) {
     return
   }
@@ -97,7 +98,6 @@ function messageStyle(context, node, uppercase) {
     `Use ${uppercase ? "capitalized error" : "lowercase log"} messages without terminal punctuation`,
     fixer => {
       let text = source.getText(node)
-
       if (wrongCase) {
         text =
           text.slice(0, 1) +
@@ -181,7 +181,6 @@ const rules = {
 
             for (; end < node.body.length; end++) {
               const next = mapping(node.body[end])
-
               if (!next || next.value !== first.value) {
                 break
               }
@@ -262,6 +261,7 @@ const rules = {
           }
 
           const text = comment.value.trim()
+
           if (
             !text ||
             text.length > 100 ||
@@ -295,7 +295,6 @@ const rules = {
     context => ({
       ThrowStatement(node) {
         const error = node.argument
-
         if (error?.type !== "NewExpression" || !standardError(context, error)) {
           return
         }
@@ -320,6 +319,7 @@ const rules = {
 
         const source = context.sourceCode
         const caught = caughtBinding(source, node)
+
         if (!caught) {
           return
         }
@@ -342,7 +342,6 @@ const rules = {
 
           for (let scope = source.getScope(node); scope; scope = scope.upper) {
             const variable = scope.set.get(caught.name)
-
             if (variable && variable !== caught) {
               return null
             }
@@ -474,7 +473,6 @@ const rules = {
             ["MethodDefinition", "TSAbstractMethodDefinition"].includes(member.type)
 
           const metadata = member => member.static && ["paths", "usage"].includes(member.key?.name)
-
           if (!method(previous) && !method(current) && !metadata(previous) && !metadata(current)) {
             continue
           }
@@ -510,45 +508,6 @@ const rules = {
     context => {
       const source = context.sourceCode
 
-      const identifiers = node => {
-        const names = new Set()
-
-        const visit = child => {
-          if (!child || typeof child !== "object") {
-            return
-          }
-
-          if (child.type === "Identifier") {
-            if (!["undefined", "NaN", "Infinity"].includes(child.name)) {
-              names.add(child.name)
-            }
-          }
-
-          if (child.type === "MemberExpression") {
-            visit(child.object)
-
-            if (child.computed) {
-              visit(child.property)
-            }
-
-            return
-          }
-
-          for (const key of source.visitorKeys[child.type] ?? []) {
-            const value = child[key]
-
-            if (Array.isArray(value)) {
-              value.forEach(visit)
-            } else {
-              visit(value)
-            }
-          }
-        }
-
-        visit(node)
-        return names
-      }
-
       const inspect = node => {
         const body = node.body.filter(statement => statement.type !== "EmptyStatement")
 
@@ -560,15 +519,17 @@ const rules = {
         for (let index = 1; index < body.length; index++) {
           const previous = body[index - 1]
           const current = body[index]
+          const beforePrevious = body[index - 2]
 
           const checked =
             previous.type === "VariableDeclaration" &&
             previous.loc.start.line === previous.loc.end.line &&
-            previous.declarations.length === 1 &&
-            previous.declarations[0].id.type === "Identifier" &&
             current.type === "IfStatement" &&
-            identifiers(current.test).size === 1 &&
-            identifiers(current.test).has(previous.declarations[0].id.name)
+            current.loc.start.line === source.getTokenBefore(current.consequent).loc.end.line &&
+            !(
+              beforePrevious?.type === "VariableDeclaration" &&
+              beforePrevious.loc.end.line + 1 === previous.loc.start.line
+            )
 
           const comments = source.getCommentsBefore(current)
           const start = comments[0] ?? current
@@ -651,13 +612,13 @@ const rules = {
         }
 
         const source = context.sourceCode
-
         if (!/(?:^|\.)[\w$]*logger$/i.test(source.getText(node.callee.object))) {
           return
         }
 
         const [first, second] = node.arguments
         const message = first?.type === "ObjectExpression" ? second : first
+
         if (message) {
           messageStyle(context, message, false)
         }
@@ -685,7 +646,6 @@ const rules = {
         }
 
         const caught = caughtBinding(source, node)
-
         if (refersTo(source, first, caught)) {
           report(context, first, 'Put the caught error under the "error" context key', fixer =>
             fixer.replaceText(first, `{ error: ${source.getText(first)} }`),
@@ -728,6 +688,7 @@ const rules = {
       Program() {
         for (const comment of context.sourceCode.getAllComments()) {
           const text = comment.value.trim()
+
           if (
             !/^(?:biome-ignore(?:-all|-start|-end)?|(?:eslint|oxlint)-disable(?:-next-line|-line)?)\b/.test(
               text,

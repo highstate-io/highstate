@@ -136,7 +136,6 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     }
 
     const edgeId = `${inputKey(input)}->${instance.id}:${inputName}`
-
     if (vueFlowStore.findEdge(edgeId)) {
       return
     }
@@ -219,7 +218,6 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     }
 
     const edgeId = `${input.hubId}->${instance.id}:${inputName}`
-
     if (vueFlowStore.findEdge(edgeId)) {
       return
     }
@@ -261,7 +259,6 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     }
 
     const edgeId = `${input.hubId}->${instance.id}`
-
     if (vueFlowStore.findEdge(edgeId)) {
       return
     }
@@ -301,6 +298,7 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
   const updateInstanceNode = (instance: InstanceModel) => {
     const nodeId = instanceIdToNodeIdMap.get(instance.id)
     const node = vueFlowStore.findNode(nodeId)
+
     if (!node) {
       throw new Error(`Node with id ${instance.id} not found`)
     }
@@ -328,7 +326,6 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
     }
 
     const edgeId = `${inputKey(input)}->${hub.id}`
-
     if (vueFlowStore.findEdge(edgeId)) {
       return
     }
@@ -361,7 +358,6 @@ export function useNodeFactory(vueFlowStore: VueFlowStore) {
 
   const createEdgeForHubInjectionInput = (hub: HubModel, input: HubInput): string | undefined => {
     const edgeId = `${input.hubId}->${hub.id}`
-
     if (vueFlowStore.findEdge(edgeId)) {
       return
     }

@@ -52,7 +52,6 @@ const runSearch = async () => {
   try {
     if (plan.type === "id") {
       const results = await $client.search.searchByIds.query({ ids: plan.ids })
-
       if (requestId !== runSearchCounter.value) {
         return
       }
@@ -62,7 +61,6 @@ const runSearch = async () => {
     }
 
     const result = await $client.search.searchByText.query({ text: plan.text })
-
     if (requestId !== runSearchCounter.value) {
       return
     }
@@ -111,7 +109,6 @@ const openItem = async (item: GlobalSearchPaletteItem) => {
 
 useEventListener(window, "keydown", event => {
   const key = event.key.toLowerCase()
-
   if ((event.ctrlKey || event.metaKey) && key === "k") {
     event.preventDefault()
     visible.value = true

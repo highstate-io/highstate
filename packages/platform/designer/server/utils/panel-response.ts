@@ -117,6 +117,7 @@ export function sanitizePanelResponseHeader(
   header: PanelResponseHeader,
 ): PanelResponseHeader | undefined {
   const name = header.name.toLowerCase()
+
   if (
     name === "x-frame-options" ||
     name === "access-control-allow-origin" ||

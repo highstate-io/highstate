@@ -55,7 +55,6 @@ export function exchangePanelLaunchTicket(ticket: string, panelId: string): stri
 
 export function getPanelSession(sessionId: string, panelId: string): PanelSession | undefined {
   const session = sessions.get(sessionId)
-
   if (!session || session.panelId !== panelId || session.expiresAt < Date.now()) {
     sessions.delete(sessionId)
     return undefined

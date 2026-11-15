@@ -29,7 +29,6 @@ const cancel = async () => {
 
 const save = async () => {
   const secretValues = removeDefaultValues(secrets, component.secrets)
-
   if (state) {
     emit("save", state.id, secretValues)
   }

@@ -54,7 +54,6 @@ const init = async (canvasStore: CanvasStore) => {
   }
 
   const promises = [dispatchInitialInputResolverNodes()]
-
   if (autoPosition) {
     promises.push(
       waitForLayoutCompletion(canvasStore.vueFlowStore)

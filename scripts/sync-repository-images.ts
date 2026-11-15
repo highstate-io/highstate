@@ -6,6 +6,7 @@ import { synchronizeRepositoryImages } from "./repository-images"
 const value = (name: string): string => {
   const index = process.argv.indexOf(name)
   const result = index === -1 ? undefined : process.argv[index + 1]
+
   if (!result) {
     throw new Error(`Missing ${name}`)
   }
@@ -30,7 +31,6 @@ const bake = JSON.parse(await readFile(bakePath, "utf8"))
 const imageNames = new Set<string>(
   bake.group.images.targets.map((target: string) => {
     const tag = bake.target[target].tags[0] as string
-
     if (!tag.startsWith(`${prefix}/`)) {
       throw new Error(`Unexpected image prefix in "${tag}"`)
     }
@@ -60,7 +60,6 @@ const result = await synchronizeRepositoryImages({
       )
 
       const manifest = await new Response(process.stdout).arrayBuffer()
-
       if ((await process.exited) !== 0) {
         throw new Error(`Unable to inspect OCI archive for "${reference}"`)
       }
@@ -85,7 +84,6 @@ const result = await synchronizeRepositoryImages({
     )
 
     const digest = (await new Response(process.stdout).text()).trim().replace(/^"|"$/g, "")
-
     if ((await process.exited) !== 0) {
       throw new Error(`Unable to inspect "${reference}"`)
     }

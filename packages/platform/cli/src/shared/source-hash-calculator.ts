@@ -44,7 +44,6 @@ export function parseFileDependencies(filePath: string, content: string): FileDe
 
   for (const match of matches) {
     const { nodeBuiltin, npmPackage, relativePath } = match.groups as DependencyMatch
-
     if (relativePath) {
       const fullPath = resolve(dirname(filePath), relativePath)
 

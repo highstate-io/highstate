@@ -175,7 +175,6 @@ export function parseVersionedName(name: string): [name: string, version: number
   const versionPart = name.substring(lastDotVIndex + 2) // +2 to skip ".v"
 
   const version = parseInt(versionPart, 10)
-
   if (Number.isNaN(version) || version < 0) {
     throw new Error(`Invalid version in versioned name: ${name}`)
   }

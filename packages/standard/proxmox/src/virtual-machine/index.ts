@@ -84,7 +84,6 @@ function deriveIpV4Gateway(ip: string): string {
 
 function createCloudInit(): VirtualEnvironmentVmInitialization {
   let vendorDataFileId: Input<string> | undefined
-
   if (args.vendorData || inputVendorData) {
     let vendorData: string | undefined = args.vendorData
     if (!vendorData) {

@@ -303,6 +303,7 @@ export class ProjectModelService {
       const existingStates = await tx.instanceState.findMany({ select: { instanceId: true } })
       const existingStateIds = new Set(existingStates.map(state => state.instanceId))
       const missingInstances = instances.filter(instance => !existingStateIds.has(instance.id))
+
       if (missingInstances.length === 0) {
         return
       }
@@ -356,7 +357,6 @@ export class ProjectModelService {
       }
 
       const component = library.components[instance.type]
-
       if (!component || !instance.inputs) {
         continue
       }
@@ -394,6 +394,7 @@ export class ProjectModelService {
 
       const nextInputs = inputs.filter(isValidInstanceInput)
       const removed = inputs.length - nextInputs.length
+
       if (removed === 0) {
         continue
       }

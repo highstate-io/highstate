@@ -59,6 +59,7 @@ export async function buildProjectAuthorizationWhere<TWhere>(
 ): Promise<TWhere> {
   const { database, context, permission, target } = options
   const grants = context.permissions.get(permission) ?? []
+
   if (grants.length === 0) {
     throw new PermissionDeniedError(permission)
   }
@@ -98,6 +99,7 @@ export async function buildBackendAuthorizationWhere<TWhere>(
 ): Promise<TWhere> {
   const { database, context, permission, target } = options
   const grants = context.permissions.get(permission) ?? []
+
   if (grants.length === 0) {
     throw new PermissionDeniedError(permission)
   }
@@ -267,7 +269,6 @@ async function resolveProjectSpaceScopes(
 
   for (const restriction of hierarchyRestrictions) {
     const spaceIds = new Set(restriction.projectSpaceIds.filter(id => existingIds.has(id)))
-
     if (restriction.recursive) {
       for (const spaceId of [...spaceIds]) {
         addDescendants(spaceId, children, spaceIds)
@@ -307,7 +308,6 @@ function addDescendants(
 
   while (pending.length > 0) {
     const id = pending.pop()
-
     if (!id || result.has(id)) {
       continue
     }

@@ -74,6 +74,7 @@ export function parsePrPreviewComment(
 export async function fetchPrPreviewDescriptor(pullRequest: number): Promise<PrPreviewDescriptor> {
   const headers: Record<string, string> = { Accept: "application/vnd.github+json" }
   const token = await getGitHubToken()
+
   if (token) {
     headers.Authorization = `Bearer ${token}`
   }

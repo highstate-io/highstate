@@ -6,6 +6,7 @@ import { applyRepositoryImages } from "./repository-images"
 const value = (name: string): string => {
   const index = process.argv.indexOf(name)
   const result = index === -1 ? undefined : process.argv[index + 1]
+
   if (!result) {
     throw new Error(`Missing ${name}`)
   }

@@ -105,7 +105,6 @@ function splitToStatements(sql: string): string[] {
 
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i]
-
     if ((char === "'" || char === '"') && !insideString) {
       insideString = true
       stringChar = char

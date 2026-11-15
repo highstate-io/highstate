@@ -71,7 +71,6 @@ function parseConfigSections(config: string): ConfigSection[] {
 
     if (line.startsWith("#") || line.startsWith(";")) {
       const comment = line.slice(1).trim() || undefined
-
       if (currentSection && !currentSection.comment && currentSection.values.size === 0) {
         currentSection.comment = comment
       } else {
@@ -141,7 +140,6 @@ function parseOptionalNumber(section: ConfigSection, key: string, defaultValue: 
   }
 
   const parsed = Number(value)
-
   if (!Number.isInteger(parsed)) {
     throw new Error(`WireGuard [${section.type}] field "${key}" must be an integer`)
   }
@@ -154,7 +152,6 @@ function parseAmneziaConfig(section: ConfigSection): wireguard.AmneziaParameters
 
   for (const [rawKey, values] of section.values) {
     const key = rawKey.toLowerCase()
-
     if (!amneziaKeySet.has(key)) {
       continue
     }
@@ -166,7 +163,6 @@ function parseAmneziaConfig(section: ConfigSection): wireguard.AmneziaParameters
 
     if (isNumericAmneziaConfigKey(key)) {
       const parsed = Number(value)
-
       if (!Number.isInteger(parsed)) {
         throw new Error(`AmneziaWG field "${rawKey}" must be an integer`)
       }
@@ -183,6 +179,7 @@ function parseAmneziaConfig(section: ConfigSection): wireguard.AmneziaParameters
 export function parseExistingConfig(config: string): ParsedExistingConfig {
   const sections = parseConfigSections(config)
   const interfaceSection = sections.find(section => section.type === "interface")
+
   if (!interfaceSection) {
     throw new Error('WireGuard config must contain an "[Interface]" section')
   }

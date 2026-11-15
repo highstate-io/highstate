@@ -366,6 +366,7 @@ export class Chart extends ComponentResource {
         routes.map(async ({ name: routeName, route }) => {
           const { serviceName: _serviceName, rules: _rules, ...baseRoute } = route
           const accessPoint = route.accessPoint ?? args.accessPoint
+
           if (!accessPoint) {
             throw new Error(
               `Access point is required for chart route "${name}-${routeName}". Set it on the route or on Chart args.accessPoint`,
@@ -568,7 +569,6 @@ export class Chart extends ComponentResource {
     }
 
     let resolvedServicePort: number | undefined
-
     if (servicePort != null) {
       const requestedServicePort = await toPromise(servicePort)
       if (typeof requestedServicePort === "string") {
@@ -607,6 +607,7 @@ export class Chart extends ComponentResource {
     return output({ args: this.args, chart: this.chart }).apply(({ args, chart }) => {
       const resolvedName = name ?? args.serviceName ?? this.name
       const existingService = this.services.get(resolvedName)
+
       if (existingService) {
         return existingService
       }
@@ -793,7 +794,6 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
 
   // find all matching files
   const files = await glob(globPattern, { cwd: chartsDir })
-
   if (files.includes(targetFileName)) {
     return resolve(chartsDir, targetFileName)
   }
@@ -808,7 +808,6 @@ export async function resolveHelmChart(manifest: ChartManifest): Promise<string>
   const chartRef = isOci ? `${manifest.repo.replace(/\/$/, "")}/${manifest.name}` : manifest.name
 
   const pullArgs = ["pull", chartRef, "--version", manifest.version, "--destination", chartsDir]
-
   if (!isOci) {
     pullArgs.push("--repo", manifest.repo)
   }

@@ -90,6 +90,7 @@ export class ObjectRefIndexService {
 
         const existingIds = new Set(existing.map(r => r.id))
         const toCreate = batch.filter(id => !existingIds.has(id))
+
         if (toCreate.length === 0) {
           continue
         }

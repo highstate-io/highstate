@@ -110,7 +110,6 @@ export class BackendRoleSettingsService {
     requireBackendPermission(context, "role.create")
 
     const data = backendRoleInputSchema.parse(input)
-
     if (!hasBackendPermissionRulesSubset(context, data.rules)) {
       requireBackendPermission(context, "role.escalate")
     }
@@ -136,7 +135,6 @@ export class BackendRoleSettingsService {
     requireBackendPermission(context, "role.update", { resourceId: roleId })
     await this.assertMutable(roleId)
     const data = backendRoleInputSchema.parse(input)
-
     if (!hasBackendPermissionRulesSubset(context, data.rules)) {
       requireBackendPermission(context, "role.escalate", { resourceId: roleId })
     }
@@ -367,6 +365,7 @@ export class BackendRoleSettingsService {
   ): void {
     const ids = new Set(existing.map(item => item.id))
     const missing = requestedIds.find(id => !ids.has(id))
+
     if (missing) {
       throw new AuthorizationResourceNotFoundError("backend", type, missing)
     }

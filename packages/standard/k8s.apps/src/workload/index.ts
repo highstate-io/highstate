@@ -82,7 +82,6 @@ const processEnvironmentVariables = (env: typeof args.env): ContainerEnvironment
 
     if ("dependencyKey" in value && typeof value.dependencyKey === "string") {
       const [service, configKey] = value.dependencyKey.split(".")
-
       if (service === "mariadb" && inputs.mysql) {
         switch (configKey) {
           case "url":

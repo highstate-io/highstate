@@ -290,6 +290,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       // TODO: resolve the path
       const relativePath = unit.source.path ? `./dist/${unit.source.path}` : `./dist`
       const sourceHash = manifest?.sourceHashes?.[`${relativePath}/index.js`]
+
       if (!sourceHash) {
         this.logger.warn(`source hash not found for unit: "%s"`, unit.type)
         continue
@@ -724,7 +725,6 @@ export class LocalLibraryBackend implements LibraryBackend {
 
     for (const match of matches) {
       const packageDir = match.endsWith("package.json") ? dirname(match) : match
-
       if (seen.has(packageDir)) {
         continue
       }
@@ -785,6 +785,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       try {
         const packageJson = await readPackageJSON(workspaceRoot)
         const patterns = LocalLibraryBackend.extractWorkspacePatterns(packageJson)
+
         if (patterns.length === 0) {
           logger.warn(
             { workspaceRoot },
@@ -828,6 +829,7 @@ export class LocalLibraryBackend implements LibraryBackend {
       try {
         const packageJson = await readPackageJSON(current)
         const patterns = LocalLibraryBackend.extractWorkspacePatterns(packageJson)
+
         if (patterns.length > 0) {
           return { root: current, patterns }
         }
@@ -836,7 +838,6 @@ export class LocalLibraryBackend implements LibraryBackend {
       }
 
       const parent = dirname(current)
-
       if (parent === current) {
         break
       }

@@ -41,7 +41,6 @@ if (hasCilium) {
 
 // calculate external IPs
 let externalIps = args.externalIps.map(parseAddress)
-
 if (args.autoDetectExternalIps) {
   const detectedIps = await detectExternalIps(kubeConfig, args.internalIpsPolicy)
   externalIps = mergeAddresses([...externalIps, ...detectedIps])
@@ -49,7 +48,6 @@ if (args.autoDetectExternalIps) {
 
 // calculate endpoints
 let endpoints = parseEndpoints([...args.endpoints, ...inputs.endpoints])
-
 if (args.useExternalIpsAsEndpoints) {
   const ipEndpoints = externalIps.map(ip => parseEndpoint(ip))
   endpoints = mergeEndpoints([...endpoints, ...ipEndpoints])
@@ -57,7 +55,6 @@ if (args.useExternalIpsAsEndpoints) {
 
 // calculate api endpoints
 let apiEndpoints = parseEndpoints([...args.apiEndpoints, ...inputs.endpoints], 4)
-
 if (args.useKubeconfigApiEndpoint) {
   const configEndpoint = parseEndpoint(kubeConfig.clusters[0].server.replace("https://", ""), 4)
   apiEndpoints = mergeEndpoints([configEndpoint, ...apiEndpoints])

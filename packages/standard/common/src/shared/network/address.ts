@@ -105,7 +105,6 @@ export function doesAddressBelongToSubnet(
   }
 
   const bits = subnet.type === "ipv4" ? 32 : 128
-
   if (subnet.prefixLength === 0) {
     return true
   }

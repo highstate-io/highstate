@@ -20,7 +20,6 @@ export async function designerCall<T>(
   )
 
   const result = (await response.json()) as { result?: { data: { json: T } }; error?: unknown }
-
   if (!response.ok || !result.result) {
     throw new Error(`Designer procedure "${procedure}" failed: ${JSON.stringify(result.error)}`)
   }

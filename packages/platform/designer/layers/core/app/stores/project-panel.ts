@@ -119,7 +119,6 @@ export const useProjectPanelStore = defineMultiStore({
         }
 
         const outputEntity = libraryStore.library.entities[output.type]
-
         if (outputEntity && isInheritedAssignableTo(outputEntity, input.type)) {
           return false
         }
@@ -168,7 +167,6 @@ export const useProjectPanelStore = defineMultiStore({
           getConnectionNodes(vueFlowStore, connection)
 
         let effectiveInputKey = inputKey
-
         if (outputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE) {
           throw new Error("Export port cannot be a connection source")
         }
@@ -208,6 +206,7 @@ export const useProjectPanelStore = defineMultiStore({
 
           const outputComponent = instancesStore.getInstanceComponent(outputInstance)
           const output = outputComponent?.outputs[outputKey]
+
           if (!output) {
             throw new Error(`Output "${outputKey}" not found in instance "${outputInstance.id}"`)
           }
@@ -276,7 +275,6 @@ export const useProjectPanelStore = defineMultiStore({
           getConnectionNodes(vueFlowStore, edge)
 
         const path = (edge.data as { path?: string } | undefined)?.path
-
         if (inputInstance && outputInstance) {
           return instancesStore.removeInstanceInput(inputInstance, inputKey, {
             instanceId: outputInstance.id,

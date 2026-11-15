@@ -22,6 +22,7 @@ export class DesignerCommand extends Command {
     const packageJsonPath = await resolvePackageJSON()
     const packageJsonUrl = pathToFileURL(packageJsonPath).toString()
     const packageJson = await readPackageJSON(packageJsonPath)
+
     if (!packageJson.devDependencies?.["@highstate/cli"]) {
       throw new UsageError(
         "This project is not a Highstate project.\n@highstate/cli must be installed as a devDependency.",

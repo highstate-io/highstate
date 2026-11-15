@@ -704,7 +704,6 @@ export class MaterializedFolder extends LifetimeScopeContainer {
           async read() {
             try {
               const { done, value } = await reader.read()
-
               if (done) {
                 this.push(null)
               } else {
@@ -935,6 +934,7 @@ export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<numbe
 
   const url = l7EndpointToString(endpoint)
   const response = await fetch(url, { method: "HEAD" })
+
   if (!response.ok) {
     throw new Error(`Failed to fetch file size: ${response.statusText}`)
   }
@@ -945,7 +945,6 @@ export async function fetchFileSize(endpoint: network.L7Endpoint): Promise<numbe
   }
 
   const size = parseInt(contentLength, 10)
-
   if (Number.isNaN(size)) {
     throw new Error(`Invalid Content-Length value: ${contentLength}`)
   }

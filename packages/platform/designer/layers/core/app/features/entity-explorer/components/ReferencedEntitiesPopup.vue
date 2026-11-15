@@ -119,13 +119,11 @@ const handleGlobalContextMenu = (event: MouseEvent) => {
   }
 
   const path = event.composedPath()
-
   if (contentEl.value && path.includes(contentEl.value)) {
     return
   }
 
   const target = event.target
-
   if (!(target instanceof Node)) {
     panelOpened.value = false
     return

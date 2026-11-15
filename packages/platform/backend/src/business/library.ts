@@ -127,7 +127,6 @@ export class LibraryService {
     ])
 
     const virtualEntities = this.getVirtualEntities()
-
     if (!project) {
       throw new Error(`Project "${projectId}" not found`)
     }

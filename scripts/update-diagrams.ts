@@ -48,6 +48,7 @@ async function main(): Promise<void> {
 
   const original = await fs.readFile(docPath, "utf8")
   const blocks = extractBlocks(original)
+
   if (blocks.length === 0) {
     console.warn("No dependency graph blocks found.")
     return
@@ -152,6 +153,7 @@ async function buildGraphForScopes(repoRoot: string, scopes: string[]): Promise<
   for (const pkg of packages.values()) {
     const manifest = pkg.manifest
     const targets = adjacency.get(pkg.name)
+
     if (!targets) {
       continue
     }
@@ -257,7 +259,6 @@ async function collectPackagesFromDirectory(directory: string): Promise<PackageI
   }
 
   let parentName: string | undefined
-
   if (manifest?.name && !isExample(manifest.name)) {
     packages.push({ name: manifest.name, manifest, parentName: undefined })
     parentName = manifest.name
@@ -360,7 +361,6 @@ function hasAlternatePath(
 
   while (queue.length > 0) {
     const current = queue.shift()!
-
     if (current === target) {
       return true
     }

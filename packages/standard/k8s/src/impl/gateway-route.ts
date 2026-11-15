@@ -32,7 +32,6 @@ export const createGatewayRoute = gatewayRouteMediator.implement(
       : undefined
 
     const routeProtocol = resolveRouteProtocol(spec)
-
     if (spec.clientAuth && routeProtocol !== "http") {
       throw new Error("Gateway client authentication is only supported for HTTP routes")
     }
@@ -78,7 +77,6 @@ type GatewayRouteRuleSpec = {
 
 function resolveRouteNamespace(spec: GatewayRouteSpec, data: k8s.GatewayData): Namespace {
   const metadataNamespace = spec.metadata["k8s.namespace"]
-
   if (metadataNamespace instanceof Namespace) {
     return metadataNamespace
   }
@@ -281,7 +279,6 @@ async function createL4GatewayRoute({
   }
 
   const routeNamespace = await toPromise(namespace.metadata.name)
-
   if (backendData.serviceNamespace !== routeNamespace) {
     new gatewayApi.v1.ReferenceGrant(
       name,
@@ -395,7 +392,6 @@ async function getCertificateSecret(
   }
 
   const resource = await toPromise(resolvedCertificate.resource)
-
   if (resource instanceof Certificate) {
     const certNamespace = await toPromise(resource.namespace.metadata.name)
     const certClusterId = await toPromise(resource.namespace.cluster.id)
@@ -420,7 +416,6 @@ function resolveRouteProtocol(spec: GatewayRouteSpec): GatewayRouteRuleSpec["typ
   }
 
   const type = rules[0].type
-
   if (rules.some(rule => rule.type !== type)) {
     throw new Error("Gateway route rules must use the same protocol type")
   }
@@ -475,6 +470,7 @@ async function resolveBackendFromEndpoints({
 
   const syntheticServiceName = await toPromise(syntheticService.service.metadata.name)
   const syntheticServiceNamespace = await toPromise(syntheticService.service.metadata.namespace)
+
   if (!syntheticServiceNamespace) {
     throw new Error(
       `Synthetic backend service "${syntheticServiceName}" for gateway route "${routeName}" has no namespace`,
@@ -499,7 +495,6 @@ function getServiceMetadataFromEndpoints(
     }
   | undefined {
   const serviceEndpoints = endpoints.filter(endpoint => isEndpointFromCluster(endpoint, cluster))
-
   if (serviceEndpoints.length === 0 || serviceEndpoints.length !== endpoints.length) {
     return undefined
   }

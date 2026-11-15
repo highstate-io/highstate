@@ -34,7 +34,6 @@ export function createErrorHandlingInterceptor(services: Services): Interceptor 
 
       if (error instanceof BackendError) {
         const code = categoryToCode(error.category)
-
         if (code === Code.Internal) {
           services.logger.error({ error, method: request.method.name }, "unexpected backend error")
           throw new ConnectError("An unexpected error occurred", Code.Internal)

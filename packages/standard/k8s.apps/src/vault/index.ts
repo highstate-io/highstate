@@ -82,7 +82,6 @@ let chartValues: any = {
 }
 
 let s3Secret: Secret | undefined
-
 if (args.backend === "s3") {
   if (!s3Bucket) {
     throw new Error("S3Bucket input is required when backend is 's3'")

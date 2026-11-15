@@ -24,7 +24,6 @@ const visibleOptions = computed(() => {
 
 const updateOption = (key: keyof OperationOptions, value: boolean | null) => {
   const resolvedValue = value ?? false
-
   if (key === "forceUpdateDependencies" && resolvedValue) {
     options.value.ignoreChangedDependencies = false
     options.value.ignoreDependencies = false

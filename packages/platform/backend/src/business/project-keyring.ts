@@ -65,7 +65,6 @@ export class ProjectKeyring {
     const decrypter = new Decrypter()
     decrypter.addIdentity(wrappingIdentity)
     const identity = await decrypter.decrypt(armor.decode(encryptedIdentity), "text")
-
     if ((await identityToRecipient(identity)) !== recipient) {
       throw new Error("The system keyring identity does not match this project's unlock recipient")
     }

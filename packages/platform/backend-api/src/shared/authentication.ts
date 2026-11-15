@@ -171,7 +171,6 @@ function resolvePermissions<TPermission extends string, TRestriction>(
   for (const grant of grants) {
     for (const permission of grant.permissions) {
       const keyRestrictions = restrictionByPermission.get(permission)
-
       if (restrictions.length > 0 && !keyRestrictions) {
         continue
       }

@@ -113,7 +113,6 @@ export class AppRole extends ComponentResource {
 
         for (const policy of policies) {
           const policyConnection = await toPromise(policy.connection)
-
           if (getEntityId(connection) !== getEntityId(policyConnection)) {
             throw new Error(
               "AppRole policies must use the same Vault connection as the auth backend",

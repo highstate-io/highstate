@@ -191,7 +191,6 @@ const opButtonText = computed(() => {
   switch (operation) {
     case "update": {
       const { update } = counts
-
       if (update === 0) {
         return opText.value
       }

@@ -54,7 +54,6 @@ export type InputResolverOutput =
 export class InputResolver extends GraphResolver<InputResolverNode, InputResolverOutput> {
   getNodeDependencies(node: InputResolverNode): string[] {
     const dependencies: string[] = []
-
     if (node.kind === "hub") {
       for (const input of node.hub.inputs ?? []) {
         dependencies.push(`instance:${input.instanceId}`)
@@ -151,6 +150,7 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       for (const input of node.hub.inputs ?? []) {
         const { component } = getInstanceOutput(input)
         const componentInput = component?.outputs[input.output]
+
         if (!componentInput) {
           this.logger.warn({ msg: "output not found in the component", input, component })
           continue
@@ -239,7 +239,6 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
       }
 
       const { component, resolvedOutputs } = getInstanceOutput(input)
-
       if (!component) {
         this.logger.warn({ instanceId: node.instance.id, input }, "no output found for the input")
         return
@@ -325,7 +324,6 @@ export class InputResolver extends GraphResolver<InputResolverNode, InputResolve
           addInstanceInput(inputName, input.input)
 
           const key = inputKey(input.input)
-
           if (injectionInputs.has(key)) {
             matchedInjectionInputs.set(key, input)
           }

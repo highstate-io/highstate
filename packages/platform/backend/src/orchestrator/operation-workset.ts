@@ -314,7 +314,6 @@ export class OperationWorkset {
 
     while (queue.length > 0) {
       const childId = queue.shift()
-
       if (!childId || visited.has(childId)) {
         continue
       }
@@ -384,7 +383,6 @@ export class OperationWorkset {
     }
 
     const { abortController, forceAbortController } = abortControllerPair
-
     if (!abortController.signal.aborted) {
       abortController.abort()
 

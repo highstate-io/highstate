@@ -43,7 +43,6 @@ const isEntityNode = (value: unknown): value is EntityNode => {
   }
 
   const meta = value.$meta
-
   if (!isRecord(meta)) {
     return false
   }
@@ -147,7 +146,6 @@ const pushSecretBlock = (
   lines.push(...indentYaml(stringify({ value }), indent))
 
   const secretRegionEnd = lines.length
-
   if (secretRegionEnd > secretRegionStart) {
     regions.push({ start: secretRegionStart, end: secretRegionEnd })
   }
@@ -273,7 +271,6 @@ const formatEntityInto = (options: {
   }
 
   const bodyIndent = options.asListItem ? options.indent + 2 : options.indent
-
   if (description) {
     options.lines.push(`${spaces(bodyIndent)}# ${description}`)
   }
@@ -306,7 +303,6 @@ const formatEntityInto = (options: {
       )
 
       const secretRegionEnd = options.lines.length
-
       if (secretRegionEnd > secretRegionStart) {
         options.regions.push({ start: secretRegionStart, end: secretRegionEnd })
       }
@@ -354,7 +350,6 @@ const formatEntityInto = (options: {
   flushPlainBuffer()
 
   const endLine = options.lines.length
-
   if (options.createRegion && endLine > startLine) {
     options.regions.push({ start: startLine, end: endLine })
   }

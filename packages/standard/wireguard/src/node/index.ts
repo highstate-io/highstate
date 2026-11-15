@@ -32,7 +32,6 @@ const interfaceName = args.interfaceName ?? `${interfacePrefix}-${identityName}`
 
 // create script files for user-provided scripts
 const scriptFiles: Command[] = []
-
 if (args.preUpScript) {
   scriptFiles.push(
     Command.createTextFile("wireguard-preup-script", {

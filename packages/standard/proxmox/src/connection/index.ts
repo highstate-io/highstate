@@ -26,19 +26,16 @@ if (nodes.names.length === 0) {
 }
 
 const nodeName = args.defaultNodeName ?? nodes.names[0]
-
 if (!nodes.names.includes(nodeName)) {
   throw new Error(`Node "${nodeName}" not found in the cluster`)
 }
 
 const { datastores } = await getDatastores({ nodeName }, { provider })
-
 if (!datastores || datastores.length === 0) {
   throw new Error(`No datastores found in the node "${nodeName}"`)
 }
 
 const datastoreId = args.defaultDatastoreId ?? datastores[0].id
-
 if (!datastores.some(ds => ds.id === datastoreId)) {
   throw new Error(`Datastore "${datastoreId}" not found in the node "${nodeName}"`)
 }

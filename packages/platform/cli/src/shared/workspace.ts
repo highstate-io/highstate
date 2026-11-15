@@ -56,11 +56,11 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
 
   while (currentPath !== "/") {
     const packageJsonPath = join(currentPath, "package.json")
-
     if (existsSync(packageJsonPath)) {
       try {
         const content = await readFile(packageJsonPath, "utf-8")
         const packageJson = JSON.parse(content) as { workspaces?: unknown }
+
         if (packageJson.workspaces) {
           return currentPath
         }
@@ -70,7 +70,6 @@ export async function findWorkspaceRoot(startPath: string = process.cwd()): Prom
     }
 
     const parentPath = resolve(currentPath, "..")
-
     if (parentPath === currentPath) {
       break
     }

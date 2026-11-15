@@ -30,6 +30,7 @@ const { name, args, getSecret, inputs, outputs } = forUnit(yandex.instanceGroup)
 const groupName = args.groupName ?? name
 const nlbName = args.nlb.name ?? groupName
 const zones = args.zones ?? [inputs.connection.defaultZone]
+
 if (zones.length === 0) {
   throw new Error(`At least one zone must be specified`)
 }
@@ -92,7 +93,6 @@ function parseNlbListener(listener: string) {
 
 // create single key for all disks in the group
 let encryptionKeyId: Output<string> | undefined
-
 if (args.bootDisk.encrypted) {
   const encryptionKey = new KmsSymmetricKey(
     "encryption-key",
@@ -143,7 +143,6 @@ const internalAddresses = Array.from({ length: args.size }, (_, i) => {
 
 // create public IPs if needed
 let publicAddresses: Array<string | Output<string>> | undefined
-
 if (inputs.publicAddresses.length > 0) {
   publicAddresses = [...inputs.publicAddresses]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -327,6 +326,7 @@ const nlbSshProxyEndpoint = nlb
   ? nlb.listeners.apply(listeners => {
       const sshListener = listeners?.find(listener => listener.name === "ssh")
       const address = sshListener?.externalAddressSpec?.address
+
       if (!address) {
         throw new Error(`Could not determine NLB SSH listener address`)
       }

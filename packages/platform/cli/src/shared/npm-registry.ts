@@ -38,6 +38,7 @@ export async function fetchNpmPackument(packageName: string): Promise<NpmRegistr
 export async function fetchLatestVersion(packageName: string): Promise<string> {
   const packument = await fetchNpmPackument(packageName)
   const latest = packument["dist-tags"]?.latest
+
   if (!latest) {
     throw new Error(
       `NPM registry response for package "${packageName}" does not include "dist-tags.latest"`,
@@ -53,6 +54,7 @@ export async function fetchManifest(
 ): Promise<NpmRegistryManifest> {
   const packument = await fetchNpmPackument(packageName)
   const manifest = packument.versions?.[version]
+
   if (!manifest) {
     throw new Error(
       `NPM registry response for package "${packageName}" does not include version "${version}"`,
@@ -84,7 +86,6 @@ export function readPackageManifestFromTarball(tarball: Uint8Array): NpmRegistry
     }
 
     const contentOffset = offset + 512
-
     if (contentOffset + size > tarball.length) {
       throw new Error("Package tarball contains a truncated entry")
     }

@@ -7,7 +7,6 @@ import { charts, createBootstrapServiceEndpoint } from "../shared"
 import { backupEnvironment } from "./scripts"
 
 const { args, getSecret, inputs, invokedTriggers, outputs } = forUnit(k8s.apps.etcd)
-
 if (args.replicas > 1 && inputs.resticRepo) {
   throw new Error("Restic backups are not supported for multi-replica etcd clusters")
 }

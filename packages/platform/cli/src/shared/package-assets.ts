@@ -14,7 +14,6 @@ export async function resolvePackageAsset(
 
     try {
       const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8")) as { name?: string }
-
       if (packageJson.name === packageName) {
         return join(directory, ...assetPath)
       }
@@ -25,7 +24,6 @@ export async function resolvePackageAsset(
     }
 
     const parentDirectory = dirname(directory)
-
     if (parentDirectory === directory) {
       throw new Error(`Package "${packageName}" not found above "${directory}"`)
     }

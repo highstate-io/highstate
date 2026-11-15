@@ -42,7 +42,6 @@ const outputKeys = computed<OutputKey[]>(() => {
 
     for (const key of keys) {
       const id = `${key.stateId}:${key.output}`
-
       if (seen.has(id)) {
         continue
       }

@@ -28,7 +28,6 @@ if (!zone) {
 }
 
 let kmsKey: gcpProvider.kms.CryptoKey | undefined
-
 if (args.encrypted) {
   const keyRing = new gcpProvider.kms.KeyRing(
     "key-ring",

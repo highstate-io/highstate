@@ -142,7 +142,6 @@ export class PanelEndpointManager {
 
     for (const panel of panels) {
       const existing = this.panels.get(panel.id)
-
       if (existing && existing.workerInstanceId !== workerInstanceId) {
         const previousInstance = this.instances.get(existing.workerInstanceId)
         const previousPanelIds = previousInstance?.panelIdsByState.get(existing.stateId)

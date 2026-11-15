@@ -47,7 +47,6 @@ export function getArtifactUrlParamOrder(url: string): string[] {
 
   for (const match of url.matchAll(urlParamPattern)) {
     const name = match[1]
-
     if (names.includes(name)) {
       continue
     }
@@ -92,13 +91,13 @@ function isMatchingParamSet(params: ArtifactParams, constraints: ArtifactParams)
 
 function getArtifactParamSets(file: ArtifactFile, constraints: ArtifactParams): ArtifactParams[] {
   const params = file.params ?? {}
-
   if (!isStructuredParams(params)) {
     return [{ ...params, ...constraints }]
   }
 
   const base = params.base ?? {}
   const groups = params.groups ?? []
+
   if (groups.length === 0) {
     return [{ ...base, ...constraints }]
   }
@@ -203,7 +202,6 @@ export function resolveArtifactFile(file: ArtifactFile, params: ArtifactParams =
     path: file.path
       ? getArtifactUrlParamOrder(file.path).reduce((path, name) => {
           const value = mergedParams[name]
-
           if (!value || Array.isArray(value)) {
             return path
           }
@@ -328,7 +326,6 @@ async function downloadArtifact(url: string, targetPath: string, sha256: string)
 
 function resolveArchivePath(root: string, path: string): string {
   const resolved = resolve(root, path)
-
   if (resolved !== root && resolved.startsWith(`${root}${sep}`)) {
     return resolved
   }
@@ -374,6 +371,7 @@ async function downloadArtifactArchive(
 export function resolveCurrentArtifactFile(file: ArtifactFile): ResolvedArtifactFile {
   const resolved = resolveArtifactFile(file, { arch: getArtifactArch() })
   const sha256 = getSingleArtifactSha(resolved)
+
   if (!sha256) {
     throw new Error("Artifact must resolve to exactly one SHA256 hash")
   }

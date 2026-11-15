@@ -133,7 +133,6 @@ export class BackendApiKeySettingsService {
     await this.serviceAccounts.assertExists(serviceAccountId)
     await this.roles.validateReferences({ rules: data.restrictionRules })
     const effectiveRules = await this.validateRestrictions(serviceAccountId, data.restrictionRules)
-
     if (!hasBackendPermissionRulesSubset(context, effectiveRules)) {
       requireBackendPermission(context, "api-key.escalate")
     }
@@ -171,7 +170,6 @@ export class BackendApiKeySettingsService {
 
     await this.assertExists(apiKeyId)
     const data = backendApiKeyInputSchema.parse(input)
-
     if (!hasBackendPermissionRulesSubset(context, data.restrictionRules)) {
       requireBackendPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }
@@ -180,7 +178,6 @@ export class BackendApiKeySettingsService {
     await this.serviceAccounts.assertExists(serviceAccountId)
     await this.roles.validateReferences({ rules: data.restrictionRules })
     const effectiveRules = await this.validateRestrictions(serviceAccountId, data.restrictionRules)
-
     if (!hasBackendPermissionRulesSubset(context, effectiveRules)) {
       requireBackendPermission(context, "api-key.escalate", { resourceId: apiKeyId })
     }
@@ -261,7 +258,6 @@ export class BackendApiKeySettingsService {
     })
 
     const grants = bindings.flatMap(binding => binding.role.rules)
-
     if (rules.length === 0) {
       return grants
     }

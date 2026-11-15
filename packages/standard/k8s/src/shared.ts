@@ -20,6 +20,7 @@ const providers = new Map<`${string}.${string}`, Provider>()
 export function getProvider(cluster: k8s.Cluster): Provider {
   const name = `${cluster.name}.${cluster.connectionId}` as const
   const existing = providers.get(name)
+
   if (existing) {
     return existing
   }

@@ -158,7 +158,6 @@ function rangeFromString(value: string): IpRange {
 
   if (trimmed.includes("-")) {
     const [left, right, ...rest] = trimmed.split("-")
-
     if (!left || !right || rest.length > 0) {
       throw new Error(`Invalid range: "${value}"`)
     }
@@ -304,7 +303,6 @@ function subtractMergedRanges(included: IpRange[], excluded: IpRange[]): IpRange
 
     while (j < excluded.length) {
       const exc = excluded[j]!
-
       if (exc.start >= inc.endExclusive) {
         break
       }

@@ -121,7 +121,6 @@ export function createBlueprint(
   )
 
   const movedHubs = hubs.map(hub => moveCanvasNode(hub, rect))
-
   if (!libraryStore) {
     return {
       boundary: { width: rect.width, height: rect.height },

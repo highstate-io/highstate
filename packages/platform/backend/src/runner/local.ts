@@ -488,7 +488,6 @@ export class LocalRunnerBackend implements RunnerBackend {
       )
     } catch (error) {
       const { StackNotFoundError } = await import("@pulumi/pulumi/automation/index.js")
-
       if (error instanceof StackNotFoundError) {
         this.emitStateUpdate({
           type: "completion",
@@ -704,12 +703,12 @@ export class LocalRunnerBackend implements RunnerBackend {
 
     const pattern = /Cannot find module '(.*)'/
     const match = error.message.match(pattern)
+
     if (!match) {
       return false
     }
 
     const packageName = match[1]
-
     if (!allowedDependencies.includes(packageName)) {
       throw new Error(
         `Dependency '${packageName}' was requested to be auto-installed, but it is not allowed. Please add it to the 'peerDependencies' in the package.json of the unit`,

@@ -73,6 +73,7 @@ export class ImplementationMediator<
 
       const result = await func(parsedInput.data, parsedData.data)
       const parsedResult = this.outputSchema.safeParse(result)
+
       if (!parsedResult.success) {
         throw new Error(
           `Invalid output from implementation "${this.path}": ${parsedResult.error.message}`,

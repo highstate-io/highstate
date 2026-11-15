@@ -75,7 +75,6 @@ export function useBlueprintPlacement(
     // calculate the new paths for edges based the diff between the previous and current position
     for (const edge of blueprintEdges) {
       const points = (edge.data.points as number[][]) ?? []
-
       if (edge.data.points) {
         const newPoints = points.map(point => [point[0] + prevDiffX, point[1] + prevDiffY])
 

@@ -40,7 +40,6 @@ export class EntitySettingsService {
 
   private static buildEntityWhere(query: EntityQuery): EntityWhereInput {
     const where: EntityWhereInput = {}
-
     if (query.type) {
       where.type = { contains: query.type }
     }
@@ -86,7 +85,6 @@ export class EntitySettingsService {
     }
 
     const [sort] = query.sortBy
-
     if (!sort) {
       return false
     }
@@ -100,7 +98,6 @@ export class EntitySettingsService {
     snapshotId: string,
   ) {
     const baseWhere = { [snapshotIdField]: snapshotId } as EntitySnapshotReferenceWhereInput
-
     if (!query.search) {
       return baseWhere
     }

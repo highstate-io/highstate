@@ -19,6 +19,43 @@ function check(name: string, code: string, fix = false) {
 }
 
 describe("style diagnostics", () => {
+  it("separates a single const from a multiline guard condition", () => {
+    const input = `const previousPage = pages.value[pageIndex - 1]
+if (
+  pageIndex > 0 &&
+  !previousPage?.nextPageToken
+) {
+  return
+}`
+
+    const expected = input.replace("\nif (", "\n\nif (")
+    expect(check("statement-spacing", input).messages).toHaveLength(1)
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
+  it("keeps a single const line adjacent to its guard regardless of referenced values", () => {
+    const input = `const pageIndex = page.value - 1
+
+if (!force && pages.value[pageIndex]) {
+  updateData()
+  return
+}
+
+const previousPage = pages.value[pageIndex - 1]
+
+if (pageIndex > 0 && !previousPage?.nextPageToken) {
+  page.value = Math.max(1, pages.value.length)
+  updateData()
+  return
+}`
+
+    const expected = input.replaceAll("\n\nif (", "\nif (")
+    expect(check("statement-spacing", input).messages).toHaveLength(2)
+    expect(check("statement-spacing", input, true).output).toBe(expected)
+    expect(check("statement-spacing", expected).messages).toEqual([])
+  })
+
   it("separates a compound guard involving multiple assigned values", () => {
     const input = `const providedIpv4 = primaryAddresses.filter(address => address.type === "ipv4")
 const providedIpv6 = primaryAddresses.filter(address => address.type === "ipv6")

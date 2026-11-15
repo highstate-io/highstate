@@ -190,7 +190,6 @@ const machineSecrets = secrets.machineSecrets.apply(JSON.stringify)
 
 function getConfiguration(machineType: string) {
   const configPatches: Input<string>[] = [globalConfigPatch]
-
   if (args.sharedConfigPatch && Object.keys(args.sharedConfigPatch).length > 0) {
     configPatches.push(JSON.stringify(args.sharedConfigPatch))
   }

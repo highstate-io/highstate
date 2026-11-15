@@ -16,13 +16,11 @@ export function extractDigestFromImage(image: string): string {
   }
 
   const digestPart = image.slice(atIndex + 1)
-
   if (!digestPart.startsWith(SHA256_PREFIX)) {
     throw new Error(`Invalid worker image "${image}": digest must start with "sha256:"`)
   }
 
   const digest = digestPart.slice(SHA256_PREFIX.length).toLowerCase()
-
   if (!SHA256_REGEX.test(digest)) {
     throw new Error(`Invalid worker image "${image}": digest must be 64 hex chars`)
   }

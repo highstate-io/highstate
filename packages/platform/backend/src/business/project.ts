@@ -307,7 +307,6 @@ export class ProjectService {
           }
 
           const newChildInstanceId = childState.instanceId.replace(oldName, newName)
-
           if (newChildInstanceId === childState.instanceId) {
             continue
           }
@@ -414,6 +413,7 @@ export class ProjectService {
 
       const componentType = parseInstanceId(instanceId)[0]
       const component = library.components[componentType]
+
       if (!component) {
         throw new ProjectModelArgumentsInvalidError([
           { argument: "", description: `Component "${componentType}" was not found` },

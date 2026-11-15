@@ -121,6 +121,7 @@ async function applyHelperFunctionTransformations(content: string): Promise<stri
       if (node.type === "Property" && "key" in node && node.key?.type === "Identifier") {
         const propertyNode = node
         const helperFunction = getHelperFunctionForProperty(parentStack)
+
         if (helperFunction) {
           const jsdoc = findLeadingComment(content, node, comments)
           if (jsdoc) {
@@ -205,7 +206,6 @@ async function applyDefineFunctionMetaTransformations(content: string): Promise<
         ) {
           // look for JSDoc comment on the parent declaration/export, not the function call itself
           const jsdoc = findJsdocForDefineFunction(content, parentStack, comments)
-
           if (jsdoc && callNode.arguments && callNode.arguments.length > 0) {
             const description = cleanJsdoc(jsdoc.value)
             const firstArg = callNode.arguments[0]
@@ -338,7 +338,6 @@ function findFirstReturnArgument(node: ObjectProperty): Node | null {
     }
 
     const returnArgument = "argument" in statement ? statement.argument : null
-
     if (returnArgument && hasSourceRange(returnArgument)) {
       return returnArgument
     }

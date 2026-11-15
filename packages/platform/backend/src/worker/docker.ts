@@ -52,7 +52,6 @@ export class DockerWorkerBackend implements WorkerBackend {
     }
 
     const initDataStream = Readable.from(`${JSON.stringify(runOptions)}\n`)
-
     if (this.useSudo) {
       args.unshift(this.binary)
     }

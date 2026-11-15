@@ -59,6 +59,7 @@ const deployment = Deployment.create(args.appName, {
 
 const endpoints = await toPromise(inputs.k8sCluster.endpoints)
 const publicEndpoint = endpoints.find(endpoint => endpoint.metadata["iana.scope"] === "global")
+
 if (!publicEndpoint) {
   throw new Error(
     "Failed to determine public endpoint of the game server. Available endpoints: " +

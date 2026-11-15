@@ -127,7 +127,6 @@ export async function createForceAbortableCommand(
         try {
           while (true) {
             const { done, value } = await reader.read()
-
             if (done) {
               break
             }
@@ -187,7 +186,6 @@ export async function createForceAbortableCommand(
       ])
 
       const commandResult = new CommandResult(stdout, stderr, exitCode)
-
       if (exitCode !== 0) {
         throw createCommandError(commandResult)
       }

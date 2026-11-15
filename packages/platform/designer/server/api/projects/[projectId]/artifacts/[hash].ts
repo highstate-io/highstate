@@ -17,6 +17,7 @@ export default defineEventHandler(async event => {
     // get artifact metadata from database
     const database = await services.database.forProject(projectId)
     const artifact = await database.artifact.findUnique({ where: { hash } })
+
     if (!artifact) {
       throw createError({
         statusCode: 404,

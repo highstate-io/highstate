@@ -365,7 +365,6 @@ export class EntitySnapshotService {
           }
 
           const keyValue = `${fromSnapshot.entityId}:${toSnapshot.entityId}:${group}`
-
           if (uniqueReferenceKeys.has(keyValue)) {
             continue
           }
@@ -766,7 +765,6 @@ export class EntitySnapshotService {
     }
 
     const content = snapshot.content
-
     if (typeof content !== "object" || content === null || Array.isArray(content)) {
       throw new Error(`Entity snapshot content is not an object for snapshot "${snapshot.id}"`)
     }
@@ -800,7 +798,6 @@ export class EntitySnapshotService {
 
     for (const inclusion of entityModel.inclusions ?? []) {
       const toIds = refsByGroup.get(inclusion.field) ?? []
-
       if (inclusion.multiple) {
         if (toIds.length === 0) {
           if (inclusion.required) {

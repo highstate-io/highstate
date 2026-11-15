@@ -128,7 +128,6 @@ export function buildEndpointsFromInstance(
   }
 
   const privateEndpoint = buildEndpointWithNetwork(privateIp, networkContext)
-
   if (assignPublicIp) {
     const publicIp = firstInterface?.natIpAddress
     if (!publicIp) {

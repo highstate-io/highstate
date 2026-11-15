@@ -335,7 +335,6 @@ export class StatusTracker {
       const { namespace, name } = resource.metadata
 
       const existingStatus = this.statusMap[type][namespace]?.[name]
-
       if (!resolvedStatusMap[type][namespace]) {
         resolvedStatusMap[type][namespace] = {}
       }
@@ -392,6 +391,7 @@ export class StatusTracker {
   private renderStatusMessage(statusMap: ResourceStatusMap): string {
     const namespaceGroups = this.groupResourcesByNamespace(statusMap)
     const namespaces = Object.keys(namespaceGroups).sort()
+
     if (namespaces.length === 0) {
       return "No resources to display"
     }

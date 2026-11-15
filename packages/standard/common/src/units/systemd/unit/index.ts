@@ -7,6 +7,7 @@ const { name, args, inputs, outputs } = forUnit(common.systemdUnit)
 
 const servers = await toPromise(inputs.servers)
 const serviceName = args.serviceName ?? name.replaceAll(".", "-")
+
 if (!/^[A-Za-z0-9:_.@-]+$/.test(serviceName)) {
   throw new Error(`Invalid systemd service name "${serviceName}"`)
 }

@@ -124,7 +124,6 @@ export abstract class GraphResolver<TNode, TOutput> {
 
     while (stack.length > 0) {
       const currentNodeId = stack.pop()!
-
       if (currentNodeId === dependencyId) {
         return false
       }
@@ -229,7 +228,6 @@ export abstract class GraphResolver<TNode, TOutput> {
 
         // all dependencies are resolved, process the node
         const output = await this.processNode(node, this.logger)
-
         if (signal?.aborted) {
           this.logger.warn({ nodeId }, "processing aborted, skipping output")
           return

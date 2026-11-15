@@ -229,7 +229,6 @@ export async function resolveRemoteTarget(
   }
 
   const projectId = overrides.projectId ?? env.HIGHSTATE_PROJECT_ID ?? context?.projectId
-
   if (options.requireProject && !projectId) {
     throw new Error("No active Highstate project; run highstate project use or provide --project")
   }

@@ -132,7 +132,6 @@ export class ComponentGetCommand extends RemoteCommand {
       : undefined
 
     const args = component?.arguments as Record<string, Record<string, unknown>> | undefined
-
     if (component && args) {
       component.arguments = Object.fromEntries(
         Object.entries(args).map(([name, value]) => {
@@ -231,6 +230,7 @@ export class EntityGetCommand extends RemoteCommand {
     const { clients, target } = await this.remote()
     const response = await clients.library.getLibrary({ projectId: target.projectId })
     const entity = response.library?.entities[this.type]
+
     if (!entity) {
       throw new Error(`Entity "${this.type}" not found`)
     }

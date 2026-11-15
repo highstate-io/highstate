@@ -7,7 +7,6 @@ const { name, stateId, args, inputs, secrets, outputs } = forUnit(etcd.connectio
 const endpoints = parseEndpoints([...args.endpoints, ...inputs.endpoints], 4)
 
 let credentials: Output<etcd.Credentials> | undefined
-
 if (args.username && !secrets.password) {
   throw new Error("Password must be provided if username is provided")
 }

@@ -44,7 +44,6 @@ export abstract class RemoteCommand extends Command {
 
   async catch(error: unknown): Promise<void> {
     const formatted = formatRemoteError(error)
-
     if (this.output === "json") {
       process.stderr.write(`${JSON.stringify(formatted)}\n`)
     } else {

@@ -370,7 +370,6 @@ export const validateConnection = (
   }
 
   const allowsMultipleForExport = inputInstance?.type === SYSTEM_EXPORT_COMPONENT_TYPE
-
   if (!input.multiple && hasAnotherConnectionForInput(vueFlowStore, connection)) {
     if (allowsMultipleForExport) {
       return true

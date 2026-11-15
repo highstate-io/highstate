@@ -51,7 +51,6 @@ export class DockerTerminalBackend implements TerminalBackend {
     }
 
     const initDataStream = Readable.from(`${JSON.stringify(initData)}\n`)
-
     if (this.useSudo) {
       args.unshift(this.binary)
     }
