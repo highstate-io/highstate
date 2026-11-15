@@ -189,14 +189,16 @@ const tryKeyringUnlock = async () => {
 
       <VCardActions>
         <VSpacer />
+        <!-- biome-ignore format: Keep component text on its own line without splitting tag brackets. -->
         <VBtn
           v-if="unlockSuite?.keyringRecipients?.length"
           :loading="keyringLoading"
           :disabled="keyringLoading"
           prepend-icon="mdi-safe"
           @click="tryKeyringUnlock"
-          >System keyring</VBtn
         >
+          System keyring
+        </VBtn>
         <VBtn
           v-if="unlockState.type === 'locked' && unlockSuite?.hasPasskey"
           color="secondary"
