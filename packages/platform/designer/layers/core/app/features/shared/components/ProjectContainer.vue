@@ -195,7 +195,7 @@ const tryKeyringUnlock = async () => {
           :disabled="keyringLoading"
           prepend-icon="mdi-safe"
           @click="tryKeyringUnlock"
-          >System keyring</VBtn
+          >Keyring</VBtn
         >
         <VBtn
           v-if="unlockState.type === 'locked' && unlockSuite?.hasPasskey"
