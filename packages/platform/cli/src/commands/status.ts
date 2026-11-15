@@ -1,14 +1,16 @@
 import { Code, ConnectError } from "@connectrpc/connect"
 import { ErrorInfoSchema } from "@highstate/api/v1"
-import { Command, Option } from "clipanion"
+import { Command } from "clipanion"
 import { readCurrentPackageVersion } from "../shared"
 import {
   createHighstateClients,
   getContextToken,
   type HighstateClients,
+  humanDetails,
   normalizeApiUrl,
   readRemoteConfig,
 } from "../shared/remote"
+import { RemoteCommand } from "./remote"
 
 type CheckState = "ready" | "missing" | "unavailable" | "denied" | "locked" | "unverified"
 
@@ -22,16 +24,13 @@ export type Status = {
   next_actions: string[]
 }
 
-export class StatusCommand extends Command {
+export class StatusCommand extends RemoteCommand {
   static paths = [["status"]]
 
   static usage = Command.Usage({
+    category: "Backend API",
     description: "Reports CLI, backend authorization, and project access status.",
   })
-
-  contextName = Option.String("--context")
-  apiUrl = Option.String("--api-url")
-  projectId = Option.String("--project")
 
   async execute(): Promise<void> {
     const status = await collectStatus({
@@ -41,7 +40,7 @@ export class StatusCommand extends Command {
       moduleUrl: import.meta.url,
     })
 
-    process.stdout.write(formatStatus(status))
+    this.print(status, humanDetails(status))
   }
 }
 
@@ -73,14 +72,12 @@ export async function collectStatus(options: {
 
   if (contextName && !context) {
     status.backend.detail = `Context "${contextName}" does not exist.`
-    status.next_actions.push("Ask the user to select or configure a valid Highstate context.")
+    status.next_actions.push("Select or configure a valid Highstate context.")
     return status
   }
 
   if (!apiUrlValue) {
-    status.next_actions.push(
-      "Ask the user to configure a Highstate context or provide HIGHSTATE_API_URL.",
-    )
+    status.next_actions.push("Configure a Highstate context or provide HIGHSTATE_API_URL.")
 
     return status
   }
@@ -92,7 +89,7 @@ export async function collectStatus(options: {
     status.api_url = apiUrl
   } catch (error) {
     status.backend.detail = error instanceof Error ? error.message : "The backend URL is invalid."
-    status.next_actions.push("Ask the user to correct the Highstate backend URL.")
+    status.next_actions.push("Correct the Highstate backend URL.")
     return status
   }
 
@@ -104,13 +101,13 @@ export async function collectStatus(options: {
       (contextName ? await getContextToken(contextName, context) : undefined)
   } catch (error) {
     status.backend.detail = error instanceof Error ? error.message : "The API token is unavailable."
-    status.next_actions.push("Ask the user to make the configured Highstate API token available.")
+    status.next_actions.push("Make the configured Highstate API token available.")
     return status
   }
 
   if (!apiToken) {
     status.backend.detail = "No API token is available for the active Highstate backend."
-    status.next_actions.push("Ask the user to provide or configure a Highstate API token.")
+    status.next_actions.push("Provide or configure a Highstate API token.")
     return status
   }
 
@@ -135,14 +132,14 @@ export async function collectStatus(options: {
     status.backend = failure
 
     if (failure.state === "unavailable") {
-      status.next_actions.push("Ask the user to start or expose the configured Highstate backend.")
+      status.next_actions.push("Start or expose the configured Highstate backend.")
       return status
     }
   }
 
   if (!projectId) {
     status.next_actions.push(
-      "Ask the user which project to use, then pass --project <project-id> explicitly to highstate status and every project-scoped command. Do not run highstate project use because it mutates the user's configuration.",
+      "Select a project with highstate project use <project-id> or pass --project <project-id>.",
     )
 
     return status
@@ -154,7 +151,7 @@ export async function collectStatus(options: {
       detail: `Project "${projectId}" is locked; project authorization cannot be verified until it is unlocked.`,
     }
 
-    status.next_actions.push(`Ask the user to unlock project "${projectId}" in Highstate.`)
+    status.next_actions.push(`Unlock project "${projectId}" in Highstate.`)
     return status
   }
 
@@ -173,7 +170,7 @@ export async function collectStatus(options: {
         detail: `Project "${projectId}" is locked; project authorization cannot be verified until it is unlocked.`,
       }
 
-      status.next_actions.push(`Ask the user to unlock project "${projectId}" in Highstate.`)
+      status.next_actions.push(`Unlock project "${projectId}" in Highstate.`)
       return status
     }
 
@@ -182,12 +179,10 @@ export async function collectStatus(options: {
 
     if (failure.state === "denied") {
       status.next_actions.push(
-        `Ask the user to authorize the configured API key for project "${projectId}" with the permissions required by the task.`,
+        `Authorize the configured API key for project "${projectId}" with the required permissions.`,
       )
     } else if (failure.state === "missing") {
-      status.next_actions.push(
-        `Ask the user to verify that project "${projectId}" exists and is visible.`,
-      )
+      status.next_actions.push(`Verify that project "${projectId}" exists and is visible.`)
     }
   }
 
@@ -223,26 +218,4 @@ function remoteReason(error: unknown): string | undefined {
   }
 
   return error.findDetails(ErrorInfoSchema)[0]?.reason
-}
-
-export function formatStatus(status: Status): string {
-  const lines = [
-    "# Highstate Status",
-    "",
-    `- CLI version: ${status.cli_version}`,
-    `- Context: ${status.context ?? "not selected"}`,
-    `- Backend URL: ${status.api_url ?? "not configured"}`,
-    `- Backend access: ${status.backend.state} - ${status.backend.detail}`,
-    `- Project: ${status.project_id ?? "not selected"}`,
-    `- Project access: ${status.project.state} - ${status.project.detail}`,
-    "",
-    "## Next Actions",
-    "",
-    ...(status.next_actions.length > 0
-      ? status.next_actions.map(action => `- ${action}`)
-      : ["- Access is ready."]),
-    "",
-  ]
-
-  return `${lines.join("\n")}\n`
 }

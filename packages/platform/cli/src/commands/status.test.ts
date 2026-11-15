@@ -1,6 +1,7 @@
 import type { HighstateClients } from "../shared/remote"
+import { Cli } from "clipanion"
 import { describe, expect, it, vi } from "vitest"
-import { collectStatus, formatStatus } from "./status"
+import { collectStatus, StatusCommand } from "./status"
 
 const moduleUrl = import.meta.url
 
@@ -36,6 +37,36 @@ function env(values: Record<string, string> = {}): NodeJS.ProcessEnv {
 }
 
 describe("status", () => {
+  it.each([
+    "human",
+    "json",
+    "yaml",
+  ])("supports %s output through the standard printer", async output => {
+    vi.stubEnv("HIGHSTATE_CONFIG_PATH", env().HIGHSTATE_CONFIG_PATH)
+    vi.stubEnv("HIGHSTATE_API_URL", "")
+    vi.stubEnv("HIGHSTATE_CONTEXT", "")
+    const write = vi.spyOn(process.stdout, "write").mockReturnValue(true)
+
+    try {
+      const cli = new Cli()
+      cli.register(StatusCommand)
+      expect(await cli.run(["status", "--output", output])).toBe(0)
+      const text = write.mock.calls.map(([value]) => String(value)).join("")
+
+      if (output === "json") {
+        expect(JSON.parse(text).backend.state).toBe("missing")
+      } else {
+        expect(text.toLowerCase()).toContain("backend:")
+        expect(text.toLowerCase()).toContain("state: missing")
+      }
+
+      expect(text).toContain("Configure a Highstate context")
+    } finally {
+      vi.unstubAllEnvs()
+      write.mockRestore()
+    }
+  })
+
   it("reports missing backend configuration with an actionable instruction", async () => {
     const status = await collectStatus({ moduleUrl, env: env() })
 
@@ -43,17 +74,8 @@ describe("status", () => {
     expect(status.project.state).toBe("missing")
 
     expect(status.next_actions).toContain(
-      "Ask the user to configure a Highstate context or provide HIGHSTATE_API_URL.",
+      "Configure a Highstate context or provide HIGHSTATE_API_URL.",
     )
-  })
-
-  it("includes actionable guidance with diagnostics", async () => {
-    const status = await collectStatus({ moduleUrl, env: env() })
-    const output = formatStatus(status)
-
-    expect(output).toContain("# Highstate Status")
-    expect(output).toContain(status.next_actions[0])
-    expect(output).not.toContain("Agent References")
   })
 
   it("reports an unlocked and authorized selected project", async () => {
@@ -88,9 +110,7 @@ describe("status", () => {
     expect(status.project.state).toBe("locked")
     expect(mockClients.project.getProject).not.toHaveBeenCalled()
 
-    expect(status.next_actions).toContain(
-      'Ask the user to unlock project "project-1" in Highstate.',
-    )
+    expect(status.next_actions).toContain('Unlock project "project-1" in Highstate.')
   })
 
   it("asks for an explicit project after backend authorization succeeds", async () => {
