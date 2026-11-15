@@ -71,6 +71,48 @@ try {
   await outsider.login("outsider")
   const userId = designer.userIds.reader
 
+  await step(
+    "account header reserves tab space and opens the OIDC profile with its loaded avatar",
+    async () => {
+      const accountButton = admin!.page.getByRole("button", { name: "Account: E2E Administrator" })
+      await expect(accountButton).toBeVisible()
+      await expect(admin!.page.getByRole("link", { name: "Account", exact: true })).toHaveCount(0)
+      const avatar = accountButton.locator("img.v-img__img")
+      await expect(avatar).toBeVisible()
+      await expect(avatar).toHaveJSProperty("complete", true)
+
+      expect(
+        await avatar.evaluate(image => (image as HTMLImageElement).naturalWidth),
+      ).toBeGreaterThan(0)
+
+      await expect(avatar).toHaveAttribute(
+        "src",
+        "https://avatars.githubusercontent.com/u/29506045?v=4",
+      )
+
+      const actions = accountButton.locator(
+        "xpath=ancestor::div[contains(@class,'dv-right-actions-container')][last()]",
+      )
+
+      await expect(actions).toBeVisible()
+      const tabs = actions.locator("xpath=../*[contains(@class,'dv-scrollable')]")
+      const tabsBox = await tabs.boundingBox()
+      const accountBox = await accountButton.boundingBox()
+      expect(tabsBox).not.toBeNull()
+      expect(accountBox).not.toBeNull()
+      expect(tabsBox!.x + tabsBox!.width).toBeLessThanOrEqual(accountBox!.x)
+      await accountButton.click()
+      const dialog = admin!.page.getByRole("dialog")
+      await expect(dialog).toContainText("Your account")
+      await expect(dialog).toContainText("admin@example.test")
+      await expect(dialog).toContainText("OpenID Connect")
+      await expect(dialog.getByRole("button", { name: "Sign out" })).toBeVisible()
+      await capture(admin!, "account-profile-avatar")
+      await accountButton.click()
+      await expect(dialog).not.toBeVisible()
+    },
+  )
+
   const bind = async (roleId: string, granted: boolean, projectId?: string) => {
     const input = { roleId, subject: { type: "user", id: userId }, granted }
 
@@ -641,6 +683,11 @@ try {
       ).toBeVisible({ timeout: 30_000 })
 
       await expect(reader.page.locator(".dockview-container")).toHaveCount(0)
+      await expect(reader.page.locator(".access-rejection-banner")).toHaveCount(0)
+      await expect(reader.page.locator(".session-expired-panel .access-notice-panel")).toBeVisible()
+      await expect(
+        reader.page.getByRole("link", { name: "Sign in again", exact: true }),
+      ).toHaveClass(/v-btn/)
       await capture(reader, "session-revoked")
     },
   )

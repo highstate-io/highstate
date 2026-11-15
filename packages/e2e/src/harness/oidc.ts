@@ -153,7 +153,7 @@ export function startOidc() {
         const user = oidcUsers[entry.identity]
         const now = Math.floor(Date.now() / 1000)
         const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url")
-        const payload = `${encode({ alg: "RS256", kid: keyId })}.${encode({ iss: issuer, sub: user.subject, aud: clientId, iat: now, exp: now + 300, nonce: entry.nonce, name: user.name, email: user.email, email_verified: true })}`
+        const payload = `${encode({ alg: "RS256", kid: keyId })}.${encode({ iss: issuer, sub: user.subject, aud: clientId, iat: now, exp: now + 300, nonce: entry.nonce, name: user.name, email: user.email, email_verified: true, picture: "https://avatars.githubusercontent.com/u/29506045?v=4" })}`
         const idToken = `${payload}.${sign("RSA-SHA256", Buffer.from(payload), privateKey).toString("base64url")}`
         return Response.json({
           access_token: randomUUID(),

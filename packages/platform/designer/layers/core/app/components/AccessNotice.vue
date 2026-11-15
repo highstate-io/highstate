@@ -39,7 +39,15 @@ watch(
           <br v-if="index" />{{ line }}
         </template>
       </p>
-      <a v-if="!access.authenticated.value" href="/login">Sign in again</a>
+      <VBtn
+        v-if="!access.authenticated.value"
+        href="/login"
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-login"
+        class="mt-3"
+        >Sign in again</VBtn
+      >
     </div>
   </section>
 </template>
