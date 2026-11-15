@@ -15,6 +15,7 @@ const loading = ref(false)
 const keyringLoading = ref(false)
 const { $client } = useNuxtApp()
 const access = useAccess()
+
 const unlockAccess = computed(() => ({
   permission: "project.unlock" as const,
   target: { projectId },

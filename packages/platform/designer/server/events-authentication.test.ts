@@ -5,10 +5,12 @@ const { createHandler, services } = vi.hoisted(() => ({
   createHandler: vi.fn(),
   services: { logger: { info: vi.fn(), error: vi.fn() } },
 }))
+
 vi.mock("@highstate/backend", async importOriginal => ({
   ...(await importOriginal<typeof import("@highstate/backend")>()),
   getSharedServices: async () => services,
 }))
+
 vi.mock("trpc-bun-adapter", () => ({ createBunServeHandler: createHandler }))
 
 afterEach(() => {

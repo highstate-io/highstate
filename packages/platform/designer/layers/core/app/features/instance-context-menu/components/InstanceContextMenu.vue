@@ -54,6 +54,7 @@ const selectedInstances = computed(() => {
 })
 
 const isMultipleInstances = computed(() => selectedInstances.value.length > 1)
+
 const operationAccess = computed(() =>
   selectedInstances.value.map(instance => ({
     permission: "operation.create" as const,

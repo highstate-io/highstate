@@ -2,10 +2,12 @@
 import UsersPage from "#layers/core/app/features/settings/components/UsersPage.vue"
 
 const { params } = defineProps<{ params: { projectId: string } }>()
+
 definePageMeta({
   name: "settings.users",
   tab: {
     label: "Users",
+    group: "Security",
     icon: "mdi-account-group",
     order: 20,
     subpages: ["settings.user-details"],

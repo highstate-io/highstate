@@ -94,6 +94,7 @@ const editingSecrets = defineModel<boolean>("editingSecrets", { default: false }
 const editingArgs = ref(false)
 const isNestedInstance = computed(() => !!instance.parentId)
 const canOpenArgsEditor = computed(() => editable || isNestedInstance.value)
+
 const effectiveEditable = computed(
   () =>
     editable &&
@@ -104,6 +105,7 @@ const effectiveEditable = computed(
         target: { instanceId: instance.id },
       }).allowed),
 )
+
 const argsEditorReadOnly = computed(() => !effectiveEditable.value)
 const canEditSecrets = computed(() => editable || isNestedInstance.value)
 

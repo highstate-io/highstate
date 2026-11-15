@@ -13,11 +13,13 @@ const deleteDialogVisible = ref(false)
 const roleToDelete = ref<BackendRoleOutput | null>(null)
 const saving = ref(false)
 const deleting = ref(false)
+
 const { state: restrictionOptions, execute: loadOptions } = useAsyncState(
   () => roleStore.getRestrictionOptions(),
   undefined,
   { immediate: false },
 )
+
 watch(dialogVisible, visible => {
   if (visible) {
     void loadOptions()

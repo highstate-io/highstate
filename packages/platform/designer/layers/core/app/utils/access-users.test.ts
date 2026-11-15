@@ -6,6 +6,7 @@ const stopBackend = vi.fn()
 const stopProject = vi.fn()
 const backend = vi.fn().mockReturnValue({ unsubscribe: stopBackend })
 const project = vi.fn().mockReturnValue({ unsubscribe: stopProject })
+
 beforeEach(() => {
   vi.clearAllMocks()
   vi.stubGlobal("watch", watch)
@@ -18,6 +19,7 @@ beforeEach(() => {
     },
   }))
 })
+
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.useRealTimers()

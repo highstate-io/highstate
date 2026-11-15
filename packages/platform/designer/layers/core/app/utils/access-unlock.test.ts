@@ -5,6 +5,7 @@ import { useProjectUnlockState } from "./use-project-unlock-state"
 const unsubscribe = vi.fn()
 const subscribe = vi.fn().mockReturnValue({ unsubscribe })
 const mutate = vi.fn().mockResolvedValue(undefined)
+
 beforeEach(() => {
   vi.clearAllMocks()
   vi.stubGlobal("ref", ref)
@@ -23,6 +24,7 @@ beforeEach(() => {
     },
   }))
 })
+
 afterEach(() => vi.unstubAllGlobals())
 
 test("clears denied project state and reconnects automatically when access returns", async () => {

@@ -220,7 +220,12 @@ watch(selectedProjectId, async projectId => {
           @update:model-value="switchScope"
         >
           <VBtn value="backend">Backend</VBtn>
-          <VBtn value="project" :disabled="!projectsStore.projects.length">Project</VBtn>
+          <VBtn
+            v-access="{ permission: 'project.list', collection: true }"
+            value="project"
+            :disabled="!projectsStore.projects.length"
+            >Project</VBtn
+          >
         </VBtnToggle>
 
         <template v-if="scope === 'backend'">

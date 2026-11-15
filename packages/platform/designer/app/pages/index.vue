@@ -120,7 +120,11 @@ onUnmounted(() => {
               </VListItem>
             </div>
 
-            <VListItem v-access="{ permission: 'project.create' }" class="list-item" @click="dialogVisible = true">
+            <VListItem
+              v-access="{ permission: 'project.create' }"
+              class="list-item"
+              @click="dialogVisible = true"
+            >
               <VIcon class="mr-2">mdi-plus</VIcon>
               Create
             </VListItem>

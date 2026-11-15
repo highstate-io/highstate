@@ -3,6 +3,7 @@ import type {
   BackendRoleOutput,
   ServiceAccountBackendRoleBindingOutput,
 } from "@highstate/backend/shared"
+import TableItemAction from "./TableItemAction.vue"
 import TimeTableCell from "./TimeTableCell.vue"
 
 const { serviceAccountId, readonly } = defineProps<{
@@ -146,13 +147,12 @@ await load()
             <TimeTableCell :value="role.binding.createdAt" />
           </td>
           <td class="text-right">
-            <VBtn
+            <TableItemAction
               icon="mdi-delete-outline"
-              variant="text"
-              size="small"
-              :disabled="readonly"
+              :tooltip="`Remove ${role.meta.title}`"
+              :disabled="readonly || loading"
               @click="remove(role.id)"
-              v-access="{ permission: 'role-binding.delete' }"
+              :access="{ permission: 'role-binding.delete' }"
             />
           </td>
         </tr>

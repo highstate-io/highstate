@@ -42,6 +42,7 @@ export default defineEventHandler(async event => {
     const profile = await exchangeLoginCode(provider, url, transaction)
     const identity = mapLoginProfile(provider, profile)
     const previous = getCookie(event, getSessionCookieName())
+
     if (previous) {
       await services.database.backend.designerSession.updateMany({
         where: { tokenHash: hashToken(previous) },

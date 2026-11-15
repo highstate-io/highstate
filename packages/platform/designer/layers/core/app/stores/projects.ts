@@ -21,6 +21,7 @@ export const useProjectsStore = defineStore("projects", () => {
     if (!listAccess.value.allowed) {
       projects.value = []
       loading.value = false
+      projectsLoaded.value = !listAccess.value.pending
       return
     }
 

@@ -5,8 +5,10 @@ const {
   panel = false,
   fallback = false,
 } = defineProps<{ message: string; title?: string; fallback?: boolean; panel?: boolean }>()
+
 const access = useAccess()
 const explanation = computed(() => message.split(/\s+(?=Required permission:)/))
+
 const heading = computed(() =>
   panel &&
   (title === "Access unavailable" ||
@@ -15,6 +17,7 @@ const heading = computed(() =>
     ? "Access denied"
     : title,
 )
+
 watch(
   [() => message, () => access.rejection.value],
   () => {

@@ -106,6 +106,7 @@ export async function exchangeLoginCode(
 
   if (provider.identity.protocol === "oidc") {
     const claims = tokens.claims()
+
     if (
       !claims ||
       (claims.azp !== undefined && claims.azp !== provider.clientId) ||

@@ -53,6 +53,7 @@ export function routeAccess(
 ): AccessRequirement[] {
   const projectId = typeof params.projectId === "string" ? params.projectId : undefined
   const permission = settingsPermissions[name.replace(/^settings\./, "")]
+
   if (name.startsWith("settings.") && permission) {
     return [
       {

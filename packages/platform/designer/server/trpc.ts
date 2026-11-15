@@ -50,6 +50,7 @@ export const authenticatedProcedure = t.procedure.use(async ({ ctx, next }) => {
   const revalidate: (() => Promise<void>)[] = []
   const result = await next({ ctx: { ...ctx, identity, revalidate } })
   const rejection = !result.ok ? accessRejection(result.error.cause) : undefined
+
   if (rejection) {
     throw rejection
   }

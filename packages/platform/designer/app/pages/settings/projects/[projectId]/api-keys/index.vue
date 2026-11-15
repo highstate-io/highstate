@@ -29,6 +29,7 @@ if (projectStore.initializing) {
   await projectStore.initialize1()
   await projectStore.initialize2()
 }
+
 const { state: options, execute: loadOptions } = useAsyncState(
   () =>
     Promise.all([
@@ -38,8 +39,10 @@ const { state: options, execute: loadOptions } = useAsyncState(
   undefined,
   { immediate: false },
 )
+
 const restrictionOptions = computed(() => options.value?.[0])
 const serviceAccounts = computed(() => options.value?.[1] ?? [])
+
 watch(dialogVisible, visible => {
   if (visible) {
     void loadOptions()

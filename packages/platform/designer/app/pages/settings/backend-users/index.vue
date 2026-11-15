@@ -5,6 +5,7 @@ definePageMeta({
   name: "settings.backend-users",
   tab: {
     label: "Backend Users",
+    group: "Security",
     icon: "mdi-account-group",
     order: 6,
     subpages: ["settings.backend-user-details"],

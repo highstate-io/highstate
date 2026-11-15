@@ -42,6 +42,7 @@ async function projectTarget(
   if (target?.artifactHash) {
     const database = await services.database.forProject(projectId)
     const artifact = await database.artifact.findUnique({ where: { hash: target.artifactHash } })
+
     if (!artifact) {
       throw new Error("Artifact unavailable")
     }

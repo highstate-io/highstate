@@ -4,6 +4,7 @@ import { opaqueToken, sessionCookie } from "./utils/hosted-session"
 import { createPanelLaunchTicket, exchangePanelLaunchTicket } from "./utils/panel-session"
 
 const { getSharedServices } = vi.hoisted(() => ({ getSharedServices: vi.fn() }))
+
 vi.mock("@highstate/backend", async importOriginal => ({
   ...(await importOriginal<typeof import("@highstate/backend")>()),
   getSharedServices,
@@ -77,6 +78,7 @@ beforeEach(() => {
 
   vi.stubGlobal("sendRedirect", (_event: TestEvent, location: string) => location)
 })
+
 afterEach(() => {
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()

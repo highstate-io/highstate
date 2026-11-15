@@ -19,6 +19,7 @@ const token = ref("")
 const saving = ref(false)
 const deleting = ref(false)
 const rotating = ref(false)
+
 const { state: options, execute: loadOptions } = useAsyncState(
   () =>
     Promise.all([
@@ -28,8 +29,10 @@ const { state: options, execute: loadOptions } = useAsyncState(
   undefined,
   { immediate: false },
 )
+
 const restrictionOptions = computed(() => options.value?.[0])
 const serviceAccounts = computed(() => options.value?.[1] ?? [])
+
 watch(dialogVisible, visible => {
   if (visible) {
     void loadOptions()

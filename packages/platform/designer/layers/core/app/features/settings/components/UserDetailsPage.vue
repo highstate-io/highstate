@@ -6,6 +6,7 @@ import DetailPageLayout from "./DetailPageLayout.vue"
 import IdTableCell from "./IdTableCell.vue"
 import RelatedDataPanel from "./RelatedDataPanel.vue"
 import SettingsPageHeader from "./SettingsPageHeader.vue"
+import TableItemAction from "./TableItemAction.vue"
 import TimeTableCell from "./TimeTableCell.vue"
 
 const { projectId, userId } = defineProps<{ projectId?: string; userId: string }>()
@@ -20,16 +21,25 @@ const saving = ref<string>()
 const selectedRoleIds = ref<string[]>([])
 const boundRoles = computed(() => roles.value.filter(role => role.granted))
 const availableRoles = computed(() => roles.value.filter(role => !role.granted))
-const selectedRoles = computed(() =>
-  availableRoles.value.filter(role => selectedRoleIds.value.includes(role.id)),
-)
+
+const selectedRoles = computed(() => {
+  const byId = new Map(availableRoles.value.map(role => [role.id, role]))
+
+  return selectedRoleIds.value.flatMap(id => {
+    const role = byId.get(id)
+    return role ? [role] : []
+  })
+})
+
 const addRequirements = computed(() => selectedRoles.value.flatMap(editRequirements))
 const userAllowed = computed(() => access.status({ permission: "user.get", projectId }).allowed)
+
 const bindingRequirements: AccessRequirement[] = [
   { permission: "user.get", projectId },
   { permission: "role-binding.list", projectId },
   { permission: "role.list", projectId, collection: true },
 ]
+
 const bindingsAllowed = computed(() => access.status(bindingRequirements).allowed)
 let generation = 0
 async function load() {
@@ -87,6 +97,7 @@ async function load() {
     }
   }
 }
+
 watch(
   [userAllowed, bindingsAllowed, () => access.revision.value],
   () => {
@@ -94,6 +105,7 @@ watch(
   },
   { immediate: true },
 )
+
 useUsersRevision(
   projectId,
   userId,
@@ -103,12 +115,14 @@ useUsersRevision(
   },
   bindingsAllowed,
 )
+
 const editRequirements = (role: HumanRoleBindingOption): AccessRequirement[] => [
   { permission: "role.update", projectId, target: { resourceId: role.id } },
   ...(role.requiresEscalation
     ? [{ permission: "role.escalate" as const, projectId, target: { resourceId: role.id } }]
     : []),
 ]
+
 async function changeBinding(role: HumanRoleBindingOption, granted = false) {
   saving.value = role.id
   bindingFailure.value = undefined
@@ -147,6 +161,7 @@ async function addBindings() {
     selectedRoleIds.value = selectedRoleIds.value.filter(id => id !== role.id)
   }
 }
+
 const details = [
   { key: "id", label: "User ID" },
   { key: "email", label: "Email" },
@@ -247,14 +262,11 @@ const details = [
                   <tr v-for="role in boundRoles" :key="role.id">
                     <td>{{ role.meta.title }}</td>
                     <td class="text-right">
-                      <VBtn
-                        v-access="editRequirements(role)"
+                      <TableItemAction
+                        :access="editRequirements(role)"
                         icon="mdi-delete-outline"
-                        variant="text"
-                        size="small"
                         :disabled="!!saving"
-                        :loading="saving === role.id"
-                        :aria-label="`Remove ${role.meta.title}`"
+                        :tooltip="`Remove ${role.meta.title}`"
                         @click="changeBinding(role)"
                       />
                     </td>

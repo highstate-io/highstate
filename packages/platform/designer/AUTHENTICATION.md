@@ -115,7 +115,8 @@ Assigning a first project role copies the known user's display record into that 
 
 Directory and profile reads require `user.list` and `user.get`, respectively, in the selected realm.
 The binding view also requires `role-binding.list` and `role.list`; role visibility follows scoped role-list grants.
-Assign and Remove use the existing human-binding mutations and their role-update/escalation checks.
+Adding and removing bindings uses the existing human-binding mutations and their role-update/escalation checks.
+The Roles subcollection supports checkbox multi-selection and keeps failed assignments selected for retry.
 Disabled controls explain missing permissions on hover, and identity, binding, and permission changes update automatically.
 Group-derived access and deployment-configured administrator grants are not edited by the user binding controls.
 

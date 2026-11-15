@@ -55,6 +55,7 @@ export function mapLoginProfile(provider: LoginProviderConfig, profile: unknown)
   }
 
   const groups = mapping.groups ? readLoginField(profile, mapping.groups) : []
+
   if (
     groups !== undefined &&
     (!Array.isArray(groups) || groups.some(group => typeof group !== "string" || !group))

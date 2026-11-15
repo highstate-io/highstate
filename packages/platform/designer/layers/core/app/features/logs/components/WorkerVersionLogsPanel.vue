@@ -13,6 +13,7 @@ const { $client } = useNuxtApp()
 
 let terminal: Terminal | null = null
 const failure = ref<string>()
+
 const fail = (error: unknown) => {
   terminal?.reset()
   failure.value = accessError(error)?.message ?? "Logs could not be loaded."

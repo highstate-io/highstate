@@ -53,6 +53,7 @@ export function useCollectionQuery<T>(
   async function load(force = true): Promise<void> {
     const current = ++generation
     const pageIndex = page.value - 1
+
     if (!force && pages.value[pageIndex]) {
       updateData()
       return

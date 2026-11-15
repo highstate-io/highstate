@@ -10,11 +10,13 @@ const props = defineProps<{
 
 const { $client } = useNuxtApp()
 const access = useAccess()
+
 const requirement = computed(() => ({
   permission: "secret.value.get" as const,
   projectId: props.projectId,
   target: { resourceId: props.secretId, ownerServiceAccountId: props.ownerServiceAccountId },
 }))
+
 const failure = ref<string>()
 
 // state for managing revealed secrets
@@ -22,6 +24,7 @@ const isRevealed = ref(false)
 const isLoading = ref(false)
 const secretValue = ref<unknown>(null)
 const showJsonDialog = ref(false)
+
 watch(
   () => access.status(requirement.value).allowed,
   allowed => {

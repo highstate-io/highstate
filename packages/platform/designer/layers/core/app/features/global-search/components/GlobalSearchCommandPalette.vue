@@ -24,6 +24,7 @@ const { $client } = useNuxtApp()
 const access = useAccess()
 const searchAccess = computed(() => access.status({ permission: "backend.search" }))
 const failure = ref<string>()
+
 watch(
   () => searchAccess.value.allowed,
   allowed => {

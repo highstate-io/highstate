@@ -90,7 +90,6 @@ export default defineWebSocketHandler({
     }
 
     const [cols, rows] = screenSizeText.split("x").map(Number)
-
     if (Number.isNaN(cols) || Number.isNaN(rows)) {
       throw new Error("Invalid screenSize")
     }

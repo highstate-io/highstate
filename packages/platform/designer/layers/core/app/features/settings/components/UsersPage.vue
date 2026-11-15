@@ -11,12 +11,15 @@ const access = useAccess()
 const router = useRouter()
 const requirement = { permission: "user.list" as const, projectId }
 const allowed = computed(() => access.status(requirement).allowed)
+
 const items = useCollectionQuery<UserOutput>(query =>
   projectId
     ? $client.projectUserSettings.query.query({ projectId, query })
     : $client.backendUserSettings.query.query(query),
 )
+
 const { search, sortBy, page, itemsPerPage, data, isLoading } = items
+
 const headers = [
   { ...baseHeaders.name, title: "User" },
   { title: "Email", key: "email" },
@@ -25,6 +28,7 @@ const headers = [
   baseHeaders.createdAt,
   baseHeaders.actions,
 ]
+
 watch(
   allowed,
   value => {
@@ -34,10 +38,12 @@ watch(
   },
   { immediate: true },
 )
+
 useUsersRevision(projectId, undefined, allowed, () => {
   items.reset()
   void items.load()
 })
+
 const openUser = async (userId: string) => {
   await router.push({
     name: projectId ? "settings.user-details" : "settings.backend-user-details",

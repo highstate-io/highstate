@@ -89,6 +89,7 @@ export function createAccessController(
     scheduled = false
     const current = generation
     const pending = [...requests.values()].filter(request => statuses.get(request.key)?.pending)
+
     if (!pending.length) {
       return
     }
@@ -133,6 +134,7 @@ export function createAccessController(
   async function recheck(): Promise<void> {
     const current = generation
     const pending = [...requests.values()]
+
     if (!pending.length || !authenticated.value) {
       return
     }
@@ -243,6 +245,7 @@ export function createAccessController(
 
     for (const request of requests.values()) {
       const target = request.target?.resourceId ?? request.target?.instanceId
+
       if (
         request.projectId === projectId &&
         request.permission === permission &&

@@ -11,15 +11,17 @@ A user becomes known to Highstate after signing in or using local Designer.
 Being known does not grant access to projects or backend resources.
 Access comes from role bindings in the appropriate realm.
 
-**Data & Settings → Backend Users** lists known human identities and their authentication source.
-After selecting a project, **Users** shows the same directory, including people who have not opened that project yet.
+In **Data & Settings**, choose **Backend** and open **Backend Users** to see known human identities and their authentication source.
+Switch to **Project**, select a project, and open **Users** to see the same directory, including people who have not opened that project yet.
 This lets you assign someone's first project role without asking them to enter the project first.
 The directory requires permission to list users in the selected realm.
 
 ## Managing a user's access
 
 Select a user to view their identity details and direct role bindings.
-Choose **Assign** beside a role to grant it, or **Remove** to revoke its direct binding.
+Expand **Roles**, select one or more roles using the checkboxes, and choose **Add**.
+Use a binding's row action to remove it.
+If an assignment fails, bindings already added are kept. Fix the error and choose **Add** again to retry the remaining selection.
 Backend bindings affect backend access; project bindings affect only the selected project.
 Project access management requires an unlocked project.
 

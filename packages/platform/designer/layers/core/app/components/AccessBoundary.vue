@@ -11,9 +11,11 @@ const {
   title?: string
   panel?: boolean
 }>()
+
 const access = useAccess()
 const status = computed(() => access.status(requirements))
 const failure = ref<string>()
+
 onErrorCaptured(error => {
   const denial = accessError(error)
   if (!denial) {
@@ -23,6 +25,7 @@ onErrorCaptured(error => {
   failure.value = denial.message
   return false
 })
+
 watch(
   () => access.revision.value,
   () => {

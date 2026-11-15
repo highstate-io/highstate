@@ -17,6 +17,7 @@ const projectPanelStore = useProjectPanelStore()
 const { projectStore, instancesStore, libraryStore } = useProjectStores()
 const logger = globalLogger.child({ feature: "project-canvas-focus" })
 const access = useAccess()
+
 const editAccess = computed(() =>
   access.status({ permission: "instance-model.update", projectId: projectStore.projectId }),
 )

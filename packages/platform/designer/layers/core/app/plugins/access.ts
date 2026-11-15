@@ -46,6 +46,7 @@ export default defineNuxtPlugin({
           }
 
           const bounds = element.getBoundingClientRect()
+
           if (
             event.clientX >= bounds.left &&
             event.clientX <= bounds.right &&
