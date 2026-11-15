@@ -34,7 +34,6 @@ export function formatAgentInstructions(): string {
   return [
     "# Highstate Agent Instructions",
     "",
-    "These instructions are static and do not check backend or project access.",
     "Use `highstate status` when access is unknown or there is reason to believe it has changed, such as a context or project switch, a credential change, or an access failure.",
     "Reuse known status; do not refresh it before every command or task without a reason.",
     "When no project is selected, ask the user which project to use. Pass `--project <project-id>` to `highstate status` and every project-scoped command rather than changing the user's configuration with `highstate project use`.",
