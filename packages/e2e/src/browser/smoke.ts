@@ -1,5 +1,6 @@
 import type { Request } from "@playwright/test"
 import { mkdir, writeFile } from "node:fs/promises"
+import { userInfo } from "node:os"
 import { join } from "node:path"
 import { expect as baseExpect } from "@playwright/test"
 import { root, startDesigner } from "../harness/designer"
@@ -86,6 +87,32 @@ try {
         await expect(settings().getByRole("heading", { name, exact: true })).toBeVisible()
         await expect(settings().getByRole("button", { name: "Create", exact: true })).toBeEnabled()
       }
+    },
+  )
+
+  await step(
+    "local account uses the OS username and UID without repeating its display name",
+    async () => {
+      const user = userInfo()
+      const account = page.getByRole("button", { name: `Account: ${user.username}`, exact: true })
+      await account.click()
+
+      await expect(
+        dialog().getByRole("heading", { name: user.username, exact: true }),
+      ).toBeVisible()
+
+      await expect(dialog().locator(".account-identity .text-body-2")).toHaveCount(0)
+
+      await expect(dialog().locator(".v-list-item").filter({ hasText: "User ID" })).toContainText(
+        String(user.uid),
+      )
+
+      await expect(dialog()).toContainText("Local")
+      await expect(dialog()).not.toContainText("Local development")
+      await expect(dialog().getByRole("button", { name: "Sign out" })).toHaveCount(0)
+      await page.screenshot({ path: join(evidence, "local-account.png") })
+      await account.click()
+      await expect(dialog()).not.toBeVisible()
     },
   )
 

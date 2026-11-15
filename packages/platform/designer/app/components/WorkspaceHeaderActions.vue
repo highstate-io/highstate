@@ -106,9 +106,17 @@ watch(
               />
               <VIcon v-else>mdi-account</VIcon>
             </VAvatar>
-            <div class="account-identity">
+            <div
+              class="account-identity"
+              :class="{ 'account-identity-single': account.username === account.title }"
+            >
               <h2 class="text-h6">{{ account.title }}</h2>
-              <div class="text-body-2 text-medium-emphasis">{{ account.username }}</div>
+              <div
+                v-if="account.username !== account.title"
+                class="text-body-2 text-medium-emphasis"
+              >
+                {{ account.username }}
+              </div>
             </div>
           </div>
           <VDivider class="mb-4" />
@@ -117,9 +125,15 @@ watch(
             <VListItem
               class="px-0"
               title="Authentication"
-              :subtitle="account.type === 'local' ? 'Local development' : 'OpenID Connect'"
+              :subtitle="account.type === 'local' ? 'Local' : account.type === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'"
             />
             <VListItem class="px-0" v-if="account.id" title="User ID" :subtitle="account.id" />
+            <VListItem
+              class="px-0"
+              v-if="account.type === 'local'"
+              title="User ID"
+              :subtitle="String(account.uid)"
+            />
           </VList>
         </VCardText>
         <VCardActions v-if="account.type !== 'local'">
@@ -154,5 +168,10 @@ watch(
 .account-identity {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.account-identity-single {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
 }
 </style>

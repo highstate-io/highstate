@@ -1,16 +1,19 @@
+import { userInfo } from "node:os"
 import { isHostedAuth } from "../utils/auth-config"
 
 export default defineEventHandler(event => {
   setHeader(event, "Cache-Control", "no-store")
 
   if (!isHostedAuth()) {
+    const user = userInfo()
     return {
-      username: "Local user",
-      title: "Local user",
+      username: user.username,
+      title: user.username,
       avatarUrl: null,
       email: null,
       id: null,
       type: "local",
+      uid: user.uid,
     }
   }
 
@@ -26,5 +29,6 @@ export default defineEventHandler(event => {
     email: identity.meta.email ?? null,
     id: identity.id,
     type: identity.type,
+    uid: null,
   }
 })
