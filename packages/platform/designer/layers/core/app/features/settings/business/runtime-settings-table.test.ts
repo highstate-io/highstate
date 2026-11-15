@@ -51,14 +51,20 @@ describe("runtime settings table", () => {
     })
   })
 
-  it("sorts revisions numerically before paging and retains the source collection order", () => {
-    const result = queryRuntimeSettings(items, "", [{ key: "revision", order: "desc" }], 1, 2)
-    expect(result.items.map(item => item.id)).toEqual([remoteId, backupId])
+  it("sorts names before paging and retains the source collection order", () => {
+    const result = queryRuntimeSettings(items, "", [{ key: "meta.title", order: "desc" }], 1, 2)
+    expect(result.items.map(item => item.id)).toEqual([remoteId, localId])
     expect(result).toMatchObject({ total: 3, hasNextPage: true })
-    const last = queryRuntimeSettings(items, "", [{ key: "revision", order: "desc" }], 2, 2)
-    expect(last.items.map(item => item.id)).toEqual([localId])
+    const last = queryRuntimeSettings(items, "", [{ key: "meta.title", order: "desc" }], 2, 2)
+    expect(last.items.map(item => item.id)).toEqual([backupId])
     expect(last.hasNextPage).toBe(false)
     expect(items.map(item => item.id)).toEqual([remoteId, localId, backupId])
+  })
+
+  it("never sorts by opaque concurrency tokens", () => {
+    expect(
+      queryRuntimeSettings(items, "", [{ key: "revision", order: "desc" }], 1, 20).items,
+    ).toEqual(items)
   })
 
   it("sorts names and identifiers in the requested direction", () => {

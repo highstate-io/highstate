@@ -67,10 +67,12 @@ describe("Designer runtime settings transport", () => {
     const iterator = stream[Symbol.asyncIterator]()
     const first = await iterator.next()
     assert(first.value)
+
     expect(first.value.stateBackends[0]).toMatchObject({
       id: settingsId,
       revision: currentRevision,
     })
+
     expect(first.value.stateBackends[0].spec).not.toHaveProperty("encryptedCredentials")
     record.revision = nextRevision
     events.emit("change", {})
@@ -89,17 +91,21 @@ describe("Designer runtime settings transport", () => {
 
   it("forwards expected revisions and secret preservation/clearing, and redacts outputs", async () => {
     const { caller, put, context } = fixture()
+
     const value = {
       meta: { title: "State" },
       revision: previousRevision,
       spec: { url: "s3://state" },
     }
+
     const result = await caller.put({ kind: "pulumi-state-backend", id: settingsId, value })
     expect(put).toHaveBeenCalledWith(context, "pulumi-state-backend", settingsId, value)
+
     expect(result).toMatchObject({
       revision: currentRevision,
       spec: { credentialsConfigured: true },
     })
+
     expect("spec" in result && result.spec).not.toHaveProperty("encryptedCredentials")
 
     await caller.put({

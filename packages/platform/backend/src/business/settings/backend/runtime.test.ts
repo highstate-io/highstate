@@ -336,6 +336,7 @@ describe("RuntimeSettingsService", () => {
     ).rejects.toBeInstanceOf(RuntimeSettingsConflictError)
 
     await service.delete(context, "npm-registry-credential", npmId, updatedNpm.revision)
+
     await service.delete(
       context,
       "container-registry-credential",
@@ -363,6 +364,7 @@ describe("RuntimeSettingsService", () => {
     await expect(
       service.delete(denied, "container-runtime", id, created.revision),
     ).rejects.toThrow()
+
     await expect(service.preflight(denied, id)).rejects.toThrow()
     await expect(service.list(denied, "container-runtime")).rejects.toThrow()
 

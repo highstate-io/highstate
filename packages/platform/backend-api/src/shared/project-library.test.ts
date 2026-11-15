@@ -15,7 +15,6 @@ describe("project library conversion", () => {
       progress: { message: "Installing frozen graph", progress: 0 },
       imageRef: null,
       imageDigest: null,
-      imageHash: null,
       error: "Registry unavailable",
       updatedAt: new Date(0),
       completedAt: null,

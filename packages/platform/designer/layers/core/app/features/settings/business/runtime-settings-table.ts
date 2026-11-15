@@ -27,12 +27,13 @@ export function queryRuntimeSettings(
 
   const sorted = filtered.sort((left, right) => {
     for (const sort of sortBy ?? []) {
-      const comparison =
-        sort.key === "revision"
-          ? left.revision - right.revision
-          : (sort.key === "id" ? left.id : (left.meta.title ?? "")).localeCompare(
-              sort.key === "id" ? right.id : (right.meta.title ?? ""),
-            )
+      if (sort.key !== "id" && sort.key !== "meta.title") {
+        continue
+      }
+
+      const comparison = (sort.key === "id" ? left.id : (left.meta.title ?? "")).localeCompare(
+        sort.key === "id" ? right.id : (right.meta.title ?? ""),
+      )
 
       if (comparison) {
         return sort.order === "desc" ? -comparison : comparison

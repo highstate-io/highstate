@@ -34,12 +34,7 @@ const page = ref(1)
 const itemsPerPage = ref(20)
 const sortBy = ref<CollectionQuery["sortBy"]>([{ key: "meta.title", order: "asc" }])
 
-const headers = [
-  baseHeaders.name,
-  baseHeaders.id,
-  { title: "Revision", key: "revision" },
-  baseHeaders.actions,
-]
+const headers = [baseHeaders.name, baseHeaders.id, baseHeaders.actions]
 
 const items = computed(
   () =>

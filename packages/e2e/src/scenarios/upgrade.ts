@@ -46,6 +46,7 @@ export async function upgrade(environment: Environment): Promise<void> {
   )
 
   await preparePulumiCli(directory)
+
   await command(["bun", join(directory, "populate.ts")], {
     cwd: directory,
     env: {
