@@ -2,6 +2,12 @@ import { describe, expect, test, vi } from "vitest"
 import { accessError, createAccessController } from "./access-control"
 
 describe("permission-aware interaction state", () => {
+  test("recognizes middleware rejections carried in tRPC HTTP response metadata", () => {
+    expect(accessError({ meta: { response: { status: 401 } } })?.unauthorized).toBe(true)
+    expect(accessError({ meta: { response: { status: 403 } } })?.unauthorized).toBe(false)
+    expect(accessError({ meta: { response: { status: 500 } } })).toBeUndefined()
+  })
+
   test("suppresses fallback notices when the rejection is explained locally", () => {
     const access = createAccessController(async () => [])
 

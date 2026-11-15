@@ -37,18 +37,21 @@ export function accessError(
   const candidate = error as {
     data?: { code?: string; httpStatus?: number }
     statusCode?: number
+    meta?: { response?: { status?: number } }
     message?: string
   }
 
   const unauthorized =
     candidate.data?.code === "UNAUTHORIZED" ||
     candidate.data?.httpStatus === 401 ||
-    candidate.statusCode === 401
+    candidate.statusCode === 401 ||
+    candidate.meta?.response?.status === 401
 
   const forbidden =
     candidate.data?.code === "FORBIDDEN" ||
     candidate.data?.httpStatus === 403 ||
-    candidate.statusCode === 403
+    candidate.statusCode === 403 ||
+    candidate.meta?.response?.status === 403
 
   if (!unauthorized && !forbidden) {
     return undefined
